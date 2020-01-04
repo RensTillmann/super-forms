@@ -251,7 +251,27 @@ if(!class_exists('SUPER_Stripe')) :
         // }
 
 
-
+        public static function getTransactionId($d){
+            // @important: determine the Transaction ID based on the 'object'
+            $txn_id = $d['id'];
+            if( $d['object']=='payment_intent' ) {
+                $txn_id = $d['id']; // e.g: pi_1FwyfIFKn7uROhgCKO8iiuFF
+            }
+            if( $d['object']=='charge' ) {
+                if( !empty($d['payment_intent']) ) {
+                    $txn_id = $d['payment_intent']; // e.g: pi_1FwyfIFKn7uROhgCKO8iiuFF
+                }
+            }
+            if( $d['object']=='dispute' ) {
+                if( !empty($d['charge']) ) {
+                    $txn_id = $d['charge']; // e.g: ch_1FxHBzFKn7uROhgCFnIWl62A
+                }
+                if( !empty($d['payment_intent']) ) {
+                    $txn_id = $d['payment_intent']; // e.g: pi_1FwyfIFKn7uROhgCKO8iiuFF
+                }
+            }
+            return $txn_id;
+        }
         /**
          * Add the Stripe transaction link to the entry info/data page
          *
@@ -261,10 +281,10 @@ if(!class_exists('SUPER_Stripe')) :
             $post_id = get_post_meta( $entry_id, '_super_stripe_txn_id', true );
             if(!empty($post_id)){
                 $data = get_post_meta( $post_id, '_super_txn_data', true );
-                $txn_id = substr($data['id'], 0, 15);
+                $txn_id = self::getTransactionId($data);
                 ?>
                 <div class="misc-pub-section">
-                    <span><?php echo esc_html__('Stripe Transaction', 'super-forms' ).':'; ?> <strong><?php echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $data['id'] . '">' . $txn_id . ' ...</a>'; ?></strong></span>
+                    <span><?php echo esc_html__('Stripe Transaction', 'super-forms' ).':'; ?> <strong><?php echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $txn_id . '">' . substr($txn_id, 0, 15) . ' ...</a>'; ?></strong></span>
                 </div>
                 <?php
             }
@@ -499,18 +519,18 @@ if(!class_exists('SUPER_Stripe')) :
             // Set meta data
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
-            $metadata = array();
-            $metadata['_super_form_id'] = $form_id;
-            $metadata['_super_author_id'] = absint(get_current_user_id());
+            $md = array();
+            $md['form_id'] = $form_id;
+            $md['user_id'] = absint(get_current_user_id());
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
-                $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
+                $md['frontend_post_id'] = absint($post_id);
             }
             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             if( !empty($user_id) ) {
-                $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+                $md['frontend_user_id'] = absint($user_id);
             }
             // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
@@ -521,13 +541,13 @@ if(!class_exists('SUPER_Stripe')) :
                         $contact_entry_id = absint($response['response_data']['contact_entry_id']);
                     }
                 }
-                $metadata['_super_contact_entry_id'] = $contact_entry_id;
+                $md['contact_entry_id'] = $contact_entry_id;
             }
             // Allow devs to filter metadata if needed
-            $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+            $md = apply_filters( 'super_stripe_prepare_payment_metadata', $md, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
             
             // Create Payment Intent
-            $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $metadata);
+            $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $md);
 
             // Return client secret and return URL (only required for iDeal payments)
             if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
@@ -665,19 +685,19 @@ if(!class_exists('SUPER_Stripe')) :
             //     // Set meta data
             //     // A set of key-value pairs that you can attach to a source object. 
             //     // It can be useful for storing additional information about the source in a structured format.
-            //     $metadata = array();
-            //     $metadata['_super_form_id'] = $form_id;
-            //     $metadata['_super_author_id'] = absint(get_current_user_id());
+            //     $md = array();
+            //     $md['form_id'] = $form_id;
+            //     $md['user_id'] = absint(get_current_user_id());
 
             //     // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             //     $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             //     if( !empty($post_id) ) {
-            //         $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
+            //         $md['frontend_post_id'] = absint($post_id);
             //     }
             //     // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
             //     $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             //     if( !empty($user_id) ) {
-            //         $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+            //         $md['frontend_user_id'] = absint($user_id);
             //     }
             //     // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             //     if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
@@ -688,11 +708,11 @@ if(!class_exists('SUPER_Stripe')) :
             //                 $contact_entry_id = absint($response['response_data']['contact_entry_id']);
             //             }
             //         }
-            //         $metadata['_super_contact_entry_id'] = $contact_entry_id;
+            //         $md['contact_entry_id'] = $contact_entry_id;
             //     }
 
             //     // Allow devs to filter metadata if needed
-            //     $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+            //     $md = apply_filters( 'super_stripe_prepare_payment_metadata', $md, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
 
             //     // Set your secret key: remember to change this to your live secret key in production
             //     // See your keys here: https://dashboard.stripe.com/account/apikeys
@@ -719,7 +739,7 @@ if(!class_exists('SUPER_Stripe')) :
             //                 'phone' => '0634441193',
             //                 'tracking_number' => 'XXX-XXX-XXXXXX'
             //             ),
-            //             'metadata' => $metadata
+            //             'metadata' => $md
             //         ]);
             //     } catch(\Stripe\Error\Card $e) {
             //         // Since it's a decline, \Stripe\Error\Card will be caught
@@ -771,7 +791,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         // Create PaymentIntent
-        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $metadata){
+        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $md){
             // // SEPA Direct Debit Subscription
             // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-subscription'){
             // }
@@ -814,7 +834,9 @@ if(!class_exists('SUPER_Stripe')) :
                         'phone' => '0634441193',
                         'tracking_number' => 'XXX-XXX-XXXXXX'
                     ),
-                    'metadata' => $metadata
+                    'metadata' => array(
+                        '_super_data' => json_encode($md) // must be a string under 500 characters
+                    )
                 );
                 if( $paymentMethod=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
@@ -927,6 +949,7 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public function after_screen( $current_screen ) {
             if( $current_screen->id=='edit-super_stripe_txn' ) {
+                update_option( 'super_stripe_txn_count', 0 );
                 add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 2 );
             } 
             if( $current_screen->id=='super-forms_page_super_create_form' ) {
@@ -935,8 +958,9 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public function edit_post_link( $link, $post_id ) {
             if( get_post_type()==='super_stripe_txn' ) {
-                $data = get_post_meta( get_the_ID(), '_super_txn_data', true );
-                return 'https://dashboard.stripe.com/payments/' . $data['id'];
+                $d = get_post_meta( get_the_ID(), '_super_txn_data', true );
+                $txn_id = self::getTransactionId($d);
+                return 'https://dashboard.stripe.com/payments/' . $txn_id;
             }
             return $link;
         }
@@ -1134,14 +1158,13 @@ if(!class_exists('SUPER_Stripe')) :
                 if($k=='cb') continue; // Do not remove the checkbox
                 unset($columns[$k]);
             }
-            $columns['stripe_txn_id'] = 'Transaction';
-            $columns['stripe_receipt'] = 'Receipt';
-            $columns['stripe_amount'] = 'Amount';
-            $columns['stripe_description'] = 'Description';
-            $columns['stripe_contact_entry'] = 'Contact Entry';
-            $columns['stripe_form_id'] = 'Based on Form';
-            $columns['author'] = 'Author';
-            $columns['date'] = 'Date';
+            $columns['stripe_txn_id'] = esc_html__( 'Transaction', 'super-forms' );
+            $columns['stripe_receipt'] = esc_html__( 'Receipt', 'super-forms' );
+            $columns['stripe_amount'] = esc_html__( 'Amount', 'super-forms' );
+            $columns['stripe_status'] = esc_html__( 'Payment Status', 'super-forms' );
+            $columns['stripe_description'] = esc_html__( 'Description', 'super-forms' );
+            $columns['stripe_connections'] = esc_html__( 'Connections', 'super-forms' );
+            $columns['date'] = esc_html__( 'Date', 'super-forms' );
             return $columns;
 
             // Transaction ID / Subscritpion ID
@@ -1155,82 +1178,141 @@ if(!class_exists('SUPER_Stripe')) :
 
         public static function super_custom_columns($column, $post_id) {
             $d = get_post_meta( $post_id, '_super_txn_data', true );
+            $txn_id = self::getTransactionId($d);
             $currency_code = strtoupper($d['currency']);
             $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
             switch ($column) {
                 case 'stripe_txn_id':
-                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $d['id'] . '">' . $d['id'] . '</a>';
+                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $txn_id . '">' . $txn_id . '</a>';
                     break;
                 case 'stripe_receipt':
-                    echo (isset($d['charges']['data'][0]['receipt_url']) ? '<a target="_blank" href="'.esc_url_raw($d['charges']['data'][0]['receipt_url']).'">View Receipt</a>' : '');
+                    $receiptUrl = ( (!empty($d['charges']) && (!empty($d['charges']['data'])) ) ? $d['charges']['data'][0]['receipt_url'] : '');
+                    if( !empty($d['receipt_url']) ) {
+                        $receiptUrl = $d['receipt_url'];
+                    }
+                    if( !empty($receiptUrl) ) {
+                        echo '<a target="_blank" href="' . esc_url_raw($receiptUrl) . '">';
+                        echo esc_html__( 'View Receipt', 'super-forms' );
+                        echo '</a>';
+                    }
                     break;
                 case 'stripe_amount':
                     echo $symbol . number_format_i18n($d['amount']/100, 2) . ' ' . $currency_code;
-                    if( !empty($d['last_payment_error']) || ($d['status']=='canceled') ) {
-                        if( $d['status']=='canceled' ) {
-                            echo '<span title="' . esc_attr__( 'Cancellation reason', 'super-forms' ) . ': ' . esc_attr($d['cancellation_reason']) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
-                            echo esc_html__( 'Canceled', 'super-forms' );
+                    break;
+                case 'stripe_status':
+                    $label = '';
+                    $labelColor = '#4f566b;';
+                    $title = '';
+                    $class = '';
+                    $pathFill = '#697386';
+                    $path = 'M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z';
+                    $bgColor = '#e3e8ee';
+
+                    if( $d['status']=='warning_needs_response' ) {
+                        $label = esc_html__( 'Needs response', 'super-forms' );
+                        $labelColor = '#983705;';
+                        $class = ' super-stripe-needs-response';
+                        $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm0-2.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM8 2a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0V3a1 1 0 0 0-1-1z';
+                        $pathFill = '#bb5504';
+                        $bgColor = '#f8e5b9';
+                    }
+                    if( $d['status']=='canceled' ) {
+                        $label = esc_html__( 'Canceled', 'super-forms' );
+                        $title = ' title="' . esc_attr__( 'Cancellation reason', 'super-forms' ) . ': ' . esc_attr($d['cancellation_reason']) . '"';
+                        $class = ' super-stripe-canceled';
+                    }
+                    if( $d['status']=='failed' ) {
+                        $label = esc_html__( 'Failed', 'super-forms' );
+                        if(isset($d['outcome']['seller_message'])){
+                            $title = ' title="' . esc_attr($d['outcome']['seller_message']) . '"';
                         }else{
-                            echo '<span title="' . esc_attr($d['charges']['data'][0]['outcome']['seller_message']) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
-                            echo esc_html__( 'Failed', 'super-forms' );
+                            if( (isset($d['charges'])) && (isset($d['charges']['data'])) ) {
+                                $title = ' title="' . esc_attr($d['charges']['data'][0]['outcome']['seller_message']) . '"';
+                            }
                         }
-                            echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
-                                echo '<path style="fill:#697386;" d="M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z" fill-rule="evenodd"></path>';
-                            echo '</svg>';
-                        echo '</span>';
-                    }else{
-                        if( $d['status']=='requires_payment_method' ) {
-                            echo '<span title="' . esc_attr__( 'The customer has not entered their payment method.', 'super-forms' ) . '" class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#e3e8ee;border-radius:20px;margin-left:10px;font-weight:500;">';
-                                echo esc_html__( 'Incomplete', 'super-forms' );
-                                echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
-                                    echo '<path style="fill:#697386;" d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm1-8.577V4a1 1 0 1 0-2 0v4a1 1 0 0 0 .517.876l2.581 1.49a1 1 0 0 0 1-1.732z" fill-rule="evenodd"></path>';
-                                echo '</svg>';
-                            echo '</span>';
-                        }
-                        if( $d['status']=='succeeded' ) {
-                            echo '<span' . ( !empty($d['amount_refunded']) ? ' title="' . ($symbol . number_format_i18n($d['amount_refunded']/100, 2) . ' ' . $currency_code) . ' ' . esc_attr__('was refunded', 'super-forms') . '"' : '' ) . ' class="super-stripe-status super-stripe-succeeded" style="font-size:12px;padding:2px 8px 2px 8px;background-color:#d6ecff;border-radius:20px;margin-left:10px;font-weight:500;">';
-                                if( !empty($d['amount_refunded']) ) {
-                                    echo esc_html__( 'Partial refund', 'super-forms' );
-                                }else{
-                                    echo esc_html__( 'Succeeded', 'super-forms' );
-                                }
-                                echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
-                                    if( !empty($d['amount_refunded']) ) {
-                                        echo '<path style="fill:#5469d4;" d="M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill-rule="evenodd"></path>';
-                                    }else{
-                                        echo '<path style="fill:#5469d4;" d="M5.297 13.213L.293 8.255c-.39-.394-.39-1.033 0-1.426s1.024-.394 1.414 0l4.294 4.224 8.288-8.258c.39-.393 1.024-.393 1.414 0s.39 1.033 0 1.426L6.7 13.208a.994.994 0 0 1-1.402.005z" fill-rule="evenodd"></path>';
-                                    }
-                                echo '</svg>';
-                            echo '</span>';
+                        $class = ' super-stripe-failed';
+                    }
+                    if( $d['status']=='requires_payment_method' ) {
+                        $label = esc_html__( 'Incomplete', 'super-forms' );
+                        $title = ' title="' . esc_attr__( 'The customer has not entered their payment method.', 'super-forms' ) . '"';
+                        $class = ' super-stripe-incomplete';
+                        $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm1-8.577V4a1 1 0 1 0-2 0v4a1 1 0 0 0 .517.876l2.581 1.49a1 1 0 0 0 1-1.732z';
+                    }
+                    if( $d['status']=='succeeded' ) {
+                        if( !empty($d['refunded']) ) {
+                            $label = esc_html__( 'Refunded', 'super-forms' );
+                            $title = '';
+                            $class = ' super-stripe-refunded';
+                            $pathFill = '#697386';
+                            $path = 'M10.5 5a5 5 0 0 1 0 10 1 1 0 0 1 0-2 3 3 0 0 0 0-6l-6.586-.007L6.45 9.528a1 1 0 0 1-1.414 1.414L.793 6.7a.997.997 0 0 1 0-1.414l4.243-4.243A1 1 0 0 1 6.45 2.457L3.914 4.993z';
+                        }else{
+                            if( !empty($d['amount_refunded']) ) {
+                                $label = esc_html__( 'Partial refund', 'super-forms' );
+                                $labelColor = '#3d4eac;';
+                                $title = ' title="' . ($symbol . number_format_i18n($d['amount_refunded']/100, 2) . ' ' . $currency_code) . ' ' . esc_attr__('was refunded', 'super-forms') . '"';
+                                $class = ' super-stripe-partial-refund';
+                                $pathFill = '#5469d4';
+                                $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
+                            }else{
+                                $label = esc_html__( 'Succeeded', 'super-forms' );
+                                $labelColor = '#3d4eac;';
+                                $title = '';
+                                $class = ' super-stripe-succeeded';
+                                $pathFill = '#5469d4';
+                                $bgColor = '#d6ecff';
+                                $path = 'M5.297 13.213L.293 8.255c-.39-.394-.39-1.033 0-1.426s1.024-.394 1.414 0l4.294 4.224 8.288-8.258c.39-.393 1.024-.393 1.414 0s.39 1.033 0 1.426L6.7 13.208a.994.994 0 0 1-1.402.005z';
+                            }
                         }
                     }
-
-                    // if($d['amount_refunded']>0){
-                    //     echo '<br />' . $symbol . number_format_i18n($d['amount_refunded']/100, 2) . ' ' . $currency_code;
-                    // }
+                    echo '<span' . $title . ' class="super-stripe-status' . $class . '" style="color:' . $labelColor . ';font-size:12px;padding:2px 8px 2px 8px;background-color:'.$bgColor.';border-radius:20px;font-weight:500;">';
+                        echo $label;
+                        echo '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
+                            echo '<path style="fill:' . $pathFill . ';" d="' . $path . '" fill-rule="evenodd"></path>';
+                        echo '</svg>';
+                    echo '</span>';
                     break;
                 case 'stripe_description':
                     echo (isset($d['description']) ? esc_html($d['description']) : '');
                     break;
-                case 'stripe_contact_entry':
-                    if( isset($d['metadata']['_super_contact_entry_id']) ) {
-                        $entry_id = absint($d['metadata']['_super_contact_entry_id']);
-                        echo '<a target="_blank" href="' . get_edit_post_link( $entry_id ) . '">' . get_the_title($entry_id) . '</a>';
+                case 'stripe_connections':
+                    $md = ( isset($d['metadata']['_super_data']) ? $d['metadata']['_super_data'] : '' );
+                    $md = json_decode($md, true);
+                    if( isset($md['user_id']) ) {
+                        $user_id = absint($md['user_id']);
+                        $user = get_user_by( 'ID', $user_id );
+                        $name = '';
+                        if( !empty($user->first_name) ) {
+                            $name = $user->first_name;
+                        }
+                        if( !empty($user->last_name) ) {
+                            if( empty($name) ) {
+                                $name = $user->last_name;
+                            }else{
+                                $name .= ' ' . $user->last_name;
+                            }
+                        }
+                        if( !empty($name) ) {
+                            $name = ' (' . $name . ')';
+                        }
+                        echo esc_html__( 'User:', 'super-forms' ) . ' <a target="_blank" href="' . get_edit_user_link( $user_id ) . '">' . $user->user_login . $name . '</a>';
+                        echo '<br />';
                     }
-                    break;
-                case 'stripe_form_id':
+                    if( isset($dmetadata['_super_contact_entry_id']) ) {
+                        $entry_id = absint($dmetadata['_super_contact_entry_id']);
+                        echo esc_html__( 'Contact Entry:', 'super-forms' ) . ' <a target="_blank" href="' . get_edit_post_link( $entry_id ) . '">' . get_the_title($entry_id) . '</a>';
+                        echo '<br />';
+                    }
                     $form_id = wp_get_post_parent_id($post_id);
-                    if ($form_id == 0) {
-                        echo esc_html__( 'Unknown', 'super-forms');
-                    } else {
-                        $form = get_post($form_id);
-                        if (isset($form->post_title)) {
-                            echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
-                        }
-                        else {
-                            echo esc_html__( 'Unknown', 'super-forms');
-                        }
+                    if ($form_id != 0) {
+                        echo esc_html__( 'Form:', 'super-forms' ) . ' <a target="_blank" href="admin.php?page=super_create_form&id=' . $form_id . '">' . get_the_title($form_id) . '</a>';
+                        echo '<br />';
                     }
+
+
+                    // $contact_entry_id = (isset($md['contact_entry_id']) ? absint($md['contact_entry_id']) : 0 );
+                    // $frontend_post_id = (isset($md['frontend_post_id']) ? absint($md['frontend_post_id']) : 0 );
+                    // $frontend_user_id = (isset($md['frontend_user_id']) ? absint($md['frontend_user_id']) : 0 );
+
                     break;
             }
         }
@@ -1247,28 +1329,28 @@ if(!class_exists('SUPER_Stripe')) :
 
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
-            $metadata = array();
-            $metadata['_super_form_id'] = absint($data['hidden_form_id']['value']);
-            $metadata['_super_author_id'] = absint(get_current_user_id());
-            $metadata['_super_stripe_description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
+            $md = array();
+            $md['form_id'] = absint($data['hidden_form_id']['value']);
+            $md['user_id'] = absint(get_current_user_id());
+            //$md['description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
 
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
-                $metadata['_super_stripe_frontend_post_id'] = absint($post_id);
+                $md['frontend_post_id'] = absint($post_id);
             }
             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             if( !empty($user_id) ) {
-                $metadata['_super_stripe_frontend_user_id'] = absint($user_id);
+                $md['frontend_user_id'] = absint($user_id);
             }
             // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
-                $metadata['_super_contact_entry_id'] = absint($data['contact_entry_id']['value']);
+                $md['contact_entry_id'] = absint($data['contact_entry_id']['value']);
             }
 
             // Allow devs to filter metadata if needed
-            $metadata = apply_filters( 'super_stripe_source_metadata', $metadata, array('settings'=>$settings, 'data'=>$data ) );
+            $md = apply_filters( 'super_stripe_source_metadata', $md, array('settings'=>$settings, 'data'=>$data ) );
 
             // Check if Stripe checkout is enabled
             if($settings['stripe_checkout']=='true'){
@@ -1339,7 +1421,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     'redirect' => array(
                                         'return_url' => $stripe_return_url // Required for iDeal Source
                                     ),
-                                    'metadata' => $metadata
+                                    'metadata' => array('_super_data' => $md)
                                 )
                             )
                         );
@@ -1440,12 +1522,10 @@ if(!class_exists('SUPER_Stripe')) :
                 \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
                 $payload = file_get_contents('php://input');
+                error_log( "payload:" . $payload, 0 );
                 $event = null;
-
                 try {
-                    $event = \Stripe\Event::constructFrom(
-                        json_decode($payload, true)
-                    );
+                    $event = json_decode($payload, true);
                 } catch(\UnexpectedValueException $e) {
                     // Invalid payload
                     http_response_code(400);
@@ -1468,9 +1548,43 @@ if(!class_exists('SUPER_Stripe')) :
                 // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event->type), $obj );
 
                 // Handle the event
-                error_log( "event type:" . $event->type, 0 );
-                $paymentIntent = $event->data->object->toArray();
-                switch ($event->type) {
+                error_log( "event type:" . json_encode($event), 0 );
+                error_log( "event metadata test1:" . json_encode($event['data']['object']['metadata']), 0 );
+                $paymentIntent = $event['data']['object'];
+                switch ($event['type']) {
+                    case 'charge.pending':
+                        // Occurs whenever a pending charge is created.
+                        // The Charge is pending (asynchronous payments only). 
+                        // Nothing to do.
+                        break;
+                    case 'charge.succeeded':
+                        // Occurs whenever a new charge is created and is successful.
+                        // The Charge succeeded and the payment is complete.
+                        // Finalize the order and send a confirmation to the customer over email.
+                        self::handleChargeSucceeded($paymentIntent);
+                        break;
+                    case 'charge.failed':
+                        // Occurs whenever a failed charge attempt occurs.
+                        // The Charge has failed and the payment could not be completed.
+                        // Cancel the order and optionally re-engage the customer in your payment flow.
+                        self::handleChargeFailed($paymentIntent);
+                        break;
+                    case 'charge.refunded':
+                        // Occurs whenever a charge is refunded, including partial refunds.
+                        self::handleChargeRefunded($paymentIntent);
+                        break;
+                    case 'charge.updated':
+                        // Occurs whenever a charge description or metadata is updated.
+                        self::handleChargeUpdated($paymentIntent);
+                        break;
+                    case 'charge.refund.updated':
+                        // Occurs whenever a refund is updated, on selected payment methods.
+                        self::handleChargeRefundUpdated($paymentIntent);
+                        break;
+                    case 'charge.dispute.created':
+                        // Occurs whenever a customer disputes a charge with their bank.
+                        self::handleChargeDisputeCreated($paymentIntent);
+                        break;
                     case 'payment_intent.created':
                         // ...Occurs when a new PaymentIntent is created.
                         // Status: Incomplete
@@ -1486,20 +1600,10 @@ if(!class_exists('SUPER_Stripe')) :
                         break;
                     case 'payment_intent.payment_failed':
                         // ...Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
-                        // Status: Failed
-                        // "outcome": {
-                        //     "network_status": "declined_by_network",
-                        //     "reason": "generic_decline",
-                        //     "risk_level": "normal",
-                        //     "risk_score": 59,
-                        //     "seller_message": "The bank did not return any further details with this decline.",
-                        //     "type": "issuer_declined"
-                        //   },
                         self::handlePaymentIntentPaymentFailed($paymentIntent);
                         break;
                     case 'payment_intent.succeeded':
                         // ...Occurs when a PaymentIntent has been successfully fulfilled.
-
                         // Status: Succeeded
                         // "status": "succeeded",
                         // Type: Visa credit card
@@ -1510,26 +1614,51 @@ if(!class_exists('SUPER_Stripe')) :
                         //          "payment_method_details": {
                         //              "card": {
                         //                  "brand": "visa",
-                        //$paymentIntent = $event->data->object; // contains a StripePaymentIntent
-                        //handlePaymentIntentSucceeded($paymentIntent);
                         self::handlePaymentIntentSucceeded($paymentIntent);
                         break;
-
-                    case 'charge.refunded':
-                        self::handleChargeRefunded($paymentIntent);
-                        break;
                     case 'customer.created':
-                        // ...Occurs whenever a new customer is created.
+                        // Occurs whenever a new customer is created.
                         // "id": "cus_GTvv2oy4MRV5Vh",
                         // "discount": null,
                         // "email": null,
-
+                        break;
                     case 'payment_method.attached':
-                        // ...Occurs whenever a new payment method is attached to a customer.
-                        //$paymentMethod = $event->data->object; // contains a StripePaymentMethod
-                        //handlePaymentMethodAttached($paymentMethod);
+                        // Occurs whenever a new payment method is attached to a customer.
                         break;
                     // ... handle other event types
+
+                    // Othe Events:
+                    // balance.available
+                    // charge.captured
+                    // charge.dispute.created
+                    // charge.failed
+                    // charge.refunded
+                    // charge.succeeded
+                    // checkout.session.completed
+                    // customer.created
+                    // customer.deleted
+                    // customer.source.created
+                    // customer.source.updated
+                    // customer.subscription.created
+                    // customer.subscription.deleted
+                    // customer.subscription.updated
+                    // customer.updated
+                    // invoice.created
+                    // invoice.finalized
+                    // invoice.payment_failed
+                    // invoice.payment_succeeded
+                    // invoice.updated
+                    // payment_intent.amount_capturable_updated
+                    // payment_intent.canceled
+                    // payment_intent.created
+                    // payment_intent.payment_failed
+                    // payment_intent.succeeded
+                    // payment_method.attached
+                    // setup_intent.canceled
+                    // setup_intent.created
+                    // setup_intent.setup_failed
+                    // setup_intent.succeeded
+
                     default:
                         // Unexpected event type
                         http_response_code(400);
@@ -1658,9 +1787,9 @@ if(!class_exists('SUPER_Stripe')) :
 
                 // $payload = json_decode($payload, true);
                 // $obj = $payload['data']['object'];
-                // $metadata = $obj['metadata'];
-                // $stripe_description = (isset($metadata['_super_stripe_description']) ? sanitize_text_field($metadata['_super_stripe_description']) : '');
-                // unset($metadata['_super_stripe_description']);
+                // $md = $obj['metadata'];
+                // $stripe_description = (isset($md['_super_stripe_description']) ? sanitize_text_field($md['_super_stripe_description']) : '');
+                // unset($md['_super_stripe_description']);
 
                 // error_log( "Do action: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
                 // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $payload['type']), $obj );
@@ -1722,7 +1851,7 @@ if(!class_exists('SUPER_Stripe')) :
                 //         //     'custom2' => 'Custom 2',
                 //         //     'custom3' => 'Custom 3'
                 //         // ),
-                //         'metadata' => $metadata,
+                //         'metadata' => $md,
 
                 //         // on_behalf_of
                 //         // optional
@@ -1824,8 +1953,8 @@ if(!class_exists('SUPER_Stripe')) :
                 //     }
                 // }else{
                 //     // Update order data
-                //     if(isset($metadata['_super_txn_id'])){
-                //         $post_id = absint($metadata['_super_txn_id']);
+                //     if(isset($md['_super_txn_id'])){
+                //         $post_id = absint($md['_super_txn_id']);
                 //         if($post_id!==0){
                 //             // Save all transaction data
                 //             update_post_meta( $post_id, '_super_txn_data', $payload );
@@ -1849,29 +1978,32 @@ if(!class_exists('SUPER_Stripe')) :
         public static function createTransactionIfNotExists($paymentIntent) {
             // Check if a transaction exists, if not create one, and return the post_id
             // If it already exists, we return the post_id, this way we can do things if needed
-            $post_title = $paymentIntent['id']; // e.g: pi_1FwyfIFKn7uROhgCKO8iiuFF
-            $post = get_page_by_title( $post_title, OBJECT, 'super_stripe_txn' );
+            $txn_id = self::getTransactionId($paymentIntent);
+            $post = get_page_by_title( $txn_id, OBJECT, 'super_stripe_txn' );
             if($post) {
                 error_log( "exists!", 0 );
+                error_log( "metadata!" . json_encode($paymentIntent), 0 );
                 return $post->ID;
             }else{
                 error_log( "does not exists!", 0 );
-                $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : array());
-                $form_id = (isset($metadata['_super_form_id']) ? absint($metadata['_super_form_id']) : 0 );
+                $md = (isset($paymentIntent['metadata']['_super_data']) ? $paymentIntent['metadata']['_super_data'] : '');
+                $md = json_decode($md, true);
+                $form_id = (isset($md['form_id']) ? absint($md['form_id']) : 0 );
                 $settings = SUPER_Common::get_form_settings($form_id);
-                $post_author = (isset($metadata['_super_author_id']) ? absint($metadata['_super_author_id']) : 0 );
-                $contact_entry_id = (isset($metadata['_super_contact_entry_id']) ? absint($metadata['_super_contact_entry_id']) : 0 );
-                $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
-                $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
+                $user_id = (isset($md['user_id']) ? absint($md['user_id']) : 0 );
+                $contact_entry_id = (isset($md['contact_entry_id']) ? absint($md['contact_entry_id']) : 0 );
+                $frontend_post_id = (isset($md['frontend_post_id']) ? absint($md['frontend_post_id']) : 0 );
+                $frontend_user_id = (isset($md['frontend_user_id']) ? absint($md['frontend_user_id']) : 0 );
                 // Create transaction
                 $post = array(
                     'post_status' => 'publish',
                     'post_type' => 'super_stripe_txn',
-                    'post_title' => $post_title,
-                    'post_parent' => absint($form_id),
-                    'post_author' => absint($post_author)
+                    'post_title' => $txn_id,
+                    'post_parent' => absint($form_id)
                 );
                 $post_id = wp_insert_post($post);
+                update_post_meta( $post_id, '_super_user_id', $user_id );
+
                 // Update "New" transaction counter with 1
                 $count = get_option( 'super_stripe_txn_count', 0 );
                 update_option( 'super_stripe_txn_count', ($count+1) );
@@ -1915,6 +2047,36 @@ if(!class_exists('SUPER_Stripe')) :
             return $post_id;
         }
 
+        public static function handleChargeSucceeded($paymentIntent) {
+            error_log( "handleChargeSucceeded()", 0 );
+            self::createTransactionIfNotExists($paymentIntent);
+        }
+        public static function handleChargeFailed($paymentIntent) {
+            error_log( "handleChargeFailed()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handleChargeRefunded($paymentIntent) {
+            error_log( "handleChargeRefunded()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handleChargeUpdated($paymentIntent) {
+            error_log( "handleChargeUpdated()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handleChargeRefundUpdated($paymentIntent) {
+            error_log( "handleChargeRefundUpdated()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+        public static function handleChargeDisputeCreated($paymentIntent) {
+            error_log( "handleChargeDisputeCreated()", 0 );
+            $post_id = self::createTransactionIfNotExists($paymentIntent);
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        }
+
         public static function handlePaymentIntentCreated($paymentIntent) {
             error_log( "handlePaymentIntentCreated()", 0 );
             self::createTransactionIfNotExists($paymentIntent);
@@ -1931,11 +2093,6 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function handlePaymentIntentSucceeded($paymentIntent) {
             error_log( "handlePaymentIntentSucceeded()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handleChargeRefunded($paymentIntent) {
-            error_log( "handleChargeRefunded()", 0 );
             $post_id = self::createTransactionIfNotExists($paymentIntent);
             update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
         }
