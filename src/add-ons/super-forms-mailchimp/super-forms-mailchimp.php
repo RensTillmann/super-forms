@@ -434,8 +434,8 @@ if(!class_exists('SUPER_Mailchimp')) :
                         'name' => esc_html__( 'General', 'super-forms' ),
                         'fields' => array(
                             'list_id' => array(
-                                'name' => esc_html__( 'Mailchimp List ID', 'super-forms' ), 
-                                'label' => esc_html__( 'Your List ID for example: 9e67587f52', 'super-forms' ),
+                                'name' => esc_html__( 'Mailchimp Audiance ID', 'super-forms' ), 
+                                'label' => esc_html__( 'Your Audiance ID for example: f25b7204f4', 'super-forms' ),
                                 'default'=> (!isset($attributes['list_id']) ? '' : $attributes['list_id']),
                                 'required'=>true, 
                             ),

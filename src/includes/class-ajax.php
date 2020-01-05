@@ -2923,7 +2923,7 @@ class SUPER_Ajax {
              *  @since      1.0.2
             */
             
-            // @since 4.6.0 - also parse all attachments (usefull for external file storage through for instance Zapier)
+            // @since 4.6.0 - also parse all attachments (useful for external file storage through for instance Zapier)
             $attachments = array(
                 'attachments' => $attachments,
                 'confirm_attachments' => $confirm_attachments,

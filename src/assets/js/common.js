@@ -1852,6 +1852,7 @@ function SUPERreCaptcha(){
 
     // Check for errors, validate fields
     SUPER.handle_validations = function(el, validation, conditionalValidation, duration, form) {
+        
         if(el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
         var i, nodes,
             parent = el.closest('.super-field'),
@@ -2046,7 +2047,7 @@ function SUPERreCaptcha(){
 
         // @since   1.0.6
         logic = conditionalValidation;
-        if( typeof $logic!=='undefined' && logic!='none' && logic!=='' ) {
+        if( typeof logic!=='undefined' && logic!='none' && logic!=='' ) {
             field_value = el.value;
             // Check if currency field
             if(parent.classList.contains('super-currency')){

@@ -163,7 +163,7 @@
 - Improved: Only show admin notice once after updating plugin to check out `What's new` in the latest version. Also added option to completely disable to show update notices in the future from `Settings > Backend settings`
 - Improved: Undo/Redo feature
 - Improved: Form elements json now saved in localStorage, instead of a textarea element
-- Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (usefull for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+- Improved: When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (useful for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
 - Fix: WooCommerce Checkout add-on setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
 - Fix: Issue with File Upload element when using custom Image button, it would still display the placeholder text
 - Fix: Issue with WooCommerce Checkout not saving CC and BCC settings
@@ -241,7 +241,7 @@
 - Fix: Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 
 ### Jun 18, 2018 - Version 4.2.0
-- Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (usefull for large forms with above average calculations etc.)
+- Added: Option to set a threshold for `keyup` event on currency field to only execute hook when user stopped typing (useful for large forms with above average calculations etc.)
 - Added: Option to automatically replace line breaks for `<br />` tags on HTML element content
 - Added: Option to add custom javascript under `Super Forms > Settings > Custom JS`
 - Added: Option to create variable conditional logic with a CSV file, see `[Variable Fields]` documentation for more information
@@ -464,7 +464,7 @@
 - Added: new filter hook - super_form_before_first_form_element_filter
 - Added: new filter hook - super_form_after_last_form_element_filter
 - Added: Option for text fields to automatically transform user input to uppercase text
-- Added: Option to disable automatic line breaks in emails (usefull for pure HTML emails)
+- Added: Option to disable automatic line breaks in emails (useful for pure HTML emails)
 - Added: Option to add the IP address to the columns on the Contact Entries listing
 - Added: When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 - Improved: datepicker improvements
@@ -696,7 +696,7 @@
 - Added: Option to export individual Contact entries and select the fields to export + rename the column names
 - Added: Option to filter contact entries based on a specific form
 - Added: Radio buttons now can return custom taxonomy, post type and CSV items
-- Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
+- Added: Option to count words on textarea fields that can be used with the calculator add-on (useful for translation estimations)
 - Improved: Contact entry search query
 - Improved: Conditional logic speed
 - Improved: Variable conditions speed
@@ -746,7 +746,7 @@
 - Added: option to add background color to columns
 - Added: Option to return current date (server time) for datepicker field
 - Added: Option to return current time (server time) for timepicker field
-- Added: Option to add input mask (usefull for phone numbers and other validations)
+- Added: Option to add input mask (useful for phone numbers and other validations)
 - Changed: Removed bottom padding of form, you can now change the padding with settings
 - Improved: several CSS styles
 
@@ -913,7 +913,7 @@
 - Fix: translation issue name conversion
 - Added: Option to override button color and icon and other settings for the button element or just select to use the default settings
 - Added: All fields can now auto populate values if an URL parameter with the field name has been set
-- Added: Datepicker can now connect with another datepicker (usefull to set a max/min range for both pickers
+- Added: Datepicker can now connect with another datepicker (useful to set a max/min range for both pickers
 - Changed: Upload files to Media Library instead of plugin folder (prevents missing files after deleting plugin)
 - Changed: Submit button cannot be clicked twice, and will display a loading icon
 
@@ -948,7 +948,7 @@
 - Added: Max/Min number for text field
 - Added: default value option for datepicker field
 - Added: Year range for datepicker field
-- Added: validation option to conditionally check on an other fields value with field tag e.g `{password}`, this way you can for instance add a password confirm check (usefull for registration forms)
+- Added: validation option to conditionally check on an other fields value with field tag e.g `{password}`, this way you can for instance add a password confirm check (useful for registration forms)
 - Changed: function to return dynamic functions as an array, this way it could easily be implemented into the preview in the backend while creating forms
 
 ### March 4, 2016 - Version 1.1.3
@@ -982,7 +982,7 @@
 - Improved: When using TAB to go through the form, the dropdown element was being skipped (since custom UI)
 - Improved: Changed color to a lighter color of the placeholder for settings like CC/BCC
 - Improved: When TAB is used the very next field will not be validated instantly, but only after a change was made 
-- Improved: When Multi-part next/prev button is being clicked scroll to top of the next multi-part section (usefull for long sections)
+- Improved: When Multi-part next/prev button is being clicked scroll to top of the next multi-part section (useful for long sections)
 - Changed: countries.txt is now no longer automatically sorted with asort()
 - Changed: countries.txt can now be customized (e.g add new countries or add most used countries to the top of the file)
 
@@ -1017,7 +1017,7 @@
 - Fix: Nested conditional logic not working (elements inside columns)
 - FIx: Tooltips not being displayed when mouseover
 - Improved: SMTP emailer with more options to adjust - keepalive, ssl, tls, timeout, smtp debug mode
-- Improved: Element panel scrolls down with user (usefull for long forms)
+- Improved: Element panel scrolls down with user (useful for long forms)
 - Improved: Overal improvements for dropdown field
 - Improved: Overal improvements for conditional logics
 - Improved: Tags functions, add-ons can now hook into tags and add their own if needed

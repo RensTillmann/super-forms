@@ -569,6 +569,11 @@ class SUPER_Common {
     public static function get_global_settings(){
         if(!isset(SUPER_Forms()->global_settings)){
             SUPER_Forms()->global_settings = get_option( 'super_settings', array() );
+            if(is_array(SUPER_Forms()->global_settings)){
+                SUPER_Forms()->global_settings = array_map('stripslashes_deep', SUPER_Forms()->global_settings);
+            }else{
+                SUPER_Forms()->global_settings = stripslashes(SUPER_Forms()->global_settings);
+            }
         }
         return SUPER_Forms()->global_settings;
     }
@@ -586,6 +591,7 @@ class SUPER_Common {
             $global_settings = SUPER_Common::get_global_settings();
             $default_settings = SUPER_Settings::get_defaults();
             $global_settings = array_merge( $default_settings, $global_settings );
+
             if(is_array($form_settings)) {
                 $settings = array_merge( $global_settings, $form_settings );
             }else{

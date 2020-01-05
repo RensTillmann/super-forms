@@ -104,7 +104,7 @@ Oct 25, 2016 - Version 1.1.8
 - Added: Math regular expression e.g: {tag_*} (contains search), {tag_^} (starts with search), {tag_$} (ends with search)
 
 Oct 20, 2016 - Version 1.1.7
-- Added: Option to count words on textarea fields that can be used with the calculator add-on (usefull for translation estimations)
+- Added: Option to count words on textarea fields that can be used with the calculator add-on (useful for translation estimations)
 - Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
  
 Oct 15, 2016 - Version 1.1.6

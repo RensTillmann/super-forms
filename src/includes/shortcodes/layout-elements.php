@@ -1047,7 +1047,7 @@ $array['layout_elements'] = array(
                                 'name' => esc_html__( 'Content padding', 'super-forms' ),
                                 'default' => (!isset($attributes['content_padding']) ? '' : $attributes['content_padding']),
                                 '_styles' => array(
-                                    ' > .super-tabs-contents > .super-tabs-content' => 'padding',
+                                    ' > .super-tabs-contents > .super-tabs-content.super-active' => 'padding',
                                     ' > .super-accordion-item.super-active > .super-accordion-content' => 'padding'
                                 ),
                             ),

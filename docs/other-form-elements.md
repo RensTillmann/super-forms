@@ -23,7 +23,7 @@
 - Date (user can pick a date from datepicker)
 - Time (user can pick a time from dropdown)
 - Rating (user can choose between 1 to 5 stars)
-- Password (invisible user input, usefull for password)
+- Password (invisible user input, useful for password)
 - Hidden field (not visible to users, but the value can [dynamically change on the fly](variable-fields))
 - reCAPTCHA v3 (google human verification)
 - Button (custom submit button locations, or just link to a page, or print the form)
