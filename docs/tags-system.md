@@ -6,7 +6,7 @@
 * [Advanced tags](#advanced-tags)
 * [Regular expressions](#regular-expressions)
 * [When and where can I use tags?](#when-and-where-can-i-use-tags)
-* [Predefined {tags} that are usefull](#predefined-tags-that-are-usefull)
+* [Predefined {tags} that are useful](#predefined-tags-that-are-useful)
 
 ### What are {tags}?
 
@@ -102,7 +102,7 @@ Now you might ask where should I actually place this tag? You can choose to use 
 
 
 
-### Predefined {tags} that are usefull
+### Predefined {tags} that are useful
 
 **Tag to retrieve the current page or post title:**
 - `{post_title}`

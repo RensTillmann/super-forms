@@ -70,7 +70,7 @@ You can then map your key value pairs under **Enter custom parameter string**, w
 
 If a user is logged in and has previously submitted a form which creates [contact entries](contact-entries), you could autopopulate a form with this [contact entry](contact-entries) data based on the last submitted data of this user.
 
-This is extremely usefull if you have users that need to submit the same form many times, while a lot of data might possibly be exactly the same.
+This is extremely useful if you have users that need to submit the same form many times, while a lot of data might possibly be exactly the same.
 
 
 ### Examples of autopopulation

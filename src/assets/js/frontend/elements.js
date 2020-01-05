@@ -908,7 +908,7 @@
             });
         });
 
-        // @since 1.7 - count words on textarea field (usefull for translation estimates)
+        // @since 1.7 - count words on textarea field (useful for translation estimates)
         var word_count_timeout = null;
         $doc.on('keyup blur', 'textarea.super-shortcode-field', function(e) {
             var $this = $(this),

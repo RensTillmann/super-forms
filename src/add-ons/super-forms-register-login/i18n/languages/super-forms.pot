@@ -397,12 +397,12 @@ msgid ""
 msgstr ""
 
 #: super-forms-register-login.php:1007
-msgid "Usefull for external plugins such as WooCommerce."
+msgid "Useful for external plugins such as WooCommerce."
 msgstr ""
 
 #: super-forms-register-login.php:886
 msgid ""
-"Usefull for external plugins such as WooCommerce. Example: "
+"Useful for external plugins such as WooCommerce. Example: "
 "'field_name|meta_key' (each on a new line)"
 msgstr ""
 

@@ -91,7 +91,7 @@ The same method can be applied whenever you need to hide a set of fields at once
 If you are working on a large form and you have a set of fields that need to be duplicated and adjusted only based on their field names
 it would be a good idea to put these fields in a column. You can then duplicate the column which will then duplicate all of it's elements inside it automatically.
 
-Another usefull thing about columns is that when you are working with larger forms you can easily collapse the column on the builder page.
+Another useful thing about columns is that when you are working with larger forms you can easily collapse the column on the builder page.
 This will free up a lot of working space whenever you have finished this part of the form.
 This will make it also a lot easier to drag & drop new elements into the correct place of your form.
 When you otherwise would have to scroll down or up all the way, you now probably only have to scroll a little bit or not at all :wink:
