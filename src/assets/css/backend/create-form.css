@@ -1,4 +1,4 @@
-
+.super-tabs > .super-tab-code:before,
 .super-shortcode-tabs_pre:before,
 .super-shortcode-accordion_pre:before {
   content:'NEW'!important;
@@ -14,7 +14,9 @@
   padding-left:15px;
   padding:2px 5px 2px 14px;
   font-weight:bold;
+  font-family: inherit;
 }
+.super-tabs > .super-tab-code:after,
 .super-shortcode-tabs_pre:after,
 .super-shortcode-accordion_pre:after {
   content:'';
@@ -28,6 +30,28 @@
   border-bottom: 8px solid transparent;
   border-left: 8px solid #E9E9E9;  
 }
+
+.super-tabs > .super-tab-code {
+  position:relative;
+  padding-right:40px!important;
+}
+.super-tabs > .super-tab-code.super-active {
+  position:relative;
+}
+.super-tabs > .super-tab-code:before {
+  top:7px;
+  background-color:#ff7e7e;
+}
+.super-tabs > .super-tab-code.super-active:before {
+  background-color:red;
+}
+.super-tabs > .super-tab-code:after {
+  top:7px;
+}
+.super-tabs > .super-tab-code.super-active:after {
+  border-left: 8px solid #ffffff;  
+}
+
 
 #wpbody-content > .updated,
 #wpbody-content > .error,
@@ -851,7 +875,7 @@
 }
 
 .super-preview-elements .super-element .super-element-header .super-title,
-.super-preview-elements .super-element .super-element-header .resize {
+.super-preview-elements .super-element .super-element-header .super-resize {
     float: left;
     cursor: default;
     width: 100%;
@@ -889,10 +913,10 @@
     background-color:#eefeff;
     border:1px dashed #9fb7ff;
 }
-.super-preview-elements .super-element .super-element-header .resize {
+.super-preview-elements .super-element .super-element-header .super-resize {
     padding: 0px;
 }
-.super-preview-elements .super-element .super-element-header .resize span {
+.super-preview-elements .super-element .super-element-header .super-resize span {
     height: 20px;
     width: 20px;
     display: block;
@@ -901,11 +925,11 @@
     position: relative;
     text-align: center;
 }
-.super-preview-elements .super-element .super-element-header .resize span i {
+.super-preview-elements .super-element .super-element-header .super-resize span i {
     line-height: 19px;
     font-size: 14px;
 }    
-.super-preview-elements .super-element .super-element-header .resize span.current {
+.super-preview-elements .super-element .super-element-header .super-resize span.current {
     padding: 0px 0px 0px 0px;
     cursor: default;
     width: auto;
@@ -1832,7 +1856,6 @@
     margin:0px 4px 0px 8px;
 }
 .super-builder .super-tabs > span {
-    padding: 6px 10px 4px 10px;
     margin-left:0px;
     font-size: 16px;
     padding: 6px 10px 4px 10px;
@@ -1907,7 +1930,7 @@
 .super-translation-mode .super-elements .super-form-elements,
 .super-translation-mode .super-elements .super-html-elements,
 .super-translation-mode .super-element .super-element-header .super-title input,
-.super-translation-mode .super-element-header .resize,   
+.super-translation-mode .super-element-header .super-resize,   
 .super-translation-mode .super-element-actions > span:not(.edit) {
     display:none;
 }
@@ -2256,4 +2279,11 @@
 }
 .super-subtabcontent.super-active {
     display:block;
+}
+
+
+.super-tab-content.super-tab-code textarea {
+    float:left;
+    width:100%;
+    min-height: 250px;
 }

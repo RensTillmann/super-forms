@@ -559,13 +559,6 @@
                 if (this.activeDropRegions.length > 0) {
                     var $tag = obj.$el.data('shortcode');
                     var $target = $('.dropping-allowed:not(:has(.dropping-allowed))');
-                    // Make sure that we only return one target to drop the element
-                    // In some cases the dropping system might also intercept another drop area which results in the element being dropped inside all of these drop areas
-                    $target = $($target[$target.length - 1]);
-                    if($target.parent().parent().hasClass('.super-tabs-content')){
-                        // Make sure to drop in active TAB
-                        $target = $target.parents('.super-tabs-contents:eq(0)').find('.super-active').children('.super-padding').children('.super-element-inner');
-                    }
 
                     // Check if user tries to drop a multi-part inside another multi-part
                     var $multipart_found = $target.closest('[data-shortcode-tag="multipart"]').length;
@@ -620,7 +613,7 @@
             cssEaseDuration: 0,
         });
     };
-    SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback) {
+    SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
         var i,ii,
             form = document.querySelector('.super-preview-elements'),
             fields = SUPER.fields(form, '.super-shortcode-field, .super-active-files'),            
@@ -629,6 +622,8 @@
             error = false,
             duplicateFields,
             allowDuplicateNames = document.querySelector('input[name="allow_duplicate_names"]').checked;
+
+        if(typeof updatingRawFormCode === 'undefined') updatingRawFormCode = false;
 
         // First remove all duplicate name errors
         for (i = 0; i < fieldsWithError.length; ++i) {
@@ -651,7 +646,9 @@
                 return false;
             }
         }
-        SUPER.regenerate_element_inner($('.super-preview-elements'), false);
+
+        // We should skip this function in case we are updating the form code manually
+        if(!updatingRawFormCode) SUPER.regenerate_element_inner($('.super-preview-elements'), false);
 
         $this.html('<i class="fas fa-save"></i>Saving...');
 
@@ -922,6 +919,34 @@
             }
         }, 300); // check every 3 milli seconds
 
+        // @since 4.9.0 - update form code manually
+        $doc.on('click', '.super-update-raw-code', function () {
+            var html,
+                notice = document.querySelector('.super-tab-content.super-tab-code .sfui-notice'),
+                formCode = this.parentNode.querySelector('textarea').value;
+            try {
+                var o = JSON.parse(formCode);
+                // Handle non-exception-throwing cases:
+                // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+                // but... JSON.parse(null) returns null, and typeof null === "object", 
+                // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+                if (o && typeof o === "object") {
+                    SUPER.set_session_data('_super_elements', formCode, undefined, true);
+                    SUPER.save_form($('.super-actions .save'), 2, undefined, undefined, undefined, true);
+                    notice.innerHTML = super_create_form_i18n.edit_json_notice;
+                    notice.classList.remove('sfui-red');
+                    notice.classList.add('sfui-yellow');
+                }
+            }
+            catch (e) {
+                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
+                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
+                html += super_create_form_i18n.try_jsonlint;
+                notice.innerHTML = html;
+                notice.classList.remove('sfui-yellow');
+                notice.classList.add('sfui-red');
+            }
+        });
 
         // @since 4.0.0 - update conditional checks values
         $doc.on('change keydown keyup blur', '.super-conditional-check input[type="text"], .super-conditional-check select', function () {
@@ -1550,7 +1575,7 @@
             SUPER.regenerate_element_inner($('.super-preview-elements'));
             cancel_update();
         });
-        $doc.on('click', '.super-element > .super-element-header > .resize > span', function () {
+        $doc.on('click', '.super-element > .super-element-header > .super-resize > span', function () {
             var $parent = $(this).parents('.super-element:eq(0)');
             var $data = $parent.find('textarea[name="element-data"]').val();
             $data = JSON.parse($data);
@@ -1580,7 +1605,7 @@
                 }
                 $parent.attr('data-size', $next);
                 $parent.removeClass($sizes[$start]).addClass($sizes[$next]);
-                $parent.children('.super-element-header').find('.resize > .current').html($next);
+                $parent.children('.super-element-header').find('.super-resize > .current').html($next);
             }
             if ($(this).hasClass('bigger')) {
                 if ($size == '1/1') {
@@ -1588,7 +1613,7 @@
                 }
                 $parent.attr('data-size', $prev);
                 $parent.removeClass($sizes[$start]).addClass($sizes[$prev]);
-                $parent.children('.super-element-header').find('.resize > .current').html($prev);
+                $parent.children('.super-element-header').find('.super-resize > .current').html($prev);
             }
             SUPER.init_drag_and_drop();
             SUPER.regenerate_element_inner($('.super-preview-elements'));
@@ -1877,7 +1902,7 @@
                             '1/5': 'super_one_fifth'
                         };
                         $element.attr('class', 'super-element drop-here ' + $sizes[$fields.size] + ' editing');
-                        $element.attr('data-size', $fields.size).find('.super-element-header .resize .current').html($fields.size);
+                        $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);
                     }
                     SUPER.regenerate_element_inner($('.super-preview-elements'));
                     SUPER.init_common_fields();

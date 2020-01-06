@@ -52,6 +52,22 @@ class SUPER_Pages {
         <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
         <?php
     }
+
+    /**
+     * Handle TAB outputs on code page (edit raw form code)
+     */
+    public static function code_tab($atts) {
+        extract($atts);
+        echo '<p class="sfui-notice sfui-yellow">';
+        echo esc_html__( 'Only edit the below code if you know what you are doing! You can also copy this code and insert it into other forms to quickly export and import forms.', 'super-forms' );
+        echo '</p>';
+        echo '<textarea></textarea>';
+        echo '<span class="super-update-raw-code sfui-btn sfui-green">';
+        echo '<i class="fas fa-save"></i>';
+        echo esc_html__( 'Update Form Code', 'super-forms' );
+        echo '</span>';
+    }
+
     public static function translations_tab($atts) {
         extract($atts);
         require_once( ABSPATH . 'wp-admin/includes/translation-install.php' );

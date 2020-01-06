@@ -17,7 +17,7 @@
  *        http://patorjk.com/software/taag/#p=display&f=Speed&t=jquery.pep.js
  */
 
-;(function ( $, window, undefined ) {
+(function ( $, window, undefined ) {
 
   "use strict";
 
@@ -890,8 +890,15 @@
     $.each( $(this.options.droppable), function(idx, el){
       var $el = $(el);
       if ( self.isOverlapping($el, self.$el) ){
-        $el.addClass(self.options.droppableActiveClass);
-        self.activeDropRegions.push($el);
+        if( !$el.parent().parent().hasClass('super-tabs-content') || $el.hasClass('super-preview-elements') ) {
+          $el.addClass(self.options.droppableActiveClass);
+          self.activeDropRegions.push($el);
+        }else{
+          if( $el.parent().parent().hasClass('super-active') ) {
+            $el.addClass(self.options.droppableActiveClass);
+            self.activeDropRegions.push($el);
+          }
+        }
       } else {
         $el.removeClass(self.options.droppableActiveClass);
       }
@@ -987,19 +994,13 @@
 
     var animation = false,
         elm = document.createElement('div'),
-        animationstring = 'animation',
-        keyframeprefix = '',
-        domPrefixes = 'Webkit Moz O ms Khtml'.split(' '),
-        pfx  = '';
+        domPrefixes = 'Webkit Moz O ms Khtml'.split(' ');
 
     if( elm.style.animationName ) { animation = true; }
 
     if( animation === false ) {
       for( var i = 0; i < domPrefixes.length; i++ ) {
         if( elm.style[ domPrefixes[i] + 'AnimationName' ] !== undefined ) {
-          pfx = domPrefixes[ i ];
-          animationstring = pfx + 'Animation';
-          keyframeprefix = '-' + pfx.toLowerCase() + '-';
           animation = true;
           break;
         }

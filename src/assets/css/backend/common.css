@@ -84,6 +84,73 @@
   }
 }
 
+
+/*--------------------
+    Super Forms UI - Elements
+---------------------*/
+.sfui-notice {
+    padding: 10px 20px 10px 20px;
+}
+.sfui-notice:before {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    padding: 0px 10px 0px 0px;
+}
+.sfui-btn {
+    height: 30px;
+    line-height: 30px;
+    padding: 0px 15px 0px 45px;
+    margin: 10px 10px 10px 0px;
+    background-color: red;
+    color: white;
+    position: relative;
+    float: left;
+    vertical-align: top;
+    min-width: 30px;
+    font-size: 12px;
+    cursor: pointer;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    clear: inherit;
+}
+.sfui-btn:hover {
+    opacity:0.7;
+}
+.sfui-btn i {
+    border-right: 1px solid white;
+    width: 30px;
+    height: 30px;
+    text-align:center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    line-height: 30px;
+}
+
+
+/*--------------------
+    Super Forms UI - Colors
+---------------------*/
+.sfui-btn.sfui-green {
+    background-color: #69BA00;
+}
+.sfui-notice.sfui-red {
+    background-color: #ffd6d6;
+    color: #c11919;
+}
+.sfui-notice.sfui-yellow {
+    background-color: #ffeab3;
+    color: #9e5312;
+}
+.sfui-notice.sfui-red:before {
+    content: '\f071';
+}
+.sfui-notice.sfui-yellow:before {
+    content: '\f05a';
+}
+
+
 /*--------------------
     Buttons
 ---------------------*/
@@ -101,7 +168,6 @@
     height: 30px!important;
     line-height: 30px!important;
     padding: 0px 15px 0px 15px!important;
-    display: inline-block;
     float: initial;
     font-size: 12px!important;
     position: relative;

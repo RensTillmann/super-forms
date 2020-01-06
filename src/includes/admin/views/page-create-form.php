@@ -254,6 +254,7 @@
                     //'triggers' => esc_html__( 'Triggers', 'super-forms' )
                 );
                 $tabs = apply_filters( 'super_create_form_tabs', $tabs );
+                $tabs['code'] = esc_html__( 'Code', 'super-forms' );
 
                 $tabs_content = '';
                 echo '<div class="super-tabs">';
@@ -268,6 +269,7 @@
                         echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
                         // Actions:
                         // super_create_form_`builder`_tab
+                        // super_create_form_`code`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
                         do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
