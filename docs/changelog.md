@@ -1,4 +1,4 @@
-### Jan 02, 2020 - Version 4.8.50
+### Jan 06, 2020 - Version 4.8.503
 - Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
 - Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
 - Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations
@@ -7,6 +7,8 @@
 - Added: Option for autosuggest feature to search WooCommerce products by both title and SKU
 - Added: Option to optionally display Prev/Next arrows for TABs element
 - Added: Compatibility for {tags} usage on Accordion title and description
+- Fix: File upload elements always throwing alert in the builder that the form has `Duplicate field names`
+- Fix: Bug with TAB/Accordion element inside Dynamic Column in combination with "Save form progress"
 - Fix: Bug with advanced tag {field;label} not populated correctly for radio/checkbox/dropdown items upon page load
 - Fix: Bug with Google Address Autocomplete and Distance Calculation sometimes parsing wrong address
 - Fix: `Signature` wasn't being displayed due esc_attr() function, replaced it with esc_url() and add `data` as an excluded protocol

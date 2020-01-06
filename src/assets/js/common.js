@@ -109,20 +109,20 @@ function SUPERreCaptcha(){
         if(typeof name === 'undefined') name = '';
         regex = (typeof regex === 'undefined' ? '' : regex );
         // If name is empty just return the first field only
-        if(name==='') return form.querySelector('.super-shortcode-field, .super-keyword, .super-active-files');
+        if(name==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files');
         // If no regex was defined return all field just by their exact name match
-        if(regex=='') return form.querySelector('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(regex=='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If regex is set to 'all' we want to search for multiple fields
         // This is currently being used by the builder to determine duplicate field names
-        if(regex=='all') return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If a regex is defined, search for fields based on the regex
-        return form.querySelectorAll('.super-shortcode-field[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
+        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     SUPER.fields = function(form, selector){
         return form.querySelectorAll(selector);
     };
     SUPER.fieldsByName = function(form, name){
-        return form.querySelectorAll('.super-shortcode-field[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){

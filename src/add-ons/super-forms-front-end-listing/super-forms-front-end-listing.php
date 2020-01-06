@@ -466,30 +466,30 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             if( empty($list['display_based_on']) ) $list['display_based_on'] = 'this_form';
             if( empty($list['form_ids']) ) $list['form_ids'] = '';
 
-            if( empty($list['date_range']) ) $list['date_range'] = array();
+            if( empty($list['date_range']) || (!is_array($list['date_range'])) ) $list['date_range'] = array();
             if( empty($list['date_range']['from']) ) $list['date_range']['from'] = '';
             if( empty($list['date_range']['till']) ) $list['date_range']['till'] = '';
 	   
-            if( empty($list['show_title']) ) $list['show_title'] = array();
+            if( empty($list['show_title']) || (!is_array($list['show_title'])) ) $list['show_title'] = array();
             if( empty($list['show_title']['name']) ) $list['show_title']['name'] = __( 'Title', 'super-forms' );
             if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = __( 'Filter by title', 'super-forms' );
             if( empty($list['show_title']['position']) ) $list['show_title']['position'] = 1;
             if( empty($list['show_title']['width']) ) $list['show_title']['width'] = 150;
 
-            if( empty($list['show_status']) ) $list['show_status'] = array();
+            if( empty($list['show_status']) || (!is_array($list['show_status'])) ) $list['show_status'] = array();
             if( empty($list['show_status']['name']) ) $list['show_status']['name'] = __( 'Status', 'super-forms' );
             if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = __( '- choose status -', 'super-forms' );
             if( empty($list['show_status']['position']) ) $list['show_status']['position'] = 2;
             if( empty($list['show_status']['width']) ) $list['show_status']['width'] = 150;
 	    
-            if( empty($list['show_date']) ) $list['show_date'] = array();
+            if( empty($list['show_date']) || (!is_array($list['show_date'])) ) $list['show_date'] = array();
             if( empty($list['show_date']['name']) ) $list['show_date']['name'] = __( 'Date created', 'super-forms' );
             if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = __( 'Filter by date', 'super-forms' );
             if( empty($list['show_date']['position']) ) $list['show_date']['position'] = 3;
             if( empty($list['show_date']['width']) ) $list['show_date']['width'] = 150;
 
             if( empty($list['custom_columns']) ) $list['custom_columns'] = false;
-            if( empty($list['columns']) ) $list['columns'] = array(
+            if( empty($list['columns']) || (!is_array($list['columns'])) ) $list['columns'] = array(
                 array(
                     'name' => 'E-mail',
                     'field_name' => 'email',

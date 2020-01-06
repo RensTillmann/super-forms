@@ -1756,7 +1756,7 @@ class SUPER_Shortcodes {
         }
         return $styles;
     }
-    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic, $dynamic_field_names, $inner_field_names ) {
         $group = 'layout_elements';
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, $group, $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1840,19 +1840,31 @@ class SUPER_Shortcodes {
                         $result .= '<div class="super-padding">';
                             if($builder) $result .= '<div class="super-element-inner super-dropable">';
                             if( !empty($tab_inner) ) {
+                                // Loop through inner elements
+                                foreach($tab_inner as $ik => $iv){
+                                    if( !empty($iv['data']['name']) ) {
+                                        $inner_field_names[$iv['data']['name']] = array(
+                                            'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
+                                            'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
+                                        );
+                                    }
+                                }
                                 // First check how many columns there are
                                 // This way we can correctly close the column system
                                 $GLOBALS['super_column_found'] = 0;
                                 foreach( $tab_inner as $iv ) {
                                     if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
                                 }
+                                $re = '/\{(.*?)\}/';
+                                $i = $dynamic;
                                 foreach( $tab_inner as $iv ) {
                                     if( empty($iv['data']) ) $iv['data'] = null;
                                     if( empty($iv['inner']) ) $iv['inner'] = null;
                                     if($builder){
                                         $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                     }else{
-                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                        $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
+                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
                                     }
                                 }
                             }
@@ -1936,19 +1948,31 @@ class SUPER_Shortcodes {
                             $result .= '<div class="super-padding">';
                                 if($builder) $result .= '<div class="super-element-inner super-dropable">';
                                 if( !empty($tab_inner) ) {
+                                    // Loop through inner elements
+                                    foreach($tab_inner as $ik => $iv){
+                                        if( !empty($iv['data']['name']) ) {
+                                            $inner_field_names[$iv['data']['name']] = array(
+                                                'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
+                                                'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
+                                            );
+                                        }
+                                    }
                                     // First check how many columns there are
                                     // This way we can correctly close the column system
                                     $GLOBALS['super_column_found'] = 0;
                                     foreach( $tab_inner as $iv ) {
                                         if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
+                                    $re = '/\{(.*?)\}/';
+                                    $i = $dynamic;
                                     foreach( $tab_inner as $iv ) {
                                         if( empty($iv['data']) ) $iv['data'] = null;
                                         if( empty($iv['inner']) ) $iv['inner'] = null;
                                         if($builder){
                                             $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                         }else{
-                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                            $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
+                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
                                         }
                                     }
                                 }
@@ -2217,8 +2241,7 @@ class SUPER_Shortcodes {
                     $dynamic_field_names[] = $mv[1];
                 }
 
-                // Loop through first level of inner elements
-                $inner_field_names = array();
+                // Loop through inner elements
                 foreach($inner as $ik => $iv){
                     if( !empty($iv['data']['name']) ) {
                         $inner_field_names[$iv['data']['name']] = array(
@@ -2295,7 +2318,7 @@ class SUPER_Shortcodes {
                     }
                 }
             }else{
-                // Loop through next level of inner elements
+                // Loop through inner elements
                 foreach($inner as $ik => $iv){
                     if( !empty($iv['data']['name']) ) {
                         $inner_field_names[$iv['data']['name']] = array(
