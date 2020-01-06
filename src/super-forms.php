@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.8.503
+ * Version:     4.9.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.8.503';
+        public $version = '4.9.0';
         public $slug = 'super-forms';
 
 
@@ -1162,6 +1162,7 @@ if(!class_exists('SUPER_Forms')) :
 
             if($current_screen->id==='super-forms_page_super_create_form'){
                 add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
+                add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
                 add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
                 add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
             }
@@ -1768,7 +1769,10 @@ if(!class_exists('SUPER_Forms')) :
                             'alert_duplicate_field_names' => esc_html__( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => esc_html__( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
                             'alert_empty_field_name' => esc_html__( 'Unique field name may not be empty!', 'super-forms' ),
-                            'deleting' => esc_html__( 'Deleting...', 'super-forms' )
+                            'deleting' => esc_html__( 'Deleting...', 'super-forms' ),
+                            'edit_json_notice' => esc_html__( 'Only edit the below code if you know what you are doing! You can also copy this code and insert it into other forms to quickly export and import forms.', 'super-forms' ),
+                            'invalid_json' => esc_html__( 'Invalid JSON, please correct the error(s) and try again!', 'super-forms' ),
+                            'try_jsonlint' => sprintf( esc_html__( 'Use %shttps://jsonlint.com/%s in case you are unable to find the error.', 'super-forms' ), '<a target="_blank" href="https://jsonlint.com/">', '</a>' )
                         ),
                     ),
                     'super-contact-entry' => array(

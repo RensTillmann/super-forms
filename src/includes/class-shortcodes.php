@@ -1211,7 +1211,7 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 if($tag=='column'){
-                    $result .= '<div class="resize super-tooltip" data-content="Change Column Size">';
+                    $result .= '<div class="super-resize super-tooltip" data-content="Change Column Size">';
                         $result .= '<span class="smaller"><i class="fas fa-angle-left"></i></span>';
                         $result .= '<span class="current">' . $data['size'] . '</span><span class="bigger"><i class="fas fa-angle-right"></i></span>';
                     $result .= '</div>';

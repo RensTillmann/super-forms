@@ -172,8 +172,13 @@ function SUPERreCaptcha(){
         }
         return key+'_'+getUrlParam('id', 0);
     };
-    SUPER.set_session_data = function(key, data, method){
+    SUPER.set_session_data = function(key, data, method, raw){
+        var updateRawCode = false;
         if(typeof method === 'undefined') method = 'session';
+        if(typeof raw === 'undefined') raw = false;
+        if( key=='_super_elements' && !raw ) {
+            updateRawCode = true;
+        }
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
         if(method==='session'){
             try {
@@ -195,6 +200,8 @@ function SUPERreCaptcha(){
         }else{
             localStorage.setItem(key, data);
         }
+        // We should update the code in the "Code" tab so that we can edit Raw Form Code via here
+        if(updateRawCode) document.querySelector('.super-tab-content.super-tab-code > textarea').value = data;
     };
     SUPER.get_session_data = function(key, method){
         if(typeof method === 'undefined') method = 'session';
