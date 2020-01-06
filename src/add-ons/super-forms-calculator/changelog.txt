@@ -1,9 +1,8 @@
-Aug 05, 2019 - Version 2.0.53
+Jan 07, 2020 - Version 2.1.0
+- Replaced deprecated function with new one
 - Fix: Bug with math pointing to a conditional column that is inside a dynamic
 column (resulting in math returning zero value due to pointing to incorrect
 field)
-
-Jun 23, 2019 - Version 2.0.52
 - Fix: JavaScript error `split()` is not a function on none string data
 
 Jun 14, 2019 - Version 2.0.51

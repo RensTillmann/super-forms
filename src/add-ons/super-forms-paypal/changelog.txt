@@ -1,3 +1,6 @@
+Jan 07, 2020 - Version 1.2.0
+- Replaced deprecated function with new one
+
 Jun 26, 2019 - Version 1.1.4
 - Fix: Update fontawesome $handle to `font-awesome-v5.9`
 

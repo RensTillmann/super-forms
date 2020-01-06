@@ -1,4 +1,5 @@
-Dec 17, 2019 - Version 1.4.30
+Jan 07, 2020 - Version 1.5.0
+- Replaced deprecated function with new one
 - Improved: When using "Contact Entry Search" the signature will be redrawn based on the entry data
 
 Jun 18, 2019 - Version 1.4.20

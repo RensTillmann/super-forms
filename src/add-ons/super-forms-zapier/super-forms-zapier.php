@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Zapier
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Allows you to connect Super Forms with Zapier (zapier.com)
- * Version:     1.1.11
+ * Version:     1.2.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Zapier')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.1.10';
+        public $version = '1.2.0';
 
 
         /**
