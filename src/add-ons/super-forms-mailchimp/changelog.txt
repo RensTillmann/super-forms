@@ -1,10 +1,7 @@
-Nov 11, 2019 - Version 1.4.60
+Jan 07, 2020 - Version 1.5.0
+- Replaced deprecated function with new one
 - Fix: When no conditional logic is set, make sure column is not hidden (which it was by default)
-
-Oct 31, 2019 - Version 1.4.50
 - Fix: Conditional logic not working
-
-Sep 25, 2019 - Version 1.4.40
 - Added: Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
 - Fix: PHP Warnings and Notices
 

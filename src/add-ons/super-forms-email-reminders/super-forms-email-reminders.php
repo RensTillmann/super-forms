@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - E-mail Reminders
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Send email appointment reminders at specific times based on form submission date or user selected date with an optional offset
- * Version:     1.0.11
+ * Version:     1.1.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -40,7 +40,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.0.10';
+        public $version = '1.1.0';
 
 
         /**

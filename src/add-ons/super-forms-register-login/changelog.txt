@@ -1,4 +1,5 @@
-Nov 15, 2019 - Version 1.6.22
+Jan 07, 2020 - Version 1.7.0
+- Replaced deprecated function with new one
 - Fix: PHP Notice: Undefined offset: 1
 
 Jul 07, 2019 - Version 1.6.21
