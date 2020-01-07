@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.1
+ * Version:     4.9.101
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.1';
+        public $version = '4.9.101';
         public $slug = 'super-forms';
 
 
@@ -338,7 +338,6 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 3.4.0
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
-                add_action( 'current_screen', 'SUPER_Pages::whats_new_page' );
 
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
@@ -423,6 +422,10 @@ if(!class_exists('SUPER_Forms')) :
             echo 'function(editor){
                 var word_count_timeout = null;
                 editor.on("keyup blur", function(e){
+                    // Check if this Editor belongs to super forms
+                    if( !editor.container.closest(".super-forms") ) {
+                        return false;
+                    }
                     var $this = this,
                         $time = 250,
                         $text,
@@ -773,7 +776,7 @@ if(!class_exists('SUPER_Forms')) :
                     update_option( 'super_current_version', $this->version );
                     echo '<div class="notice notice-success">'; // notice-success, notice-error
                         echo '<p>';
-                        echo sprintf( esc_html__( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?super_whats_new=true">', '</a>' );
+                        echo sprintf( esc_html__( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/changelog">', '</a>' );
                         echo sprintf( esc_html__( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
                         echo '</p>';
                     echo '</div>';

@@ -100,7 +100,7 @@ class SUPER_Menu {
             esc_html__( 'What\'s New?', 'super-forms' ), 
             esc_html__( 'What\'s New?', 'super-forms' ), 
             'manage_options', 
-            'edit.php?post_type=super_suport&super_whats_new=true'
+            '#'
         );
         add_submenu_page( 
             'super_forms', 
@@ -132,6 +132,7 @@ class SUPER_Menu {
             $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
             $submenu['super_forms'][7][2] = 'https://renstillmann.github.io/super-forms/#/add-ons';
             $submenu['super_forms'][8][2] = 'https://renstillmann.github.io/super-forms/#/faq';
+            $submenu['super_forms'][9][2] = 'https://renstillmann.github.io/super-forms/#/changelog';
         }
     }
 }

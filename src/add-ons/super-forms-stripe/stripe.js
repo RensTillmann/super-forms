@@ -403,37 +403,18 @@
                         },
                         success: function(result) {
                             result = JSON.parse(result);
-                            if( result.method=='subscription' ) {
+                            console.log(result);
+                            // Check if this is a single payment or a subscription
+                            if( result.stripe_method=='subscription' ) {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
                                 var $atts = {};
-                                if( result.ideal ) {
-                                    // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
-                                    console.log(SUPER.Stripe.ideal[index]);
-                                    // stripe.createSource({
-                                    //   type: 'sepa_debit',
-                                    //   sepa_debit: {
-                                    //     ideal: 'src_16xhynE8WzK49JbAs9M21jaR',
-                                    //   },
-                                    //   currency: 'eur',
-                                    //   owner: {
-                                    //     name: 'Jenny Rosen',
-                                    //   },
-                                    // }).then(function(result) {
-                                    //   // handle result.error or result.source
-                                    // });
-                                    // $atts.type = 'ideal';
-                                    // $atts.ideal = SUPER.Stripe.ideal[index];
+                                if( result.sepa_debit ) {
+                                    $atts.type = result.payment_method;
+                                    $atts.sepa_debit.iban = '';
+                                    $atts.iban = SUPER.Stripe.iban[index];
                                 }else{
-                                    // if( result.sepa_debit ) {
-                                    //     $atts.type = 'sepa_debit';
-                                    //     $atts.sepa_debit.iban = '';
-                                    //     $atts.card = SUPER.Stripe.cards[index];
-                                    // }else{
-                                    //     $atts.type = 'card';
-                                    //     $atts.card = SUPER.Stripe.cards[index];
-                                    // }
-                                    $atts.type = 'card';
+                                    $atts.type = result.payment_method;
                                     $atts.card = SUPER.Stripe.cards[index];
                                 }
                                 $atts.billing_details = {
