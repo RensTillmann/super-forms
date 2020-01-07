@@ -76,8 +76,8 @@ if(!class_exists('SUPER_Stripe')) :
             'TWD' => array( 'symbol' => '&#36;', 'name' => 'Taiwan New Dollar', 'decimal' => true ),
             'THB' => array( 'symbol' => '&#3647;', 'name' => 'Thai Baht' ),
             'USD' => array( 'symbol' => '$', 'name' => 'U.S. Dollar' )
-        );       
-      
+        );
+
 
         /**
          * @var SUPER_Stripe The single instance of the class
@@ -365,19 +365,49 @@ if(!class_exists('SUPER_Stripe')) :
             $payment_method = $_POST['payment_method'];
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
+            
+            // Check if the user is logged in
+            // If so, we will want to save the stripe customer ID for this wordpress user
+            $user_id = get_current_user_id();
+            $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
+            error_log( 'super_stripe_cus: ' . $super_stripe_cus, 0);
 
             // Set your secret key: remember to change this to your live secret key in production
             // See your keys here: https://dashboard.stripe.com/account/apikeys
             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
             try {
-                $customer = \Stripe\Customer::create([
-                    'email' => 'jenny.rosen@example.com',
-                    'payment_method' => $payment_method,
-                    'invoice_settings' => [
-                        'default_payment_method' => $payment_method
-                    ],
-                ]);
+                $create_new_customer = true;
+                // Check if user is logged in, if so check if this is an existing customer
+                // If customer exists, we want to update the `default_payment_method` and `invoice_settings.default_payment_method`
+                if( !empty($super_stripe_cus) ) {
+                    $customer = \Stripe\Customer::retrieve($super_stripe_cus);
+                }
+                if( !empty($customer) ) {
+                    error_log( 'customer is not empty: ', 0);
+                    error_log( 'customer was delete yes/no? ' . $customer['deleted'], 0);
+                    // Check if customer was deleted
+                    if(!empty($customer['deleted']) && $customer['deleted']==true){
+                        // Customer was deleted, we should create a new one?
+                    }else{
+                        // The customer exists, let's update the payment method for this customer
+                        $payment_method = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
+                        $payment_method->attach(['customer' => $super_stripe_cus]);
+                        // Make sure we do not create a new customer
+                        $create_new_customer = false; 
+                    }
+                }
+                if($create_new_customer){
+                    error_log( 'customer is empty create new one: ', 0);
+                    // Customer doesn't exists, create a new customer
+                    $customer = \Stripe\Customer::create([
+                        'payment_method' => $payment_method,
+                        'email' => 'jenny.rosen@example.com',
+                        'invoice_settings' => [
+                            'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
+                        ],
+                    ]);
+                }
             } catch(\Stripe\Error\Card $e) {
                 // Since it's a decline, \Stripe\Error\Card will be caught
                 $message = $e->getJsonBody()['error']['message'];
@@ -417,7 +447,7 @@ if(!class_exists('SUPER_Stripe')) :
 
             try {
                 // Attempt to create the subscriptions
-                $outcome = \Stripe\Subscription::create([
+                $subscription = \Stripe\Subscription::create([
                     'customer' => $customer->id,
                     'items' => [
                         [
@@ -465,28 +495,33 @@ if(!class_exists('SUPER_Stripe')) :
                 die();
             }
 
+            // Check if the user is logged in
+            // If so, we will want to save the stripe customer ID for this wordpress user
+            $user_id = get_current_user_id();
+            update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+
             echo json_encode( array( 
-                'client_secret' => $outcome->latest_invoice->payment_intent->client_secret,
-                'subscription_status' => $outcome->status,
-                'invoice_status' => $outcome->latest_invoice->status,
-                'paymentintent_status' => (isset($outcome->latest_invoice->payment_intent) ? $outcome->latest_invoice->payment_intent->status : '')
+                'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
+                'subscription_status' => $subscription->status,
+                'invoice_status' => $subscription->latest_invoice->status,
+                'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '')
             ) );
 
             // // Outcome 1: Payment succeeds
-            // if( ($outcome->status=='active') && ($outcome->latest_invoice->status=='paid') && ($outcome->latest_invoice->payment_intent->status=='succeeded') ) {
+            // if( ($subscription->status=='active') && ($subscription->latest_invoice->status=='paid') && ($subscription->latest_invoice->payment_intent->status=='succeeded') ) {
 
             // }
             // // Outcome 2: Trial starts
-            // if( ($outcome->status=='trialing') && ($outcome->latest_invoice->status=='paid') ) {
+            // if( ($subscription->status=='trialing') && ($subscription->latest_invoice->status=='paid') ) {
 
             // }
             // // Outcome 3: Payment fails
-            // if( ($outcome->status=='incomplete') && ($outcome->latest_invoice->status=='open') && ($outcome->latest_invoice->payment_intent->status=='requires_payment_method') ) {
+            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_payment_method') ) {
 
             // }
 
             // // Outcome 4: Requires action
-            // if( ($outcome->status=='incomplete') && ($outcome->latest_invoice->status=='open') && ($outcome->latest_invoice->payment_intent->status=='requires_action') ) {
+            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_action') ) {
 
             // }
 
@@ -501,15 +536,29 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_prepare_payment() {
             require_once( 'stripe-php/init.php' );
             $apiKey = 'sk_test_CczNHRNSYyr4TenhiCp7Oz05';
-            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-
+            \Stripe\Stripe::setApiKey($apiKey);
             // Get data from form
             $data = $_POST['data'];
             // Get form settings
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
-            // Get payment method
+            // Get payment method [card, sepa_debit, ideal]
             $paymentMethod = sanitize_text_field($_POST['payment_method']);
+
+            if( $settings['stripe_method']=='subscription' ) {
+                echo json_encode( array( 
+                    'stripe_method' => 'subscription',
+                    'payment_method' => $paymentMethod, // Only if paid via IBAN
+                    // 'client_secret' => $intent->client_secret, // only for single payments
+                    'billing_details' => array(
+                        'name' => 'Rens Tillmann2'
+                    )
+                ) );
+                die();
+            }
+
+
+
 
             // Get PaymentIntent data
             $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
@@ -521,7 +570,7 @@ if(!class_exists('SUPER_Stripe')) :
             // It can be useful for storing additional information about the source in a structured format.
             $md = array();
             $md['form_id'] = $form_id;
-            $md['user_id'] = absint(get_current_user_id());
+            $md['user_id'] = get_current_user_id();
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
@@ -545,51 +594,15 @@ if(!class_exists('SUPER_Stripe')) :
             }
             // Allow devs to filter metadata if needed
             $md = apply_filters( 'super_stripe_prepare_payment_metadata', $md, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
-            
+
+            // Single Payments:
             // Create Payment Intent
-            $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $md);
-
-            // Return client secret and return URL (only required for iDeal payments)
-            if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-            $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-            echo json_encode( array( 
-                'client_secret' => $intent->client_secret, 
-                'return_url' => $stripe_return_url,
-                'stripe_method' => $settings['stripe_method']
-            ) );
-            
+            if( $settings['stripe_method']=='single' ) {
+                $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $md);
+            }
             die();
-              
 
-            // // SEPA Direct Debit
-            // if($paymentMethod=='sepa_debit'){
-            //     if( $settings['stripe_method']=='subscription' ) {
-                    
-            //     }else{
-            //         \Stripe\PaymentIntent::create([
-            //           'amount' => 1099,
-            //           'currency' => 'eur',
-            //           'setup_future_usage' => 'off_session',
-            //           'payment_method_types' => ['sepa_debit'],
-            //         ]);
-            //     }
-            // }
-            // // iDeal
-            // if($paymentMethod=='ideal'){
-            //     if( $settings['stripe_method']=='subscription' ) {
-            //         // Subscriptions can not be paid with iDeal
-            //     }else{
 
-            //     }
-            // }
-            // // Credit Card
-            // if($paymentMethod=='card'){
-            //     if( $settings['stripe_method']=='subscription' ) {
-                
-            //     }else{
-
-            //     }
-            // }
             // if($settings['stripe_method']=='subscription'){
             //     if($ideal){
             //         // Subscription
@@ -687,7 +700,7 @@ if(!class_exists('SUPER_Stripe')) :
             //     // It can be useful for storing additional information about the source in a structured format.
             //     $md = array();
             //     $md['form_id'] = $form_id;
-            //     $md['user_id'] = absint(get_current_user_id());
+            //     $md['user_id'] = get_current_user_id();
 
             //     // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             //     $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
@@ -788,6 +801,51 @@ if(!class_exists('SUPER_Stripe')) :
             //     ) );
             // }
             // die();
+
+
+            // // Return client secret and return URL (only required for iDeal payments)
+            // if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+            // $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+            // echo json_encode( array( 
+            //     'client_secret' => $intent->client_secret, 
+            //     'return_url' => $stripe_return_url,
+            //     'stripe_method' => $settings['stripe_method']
+            // ) );
+            
+            // die();
+              
+
+            // // SEPA Direct Debit
+            // if($paymentMethod=='sepa_debit'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+                    
+            //     }else{
+            //         \Stripe\PaymentIntent::create([
+            //           'amount' => 1099,
+            //           'currency' => 'eur',
+            //           'setup_future_usage' => 'off_session',
+            //           'payment_method_types' => ['sepa_debit'],
+            //         ]);
+            //     }
+            // }
+            // // iDeal
+            // if($paymentMethod=='ideal'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+            //         // Subscriptions can not be paid with iDeal
+            //     }else{
+
+            //     }
+            // }
+            // // Credit Card
+            // if($paymentMethod=='card'){
+            //     if( $settings['stripe_method']=='subscription' ) {
+                
+            //     }else{
+
+            //     }
+            // }
+
+
         }
 
         // Create PaymentIntent
@@ -1177,6 +1235,196 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         public static function super_custom_columns($column, $post_id) {
+
+            $declineCodes = array(
+                'authentication_required' => array(
+                    'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again and authenticate their card when prompted during the transaction.', 'super-forms' )
+                ),
+                'approve_with_id' => array(
+                    'desc' => esc_html__( 'The payment cannot be authorized.', 'super-forms' ),
+                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                ),
+                'call_issuer' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'card_not_supported' => array(
+                    'desc' => esc_html__( 'The card does not support this type of purchase.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer to make sure their card can be used to make this type of purchase.', 'super-forms' )
+                ),
+                'card_velocity_exceeded' => array(
+                    'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'currency_not_supported' => array(
+                    'desc' => esc_html__( 'The card does not support the specified currency.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to check with the issuer whether the card can be used for the type of currency specified.', 'super-forms' )
+                ),
+                'do_not_honor' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'do_not_try_again' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'duplicate_transaction' => array(
+                    'desc' => esc_html__( 'A transaction with identical amount and credit card information was submitted very recently.', 'super-forms' ),
+                    'steps' => esc_html__( 'Check to see if a recent payment already exists.', 'super-forms' )
+                ),
+                'expired_card' => array(
+                    'desc' => esc_html__( 'The card has expired.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should use another card.', 'super-forms' )
+                ),
+                'fraudulent' => array(
+                    'desc' => esc_html__( 'The payment has been declined as Stripe suspects it is fraudulent.', 'super-forms' ),
+                    'steps' => esc_html__( 'Do not report more detailed information to your customer.  Instead, present as you would the ', 'super-forms' )
+                ),
+                'generic_decline' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'incorrect_number' => array(
+                    'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+                ),
+                'incorrect_cvc' => array(
+                    'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+                ),
+                'incorrect_pin' => array(
+                    'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader. ', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+                ),
+                'incorrect_zip' => array(
+                    'desc' => esc_html__( 'The ZIP/postal code is incorrect.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct billing ZIP/postal code.', 'super-forms' )
+                ),
+                'insufficient_funds' => array(
+                    'desc' => esc_html__( 'The card has insufficient funds to complete the purchase.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+                ),
+                'invalid_account' => array(
+                    'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer to check that the card is working correctly.', 'super-forms' )
+                ),
+                'invalid_amount' => array(
+                    'desc' => esc_html__( 'The payment amount is invalid or exceeds the amount that is allowed.', 'super-forms' ),
+                     'steps' => esc_html__( 'If the amount appears to be correct, the customer needs to check with their card issuer that they can make purchases of that amount.', 'super-forms' )
+                ),
+                'invalid_cvc' => array(
+                    'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+                ),
+                'invalid_expiry_year' => array(
+                    'desc' => esc_html__( 'The expiration year invalid.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct expiration date.', 'super-forms' )
+                ),
+                'invalid_number' => array(
+                    'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+                ),
+                'invalid_pin' => array(
+                    'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+                ),
+                'issuer_not_available' => array(
+                    'desc' => esc_html__( 'The card issuer could not be reached so the payment could not be authorized.', 'super-forms' ),
+                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                ),
+                'lost_card' => array(
+                    'desc' => esc_html__( 'The payment has been declined because the card is reported lost.', 'super-forms' ),
+                    'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+                ),
+                'merchant_blacklist' => array(
+                    'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user\'s block list.', 'super-forms' ),
+                    'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
+                ),
+                'new_account_information_available' => array(
+                    'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'no_action_taken' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'not_permitted' => array(
+                    'desc' => esc_html__( 'The payment is not permitted.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'offline_pin_required' => array(
+                    'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+                ),
+                'online_or_offline_pin_required' => array(
+                    'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+                    'steps' => esc_html__( 'If the card reader supports Online PIN, the customer should be prompted for a PIN without a new transaction being created. If the card reader does not support Online PIN, the customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+                ),
+                'pickup_card' => array(
+                    'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'pin_try_exceeded' => array(
+                    'desc' => esc_html__( 'The allowable number of PIN tries has been exceeded.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer must use another card or method of payment.', 'super-forms' )
+                ),
+                'processing_error' => array(
+                    'desc' => esc_html__( 'An error occurred while processing the card.', 'super-forms' ),
+                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, try again later.', 'super-forms' )
+                ),
+                'reenter_transaction' => array(
+                    'desc' => esc_html__( 'The payment could not be processed by the issuer for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                ),
+                'restricted_card' => array(
+                    'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'revocation_of_all_authorizations' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'revocation_of_authorization' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'security_violation' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'service_not_allowed' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'stolen_card' => array(
+                    'desc' => esc_html__( 'The payment has been declined because the card is reported stolen.', 'super-forms' ),
+                    'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+                ),
+                'stop_payment_order' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'testmode_decline' => array(
+                    'desc' => esc_html__( 'A Stripe test card number was used.', 'super-forms' ),
+                    'steps' => esc_html__( 'A genuine card must be used to make a payment.', 'super-forms' )
+                ),
+                'transaction_not_allowed' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                ),
+                'try_again_later' => array(
+                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                    'steps' => esc_html__( 'Ask the customer to attempt the payment again. If subsequent payments are declined, the customer should contact their card issuer for more information.', 'super-forms' )
+                ),
+                'withdrawal_count_limit_exceeded' => array(
+                    'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card. ', 'super-forms' ),
+                    'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+                )
+            );
+
+            
+
             $d = get_post_meta( $post_id, '_super_txn_data', true );
             $txn_id = self::getTransactionId($d);
             $currency_code = strtoupper($d['currency']);
@@ -1223,20 +1471,36 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                     if( $d['status']=='failed' ) {
                         $label = esc_html__( 'Failed', 'super-forms' );
-                        if(isset($d['outcome']['seller_message'])){
-                            $title = ' title="' . esc_attr($d['outcome']['seller_message']) . '"';
+                        $class = ' super-stripe-failed';
+                        if( (!empty($d['last_payment_error'])) && (isset($declineCodes[$d['last_payment_error']['decline_code']])) ) {
+                            $title = ' title="' . esc_attr($declineCodes[$d['last_payment_error']['decline_code']]['desc']) . '"';
                         }else{
-                            if( (isset($d['charges'])) && (isset($d['charges']['data'])) ) {
-                                $title = ' title="' . esc_attr($d['charges']['data'][0]['outcome']['seller_message']) . '"';
+                            if(isset($d['outcome']['seller_message'])){
+                                $title = ' title="' . esc_attr($d['outcome']['seller_message']) . '"';
+                            }else{
+                                if( (isset($d['charges'])) && (isset($d['charges']['data'])) ) {
+                                    $title = ' title="' . esc_attr($d['charges']['data'][0]['outcome']['seller_message']) . '"';
+                                }
                             }
                         }
-                        $class = ' super-stripe-failed';
                     }
-                    if( $d['status']=='requires_payment_method' ) {
-                        $label = esc_html__( 'Incomplete', 'super-forms' );
-                        $title = ' title="' . esc_attr__( 'The customer has not entered their payment method.', 'super-forms' ) . '"';
-                        $class = ' super-stripe-incomplete';
-                        $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm1-8.577V4a1 1 0 1 0-2 0v4a1 1 0 0 0 .517.876l2.581 1.49a1 1 0 0 0 1-1.732z';
+                    if( $d['status']=='requires_payment_method' || $d['status']=='requires_capture' ) {
+                        if( (!empty($d['last_payment_error'])) && (isset($declineCodes[$d['last_payment_error']['decline_code']])) ) {
+                            $class = ' super-stripe-failed';
+                            $label = esc_html__( 'Failed', 'super-forms' );
+                            $title = ' title="' . esc_attr($declineCodes[$d['last_payment_error']['decline_code']]['desc']) . '"';
+                        }else{
+                            if( $d['status']=='requires_payment_method' ) {
+                                $class = ' super-stripe-incomplete';
+                                $label = esc_html__( 'Incomplete', 'super-forms' );
+                                $title = ' title="' . esc_attr__( 'The customer has not entered their payment method.', 'super-forms' ) . '"';
+                            }else{
+                                $class = ' super-stripe-uncaptured';
+                                $label = esc_html__( 'Uncaptured', 'super-forms' );
+                                $title = ' title="' . esc_attr__( 'Payment authorized, but not yet captured.', 'super-forms' ) . '"';
+                            }
+                            $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm1-8.577V4a1 1 0 1 0-2 0v4a1 1 0 0 0 .517.876l2.581 1.49a1 1 0 0 0 1-1.732z';
+                        }
                     }
                     if( $d['status']=='succeeded' ) {
                         if( !empty($d['refunded']) ) {
@@ -1331,7 +1595,7 @@ if(!class_exists('SUPER_Stripe')) :
             // It can be useful for storing additional information about the source in a structured format.
             $md = array();
             $md['form_id'] = absint($data['hidden_form_id']['value']);
-            $md['user_id'] = absint(get_current_user_id());
+            $md['user_id'] = get_current_user_id();
             //$md['description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
 
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
@@ -1514,7 +1778,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             if ((isset($_GET['ipn'])) && ($_GET['ipn'] == 'super_stripe')) {
-                error_log( "IPN Request Received", 0 );
+                //error_log( "IPN Request Received", 0 );
                 require_once( 'stripe-php/init.php' );
 
                 // Set your secret key: remember to change this to your live secret key in production
@@ -1522,7 +1786,7 @@ if(!class_exists('SUPER_Stripe')) :
                 \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
 
                 $payload = file_get_contents('php://input');
-                error_log( "payload:" . $payload, 0 );
+                //error_log( "payload:" . $payload, 0 );
                 $event = null;
                 try {
                     $event = json_decode($payload, true);
@@ -1548,9 +1812,37 @@ if(!class_exists('SUPER_Stripe')) :
                 // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event->type), $obj );
 
                 // Handle the event
-                error_log( "event type:" . json_encode($event), 0 );
-                error_log( "event metadata test1:" . json_encode($event['data']['object']['metadata']), 0 );
+                //error_log( "event type:" . json_encode($event), 0 );
+                //error_log( "event metadata test1:" . json_encode($event['data']['object']['metadata']), 0 );
                 $paymentIntent = $event['data']['object'];
+
+                $handleWebhook = array(
+                    'charge.failed',            // Occurs whenever a failed charge attempt occurs.
+                                                // The Charge has failed and the payment could not be completed.
+                                                // Cancel the order and optionally re-engage the customer in your payment flow.
+                    'charge.refunded',          // Occurs whenever a charge is refunded, including partial refunds.
+                    'charge.updated',           // Occurs whenever a charge description or metadata is updated.
+                    'charge.refund.updated',    // Occurs whenever a refund is updated, on selected payment methods.
+                    'charge.dispute.created',   // Occurs whenever a customer disputes a charge with their bank.
+
+                    'payment_intent.canceled',                  // Occurs when a PaymentIntent is canceled.
+                    'payment_intent.payment_failed',            // Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
+                                                                // When payment is unsuccessful, you can find more details by inspecting the 
+                                                                // PaymentIntent’s `last_payment_error` property. You can notify the customer 
+                                                                // that their payment didn’t complete and encourage them to try again with a 
+                                                                // different payment method. Reuse the same PaymentIntent to continue tracking 
+                                                                // the customer’s purchase.
+
+                    
+                    'payment_intent.succeeded',                 // Occurs when a PaymentIntent has been successfully fulfilled.
+                    'payment_intent.amount_capturable_updated'  // Occurs when a PaymentIntent has funds to be captured
+                );
+                if( in_array($event['type'], $handleWebhook) ) {
+                    self::handleWebhook($paymentIntent);
+                    http_response_code(200);
+                    die();
+                }
+
                 switch ($event['type']) {
                     case 'charge.pending':
                         // Occurs whenever a pending charge is created.
@@ -1563,58 +1855,9 @@ if(!class_exists('SUPER_Stripe')) :
                         // Finalize the order and send a confirmation to the customer over email.
                         self::handleChargeSucceeded($paymentIntent);
                         break;
-                    case 'charge.failed':
-                        // Occurs whenever a failed charge attempt occurs.
-                        // The Charge has failed and the payment could not be completed.
-                        // Cancel the order and optionally re-engage the customer in your payment flow.
-                        self::handleChargeFailed($paymentIntent);
-                        break;
-                    case 'charge.refunded':
-                        // Occurs whenever a charge is refunded, including partial refunds.
-                        self::handleChargeRefunded($paymentIntent);
-                        break;
-                    case 'charge.updated':
-                        // Occurs whenever a charge description or metadata is updated.
-                        self::handleChargeUpdated($paymentIntent);
-                        break;
-                    case 'charge.refund.updated':
-                        // Occurs whenever a refund is updated, on selected payment methods.
-                        self::handleChargeRefundUpdated($paymentIntent);
-                        break;
-                    case 'charge.dispute.created':
-                        // Occurs whenever a customer disputes a charge with their bank.
-                        self::handleChargeDisputeCreated($paymentIntent);
-                        break;
                     case 'payment_intent.created':
                         // ...Occurs when a new PaymentIntent is created.
-                        // Status: Incomplete
-                        // "status": "requires_payment_method",
-                        // The customer has not entered their payment method.
                         self::handlePaymentIntentCreated($paymentIntent);
-                        break;
-                    case 'payment_intent.canceled':
-                        // ...Occurs when a PaymentIntent is canceled.
-                        // Status: Canceled
-                        // Cancellation reason: requested_by_customer
-                        self::handlePaymentIntentCanceled($paymentIntent);
-                        break;
-                    case 'payment_intent.payment_failed':
-                        // ...Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
-                        self::handlePaymentIntentPaymentFailed($paymentIntent);
-                        break;
-                    case 'payment_intent.succeeded':
-                        // ...Occurs when a PaymentIntent has been successfully fulfilled.
-                        // Status: Succeeded
-                        // "status": "succeeded",
-                        // Type: Visa credit card
-                        // "charges": {
-                        //     "object": "list",
-                        //     "data": [
-                        //       {
-                        //          "payment_method_details": {
-                        //              "card": {
-                        //                  "brand": "visa",
-                        self::handlePaymentIntentSucceeded($paymentIntent);
                         break;
                     case 'customer.created':
                         // Occurs whenever a new customer is created.
@@ -1625,8 +1868,8 @@ if(!class_exists('SUPER_Stripe')) :
                     case 'payment_method.attached':
                         // Occurs whenever a new payment method is attached to a customer.
                         break;
-                    // ... handle other event types
 
+                    // ... handle other event types
                     // Othe Events:
                     // balance.available
                     // charge.captured
@@ -1745,7 +1988,7 @@ if(!class_exists('SUPER_Stripe')) :
                 //         //     "seller_message": "The bank did not return any further details with this decline.",
                 //         //     "type": "issuer_declined"
                 //         //   },
-                //         self::handlePaymentIntentPaymentFailed($paymentIntent);
+                //         self::handleWebhook($paymentIntent);
                 //         break;
                 //     case 'payment_intent.succeeded':
                 //         // ...Occurs when a PaymentIntent has been successfully fulfilled.
@@ -1761,7 +2004,7 @@ if(!class_exists('SUPER_Stripe')) :
                 //         //              "card": {
                 //         //                  "brand": "visa",
                 //         //$paymentIntent = $event->data->object; // contains a StripePaymentIntent
-                //         //handlePaymentIntentSucceeded($paymentIntent);
+                //         //handleWebhook($paymentIntent);
                 //         break;
 
                 //     case 'customer.created':
@@ -1981,11 +2224,11 @@ if(!class_exists('SUPER_Stripe')) :
             $txn_id = self::getTransactionId($paymentIntent);
             $post = get_page_by_title( $txn_id, OBJECT, 'super_stripe_txn' );
             if($post) {
-                error_log( "exists!", 0 );
-                error_log( "metadata!" . json_encode($paymentIntent), 0 );
+                //error_log( "exists!", 0 );
+                //error_log( "metadata!" . json_encode($paymentIntent), 0 );
                 return $post->ID;
             }else{
-                error_log( "does not exists!", 0 );
+                //error_log( "does not exists!", 0 );
                 $md = (isset($paymentIntent['metadata']['_super_data']) ? $paymentIntent['metadata']['_super_data'] : '');
                 $md = json_decode($md, true);
                 $form_id = (isset($md['form_id']) ? absint($md['form_id']) : 0 );
@@ -2009,19 +2252,19 @@ if(!class_exists('SUPER_Stripe')) :
                 update_option( 'super_stripe_txn_count', ($count+1) );
                 // Connect transaction to contact entry if one was created
                 if( !empty($contact_entry_id) ) {
-                    error_log( "contact_entry_id: ", 0 );
+                    //error_log( "contact_entry_id: ", 0 );
                     update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
                     // Update contact entry status after succesfull payment
                     if( !empty($settings['stripe_completed_entry_status']) ) {
-                        error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
+                        //error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
                         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
                     }
                 }
                 // Update post status after succesfull payment (only used for Front-end Posting add-on)
                 if( !empty($frontend_post_id) ) {
-                    error_log( "frontend_post_id: ", 0 );
+                    //error_log( "frontend_post_id: ", 0 );
                     if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-                        error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
+                        //error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
                         wp_update_post( 
                             array(
                                 'ID' => $frontend_post_id,
@@ -2032,10 +2275,10 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
                 if( !empty($frontend_user_id) ) {
-                    error_log( "frontend_user_id: ", 0 );
+                    //error_log( "frontend_user_id: ", 0 );
                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
                         if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                            error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
+                            //error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
     
                             update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
                         }
@@ -2048,54 +2291,16 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         public static function handleChargeSucceeded($paymentIntent) {
-            error_log( "handleChargeSucceeded()", 0 );
             self::createTransactionIfNotExists($paymentIntent);
         }
-        public static function handleChargeFailed($paymentIntent) {
-            error_log( "handleChargeFailed()", 0 );
+        public static function handleWebhook($paymentIntent) {
             $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );     
         }
-        public static function handleChargeRefunded($paymentIntent) {
-            error_log( "handleChargeRefunded()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handleChargeUpdated($paymentIntent) {
-            error_log( "handleChargeUpdated()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handleChargeRefundUpdated($paymentIntent) {
-            error_log( "handleChargeRefundUpdated()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handleChargeDisputeCreated($paymentIntent) {
-            error_log( "handleChargeDisputeCreated()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+        public static function handlePaymentIntentCreated($paymentIntent) {
+            self::createTransactionIfNotExists($paymentIntent);
         }
 
-        public static function handlePaymentIntentCreated($paymentIntent) {
-            error_log( "handlePaymentIntentCreated()", 0 );
-            self::createTransactionIfNotExists($paymentIntent);
-        }
-        public static function handlePaymentIntentPaymentFailed($paymentIntent) {
-            error_log( "handlePaymentIntentPaymentFailed()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handlePaymentIntentCanceled($paymentIntent) {
-            error_log( "handlePaymentIntentCanceled()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
-        public static function handlePaymentIntentSucceeded($paymentIntent) {
-            error_log( "handlePaymentIntentSucceeded()", 0 );
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-        }
 
 
         /**
@@ -2744,7 +2949,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // Subscription checkout settings
                     'stripe_plan_id' => array(
-                        'name' => esc_html__( 'Subscription Plan/Product ID (should look similar to: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
+                        'name' => esc_html__( 'Subscription Plan ID (should look similar to: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
                         'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_plan_id', $settings['settings'], '' ),
                         'filter' => true,
