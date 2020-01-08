@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Front-end Posting
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Let visitors create posts from your front-end website
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.0';
+        public $version = '1.4.1';
 
         
         /**
@@ -939,7 +939,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                             continue;
 
                         }
-                        add_post_meta( $post_id, $k, $v );
+                        update_post_meta( $post_id, $k, $v );
                     }
 
                     // Set post format for the post if theme supports it and if it was set by the form settings or by one of the form fields
