@@ -2173,7 +2173,7 @@ function SUPERreCaptcha(){
 
         var i = 0, nodes,
             step,
-            action = submitButton.querySelector('.super-button-name').dataset.action,
+            action = (submitButton.querySelector('.super-button-name') ? submitButton.querySelector('.super-button-name').dataset.action : ''),
             url = submitButton.dataset.href,
             proceed = SUPER.before_submit_button_click_hook(e, submitButton),
             regex = /\{(.*?)\}/g,
@@ -2240,7 +2240,7 @@ function SUPERreCaptcha(){
                     return false;
                 }
             }else{
-                if(submitButton.closest('.super-form-button').classList.contains('super-loading')){
+                if(submitButton.closest('.super-form-button') && submitButton.closest('.super-form-button').classList.contains('super-loading')){
                     return false;
                 }
             }
@@ -2413,7 +2413,7 @@ function SUPERreCaptcha(){
                 for (i = 0; i < nodes.length; ++i) {
                     if(!SUPER.has_hidden_parent(nodes[i])){
                         if(total_fields==counter){
-                            if(this.name==field.name){
+                            if(nodes[i].name==field.name){
                                 setTimeout(function (){
                                     active_part.querySelector('.super-next-multipart').click();
                                 }, 200);

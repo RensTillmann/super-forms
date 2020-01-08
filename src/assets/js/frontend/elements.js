@@ -1975,7 +1975,7 @@
 
             // @since 2.0 - validate multi-part before going to next step
             validate = currentActive.dataset.validate;
-            if(validate===true){
+            if(validate=='true'){
                 result = SUPER.validate_form( currentActive, el, true, e, true );
                 if(result===false) return false;
             }
@@ -2092,7 +2092,7 @@
             }else{
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
-                if(validate===true){
+                if(validate=='true'){
                     result = SUPER.validate_form( form.querySelector('.super-multipart.super-active'), el, true, e, true );
                     if(result===false) return false;
                 }

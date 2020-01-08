@@ -1,4 +1,5 @@
-### Jan 08, 2020 - Version 4.9.101
+### Jan 08, 2020 - Version 4.9.102
+- Fix: Multi-part automatically go to next step and prevent going next step
 - Improved: Only bind events for TinyMCE editor on those that are inside a Super Form
 
 ### Jan 07, 2020 - Version 4.9.1
