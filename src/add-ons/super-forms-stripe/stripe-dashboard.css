@@ -4,7 +4,7 @@
 
 .super-loading>.super-stripe-tabs,
 .super-loading>.super-stripe-tabs-content {
-    visibility:hidden;
+    visibility: hidden;
 }
 
 .super-stripe-loader {
@@ -156,14 +156,29 @@
     position: relative;
 }
 
+.super-stripe-column.super-stripe-actions {
+    text-align: center;
+}
+
 .super-stripe-action-btn {
-    border: 1px solid red;
     display: inline-block;
     background-color: white;
-    height: 10px;
-    position: absolute;
-    left: 0px;
-    top: 0px;
+    width: 35px;
+    height: 25px;
+    position: relative;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+
+}
+
+.super-stripe-action-btn:hover {
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 3px 9px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+
+.super-stripe-action-btn svg {
+    margin-top: 7px;
 }
 
 .super-stripe-headings {
@@ -176,6 +191,7 @@
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
+    align-items: center;
 }
 
 .super-stripe-headings {
@@ -185,27 +201,30 @@
 }
 
 .super-stripe-heading {
-    border: 1px solid red;
     width: 100%;
     padding: 5px 20px 5px 5px;
 }
 
-.super-stripe-table-rows {
-    border: 1px solid red;
+.super-stripe-row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e8e8e8;
 }
 
-.super-stripe-row {
-    border: 1px solid red;
+.super-stripe-row:nth-child(even) {
+    background-color: #ffffff;
 }
+
+.super-stripe-row:hover {
+    background-color: #f9f9f9;
+}
+
 
 .super-stripe-row>div {
-    border: 1px solid red;
     padding: 5px 20px 5px 5px;
     width: 100%;
 }
 
 .super-stripe-heading.super-stripe-heading-actions,
 .super-stripe-column.super-stripe-actions {
-    max-width: 50px!important;
+    max-width: 50px !important;
 }
-

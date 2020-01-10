@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Front-end Posting
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Let visitors create posts from your front-end website
- * Version:     1.4.1
+ * Version:     1.4.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.4.1';
+        public $version = '1.4.2';
 
         
         /**
@@ -880,7 +880,6 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                         if (function_exists('get_field_object')) {
                             global $wpdb;
                             $length = strlen($k);
-
                             // @since 1.1.2 - Because there are major differences between ACF Pro and the regular ACF plugin we have to do different queries
                             if( class_exists('acf_pro') ) {
                                 $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$k' AND post_type = 'acf-field'";
@@ -888,56 +887,56 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                 $sql = "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE 'field_%' AND meta_value LIKE '%\"name\";s:$length:\"$k\";%';";
                             }
                             $acf_field = $wpdb->get_var($sql);
-
                             // @since 1.2.4 - It might be possible we are using the ACF Gallery Add-on here for the none pro version, in this case we must do a different query
                             if(!$acf_field){
                                 $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$k' AND post_type = 'acf-field'";
                                 $acf_field = $wpdb->get_var($sql);
                             }
-
+                            // Lookup the ACF field
                             $acf_field = get_field_object($acf_field);
-
-                            // @since 1.1.3 - save a checkbox or select value
-                            if( ($acf_field['type']=='checkbox') || ($acf_field['type']=='select') || ($acf_field['type']=='radio') || ($acf_field['type']=='gallery') ) {
-                                $value = explode( ",", $v );
-                                update_field( $acf_field['key'], $value, $post_id );
-                                continue;
-                            }elseif( $acf_field['type']=='google_map' ) {
-                                if( isset($data[$k]['geometry']) ) {
-                                    $data[$k]['geometry']['location']['address'] = $data[$k]['value'];
-                                    $value = $data[$k]['geometry']['location'];
-                                }else{
-                                    $value = array(
-                                        'address' => $data[$k]['value'],
-                                        'lat' => '',
-                                        'lng' => '',
-                                    );
+                            // @since 1.4.2 
+                            // If the meta key does not exist in ACF, we must save it as regular metadata
+                            // This is for instance the case with _sku (used by WooCommerce products)
+                            if($acf_field){
+                                // @since 1.1.3 - save a checkbox or select value
+                                if( ($acf_field['type']=='checkbox') || ($acf_field['type']=='select') || ($acf_field['type']=='radio') || ($acf_field['type']=='gallery') ) {
+                                    $value = explode( ",", $v );
+                                    update_field( $acf_field['key'], $value, $post_id );
+                                    continue;
+                                }elseif( $acf_field['type']=='google_map' ) {
+                                    if( isset($data[$k]['geometry']) ) {
+                                        $data[$k]['geometry']['location']['address'] = $data[$k]['value'];
+                                        $value = $data[$k]['geometry']['location'];
+                                    }else{
+                                        $value = array(
+                                            'address' => $data[$k]['value'],
+                                            'lat' => '',
+                                            'lng' => '',
+                                        );
+                                    }
+                                    update_field( $acf_field['key'], $value, $post_id );
+                                    continue;
                                 }
-                                update_field( $acf_field['key'], $value, $post_id );
-                                continue;
-                            }
-
-                            // @since 1.1.3 - save a repeater field value
-                            if($acf_field['type']=='repeater'){
-                                $repeater_values = array();
-                                foreach($acf_field['sub_fields'] as $sk => $sv){
-                                    if( isset($data[$sv['name']]) ) {
-                                        $repeater_values[0][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'], $sv['type'], $settings );
-                                        $field_counter = 2;
-                                        while( isset($data[$sv['name'] . '_' . $field_counter]) ) {
-                                            $repeater_values[$field_counter-1][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
-                                            $field_counter++;
+                                // @since 1.1.3 - save a repeater field value
+                                if($acf_field['type']=='repeater'){
+                                    $repeater_values = array();
+                                    foreach($acf_field['sub_fields'] as $sk => $sv){
+                                        if( isset($data[$sv['name']]) ) {
+                                            $repeater_values[0][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'], $sv['type'], $settings );
+                                            $field_counter = 2;
+                                            while( isset($data[$sv['name'] . '_' . $field_counter]) ) {
+                                                $repeater_values[$field_counter-1][$sv['name']] = SUPER_Frontend_Posting()->return_field_value( $data, $sv['name'] . '_' . $field_counter, $sv['type'], $settings );
+                                                $field_counter++;
+                                            }
                                         }
                                     }
+                                    update_field( $acf_field['key'], $repeater_values, $post_id );
+                                    continue;
                                 }
-                                update_field( $acf_field['key'], $repeater_values, $post_id );
+                                // save a basic text value
+                                update_field( $acf_field['key'], $v, $post_id );
                                 continue;
                             }
-
-                            // save a basic text value
-                            update_field( $acf_field['key'], $v, $post_id );
-                            continue;
-
                         }
                         update_post_meta( $post_id, $k, $v );
                     }
