@@ -1,0 +1,211 @@
+.super-stripe-dashboard {
+    padding-right: 20px;
+}
+
+.super-loading>.super-stripe-tabs,
+.super-loading>.super-stripe-tabs-content {
+    visibility:hidden;
+}
+
+.super-stripe-loader {
+    display: none;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #e6ebf1;
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+}
+
+.super-stripe-dashboard.super-loading>.super-stripe-loader {
+    display: flex;
+}
+
+.super-stripe-loader>div {
+    transform: scale(2)
+}
+
+.super-stripe-loader>div>svg {
+    position: relative;
+    display: flex;
+    width: 16px;
+    height: 16px;
+    animation: SpinnerAnimationShow .25s normal ease, SpinnerAnimationRotation .7s linear infinite;
+    transition-property: opacity, transform;
+    transition-timing-function: ease;
+    transform-origin: 50% 50%
+}
+
+.super-stripe-loader>div>svg>ellipse {
+    fill: transparent;
+    stroke: #8792a2;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 20
+}
+
+@keyframes SpinnerAnimationShow {
+    0% {
+        opacity: 0
+    }
+
+    to {
+        opacity: 1
+    }
+}
+
+@keyframes SpinnerAnimationRotation {
+    0% {
+        transform: scaleX(-1) rotate(0)
+    }
+
+    50% {
+        transform: scaleX(-1) rotate(-180deg)
+    }
+
+    to {
+        transform: scaleX(-1) rotate(-1turn)
+    }
+}
+
+.super-stripe-tabs {
+    display: flex;
+    /* or inline-flex */
+    border-bottom: 1px solid #ccc;
+    padding-top: 9px;
+    padding-bottom: 0;
+    line-height: inherit;
+    margin: 1.5em 0 1em;
+}
+
+.super-stripe-tab {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    margin-left: 0.5em;
+    padding: 5px 10px;
+    font-size: 14px;
+    line-height: 1.71428571;
+    font-weight: 600;
+    background: #e5e5e5;
+    color: #555555;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.super-stripe-tab.super-active,
+.super-stripe-tab.super-active:hover {
+    cursor: default;
+    border-bottom: 1px solid #f1f1f1;
+    background: #f1f1f1;
+    color: #000;
+    margin-bottom: -1px;
+}
+
+.super-stripe-tab:hover {
+    background-color: #fff;
+    color: #444;
+}
+
+.super-stripe-tabs-content>div {
+    display: none;
+    overflow-x: auto;
+}
+
+.super-stripe-tabs-content>div.super-active {
+    display: block;
+}
+
+.super-stripe-tabs-content table {
+    width: 100%;
+}
+
+.super-stripe-tabs-content th {
+    background-color: #23282D;
+    color: white;
+}
+
+.super-stripe-tabs-content th,
+.super-stripe-tabs-content td {
+    text-align: left;
+    padding: 5px 10px 5px 10px;
+    margin: 0px 0px 0px 0px;
+}
+
+.super-stripe-tabs-content tr {
+    background-color: #fff;
+}
+
+.super-stripe-tabs-content tr td {
+    border-bottom: 1px solid #D3D3D3;
+}
+
+.super-stripe-tabs-content tr:nth-child(even) {
+    background-color: #F4F4F4;
+}
+
+.super-stripe-tabs-content tr:hover {
+    background-color: #EBEBEB;
+}
+
+.super-stripe-actions {
+    position: relative;
+}
+
+.super-stripe-action-btn {
+    border: 1px solid red;
+    display: inline-block;
+    background-color: white;
+    height: 10px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+.super-stripe-headings {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.super-stripe-table-rows .super-stripe-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.super-stripe-headings {
+    background-color: #23282D;
+    color: white;
+    font-weight: 600;
+}
+
+.super-stripe-heading {
+    border: 1px solid red;
+    width: 100%;
+    padding: 5px 20px 5px 5px;
+}
+
+.super-stripe-table-rows {
+    border: 1px solid red;
+}
+
+.super-stripe-row {
+    border: 1px solid red;
+}
+
+.super-stripe-row>div {
+    border: 1px solid red;
+    padding: 5px 20px 5px 5px;
+    width: 100%;
+}
+
+.super-stripe-heading.super-stripe-heading-actions,
+.super-stripe-column.super-stripe-actions {
+    max-width: 50px!important;
+}
+
