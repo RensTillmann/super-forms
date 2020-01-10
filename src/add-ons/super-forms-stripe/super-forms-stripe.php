@@ -209,7 +209,7 @@ if(!class_exists('SUPER_Stripe')) :
             //add_action( 'super_stripe_webhook_payment_intent_payment_failed', array( $this, 'payment_intent_payment_failed' ), 10 );
             
             // Load more Transactions, Products, Customers
-            add_action( 'wp_ajax_super_stripe_load_more', array( $this, 'super_stripe_load_more' ) );
+            add_action( 'wp_ajax_super_stripe_api_handler', array( $this, 'super_stripe_api_handler' ) );
 
             // Prepare payment
             add_action( 'wp_ajax_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
@@ -226,10 +226,230 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
+            add_filter( 'super_enqueue_scripts', array( $this, 'super_enqueue_scripts' ), 10, 1 );
+            add_filter( 'super_enqueue_styles', array( $this, 'super_enqueue_styles' ), 10, 1 );
+
+            
+            
+        }
+        public static function super_enqueue_styles($styles){
+            $styles['super-stripe-dashboard'] = array(
+                'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.css',
+                'deps'    => array(),
+                'version' => SUPER_Stripe()->version,
+                'media'   => 'all',
+                'screen'  => array(
+                    'super-forms_page_super_stripe_dashboard'
+                ),
+                'method'  => 'enqueue',
+            );
+            return $styles;
+        }
+        public static function super_enqueue_scripts($scripts){
+            $scripts['super-stripe-dashboard'] = array(
+                'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.js',
+                'deps'    => array(),
+                'version' => SUPER_Stripe()->version,
+                'footer'  => true,
+                'screen'  => array( 
+                    'super-forms_page_super_stripe_dashboard'
+                ),
+                'method'  => 'register', // Register because we need to localize it
+                'localize'=> array(
+                    'declineCodes' => array(
+                        'authentication_required' => array(
+                            'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again and authenticate their card when prompted during the transaction.', 'super-forms' )
+                        ),
+                        'approve_with_id' => array(
+                            'desc' => esc_html__( 'The payment cannot be authorized.', 'super-forms' ),
+                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                        ),
+                        'call_issuer' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'card_not_supported' => array(
+                            'desc' => esc_html__( 'The card does not support this type of purchase.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer to make sure their card can be used to make this type of purchase.', 'super-forms' )
+                        ),
+                        'card_velocity_exceeded' => array(
+                            'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'currency_not_supported' => array(
+                            'desc' => esc_html__( 'The card does not support the specified currency.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to check with the issuer whether the card can be used for the type of currency specified.', 'super-forms' )
+                        ),
+                        'do_not_honor' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'do_not_try_again' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'duplicate_transaction' => array(
+                            'desc' => esc_html__( 'A transaction with identical amount and credit card information was submitted very recently.', 'super-forms' ),
+                            'steps' => esc_html__( 'Check to see if a recent payment already exists.', 'super-forms' )
+                        ),
+                        'expired_card' => array(
+                            'desc' => esc_html__( 'The card has expired.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should use another card.', 'super-forms' )
+                        ),
+                        'fraudulent' => array(
+                            'desc' => esc_html__( 'The payment has been declined as Stripe suspects it is fraudulent.', 'super-forms' ),
+                            'steps' => esc_html__( 'Do not report more detailed information to your customer.  Instead, present as you would the ', 'super-forms' )
+                        ),
+                        'generic_decline' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'incorrect_number' => array(
+                            'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+                        ),
+                        'incorrect_cvc' => array(
+                            'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+                        ),
+                        'incorrect_pin' => array(
+                            'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader. ', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+                        ),
+                        'incorrect_zip' => array(
+                            'desc' => esc_html__( 'The ZIP/postal code is incorrect.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct billing ZIP/postal code.', 'super-forms' )
+                        ),
+                        'insufficient_funds' => array(
+                            'desc' => esc_html__( 'The card has insufficient funds to complete the purchase.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+                        ),
+                        'invalid_account' => array(
+                            'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer to check that the card is working correctly.', 'super-forms' )
+                        ),
+                        'invalid_amount' => array(
+                            'desc' => esc_html__( 'The payment amount is invalid or exceeds the amount that is allowed.', 'super-forms' ),
+                             'steps' => esc_html__( 'If the amount appears to be correct, the customer needs to check with their card issuer that they can make purchases of that amount.', 'super-forms' )
+                        ),
+                        'invalid_cvc' => array(
+                            'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+                        ),
+                        'invalid_expiry_year' => array(
+                            'desc' => esc_html__( 'The expiration year invalid.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct expiration date.', 'super-forms' )
+                        ),
+                        'invalid_number' => array(
+                            'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+                        ),
+                        'invalid_pin' => array(
+                            'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+                        ),
+                        'issuer_not_available' => array(
+                            'desc' => esc_html__( 'The card issuer could not be reached so the payment could not be authorized.', 'super-forms' ),
+                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                        ),
+                        'lost_card' => array(
+                            'desc' => esc_html__( 'The payment has been declined because the card is reported lost.', 'super-forms' ),
+                            'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+                        ),
+                        'merchant_blacklist' => array(
+                            'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user\'s block list.', 'super-forms' ),
+                            'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
+                        ),
+                        'new_account_information_available' => array(
+                            'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'no_action_taken' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'not_permitted' => array(
+                            'desc' => esc_html__( 'The payment is not permitted.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'offline_pin_required' => array(
+                            'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+                        ),
+                        'online_or_offline_pin_required' => array(
+                            'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+                            'steps' => esc_html__( 'If the card reader supports Online PIN, the customer should be prompted for a PIN without a new transaction being created. If the card reader does not support Online PIN, the customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+                        ),
+                        'pickup_card' => array(
+                            'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'pin_try_exceeded' => array(
+                            'desc' => esc_html__( 'The allowable number of PIN tries has been exceeded.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer must use another card or method of payment.', 'super-forms' )
+                        ),
+                        'processing_error' => array(
+                            'desc' => esc_html__( 'An error occurred while processing the card.', 'super-forms' ),
+                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, try again later.', 'super-forms' )
+                        ),
+                        'reenter_transaction' => array(
+                            'desc' => esc_html__( 'The payment could not be processed by the issuer for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+                        ),
+                        'restricted_card' => array(
+                            'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'revocation_of_all_authorizations' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'revocation_of_authorization' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'security_violation' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'service_not_allowed' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'stolen_card' => array(
+                            'desc' => esc_html__( 'The payment has been declined because the card is reported stolen.', 'super-forms' ),
+                            'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+                        ),
+                        'stop_payment_order' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'testmode_decline' => array(
+                            'desc' => esc_html__( 'A Stripe test card number was used.', 'super-forms' ),
+                            'steps' => esc_html__( 'A genuine card must be used to make a payment.', 'super-forms' )
+                        ),
+                        'transaction_not_allowed' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'try_again_later' => array(
+                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+                            'steps' => esc_html__( 'Ask the customer to attempt the payment again. If subsequent payments are declined, the customer should contact their card issuer for more information.', 'super-forms' )
+                        ),
+                        'withdrawal_count_limit_exceeded' => array(
+                            'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card. ', 'super-forms' ),
+                            'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+                        )
+                    )       
+                )
+            );
+            return $scripts;
         }
 
+
         public static function setAppInfo(){
-            require_once( 'stripe-php/init.php' );
+            require_once 'stripe-php/init.php';
             \Stripe\Stripe::setAppInfo(
                 'Super Forms - Stripe Add-on',
                 SUPER_Stripe()->version,
@@ -712,7 +932,7 @@ if(!class_exists('SUPER_Stripe')) :
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -943,6 +1163,29 @@ if(!class_exists('SUPER_Stripe')) :
             self::setAppInfo();
             require_once('dashboard.php');
         }
+        public static function getInvoice($id) {
+            return \Stripe\Invoice::retrieve($id);
+        }
+        public static function getPaymentIntents( $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            $paymentIntents = \Stripe\PaymentIntent::all([
+                // optional
+                // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+                'limit' => $limit,
+                // optional
+                // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
+                'starting_after' => $starting_after,
+                // optional associative array
+                // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
+                'created' => $created,
+                // optional
+                // Only return PaymentIntents for the customer specified by this customer ID.
+                'customer' => $customer,
+                // optional
+                // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
+                'ending_before' => $ending_before
+            ]);
+            return $paymentIntents->data;
+        }
         public static function getProducts($limit=3, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
             $products = \Stripe\Product::all([
                 // optional
@@ -975,26 +1218,6 @@ if(!class_exists('SUPER_Stripe')) :
             ]);
             return $products->data;
         }
-        public static function getPaymentIntents( $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
-            $paymentIntents = \Stripe\PaymentIntent::all([
-                // optional
-                // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
-                'limit' => $limit,
-                // optional
-                // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
-                'starting_after' => $starting_after,
-                // optional associative array
-                // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
-                'created' => $created,
-                // optional
-                // Only return PaymentIntents for the customer specified by this customer ID.
-                'customer' => $customer,
-                // optional
-                // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
-                'ending_before' => $ending_before
-            ]);
-            return $paymentIntents->data;
-        }
         public static function getCustomers($limit=3, $starting_after=null, $created=null, $email=null, $ending_before=null) {
             $customers = \Stripe\Customer::all([
                 // optional
@@ -1015,24 +1238,35 @@ if(!class_exists('SUPER_Stripe')) :
             ]);
             return $customers->data;
         }
+
+
         /**
          * Load More 
          *
          *  @since      1.0.0
          */
-        public static function super_stripe_load_more() {  
-            if(!empty($_POST['type'])){
+        public static function super_stripe_api_handler() {  
+            if( !empty($_POST['type']) ) {
                 self::setAppInfo();
+                $items = array();
                 $type = sanitize_text_field($_POST['type']);
-                if($type=='paymentIntents'){
-                    $startingAfter = $_POST['startingAfter'];
-                    $paymentIntents = self::getPaymentIntents(3, $startingAfter);
-                    $paymentIntents = json_encode($paymentIntents);
-                    echo $paymentIntents;
+                $id = '';
+                if(!empty($_POST['id'])) $id = sanitize_text_field($_POST['id']);
+                $starting_after = sanitize_text_field($_POST['starting_after']);
+                if(empty($starting_after)) $starting_after = null;
+                if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
+                    $items = self::getInvoice($id);
                 }
+                if( $type=='invoice.online' )   $items = self::getPaymentIntents(3, $starting_after);
+                if( $type=='paymentIntents' )   $items = self::getPaymentIntents(3, $starting_after);
+                if( $type=='products' )         $items = self::getProducts(3, $starting_after);
+                if( $type=='customers' )        $items = self::getCustomers(3, $starting_after);
+                $items = json_encode($items);
+                echo $items;
             }
             die();
         }    
+
 
         /**
          * Handles the output for the view Stripe transaction page in admin
@@ -1062,7 +1296,7 @@ if(!class_exists('SUPER_Stripe')) :
                 unset($columns[$k]);
             }
             $columns['stripe_txn_id'] = esc_html__( 'Transaction', 'super-forms' );
-            $columns['stripe_receipt'] = esc_html__( 'Receipt', 'super-forms' );
+            $columns['stripe_receipt'] = esc_html__( 'Receipt/Invoice', 'super-forms' );
             $columns['stripe_amount'] = esc_html__( 'Amount', 'super-forms' );
             $columns['stripe_status'] = esc_html__( 'Payment Status', 'super-forms' );
             $columns['stripe_description'] = esc_html__( 'Description', 'super-forms' );
@@ -1080,196 +1314,6 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         public static function super_custom_columns($column, $post_id) {
-
-            $declineCodes = array(
-                'authentication_required' => array(
-                    'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again and authenticate their card when prompted during the transaction.', 'super-forms' )
-                ),
-                'approve_with_id' => array(
-                    'desc' => esc_html__( 'The payment cannot be authorized.', 'super-forms' ),
-                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                ),
-                'call_issuer' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'card_not_supported' => array(
-                    'desc' => esc_html__( 'The card does not support this type of purchase.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer to make sure their card can be used to make this type of purchase.', 'super-forms' )
-                ),
-                'card_velocity_exceeded' => array(
-                    'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'currency_not_supported' => array(
-                    'desc' => esc_html__( 'The card does not support the specified currency.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to check with the issuer whether the card can be used for the type of currency specified.', 'super-forms' )
-                ),
-                'do_not_honor' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'do_not_try_again' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'duplicate_transaction' => array(
-                    'desc' => esc_html__( 'A transaction with identical amount and credit card information was submitted very recently.', 'super-forms' ),
-                    'steps' => esc_html__( 'Check to see if a recent payment already exists.', 'super-forms' )
-                ),
-                'expired_card' => array(
-                    'desc' => esc_html__( 'The card has expired.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should use another card.', 'super-forms' )
-                ),
-                'fraudulent' => array(
-                    'desc' => esc_html__( 'The payment has been declined as Stripe suspects it is fraudulent.', 'super-forms' ),
-                    'steps' => esc_html__( 'Do not report more detailed information to your customer.  Instead, present as you would the ', 'super-forms' )
-                ),
-                'generic_decline' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'incorrect_number' => array(
-                    'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
-                ),
-                'incorrect_cvc' => array(
-                    'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
-                ),
-                'incorrect_pin' => array(
-                    'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader. ', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
-                ),
-                'incorrect_zip' => array(
-                    'desc' => esc_html__( 'The ZIP/postal code is incorrect.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct billing ZIP/postal code.', 'super-forms' )
-                ),
-                'insufficient_funds' => array(
-                    'desc' => esc_html__( 'The card has insufficient funds to complete the purchase.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
-                ),
-                'invalid_account' => array(
-                    'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer to check that the card is working correctly.', 'super-forms' )
-                ),
-                'invalid_amount' => array(
-                    'desc' => esc_html__( 'The payment amount is invalid or exceeds the amount that is allowed.', 'super-forms' ),
-                     'steps' => esc_html__( 'If the amount appears to be correct, the customer needs to check with their card issuer that they can make purchases of that amount.', 'super-forms' )
-                ),
-                'invalid_cvc' => array(
-                    'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
-                ),
-                'invalid_expiry_year' => array(
-                    'desc' => esc_html__( 'The expiration year invalid.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct expiration date.', 'super-forms' )
-                ),
-                'invalid_number' => array(
-                    'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
-                ),
-                'invalid_pin' => array(
-                    'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
-                ),
-                'issuer_not_available' => array(
-                    'desc' => esc_html__( 'The card issuer could not be reached so the payment could not be authorized.', 'super-forms' ),
-                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                ),
-                'lost_card' => array(
-                    'desc' => esc_html__( 'The payment has been declined because the card is reported lost.', 'super-forms' ),
-                    'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
-                ),
-                'merchant_blacklist' => array(
-                    'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user\'s block list.', 'super-forms' ),
-                    'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
-                ),
-                'new_account_information_available' => array(
-                    'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'no_action_taken' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'not_permitted' => array(
-                    'desc' => esc_html__( 'The payment is not permitted.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'offline_pin_required' => array(
-                    'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should try again by inserting their card and entering a PIN.', 'super-forms' )
-                ),
-                'online_or_offline_pin_required' => array(
-                    'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
-                    'steps' => esc_html__( 'If the card reader supports Online PIN, the customer should be prompted for a PIN without a new transaction being created. If the card reader does not support Online PIN, the customer should try again by inserting their card and entering a PIN.', 'super-forms' )
-                ),
-                'pickup_card' => array(
-                    'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'pin_try_exceeded' => array(
-                    'desc' => esc_html__( 'The allowable number of PIN tries has been exceeded.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer must use another card or method of payment.', 'super-forms' )
-                ),
-                'processing_error' => array(
-                    'desc' => esc_html__( 'An error occurred while processing the card.', 'super-forms' ),
-                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, try again later.', 'super-forms' )
-                ),
-                'reenter_transaction' => array(
-                    'desc' => esc_html__( 'The payment could not be processed by the issuer for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                ),
-                'restricted_card' => array(
-                    'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'revocation_of_all_authorizations' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'revocation_of_authorization' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'security_violation' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'service_not_allowed' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'stolen_card' => array(
-                    'desc' => esc_html__( 'The payment has been declined because the card is reported stolen.', 'super-forms' ),
-                    'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
-                ),
-                'stop_payment_order' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'testmode_decline' => array(
-                    'desc' => esc_html__( 'A Stripe test card number was used.', 'super-forms' ),
-                    'steps' => esc_html__( 'A genuine card must be used to make a payment.', 'super-forms' )
-                ),
-                'transaction_not_allowed' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                ),
-                'try_again_later' => array(
-                    'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                    'steps' => esc_html__( 'Ask the customer to attempt the payment again. If subsequent payments are declined, the customer should contact their card issuer for more information.', 'super-forms' )
-                ),
-                'withdrawal_count_limit_exceeded' => array(
-                    'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card. ', 'super-forms' ),
-                    'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
-                )
-            );
-
-            
-
             $d = get_post_meta( $post_id, '_super_txn_data', true );
             $txn_id = self::getTransactionId($d);
             $currency_code = strtoupper($d['currency']);
@@ -1987,7 +2031,7 @@ if(!class_exists('SUPER_Stripe')) :
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -2046,7 +2090,7 @@ if(!class_exists('SUPER_Stripe')) :
             wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
