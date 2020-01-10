@@ -36,7 +36,7 @@
             );
             echo '<div class="super-stripe-headings">';
                 foreach( $columns as $k => $v ) {
-                    echo '<div class="super-stripe-heading super-stripe-heading-' . $k . '">';
+                    echo '<div class="super-stripe-heading super-stripe-heading-' . esc_attr($k) . '">';
                         echo esc_html($v);
                     echo '</div>';
                 }

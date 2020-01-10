@@ -302,7 +302,7 @@
                 column = document.createElement('div');
                 column.className = columnClass+'super-stripe-actions';
                 var html = '';
-                html += '<div calss="super-stripe-action-btn">';
+                html += '<div class="super-stripe-action-btn">';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
                 var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
@@ -602,8 +602,8 @@
         handler: function (obj) {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
-                if (this.readyState == 4) {
-                    if (this.status == 200) {
+                if (this.readyState === 4) {
+                    if (this.status === 200) {
                         // Success:
                         if (obj.type == 'invoice.online' || obj.type == 'invoice.pdf') {
                             console.log('just testing...');
