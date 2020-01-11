@@ -52,32 +52,116 @@ if(!class_exists('SUPER_Stripe')) :
         public $add_on_name = 'Stripe';
 
         public static $currency_codes = array(
-            'AUD' => array( 'symbol' => '$', 'name' => 'Australian Dollar' ),
-            'BRL' => array( 'symbol' => 'R$', 'name' => 'Brazilian Real' ),
-            'CAD' => array( 'symbol' => '$', 'name' => 'Canadian Dollar' ),
-            'CZK' => array( 'symbol' => '&#75;&#269;', 'name' => 'Czech Koruna' ),
-            'DKK' => array( 'symbol' => '&#107;&#114;', 'name' => 'Danish Krone' ),
-            'EUR' => array( 'symbol' => '&#128;', 'name' => 'Euro' ),
-            'HKD' => array( 'symbol' => '&#20803;', 'name' => 'Hong Kong Dollar' ),
-            'HUF' => array( 'symbol' => '&#70;&#116;', 'name' => 'Hungarian Forint', 'decimal' => true ),
-            'ILS' => array( 'symbol' => '&#8362;', 'name' => 'Israeli New Sheqel' ),
-            'JPY' => array( 'symbol' => '&#165;', 'name' => 'Japanese Yen', 'decimal' => true ),
-            'MYR' => array( 'symbol' => '&#82;&#77;', 'name' => 'Malaysian Ringgit' ),
-            'MXN' => array( 'symbol' => '&#36;', 'name' => 'Mexican Peso' ),
-            'NOK' => array( 'symbol' => '&#107;&#114;', 'name' => 'Norwegian Krone' ),
-            'NZD' => array( 'symbol' => '&#36;', 'name' => 'New Zealand Dollar' ),
-            'PHP' => array( 'symbol' => '&#80;&#104;&#11;', 'name' => 'Philippine Peso' ),
-            'PLN' => array( 'symbol' => '&#122;&#322;', 'name' => 'Polish Zloty' ),
-            'GBP' => array( 'symbol' => '&#163;', 'name' => 'Pound Sterling' ),
-            'RUB' => array( 'symbol' => '&#1088;&#1091;', 'name' => 'Russian Ruble' ),
-            'SGD' => array( 'symbol' => '&#36;', 'name' => 'Singapore Dollar' ),
-            'SEK' => array( 'symbol' => '&#107;&#114;', 'name' => 'Swedish Krona' ),
-            'CHF' => array( 'symbol' => '&#67;&#72;&#70;', 'name' => 'Swiss Franc' ),
-            'TWD' => array( 'symbol' => '&#36;', 'name' => 'Taiwan New Dollar', 'decimal' => true ),
-            'THB' => array( 'symbol' => '&#3647;', 'name' => 'Thai Baht' ),
-            'USD' => array( 'symbol' => '$', 'name' => 'U.S. Dollar' )
+            'ALL' => 'Lek',
+            'AFN' => '؋',
+            'ARS' => '$',
+            'AWG' => 'ƒ',
+            'AUD' => '$',
+            'AZN' => '₼',
+            'BSD' => '$',
+            'BBD' => '$',
+            'BYN' => 'Br',
+            'BZD' => 'BZ$',
+            'BMD' => '$',
+            'BOB' => '$b',
+            'BAM' => 'KM',
+            'BWP' => 'P',
+            'BGN' => 'лв',
+            'BRL' => 'R$',
+            'BND' => '$',
+            'KHR' => '៛',
+            'CAD' => '$',
+            'KYD' => '$',
+            'CLP' => '$',
+            'CNY' => '¥',
+            'COP' => '$',
+            'CRC' => '₡',
+            'HRK' => 'kn',
+            'CUP' => '₱',
+            'CZK' => 'Kč', // &#75;&#269;
+            'DKK' => 'kr', // &#107;&#114;
+            'DOP' => 'RD$',
+            'XCD' => '$',
+            'EGP' => '£',
+            'SVC' => '$',
+            'EUR' => '€', // &#128;
+            'FKP' => '£',
+            'FJD' => '$',
+            'GHS' => '¢',
+            'GIP' => '£',
+            'GTQ' => 'Q',
+            'GGP' => '£',
+            'GYD' => '$',
+            'HNL' => 'L',
+            'HKD' => '$', // &#20803;
+            'HUF' => 'Ft', // HUF
+            'ISK' => 'kr',
+            'INR' => '',
+            'IDR' => 'Rp',
+            'IRR' => '﷼',
+            'IMP' => '£',
+            'ILS' => '₪', // &#8362;
+            'JMD' => 'J$',
+            'JPY' => '¥', // &#165;
+            'JEP' => '£',
+            'KZT' => 'лв',
+            'KPW' => '₩',
+            'KRW' => '₩',
+            'KGS' => 'лв',
+            'LAK' => '₭',
+            'LBP' => '£',
+            'LRD' => '$',
+            'MKD' => 'ден',
+            'MYR' => 'RM', // &#82;&#77;
+            'MUR' => '₨',
+            'MXN' => '$', // &#36;
+            'MNT' => '₮',
+            'MZN' => 'MT',
+            'NAD' => '$',
+            'NPR' => '₨',
+            'ANG' => 'ƒ',
+            'NZD' => '$', // &#36;
+            'NIO' => 'C$',
+            'NGN' => '₦',
+            'NOK' => 'kr', // &#107;&#114;
+            'OMR' => '﷼',
+            'PKR' => '₨',
+            'PAB' => 'B/.',
+            'PYG' => 'Gs',
+            'PEN' => 'S/.',
+            'PHP' => '₱', // &#80;&#104;&#11;
+            'PLN' => 'zł', // &#122;&#322;
+            'QAR' => '﷼',
+            'RON' => 'lei',
+            'RUB' => '₽', // &#1088;&#1091;
+            'SHP' => '£',
+            'SAR' => '﷼',
+            'RSD' => 'Дин.',
+            'SCR' => '₨',
+            'SGD' => '$', // &#36;
+            'SBD' => '$',
+            'SOS' => 'S',
+            'ZAR' => 'R',
+            'LKR' => '₨',
+            'SEK' => 'kr', // &#107;&#114;
+            'CHF' => 'CHF', // &#67;&#72;&#70;
+            'SRD' => '$',
+            'SYP' => '£',
+            'TWD' => 'NT$', // &#36;
+            'THB' => '฿', // &#3647;
+            'TTD' => 'TT$',
+            'TRY' => '',
+            'TVD' => '$',
+            'UAH' => '₴',
+            'GBP' => '£', // &#163;
+            'USD' => '$',
+            'UYU' => '$U',
+            'UZS' => 'лв',
+            'VEF' => 'Bs',
+            'VND' => '₫',
+            'YER' => '﷼',
+            'ZWD' => 'Z$'
         );
-
 
         /**
          * @var SUPER_Stripe The single instance of the class
@@ -1166,7 +1250,7 @@ if(!class_exists('SUPER_Stripe')) :
         public static function getInvoice($id) {
             return \Stripe\Invoice::retrieve($id);
         }
-        public static function getPaymentIntents( $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+        public static function getPaymentIntents( $formatted=true, $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
             $paymentIntents = \Stripe\PaymentIntent::all([
                 // optional
                 // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
@@ -1184,9 +1268,32 @@ if(!class_exists('SUPER_Stripe')) :
                 // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
                 'ending_before' => $ending_before
             ]);
-            return $paymentIntents->data;
+
+            if( $formatted ) {
+                //echo $symbol . number_format_i18n($d['amount']/100, 2) . ' ' . $currency_code;
+                //var_dump($paymentIntents->data);
+                foreach($paymentIntents->data as $k => $v){
+                    // Format amounts
+                    $currency_code = strtoupper($v['currency']);
+                    $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code] : $currency_code);
+                    if(!empty($paymentIntents->data[$k]->amount)){
+                        $paymentIntents->data[$k]->amount = $symbol . number_format_i18n($v->amount/100, 2) . ' ' . $currency_code;
+                    }
+                    if(!empty($paymentIntents->data[$k]->amount_refunded)) {
+                        $paymentIntents->data[$k]->amount_refunded = $symbol . number_format_i18n($v->amount_refunded/100, 2) . ' ' . $currency_code;
+                    }
+                    // Format the timestamp to wordpress date format
+                    if(!empty($paymentIntents->data[$k]->created)) {
+                        $paymentIntents->data[$k]->created = date_i18n( 'j M Y, H:i', $paymentIntents->data[$k]->created );
+                    }
+                    $paymentIntents->data[$k]->raw = json_encode($paymentIntents->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                }
+                return $paymentIntents->data;
+            }else{
+                return $paymentIntents->data;
+            }
         }
-        public static function getProducts($limit=3, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
+        public static function getProducts($formatted=true, $limit=3, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
             $products = \Stripe\Product::all([
                 // optional
                 // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
@@ -1218,7 +1325,7 @@ if(!class_exists('SUPER_Stripe')) :
             ]);
             return $products->data;
         }
-        public static function getCustomers($limit=3, $starting_after=null, $created=null, $email=null, $ending_before=null) {
+        public static function getCustomers($formatted=true, $limit=3, $starting_after=null, $created=null, $email=null, $ending_before=null) {
             $customers = \Stripe\Customer::all([
                 // optional
                 // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
@@ -1251,16 +1358,17 @@ if(!class_exists('SUPER_Stripe')) :
                 $items = array();
                 $type = sanitize_text_field($_POST['type']);
                 $id = '';
+                if(empty($_POST['formatted'])) $formatted = true;
                 if(!empty($_POST['id'])) $id = sanitize_text_field($_POST['id']);
                 $starting_after = sanitize_text_field($_POST['starting_after']);
                 if(empty($starting_after)) $starting_after = null;
                 if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
                     $items = self::getInvoice($id);
                 }
-                if( $type=='invoice.online' )   $items = self::getPaymentIntents(3, $starting_after);
-                if( $type=='paymentIntents' )   $items = self::getPaymentIntents(3, $starting_after);
-                if( $type=='products' )         $items = self::getProducts(3, $starting_after);
-                if( $type=='customers' )        $items = self::getCustomers(3, $starting_after);
+                if( $type=='invoice.online' )   $items = self::getPaymentIntents($formatted, 3, $starting_after);
+                if( $type=='paymentIntents' )   $items = self::getPaymentIntents($formatted, 3, $starting_after);
+                if( $type=='products' )         $items = self::getProducts($formatted, 3, $starting_after);
+                if( $type=='customers' )        $items = self::getCustomers($formatted, 3, $starting_after);
                 $items = json_encode($items);
                 echo $items;
             }
@@ -1317,7 +1425,7 @@ if(!class_exists('SUPER_Stripe')) :
             $d = get_post_meta( $post_id, '_super_txn_data', true );
             $txn_id = self::getTransactionId($d);
             $currency_code = strtoupper($d['currency']);
-            $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
+            $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code] : $currency_code);
             switch ($column) {
                 case 'stripe_txn_id':
                     echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $txn_id . '">' . $txn_id . '</a>';
