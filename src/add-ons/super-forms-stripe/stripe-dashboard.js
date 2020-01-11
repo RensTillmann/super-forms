@@ -2,121 +2,10 @@
     "use strict"; // Minimize mutable state :)
     // Define all the events for our elements
     var app = {};
-    app.currencies = {
-            'ALL': 'Lek',
-            'AFN': '؋',
-            'ARS': '$',
-            'AWG': 'ƒ',
-            'AUD': '$',
-            'AZN': '₼',
-            'BSD': '$',
-            'BBD': '$',
-            'BYN': 'Br',
-            'BZD': 'BZ$',
-            'BMD': '$',
-            'BOB': '$b',
-            'BAM': 'KM',
-            'BWP': 'P',
-            'BGN': 'лв',
-            'BRL': 'R$',
-            'BND': '$',
-            'KHR': '៛',
-            'CAD': '$',
-            'KYD': '$',
-            'CLP': '$',
-            'CNY': '¥',
-            'COP': '$',
-            'CRC': '₡',
-            'HRK': 'kn',
-            'CUP': '₱',
-            'CZK': 'Kč',
-            'DKK': 'kr',
-            'DOP': 'RD$',
-            'XCD': '$',
-            'EGP': '£',
-            'SVC': '$',
-            'EUR': '€',
-            'FKP': '£',
-            'FJD': '$',
-            'GHS': '¢',
-            'GIP': '£',
-            'GTQ': 'Q',
-            'GGP': '£',
-            'GYD': '$',
-            'HNL': 'L',
-            'HKD': '$',
-            'HUF': 'Ft',
-            'ISK': 'kr',
-            'INR': '',
-            'IDR': 'Rp',
-            'IRR': '﷼',
-            'IMP': '£',
-            'ILS': '₪',
-            'JMD': 'J$',
-            'JPY': '¥',
-            'JEP': '£',
-            'KZT': 'лв',
-            'KPW': '₩',
-            'KRW': '₩',
-            'KGS': 'лв',
-            'LAK': '₭',
-            'LBP': '£',
-            'LRD': '$',
-            'MKD': 'ден',
-            'MYR': 'RM',
-            'MUR': '₨',
-            'MXN': '$',
-            'MNT': '₮',
-            'MZN': 'MT',
-            'NAD': '$',
-            'NPR': '₨',
-            'ANG': 'ƒ',
-            'NZD': '$',
-            'NIO': 'C$',
-            'NGN': '₦',
-            'NOK': 'kr',
-            'OMR': '﷼',
-            'PKR': '₨',
-            'PAB': 'B/.',
-            'PYG': 'Gs',
-            'PEN': 'S/.',
-            'PHP': '₱',
-            'PLN': 'zł',
-            'QAR': '﷼',
-            'RON': 'lei',
-            'RUB': '₽',
-            'SHP': '£',
-            'SAR': '﷼',
-            'RSD': 'Дин.',
-            'SCR': '₨',
-            'SGD': '$',
-            'SBD': '$',
-            'SOS': 'S',
-            'ZAR': 'R',
-            'LKR': '₨',
-            'SEK': 'kr',
-            'CHF': 'CHF',
-            'SRD': '$',
-            'SYP': '£',
-            'TWD': 'NT$',
-            'THB': '฿',
-            'TTD': 'TT$',
-            'TRY': '',
-            'TVD': '$',
-            'UAH': '₴',
-            'GBP': '£',
-            'USD': '$',
-            'UYU': '$U',
-            'UZS': 'лв',
-            'VEF': 'Bs',
-            'VND': '₫',
-            'YER': '﷼',
-            'ZWD': 'Z$'
-        },
-        // querySelector shorthand
-        app.q = function (s) {
-            return document.querySelector(s);
-        };
+    // querySelector shorthand
+    app.q = function (s) {
+        return document.querySelector(s);
+    };
     // Top element
     app.wrapper = app.q('.super-stripe-dashboard');
     // querySelectorAll shorthand
@@ -171,18 +60,87 @@
         click: [
             '.super-stripe-tab',
             '.super-stripe-load-more',
-            '.super-stripe-invoice-btn'
+            '.super-stripe-invoice-btn',
+            '.super-stripe-action-btn'
         ],
     };
-    // Switch TABs
-    app.tabs = {
-        open: function (e, target) {
-            var index = app.index(target);
-            app.removeClass(app.qap('.super-stripe-tab.super-active, .super-stripe-tabs-content > div.super-active'), 'super-active');
-            app.addClass(app.qap(':scope > div', '.super-stripe-tabs-content')[index], 'super-active');
-            app.addClass(target, 'super-active');
+    
+    // UI
+    app.ui = {
+        contextMenu: {
+            className: 'super-stripe-contextmenu',
+            close: function(){
+                var node = app.q('.'+app.ui.contextMenu.className);
+                if(node) node.remove();
+            },
+            open: function(e, target, eventType, attr){
+                console.log(eventType, attr);
+                if( attr.type=='actions' ) {
+                    // Open up new context menu
+                    // First close (delete) existing one
+                    app.ui.contextMenu.close();
+                    var contextMenu = document.createElement('div');
+                    contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
+                    var html = '';
+                    html += '<span>ACTIONS</span>';
+                    html += '<div sfevents=\'{"click":{"api.refund"}}\'>Refund payment...</div>';
+                    html += '<div sfevents=\'{"click":{"api.copyPaymentID"}}\'>Copy payment ID</div>';
+                    html += '<divider></divider>';
+                    html += '<span>CONNECTIONS</span>';
+                    html += '<div sfevents=\'{"click":{"api.viewCustomer"}}\'>View customer</div>';
+                    html += '<div sfevents=\'{"click":{"api.viewPaymentDetails"}}\'>View payment details</div>';
+                    contextMenu.innerHTML = html;
+                    
+                    // Get the position relative to the viewport (i.e. the window)
+                    var offset = target.getBoundingClientRect();
+                    var target_absolute_position_left = offset.left+(offset.width/2);
+                    //var margins = getComputedStyle(target);
+                    //var target_height = target.offsetHeight + parseInt(margins.marginTop) + parseInt(margins.marginBottom);
+                    var w = window,
+                        d = document,
+                        dE = d.documentElement,
+                        g = d.getElementsByTagName('body')[0],
+                        window_width = w.innerWidth || dE.clientWidth || g.clientWidth,
+                        scrollTop = window.pageYOffset || (document.documentElement || document.body.parentNode || document.body).scrollTop;
+                        contextMenu.style.position = 'absolute';
+                        contextMenu.style.top = 0;
+                        contextMenu.style.left = 0;
+                    // Append to body
+                    document.body.appendChild(contextMenu);
+                    var initial_width = contextMenu.offsetWidth;
+                    contextMenu.style.top = offset.top+scrollTop+(offset.height)+'px';
+                    contextMenu.style.transform = 'translateX(-17px) translateY(10px)';
+                    //contextMenu.style.top = offset.top+scrollTop+'px';
+                    //contextMenu.style.transform = 'translateX(-50%) translateY(-150%)';
+                    contextMenu.style.left = target_absolute_position_left+'px';
+                    // Check if we can't position the element at top or bottom because of overlapping window
+                    // The tooltip could possibly be cut off if we do not check this
+                    if(window_width < target_absolute_position_left+initial_width){
+                        // We have to position the tooltip to the left side of the target
+                        contextMenu.style.transform = null;
+                        contextMenu.style.left = (offset.left-initial_width-30)+'px';
+                        contextMenu.classList.remove('sb-bottom');
+                        contextMenu.classList.add('sb-left');
+                    }
+                    console.log('Console log, open Actions context menu');
+                    console.log(e, target, eventType, attr);
+                }
+            }
+        },
+        modal: {
+
+        },
+        // Switch TABs
+        tabs: {
+            open: function (e, target) {
+                var index = app.index(target);
+                app.removeClass(app.qap('.super-stripe-tab.super-active, .super-stripe-tabs-content > div.super-active'), 'super-active');
+                app.addClass(app.qap(':scope > div', '.super-stripe-tabs-content')[index], 'super-active');
+                app.addClass(target, 'super-active');
+            }
         }
     };
+
     app.serialize = function (obj, prefix) {
         var str = [],
             p;
@@ -267,15 +225,20 @@
 
     // Get items from API
     app.api = {
+
+        refund: function(){
+            alert('Refund payment...');
+        },
+
         invoice: {
-            pdf: function (e, target, type, attr) {
+            pdf: function (e, target, eventType, attr) {
                 // "invoice_pdf": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X/pdf",
                 app.api.handler({
                     type: 'invoice.pdf',
                     id: attr.invoiceId
                 });
             },
-            online: function (e, target, type, attr) {
+            online: function (e, target, eventType, attr) {
                 // "hosted_invoice_url": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X",
                 app.api.handler({
                     type: 'invoice.online',
@@ -285,11 +248,9 @@
         },
 
         addRows: {
-            paymentIntents: function (payload) {
+            paymentIntents: function (payload) {                
                 // eslint-disable-next-line no-undef
                 var $declineCodes = super_stripe_dashboard_i18n.declineCodes;
-                var currency_code = payload.currency.toUpperCase();
-                var symbol = (app.currencies[currency_code] ? app.currencies[currency_code] : '');
                 var parentNode = app.q('.super-stripe-transactions .super-stripe-table-rows');
                 // Check if we can find the last ID, if not then just leave starting_after blank
                 var newRow = document.createElement('div');
@@ -302,16 +263,19 @@
                 column = document.createElement('div');
                 column.className = columnClass+'super-stripe-actions';
                 var html = '';
-                html += '<div class="super-stripe-action-btn">';
+                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
-                var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
-                if (payload.receipt_url) receiptUrl = payload.receipt_url;
-                if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a><br />';
-                if (payload.invoice) {
-                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</span><br />';
-                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</span><br />';
-                }
+                html += '<div class="super-stripe-raw">' + payload.raw + '</div>';
+                html += '<div class="super-stripe-action-options">';
+                    var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
+                    if (payload.receipt_url) receiptUrl = payload.receipt_url;
+                    if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a><br />';
+                    if (payload.invoice) {
+                        html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</span><br />';
+                        html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</span><br />';
+                    }
+                html += '</div>';
                 column.innerHTML = html
                 newRow.appendChild(column);
                 column = document.createElement('div');
@@ -382,7 +346,7 @@
                         if (payload.amount_refunded) {
                             $label = 'Partial refund';
                             $labelColor = '#3d4eac;';
-                            $title = ' title="' + (symbol + (payload.amount_refunded / 100) + ' ' + currency_code) + ' ' + 'was refunded"';
+                            $title = ' title="' + payload.amount_refunded + ' ' + 'was refunded"';
                             $class = ' super-stripe-partial-refund';
                             $pathFill = '#5469d4';
                             $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
@@ -403,15 +367,15 @@
                 html += '<path style="fill:' + $pathFill + ';" d="' + $path + '" fill-rule="evenodd"></path>';
                 html += '</svg>';
                 html += '</span>';
+                if(!payload.livemode){
+                    html += '<span class="super-stripe-testdata">TEST DATA</span>';
+                }
+
                 column.innerHTML = html;
                 newRow.appendChild(column);
                 column = document.createElement('div');
-                column.className = columnClass+'super-stripe-livemode';
-                column.innerHTML = payload.livemode;
-                newRow.appendChild(column);
-                column = document.createElement('div');
                 column.className = columnClass+'super-stripe-amount';
-                column.innerHTML = symbol + payload.amount / 100 + ' ' + currency_code;
+                column.innerHTML = payload.amount;
                 newRow.appendChild(column);
                 column = document.createElement('div');
                 column.className = columnClass+'super-stripe-description';
@@ -419,7 +383,13 @@
                 newRow.appendChild(column);
                 column = document.createElement('div');
                 column.className = columnClass+'super-stripe-customer';
-                column.innerHTML = payload.customer;
+                html = '';
+                console.log(payload, payload.customer_email);
+                console.log(payload.customer, payload.customer_email);
+                if(payload.customer){
+                    html += payload.customer_email;
+                }
+                column.innerHTML = html;
                 newRow.appendChild(column);
                 column = document.createElement('div');
                 column.className = columnClass+'super-stripe-shipping';
@@ -429,14 +399,15 @@
                 column.className = columnClass+'super-stripe-method';
 
                 html = '';
+                console.log(payload);
                 if (payload.charges && payload.charges.data && payload.charges.data.payment_method_details) {
+                    console.log(methodType);
                     var methodType = payload.charges.data.payment_method_details.type; // card
                     var methodDetails = payload.charges.data.payment_method_details[methodType];
                     switch (methodType) {
                         case 'ach_credit_transfer':
                             html += methodDetails.bank_name + ' - ' + methodDetails.routing_number + ' - ' + methodDetails.swift_code + ' - ' + methodDetails.account_number;
                             break;
-
                         case 'ach_debit':
                             html += methodDetails.bank_name + ' - ' + methodDetails.last4;
                             break;
@@ -525,11 +496,6 @@
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
-                column.className = 'super-stripe-livemode';
-                column.innerHTML = payload.livemode;
-                newRow.appendChild(column);
-
-                column = document.createElement('td');
                 column.className = 'super-stripe-amount';
                 column.innerHTML = payload.amount;
                 newRow.appendChild(column);
@@ -569,11 +535,6 @@
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
-                column.className = 'super-stripe-livemode';
-                column.innerHTML = payload.livemode;
-                newRow.appendChild(column);
-
-                column = document.createElement('td');
                 column.className = 'super-stripe-amount';
                 column.innerHTML = payload.amount;
                 newRow.appendChild(column);
@@ -608,7 +569,13 @@
                         if (obj.type == 'invoice.online' || obj.type == 'invoice.pdf') {
                             console.log('just testing...');
                         } else {
-                            var payload = JSON.parse(this.response);
+                            try {
+                                var payload = JSON.parse(this.response);
+                            }
+                            catch(error) {
+                                console.log(error);
+                                alert(error);
+                            }
                             for (var i = 0; i < payload.length; i++) {
                                 app.api.addRows[obj.type](payload[i]);
                             }
@@ -662,7 +629,7 @@
     }, 100);
 
     // Load more Transactions, Products, Customers
-    app.loadMore = function (e, target, type, attr) {
+    app.loadMore = function (e, target, eventType, attr) {
         var nodes, lastChild, starting_after;
         if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-id');
         if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-id');
@@ -677,10 +644,17 @@
     };
 
     // Trigger Events
-    app.triggerEvent = function (e, target, event) {
+    app.triggerEvent = function (e, target, eventType) {
         // Get element actions, and check for multiple event methods
         console.log(target);
-        var actions, _event, _function, _currentFunc, sfevents = JSON.parse(target.attributes.sfevents.value);
+        var actions, _event, _function, _currentFunc, sfevents;
+        try {
+            sfevents = JSON.parse(target.attributes.sfevents.value);
+        }
+        catch(error) {
+            console.log(error);
+            alert(error);
+        }
         Object.keys(sfevents).forEach(function (key) {
             // Check if contains comma, meaning it has multiple event methods for this function
             _event = key.split(',');
@@ -692,10 +666,10 @@
                 delete sfevents[key];
             }
         });
-        actions = sfevents[event];
+        actions = sfevents[eventType];
         if (actions) {
             Object.keys(actions).forEach(function (key) { // key = function name
-                console.log('event fired: ', key, e, target, event);
+                console.log('event fired: ', key, e, target, eventType);
                 _function = key.split('.');
                 _currentFunc = app;
                 for (var i = 0; i < _function.length; i++) {
@@ -708,7 +682,7 @@
                         break;
                     }
                 }
-                _currentFunc(e, target, event, actions[key]);
+                _currentFunc(e, target, eventType, actions[key]);
             });
         }
     };
@@ -726,10 +700,10 @@
         });
     };
     // Iterate over all events, and listen to any event being triggered
-    Object.keys(app.events).forEach(function (event) {
-        var elements = app.events[event].join(", ");
-        app.delegate(app.wrapper, event, elements, function (e, target) {
-            if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, event);
+    Object.keys(app.events).forEach(function (eventType) {
+        var elements = app.events[eventType].join(", ");
+        app.delegate(app.wrapper, eventType, elements, function (e, target) {
+            if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
         });
     });
 })();

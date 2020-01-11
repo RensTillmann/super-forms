@@ -9,13 +9,13 @@
     </div>
 
     <div class="super-stripe-tabs">
-        <div class="super-stripe-tab super-active" sfevents='{"click":{"tabs.open":{}}}'>
+        <div class="super-stripe-tab super-active" sfevents='{"click":{"ui.tabs.open":{}}}'>
             <?php echo esc_html__( 'Transactions', 'super-forms' ); ?>
         </div>
-        <div class="super-stripe-tab" sfevents='{"click":{"tabs.open":{}}}'>
+        <div class="super-stripe-tab" sfevents='{"click":{"ui.tabs.open":{}}}'>
             <?php echo esc_html__( 'Products', 'super-forms' ); ?>
         </div>
-        <div class="super-stripe-tab" sfevents='{"click":{"tabs.open":{}}}'>
+        <div class="super-stripe-tab" sfevents='{"click":{"ui.tabs.open":{}}}'>
             <?php echo esc_html__( 'Customers', 'super-forms' ); ?>
         </div>
     </div>
@@ -26,7 +26,6 @@
                 'id' => esc_html__( 'Transaction ID', 'super-forms' ),
                 'actions' => esc_html__( 'Actions', 'super-forms' ),
                 'status' => esc_html__( 'Status', 'super-forms' ),
-                'livemode' => esc_html__( 'livemode', 'super-forms' ),
                 'amount' => esc_html__( 'Amount', 'super-forms' ),
                 'description' => esc_html__( 'Description', 'super-forms' ),
                 'customer' => esc_html__( 'Customer', 'super-forms' ),

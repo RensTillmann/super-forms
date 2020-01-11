@@ -228,3 +228,65 @@
 .super-stripe-column.super-stripe-actions {
     max-width: 50px !important;
 }
+
+.super-stripe-column {
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 4px;
+}
+
+.super-stripe-testdata {
+    position: relative;
+    box-sizing: border-box;
+    display: inline-block;
+    height: 14px;
+    padding: 2px 5px 2px 5px;
+    background-color: #f5925e;
+    color: #fff;
+    font-size: 10px;
+    line-height: 10px;
+    font-weight: 700;
+    border-radius: 3px;
+    margin-left: 10px;
+}
+
+
+.super-stripe-contextmenu {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(136, 152, 170, .1), 0 15px 35px 0 rgba(49, 49, 93, .1), 0 5px 15px 0 rgba(0, 0, 0, .08);
+    padding: 10px 0px 10px 0px;
+}
+
+.super-stripe-contextmenu>span {
+    color: #697386;
+    font-weight: 500;
+    display: inline-block;
+    width: 100%;
+    min-width: 160px;
+    padding: 4px 12px;
+    z-index: 90000;
+}
+
+.super-stripe-contextmenu>div {
+    cursor: pointer;
+    color: #5469d4;
+    font-weight: 500;
+    padding: 4px 12px;
+}
+
+.super-stripe-contextmenu>div:hover {
+    background-color: #f7fafc;
+    color: #1a1f36;
+}
+
+.super-stripe-contextmenu > divider {
+    border-top:1px solid #eee;
+    border-bottom:1px solid white;
+    display:block;
+    margin-top:10px;
+    margin-bottom:10px;
+  }
