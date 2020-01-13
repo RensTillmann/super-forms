@@ -261,6 +261,19 @@
     padding: 10px 0px 10px 0px;
 }
 
+.super-stripe-contextmenu:after {
+    content: '';
+    z-index: 1;
+    width: 21px;
+    height: 21px;
+    position: absolute;
+    top: -14px;
+    left: 7px;
+    background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMSIgaGVpZ2h0PSI5IiB2aWV3Qm94PSIwIDAgMjEgOSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBmaWxsPSIjODg5OEFBIiBmaWxsLW9wYWNpdHk9Ii4xIiBkPSJNMSA5LjA5MmgxOWwtNi40MDItNi43NGMtMS43MTctMS44MDYtNC40ODUtMS44LTYuMTk2IDBMMSA5LjA5M3pNMjAuMzQyIDhsLTYuMDItNi4zMzZjLTIuMTA4LTIuMjItNS41MzgtMi4yMTgtNy42NDUgMEwuNjU4IDhoMTkuNjg0eiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Ik03LjQwMiAyLjM1M2MxLjcxMS0xLjgwMSA0LjQ4LTEuODA3IDYuMTk2IDBMMjAgOS4wOTNIMWw2LjQwMi02Ljc0eiIvPjwvZz48L3N2Zz4=);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
 .super-stripe-contextmenu>span {
     color: #697386;
     font-weight: 500;
@@ -271,22 +284,43 @@
     z-index: 90000;
 }
 
-.super-stripe-contextmenu>div {
+.super-stripe-contextmenu>div,
+.super-stripe-contextmenu>a {
     cursor: pointer;
     color: #5469d4;
     font-weight: 500;
     padding: 4px 12px;
+    text-decoration:none;
+    display:block;
 }
 
-.super-stripe-contextmenu>div:hover {
+.super-stripe-contextmenu .super-stripe-copy {
+    max-width: 173px;
+    margin: 5px 0px 0px 5px;
+    font-size: 10px;
+    min-width: 173px;
+    padding: 0px 0px 0px 5px;
+    height: 24px;
+    min-height: 24px;
+    border-radius: 3px;
+}
+
+.super-stripe-contextmenu>div:hover,
+.super-stripe-contextmenu>a:hover {
     background-color: #f7fafc;
     color: #1a1f36;
 }
 
-.super-stripe-contextmenu > divider {
-    border-top:1px solid #eee;
-    border-bottom:1px solid white;
-    display:block;
-    margin-top:10px;
-    margin-bottom:10px;
-  }
+.super-stripe-contextmenu .super-stripe-copied,
+.super-stripe-contextmenu .super-stripe-copied:hover {
+    color: #f5925e;
+    background-color: #ffffff;
+}
+
+.super-stripe-contextmenu>divider {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid white;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
