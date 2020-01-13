@@ -1269,6 +1269,17 @@ if(!class_exists('SUPER_Stripe')) :
                 'ending_before' => $ending_before
             ]);
 
+            // Because Stripe doesn't provide us with the customer details
+            // we don't have any other choice than looping over every single
+            // paymentintent and retrieve the customer based on the 
+            // 'customer' key which holds the customer ID
+            foreach($paymentIntents->data as $k => $v){
+                if($v['customer']){
+                    $customer = \Stripe\Customer::retrieve($v['customer']);
+                    $v['customer'] = $customer;
+                }
+            }
+
             if( $formatted ) {
                 //echo $symbol . number_format_i18n($d['amount']/100, 2) . ' ' . $currency_code;
                 //var_dump($paymentIntents->data);

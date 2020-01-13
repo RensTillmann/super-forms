@@ -23,9 +23,7 @@
         <div class="super-stripe-transactions super-active">
             <?php 
             $columns = array(
-                'id' => esc_html__( 'Transaction ID', 'super-forms' ),
                 'actions' => esc_html__( 'Actions', 'super-forms' ),
-                'status' => esc_html__( 'Status', 'super-forms' ),
                 'amount' => esc_html__( 'Amount', 'super-forms' ),
                 'description' => esc_html__( 'Description', 'super-forms' ),
                 'customer' => esc_html__( 'Customer', 'super-forms' ),

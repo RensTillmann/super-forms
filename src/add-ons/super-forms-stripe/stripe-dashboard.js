@@ -19,8 +19,18 @@
         if (typeof p === 'string') p = app.wrapper.querySelector(p);
         return p.querySelectorAll(s);
     };
+    // Remove all elements
+    app.remove = function (e) {
+        if (e.length) {
+            for (var i = 0; i < e.length; i++) {
+                e[i].remove();
+            }
+        }
+        return true;
+    };
     // Remove class from elements
     app.removeClass = function (elements, class_name) {
+        if(elements.length===0) return true;
         if (elements.length) {
             for (var key = 0; key < elements.length; key++) {
                 elements[key].classList.remove(class_name);
@@ -31,6 +41,7 @@
     };
     // Add class from elements
     app.addClass = function (elements, class_name) {
+        if(elements.length===0) return true;
         if (elements.length) {
             for (var key = 0; key < elements.length; key++) {
                 elements[key].classList.add(class_name);
@@ -56,74 +67,95 @@
         }
         return index;
     };
-    app.events = {
-        click: [
-            '.super-stripe-tab',
-            '.super-stripe-load-more',
-            '.super-stripe-invoice-btn',
-            '.super-stripe-action-btn'
-        ],
+    // Check if clicked inside element, by looping over it's "path"
+    app.inPath = function (e, class_name) {
+        if (!e.path) return false;
+        var found = false;
+        Object.keys(e.path).forEach(function (key) {
+            if (e.path[key].classList) {
+                if (e.path[key].classList.contains(class_name)) {
+                    found = true;
+                }
+            }
+        });
+        return found;
     };
-    
+
     // UI
     app.ui = {
         contextMenu: {
             className: 'super-stripe-contextmenu',
-            close: function(){
-                var node = app.q('.'+app.ui.contextMenu.className);
-                if(node) node.remove();
+            close: function () {
+                var node = app.q('.' + app.ui.contextMenu.className);
+                if (node) node.remove();
+                app.removeClass(app.qa('.super-contextmenu-active'), 'super-contextmenu-active');
             },
-            open: function(e, target, eventType, attr){
+            open: function (e, target, eventType, attr) {
                 console.log(eventType, attr);
-                if( attr.type=='actions' ) {
-                    // Open up new context menu
-                    // First close (delete) existing one
-                    app.ui.contextMenu.close();
-                    var contextMenu = document.createElement('div');
-                    contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
-                    var html = '';
-                    html += '<span>ACTIONS</span>';
-                    html += '<div sfevents=\'{"click":{"api.refund"}}\'>Refund payment...</div>';
-                    html += '<div sfevents=\'{"click":{"api.copyPaymentID"}}\'>Copy payment ID</div>';
-                    html += '<divider></divider>';
-                    html += '<span>CONNECTIONS</span>';
-                    html += '<div sfevents=\'{"click":{"api.viewCustomer"}}\'>View customer</div>';
-                    html += '<div sfevents=\'{"click":{"api.viewPaymentDetails"}}\'>View payment details</div>';
-                    contextMenu.innerHTML = html;
-                    
-                    // Get the position relative to the viewport (i.e. the window)
-                    var offset = target.getBoundingClientRect();
-                    var target_absolute_position_left = offset.left+(offset.width/2);
-                    //var margins = getComputedStyle(target);
-                    //var target_height = target.offsetHeight + parseInt(margins.marginTop) + parseInt(margins.marginBottom);
-                    var w = window,
-                        d = document,
-                        dE = d.documentElement,
-                        g = d.getElementsByTagName('body')[0],
-                        window_width = w.innerWidth || dE.clientWidth || g.clientWidth,
-                        scrollTop = window.pageYOffset || (document.documentElement || document.body.parentNode || document.body).scrollTop;
+                if (attr.type == 'actions') {
+                    // Before we do anything, determine if this button was already clicked, and has active state
+                    // If it has active state, we can simple close the context menu and do nothing
+                    console.log(e, target, eventType, attr);
+                    if(target.classList.contains('super-contextmenu-active')){
+                        // Close (delete) any existing context menu
+                        app.ui.contextMenu.close();
+                    }else{
+                        // First close (delete) existing one
+                        app.ui.contextMenu.close();
+                        // Set active state on button
+                        app.addClass(target, 'super-contextmenu-active');
+                        // Open up new context menu
+                        var contextMenu = document.createElement('div');
+                        contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
+                        var html = '';
+                        html += '<span>ACTIONS</span>';
+                        html += '<div sfevents=\'{"click":{"api.refund":""}}\'>Refund payment...</div>';
+                        html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
+                        html += '<divider></divider>';
+                        html += '<span>CONNECTIONS</span>';
+                        var row = target.closest('.super-stripe-row');
+                        var testData = row.querySelector('.super-stripe-testdata').length;
+                        var customerID = row.querySelector('.super-stripe-customer').customer;
+                        if(customerID){
+                            html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (testData!==0 ? 'test/' : '') +'customers/'+ customerID +'">View customer</a>';
+                        }
+                        html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (testData!==0 ? 'test/' : '') +'payments/'+ row.id +'">View payment details</a>';
+                        contextMenu.innerHTML = html;
+
+                        // Get the position relative to the viewport (i.e. the window)
+                        var offset = target.getBoundingClientRect();
+                        var target_absolute_position_left = offset.left + (offset.width / 2);
+                        //var margins = getComputedStyle(target);
+                        //var target_height = target.offsetHeight + parseInt(margins.marginTop) + parseInt(margins.marginBottom);
+                        var w = window,
+                            d = document,
+                            dE = d.documentElement,
+                            g = d.getElementsByTagName('body')[0],
+                            window_width = w.innerWidth || dE.clientWidth || g.clientWidth,
+                            scrollTop = window.pageYOffset || (document.documentElement || document.body.parentNode || document.body).scrollTop;
                         contextMenu.style.position = 'absolute';
                         contextMenu.style.top = 0;
                         contextMenu.style.left = 0;
-                    // Append to body
-                    document.body.appendChild(contextMenu);
-                    var initial_width = contextMenu.offsetWidth;
-                    contextMenu.style.top = offset.top+scrollTop+(offset.height)+'px';
-                    contextMenu.style.transform = 'translateX(-17px) translateY(10px)';
-                    //contextMenu.style.top = offset.top+scrollTop+'px';
-                    //contextMenu.style.transform = 'translateX(-50%) translateY(-150%)';
-                    contextMenu.style.left = target_absolute_position_left+'px';
-                    // Check if we can't position the element at top or bottom because of overlapping window
-                    // The tooltip could possibly be cut off if we do not check this
-                    if(window_width < target_absolute_position_left+initial_width){
-                        // We have to position the tooltip to the left side of the target
-                        contextMenu.style.transform = null;
-                        contextMenu.style.left = (offset.left-initial_width-30)+'px';
-                        contextMenu.classList.remove('sb-bottom');
-                        contextMenu.classList.add('sb-left');
+                        // Append to body
+                        document.body.appendChild(contextMenu);
+                        var initial_width = contextMenu.offsetWidth;
+                        contextMenu.style.top = offset.top + scrollTop + (offset.height) + 'px';
+                        contextMenu.style.transform = 'translateX(-17px) translateY(15px)';
+                        //contextMenu.style.top = offset.top+scrollTop+'px';
+                        //contextMenu.style.transform = 'translateX(-50%) translateY(-150%)';
+                        contextMenu.style.left = target_absolute_position_left + 'px';
+                        // Check if we can't position the element at top or bottom because of overlapping window
+                        // The tooltip could possibly be cut off if we do not check this
+                        if (window_width < target_absolute_position_left + initial_width) {
+                            // We have to position the tooltip to the left side of the target
+                            contextMenu.style.transform = null;
+                            contextMenu.style.left = (offset.left - initial_width - 30) + 'px';
+                            contextMenu.classList.remove('sb-bottom');
+                            contextMenu.classList.add('sb-left');
+                        }
+                        console.log('Console log, open Actions context menu');
+                        console.log(e, target, eventType, attr);
                     }
-                    console.log('Console log, open Actions context menu');
-                    console.log(e, target, eventType, attr);
                 }
             }
         },
@@ -142,48 +174,48 @@
     };
 
     app.serialize = function (obj, prefix) {
-        var str = [],
-            p;
-        for (p in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, p)) {
-                //if( obj.hasOwnProperty(p) ) {
-                var k = prefix ? prefix + "[" + p + "]" : p,
-                    v = obj[p];
-                str.push((v !== null && typeof v === "object") ? app.serialize(v, k) : encodeURIComponent(k) + "=" + encodeURIComponent(v));
-            }
-        }
-        return str.join("&");
-    },
-
-    app.itemWidth = function(node){
-        var style = window.getComputedStyle ? getComputedStyle(node, null) : node.currentStyle,
-            marginLeft = parseFloat(style.marginLeft) || 0,
-            marginRight = parseFloat(style.marginRight) || 0;
-        if(node.classList.contains('carouseljs-wrapper')){
-            var paddingLeft = parseFloat(style.paddingLeft) || 0,
-                paddingRight = parseFloat(style.paddingRight) || 0;
-            return node.offsetWidth+(marginLeft+marginRight)-(paddingLeft+paddingRight);
-        } 
-        return node.offsetWidth+(marginLeft+marginRight);
-    },
-
-    app.resizeColumns = function(parent){
-        //debugger;
-        console.log(parent);
-        //if(!parent.classList.contains('super-initialized')){
-            var x, y, widths = [], itemWidth, columns, rows = app.qap('.super-stripe-row', parent);
-            for( x=0; x < rows.length; x++ ) {
-                columns = app.qap('.super-stripe-column', rows[x]);
-                for( y=0; y < columns.length; y++ ) {
-                    if(typeof widths[y] === 'undefined') widths[y] = 0;
-                    itemWidth = app.itemWidth(columns[y]);
-                    if(itemWidth > widths[y]) widths[y] = itemWidth;
+            var str = [],
+                p;
+            for (p in obj) {
+                if (Object.prototype.hasOwnProperty.call(obj, p)) {
+                    //if( obj.hasOwnProperty(p) ) {
+                    var k = prefix ? prefix + "[" + p + "]" : p,
+                        v = obj[p];
+                    str.push((v !== null && typeof v === "object") ? app.serialize(v, k) : encodeURIComponent(k) + "=" + encodeURIComponent(v));
                 }
             }
-            for( x=0; x < rows.length; x++ ) {
+            return str.join("&");
+        },
+
+        app.itemWidth = function (node) {
+            var style = window.getComputedStyle ? getComputedStyle(node, null) : node.currentStyle,
+                marginLeft = parseFloat(style.marginLeft) || 0,
+                marginRight = parseFloat(style.marginRight) || 0;
+            if (node.classList.contains('carouseljs-wrapper')) {
+                var paddingLeft = parseFloat(style.paddingLeft) || 0,
+                    paddingRight = parseFloat(style.paddingRight) || 0;
+                return node.offsetWidth + (marginLeft + marginRight) - (paddingLeft + paddingRight);
+            }
+            return node.offsetWidth + (marginLeft + marginRight);
+        },
+
+        app.resizeColumns = function (parent) {
+            console.log(parent);
+            //if(!parent.classList.contains('super-initialized')){
+            var x, y, widths = [],
+                itemWidth, columns, rows = app.qap('.super-stripe-row', parent);
+            for (x = 0; x < rows.length; x++) {
                 columns = app.qap('.super-stripe-column', rows[x]);
-                for( y=0; y < columns.length; y++ ) {
-                    columns[y].style.maxWidth = widths[y]+'px';
+                for (y = 0; y < columns.length; y++) {
+                    if (typeof widths[y] === 'undefined') widths[y] = 0;
+                    itemWidth = app.itemWidth(columns[y]);
+                    if (itemWidth > widths[y]) widths[y] = itemWidth;
+                }
+            }
+            for (x = 0; x < rows.length; x++) {
+                columns = app.qap('.super-stripe-column', rows[x]);
+                for (y = 0; y < columns.length; y++) {
+                    columns[y].style.maxWidth = widths[y] + 'px';
                 }
             }
             console.log(widths);
@@ -212,25 +244,50 @@
             //     headings[i].style.width = newWidth+'px';
             // }
 
-        //}else{
+            //}else{
             // Load more was called
 
-        //}
-        //console.log(parent.classList.contains('super-initialized'));
+            //}
+            //console.log(parent.classList.contains('super-initialized'));
 
-        // var columns = app.qap('.super-stripe-column');
-        // console.log(headings);
-        // console.log(columns);
-    };
+            // var columns = app.qap('.super-stripe-column');
+            // console.log(headings);
+            // console.log(columns);
+        };
 
     // Get items from API
     app.api = {
 
-        refund: function(){
+        // Copy Payment ID
+        copyPaymentID: function(e, target){
+            var tmpHTML, row = app.q('.super-contextmenu-active').closest('.super-stripe-row'),
+                node = document.createElement('input');
+            node.type = 'text';
+            node.value = row.id;
+            target.parentNode.querySelector('.super-stripe-copy');
+            node.className = 'super-stripe-copy';
+            app.remove(app.qap('.super-stripe-copy', target.parentNode));
+            target.parentNode.insertBefore(node, target.nextSibling);
+            tmpHTML = target.innerHTML;
+            target.innerHTML = 'Copied!';
+            app.addClass(target, 'super-stripe-copied');
+            setTimeout(function(){
+                target.innerHTML = tmpHTML;
+                app.removeClass(target, 'super-stripe-copied');
+            }, 3000);
+            node.focus();
+            node.select();
+            document.execCommand("copy");
+        },
+
+        // Refund
+        refund: function () {
             alert('Refund payment...');
         },
 
+        // Invoice
         invoice: {
+            // Download as PDF
             pdf: function (e, target, eventType, attr) {
                 // "invoice_pdf": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X/pdf",
                 app.api.handler({
@@ -238,6 +295,7 @@
                     id: attr.invoiceId
                 });
             },
+            // View invoice online
             online: function (e, target, eventType, attr) {
                 // "hosted_invoice_url": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X",
                 app.api.handler({
@@ -248,39 +306,44 @@
         },
 
         addRows: {
-            paymentIntents: function (payload) {                
+            paymentIntents: function (payload) {
                 // eslint-disable-next-line no-undef
                 var $declineCodes = super_stripe_dashboard_i18n.declineCodes;
                 var parentNode = app.q('.super-stripe-transactions .super-stripe-table-rows');
                 // Check if we can find the last ID, if not then just leave starting_after blank
                 var newRow = document.createElement('div');
                 newRow.className = 'super-stripe-row';
+                newRow.id = payload.id;
+                // column.innerHTML = '<a target="_blank" href="https://dashboard.stripe.com/payments/' + payload.id + '">' + payload.id + '</a>';
+                               
+                // Actions
                 var column = document.createElement('div');
                 var columnClass = 'super-stripe-column ';
-                column.className = columnClass+'super-stripe-id';
-                column.innerHTML = '<a target="_blank" href="https://dashboard.stripe.com/payments/' + payload.id + '">' + payload.id + '</a>';
-                newRow.appendChild(column);
-                column = document.createElement('div');
-                column.className = columnClass+'super-stripe-actions';
+                column.className = columnClass + 'super-stripe-actions';
                 var html = '';
                 html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
                 html += '<div class="super-stripe-raw">' + payload.raw + '</div>';
                 html += '<div class="super-stripe-action-options">';
-                    var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
-                    if (payload.receipt_url) receiptUrl = payload.receipt_url;
-                    if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a><br />';
-                    if (payload.invoice) {
-                        html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</span><br />';
-                        html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</span><br />';
-                    }
+                var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
+                if (payload.receipt_url) receiptUrl = payload.receipt_url;
+                if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a><br />';
+                if (payload.invoice) {
+                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</span><br />';
+                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</span><br />';
+                }
                 html += '</div>';
                 column.innerHTML = html
                 newRow.appendChild(column);
-                column = document.createElement('div');
-                column.className = columnClass+'super-stripe-status';
+
+                // Amount
                 html = '';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-amount super-stripe-status';
+                html += payload.amount;
+
+                // Status
                 var $label = '',
                     $labelColor = '#4f566b;',
                     $title = '',
@@ -367,37 +430,45 @@
                 html += '<path style="fill:' + $pathFill + ';" d="' + $path + '" fill-rule="evenodd"></path>';
                 html += '</svg>';
                 html += '</span>';
-                if(!payload.livemode){
+                if (!payload.livemode) {
                     html += '<span class="super-stripe-testdata">TEST DATA</span>';
                 }
-
                 column.innerHTML = html;
                 newRow.appendChild(column);
+
+                // Description
                 column = document.createElement('div');
-                column.className = columnClass+'super-stripe-amount';
-                column.innerHTML = payload.amount;
-                newRow.appendChild(column);
-                column = document.createElement('div');
-                column.className = columnClass+'super-stripe-description';
+                column.className = columnClass + 'super-stripe-description';
                 column.innerHTML = (payload.description ? payload.description : '');
                 newRow.appendChild(column);
+
+                // Customer
                 column = document.createElement('div');
-                column.className = columnClass+'super-stripe-customer';
+                column.className = columnClass + 'super-stripe-customer';
                 html = '';
-                console.log(payload, payload.customer_email);
-                console.log(payload.customer, payload.customer_email);
-                if(payload.customer){
-                    html += payload.customer_email;
+                console.log(payload.customer);
+                if (payload.customer) {
+                    column.customer = payload.customer.id;
+                    html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (!payload.livemode ? 'test/' : '') +'customers/'+ payload.customer.id +'">';
+                    if(payload.customer.email){
+                        html += payload.customer.email
+                    }else{
+                        html += payload.customer.id;
+                    }
+                    html += '</a>';
                 }
                 column.innerHTML = html;
                 newRow.appendChild(column);
+                
+                // Shipping address
                 column = document.createElement('div');
-                column.className = columnClass+'super-stripe-shipping';
+                column.className = columnClass + 'super-stripe-shipping';
                 column.innerHTML = payload.shipping;
                 newRow.appendChild(column);
-                column = document.createElement('div');
-                column.className = columnClass+'super-stripe-method';
 
+                // Payment Method
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-method';
                 html = '';
                 console.log(payload);
                 if (payload.charges && payload.charges.data && payload.charges.data.payment_method_details) {
@@ -471,8 +542,9 @@
                 column.innerHTML = html;
                 newRow.appendChild(column);
 
+                // Date
                 column = document.createElement('div');
-                column.className = columnClass+'super-stripe-date';
+                column.className = columnClass + 'super-stripe-date';
                 column.innerHTML = payload.created;
                 newRow.appendChild(column);
 
@@ -486,11 +558,6 @@
                 var newRow = document.createElement('tr');
 
                 var column = document.createElement('td');
-                column.className = 'super-stripe-id';
-                column.innerHTML = payload.id;
-                newRow.appendChild(column);
-
-                column = document.createElement('td');
                 column.className = 'super-stripe-status';
                 column.innerHTML = payload.status;
                 newRow.appendChild(column);
@@ -525,11 +592,6 @@
                 var newRow = document.createElement('tr');
 
                 var column = document.createElement('td');
-                column.className = 'super-stripe-id';
-                column.innerHTML = payload.id;
-                newRow.appendChild(column);
-
-                column = document.createElement('td');
                 column.className = 'super-stripe-status';
                 column.innerHTML = payload.status;
                 newRow.appendChild(column);
@@ -571,8 +633,7 @@
                         } else {
                             try {
                                 var payload = JSON.parse(this.response);
-                            }
-                            catch(error) {
+                            } catch (error) {
                                 console.log(error);
                                 alert(error);
                             }
@@ -631,11 +692,11 @@
     // Load more Transactions, Products, Customers
     app.loadMore = function (e, target, eventType, attr) {
         var nodes, lastChild, starting_after;
-        if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-id');
-        if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-id');
-        if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-id');
+        if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-row');
+        if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-row');
+        if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
         lastChild = nodes[nodes.length - 1];
-        starting_after = lastChild.innerText;
+        starting_after = lastChild.id;
         app.api.payment_intents({
             type: attr.type,
             limit: 3,
@@ -649,9 +710,9 @@
         console.log(target);
         var actions, _event, _function, _currentFunc, sfevents;
         try {
+            console.log(target.attributes.sfevents.value);
             sfevents = JSON.parse(target.attributes.sfevents.value);
-        }
-        catch(error) {
+        } catch (error) {
             console.log(error);
             alert(error);
         }
@@ -700,9 +761,29 @@
         });
     };
     // Iterate over all events, and listen to any event being triggered
+
+    app.events = {
+        click: [
+            'body',
+            '.super-stripe-tab',
+            '.super-stripe-load-more',
+            '.super-stripe-invoice-btn',
+            '.super-stripe-action-btn',
+            '.'+app.ui.contextMenu.className+' > div'
+        ],
+    };
+
     Object.keys(app.events).forEach(function (eventType) {
         var elements = app.events[eventType].join(", ");
-        app.delegate(app.wrapper, eventType, elements, function (e, target) {
+        app.delegate(document, eventType, elements, function (e, target) {
+            // Close Context Menu if clicked outside
+            if (eventType == 'click') {
+                if( (!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn')) ) {
+                    // Close context menu
+                    app.ui.contextMenu.close();
+                }
+            }
+            // Trigger event(s)
             if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
         });
     });
