@@ -19,7 +19,7 @@
   - [HTML Elements](html-elements.md)
 
 - Field Validations
-  - [Special Validation](special-validation.md)
+  - [Validation](validation.md)
   - [Conditional Validation](conditional-validation.md)
 
 - Features 

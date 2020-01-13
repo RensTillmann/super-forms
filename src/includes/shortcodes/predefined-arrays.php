@@ -38,13 +38,13 @@ $extensions = array(
     'desc' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
 );
 $special_validations = array(
-    'name'=>esc_html__( 'Special Validation', 'super-forms' ), 
+    'name'=>esc_html__( 'Validation', 'super-forms' ), 
     'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select',
     'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ),
-        'empty' => esc_html__( 'Not empty', 'super-forms' ), 
+        'none' => esc_html__( 'None', 'super-forms' ),
+        'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' ), 
         'email' => esc_html__( 'Email address', 'super-forms' ), 
         'phone' => esc_html__( 'Phone number', 'super-forms' ), 
         'numeric' => esc_html__( 'Numeric', 'super-forms' ),
@@ -69,8 +69,8 @@ $validation_empty = array(
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
-        'empty' => esc_html__( 'Not empty', 'super-forms' )
+        'none' => esc_html__( 'None', 'super-forms' ), 
+        'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' )
     ),
     'filter'=>true
 );
@@ -80,8 +80,8 @@ $validation_not_empty = array(
     'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ), 
-        'empty' => esc_html__( 'Not empty', 'super-forms' )
+        'none' => esc_html__( 'None', 'super-forms' ), 
+        'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' )
     ),
     'filter'=>true
 );
@@ -91,33 +91,33 @@ $error = array(
     'desc'=>esc_html__( 'A message to show up when field was filled out incorrectly.', 'super-forms' ),
     'i18n' => true
 );
-$may_be_empty = array(
+$allow_empty = array(
     'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
-    'desc'=>esc_html__( 'Only apply the validations if field is not empty', 'super-forms' ), 
+    'desc'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
     'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
     'type'=>'select', 
     'values'=>array(
-        'false' => esc_html__( 'No, validate even if field is empty (default)', 'super-forms' ), 
-        'conditions' => esc_html__( 'Yes, but not if the following conditions are met', 'super-forms' ), 
-        'true' => esc_html__( 'Yes, validate only if field is not empty', 'super-forms' ),
+        'false' => esc_html__( 'No', 'super-forms' ), 
+        'true' => esc_html__( 'Yes', 'super-forms' ),
+        'conditions' => esc_html__( 'Yes, but not when the following conditions are met', 'super-forms' )
     ),
     'filter'=>true,
     'parent'=>'validation',
-    'filter_value'=>'empty' 
+    'filter_value'=>'empty,email,phone,numeric,float,website,iban,custom'
 );
-$may_be_empty_no_filter = array(
+$allow_empty_no_filter = array(
     'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
-    'desc'=>esc_html__( 'Only apply the validations if field is not empty', 'super-forms' ), 
+    'desc'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
     'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
     'type'=>'select', 
     'values'=>array(
-        'false' => esc_html__( 'No, validate even if field is empty (default)', 'super-forms' ), 
-        'conditions' => esc_html__( 'Yes, but not if the following conditions are met', 'super-forms' ), 
-        'true' => esc_html__( 'Yes, validate only if field is not empty', 'super-forms' ),
+        'false' => esc_html__( 'No', 'super-forms' ), 
+        'true' => esc_html__( 'Yes', 'super-forms' ),
+        'conditions' => esc_html__( 'Yes, but not when the following conditions are met', 'super-forms' )
     ),
     'filter'=>true,
 );
-$may_be_empty_conditions = array(
+$allow_empty_conditions = array(
     'name'=>esc_html__( 'Conditions', 'super-forms' ), 
     'desc'=>esc_html__( 'Validate the field when the following conditions are met.', 'super-forms' ),
     'type'=>'conditions',
@@ -135,7 +135,7 @@ $conditional_validation = array(
     'type'=>'select', 
     'filter'=>true,
     'values'=>array(
-        'none' => esc_html__( 'No validation needed', 'super-forms' ),
+        'none' => esc_html__( 'None', 'super-forms' ),
         'contains' => esc_html__( '?? Contains', 'super-forms' ),
         'not_contains' => esc_html__( '!! Not contains', 'super-forms' ),
         'equal' => esc_html__( '== Equal', 'super-forms' ),

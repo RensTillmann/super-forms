@@ -1,6 +1,6 @@
-# Special Validation
+# Validation
 
-The Special Validation option gives you the ability to quickly add a specific validation to any of your fields.
+The Validation option gives you the ability to quickly add a specific validation to any of your fields.
 This will decrease the risk of a user making mistakes or typos while filling out the form.
 
 Below you can find the available validation methods:
@@ -10,7 +10,7 @@ Only allow input field to contain letters, and nothing else
 `^[a-zA-Z]+$`
 
 
-### Not Empty
+### Required Field (not empty)
 This is the most used validation method, it will simply check if the field was entered or not.<br />
 This allows you to make a field a so called **Required field***.
 

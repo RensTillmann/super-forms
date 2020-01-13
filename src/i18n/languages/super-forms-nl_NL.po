@@ -1409,8 +1409,8 @@ msgid "Example"
 msgstr "Voorbeeld"
 
 #: includes/shortcodes/predefined-arrays.php:40
-msgid "Special Validation"
-msgstr "Speciale validatie"
+msgid "Validation"
+msgstr "Validatie"
 
 #: includes/shortcodes/predefined-arrays.php:41
 #: includes/shortcodes/predefined-arrays.php:131
@@ -1422,25 +1422,22 @@ msgstr "Hoe moet dit veld gevalideerd worden?"
 #: includes/shortcodes/predefined-arrays.php:84
 #: includes/shortcodes/predefined-arrays.php:135
 #: includes/shortcodes/predefined-arrays.php:145
-msgid "No validation needed"
-msgstr "Geen validatie nodig"
+msgid "None"
+msgstr "Geen"
 
 #: includes/shortcodes/predefined-arrays.php:46
 #: includes/shortcodes/predefined-arrays.php:136
 #: includes/shortcodes/predefined-arrays.php:146
-msgid "Not empty"
-msgstr ""
-"Niet leeg\n"
+msgid "Required Field (not empty)"
+msgstr "Niet leeg"
 
 #: includes/shortcodes/predefined-arrays.php:47
 msgid "Email address"
-msgstr ""
-"E-mailadres\n"
+msgstr "E-mailadres"
 
 #: includes/shortcodes/predefined-arrays.php:48
 msgid "Phone number"
-msgstr ""
-"Telefoonnummer\n"
+msgstr "Telefoonnummer"
 
 #: includes/shortcodes/predefined-arrays.php:49
 msgid "Numeric"

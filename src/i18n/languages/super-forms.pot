@@ -1403,7 +1403,7 @@ msgid "Example"
 msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:40
-msgid "Special Validation"
+msgid "Validation"
 msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:41
@@ -1416,13 +1416,13 @@ msgstr ""
 #: includes/shortcodes/predefined-arrays.php:84
 #: includes/shortcodes/predefined-arrays.php:135
 #: includes/shortcodes/predefined-arrays.php:145
-msgid "No validation needed"
+msgid "None"
 msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:46
 #: includes/shortcodes/predefined-arrays.php:136
 #: includes/shortcodes/predefined-arrays.php:146
-msgid "Not empty"
+msgid "Required Field (not empty)"
 msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:47

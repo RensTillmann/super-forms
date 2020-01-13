@@ -70,11 +70,11 @@ msgid "Line Thickness"
 msgstr ""
 
 #: super-forms-signature.php:525
-msgid "No validation needed"
+msgid "None"
 msgstr ""
 
 #: super-forms-signature.php:526
-msgid "Not empty"
+msgid "Required Field (not empty)"
 msgstr ""
 
 #: super-forms-signature.php:537
@@ -94,7 +94,7 @@ msgid "Signature:"
 msgstr ""
 
 #: super-forms-signature.php:520
-msgid "Special Validation"
+msgid "Validation"
 msgstr ""
 
 #. Name of the plugin

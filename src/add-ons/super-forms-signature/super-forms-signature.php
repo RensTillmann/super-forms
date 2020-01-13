@@ -478,13 +478,13 @@ if(!class_exists('SUPER_Signature')) :
 	                        'bg_size' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=1000, $steps=10, $name=esc_html__( 'Image background size', 'super-forms' ), $desc=esc_html__( 'You can adjust the size of your background image here', 'super-forms' ) ),
 				            'tooltip' => $tooltip,
                             'validation' => array(
-                                'name'=>esc_html__( 'Special Validation', 'super-forms' ), 
+                                'name'=>esc_html__( 'Validation', 'super-forms' ), 
                                 'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
                                 'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
                                 'type'=>'select', 
                                 'values'=>array(
-                                    'none' => esc_html__( 'No validation needed', 'super-forms' ),
-                                    'empty' => esc_html__( 'Not empty', 'super-forms' ), 
+                                    'none' => esc_html__( 'None', 'super-forms' ),
+                                    'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' ), 
                                 )
                             ),
 	                        'error' => $error,
