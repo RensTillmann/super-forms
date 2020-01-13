@@ -146,7 +146,7 @@ msgid "Medium - d MM, y"
 msgstr ""
 
 #: super-forms-calculator.php:633
-msgid "No validation needed"
+msgid "None"
 msgstr ""
 
 #: super-forms-calculator.php:669
@@ -154,7 +154,7 @@ msgid "None (empty)"
 msgstr ""
 
 #: super-forms-calculator.php:634
-msgid "Not empty"
+msgid "Required Field (not empty)"
 msgstr ""
 
 #: super-forms-calculator.php:759
@@ -206,7 +206,7 @@ msgid "Short - d M, y"
 msgstr ""
 
 #: super-forms-calculator.php:628
-msgid "Special Validation"
+msgid "Validation"
 msgstr ""
 
 #: super-forms-calculator.php:576

@@ -456,7 +456,8 @@ class SUPER_Shortcodes {
             if( !isset( $atts[$prefix.'retrieve_method_exclude_post'] ) ) $atts[$prefix.'retrieve_method_exclude_post'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_parent'] ) ) $atts[$prefix.'retrieve_method_parent'] = '';
             if( !isset( $atts[$prefix.'retrieve_method_orderby'] ) ) $atts[$prefix.'retrieve_method_orderby'] = 'title';
-            if( !isset( $atts[$prefix.'retrieve_method_order'] ) ) $atts[$prefix.'retrieve_method_order'] = 'ASC';
+            if( !isset( $atts[$prefix.'retrieve_method_order'] ) ) $atts[$prefix.'retrieve_method_order'] = 'asc';
+            $atts[$prefix.'retrieve_method_order'] = strtolower($atts[$prefix.'retrieve_method_order']);
             $args = array(
                 'post_type' => $atts[$prefix.'retrieve_method_post'],
                 'post_status' => $atts[$prefix.'retrieve_method_post_status'],
@@ -466,6 +467,11 @@ class SUPER_Shortcodes {
                 'order' => $atts[$prefix.'retrieve_method_order'],
                 'numberposts' => (int)$atts[$prefix.'retrieve_method_post_limit']
             );
+            if($atts[$prefix.'retrieve_method_orderby']=='price'){
+                $args['orderby'] = 'meta_value_num';
+                $args['meta_key'] = '_price';
+            }
+
             // Check if we need to do an advanced filter based on taxonomy
             if(!empty($atts[$prefix.'retrieve_method_filters'])){
                 // Make sure we grab the tag ID and then add it to the array
@@ -5364,7 +5370,7 @@ class SUPER_Shortcodes {
             $styles .= 'margin:' . $settings['theme_form_margin'] . ';';
         }
 
-        if($styles!='') $styles = 'style="' . $styles . '"';
+        if($styles!='') $styles = 'style="' . $styles . '" ';
 
         // Try to load the selected theme style
         $class = 'style-default';
@@ -5493,7 +5499,7 @@ class SUPER_Shortcodes {
                 $result .= ' data-i18n="' . $i18n . '"';
             }
 
-            $result .= '">';
+            $result .= '>';
 
             // @since 4.7.0 - improved method to center form and to give max width to the form
             if( !empty( $settings['theme_max_width'] ) ) {

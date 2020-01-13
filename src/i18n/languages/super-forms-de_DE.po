@@ -1478,8 +1478,8 @@ msgid "Example"
 msgstr "Beispiel"
 
 #: includes/shortcodes/predefined-arrays.php:36
-msgid "Special Validation"
-msgstr "Spezielle Validierung"
+msgid "Validation"
+msgstr "Validierung"
 
 #: includes/shortcodes/predefined-arrays.php:37
 #: includes/shortcodes/predefined-arrays.php:127
@@ -1491,14 +1491,14 @@ msgstr "Wie soll dieses Feld validiert werden?"
 #: includes/shortcodes/predefined-arrays.php:80
 #: includes/shortcodes/predefined-arrays.php:131
 #: includes/shortcodes/predefined-arrays.php:141
-msgid "No validation needed"
-msgstr "Keine Validierung erforderlich."
+msgid "None"
+msgstr "Keine"
 
 #: includes/shortcodes/predefined-arrays.php:42
 #: includes/shortcodes/predefined-arrays.php:132
 #: includes/shortcodes/predefined-arrays.php:142
-msgid "Not empty"
-msgstr "Nicht leer"
+msgid "Required Field (not empty)"
+msgstr ""
 
 #: includes/shortcodes/predefined-arrays.php:43
 msgid "Email address"

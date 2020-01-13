@@ -29,7 +29,7 @@
 
 
 #### How can I make all fields to be required?
-This can be done per field individually because each field can have different type of [Validations](special-validation). To do this you can edit the field you wish and select the required validation under `General` > `Special Validation`, there you have several option to choose from.
+This can be done per field individually because each field can have different type of [Validations](validation). To do this you can edit the field you wish and select the required validation under `General` > `Validation`, there you have several option to choose from.
 
 #### Will data be lost when updating to a newer version of Super Forms?
 No, all data will remain and will **not** be deleted. Even if you would delete Super Forms through FTP.
