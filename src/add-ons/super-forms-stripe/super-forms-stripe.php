@@ -52,115 +52,195 @@ if(!class_exists('SUPER_Stripe')) :
         public $add_on_name = 'Stripe';
 
         public static $currency_codes = array(
-            'ALL' => 'Lek',
-            'AFN' => '؋',
-            'ARS' => '$',
-            'AWG' => 'ƒ',
-            'AUD' => '$',
-            'AZN' => '₼',
-            'BSD' => '$',
-            'BBD' => '$',
-            'BYN' => 'Br',
-            'BZD' => 'BZ$',
-            'BMD' => '$',
-            'BOB' => '$b',
-            'BAM' => 'KM',
-            'BWP' => 'P',
-            'BGN' => 'лв',
-            'BRL' => 'R$',
-            'BND' => '$',
-            'KHR' => '៛',
-            'CAD' => '$',
-            'KYD' => '$',
-            'CLP' => '$',
-            'CNY' => '¥',
-            'COP' => '$',
-            'CRC' => '₡',
-            'HRK' => 'kn',
-            'CUP' => '₱',
-            'CZK' => 'Kč', // &#75;&#269;
-            'DKK' => 'kr', // &#107;&#114;
-            'DOP' => 'RD$',
-            'XCD' => '$',
-            'EGP' => '£',
-            'SVC' => '$',
-            'EUR' => '€', // &#128;
-            'FKP' => '£',
-            'FJD' => '$',
-            'GHS' => '¢',
-            'GIP' => '£',
-            'GTQ' => 'Q',
-            'GGP' => '£',
-            'GYD' => '$',
-            'HNL' => 'L',
-            'HKD' => '$', // &#20803;
-            'HUF' => 'Ft', // HUF
-            'ISK' => 'kr',
-            'INR' => '',
-            'IDR' => 'Rp',
-            'IRR' => '﷼',
-            'IMP' => '£',
-            'ILS' => '₪', // &#8362;
-            'JMD' => 'J$',
-            'JPY' => '¥', // &#165;
-            'JEP' => '£',
-            'KZT' => 'лв',
-            'KPW' => '₩',
-            'KRW' => '₩',
-            'KGS' => 'лв',
-            'LAK' => '₭',
-            'LBP' => '£',
-            'LRD' => '$',
-            'MKD' => 'ден',
-            'MYR' => 'RM', // &#82;&#77;
-            'MUR' => '₨',
-            'MXN' => '$', // &#36;
-            'MNT' => '₮',
-            'MZN' => 'MT',
-            'NAD' => '$',
-            'NPR' => '₨',
-            'ANG' => 'ƒ',
-            'NZD' => '$', // &#36;
-            'NIO' => 'C$',
-            'NGN' => '₦',
-            'NOK' => 'kr', // &#107;&#114;
-            'OMR' => '﷼',
-            'PKR' => '₨',
-            'PAB' => 'B/.',
-            'PYG' => 'Gs',
-            'PEN' => 'S/.',
-            'PHP' => '₱', // &#80;&#104;&#11;
-            'PLN' => 'zł', // &#122;&#322;
-            'QAR' => '﷼',
-            'RON' => 'lei',
-            'RUB' => '₽', // &#1088;&#1091;
-            'SHP' => '£',
-            'SAR' => '﷼',
-            'RSD' => 'Дин.',
-            'SCR' => '₨',
-            'SGD' => '$', // &#36;
-            'SBD' => '$',
-            'SOS' => 'S',
-            'ZAR' => 'R',
-            'LKR' => '₨',
-            'SEK' => 'kr', // &#107;&#114;
-            'CHF' => 'CHF', // &#67;&#72;&#70;
-            'SRD' => '$',
-            'SYP' => '£',
-            'TWD' => 'NT$', // &#36;
-            'THB' => '฿', // &#3647;
-            'TTD' => 'TT$',
-            'TRY' => '',
-            'TVD' => '$',
-            'UAH' => '₴',
-            'GBP' => '£', // &#163;
-            'USD' => '$',
-            'UYU' => '$U',
-            'UZS' => 'лв',
-            'VEF' => 'Bs',
-            'VND' => '₫',
-            'YER' => '﷼',
-            'ZWD' => 'Z$'
+            // https://www.thefinancials.com/Default.aspx?SubSectionID=curformat
+            // https://www2.1010data.com/documentationcenter/prime/1010dataUsersGuide/DataTypesAndFormats/currencyUnitCodes.html
+            'USD'=>array('symbol'=>'$'),
+            'AED'=>array('symbol'=>'د.إ'),
+            'AFN*'=>array('symbol'=>'؋'),
+            'ALL'=>array('symbol'=>'Lek'),
+            'AMD'=>array('symbol'=>'֏'),
+            'ANG'=>array('symbol'=>'ƒ','format'=>'0.0,00'),
+            'AOA*'=>array('symbol'=>'Kz'),
+            'ARS*'=>array('symbol'=>'$','format'=>'0.0,00'),
+            'AUD'=>array('symbol'=>'$'),
+            'AWG'=>array('symbol'=>'ƒ'),
+            'AZN'=>array('symbol'=>'₼'),
+            'BAM'=>array('symbol'=>'KM'),
+            'BBD'=>array('symbol'=>'$'),
+            'BDT'=>array('symbol'=>'৳'),
+            'BGN'=>array('symbol'=>'Лв.'),
+            'BIF'=>array('symbol'=>'FBu','format'=>'0,0'),
+            'BMD'=>array('symbol'=>'$'),
+            'BND'=>array('symbol'=>'$'),
+            'BOB*'=>array('symbol'=>'Bs.'),
+            'BRL*'=>array('symbol'=>'R$','format'=>'0.0,00'),
+            'BSD'=>array('symbol'=>'$'),
+            'BWP'=>array('symbol'=>'P'),
+            'BZD'=>array('symbol'=>'BZ$'),
+            'CAD'=>array('symbol'=>'$'),
+            'CDF'=>array('symbol'=>'FC'),
+            'CHF'=>array('symbol'=>'CHf'),
+            'CLP'=>array('symbol'=>'$','format'=>'0,0'),
+            'CNY'=>array('symbol'=>'¥'),
+            'COP*'=>array('symbol'=>'$','format'=>'0.0,00'),
+            'CRC*'=>array('symbol'=>'₡','format'=>'0.0,00'),
+            'CVE*'=>array('symbol'=>'Esc'),
+            'CZK*'=>array('symbol'=>'Kč','format'=>'0.0,00'),
+            'DJF'=>array('symbol'=>'Fdj'),
+            'DKK'=>array('symbol'=>'kr','format'=>'0.0,00'),
+            'DOP'=>array('symbol'=>'RD$'),
+            'DZD'=>array('symbol'=>'دج'),
+            'EGP'=>array('symbol'=>'ج.م'),
+            'ETB'=>array('symbol'=>'ብር'),
+            'EUR'=>array('symbol'=>'€','format'=>'0.0,00'),
+            'FJD'=>array('symbol'=>'$'),
+            'FKP*'=>array('symbol'=>'£'),
+            'GBP'=>array('symbol'=>'£'),
+            'GEL'=>array('symbol'=>'ლ'),
+            'GIP'=>array('symbol'=>'£'),
+            'GMD'=>array('symbol'=>'D'),
+            'GNF'=>array('symbol'=>'FG','format'=>'0,0'),
+            'GTQ*'=>array('symbol'=>'Q'),
+            'GYD'=>array('symbol'=>'$'),
+            'HKD'=>array('symbol'=>'$'),
+            'HNL*'=>array('symbol'=>'L'),
+            'HRK'=>array('symbol'=>'kn','format'=>'0.0,00'),
+            'HTG'=>array('symbol'=>'G'),
+            'HUF*'=>array('symbol'=>'Ft','format'=>'0.000'),
+            'IDR'=>array('symbol'=>'Rp','format'=>'0.0,00'),
+            'ILS'=>array('symbol'=>'₪'),
+            'INR*'=>array('symbol'=>'₹'),
+            'ISK'=>array('symbol'=>'kr','format'=>'0'),
+            'JMD'=>array('symbol'=>'J$'),
+            'JPY'=>array('symbol'=>'¥'),
+            'KES'=>array('symbol'=>'Ksh'),
+            'KGS'=>array('symbol'=>'Лв'),
+            'KHR'=>array('symbol'=>'៛'),
+            'KMF'=>array('symbol'=>'CF'),
+            'KRW'=>array('symbol'=>'₩'),
+            'KYD'=>array('symbol'=>'$'),
+            'KZT'=>array('symbol'=>'₸'),
+            'LAK*'=>array('symbol'=>'₭'),
+            'LBP'=>array('symbol'=>'ل.ل.‎'),
+            'LKR'=>array('symbol'=>'රු'),
+            'LRD'=>array('symbol'=>'$'),
+            'LSL'=>array('symbol'=>'L'),
+            'MAD'=>array('symbol'=>'د.م.'),
+            'MDL'=>array('symbol'=>'L'),
+            'MGA'=>array('symbol'=>'Ar'),
+            'MKD'=>array('symbol'=>'Ден'),
+            'MMK'=>array('symbol'=>'K'),
+            'MNT'=>array('symbol'=>'₮'),
+            'MOP'=>array('symbol'=>'MOP$'),
+            'MRO'=>array('symbol'=>'UM'),
+            'MUR*'=>array('symbol'=>'₨'),
+            'MVR'=>array('symbol'=>'Rf'),
+            'MWK'=>array('symbol'=>'MK'),
+            'MXN'=>array('symbol'=>'$'),
+            'MYR'=>array('symbol'=>'RM'),
+            'MZN'=>array('symbol'=>'MT'),
+            'NAD'=>array('symbol'=>'$'),
+            'NGN'=>array('symbol'=>'₦'),
+            'NIO*'=>array('symbol'=>'C$'),
+            'NOK'=>array('symbol'=>'kr'),
+            'NPR'=>array('symbol'=>'रू'),
+            'NZD'=>array('symbol'=>'NZ$'),
+            'PAB*'=>array('symbol'=>'B/.'),
+            'PEN*'=>array('symbol'=>'S/'),
+            'PGK'=>array('symbol'=>'K'),
+            'PHP'=>array('symbol'=>'₱'),
+            'PKR'=>array('symbol'=>'₨'),
+            'PLN'=>array('symbol'=>'zł'),
+            'PYG'=>array('symbol'=>'₲'),
+            'QAR'=>array('symbol'=>'ر.ق'),
+            'RON'=>array('symbol'=>'lei'),
+            'RSD'=>array('symbol'=>'din'),
+            'RUB'=>array('symbol'=>'₽'),
+            'RWF'=>array('symbol'=>'R₣'),
+            'SAR'=>array('symbol'=>'﷼‎'),
+            'SBD'=>array('symbol'=>'$'),
+            'SCR'=>array('symbol'=>'SR'),
+            'SEK'=>array('symbol'=>'kr'),
+            'SGD'=>array('symbol'=>'$'),
+            'SHP*'=>array('symbol'=>'£'),
+            'SLL'=>array('symbol'=>'Le'),
+            'SOS'=>array('symbol'=>'S'),
+            'SRD*'=>array('symbol'=>'$'),
+            'STD*'=>array('symbol'=>'Db'),
+            'SZL'=>array('symbol'=>'E'),
+            'THB'=>array('symbol'=>'฿'),
+            'TJS'=>array('symbol'=>'ЅM'),
+            'TOP'=>array('symbol'=>'PT'),
+            'TRY'=>array('symbol'=>'₺'),
+            'TTD'=>array('symbol'=>'TT$'),
+            'TWD'=>array('symbol'=>'NT$'),
+            'TZS'=>array('symbol'=>'TSh'),
+            'UAH'=>array('symbol'=>'₴'),
+            'UGX'=>array('symbol'=>'USh'),
+            'UYU*'=>array('symbol'=>'$U'),
+            'UZS'=>array('symbol'=>'so\'m'),
+            'VND'=>array('symbol'=>'₫','format'=>'0'),
+            'VUV'=>array('symbol'=>'VT'),
+            'WST'=>array('symbol'=>'SAT'),
+            'XAF'=>array('symbol'=>'FCFA'),
+            'XCD'=>array('symbol'=>'$'),
+            'XOF'=>array('symbol'=>'CFA'),
+            'XPF'=>array('symbol'=>'₣'),
+            'YER'=>array('symbol'=>'﷼'),
+            'ZAR'=>array('symbol'=>'R'),
+            'ZMW'=>array('symbol'=>'ZK','format'=>'0.00')
+
+
+            // Default = #,###.## = ;0,0.00
+
+            // Secondary = #.###,## = ;0.0,00
+            // ARS - Argentine Peso
+            // BRL - Brazilian Real
+            // COP - Colombian Peso
+            // CRC - Costa Rican Colon
+            // HRK - Croatian Kuna
+            // CYP - Cyprus Pound <<<<<
+            // CZK - Czech Koruna
+            // DKK - Danish Krone
+            // IDR - Indonesia, Rupiah
+            // MZM - Mozambique Metical <<<<<<
+            // ANG - Netherlands Antillian Guilder
+            // NOK - Norwegian Krone
+            // UYU - Peso Uruguayo
+            // RON - Romania, New Leu
+            // ROL - Romania, Old Leu <<<<<<
+            // RUB - Russian Ruble
+            // SIT - Slovenia, Tolar <<<<<<<
+            // VES - Venezuela Bolivares Fuertes <<<<<<
+
+            // Uncommon = #,###.### ;0,0.000
+            // BHD - Bahraini Dinar <<<<<<<
+            // JOD - Jordanian Dinar <<<<<<<
+            // KWD - Kuwaiti Dinar <<<<<<<
+            // OMR - Rial Omani
+
+            // Zero decimals
+            // BYN - Belarussian Ruble
+            // BYR - Belarussian Ruble <<<<<
+            // BIF - Burundi Franc <<<<
+            // XPF - CFP Franc <<<<
+            // CLP - Chilean Peso
+            // KMF - Comoro Franc <<<
+            // DJF - Djibouti Franc <<<
+            // HUF - Hungary, Forint
+            // ISK - Iceland Krona
+            // JPY - Japan, Yen
+            // MGA - Malagasy Ariary <<<
+            // MZN - Mozambique Metical
+            // PYG - Paraguay, Guarani
+            // RWF - Rwanda Franc <<<
+            // KRW - South Korea, Won
+            // VUV - Vanuatu, Vatu <<<
+
+            // 3 decimals
+            // IQD - Iraqi Dinar
+            // LYD - Libyan Dinar
+            // TND - Tunisian Dinar
         );
 
         /**
@@ -527,6 +607,16 @@ if(!class_exists('SUPER_Stripe')) :
                         )
                     )       
                 )
+            );
+            $scripts['numeral'] = array(
+                'src'     => plugin_dir_url( __FILE__ ) . 'numeral.js',
+                'deps'    => array('super-stripe-dashboard'),
+                'version' => SUPER_Stripe()->version,
+                'footer'  => true,
+                'screen'  => array( 
+                    'super-forms_page_super_stripe_dashboard'
+                ),
+                'method'  => 'enqueue'
             );
             return $scripts;
         }
@@ -1244,8 +1334,31 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         public static function stripe_dashboard(){
-            self::setAppInfo();
-            require_once('dashboard.php');
+            $global_settings = SUPER_Common::get_global_settings();
+            // Check if the API key is correctly configured
+            $configured = true;
+            if( (!empty($global_settings['stripe_mode'])) && ((empty($global_settings['stripe_sandbox_public_key'])) || (empty($global_settings['stripe_sandbox_secret_key']))) ) {
+                $configured = false;
+                echo '<div class="super-stripe-notice">';
+                echo sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
+                echo '</div>';
+            }
+            if( (empty($global_settings['stripe_mode'])) && ((empty($global_settings['stripe_live_public_key'])) || (empty($global_settings['stripe_live_secret_key']))) ) {
+                $configured = false;
+                echo '<div class="super-stripe-notice">';
+                echo sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
+                echo '</div>';
+            }
+
+            $dashboardUrl = 'https://dashboard.stripe.com/';
+            if( !empty($global_settings['stripe_mode']) ) {
+                $dashboardUrl .= 'test/';
+            }
+
+            if($configured){
+                self::setAppInfo();
+                require_once('dashboard.php');
+            }
         }
         public static function getInvoice($id) {
             return \Stripe\Invoice::retrieve($id);
@@ -1288,14 +1401,14 @@ if(!class_exists('SUPER_Stripe')) :
                     $currency_code = strtoupper($v['currency']);
                     $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code] : $currency_code);
                     if(!empty($paymentIntents->data[$k]->amount)){
-                        $paymentIntents->data[$k]->amount = $symbol . number_format_i18n($v->amount/100, 2) . ' ' . $currency_code;
+                        $paymentIntents->data[$k]->amountFormatted = $symbol . number_format_i18n($v->amount/100, 2) . ' ' . $currency_code;
                     }
                     if(!empty($paymentIntents->data[$k]->amount_refunded)) {
-                        $paymentIntents->data[$k]->amount_refunded = $symbol . number_format_i18n($v->amount_refunded/100, 2) . ' ' . $currency_code;
+                        $paymentIntents->data[$k]->amount_refundedFormatted = $symbol . number_format_i18n($v->amount_refunded/100, 2) . ' ' . $currency_code;
                     }
                     // Format the timestamp to wordpress date format
                     if(!empty($paymentIntents->data[$k]->created)) {
-                        $paymentIntents->data[$k]->created = date_i18n( 'j M Y, H:i', $paymentIntents->data[$k]->created );
+                        $paymentIntents->data[$k]->createdFormatted = date_i18n( 'j M Y, H:i', $paymentIntents->data[$k]->created );
                     }
                     $paymentIntents->data[$k]->raw = json_encode($paymentIntents->data[$k]->toArray(), JSON_PRETTY_PRINT);
                 }
