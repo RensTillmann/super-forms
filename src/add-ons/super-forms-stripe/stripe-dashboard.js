@@ -21,16 +21,19 @@
     };
     // Remove all elements
     app.remove = function (e) {
+        if (typeof e === 'undefined' || !e) return true;
         if (e.length) {
             for (var i = 0; i < e.length; i++) {
                 e[i].remove();
             }
+        } else {
+            e.remove();
         }
         return true;
     };
     // Remove class from elements
     app.removeClass = function (elements, class_name) {
-        if(elements.length===0) return true;
+        if (elements.length === 0) return true;
         if (elements.length) {
             for (var key = 0; key < elements.length; key++) {
                 elements[key].classList.remove(class_name);
@@ -41,7 +44,7 @@
     };
     // Add class from elements
     app.addClass = function (elements, class_name) {
-        if(elements.length===0) return true;
+        if (elements.length === 0) return true;
         if (elements.length) {
             for (var key = 0; key < elements.length; key++) {
                 elements[key].classList.add(class_name);
@@ -81,8 +84,122 @@
         return found;
     };
 
-    // UI
+    // UI    
     app.ui = {
+        backdrop: {
+            className: 'super-stripe-backdrop',
+            add: function () {
+                var node = document.createElement('div');
+                node.className = app.ui.backdrop.className;
+                node.style.position = 'fixed';
+                node.style.zIndex = 9000000;
+                node.style.left = '0px';
+                node.style.top = '0px';
+                node.style.width = '100%';
+                node.style.height = '100%';
+                node.style.backgroundColor = '#000';
+                node.style.opacity = '0.2';
+                document.body.appendChild(node);
+            },
+            remove: function () {
+                app.remove(app.q('.' + app.ui.backdrop.className));
+            }
+        },
+        modal: {
+            className: 'super-stripe-modal',
+            close: function () {
+                app.remove(app.q('.' + app.ui.modal.className));
+                app.ui.backdrop.remove();
+            },
+            reposition: function (modal) {
+                if (typeof modal === 'undefined') modal = app.q('.' + app.ui.modal.className);
+                if (modal) {
+                    var positionTop = (window.innerHeight - parseFloat(modal.style.height).toFixed(0)) / 2,
+                        positionLeft = (window.innerWidth / 2) - 250 // 960 - 250 = 710
+                    if (positionTop < 50) positionTop = 0;
+                    if (positionLeft < 0) positionLeft = 0;
+                    modal.style.top = positionTop + 'px';
+                    modal.style.left = positionLeft + 'px';
+                }
+            },
+            open: function (e, target, eventType, attr) {
+                console.log(e, target, eventType, attr);
+                // Get Raw JSON data
+                var html = '',
+                    modalWrapper = document.createElement('div'),
+                    json = JSON.parse(app.api.rawJSON);
+                modalWrapper.className = app.ui.modal.className;
+                modalWrapper.style.position = 'fixed';
+                modalWrapper.style.zIndex = 9000001;
+                modalWrapper.style.width = '500px';
+                modalWrapper.style.height = '370px';
+                if (attr.type == 'refundPayment') {
+                    var modalTitle = 'Refund payment';
+                    var modalInfo = 'Refunds take 5-10 days to appear on a customer\'s statement.';
+                    var modalFields = {
+                        "amount": {
+                            label: "Refund",
+                            type: "currency"
+                        },
+                        "reason": {
+                            label: "Reason",
+                            type: "select",
+                            options: {
+                                null: "Select a reason",
+                                duplicate: "Duplicate",
+                                fraudulent: "Fraudulent",
+                                requested_by_customer: "Requested by customer"
+                            }
+                        },
+                        "payment_intent": {
+                            type: "hidden"
+                        }
+                    };
+                }
+                if (modalTitle) html += '<div class="super-stripe-modal-title">' + modalTitle + '</div>';
+                if (modalInfo) html += '<div class="super-stripe-modal-info">' + modalInfo + '</div>';
+                if (modalFields) {
+                    html += '<div class="super-stripe-modal-fields">';
+                    Object.keys(modalFields).forEach(function(key){
+                        var field = modalFields[key],
+                            type = field.type;
+                        if(type==='hidden'){
+                            html += '<input type="hidden" name="'+key+'" />';
+                        }
+                        if(type==='select'){
+                            html += '<select name="'+key+'">';
+                            Object.keys(field.options).forEach(function(optionKey){
+                                html += '<option value="'+optionKey+'">'+field.options[optionKey]+'</option>';
+                            });
+                            html += '</select>';
+                        }
+                        if(type==='currency'){
+                            debugger;
+                            //var amount = json.amount/100;
+                            var amount = 123456789/100;
+                            var currency = json.currency.toUpperCase();
+                            var myNumeral = numeral(amount).format('0,0');
+                            var myNumeral = numeral(amount).format('0.0');
+                            var myNumeral = numeral(amount).format('0');
+                            var value = myNumeral.value();
+                            // 1000
+                            var value = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
+                            // expected output: "123.456,79 €"
+                            var myNumeral2 = numeral(value);
+                            var value2 = myNumeral2.value();
+                            // 1000
+                            html += '<input type="text" name="'+key+'" value="'+value+'" />';
+                        }
+                    });
+                    html += '</div>';
+                }
+                modalWrapper.innerHTML = html;
+                document.body.appendChild(modalWrapper);
+                app.ui.modal.reposition(modalWrapper);
+                app.ui.contextMenu.close();
+                app.ui.backdrop.add();
+            }
+        },
         contextMenu: {
             className: 'super-stripe-contextmenu',
             close: function () {
@@ -96,10 +213,10 @@
                     // Before we do anything, determine if this button was already clicked, and has active state
                     // If it has active state, we can simple close the context menu and do nothing
                     console.log(e, target, eventType, attr);
-                    if(target.classList.contains('super-contextmenu-active')){
+                    if (target.classList.contains('super-contextmenu-active')) {
                         // Close (delete) any existing context menu
                         app.ui.contextMenu.close();
-                    }else{
+                    } else {
                         // First close (delete) existing one
                         app.ui.contextMenu.close();
                         // Set active state on button
@@ -109,17 +226,19 @@
                         contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
                         var html = '';
                         html += '<span>ACTIONS</span>';
-                        html += '<div sfevents=\'{"click":{"api.refund":""}}\'>Refund payment...</div>';
+                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment"}}}\'>Refund payment...</div>';
                         html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
                         html += '<divider></divider>';
                         html += '<span>CONNECTIONS</span>';
                         var row = target.closest('.super-stripe-row');
+                        app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
+                        
                         var testData = row.querySelector('.super-stripe-testdata').length;
                         var customerID = row.querySelector('.super-stripe-customer').customer;
-                        if(customerID){
-                            html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (testData!==0 ? 'test/' : '') +'customers/'+ customerID +'">View customer</a>';
+                        if (customerID) {
+                            html += '<a target="_blank" href="https://dashboard.stripe.com/' + (testData !== 0 ? 'test/' : '') + 'customers/' + customerID + '">View customer</a>';
                         }
-                        html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (testData!==0 ? 'test/' : '') +'payments/'+ row.id +'">View payment details</a>';
+                        html += '<a target="_blank" href="https://dashboard.stripe.com/' + (testData !== 0 ? 'test/' : '') + 'payments/' + row.id + '">View payment details</a>';
                         contextMenu.innerHTML = html;
 
                         // Get the position relative to the viewport (i.e. the window)
@@ -159,9 +278,7 @@
                 }
             }
         },
-        modal: {
 
-        },
         // Switch TABs
         tabs: {
             open: function (e, target) {
@@ -257,9 +374,9 @@
 
     // Get items from API
     app.api = {
-
+        rawJSON: {},
         // Copy Payment ID
-        copyPaymentID: function(e, target){
+        copyPaymentID: function (e, target) {
             var tmpHTML, row = app.q('.super-contextmenu-active').closest('.super-stripe-row'),
                 node = document.createElement('input');
             node.type = 'text';
@@ -271,7 +388,7 @@
             tmpHTML = target.innerHTML;
             target.innerHTML = 'Copied!';
             app.addClass(target, 'super-stripe-copied');
-            setTimeout(function(){
+            setTimeout(function () {
                 target.innerHTML = tmpHTML;
                 app.removeClass(target, 'super-stripe-copied');
             }, 3000);
@@ -282,7 +399,7 @@
 
         // Refund
         refund: function () {
-            alert('Refund payment...');
+            alert('Refund payment API requests...');
         },
 
         // Invoice
@@ -315,7 +432,13 @@
                 newRow.className = 'super-stripe-row';
                 newRow.id = payload.id;
                 // column.innerHTML = '<a target="_blank" href="https://dashboard.stripe.com/payments/' + payload.id + '">' + payload.id + '</a>';
-                               
+
+                // Raw JSON data
+                var node = document.createElement('textarea');
+                node.className = 'super-stripe-raw';
+                node.value = payload.raw;
+                newRow.appendChild(node);
+
                 // Actions
                 var column = document.createElement('div');
                 var columnClass = 'super-stripe-column ';
@@ -324,7 +447,6 @@
                 html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
-                html += '<div class="super-stripe-raw">' + payload.raw + '</div>';
                 html += '<div class="super-stripe-action-options">';
                 var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
                 if (payload.receipt_url) receiptUrl = payload.receipt_url;
@@ -341,7 +463,7 @@
                 html = '';
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-amount super-stripe-status';
-                html += payload.amount;
+                html += payload.amountFormatted;
 
                 // Status
                 var $label = '',
@@ -406,10 +528,10 @@
                         $pathFill = '#697386';
                         $path = 'M10.5 5a5 5 0 0 1 0 10 1 1 0 0 1 0-2 3 3 0 0 0 0-6l-6.586-.007L6.45 9.528a1 1 0 0 1-1.414 1.414L.793 6.7a.997.997 0 0 1 0-1.414l4.243-4.243A1 1 0 0 1 6.45 2.457L3.914 4.993z';
                     } else {
-                        if (payload.amount_refunded) {
+                        if (payload.amount_refundedFormatted) {
                             $label = 'Partial refund';
                             $labelColor = '#3d4eac;';
-                            $title = ' title="' + payload.amount_refunded + ' ' + 'was refunded"';
+                            $title = ' title="' + payload.amount_refundedFormatted + ' ' + 'was refunded"';
                             $class = ' super-stripe-partial-refund';
                             $pathFill = '#5469d4';
                             $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
@@ -449,17 +571,17 @@
                 console.log(payload.customer);
                 if (payload.customer) {
                     column.customer = payload.customer.id;
-                    html += '<a target="_blank" href="https://dashboard.stripe.com/'+ (!payload.livemode ? 'test/' : '') +'customers/'+ payload.customer.id +'">';
-                    if(payload.customer.email){
+                    html += '<a target="_blank" href="https://dashboard.stripe.com/' + (!payload.livemode ? 'test/' : '') + 'customers/' + payload.customer.id + '">';
+                    if (payload.customer.email) {
                         html += payload.customer.email
-                    }else{
+                    } else {
                         html += payload.customer.id;
                     }
                     html += '</a>';
                 }
                 column.innerHTML = html;
                 newRow.appendChild(column);
-                
+
                 // Shipping address
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-shipping';
@@ -545,7 +667,7 @@
                 // Date
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-date';
-                column.innerHTML = payload.created;
+                column.innerHTML = payload.createdFormatted;
                 newRow.appendChild(column);
 
                 parentNode.appendChild(newRow);
@@ -564,7 +686,7 @@
 
                 column = document.createElement('td');
                 column.className = 'super-stripe-amount';
-                column.innerHTML = payload.amount;
+                column.innerHTML = payload.amountFormatted;
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
@@ -598,7 +720,7 @@
 
                 column = document.createElement('td');
                 column.className = 'super-stripe-amount';
-                column.innerHTML = payload.amount;
+                column.innerHTML = payload.amountFormatted;
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
@@ -666,24 +788,26 @@
     };
 
     // Load first items
-    app.api.payment_intents({
-        type: 'paymentIntents',
-        limit: 3
-    });
-    app.api.payment_intents({
-        type: 'products',
-        limit: 3
-    });
-    app.api.payment_intents({
-        type: 'customers',
-        limit: 3
-    });
+    if (app.qa('.super-stripe-tabs-content > div').length) {
+        app.api.payment_intents({
+            type: 'paymentIntents',
+            limit: 3
+        });
+        app.api.payment_intents({
+            type: 'products',
+            limit: 3
+        });
+        app.api.payment_intents({
+            type: 'customers',
+            limit: 3
+        });
+    }
 
     // Remove loader after data has been loaded from the API
     var removeLoader = setInterval(function () {
         var total = app.qa('.super-stripe-tabs-content > div').length;
         var found = app.qa('.super-stripe-tabs-content > .super-initialized').length;
-        if (total == found) {
+        if (total > 0 && total == found) {
             app.removeClass(app.q('.super-stripe-dashboard'), 'super-loading');
             clearInterval(removeLoader);
         }
@@ -760,8 +884,8 @@
             }
         });
     };
-    // Iterate over all events, and listen to any event being triggered
 
+    // Iterate over all events, and listen to any event being triggered
     app.events = {
         click: [
             'body',
@@ -769,22 +893,31 @@
             '.super-stripe-load-more',
             '.super-stripe-invoice-btn',
             '.super-stripe-action-btn',
-            '.'+app.ui.contextMenu.className+' > div'
+            '.' + app.ui.contextMenu.className + ' > div'
         ],
     };
-
     Object.keys(app.events).forEach(function (eventType) {
         var elements = app.events[eventType].join(", ");
         app.delegate(document, eventType, elements, function (e, target) {
-            // Close Context Menu if clicked outside
             if (eventType == 'click') {
-                if( (!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn')) ) {
+                // Close Context Menu if clicked outside
+                if ((!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn'))) {
                     // Close context menu
                     app.ui.contextMenu.close();
+                }
+                if (!app.inPath(e, app.ui.modal.className)) {
+                    // Close modal
+                    app.ui.modal.close();
                 }
             }
             // Trigger event(s)
             if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
         });
     });
+
+    // Upon resizing window reposition modal
+    window.addEventListener("resize", function () {
+        app.ui.modal.reposition();
+    });
+
 })();
