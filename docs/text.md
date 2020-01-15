@@ -9,7 +9,7 @@ The text field element is used for many purposes, in this guide we will explain 
 ## Features
 
 * [Auto Suggest](auto-suggest)
-* [Special Validation](special-validation)
+* [Validation](validation)
 * [Conditional Validation](conditional-validation)
 * [Distance & Duration Calculation](distance-duration-calculation)
 * [Address Auto Complete](address-auto-complete)
@@ -27,7 +27,7 @@ The text field element is used for many purposes, in this guide we will explain 
 * **Placeholder**
 * **Default Value**
 * **Tooltip Text**
-* **Special Validation**
+* **Validation**
 * **Conditional Validation**
 * **Allow Field To Be Empty**
 * **Error Message**

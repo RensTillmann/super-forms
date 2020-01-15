@@ -108,13 +108,15 @@ function SUPERreCaptcha(){
     SUPER.field = function(form, name, regex){
         if(typeof name === 'undefined') name = '';
         regex = (typeof regex === 'undefined' ? '' : regex );
+        // If we want to return all but not by name
+        if(name==='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files, .super-recaptcha');
         // If name is empty just return the first field only
-        if(name==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files');
+        if(name==='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files');
         // If no regex was defined return all field just by their exact name match
-        if(regex=='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(name!=='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If regex is set to 'all' we want to search for multiple fields
         // This is currently being used by the builder to determine duplicate field names
-        if(regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(name!=='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If a regex is defined, search for fields based on the regex
         return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
     };
@@ -342,15 +344,27 @@ function SUPERreCaptcha(){
                     alert(file.error);
                 }
             }).on('fileuploadfail', function (e, data) {
+                var el = e.target;
+                var form = el.closest('.super-form');
+                SUPER.handle_errors(el);
                 $.each(data.files, function (index) {
                     var error = $('<span class="super-error"/>').text(' (file upload failed)');
                     $(data.context.children()[index]).children('.super-error').remove();
                     $(data.context.children()[index]).append(error);
                 });
+                alert(data.errorThrown.message);
+                var submitButton = form.querySelector('.super-form-button.super-loading');
+                submitButton.classList.remove('super-loading');
+                var buttonName = submitButton.querySelector('.super-button-name');
+                var normal = buttonName.dataset.normal;
+                buttonName.innerHTML = normal;
+                SUPER.handle_validations(el, undefined, '', undefined, form);
+                SUPER.scrollToError(form);
             }).on('fileuploadsubmit', function (e, data) {
                 data.formData = {
                     'accept_file_types': $(this).data('accept-file-types'),
                     'max_file_size': $(this).data('file-size')*1000000,
+                    'image_library': super_common_i18n.image_library
                 };
             });
         });
@@ -1859,7 +1873,6 @@ function SUPERreCaptcha(){
 
     // Check for errors, validate fields
     SUPER.handle_validations = function(el, validation, conditionalValidation, duration, form) {
-        
         if(el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
         var i, nodes,
             parent = el.closest('.super-field'),
@@ -2132,11 +2145,14 @@ function SUPERreCaptcha(){
                 total = el.parentNode.querySelectorAll('.super-fileupload-files > div').length;
                 if(total > attr) error = true;
             }
+            if(el.closest('.super-shortcode').classList.contains('super-error-active')){
+                error = true;
+            }
         }
         // Check if a general error occured, and check for any fields that failed to Conditionally validate (for conditionally required field)
         if(error || isEmptyError){
             error = true;
-            SUPER.handle_errors(el, duration);
+            SUPER.handle_errors(el);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
@@ -2168,11 +2184,9 @@ function SUPERreCaptcha(){
 
     // Validate the form
     SUPER.validate_form = function( form, submitButton, validateMultipart, e, doingSubmit ) {
-
         SUPER.before_validating_form_hook(undefined, form, doingSubmit);
 
         var i = 0, nodes,
-            step,
             action = (submitButton.querySelector('.super-button-name') ? submitButton.querySelector('.super-button-name').dataset.action : ''),
             url = submitButton.dataset.href,
             proceed = SUPER.before_submit_button_click_hook(e, submitButton),
@@ -2184,7 +2198,6 @@ function SUPERreCaptcha(){
             name,
             field,
             element,
-            children,
             target,
             submitButtonName,
             oldHtml,
@@ -2193,9 +2206,6 @@ function SUPERreCaptcha(){
             statusUpdate,
             index,
             total,
-            progress,
-            multipart,
-            scroll = true,
             match,
             value,
             fileError,
@@ -2256,23 +2266,27 @@ function SUPERreCaptcha(){
             }
         }
 
-        nodes = form.querySelectorAll('.super-field .super-shortcode-field, .super-field .super-recaptcha, .super-field .super-active-files');
+        //nodes = form.querySelectorAll('.super-field .super-shortcode-field, .super-field .super-recaptcha, .super-field .super-active-files');
+        nodes = SUPER.field(form, '', 'all');
+        console.log(nodes);
         for ( i = 0; i < nodes.length; i++) {
             field = nodes[i];
             textField = true;
             if(!SUPER.has_hidden_parent(field)){
+                console.log(field.classList);
+                // super-shortcode-field super-fileupload super-rendered
                 if(field.classList.contains('super-active-files')){
                     textField = false;
                     fileError = false;
-                    attr = field.dataset.minfiles;
-                    if (typeof attr !== 'undefined' && attr !== false) {
+                    attr = parseFloat(field.dataset.minfiles);
+                    if (!isNaN(attr) && typeof attr !== 'undefined' && attr !== false) {
                         total = field.parentNode.querySelectorAll('.super-fileupload-files > div').length;
                         if(total < attr) {
                             fileError = true;
                         }
                     }
-                    attr = field.dataset.maxfiles;
-                    if (typeof attr !== 'undefined' && attr !== false) {
+                    attr = parseFloat(field.dataset.maxfiles);
+                    if (!isNaN(attr) && typeof attr !== 'undefined' && attr !== false) {
                         total = field.parentNode.querySelectorAll('.super-fileupload-files > div').length;
                         if(total > attr) {
                             fileError = true;
@@ -2280,7 +2294,7 @@ function SUPERreCaptcha(){
                     }
                     if(fileError===true){
                         error = true;
-                        SUPER.handle_errors(field, duration);
+                        SUPER.handle_errors(field);
                         index = $(field).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
                         $(field).parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+index+')').addClass('super-error');
                     }else{
@@ -2294,10 +2308,6 @@ function SUPERreCaptcha(){
                     }
                 }
                 if(textField===true){
-                    // If keyword field then set super-keyword
-                    if(field.closest('.super-field').classList.contains('super-keyword-tags')){
-                        field = field.closest('.super-field').querySelector('.super-keyword');
-                    }
                     validation = field.dataset.validation;
                     conditionalValidation = field.dataset.conditionalValidation;
                     if (SUPER.handle_validations(field, validation, conditionalValidation, duration, form)) {
@@ -2336,60 +2346,65 @@ function SUPERreCaptcha(){
                 });
             }
         }else{
-            // @since 2.0 - multipart validation
-            if(validateMultipart===true) {
-                scroll = true;
-                if(typeof form.dataset.disableScroll !== 'undefined'){
-                    scroll = false;
-                }
-                if(scroll){
-                    $('html, body').animate({
-                        scrollTop: $(form).offset().top-30
-                    }, 1000);
-                }
-                return false;
-            }
-
-            if(form.querySelector('.super-multipart-step.super-error')){
-                step = form.querySelector('.super-multipart-step.super-error');
-                children = Array.prototype.slice.call( step.parentNode.children );
-                index = children.indexOf(step);
-                total = form.querySelectorAll('.super-multipart').length;
-                progress = 100 / total;
-                progress = progress * (index+1);
-                multipart = form.querySelectorAll('.super-multipart')[index];
-                scroll = true;
-                if(typeof multipart.dataset.disableScroll !== 'undefined'){
-                    scroll = false;
-                }
-                form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
-                form.querySelector('.super-multipart-step.super-active').classList.remove('super-active');
-                form.querySelector('.super-multipart.super-active').classList.remove('super-active');
-                multipart.classList.add('super-active');
-                step.classList.add('super-active');
-
-                // @since 2.1.0
-                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).offset().top - 30);
-                if(proceed!==true) return false;
-
-                // @since 4.2.0 - disable scrolling when multi-part contains errors
-                if(scroll){
-                    $('html, body').animate({
-                        scrollTop: $(form).offset().top - 30 
-                    }, 1000);
-                }
-            }else{
-                // @since 2.1.0
-                proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
-                if(proceed!==true) return false;
-
-                $('html, body').animate({
-                    scrollTop: $(form).find('.super-error-active').offset().top-200
-                }, 1000);
-
-            }
+            SUPER.scrollToError(form, validateMultipart);
         }
         SUPER.after_validating_form_hook(undefined, form);
+    };
+
+    SUPER.scrollToError = function(form, validateMultipart){
+        var scroll = true, step, children, index, total, progress, multipart, proceed;
+        // @since 2.0 - multipart validation
+        if(validateMultipart===true) {
+            scroll = true;
+            if(typeof form.dataset.disableScroll !== 'undefined'){
+                scroll = false;
+            }
+            if(scroll){
+                $('html, body').animate({
+                    scrollTop: $(form).offset().top-30
+                }, 1000);
+            }
+            return false;
+        }
+
+        if(form.querySelector('.super-multipart-step.super-error')){
+            step = form.querySelector('.super-multipart-step.super-error');
+            children = Array.prototype.slice.call( step.parentNode.children );
+            index = children.indexOf(step);
+            total = form.querySelectorAll('.super-multipart').length;
+            progress = 100 / total;
+            progress = progress * (index+1);
+            multipart = form.querySelectorAll('.super-multipart')[index];
+            scroll = true;
+            if(typeof multipart.dataset.disableScroll !== 'undefined'){
+                scroll = false;
+            }
+            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+            form.querySelector('.super-multipart-step.super-active').classList.remove('super-active');
+            form.querySelector('.super-multipart.super-active').classList.remove('super-active');
+            multipart.classList.add('super-active');
+            step.classList.add('super-active');
+
+            // @since 2.1.0
+            proceed = SUPER.before_scrolling_to_error_hook(form, $(form).offset().top - 30);
+            if(proceed!==true) return false;
+
+            // @since 4.2.0 - disable scrolling when multi-part contains errors
+            if(scroll){
+                $('html, body').animate({
+                    scrollTop: $(form).offset().top - 30 
+                }, 1000);
+            }
+        }else{
+            // @since 2.1.0
+            proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
+            if(proceed!==true) return false;
+
+            $('html, body').animate({
+                scrollTop: $(form).find('.super-error-active').offset().top-200
+            }, 1000);
+
+        }
     };
 
     // @since 1.2.3
@@ -5356,7 +5371,7 @@ function SUPERreCaptcha(){
         });  
         
         function super_update_dropdown_value(e, dropdown, key){
-            var i,nodes,value,name,max,min,total,names='',values='',counter,
+            var i,nodes,value,name,max,min,total,names='',values='',counter,validation,duration,form,
                 input = dropdown.querySelector('.super-field-wrapper > input'),
                 parent = dropdown.querySelector('.super-dropdown-ui'),
                 placeholder = parent.querySelector('.super-placeholder'),
@@ -5404,6 +5419,12 @@ function SUPERreCaptcha(){
                 }
                 placeholder.innerHTML = names;
                 input.value = values;
+            }
+            validation = input.dataset.validation;
+            if(typeof validation !== 'undefined' && validation !== false){
+                duration = SUPER.get_duration();
+                form = input.closest('.super-form');
+                SUPER.handle_validations(input, validation, '', duration, form);
             }
             if(key=='enter') {
                 dropdown.classList.remove('super-focus-dropdown');

@@ -2137,7 +2137,7 @@ class SUPER_Settings {
                 'file_upload_image_library' => array(
                     'name' => esc_html__('Image Library', 'super-forms' ),
                     'desc' => esc_html__('Choose which image library should be used to scale and orient images', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_image_library', $settings, '0' ),
+                    'default' => self::get_value( $default, 'file_upload_image_library', $settings, '1' ),
                     'type' => 'select', 
                     'values' => $loaded_image_libraries
                 ),
@@ -2165,13 +2165,14 @@ class SUPER_Settings {
                 //     'values' => array(
                 //         'wp_content' => esc_html__('wp-content directory (recommended)', 'super-forms' ),
                 //         'media_library' => esc_html__('Media Library (publicly visible)', 'super-forms' ),
+                //         'custom' => esc_html__('Upload to a custom path', 'super-forms' )
                 //         'disabled' => esc_html__('Temporarily disable file uploads', 'super-forms' )
                 //     ),
                 //     'type' => 'select', 
                 //     'filter' => true
                 // ),
                 // 'file_upload_custom_dir' => array(
-                //     'name' => esc_html__('Upload files to a custom directory', 'super-forms' ),
+                //     'name' => esc_html__('Enter path', 'super-forms' ),
                 //     'default' => self::get_value( $default, 'file_upload_custom_dir', $settings, '' ),
                 //     'values' => array(
                 //         'true' => esc_html__('Enable', 'super-forms' )
@@ -2179,7 +2180,7 @@ class SUPER_Settings {
                 //     'type' => 'checkbox',
                 //     'filter' => true,
                 //     'parent' => 'file_upload_location',
-                //     'filter_value' => 'wp_content'
+                //     'filter_value' => 'custom'
                 // ),
                 // 'file_upload_google_drive' => array(
                 //     'name' => esc_html__('Upload files to Google Drive', 'super-forms' ),
