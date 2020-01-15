@@ -29,13 +29,13 @@
                     </svg>
                     <span><?php echo esc_html__( 'Filter', 'super-forms' ); ?></span>
                 </div>
-                <a target="_blank" href="<?php echo $dashboardUrl; ?>payments" class="super-stripe-action-btn super-stripe-export">
+                <a target="_blank" href="<?php echo esc_url($dashboardUrl); ?>payments" class="super-stripe-action-btn super-stripe-export">
                     <svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;">
                         <path d="M15 10.006a1 1 0 1 1-2 0v-5.6L2.393 15.009a.992.992 0 1 1-1.403-1.404L11.595 3.002h-5.6a1 1 0 0 1 0-2.001h8.02a1 1 0 0 1 .284.045.99.99 0 0 1 .701.951z" fill-rule="evenodd"></path>
                     </svg>
                     <span><?php echo esc_html__( 'Export', 'super-forms' ); ?></span>
                 </a>
-                <a target="_blank" href="<?php echo $dashboardUrl; ?>payments" class="super-stripe-action-btn super-stripe-create">  
+                <a target="_blank" href="<?php echo esc_url($dashboardUrl); ?>payments" class="super-stripe-action-btn super-stripe-create">  
                     <svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;">
                         <path d="M9 7h6a1 1 0 0 1 0 2H9v6a1 1 0 0 1-2 0V9H1a1 1 0 1 1 0-2h6V1a1 1 0 1 1 2 0z" fill-rule="evenodd"></path>
                     </svg>

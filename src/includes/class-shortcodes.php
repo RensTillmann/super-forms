@@ -1565,6 +1565,13 @@ class SUPER_Shortcodes {
 
     }
 
+    // @since 4.9.3 - Adaptive Placeholders
+    public static function adaptivePlaceholders( $atts, $tag ) {
+        if( !empty($atts['placeholder']) ) {
+            return '<span class="super-adaptive-placeholder" data-placeholder="'.esc_attr($atts['placeholder']).' (default)" data-placeholderFilled="' . esc_attr($atts['placeholder']) . ' (filled)"></span>';
+        }
+    }
+
     // @since 1.2.5     - custom regex validation
     public static function custom_regex( $regex ) {
         if( !empty($regex) )return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
@@ -2966,6 +2973,9 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
         
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $atts, $tag );
+
         // @since 2.9.0 - entered keywords
         if( !empty($atts['enable_keywords']) ) {
 
@@ -3214,6 +3224,10 @@ class SUPER_Shortcodes {
             // @since 3.6.0 - convert <br /> tags to \n
             $value = preg_replace('#<br\s*/?>#i', "\n", $atts['value']);
             $result .= ' >' . $value . '</textarea>';
+
+            // @since 4.9.3 - Adaptive placeholders
+            $result .= self::adaptivePlaceholders( $atts, $tag );
+
         }
 
         // @since 1.2.5     - custom regex validation
@@ -4040,17 +4054,25 @@ class SUPER_Shortcodes {
         if( empty( $atts['align'] ) ) $atts['align'] = '';
         if( !empty( $atts['align'] ) ) $atts['align'] = ' align-' . $atts['align'];
 
+        $api_missing_msg = sprintf( 
+            esc_html__( 
+                'Please enter your reCAPTCHA API keys in %sSuper Forms > Settings > Form Settings%s',
+                'super-forms' 
+            ),
+            '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#form-settings">', 
+            '</a>' 
+        );
         if($atts['version']==='v3'){
             $result .= '<div class="super-recaptcha g-recaptcha" data-sitekey="' . $global_settings['form_recaptcha_v3'] . '" data-size="invisible"></div>';
             if( ( $global_settings['form_recaptcha_v3']=='' ) || ( $global_settings['form_recaptcha_v3_secret']=='' ) ) {
-                $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+                $result .= '<strong style="color:red;">' . $api_missing_msg . '</strong>';
             }
         }else{
             if( empty( $global_settings['form_recaptcha'] ) ) $global_settings['form_recaptcha'] = '';
             if( empty( $global_settings['form_recaptcha_secret'] ) ) $global_settings['form_recaptcha_secret'] = '';
             $result .= '<div class="super-recaptcha' . $atts['align'] . '" data-sitekey="' . $global_settings['form_recaptcha'] . '"></div>';
             if( ( $global_settings['form_recaptcha']=='' ) || ( $global_settings['form_recaptcha_secret']=='' ) ) {
-                $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your reCAPTCHA key and secret in (Super Forms > Settings > Form Settings)', 'super-forms' ) . '</strong>';
+                $result .= '<strong style="color:red;">' . $api_missing_msg . '</strong>';
             }
         }
 
@@ -4426,6 +4448,7 @@ class SUPER_Shortcodes {
 
         if( !empty( $atts['action']) ) $action = $atts['action'];
         if( !empty( $atts['name'] ) ) $name = $atts['name'];
+        $name = stripslashes($name);
 
         if( !empty( $atts['loading'] ) ) $loading = $atts['loading'];
         
@@ -4477,22 +4500,22 @@ class SUPER_Shortcodes {
         if( $color!='' ) {
             $light = SUPER_Common::adjust_brightness( $color, 20 );
             $dark = SUPER_Common::adjust_brightness( $color, -30 );
-            $attributes .= ' data-color="' . $color . '"';
-            $attributes .= ' data-light="' . $light . '"';
-            $attributes .= ' data-dark="' . $dark . '"';
+            $attributes .= ' data-color="' . esc_attr($color) . '"';
+            $attributes .= ' data-light="' . esc_attr($light) . '"';
+            $attributes .= ' data-dark="' . esc_attr($dark) . '"';
         }
         if( $color_hover!='' ) {
             $hover_light = SUPER_Common::adjust_brightness( $color_hover, 20 );
             $hover_dark = SUPER_Common::adjust_brightness( $color_hover, -30 );
-            $attributes .= ' data-hover-color="' . $color_hover . '"';
-            $attributes .= ' data-hover-light="' . $hover_light . '"';
-            $attributes .= ' data-hover-dark="' . $hover_dark . '"';
+            $attributes .= ' data-hover-color="' . esc_attr($color_hover) . '"';
+            $attributes .= ' data-hover-light="' . esc_attr($hover_light) . '"';
+            $attributes .= ' data-hover-dark="' . esc_attr($hover_dark) . '"';
         }
-        if( $font!='' ) $attributes .= ' data-font="' . $font .'"';
-        if( $font_hover!='' ) $attributes .= ' data-font-hover="' . $font_hover . '"';
+        if( $font!='' ) $attributes .= ' data-font="' . esc_attr($font) .'"';
+        if( $font_hover!='' ) $attributes .= ' data-font-hover="' . esc_attr($font_hover) . '"';
         $result = '';
 
-        $result .= '<div' . $attributes . ' data-radius="' . $radius . '" data-type="' . $type . '" class="' . $class . '">';
+        $result .= '<div' . $attributes . ' data-radius="' . esc_attr($radius) . '" data-type="' . esc_attr($type) . '" class="' . esc_attr($class) . '">';
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
             if( !isset( $atts['action'] ) ) $atts['action'] = 'submit';
             $url = '';
@@ -4505,17 +4528,17 @@ class SUPER_Shortcodes {
                         $url = get_permalink( $atts[$atts['link']] );
                     }
                 }
-                if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . $atts['target'] . '" ';
+                if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . esc_attr($atts['target']) . '" ';
             }
             
-            $result .= '<div ' . $atts['target'] . 'data-href="' . $url . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
-                $result .= '<div class="super-button-name" data-action="' . $action . '" data-status="' . $atts['entry_status'] . '" data-status-update="' . $atts['entry_status_update'] . '" data-loading="' . $loading . '">';
+            $result .= '<div ' . $atts['target'] . 'data-href="' . esc_url($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
+                $result .= '<div class="super-button-name" data-action="' . esc_attr($action) . '" data-status="' . esc_attr($atts['entry_status']) . '" data-status-update="' .esc_attr($atts['entry_status_update']) . '" data-normal="' . esc_attr($name) . '" data-loading="' . esc_attr($loading) . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
-                        $icon_html = '<i class="fas fa-' . $icon . '"></i>';
+                        $icon_html = '<i class="fas fa-' . esc_attr($icon) . '"></i>';
                     }
                     if( $icon_option=='left' ) $result .= $icon_html;
-                    $result .= stripslashes($name);
+                    $result .= $name;
                     if( $icon_option=='right' ) $result .= $icon_html;
 
                     // @since 3.9.0 - option for print action to use custom HTML

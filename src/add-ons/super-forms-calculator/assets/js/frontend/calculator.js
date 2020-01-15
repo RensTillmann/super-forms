@@ -474,13 +474,13 @@
 					value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
 				}
 				// @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-				if(element.getAttribute('data-date-math')=='years'){
+				if(target.getAttribute('data-date-math')=='years'){
 					value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
 				}
-				if(element.getAttribute('data-date-math')=='months'){
+				if(target.getAttribute('data-date-math')=='months'){
 					value = (element.getAttribute('data-math-age-months')) ? parseFloat(element.getAttribute('data-math-age-months')) : 0;
 				}
-				if(element.getAttribute('data-date-math')=='days'){
+				if(target.getAttribute('data-date-math')=='days'){
 					value = (element.getAttribute('data-math-age-days')) ? parseFloat(element.getAttribute('data-math-age-days')) : 0;
 				}
 			}

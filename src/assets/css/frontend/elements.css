@@ -1217,9 +1217,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-field.super-recaptcha > .super-error-msg {
   width: 100%;
 }
-.super-field.super-dropdown.super-focus > .super-error-msg {
-  display: none;
-}
 
 .super-field.super-error-active > .super-error-msg {
   display: block;

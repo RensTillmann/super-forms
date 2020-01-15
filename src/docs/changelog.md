@@ -1,9 +1,10 @@
-### Jan 13, 2020 - Version 4.9.103
-- Improved: Better naming convention in regards to validation settings for fields for better UX
-
-### Jan 08, 2020 - Version 4.9.102
-- Fix: Multi-part automatically go to next step and prevent going next step
+### Jan 15, 2020 - Version 4.9.2
+- Improved: UX, better naming convention in regards to validation settings
 - Improved: Only bind events for TinyMCE editor on those that are inside a Super Form
+- Fix: ACF compatibility with none ACF meta keys like `_sku`
+- Fix: W3C validator error
+- Fix: Multi-part automatically go to next step and prevent going next step
+- Fix: Unable to upload file when WordPress is installed under a subdomain
 
 ### Jan 07, 2020 - Version 4.9.1
 - Added: New `Code` TAB to change raw form code, can also be used to export/import forms quickly

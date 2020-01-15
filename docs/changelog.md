@@ -1,11 +1,15 @@
-### Jan 08, 2020 - Version 4.9.102
-- Fix: Multi-part automatically go to next step and prevent going next step
+### Jan 15, 2020 - Version 4.9.2
+- Improved: UX, better naming convention in regards to validation settings
 - Improved: Only bind events for TinyMCE editor on those that are inside a Super Form
+- Fix: ACF compatibility with none ACF meta keys like `_sku`
+- Fix: W3C validator error
+- Fix: Multi-part automatically go to next step and prevent going next step
+- Fix: Unable to upload file when WordPress is installed under a subdomain
 
 ### Jan 07, 2020 - Version 4.9.1
 - Added: New `Code` TAB to change raw form code, can also be used to export/import forms quickly
 - Added: Option to conditionally make fields "Readonly/Disabled" with use of columns and conditional logic
-- Added: Sub option for `Validation` > `Not empty` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
+- Added: Sub option for `Validation` > `Required Field (not empty)` to conditionally make a field required based on other fields values `Allow field to be empty` > `Yes, but not if the following conditions are met`, otherwise field is allowed to be left empty, and can be skipped by the user
 - Added: `!! Not contains` method for: Conditional logic, Conditional variables and Conditional validations
 - Added: Option for autosuggest to sort items by menu order
 - Added: Option for autosuggest to sort items by price for WooCommerce products

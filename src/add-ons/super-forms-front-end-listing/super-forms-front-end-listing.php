@@ -547,6 +547,9 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
 
+            if(!isset($settings['file_upload_image_library'])) $settings['file_upload_image_library'] = 0;
+            $image_library = absint($settings['file_upload_image_library']);            
+
             wp_localize_script(
                 $handle,
                 $name,
@@ -560,7 +563,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
-                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
+                    'image_library' => $image_library,  
                 )
             );
             wp_enqueue_script( $handle );

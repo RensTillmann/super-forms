@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.103
+ * Version:     4.9.200
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.103';
+        public $version = '4.9.200';
         public $slug = 'super-forms';
 
 
@@ -927,6 +927,9 @@ if(!class_exists('SUPER_Forms')) :
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
 
+            if(!isset($settings['file_upload_image_library'])) $settings['file_upload_image_library'] = 1;
+            $image_library = absint($settings['file_upload_image_library']);
+
             wp_localize_script(
                 $handle,
                 $name,
@@ -940,7 +943,8 @@ if(!class_exists('SUPER_Forms')) :
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
-                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ) 
+                    'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
+                    'image_library' => $image_library,  
                 )
             );
             wp_enqueue_script( $handle );
@@ -1410,7 +1414,7 @@ if(!class_exists('SUPER_Forms')) :
                         'directions'=>$this->common_i18n['directions'],
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
-                        'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ) 
+                        'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] )
                     )
                 );
                 wp_enqueue_script( $handle );
@@ -1665,6 +1669,9 @@ if(!class_exists('SUPER_Forms')) :
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $global_settings = SUPER_Common::get_global_settings();
+            if(!isset($global_settings['file_upload_image_library'])) $global_settings['file_upload_image_library'] = 1;
+            $image_library = absint($global_settings['file_upload_image_library']);
+
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(   
@@ -1717,8 +1724,8 @@ if(!class_exists('SUPER_Forms')) :
                             'directions' => SUPER_Forms()->common_i18n['directions'],
                             'errors' => SUPER_Forms()->common_i18n['errors'],
                             // @since 3.6.0 - google tracking
-                            'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ) 
-
+                            'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
+                            'image_library' => $image_library,
                         )
                     ),
                     'super-backend-common' => array(

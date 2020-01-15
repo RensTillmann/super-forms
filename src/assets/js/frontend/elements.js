@@ -1682,11 +1682,11 @@
 
         // Update dropdown
         $doc.on('click', '.super-dropdown-ui .super-item:not(.super-placeholder)', function(e){
-            var form,
+            var i, nodes,
+                form,
                 input,
                 parent,
                 placeholder,
-                multiple,
                 value,
                 name,
                 validation,
@@ -1699,63 +1699,61 @@
                 counter;
 
             e.stopPropagation();
-            if($(this).parents('.super-field:eq(0)').hasClass('super-focus-dropdown')){
-                $(this).parents('.super-field:eq(0)').removeClass('super-focus-dropdown');
+            if(this.closest('.super-field').classList.contains('super-focus-dropdown')){
+                this.closest('.super-field').classList.remove('super-focus-dropdown');
                 form = SUPER.get_frontend_or_backend_form(this);
-                input = $(this).parents('.super-field-wrapper:eq(0)').children('input');
-                parent = $(this).parents('.super-dropdown-ui:eq(0)');
-                placeholder = parent.find('.super-placeholder:eq(0)');
-                multiple = false;
-                if(parent.hasClass('multiple')) multiple = true;
-                if(multiple===false){
-                    value = $(this).attr('data-value');
-                    name = $(this).html();
-                    placeholder.html(name).attr('data-value',value).addClass('super-active');
-                    parent.find('li').removeClass('super-active');
-                    $(this).addClass('super-active');
-                    input.val(value);
-                    validation = input.data('validation');
-                    duration = SUPER.get_duration();
-                    if(typeof $validation !== 'undefined' && validation !== false){
-                        SUPER.handle_validations(input, validation, '', duration, form);
+                input = this.closest('.super-field-wrapper').querySelector('.super-shortcode-field');
+                parent = this.closest('.super-dropdown-ui');
+                placeholder = parent.querySelector('.super-placeholder');
+                if(!parent.classList.contains('multiple')){
+                    value = this.dataset.value;
+                    name = this.innerHTML;
+                    placeholder.innerHTML = name;
+                    placeholder.dataset.value = value;
+                    placeholder.classList.add('super-active');
+                    nodes = parent.querySelectorAll('.super-item');
+                    for ( i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
                     }
-                    SUPER.after_dropdown_change_hook(input[0]);
+                    this.classList.add('super-active');
+                    input.value = value;
                 }else{
-                    max = input.attr('data-maxlength');
-                    min = input.attr('data-minlength');
-                    total = parent.find('li.super-active:not(.super-placeholder)').length;
-                    if($(this).hasClass('super-active')){
+                    max = input.dataset.maxlength;
+                    min = input.dataset.minlength;
+                    total = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder').length;
+                    if(this.classList.contains('super-active')){
                         if(total>1){
                             if(total <= min) return false;
-                            $(this).removeClass('super-active');    
+                            this.classList.remove('super-active');    
                         }
                     }else{
                         if(total >= max) return false;
-                        $(this).addClass('super-active');    
+                        this.classList.add('super-active');    
                     }
                     names = '';
                     values = '';
-                    total = parent.find('li.super-active:not(.super-placeholder)').length;
+                    nodes = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder');
+                    total = nodes.length;
                     counter = 1;
-                    parent.find('li.super-active:not(.super-placeholder)').each(function(){
+                    for ( i = 0; i < nodes.length; i++){
                         if((total == counter) || (total==1)){
-                            names += $(this).html();
-                            values += $(this).attr('data-value');
+                            names += nodes[i].innerHTML;
+                            values += nodes[i].dataset.value;
                         }else{
-                            names += $(this).html()+',';
-                            values += $(this).attr('data-value')+',';
+                            names += nodes[i].innerHTML+',';
+                            values += nodes[i].dataset.value+',';
                         }
                         counter++;
-                    });
-                    placeholder.html(names);
-                    input.val(values);
-                    validation = input.data('validation');
-                    duration = SUPER.get_duration();
-                    if(typeof $validation !== 'undefined' && validation !== false){
-                        SUPER.handle_validations(input, validation, '', duration, form);
                     }
-                    SUPER.after_dropdown_change_hook(input[0]);
+                    placeholder.innerHTML = names;
+                    input.value = values;
                 }
+                validation = input.dataset.validation;
+                if(typeof validation !== 'undefined' && validation !== false){
+                    duration = SUPER.get_duration();
+                    SUPER.handle_validations(input, validation, '', duration, form);
+                }
+                SUPER.after_dropdown_change_hook(input);
             }
         });
 
@@ -1871,11 +1869,11 @@
                 $max = this.dataset.maxlength,
                 $validation;
             if(($min>0) && (this.value === null)){
-                SUPER.handle_errors(this, $duration);
+                SUPER.handle_errors(this);
             }else if(this.value.length > $max){
-                SUPER.handle_errors(this, $duration);
+                SUPER.handle_errors(this);
             }else if(this.value.length < $min){
-                SUPER.handle_errors(this, $duration);
+                SUPER.handle_errors(this);
             }else{
                 this.closest('.super-field').classList.remove('super-error-active');
             }
