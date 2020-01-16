@@ -906,6 +906,49 @@ h1.super-thanks-title {
 .super-form.preload-disabled > * {
   visibility: visible;
 }
+
+/* @since 4.9.3 - Adaptive Placeholders */
+.super-adaptive-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: left; 
+  background:none;
+  border: none;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  margin:0px 0px 0px 15px;
+}
+.super-adaptive-placeholder:before {
+  content: attr(data-placeholder);
+  display: inline-block;
+  white-space: nowrap;
+  transition: 0.1s ease-in-out;
+  padding:0px 0px 0px 0px;
+}
+.super-focus .super-adaptive-placeholder:before,
+.super-filled .super-adaptive-placeholder:before {
+  transition-duration: 0.1s;
+  transform: translate(-5px, -25px) scale(0.8, 0.8);
+}
+.super-filled .super-adaptive-placeholder:before {
+  content: attr(data-placeholderFilled);
+}
+/* Default theme */
+.super-focus .super-adaptive-placeholder:before,
+.super-filled .super-adaptive-placeholder:before {
+  padding:3px 13px 1px 13px;
+}
+/* Rounded theme */
+.super-focus .super-adaptive-placeholder:before,
+.super-filled .super-adaptive-placeholder:before {
+  border-radius:22px;  
+}
+
+
 .super-form ::-webkit-input-placeholder {
   color: #000;
 }
