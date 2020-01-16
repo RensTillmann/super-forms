@@ -94,6 +94,44 @@ if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
 
 return $import_fonts."
+
+/* @since 4.9.3 - Adaptive Placeholders */
+/* Initial Color */
+".$s.".super-adaptive-placeholder:before {
+  color:".$v['theme_field_colors_placeholder'].";
+  font-size: ".$v['font_global_size']."px;
+  font-family: ".$v['font_global_family'].";
+}
+/* Focused Colors */
+".$s.".super-focus .super-adaptive-placeholder:before {
+  color:".$v['adaptive_placeholder_focus'].";
+  border:1px solid ".$v['adaptive_placeholder_border_focus'].";
+}
+/* Filled Colors */
+".$s.".super-filled .super-adaptive-placeholder:before {
+  color:".$v['adaptive_placeholder_filled'].";
+  border:1px solid ".$v['adaptive_placeholder_border_filled'].";
+}
+/* Background Colors */
+".$s.".super-focus .super-adaptive-placeholder:before {
+  background: ".$v['adaptive_placeholder_bg_top_focus']."; /* Old browsers */
+  background: -moz-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%, ".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%,".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  ".$v['adaptive_placeholder_bg_top_focus']." 50%,".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$v['adaptive_placeholder_bg_top_focus']."', endColorstr='".$v['adaptive_placeholder_bg_bottom_focus']."',GradientType=0 ); /* IE6-9 */
+}
+".$s.".super-filled .super-adaptive-placeholder:before {
+  background: ".$v['adaptive_placeholder_bg_top_filled']."; /* Old browsers */
+  background: -moz-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_filled']." 50%, ".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_filled']." 50%,".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  ".$v['adaptive_placeholder_bg_top_filled']." 50%,".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$v['adaptive_placeholder_bg_top_filled']."', endColorstr='".$v['adaptive_placeholder_bg_bottom_filled']."',GradientType=0 ); /* IE6-9 */
+}
+
+
+
+
+
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
     font-size: ".$v['font_global_size']."px;
@@ -117,18 +155,18 @@ return $import_fonts."
     font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-focus ::-webkit-input-placeholder { /* WebKit browsers */
-    color:".$v['theme_field_colors_placeholder_focus'].";
+    color:".$v['adaptive_placeholder_focus'].";
 }
 ".$s.".super-focus :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-   color:".$v['theme_field_colors_placeholder_focus'].";
+   color:".$v['adaptive_placeholder_focus'].";
    opacity:1;
 }
 ".$s.".super-focus ::-moz-placeholder { /* Mozilla Firefox 19+ */
-   color:".$v['theme_field_colors_placeholder_focus'].";
+   color:".$v['adaptive_placeholder_focus'].";
    opacity:1;
 }
 ".$s.".super-focus :-ms-input-placeholder { /* Internet Explorer 10+ */
-   color:".$v['theme_field_colors_placeholder_focus'].";
+   color:".$v['adaptive_placeholder_focus'].";
 }
 
 

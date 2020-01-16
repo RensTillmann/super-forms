@@ -1314,6 +1314,63 @@ class SUPER_Settings {
                     'filter'=>true
                 ),
 
+                // @since 4.9.3 - Adaptive Placeholders
+                'enable_adaptive_placeholders' => array(
+                    'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
+                    // allow empty
+                    'default' => self::get_value( $default, 'enable_adaptive_placeholders', $settings, 'true', true ),
+                    'type' => 'checkbox', 
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
+                    ),
+                ),
+                'theme_adaptive_placeholder_colors' => array(
+                    'name' => esc_html__('Adaptive Placeholder Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'filter'=>true,
+                    'parent'=>'enable_adaptive_placeholders',
+                    'filter_value'=>'true',
+                    'colors'=>array(
+                        'theme_field_colors_placeholder'=>array(
+                            'label'=>'Placeholder color',
+                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#444444' ),
+                        ),
+                        'adaptive_placeholder_focus'=>array(
+                            'label'=> esc_html__( 'Focussed font color (leave blank to inherit field border color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_focus', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_border_focus'=>array(
+                            'label'=> esc_html__( 'Focussed border color (leave blank for no border)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_border_focus', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_bg_top_focus'=>array(
+                            'label'=> esc_html__( 'Focussed top background color (leave blank to inherit field background color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_focus', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_bg_bottom_focus'=>array(
+                            'label'=> esc_html__( 'Focussed bottom background color (leave blank to inherit field background color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_focus', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_filled'=>array(
+                            'label'=> esc_html__( 'Filled font color (leave blank to inherit field border color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_filled', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_border_filled'=>array(
+                            'label'=> esc_html__( 'Filled border color (leave blank to inherit field border color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_border_filled', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_bg_top_filled'=>array(
+                            'label'=> esc_html__( 'Filled top background color (leave blank to inherit field background color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_filled', $settings, '', true ),
+                        ),
+                        'adaptive_placeholder_bg_bottom_filled'=>array(
+                            'label'=> esc_html__( 'Filled bottom background color (leave blank to inherit field background color)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_filled', $settings, '', true ),
+                        )
+                    ),
+                ),
+
                 // @since 3.6.0 - option to center the form
                 'theme_center_form' => array(
                     'default' => self::get_value( $default, 'theme_center_form', $settings, '' ),
@@ -1557,12 +1614,9 @@ class SUPER_Settings {
                             'label'=>'Font Color',
                             'default' => self::get_value( $default, 'theme_field_colors_font', $settings, '#444444' ),
                         ),
-                        'theme_field_colors_placeholder'=>array(
-                            'label'=>'Placeholder Color',
-                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#444444' ),
-                        ),                        
                     ),
                 ),
+
                 'theme_field_colors_focus' => array(
                     'name' => esc_html__('Field Colors Focus', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -1582,11 +1636,7 @@ class SUPER_Settings {
                         'theme_field_colors_font_focus'=>array(
                             'label'=>'Font Color Focus',
                             'default' => self::get_value( $default, 'theme_field_colors_font_focus', $settings, '#444444' ),
-                        ),
-                        'theme_field_colors_placeholder_focus'=>array(
-                            'label'=>'Placeholder Color',
-                            'default' => self::get_value( $default, 'theme_field_colors_placeholder_focus', $settings, '#444444' ),
-                        ),                                                
+                        ),                                               
                     ),
                 ),
                 'theme_field_transparent' => array(
@@ -1597,7 +1647,6 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Enable transparent backgrounds', 'super-forms' ),
                     ),
-                    
                 ),
                 'theme_rating_colors' => array(
                     'name' => esc_html__('Rating Colors', 'super-forms' ),
@@ -2547,6 +2596,9 @@ class SUPER_Settings {
      *	@since		1.0.0
     */
     public static function get_value( $strict_default, $name, $settings, $default, $allow_empty=false ) {
+        if( $allow_empty ) {
+            return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
+        }
         if( $strict_default==1 ) {
             return $default;
         }else{

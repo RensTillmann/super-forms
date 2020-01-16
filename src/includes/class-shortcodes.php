@@ -1415,7 +1415,7 @@ class SUPER_Shortcodes {
         }
         return $result;
     }
-    public static function common_attributes( $atts, $tag ) {        
+    public static function common_attributes( $atts, $tag, $settings = array() ) {        
         
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
@@ -1478,11 +1478,16 @@ class SUPER_Shortcodes {
         // @since 3.6.0 - disable field autocompletion
         if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
 
-        if( !empty( $atts['default_placeholder'] ) ) {
-            $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
-        }else{
-            if( !empty( $atts['placeholder'] ) ) {
-                $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
+        // @since 4.9.3 - Adaptive Placeholders
+        // If adaptive placeholders is enabled, we will not want to use the default placeholders
+        if(!isset($settings['enable_adaptive_placeholders'])) $settings['enable_adaptive_placeholders'] = '';
+        if( (empty($settings['enable_adaptive_placeholders'])) ) {
+            if( !empty( $atts['default_placeholder'] ) ) {
+                $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
+            }else{
+                if( !empty( $atts['placeholder'] ) ) {
+                    $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
+                }
             }
         }
         if($tag=='file'){
@@ -1566,10 +1571,10 @@ class SUPER_Shortcodes {
     }
 
     // @since 4.9.3 - Adaptive Placeholders
-    public static function adaptivePlaceholders( $atts, $tag ) {
-        if( !empty($atts['placeholder']) ) {
+    public static function adaptivePlaceholders( $settings, $atts, $tag ) {
+        if( (!empty($settings['enable_adaptive_placeholders'])) && (!empty($atts['placeholder'])) ) {
             return '<span class="super-adaptive-placeholder" data-placeholder="'.esc_attr($atts['placeholder']).' (default)" data-placeholderFilled="' . esc_attr($atts['placeholder']) . ' (filled)"></span>';
-        }
+        } 
     }
 
     // @since 1.2.5     - custom regex validation
@@ -2970,11 +2975,11 @@ class SUPER_Shortcodes {
         if( !empty($atts['enable_auto_suggest']) ) $atts['autocomplete'] = 'true';
         if( !empty($atts['enable_keywords']) ) $atts['autocomplete'] = 'true';
 
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         
         // @since 4.9.3 - Adaptive placeholders
-        $result .= self::adaptivePlaceholders( $atts, $tag );
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
         // @since 2.9.0 - entered keywords
         if( !empty($atts['enable_keywords']) ) {
@@ -3219,14 +3224,14 @@ class SUPER_Shortcodes {
             if( $atts['height']>0 ) {
                 $result .= ' style="min-height:' . $atts['height'] . 'px;" ';
             }
-            $result .= self::common_attributes( $atts, $tag );
+            $result .= self::common_attributes( $atts, $tag, $settings );
 
             // @since 3.6.0 - convert <br /> tags to \n
             $value = preg_replace('#<br\s*/?>#i', "\n", $atts['value']);
             $result .= ' >' . $value . '</textarea>';
 
             // @since 4.9.3 - Adaptive placeholders
-            $result .= self::adaptivePlaceholders( $atts, $tag );
+            $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
         }
 
