@@ -1960,24 +1960,27 @@
         });
 
         $doc.on('click', '.super-checkbox input[type="checkbox"]', function () {
-            var $this = $(this);
-            var $parent = $this.parents('.super-checkbox:eq(0)');
-            var $field = $parent.parent().children('.element-field');
-            var $selected = '';
-            var $counter = 0;
-            $parent.find('input[type="checkbox"]').each(function () {
-                if ($(this).prop('checked') === true) {
-                    if ($counter === 0) {
-                        $selected += $(this).val();
+            var i, selected = '', counter = 0,
+                parent = this.closest('.super-checkbox'),
+                field = parent.parentNode.querySelector('.element-field'),
+                nodes = parent.querySelectorAll('input[type="checkbox"]');
+
+            for( i=0; i < nodes.length; i++ ) {
+                if (nodes[i].checked) {
+                    if (counter === 0) {
+                        selected += nodes[i].value;
                     } else {
-                        $selected += ',' + $(this).val();
+                        selected += ',' + nodes[i].value;
                     }
-                    $counter++;
+                    counter++;
                 }
-            });
-            $field.val($selected);
-            // Just to fix anoying safari and internet explorer browser issues
-            SUPER.init_field_filter_visibility($this.parents('.super-field:eq(0)'));
+            }
+            field.value = selected;
+            if(this.closest('.super-form-settings')){
+                SUPER.init_field_filter_visibility(this.closest('.super-field'));
+            }else{
+                SUPER.init_field_filter_visibility(this.closest('.super-field'), 'element_settings');
+            }
         });
 
         $doc.on('click', '.super-multi-items .sorting span.up i', function () {
@@ -2099,7 +2102,7 @@
                     SUPER.init_tooltips();
                     SUPER.init_image_browser();
                     SUPER.init_color_pickers();
-                    SUPER.init_field_filter_visibility();
+                    SUPER.init_field_filter_visibility(undefined, 'element_settings');
                     $('.super-element.super-element-settings .super-elements-container').removeClass('super-loading');
                 }
             };
@@ -3165,7 +3168,7 @@
                 }
             }
             // Update filter items
-            SUPER.init_field_filter_visibility(item);
+            SUPER.init_field_filter_visibility(item[0], 'element_settings');
             // Push updates
             SUPER.update_element_push_updates();
         });

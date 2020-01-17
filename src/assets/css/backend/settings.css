@@ -203,6 +203,9 @@
     padding: 0px 0px 20px 0px;
     position: relative;
 }
+.super-settings .super-wrapper .super-fields .super-field.super-hidden {
+    display:none;
+}
 .super-settings .super-wrapper .super-fields .super-field .super-field-info {
     float: left;
     width: 25%;

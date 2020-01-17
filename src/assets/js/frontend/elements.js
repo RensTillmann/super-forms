@@ -1539,60 +1539,64 @@
         // @since 1.2.8     - filter dropdown options based on keyboard press
         var timeout = null;
         $doc.on('keyup', 'input[name="super-dropdown-search"]', function(e){
-            
-            var keyCode = e.keyCode || e.which; 
+            var i, nodes, el = this, stringValue, stringValue_l, words, regex, replacement, dropdownUI, stringBold, value, field, wrapper, found = false, firstFound=null, isMatch, keyCode = e.keyCode || e.which; 
             if( (keyCode == 13) || (keyCode == 40) || (keyCode == 38) ) {
                 return false;
             }
-
-            var $this = $(this);
-            if (timeout !== null) {
-                clearTimeout(timeout);
-            }
+            if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
-                $this.val('');
+                el.value = '';
             }, 1000);
 
-            var $value = $(this).val().toString();
-            var $field = $(this).parents('.super-field:eq(0)');
-            var $wrapper = $(this).parents('.super-field-wrapper:eq(0)');
-            if( $value==='' ) {
-                $field.removeClass('super-string-found');
+            value = el.value.toString().toLowerCase();
+            field = el.closest('.super-field');
+            wrapper = el.closest('.super-field-wrapper');
+            if( value==='' ) {
+                field.classList.remove('super-string-found');
             }else{
-                var $items = $wrapper.find('.super-dropdown-ui .super-item:not(.super-placeholder)');
-                var $found = false;
-                var $first_found = null;
-                $items.each(function() {
-                    var $string_value = $(this).data('search-value').toString();
-                    var $string_value_l = $string_value.toLowerCase();
-                    var $isMatch = $string_value_l.indexOf($value.toLowerCase()) !== -1;
-                    if( $isMatch===true ) {
-                        if( $first_found===null ) {
-                            $first_found = $(this);
-                        }
-                        $found = true;
-                        var $words = [$value]; 
-                        var $regex = RegExp($words.join('|'), 'gi');
-                        var $replacement = '<span>$&</span>';
-                        var $string_bold = $(this).text().replace($regex, $replacement);
-                        $(this).html($string_bold);
-                        $(this).addClass('super-active');
+                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item:not(.super-placeholder)');
+                for(i=0; i<nodes.length; i++){
+                    stringValue = nodes[i].dataset.searchValue.toString();
+                    stringValue_l = stringValue.toLowerCase();
+                    if(el.dataset.logic=='start'){
+                        // Starts with filter logic:
+                        isMatch = stringValue_l.startsWith(value);
                     }else{
-                        $(this).html($string_value);
-                        $(this).removeClass('super-active');
+                        // Contains filter logic:
+                        isMatch = stringValue_l.indexOf(value) !== -1;
                     }
-                });
-                if( $found===true ) {
-                    $field.find('.super-dropdown-ui .super-item.super-active').removeClass('super-active');
-                    $first_found.addClass('super-active');
-                    $field.addClass('super-string-found').addClass('super-focus');
-                    var $dropdown_ui = $field.find('.super-dropdown-ui');
-                    $dropdown_ui.scrollTop($dropdown_ui.scrollTop() - $dropdown_ui.offset().top + $first_found.offset().top - 50); 
+                    if( isMatch===true ) {
+                        if( firstFound===null ) {
+                            firstFound = nodes[i];
+                        }
+                        found = true;
+                        words = [value]; 
+                        regex = RegExp(words.join('|'), 'gi');
+                        replacement = '<span>$&</span>';
+                        stringBold = nodes[i].innerText.replace(regex, replacement);
+                        nodes[i].innerHTML = stringBold;
+                        nodes[i].classList.add('super-active');
+                    }else{
+                        nodes[i].innerHTML = stringValue;
+                        nodes[i].classList.remove('super-active');
+                    }
+                }
+                if( found===true ) {
+                    nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                    for(i=0; i<nodes.length; i++){
+                        nodes[i].classList.remove('super-active');
+                    }
+                    if(firstFound) firstFound.classList.add('super-active');
+                    field.classList.add('super-string-found');
+                    field.classList.add('super-focus');
+                    dropdownUI = $(field).find('.super-dropdown-ui');
+                    dropdownUI.scrollTop(dropdownUI.scrollTop() - dropdownUI.offset().top + $(firstFound).offset().top - 50); 
                 }else{
-                    $field.removeClass('super-string-found');
+                    // Nothing found, clear timeout
+                    el.value = '';
+                    field.classList.remove('super-string-found');
                 }
             }
-
         });
 
         $doc.on('mouseleave', '.super-dropdown-ui:not(.super-autosuggest-tags-list)', function(){

@@ -53,7 +53,7 @@
                     $hidden = '';
                     if( isset( $fv['parent'] ) ) {
                         $parent = 'data-parent="' . $fv['parent'] . '"';
-                        $hidden = ' hidden';
+                        $hidden = ' super-hidden';
                     }
                     if( isset( $fv['hidden_setting'] ) ) {
                         $style = ' style="display:none;"';

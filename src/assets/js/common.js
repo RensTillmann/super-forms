@@ -5154,60 +5154,123 @@ function SUPERreCaptcha(){
     };
 
     // Update field visibility
-    SUPER.init_field_filter_visibility = function($this) {
-        var $nodes,
-            $name;
-        if(typeof $this ==='undefined'){
-            $nodes = $('.super-elements-container .super-field.super-filter[data-filtervalue], .super-settings .super-field.super-filter[data-filtervalue]');
-            $nodes.addClass('hidden');
-        }else{
-            $name = $this.find('.element-field').attr('name');
-            $nodes =  $('.super-elements-container .super-field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
+    SUPER.init_field_filter_visibility = function(el, type) {
+        var i, x, nodes, elName='', fields, parent, parentFieldName, parentValue, filterValue, filterValues, key, method, condition, value, fieldName, shared = [];
+        if(typeof el !== 'undefined'){
+            elName = el.querySelector('.element-field').name;
         }
-        $nodes.each(function(){
-            var $this = $(this),
-                $container = $this.parents('.super-elements-container:eq(0)'),
-                $filtervalue = $this.data('filtervalue'),
-                $parent,
-                $value,
-                $visibility,
-                $filtervalues,
-                $string_value,
-                $match_found = false;
-
-            if($container.length===0){
-                $container = $this.parents('.super-settings:eq(0)');
-            }
-            $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
-            // If is radio button
-            if($parent.attr('type')=='radio'){
-                $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]:checked');
-            }
-            $value = $parent.val();
-            if(typeof $value==='undefined') $value = '';
-            $parent = $parent.parents('.super-field.super-filter:eq(0)');
-
-            $visibility = $parent.hasClass('hidden');
-            if($visibility===true){
-                $visibility = 'hidden';
+        if(typeof type==='undefined') type = '';
+        // If element settings where loaded (when "Edit" element btn is clicked)
+        if(type=='element_settings'){
+            // First find all filterable settings
+            if(elName!==''){
+                nodes = document.querySelectorAll('.super-element-settings [data-parent="'+elName+'"][data-filtervalue]');
             }else{
-                $visibility = 'visible';
+                nodes = document.querySelectorAll('.super-element-settings [data-filtervalue]');
             }
-            $filtervalues = $filtervalue.toString().split(',');
-            $string_value = $value.toString();
-            $.each($filtervalues, function( index, value ) {
-                if( value==$string_value ) {
-                    $match_found = true;
+        }else{
+            // First find all filterable settings
+            if(elName!==''){
+                nodes = document.querySelectorAll('.super-settings [data-parent="'+elName+'"][data-filtervalue], .super-form-settings [data-parent="'+elName+'"][data-filtervalue]');
+            }else{
+                nodes = document.querySelectorAll('.super-settings [data-filtervalue], .super-form-settings [data-filtervalue]');
+            }
+        }
+        for(i=0; i < nodes.length; i++){
+            parent = nodes[i].dataset.parent;
+            filterValue = nodes[i].dataset.filtervalue;
+            // If no such element exists, skip it
+            if(!nodes[i].querySelector('.element-field')) continue;
+            
+            fieldName = nodes[i].querySelector('.element-field').name;
+            if(filterValue.indexOf(',')!==-1){
+                filterValues = filterValue.split(',');
+                for(x=0; x < filterValues.length; x++){
+                    // Check if contains logic
+                    value = filterValues[x];
+                    value = value.split(':');
+                    if(value.length===1){
+                        method = 'show';
+                        condition = 'is';
+                        value = value[0];
+                    }else{
+                        method = value[0]; // show/hide
+                        condition = value[1]; // not/is
+                        value = value[2];
+                    }
+                    key = parent+';'+method+';'+condition+';'+value;
+                    if(shared[key]){
+                        shared[key] = shared[key]+','+fieldName;
+                    }else{
+                        shared[key] = fieldName;
+                    }
                 }
-            });
-            if( ($value!=='') && ($match_found) && ($visibility!='hidden') ) {
-                $this.removeClass('hidden');
             }else{
-                $this.addClass('hidden');
+                // Check if contains logic
+                value = filterValue;
+                value = value.split(':');
+                // method = show/hide
+                // condition = not/is
+                // 'filter_value'=>'show:not:true' // [method]:[condition]:[filterValue] (SHOW when NOT "true")
+                if(value.length===1){
+                    method = 'show';
+                    condition = 'is';
+                    value = value[0];
+                }else{
+                    method = value[0]; // show/hide
+                    condition = value[1]; // not/is
+                    value = value[2];
+                }
+                key = parent+';'+method+';'+condition+';'+value;
+                if(shared[key]){
+                    shared[key] = shared[key]+','+fieldName;
+                }else{
+                    shared[key] = fieldName;
+                }
             }
-            SUPER.init_field_filter_visibility($this);
+        }
+        // Now show/hide fields based on the parent value
+        var visible = [];
+        Object.keys(shared).forEach(function(key) {
+            // Skip if already filtered and visible
+            console.log(visible, shared[key], visible.indexOf(shared[key]));
+            if(visible.indexOf(shared[key])!==-1){
+                return true;
+            }
+            // key = disable_filter;show;not;true
+            fields = shared[key].split(',');
+            value = key.split(';');
+            parentFieldName = value[0]; // parent field name
+            if(type=='element_settings'){
+                parentValue = document.querySelector('.super-element-settings .element-field[name="'+parentFieldName+'"]').value;
+            }else{
+                parentValue = document.querySelector('.super-settings .element-field[name="'+parentFieldName+'"], .super-form-settings .element-field[name="'+parentFieldName+'"]').value;
+            }
+            method = value[1]; // show/hide
+            condition = value[2]; // not/is
+            filterValue = value[3]; // filter value
+            var querySelector = [];
+            for(x=0; x < fields.length; x++){
+                if(type=='element_settings'){
+                    querySelector[x] = '.super-element-settings .element-field[name="'+fields[x]+'"]';
+                }else{
+                    querySelector[x] = '.super-settings .element-field[name="'+fields[x]+'"],.super-form-settings .element-field[name="'+fields[x]+'"]';
+                }
+            }
+            querySelector = querySelector.join(',');
+            var allField = document.querySelectorAll(querySelector);                
+            // Now do the comparison
+            if(parentValue==filterValue){
+                for(x=0; x < allField.length; x++){
+                    allField[x].closest('.super-field').classList.remove('super-hidden');
+                    visible.push(shared[key]);
+                }
+            }else{
+                for(x=0; x < allField.length; x++){
+                    allField[x].closest('.super-field').classList.add('super-hidden');
+                }
+            }
         });
-
     };
 
 
@@ -5366,8 +5429,12 @@ function SUPERreCaptcha(){
         });
 
         SUPER.init_field_filter_visibility();
-        $doc.on('change keyup keydown blur','.super-field.super-filter, .super-field.super-filter',function(){
-            SUPER.init_field_filter_visibility($(this));
+        $doc.on('change keyup keydown blur','.super-field.super-filter',function(){
+            if(this.closest('.super-form-settings')){
+                SUPER.init_field_filter_visibility(this);
+            }else{
+                SUPER.init_field_filter_visibility(this, 'element_settings');
+            }
         });  
         
         function super_update_dropdown_value(e, dropdown, key){
