@@ -1143,6 +1143,19 @@ $array['form_elements'] = array(
                                 'true' => esc_html__( 'Disallow users to filter items', 'super-forms' ),
                             )
                         ),
+                        'filter_logic' => array(
+                            'name' => esc_html__( 'Filter logic', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
+                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                            ),
+                            'filter'=>true,
+                            'parent'=>'disable_filter',
+                            'filter_value'=>'' // [method[show/hide]]:[condition[is/not]]:[filterValue] (HIDE when IS "true")
+                        ),
+
 
                         'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], '' ),
                         'retrieve_method_exclude_users' => SUPER_Shortcodes::sf_retrieve_method_exclude_users( $attributes['retrieve_method_exclude_users'], 'retrieve_method' ),

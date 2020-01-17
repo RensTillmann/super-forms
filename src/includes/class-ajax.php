@@ -1701,7 +1701,7 @@ class SUPER_Ajax {
             }
             $hidden = '';
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
-                $hidden = ' hidden';
+                $hidden = ' super-hidden';
             }
             $result .= '<div class="super-field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) $result .= '<div class="field-name">' . $fv['name'] . '</div>';

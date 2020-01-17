@@ -3312,7 +3312,7 @@ class SUPER_Shortcodes {
 
         // @since 1.2.8     - auto scroll to value after key press
         if(empty($atts['disable_filter'])){
-            $result .= '<input type="text" name="super-dropdown-search" value="" />';
+            $result .= '<input type="text" name="super-dropdown-search" value="" data-logic="' . esc_attr($atts['filter_logic']) . '" />';
         }
 
         // @since 1.9 - custom class
@@ -5557,7 +5557,7 @@ class SUPER_Shortcodes {
             }
 
             // @since 1.8 - needed for autocomplete
-            $result .= '<form autocomplete="on"';
+            $result .= '<form autocomplete="on" enctype="multipart/form-data"';
 
             // @since 3.6.0 - custom POST parameters method
             if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
