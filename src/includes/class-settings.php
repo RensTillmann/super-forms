@@ -1314,6 +1314,15 @@ class SUPER_Settings {
                     'filter'=>true
                 ),
 
+                // @since 1.2.8  - RTL support
+                'theme_rtl' => array(
+                    'default' => self::get_value( $default, 'theme_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Enable RTL (Right To Left layout)', 'super-forms' ),
+                    )
+                ),
+
                 // @since 4.9.3 - Adaptive Placeholders
                 'enable_adaptive_placeholders' => array(
                     'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
@@ -1357,7 +1366,7 @@ class SUPER_Settings {
                             'default' => self::get_value( $default, 'adaptive_placeholder_filled', $settings, '', true ),
                         ),
                         'adaptive_placeholder_border_filled'=>array(
-                            'label'=> esc_html__( 'Filled border color (leave blank to inherit field border color)', 'super-forms' ),
+                            'label'=> esc_html__( 'Filled border color (leave blank for no border)', 'super-forms' ),
                             'default' => self::get_value( $default, 'adaptive_placeholder_border_filled', $settings, '', true ),
                         ),
                         'adaptive_placeholder_bg_top_filled'=>array(
@@ -1397,14 +1406,7 @@ class SUPER_Settings {
                 ),
 
 
-                // @since 1.2.8  - RTL support
-                'theme_rtl' => array(
-                    'default' => self::get_value( $default, 'theme_rtl', $settings, '' ),
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Enable RTL (Right To Left layout)', 'super-forms' ),
-                    )
-                ),
+
 
                 'theme_icon_colors' => array(
                     'name' => esc_html__('Icon Colors', 'super-forms' ),
