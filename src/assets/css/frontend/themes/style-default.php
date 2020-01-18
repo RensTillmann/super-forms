@@ -104,13 +104,13 @@ return $import_fonts."
 }
 /* Focused Colors */
 ".$s.".super-focus .super-adaptive-placeholder:before {
-  color:".$v['adaptive_placeholder_focus'].";
-  border:1px solid ".$v['adaptive_placeholder_border_focus'].";
+  color:".(!empty($v['adaptive_placeholder_focus']) ? $v['adaptive_placeholder_focus'] : $v['theme_field_colors_border']).";
+  ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
 }
 /* Filled Colors */
 ".$s.".super-filled .super-adaptive-placeholder:before {
-  color:".$v['adaptive_placeholder_filled'].";
-  border:1px solid ".$v['adaptive_placeholder_border_filled'].";
+  color:".(!empty($v['adaptive_placeholder_filled']) ? $v['adaptive_placeholder_filled'] : $v['theme_field_colors_border']).";
+  ".(!empty($v['adaptive_placeholder_border_filled']) ? 'border:1px solid '.$v['adaptive_placeholder_border_filled'] : 'border: 0' ).";
 }
 /* Background Colors */
 ".$s.".super-focus .super-adaptive-placeholder:before {
@@ -127,7 +127,6 @@ return $import_fonts."
   background: linear-gradient(to bottom,  ".$v['adaptive_placeholder_bg_top_filled']." 50%,".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$v['adaptive_placeholder_bg_top_filled']."', endColorstr='".$v['adaptive_placeholder_bg_bottom_filled']."',GradientType=0 ); /* IE6-9 */
 }
-
 
 
 

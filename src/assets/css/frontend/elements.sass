@@ -786,6 +786,250 @@ h1.super-thanks-title
   \:-ms-input-placeholder
     color: #000
 
+/* @since 4.9.3 - Adaptive Placeholders
+.super-adaptive-placeholder
+  display: flex
+  align-items: center
+  justify-content: left
+  background: none
+  border: none
+  position: absolute
+  left: 0px
+  top: 0px
+  width: 100%
+  height: 100%
+  pointer-events: none
+  margin: 0px 0px 0px 15px
+  &:before
+    content: attr(data-placeholder)
+    display: inline-block
+    white-space: nowrap
+    transition: 0.1s ease-in-out
+    padding: 0px 0px 0px 0px
+    box-sizing: border-box
+    -moz-box-sizing: border-box
+    -webkit-box-sizing: border-box
+.super-focus .super-adaptive-placeholder:before
+  transition-duration: 0.1s
+  transform: translate(-5px, -25px)
+.super-filled .super-adaptive-placeholder:before
+  transition-duration: 0.1s
+  transform: translate(-5px, -25px)
+  content: attr(data-placeholderFilled)
+.super-textarea .super-adaptive-placeholder
+  align-items: flex-start
+  margin-top: 7px
+.super-field-size-large .super-textarea .super-adaptive-placeholder
+  margin-top: 12px
+.super-field-size-huge .super-textarea .super-adaptive-placeholder
+  margin-top: 16px
+
+/* Default Theme & Size
+.super-focus .super-adaptive-placeholder, .super-filled .super-adaptive-placeholder
+  &:before
+    font-size: 10px !important
+    transform: translate(0px, -15px)
+    border: 0 !important
+    padding: 0px 4px 0px 4px
+
+/* Large size
+.super-field-size-large
+  .super-focus .super-adaptive-placeholder, .super-filled .super-adaptive-placeholder
+    &:before
+      font-size: 11px !important
+      transform: translate(0px, -20px)
+
+/* Huge size
+.super-field-size-huge
+  .super-focus .super-adaptive-placeholder, .super-filled .super-adaptive-placeholder
+    &:before
+      font-size: 12px !important
+      transform: translate(0px, -25px)
+
+/* Full rounded theme
+.super-full-rounded
+  .super-focus .super-adaptive-placeholder:before, .super-filled .super-adaptive-placeholder:before
+    margin-left: 2px
+  &.super-field-size-huge
+    .super-focus .super-adaptive-placeholder:before, .super-filled .super-adaptive-placeholder:before
+      margin-left: 7px
+  .super-focus .super-adaptive-placeholder, .super-filled .super-adaptive-placeholder
+    &:before
+      border-radius: 22px
+
+/* Icons outside
+.super-icon-outside.super-icon-left .super-adaptive-placeholder
+  margin-left: 60px !important
+.super-field-size-large .super-icon-outside.super-icon-left .super-adaptive-placeholder
+  margin-left: 70px !important
+.super-field-size-huge .super-icon-outside.super-icon-left .super-adaptive-placeholder
+  margin-left: 80px !important
+
+/* Icons inside
+.super-icon-inside.super-icon-left .super-adaptive-placeholder
+  margin-left: 45px !important
+.super-field-size-large .super-icon-inside.super-icon-left .super-adaptive-placeholder
+  margin-left: 55px !important
+.super-field-size-huge .super-icon-inside.super-icon-left .super-adaptive-placeholder
+  margin-left: 70px !important
+
+/* RTL Adaptive Placeholder
+.super-rtl
+  .super-adaptive-placeholder
+    justify-content: flex-end
+    padding-right: 30px
+  &.super-full-rounded
+    .super-adaptive-placeholder
+      padding-right: 35px
+  &.super-field-size-large
+    &.super-default-rounded,&.super-full-rounded
+      .super-adaptive-placeholder
+        padding-right: 35px
+  &.super-field-size-huge
+    &.super-default-rounded,&.super-full-rounded
+      .super-adaptive-placeholder
+        padding-right: 40px
+
+/* RTL Icons Inside - Icons Right
+.super-rtl.super-full-rounded
+  .super-icon-inside.super-icon-right textarea.super-shortcode-field
+    padding-top: 10px
+  &.super-field-size-large .super-icon-inside.super-icon-right
+    textarea.super-shortcode-field
+      padding-top: 10px
+  &.super-field-size-huge .super-icon-inside.super-icon-right
+    textarea.super-shortcode-field
+      padding-top: 15px
+
+// RTL - MEDIUM - ICONS INSIDE - ICONS RIGHT
+.super-rtl.super-field-size-medium
+  .super-icon-inside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 50px
+    .super-shortcode-field
+      padding-right: 35px
+  &.super-default-rounded,&.super-full-rounded
+    .super-icon-inside.super-icon-right
+      .super-adaptive-placeholder
+        padding-right: 50px
+      .super-shortcode-field
+        padding-right: 35px
+
+// RTL - LARGE - ICONS INSIDE - ICONS RIGHT
+.super-rtl.super-field-size-large
+  .super-icon-inside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 60px
+    .super-shortcode-field
+      padding-right: 45px
+  &.super-default-rounded,&.super-full-rounded
+    .super-icon-inside.super-icon-right
+      .super-adaptive-placeholder
+        padding-right: 55px
+      .super-shortcode-field
+        padding-right: 40px
+
+
+// RTL - HUGE - ICONS INSIDE - ICONS RIGHT
+.super-rtl.super-field-size-huge
+  .super-icon-inside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 70px
+    .super-shortcode-field
+      padding-right: 55px
+  &.super-default-rounded,&.super-full-rounded
+    .super-icon-inside.super-icon-right
+      .super-adaptive-placeholder
+        padding-right: 65px
+      .super-shortcode-field
+        padding-right: 50px
+
+// RTL - MEDIUM - ICONS OUTSIDE - ICONS RIGHT
+.super-rtl.super-field-size-medium
+  .super-icon-outside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 75px
+    .super-shortcode-field
+      padding-right: 15px
+
+// RTL - LARGE - ICONS OUTSIDE - ICONS RIGHT
+.super-rtl.super-field-size-large
+  .super-icon-outside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 90px
+    .super-shortcode-field
+      padding-right: 20px
+
+
+
+// RTL - HUGE - ICONS OUTSIDE - ICONS RIGHT
+.super-rtl.super-field-size-huge
+  .super-icon-outside.super-icon-right
+    .super-adaptive-placeholder
+      padding-right: 100px
+    .super-shortcode-field
+      padding-right: 20px
+
+
+// RTL - MEDIUM - ICONS INSIDE - ICONS LEFT
+.super-rtl.super-field-size-medium
+  .super-icon-inside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 60px
+    .super-shortcode-field
+      padding-right: 15px
+
+
+// RTL - LARGE - ICONS INSIDE - ICONS LEFT
+.super-rtl.super-field-size-large
+  .super-icon-inside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 70px
+    .super-shortcode-field
+      padding-right: 15px
+
+
+// RTL - HUGE - ICONS INSIDE - ICONS LEFT
+.super-rtl.super-field-size-huge
+  .super-icon-inside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 85px
+    .super-shortcode-field
+      padding-right: 15px
+
+
+// RTL - MEDIUM - ICONS OUTSIDE - ICONS LEFT
+.super-rtl.super-field-size-medium
+  .super-icon-outside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 75px
+    .super-shortcode-field
+      margin-left: 45px
+
+// RTL - LARGE - ICONS OUTSIDE - ICONS LEFT
+.super-rtl.super-field-size-large
+  .super-icon-outside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 85px
+    .super-shortcode-field
+      margin-left: 55px
+
+
+// RTL - HUGE - ICONS OUTSIDE - ICONS LEFT
+.super-rtl.super-field-size-huge
+  .super-icon-outside.super-icon-left
+    .super-adaptive-placeholder
+      padding-right: 95px
+    .super-shortcode-field
+      margin-left: 65px
+  &.super-full-rounded
+    .super-icon-outside.super-icon-left
+      .super-adaptive-placeholder
+        padding-right: 105px
+    .super-icon-inside.super-icon-left
+      .super-adaptive-placeholder
+        padding-right: 95px
+
 
 @media screen and (-webkit-min-device-pixel-ratio: 0)
   .super-form.super-window-first-responsiveness ::-webkit-input-placeholder,
@@ -800,7 +1044,6 @@ h1.super-thanks-title
   .super-form.super-window-first-responsiveness :-ms-input-placeholder,
   .super-form.super-window-second-responsiveness :-ms-input-placeholder
     font-size: 16px !important
-
 
 
 .super-readonly:after
@@ -926,6 +1169,7 @@ textarea
     left: 10px
     font-size: 14px
     z-index: 1
+    pointer-events: none
   &.super-icon-outside .super-icon
     top: 0px
     left: 0px
@@ -934,10 +1178,11 @@ textarea
     height: 33px
     text-align: center
     line-height: 30px
-
-.super-rtl .super-field-wrapper.super-icon-outside .super-icon
-  left: inherit
-  right: 0px
+  &.super-icon-inside .super-icon
+    margin-top: 1px!important
+    margin-left: 2px!important
+    border: 0!important
+    background: none!important
 
 .super-field-wrapper.super-icon-inside .super-icon
   top: 0px
@@ -2373,14 +2618,15 @@ ul.super-multipart-steps .super-multipart-step
 .super-shortcode-field
   +borderRadius(0px)
   +boxSizing(border-box)
+  outline: none!important
 
 .super-form
   &.super-full-rounded
     .super-shortcode-field, .super-field-wrapper.super-icon-outside .super-icon, .super-fileupload-button
-      +borderRadius(4px)
+      +borderRadius(20px)
     .super-dropdown-ui
       .super-placeholder
-        +borderRadius(4px)
+        +borderRadius(20px)
       +borderRadius(20px)
     > p
       +borderRadius(4px)
@@ -2860,7 +3106,7 @@ ul.super-multipart-steps .super-multipart-step
 .super-full-rounded.super-field-size-medium
   .super-field .super-field-wrapper
     textarea.super-shortcode-field
-      padding: 15px 20px 15px 20px
+      padding: 10px 20px 10px 20px
     .super-shortcode-field
       padding: 0px 20px
     .super-dropdown-ui .super-item
@@ -2882,8 +3128,8 @@ ul.super-multipart-steps .super-multipart-step
   .super-field .super-field-wrapper.super-icon-outside.super-icon-right
     padding-right: 45px
   &.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right
-    padding-right: 0px
-    padding-left: 45px
+    padding-right: 45px
+    padding-left: 0px
   .display-vertical .super-field-wrapper.super-icon-left .super-item:before
     left: 0px
   &.super-rtl
@@ -3074,7 +3320,7 @@ ul.super-multipart-steps .super-multipart-step
 .super-full-rounded.super-field-size-large
   .super-field .super-field-wrapper
     textarea.super-shortcode-field
-      padding: 15px 20px 15px 20px
+      padding: 10px 20px 10px 20px
     .super-shortcode-field
       padding: 0px 20px
     .super-dropdown-ui .super-item
@@ -3096,8 +3342,8 @@ ul.super-multipart-steps .super-multipart-step
   .super-field .super-field-wrapper.super-icon-outside.super-icon-right
     padding-right: 55px
   &.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right
-    padding-right: 0px
-    padding-left: 55px
+    padding-right: 55px
+    padding-left: 0px
   .display-vertical .super-field-wrapper.super-icon-left .super-item:before
     left: 0px
   &.super-rtl
@@ -3323,8 +3569,8 @@ ul.super-multipart-steps .super-multipart-step
   .super-field .super-field-wrapper.super-icon-outside.super-icon-right
     padding-right: 65px
   &.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right
-    padding-right: 0px
-    padding-left: 65px
+    padding-right: 65px
+    padding-left: 0px
   .display-vertical .super-field-wrapper.super-icon-left .super-item:before
     left: 0px
   &.super-rtl

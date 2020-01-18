@@ -906,49 +906,6 @@ h1.super-thanks-title {
 .super-form.preload-disabled > * {
   visibility: visible;
 }
-
-/* @since 4.9.3 - Adaptive Placeholders */
-.super-adaptive-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: left; 
-  background:none;
-  border: none;
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  margin:0px 0px 0px 15px;
-}
-.super-adaptive-placeholder:before {
-  content: attr(data-placeholder);
-  display: inline-block;
-  white-space: nowrap;
-  transition: 0.1s ease-in-out;
-  padding:0px 0px 0px 0px;
-}
-.super-focus .super-adaptive-placeholder:before,
-.super-filled .super-adaptive-placeholder:before {
-  transition-duration: 0.1s;
-  transform: translate(-5px, -25px) scale(0.8, 0.8);
-}
-.super-filled .super-adaptive-placeholder:before {
-  content: attr(data-placeholderFilled);
-}
-/* Default theme */
-.super-focus .super-adaptive-placeholder:before,
-.super-filled .super-adaptive-placeholder:before {
-  padding:3px 13px 1px 13px;
-}
-/* Rounded theme */
-.super-focus .super-adaptive-placeholder:before,
-.super-filled .super-adaptive-placeholder:before {
-  border-radius:22px;  
-}
-
-
 .super-form ::-webkit-input-placeholder {
   color: #000;
 }
@@ -958,6 +915,247 @@ h1.super-thanks-title {
 }
 .super-form :-ms-input-placeholder {
   color: #000;
+}
+
+/* @since 4.9.3 - Adaptive Placeholders */
+.super-adaptive-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  background: none;
+  border: none;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  margin: 0px 0px 0px 15px;
+}
+.super-adaptive-placeholder:before {
+  content: attr(data-placeholder);
+  display: inline-block;
+  white-space: nowrap;
+  transition: 0.1s ease-in-out;
+  padding: 0px 0px 0px 0px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+
+.super-focus .super-adaptive-placeholder:before {
+  transition-duration: 0.1s;
+  transform: translate(-5px, -25px);
+}
+
+.super-filled .super-adaptive-placeholder:before {
+  transition-duration: 0.1s;
+  transform: translate(-5px, -25px);
+  content: attr(data-placeholderFilled);
+}
+
+.super-textarea .super-adaptive-placeholder {
+  align-items: flex-start;
+  margin-top: 7px;
+}
+
+.super-field-size-large .super-textarea .super-adaptive-placeholder {
+  margin-top: 12px;
+}
+
+.super-field-size-huge .super-textarea .super-adaptive-placeholder {
+  margin-top: 16px;
+}
+
+/* Default Theme & Size */
+.super-focus .super-adaptive-placeholder:before, .super-filled .super-adaptive-placeholder:before {
+  font-size: 10px !important;
+  transform: translate(0px, -15px);
+  border: 0 !important;
+  padding: 0px 4px 0px 4px;
+}
+
+/* Large size */
+.super-field-size-large .super-focus .super-adaptive-placeholder:before, .super-field-size-large .super-filled .super-adaptive-placeholder:before {
+  font-size: 11px !important;
+  transform: translate(0px, -20px);
+}
+
+/* Huge size */
+.super-field-size-huge .super-focus .super-adaptive-placeholder:before, .super-field-size-huge .super-filled .super-adaptive-placeholder:before {
+  font-size: 12px !important;
+  transform: translate(0px, -25px);
+}
+
+/* Full rounded theme */
+.super-full-rounded .super-focus .super-adaptive-placeholder:before, .super-full-rounded .super-filled .super-adaptive-placeholder:before {
+  margin-left: 2px;
+}
+.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder:before, .super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before {
+  margin-left: 7px;
+}
+.super-full-rounded .super-focus .super-adaptive-placeholder:before, .super-full-rounded .super-filled .super-adaptive-placeholder:before {
+  border-radius: 22px;
+}
+
+/* Icons outside */
+.super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 60px !important;
+}
+
+.super-field-size-large .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 70px !important;
+}
+
+.super-field-size-huge .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 80px !important;
+}
+
+/* Icons inside */
+.super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 45px !important;
+}
+
+.super-field-size-large .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 55px !important;
+}
+
+.super-field-size-huge .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  margin-left: 70px !important;
+}
+
+/* RTL Adaptive Placeholder */
+.super-rtl .super-adaptive-placeholder {
+  justify-content: flex-end;
+  padding-right: 30px;
+}
+.super-rtl.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-large.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-large.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-huge.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 40px;
+}
+
+/* RTL Icons Inside - Icons Right */
+.super-rtl.super-full-rounded .super-icon-inside.super-icon-right textarea.super-shortcode-field {
+  padding-top: 10px;
+}
+.super-rtl.super-full-rounded.super-field-size-large .super-icon-inside.super-icon-right textarea.super-shortcode-field {
+  padding-top: 10px;
+}
+.super-rtl.super-full-rounded.super-field-size-huge .super-icon-inside.super-icon-right textarea.super-shortcode-field {
+  padding-top: 15px;
+}
+
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 50px;
+}
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 50px;
+}
+.super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 35px;
+}
+
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 60px;
+}
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 45px;
+}
+.super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 55px;
+}
+.super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 40px;
+}
+
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 70px;
+}
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 55px;
+}
+.super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 65px;
+}
+.super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+  padding-right: 50px;
+}
+
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 75px;
+}
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-right .super-shortcode-field {
+  padding-right: 15px;
+}
+
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 90px;
+}
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-right .super-shortcode-field {
+  padding-right: 20px;
+}
+
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-right .super-adaptive-placeholder {
+  padding-right: 100px;
+}
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-right .super-shortcode-field {
+  padding-right: 20px;
+}
+
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 60px;
+}
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-left .super-shortcode-field {
+  padding-right: 15px;
+}
+
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 70px;
+}
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-left .super-shortcode-field {
+  padding-right: 15px;
+}
+
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 85px;
+}
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field {
+  padding-right: 15px;
+}
+
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 75px;
+}
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-left .super-shortcode-field {
+  margin-left: 45px;
+}
+
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 85px;
+}
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-left .super-shortcode-field {
+  margin-left: 55px;
+}
+
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 95px;
+}
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-left .super-shortcode-field {
+  margin-left: 65px;
+}
+.super-rtl.super-field-size-huge.super-full-rounded .super-icon-outside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 105px;
+}
+.super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-left .super-adaptive-placeholder {
+  padding-right: 95px;
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -1124,6 +1322,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   left: 10px;
   font-size: 14px;
   z-index: 1;
+  pointer-events: none;
 }
 .super-field-wrapper.super-icon-outside .super-icon {
   top: 0px;
@@ -1134,10 +1333,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   text-align: center;
   line-height: 30px;
 }
-
-.super-rtl .super-field-wrapper.super-icon-outside .super-icon {
-  left: inherit;
-  right: 0px;
+.super-field-wrapper.super-icon-inside .super-icon {
+  margin-top: 1px !important;
+  margin-left: 2px !important;
+  border: 0 !important;
+  background: none !important;
 }
 
 .super-field-wrapper.super-icon-inside .super-icon {
@@ -2998,12 +3198,13 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+  outline: none !important;
 }
 
 .super-form.super-full-rounded .super-shortcode-field, .super-form.super-full-rounded .super-field-wrapper.super-icon-outside .super-icon, .super-form.super-full-rounded .super-fileupload-button {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
 }
 .super-form.super-full-rounded .super-dropdown-ui {
   -webkit-border-radius: 20px;
@@ -3011,9 +3212,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   border-radius: 20px;
 }
 .super-form.super-full-rounded .super-dropdown-ui .super-placeholder {
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  border-radius: 20px;
 }
 .super-form.super-full-rounded > p {
   -webkit-border-radius: 4px;
@@ -3629,7 +3830,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-full-rounded.super-field-size-medium .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 15px 20px 15px 20px;
+  padding: 10px 20px 10px 20px;
 }
 .super-full-rounded.super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field {
   padding: 0px 20px;
@@ -3658,8 +3859,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding-right: 45px;
 }
 .super-field-size-medium.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
-  padding-right: 0px;
-  padding-left: 45px;
+  padding-right: 45px;
+  padding-left: 0px;
 }
 .super-field-size-medium .display-vertical .super-field-wrapper.super-icon-left .super-item:before {
   left: 0px;
@@ -3885,7 +4086,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-full-rounded.super-field-size-large .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 15px 20px 15px 20px;
+  padding: 10px 20px 10px 20px;
 }
 .super-full-rounded.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
   padding: 0px 20px;
@@ -3914,8 +4115,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding-right: 55px;
 }
 .super-field-size-large.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
-  padding-right: 0px;
-  padding-left: 55px;
+  padding-right: 55px;
+  padding-left: 0px;
 }
 .super-field-size-large .display-vertical .super-field-wrapper.super-icon-left .super-item:before {
   left: 0px;
@@ -4189,8 +4390,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding-right: 65px;
 }
 .super-field-size-huge.super-rtl .super-field .super-field-wrapper.super-icon-outside.super-icon-right {
-  padding-right: 0px;
-  padding-left: 65px;
+  padding-right: 65px;
+  padding-left: 0px;
 }
 .super-field-size-huge .display-vertical .super-field-wrapper.super-icon-left .super-item:before {
   left: 0px;

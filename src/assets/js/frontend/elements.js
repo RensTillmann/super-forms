@@ -2142,6 +2142,34 @@
             super_focus_first_tab_index_field(e, form, multipart);
 
         });
+
+        // @since 4.9.3 - Adaptive Placeholders
+        var adaptivePlaceholder = document.querySelectorAll('.super-adaptive-placeholder');
+        for (var i = 0; i < adaptivePlaceholder.length; i++) {
+            var input = adaptivePlaceholder[i].parentNode.querySelector('.super-shortcode-field');
+            input.onclick = input.onfocus = function () {
+                this.closest('.super-shortcode').classList.add('super-focus');
+            }
+            input.onblur = function () {
+                this.closest('.super-shortcode').classList.remove('super-focus');
+            }
+            input.addEventListener('keyup', function () {
+                var parent = this.closest('.super-shortcode');
+                parent.classList.add('super-filled');
+                if (this.value.length === 0) parent.classList.remove('super-filled');
+            });
+            input.oncut = input.onpaste = function () {
+                var input = event.target,
+                    parent = event.target.closest('.super-shortcode');
+                if (event.type == 'cut' || event.type == 'paste') {
+                    setTimeout(function () {
+                        parent.classList.add('super-filled');
+                        if (input.value.length === 0) parent.classList.remove('super-filled');
+                    }, 100);
+                }
+            }
+        }
+
     });
 
 })(jQuery);
