@@ -1326,13 +1326,25 @@ class SUPER_Settings {
                 // @since 4.9.3 - Adaptive Placeholders
                 'enable_adaptive_placeholders' => array(
                     'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
-                    // allow empty
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'enable_adaptive_placeholders', $settings, 'true', true ),
                     'type' => 'checkbox', 
                     'filter'=>true,
                     'values' => array(
                         'true' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
                     ),
+                ),
+                'placeholder_adaptive_positioning' => array(
+                    'desc' => esc_html__( 'When enabled the placeholder will always be at it\'s adaptive position, even when the field is not focussed', 'super-forms' ),
+                    // allow empty / allow_empty
+                    'default' => self::get_value( $default, 'placeholder_adaptive_positioning', $settings, '', true ),
+                    'type' => 'checkbox', 
+                    'values' => array(
+                        'true' => esc_html__( 'Use the adaptive positioning by default', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'enable_adaptive_placeholders',
+                    'filter_value'=>'true',
                 ),
                 'theme_adaptive_placeholder_colors' => array(
                     'name' => esc_html__('Adaptive Placeholder Colors', 'super-forms' ),

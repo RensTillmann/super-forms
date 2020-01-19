@@ -156,7 +156,6 @@
     position: relative;
 }
 
-
 .super-stripe-action-btn {
     display: inline-block;
     background-color: white;
@@ -354,8 +353,227 @@
     float: left;
 }
 
+.super-stripe-modal-wrapper {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9000001;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+
 .super-stripe-modal {
     background-color: white;
     border-radius: 4px;
     box-shadow: 0 7px 14px 0 rgba(60, 66, 87, 0.12), 0 3px 6px 0 rgba(0, 0, 0, 0.12);
+    max-width: 448px;
+}
+
+.super-stripe-modal-title,
+.super-stripe-modal-info,
+.super-stripe-modal-fields {
+    box-shadow: inset 0 -1px #e3e8ee;
+    font-weight: 500;
+    padding: 20px 20px 20px 20px;
+    color: #1a1f36;
+}
+
+.super-stripe-modal-title {
+    font-size: 16px;
+}
+
+.super-stripe-modal-info {
+    position: relative;
+    padding: 12px 20px 12px 45px;
+}
+
+.super-stripe-modal-info svg {
+    margin: 0px 12px 0px 0px;
+    fill: #8792a2;
+    position: absolute;
+    left: 20px;
+    top: 15px;
+}
+
+.super-stripe-modal-info,
+.super-stripe-modal-fields {
+    background-color: #f7fafc;
+    font-size: 14px;
+}
+
+
+
+.super-stripe-modal-fields {
+    font-weight: initial;
+    float: left;
+}
+
+.super-stripe-modal-field {
+    display: flex;
+    align-items: flex-start;
+    margin: 10px 0px 10px 0px;
+    width: 100%;
+    float: left;
+}
+
+.super-stripe-field-label {
+    text-align: right;
+    padding-right: 15px;
+    width: 30%;
+    color: #2a2f45;
+    cursor: default;
+    padding-top: 5px;
+}
+
+.super-stripe-modal-fields input,
+.super-stripe-modal-fields textarea {
+    border: 0;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    transition: background-color 240ms, box-shadow 240ms;
+}
+
+.super-stripe-modal-fields input:focus,
+.super-stripe-modal-fields textarea:focus {
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(58, 151, 212, 0.34) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+}
+
+.super-stripe-modal-fields textarea {
+    padding: 5px 10px 15px 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.super-stripe-modal-fields ::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: #9197a3;
+}
+
+.super-stripe-modal-fields :-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #9197a3;
+    opacity: 1;
+}
+
+.super-stripe-modal-fields ::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: #9197a3;
+    opacity: 1;
+}
+
+.super-stripe-modal-fields :-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: #9197a3;
+}
+
+.super-stripe-modal-fields :focus::-webkit-input-placeholder {
+    /* WebKit browsers */
+    color: #bdc1c9;
+}
+
+.super-stripe-modal-fields :focus:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #bdc1c9;
+    opacity: 1;
+}
+
+.super-stripe-modal-fields :focus::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: #bdc1c9;
+    opacity: 1;
+}
+
+.super-stripe-modal-fields :focus:-ms-input-placeholder {
+    /* Internet Explorer 10+ */
+    color: #bdc1c9;
+}
+
+.super-stripe-modal-fields select {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    margin: 0;
+    font-weight: 500;
+    text-decoration: none;
+    vertical-align: middle;
+    word-break: keep-all;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    transition: color 240ms;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+
+.super-stripe-modal-fields select:hover {
+    color: rgb(60, 66, 87);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 3px 9px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+
+.super-stripe-modal-fields select:focus {
+    border: initial;
+    color: rgb(26, 31, 54);
+    outline: none;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(58, 151, 212, 0.34) 0px 0px 0px 4px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 3px 9px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+
+.super-stripe-field-wrapper {
+    position: relative;
+    float: left;
+    width: 50%;
+}
+
+.super-stripe-field-wrapper i {
+    color: #697386;
+    font-style: initial;
+    display: inline-block;
+    padding-top: 5px;
+}
+
+.super-stripe-field-wrapper>svg {
+    fill: rgb(60, 66, 87);
+    position: absolute;
+    top: 15px;
+    right: 8px;
+    z-index: 2;
+    margin-top: -6px;
+    transition: color 240ms;
+    pointer-events: none;
+}
+
+.super-stripe-field-wrapper:hover>svg {
+    fill: rgb(26, 31, 54);
+}
+
+.super-stripe-currency {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    z-index: 2;
+    margin-top: -9px;
+    transition: color 240ms;
+    pointer-events: none;
+}
+
+.super-field-type-currency input {
+    padding-right: 50px;
+    width: 100%;
+}
+
+.super-field-type-currency {
+    width: 40%;
 }

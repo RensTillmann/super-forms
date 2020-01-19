@@ -1573,7 +1573,7 @@ class SUPER_Shortcodes {
     // @since 4.9.3 - Adaptive Placeholders
     public static function adaptivePlaceholders( $settings, $atts, $tag ) {
         if( (!empty($settings['enable_adaptive_placeholders'])) && (!empty($atts['placeholder'])) ) {
-            return '<span class="super-adaptive-placeholder" data-placeholder="'.esc_attr($atts['placeholder']).' (default)" data-placeholderFilled="' . esc_attr($atts['placeholder']) . ' (filled)"></span>';
+            return '<span class="super-adaptive-placeholder'.(!empty($settings['placeholder_adaptive_positioning']) ? ' super-adaptive-positioning' : '').'" data-placeholder="'.esc_attr($atts['placeholder']).' (default)" data-placeholderFilled="' . esc_attr($atts['placeholder']) . ' (filled)"></span>';
         } 
     }
 

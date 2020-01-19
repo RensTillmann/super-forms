@@ -420,6 +420,13 @@ if(!class_exists('SUPER_Stripe')) :
                 ),
                 'method'  => 'register', // Register because we need to localize it
                 'localize'=> array(
+                    'refundReasons' => array(
+                        'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
+                        'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
+                        'requested_by_customer' => esc_html__( 'Add more details about this refund', 'super-forms' ),
+                        'other' => esc_html__( 'Add a reason for this\' refund', 'super-forms' ),
+                        'other_note' => sprintf( esc_html__( 'A note is required when a provided reason isn%st selected', 'super-forms' ), '\'' )
+                    ),
                     'declineCodes' => array(
                         'authentication_required' => array(
                             'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
@@ -608,8 +615,8 @@ if(!class_exists('SUPER_Stripe')) :
                     )       
                 )
             );
-            $scripts['numeral'] = array(
-                'src'     => plugin_dir_url( __FILE__ ) . 'numeral.js',
+            $scripts['currencyFormatter'] = array(
+                'src'     => plugin_dir_url( __FILE__ ) . 'currencyFormatter.min.js',
                 'deps'    => array('super-stripe-dashboard'),
                 'version' => SUPER_Stripe()->version,
                 'footer'  => true,
