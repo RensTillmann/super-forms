@@ -103,7 +103,8 @@ return $import_fonts."
   font-family: ".$v['font_global_family'].";
 }
 /* Focused Colors */
-".$s.".super-focus .super-adaptive-placeholder:before {
+".$s.".super-focus .super-adaptive-placeholder:before,
+".$s.".super-adaptive-positioning:before {
   color:".(!empty($v['adaptive_placeholder_focus']) ? $v['adaptive_placeholder_focus'] : $v['theme_field_colors_border']).";
   ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
 }
@@ -113,7 +114,8 @@ return $import_fonts."
   ".(!empty($v['adaptive_placeholder_border_filled']) ? 'border:1px solid '.$v['adaptive_placeholder_border_filled'] : 'border: 0' ).";
 }
 /* Background Colors */
-".$s.".super-focus .super-adaptive-placeholder:before {
+".$s.".super-focus .super-adaptive-placeholder:before,
+".$s.".super-adaptive-positioning:before {
   background: ".$v['adaptive_placeholder_bg_top_focus']."; /* Old browsers */
   background: -moz-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%, ".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* FF3.6-15 */
   background: -webkit-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%,".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* Chrome10-25,Safari5.1-6 */

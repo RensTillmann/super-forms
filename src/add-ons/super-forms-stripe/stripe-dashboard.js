@@ -106,33 +106,32 @@
             }
         },
         modal: {
-            className: 'super-stripe-modal',
+            wrapperClassName: 'super-stripe-modal-wrapper',
+            containerClassName: 'super-stripe-modal',
             close: function () {
-                app.remove(app.q('.' + app.ui.modal.className));
+                app.remove(app.q('.' + app.ui.modal.wrapperClassName));
                 app.ui.backdrop.remove();
             },
             reposition: function (modal) {
-                if (typeof modal === 'undefined') modal = app.q('.' + app.ui.modal.className);
+                if (typeof modal === 'undefined') modal = app.q('.' + app.ui.modal.containerClassName);
                 if (modal) {
-                    var positionTop = (window.innerHeight - parseFloat(modal.style.height).toFixed(0)) / 2,
-                        positionLeft = (window.innerWidth / 2) - 250 // 960 - 250 = 710
-                    if (positionTop < 50) positionTop = 0;
-                    if (positionLeft < 0) positionLeft = 0;
-                    modal.style.top = positionTop + 'px';
-                    modal.style.left = positionLeft + 'px';
+                    var marginTop = (window.innerHeight - parseFloat(modal.offsetHeight).toFixed(0)) / 2;
+                    if (marginTop < 50) marginTop = 0;
+                    modal.style.marginTop = marginTop + 'px';
                 }
             },
             open: function (e, target, eventType, attr) {
+                document.body.style.overflow = 'hidden';
+                document.body.style.overscrollBehaviorY = 'none';
                 console.log(e, target, eventType, attr);
                 // Get Raw JSON data
                 var html = '',
+                    json = JSON.parse(app.api.rawJSON),
                     modalWrapper = document.createElement('div'),
-                    json = JSON.parse(app.api.rawJSON);
-                modalWrapper.className = app.ui.modal.className;
-                modalWrapper.style.position = 'fixed';
-                modalWrapper.style.zIndex = 9000001;
-                modalWrapper.style.width = '500px';
-                modalWrapper.style.height = '370px';
+                    modalContainer = document.createElement('div');
+                modalWrapper.className = app.ui.modal.wrapperClassName;
+                modalContainer.className = app.ui.modal.containerClassName;
+
                 if (attr.type == 'refundPayment') {
                     var modalTitle = 'Refund payment';
                     var modalInfo = 'Refunds take 5-10 days to appear on a customer\'s statement.';
@@ -148,7 +147,8 @@
                                 null: "Select a reason",
                                 duplicate: "Duplicate",
                                 fraudulent: "Fraudulent",
-                                requested_by_customer: "Requested by customer"
+                                requested_by_customer: "Requested by customer",
+                                other: "Other"
                             }
                         },
                         "payment_intent": {
@@ -157,47 +157,114 @@
                     };
                 }
                 if (modalTitle) html += '<div class="super-stripe-modal-title">' + modalTitle + '</div>';
-                if (modalInfo) html += '<div class="super-stripe-modal-info">' + modalInfo + '</div>';
+                if (modalInfo) {
+                    html += '<div class="super-stripe-modal-info">';
+                    html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;">';
+                    html += '<path d="M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" fill-rule="evenodd"></path>';
+                    html += '</svg>';
+                    html += modalInfo;
+                    html += '</div>';
+                }
                 if (modalFields) {
                     html += '<div class="super-stripe-modal-fields">';
-                    Object.keys(modalFields).forEach(function(key){
+                    Object.keys(modalFields).forEach(function (key) {
                         var field = modalFields[key],
                             type = field.type;
-                        if(type==='hidden'){
-                            html += '<input type="hidden" name="'+key+'" />';
+
+                        html += '<div class="super-stripe-modal-field">';
+                        if (!field.label) field.label = '';
+                        html += '<label class="super-stripe-field-label">' + field.label + '</label>';
+                        html += '<div class="super-stripe-field-wrapper super-field-type-' + type + '">';
+                        if (type === 'hidden') {
+                            html += '<input type="hidden" name="' + key + '" />';
                         }
-                        if(type==='select'){
-                            html += '<select name="'+key+'">';
-                            Object.keys(field.options).forEach(function(optionKey){
-                                html += '<option value="'+optionKey+'">'+field.options[optionKey]+'</option>';
+                        if (type === 'select') {
+                            html += '<select name="' + key + '" sfevents=\'{"change":{"ui.modal.refundReasonChanged":{}}}\'>';
+                            Object.keys(field.options).forEach(function (optionKey) {
+                                html += '<option value="' + optionKey + '">' + field.options[optionKey] + '</option>';
                             });
                             html += '</select>';
+                            html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="height: 12px; width: 12px;"><path d="M11.891 9.992a1 1 0 1 1 1.416 1.415l-4.3 4.3a1 1 0 0 1-1.414 0l-4.3-4.3A1 1 0 0 1 4.71 9.992l3.59 3.591 3.591-3.591zm0-3.984L8.3 2.417 4.709 6.008a1 1 0 0 1-1.416-1.415l4.3-4.3a1 1 0 0 1 1.414 0l4.3 4.3a1 1 0 1 1-1.416 1.415z"></path></svg>';
                         }
-                        if(type==='currency'){
-                            debugger;
-                            //var amount = json.amount/100;
-                            var amount = 123456789/100;
-                            var currency = json.currency.toUpperCase();
-                            var myNumeral = numeral(amount).format('0,0');
-                            var myNumeral = numeral(amount).format('0.0');
-                            var myNumeral = numeral(amount).format('0');
-                            var value = myNumeral.value();
-                            // 1000
-                            var value = new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(amount);
-                            // expected output: "123.456,79 €"
-                            var myNumeral2 = numeral(value);
-                            var value2 = myNumeral2.value();
-                            // 1000
-                            html += '<input type="text" name="'+key+'" value="'+value+'" />';
+                        if (type === 'currency') {
+                            var currency = json.currency.toUpperCase(),
+                                amount = json.amount,
+                                // eslint-disable-next-line no-undef
+                                value = OSREC.CurrencyFormatter.format(amount, {
+                                    currency: currency
+                                });
+
+                            // TJS (Tajikistani somoni) is not supported, we have to use our own formatting
+                            // [ЅM](! #,##0.00)
+                            if (currency == 'TJS') {
+                                // eslint-disable-next-line no-undef
+                                value = OSREC.CurrencyFormatter.format(amount, {
+                                    currency: currency,
+                                    symbol: 'ЅM',
+                                    pattern: '! #,##0.00'
+                                });
+                            }
+                            //  RON (Romanian leu) is not supported, we have to use our own formatting
+                            // [lei](! #,##0.00)
+                            if (currency == 'RON') { // Romanian leu
+                                // eslint-disable-next-line no-undef
+                                value = OSREC.CurrencyFormatter.format(amount, {
+                                    currency: currency,
+                                    symbol: 'lei',
+                                    pattern: '! #,##0.00'
+                                });
+                            }
+                            html += '<input type="text" name="' + key + '" value="' + value + '" />';
+                            html += '<span class="super-stripe-currency">' + currency + '</span>';
                         }
+                        html += '</div>';
+                        html += '</div>';
                     });
                     html += '</div>';
                 }
-                modalWrapper.innerHTML = html;
+                modalContainer.innerHTML = html;
+                modalWrapper.appendChild(modalContainer);
                 document.body.appendChild(modalWrapper);
-                app.ui.modal.reposition(modalWrapper);
+                app.ui.modal.reposition(modalContainer);
                 app.ui.contextMenu.close();
                 app.ui.backdrop.add();
+            },
+            refundReasonChanged: function (e, target, eventType, attr) {
+                console.log(e, target, eventType, attr);
+                // eslint-disable-next-line no-undef
+                var node, i18n = super_stripe_dashboard_i18n.refundReasons;
+                if (target.parentNode.querySelector('textarea')) {
+                    target.parentNode.querySelector('textarea').remove();
+                }
+                switch (target.value) {
+                    case 'duplicate':
+                        node = document.createElement('textarea');
+                        node.placeholder = i18n.duplicate;
+                        target.parentNode.appendChild(node);
+                        node.focus();
+                        break;
+                    case 'fraudulent':
+                        node = document.createElement('textarea');
+                        node.placeholder = i18n.fraudulent;
+                        target.parentNode.appendChild(node);
+                        node.focus();
+                        break;
+                    case 'requested_by_customer':
+                        node = document.createElement('textarea');
+                        node.placeholder = i18n.requested_by_customer;
+                        target.parentNode.appendChild(node);
+                        node.focus();
+                        break;
+                    case 'other':
+                        node = document.createElement('textarea');
+                        node.placeholder = i18n.other;
+                        target.parentNode.appendChild(node);
+                        node.focus();
+                        node = document.createElement('i');
+                        node.innerText = i18n.other_note;
+                        target.parentNode.appendChild(node);
+                        break;
+                }
             }
         },
         contextMenu: {
@@ -232,7 +299,7 @@
                         html += '<span>CONNECTIONS</span>';
                         var row = target.closest('.super-stripe-row');
                         app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
-                        
+
                         var testData = row.querySelector('.super-stripe-testdata').length;
                         var customerID = row.querySelector('.super-stripe-customer').customer;
                         if (customerID) {
@@ -895,6 +962,9 @@
             '.super-stripe-action-btn',
             '.' + app.ui.contextMenu.className + ' > div'
         ],
+        change: [
+            '.super-stripe-field-wrapper select'
+        ]
     };
     Object.keys(app.events).forEach(function (eventType) {
         var elements = app.events[eventType].join(", ");
@@ -905,7 +975,7 @@
                     // Close context menu
                     app.ui.contextMenu.close();
                 }
-                if (!app.inPath(e, app.ui.modal.className)) {
+                if (!app.inPath(e, app.ui.modal.containerClassName)) {
                     // Close modal
                     app.ui.modal.close();
                 }

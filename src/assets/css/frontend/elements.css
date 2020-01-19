@@ -968,7 +968,9 @@ h1.super-thanks-title {
 }
 
 /* Default Theme & Size */
-.super-focus .super-adaptive-placeholder:before, .super-filled .super-adaptive-placeholder:before {
+.super-focus .super-adaptive-placeholder:before,
+.super-filled .super-adaptive-placeholder:before,
+.super-adaptive-positioning:before {
   font-size: 10px !important;
   transform: translate(0px, -15px);
   border: 0 !important;
@@ -976,25 +978,35 @@ h1.super-thanks-title {
 }
 
 /* Large size */
-.super-field-size-large .super-focus .super-adaptive-placeholder:before, .super-field-size-large .super-filled .super-adaptive-placeholder:before {
+.super-field-size-large .super-focus .super-adaptive-placeholder:before,
+.super-field-size-large .super-filled .super-adaptive-placeholder:before,
+.super-field-size-large .super-adaptive-positioning:before {
   font-size: 11px !important;
   transform: translate(0px, -20px);
 }
 
 /* Huge size */
-.super-field-size-huge .super-focus .super-adaptive-placeholder:before, .super-field-size-huge .super-filled .super-adaptive-placeholder:before {
+.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
+.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
+.super-field-size-huge .super-adaptive-positioning:before {
   font-size: 12px !important;
   transform: translate(0px, -25px);
 }
 
 /* Full rounded theme */
-.super-full-rounded .super-focus .super-adaptive-placeholder:before, .super-full-rounded .super-filled .super-adaptive-placeholder:before {
+.super-full-rounded .super-focus .super-adaptive-placeholder:before,
+.super-full-rounded .super-filled .super-adaptive-placeholder:before,
+.super-full-rounded .super-adaptive-positioning {
   margin-left: 2px;
 }
-.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder:before, .super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before {
+.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
+.super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
+.super-full-rounded.super-field-size-huge .super-adaptive-positioning {
   margin-left: 7px;
 }
-.super-full-rounded .super-focus .super-adaptive-placeholder:before, .super-full-rounded .super-filled .super-adaptive-placeholder:before {
+.super-full-rounded .super-focus .super-adaptive-placeholder:before,
+.super-full-rounded .super-filled .super-adaptive-placeholder:before,
+.super-full-rounded .super-adaptive-positioning:before {
   border-radius: 22px;
 }
 
