@@ -1352,42 +1352,46 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'enable_adaptive_placeholders',
                     'filter_value'=>'true',
-                    'colors'=>array(
+                    'colors'=>array(                        
                         'theme_field_colors_placeholder'=>array(
                             'label'=>'Placeholder color',
-                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#444444' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#9a9a9a' ),
                         ),
+                        // Font color
                         'adaptive_placeholder_focus'=>array(
-                            'label'=> esc_html__( 'Focussed font color (leave blank to inherit field border color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_focus', $settings, '', true ),
-                        ),
-                        'adaptive_placeholder_border_focus'=>array(
-                            'label'=> esc_html__( 'Focussed border color (leave blank for no border)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_border_focus', $settings, '', true ),
-                        ),
-                        'adaptive_placeholder_bg_top_focus'=>array(
-                            'label'=> esc_html__( 'Focussed top background color (leave blank to inherit field background color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_focus', $settings, '', true ),
-                        ),
-                        'adaptive_placeholder_bg_bottom_focus'=>array(
-                            'label'=> esc_html__( 'Focussed bottom background color (leave blank to inherit field background color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_focus', $settings, '', true ),
+                            'label'=> esc_html__( 'Focussed font color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_focus', $settings, '#4EB1B6' ),
                         ),
                         'adaptive_placeholder_filled'=>array(
-                            'label'=> esc_html__( 'Filled font color (leave blank to inherit field border color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_filled', $settings, '', true ),
+                            'label'=> esc_html__( 'Filled font color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_filled', $settings, '#9a9a9a' ),
+                        ),
+                        // Focussed background color
+                        'adaptive_placeholder_bg_top_focus'=>array(
+                            'label'=> esc_html__( 'Focussed top background color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_focus', $settings, '#ffffff' ),
+                        ),
+                        'adaptive_placeholder_bg_bottom_focus'=>array(
+                            'label'=> esc_html__( 'Focussed bottom background color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_focus', $settings, '#ffffff' ),
+                        ),
+                        // Filled background color
+                        'adaptive_placeholder_bg_top_filled'=>array(
+                            'label'=> esc_html__( 'Filled top background color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_filled', $settings, '#ffffff' ),
+                        ),
+                        'adaptive_placeholder_bg_bottom_filled'=>array(
+                            'label'=> esc_html__( 'Filled bottom background color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_filled', $settings, '#ffffff' ),
+                        ),
+                        // Border color
+                        'adaptive_placeholder_border_focus'=>array(
+                            'label'=> esc_html__( 'Focussed border color (leave blank for no border)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_border_focus', $settings, '' ),
                         ),
                         'adaptive_placeholder_border_filled'=>array(
                             'label'=> esc_html__( 'Filled border color (leave blank for no border)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_border_filled', $settings, '', true ),
-                        ),
-                        'adaptive_placeholder_bg_top_filled'=>array(
-                            'label'=> esc_html__( 'Filled top background color (leave blank to inherit field background color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_top_filled', $settings, '', true ),
-                        ),
-                        'adaptive_placeholder_bg_bottom_filled'=>array(
-                            'label'=> esc_html__( 'Filled bottom background color (leave blank to inherit field background color)', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_bg_bottom_filled', $settings, '', true ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_border_filled', $settings, '' ),
                         )
                     ),
                 ),
@@ -1446,7 +1450,7 @@ class SUPER_Settings {
                         ),
                         'theme_icon_border_focus'=>array(
                             'label'=>'Icon border color focus',
-                            'default' => self::get_value( $default, 'theme_icon_border_focus', $settings, '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_icon_border_focus', $settings, '#4EB1B6' ),
                         ),                            
                     ),
                     'filter'=>true,
@@ -1645,7 +1649,7 @@ class SUPER_Settings {
                         ),
                         'theme_field_colors_border_focus'=>array(
                             'label'=>'Border Color Focus',
-                            'default' => self::get_value( $default, 'theme_field_colors_border_focus', $settings, '#cdcdcd' ),
+                            'default' => self::get_value( $default, 'theme_field_colors_border_focus', $settings, '#4EB1B6' ),
                         ),
                         'theme_field_colors_font_focus'=>array(
                             'label'=>'Font Color Focus',
@@ -2610,18 +2614,14 @@ class SUPER_Settings {
      *	@since		1.0.0
     */
     public static function get_value( $strict_default, $name, $settings, $default, $allow_empty=false ) {
-        if( $allow_empty ) {
-            return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
-        }
         if( $strict_default==1 ) {
             return $default;
+        }
+        // Check if this setting is allowd to be left empty
+        if( $allow_empty ) {
+            return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
         }else{
-            // Check if this setting is allowd to be left empty
-            if( $allow_empty ) {
-                return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
-            }else{
-                return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
-            }
+            return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
         }
     }
     

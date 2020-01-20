@@ -2268,12 +2268,10 @@ function SUPERreCaptcha(){
 
         //nodes = form.querySelectorAll('.super-field .super-shortcode-field, .super-field .super-recaptcha, .super-field .super-active-files');
         nodes = SUPER.field(form, '', 'all');
-        console.log(nodes);
         for ( i = 0; i < nodes.length; i++) {
             field = nodes[i];
             textField = true;
             if(!SUPER.has_hidden_parent(field)){
-                console.log(field.classList);
                 // super-shortcode-field super-fileupload super-rendered
                 if(field.classList.contains('super-active-files')){
                     textField = false;
@@ -2349,6 +2347,7 @@ function SUPERreCaptcha(){
             SUPER.scrollToError(form, validateMultipart);
         }
         SUPER.after_validating_form_hook(undefined, form);
+
     };
 
     SUPER.scrollToError = function(form, validateMultipart){
@@ -3159,15 +3158,15 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.1.0
-    SUPER.before_scrolling_to_error_hook = function($form, $scroll){
-        var $proceed = true;
-        var $functions = super_common_i18n.dynamic_functions.before_scrolling_to_error_hook;
-        jQuery.each($functions, function(key, value){
+    SUPER.before_scrolling_to_error_hook = function(form, scroll){
+        var proceed = true;
+        var functions = super_common_i18n.dynamic_functions.before_scrolling_to_error_hook;
+        jQuery.each(functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
-                $proceed = SUPER[value.name]($proceed, $form, $scroll);
+                proceed = SUPER[value.name](proceed, form, scroll);
             }
         });
-        return $proceed;
+        return proceed;
     };
     SUPER.before_scrolling_to_message_hook = function($form, $scroll){
         var $proceed = true;
@@ -5233,7 +5232,6 @@ function SUPERreCaptcha(){
         var visible = [];
         Object.keys(shared).forEach(function(key) {
             // Skip if already filtered and visible
-            console.log(visible, shared[key], visible.indexOf(shared[key]));
             if(visible.indexOf(shared[key])!==-1){
                 return true;
             }

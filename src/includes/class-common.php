@@ -589,7 +589,7 @@ class SUPER_Common {
         if($form_id!=0){
             $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
             $global_settings = SUPER_Common::get_global_settings();
-            $default_settings = SUPER_Settings::get_defaults();
+            $default_settings = SUPER_Settings::get_defaults($form_settings, 1);
             $global_settings = array_merge( $default_settings, $global_settings );
 
             if(is_array($form_settings)) {
@@ -602,7 +602,7 @@ class SUPER_Common {
             }
         }else{
             $global_settings = SUPER_Common::get_global_settings();
-            $default_settings = SUPER_Settings::get_defaults();
+            $default_settings = SUPER_Settings::get_defaults(null, 1);
             $settings = array_merge( $default_settings, $global_settings );
         }
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
@@ -1745,7 +1745,6 @@ class SUPER_Common {
         return 'rgba(' . (implode(",", $rgb)) . ')'; // returns the rgb values separated by commas
         //return $rgb; // returns an array with the rgb values
     }
-
 
     /**
      * Adjust the brightness of any given color (used for our focus and hover colors)

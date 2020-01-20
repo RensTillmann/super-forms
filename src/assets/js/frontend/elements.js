@@ -1958,7 +1958,6 @@
 
         // Multi Part Columns
         $doc.on('click','.super-multipart-step',function(e){
-            
             var i, nodes,
                 el = this,
                 form = el.closest('.super-form'),
@@ -1976,10 +1975,12 @@
                 skip;
 
             // @since 2.0 - validate multi-part before going to next step
-            validate = currentActive.dataset.validate;
-            if(validate=='true'){
-                result = SUPER.validate_form( currentActive, el, true, e, true );
-                if(result===false) return false;
+            if(activeIndex < index){ // Always allow going to previous step
+                validate = currentActive.dataset.validate;
+                if(validate=='true'){
+                    result = SUPER.validate_form( currentActive, el, true, e, true );
+                    if(result===false) return false;
+                }
             }
             progress = 100 / total;
             progress = progress * (index+1);
@@ -2096,7 +2097,7 @@
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
                 if(validate=='true'){
                     result = SUPER.validate_form( form.querySelector('.super-multipart.super-active'), el, true, e, true );
-                    if(result===false) return false;
+                    if(result!==true) return false;
                 }
                 if(total>current_step+1){
                     nodes = form.querySelectorAll('.super-multipart');

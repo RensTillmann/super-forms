@@ -809,20 +809,9 @@ h1.super-thanks-title
     box-sizing: border-box
     -moz-box-sizing: border-box
     -webkit-box-sizing: border-box
-.super-focus .super-adaptive-placeholder:before
-  transition-duration: 0.1s
-  transform: translate(-5px, -25px)
+    transition-duration: 0.1s
 .super-filled .super-adaptive-placeholder:before
-  transition-duration: 0.1s
-  transform: translate(-5px, -25px)
   content: attr(data-placeholderFilled)
-.super-textarea .super-adaptive-placeholder
-  align-items: flex-start
-  margin-top: 7px
-.super-field-size-large .super-textarea .super-adaptive-placeholder
-  margin-top: 12px
-.super-field-size-huge .super-textarea .super-adaptive-placeholder
-  margin-top: 16px
 
 /* Default Theme & Size
 .super-focus .super-adaptive-placeholder,
@@ -830,9 +819,9 @@ h1.super-thanks-title
 .super-adaptive-positioning
   &:before
     font-size: 10px !important
-    transform: translate(0px, -15px)
     border: 0 !important
     padding: 0px 4px 0px 4px
+    line-height: 10px
 
 /* Large size
 .super-field-size-large
@@ -841,7 +830,8 @@ h1.super-thanks-title
   .super-adaptive-positioning
     &:before
       font-size: 11px !important
-      transform: translate(0px, -20px)
+      line-height: 14px
+      transform: translate(0px, -15px)
 
 /* Huge size
 .super-field-size-huge
@@ -850,18 +840,17 @@ h1.super-thanks-title
   .super-adaptive-positioning
     &:before
       font-size: 12px !important
-      transform: translate(0px, -25px)
+      line-height: 16px
+      transform: translate(0px, -22px)
 
 /* Full rounded theme
 .super-full-rounded
   .super-focus .super-adaptive-placeholder:before,
-  .super-filled .super-adaptive-placeholder:before,
-  .super-adaptive-positioning
+  .super-filled .super-adaptive-placeholder:before
     margin-left: 2px
   &.super-field-size-huge
     .super-focus .super-adaptive-placeholder:before,
-    .super-filled .super-adaptive-placeholder:before,
-    .super-adaptive-positioning
+    .super-filled .super-adaptive-placeholder:before
       margin-left: 7px
   .super-focus .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
@@ -901,17 +890,6 @@ h1.super-thanks-title
     &.super-default-rounded,&.super-full-rounded
       .super-adaptive-placeholder
         padding-right: 40px
-
-/* RTL Icons Inside - Icons Right
-.super-rtl.super-full-rounded
-  .super-icon-inside.super-icon-right textarea.super-shortcode-field
-    padding-top: 10px
-  &.super-field-size-large .super-icon-inside.super-icon-right
-    textarea.super-shortcode-field
-      padding-top: 10px
-  &.super-field-size-huge .super-icon-inside.super-icon-right
-    textarea.super-shortcode-field
-      padding-top: 15px
 
 // RTL - MEDIUM - ICONS INSIDE - ICONS RIGHT
 .super-rtl.super-field-size-medium
@@ -1245,9 +1223,6 @@ textarea
     background-color: #EAEAEA
     border: 1px solid #CDCDCD
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, #EAEAEA), color-stop(1, #EAEAEA)) !important
-  textarea.super-shortcode-field
-    min-height: 100px
-    padding: 10px 15px 10px 15px
   &.super-icon-inside.super-icon-left .super-shortcode-field, &.super-icon-outside.super-icon-left
     padding-left: 40px
 
@@ -3117,8 +3092,6 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-full-rounded.super-field-size-medium
   .super-field .super-field-wrapper
-    textarea.super-shortcode-field
-      padding: 10px 20px 10px 20px
     .super-shortcode-field
       padding: 0px 20px
     .super-dropdown-ui .super-item
@@ -3331,8 +3304,6 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-full-rounded.super-field-size-large
   .super-field .super-field-wrapper
-    textarea.super-shortcode-field
-      padding: 10px 20px 10px 20px
     .super-shortcode-field
       padding: 0px 20px
     .super-dropdown-ui .super-item
@@ -3553,13 +3524,9 @@ ul.super-multipart-steps .super-multipart-step
   .super-toggle-prefix-label, .super-toggle-suffix-label
     height: 53px
     line-height: 53px
-  .super-field .super-field-wrapper textarea.super-shortcode-field
-    padding: 15px 15px 15px 15px
 
 .super-full-rounded.super-field-size-huge
   .super-field .super-field-wrapper
-    textarea.super-shortcode-field
-      padding: 15px 25px 15px 25px
     .super-shortcode-field
       padding: 0px 25px
     .super-dropdown-ui .super-item
@@ -4173,8 +4140,6 @@ ul.super-multipart-steps .super-multipart-step
 .super-sale-price
   color: green
 
-
-
 .super-checkbox .super-item.super-has-image,
 .super-radio .super-item.super-has-image
   display: inline-block
@@ -4182,34 +4147,13 @@ ul.super-multipart-steps .super-multipart-step
   text-align: center
   margin: 0px 0px 0px 0px
 
-
-
-
-// Vertical list radio/checkbox
-.super-field-size-medium
-  .display-vertical
-    //border: 1px solid blue
-.super-field-size-large
-  .display-vertical
-    //border: 2px solid blue
-.super-field-size-huge
-  .display-vertical
-    //border: 3px solid blue
-
 // Horizontal list radio/checkbox
 .super-field-size-medium
   .display-horizontal
-    //border: 1px solid red
     .super-item
       padding: 8px 0px 8px 25px
       &:not(.super-has-image)
         padding: 5px 25px 5px 25px
-.super-field-size-large
-  .display-horizontal
-    //border: 2px solid red
-.super-field-size-huge
-  .display-horizontal
-    //border: 3px solid red
 
 // Grid radio/checkbox    
 .super-field-size-medium
@@ -4261,6 +4205,128 @@ ul.super-multipart-steps .super-multipart-step
       &:after
         left: 22px
 
+/* Adaptive Placeholder Theme Sizes */
+.super-field-size-medium
+  .super-adaptive-placeholder
+    height: 33px
+.super-field-size-large
+  .super-adaptive-placeholder
+    height: 43px
+.super-field-size-huge
+  .super-adaptive-placeholder
+    height: 53px
+
+.super-field-size-medium
+  .super-focus .super-adaptive-placeholder,
+  .super-filled .super-adaptive-placeholder,
+  .super-adaptive-positioning
+    &:before
+      transform: translate(0px, -15px)
+.super-field-size-large
+  .super-focus .super-adaptive-placeholder,
+  .super-filled .super-adaptive-placeholder,
+  .super-adaptive-positioning
+    &:before
+      transform: translate(0px, -20px)
+.super-field-size-huge
+  .super-focus .super-adaptive-placeholder,
+  .super-filled .super-adaptive-placeholder,
+  .super-adaptive-positioning
+    &:before
+      transform: translate(0px, -25px)
+
+.super-field-size-medium
+  .super-adaptive-positioning:before
+    margin-left: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-left: 5px
+.super-field-size-large
+  .super-adaptive-positioning:before
+    margin-left: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-left: 5px
+.super-field-size-huge
+  .super-adaptive-positioning:before
+    margin-left: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-left: 5px
+.super-full-rounded
+  &.super-field-size-medium
+    .super-adaptive-positioning:before
+      margin-left: 2px
+    .super-focus .super-adaptive-positioning:before
+      margin-left: 8px
+  &.super-field-size-large
+    .super-adaptive-positioning:before
+      margin-left: 4px
+    .super-focus .super-adaptive-positioning:before
+      margin-left: 12px
+  &.super-field-size-huge
+    .super-adaptive-positioning:before
+      margin-left: 7px
+    .super-focus .super-adaptive-positioning:before
+      margin-left: 17px
+
+
+.super-rtl.super-field-size-medium
+  .super-adaptive-positioning:before
+    margin-left: 0
+  .super-focus .super-adaptive-positioning:before
+    margin-right: 0
+.super-rtl.super-field-size-medium
+  .super-adaptive-positioning:before
+    margin-right: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-right: 5px
+.super-rtl.super-field-size-large
+  .super-adaptive-positioning:before
+    margin-right: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-right: 5px
+.super-rtl.super-field-size-huge
+  .super-adaptive-positioning:before
+    margin-right: -2px
+  .super-focus .super-adaptive-positioning:before
+    margin-right: 5px
+.super-rtl.super-full-rounded
+  &.super-field-size-medium
+    .super-adaptive-positioning:before
+      margin-right: 2px
+    .super-focus .super-adaptive-positioning:before
+      margin-right: 8px
+  &.super-field-size-large
+    .super-adaptive-positioning:before
+      margin-right: 4px
+    .super-focus .super-adaptive-positioning:before
+      margin-right: 12px
+  &.super-field-size-huge
+    .super-adaptive-positioning:before
+      margin-right: 7px
+    .super-focus .super-adaptive-positioning:before
+      margin-right: 17px
+
+.super-field-size-medium
+  .super-field .super-field-wrapper textarea.super-shortcode-field
+    min-height: 100px
+    padding: 8px 15px 8px 15px
+.super-field-size-large
+  .super-field .super-field-wrapper textarea.super-shortcode-field
+    min-height: 120px
+    padding: 13px 15px 13px 15px
+.super-field-size-huge
+  .super-field .super-field-wrapper textarea.super-shortcode-field
+    min-height: 140px
+    padding: 18px 15px 18px 15px
+.super-full-rounded
+  &.super-field-size-medium
+    .super-field .super-field-wrapper textarea.super-shortcode-field
+      padding: 8px 20px 8px 20px
+  &.super-field-size-large
+    .super-field .super-field-wrapper textarea.super-shortcode-field
+      padding: 13px 20px 13px 20px
+  &.super-field-size-huge
+    .super-field .super-field-wrapper textarea.super-shortcode-field
+      padding: 18px 25px 18px 25px
 
 .super-tabs.super-prev-next >
   .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next

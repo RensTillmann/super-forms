@@ -1,3 +1,6 @@
+Jan 20, 2020 - Version 1.5.1
+- Fix: JavaScript error `TypeError: $form.parents is not a function` when using Multi-part inside popup
+
 Jan 07, 2020 - Version 1.5.0
 - Replaced deprecated function with new one
 - Improved: Possibility to activate other popup from within another popup

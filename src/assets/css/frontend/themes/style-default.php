@@ -65,10 +65,6 @@ if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true'
     }
 }
 
-
-
-
-
 // @since 3.3.0
 if( !isset( $v['theme_ui_checkbox_border'] ) ) $v['theme_ui_checkbox_border'] = '#4EB1B6';
 if( !isset( $v['theme_ui_checkbox_inner'] ) ) $v['theme_ui_checkbox_inner'] = '#4EB1B6';
@@ -93,6 +89,29 @@ if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4E
 if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
 
+// @since 4.9.3 - Adaptive Placeholders */
+$bottom = $v['adaptive_placeholder_bg_bottom_focus'];
+$top = $v['adaptive_placeholder_bg_top_focus'];
+$placeholder_bg_focus = "
+".$s.".super-focus .super-adaptive-placeholder:before,
+".$s.".super-adaptive-positioning:before {
+    background: ".$bottom."; /* Old browsers */
+    background: -moz-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, ".$top." 50%, ".$bottom." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$top."', endColorstr='".$bottom."', GradientType=0 ); /* IE6-9 */
+}";
+$bottom = $v['adaptive_placeholder_bg_bottom_filled'];
+$top = $v['adaptive_placeholder_bg_top_filled'];
+$placeholder_bg_filled = "
+".$s.".super-filled .super-adaptive-placeholder:before {
+    background: ".$bottom."; /* Old browsers */
+    background: -moz-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, ".$top." 50%, ".$bottom." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$top."', endColorstr='".$bottom."', GradientType=0 ); /* IE6-9 */
+}";
+
 return $import_fonts."
 
 /* @since 4.9.3 - Adaptive Placeholders */
@@ -105,33 +124,23 @@ return $import_fonts."
 /* Focused Colors */
 ".$s.".super-focus .super-adaptive-placeholder:before,
 ".$s.".super-adaptive-positioning:before {
-  color:".(!empty($v['adaptive_placeholder_focus']) ? $v['adaptive_placeholder_focus'] : $v['theme_field_colors_border']).";
+  color:".$v['adaptive_placeholder_focus'].";
   ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
 }
 /* Filled Colors */
 ".$s.".super-filled .super-adaptive-placeholder:before {
-  color:".(!empty($v['adaptive_placeholder_filled']) ? $v['adaptive_placeholder_filled'] : $v['theme_field_colors_border']).";
+  color:".$v['adaptive_placeholder_filled'].";
   ".(!empty($v['adaptive_placeholder_border_filled']) ? 'border:1px solid '.$v['adaptive_placeholder_border_filled'] : 'border: 0' ).";
 }
+/* Filled + Focus Colors */
+".$s.".super-focus.super-filled .super-adaptive-placeholder:before {
+    color:".$v['adaptive_placeholder_focus'].";
+    ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
+}
+
 /* Background Colors */
-".$s.".super-focus .super-adaptive-placeholder:before,
-".$s.".super-adaptive-positioning:before {
-  background: ".$v['adaptive_placeholder_bg_top_focus']."; /* Old browsers */
-  background: -moz-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%, ".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_focus']." 50%,".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom,  ".$v['adaptive_placeholder_bg_top_focus']." 50%,".$v['adaptive_placeholder_bg_bottom_focus']." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$v['adaptive_placeholder_bg_top_focus']."', endColorstr='".$v['adaptive_placeholder_bg_bottom_focus']."',GradientType=0 ); /* IE6-9 */
-}
-".$s.".super-filled .super-adaptive-placeholder:before {
-  background: ".$v['adaptive_placeholder_bg_top_filled']."; /* Old browsers */
-  background: -moz-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_filled']." 50%, ".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top,  ".$v['adaptive_placeholder_bg_top_filled']." 50%,".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom,  ".$v['adaptive_placeholder_bg_top_filled']." 50%,".$v['adaptive_placeholder_bg_bottom_filled']." 50%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='".$v['adaptive_placeholder_bg_top_filled']."', endColorstr='".$v['adaptive_placeholder_bg_bottom_filled']."',GradientType=0 ); /* IE6-9 */
-}
-
-
-
+".$placeholder_bg_focus."
+".$placeholder_bg_filled."
 
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";

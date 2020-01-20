@@ -941,30 +941,11 @@ h1.super-thanks-title {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-}
-
-.super-focus .super-adaptive-placeholder:before {
   transition-duration: 0.1s;
-  transform: translate(-5px, -25px);
 }
 
 .super-filled .super-adaptive-placeholder:before {
-  transition-duration: 0.1s;
-  transform: translate(-5px, -25px);
   content: attr(data-placeholderFilled);
-}
-
-.super-textarea .super-adaptive-placeholder {
-  align-items: flex-start;
-  margin-top: 7px;
-}
-
-.super-field-size-large .super-textarea .super-adaptive-placeholder {
-  margin-top: 12px;
-}
-
-.super-field-size-huge .super-textarea .super-adaptive-placeholder {
-  margin-top: 16px;
 }
 
 /* Default Theme & Size */
@@ -972,9 +953,9 @@ h1.super-thanks-title {
 .super-filled .super-adaptive-placeholder:before,
 .super-adaptive-positioning:before {
   font-size: 10px !important;
-  transform: translate(0px, -15px);
   border: 0 !important;
   padding: 0px 4px 0px 4px;
+  line-height: 10px;
 }
 
 /* Large size */
@@ -982,7 +963,8 @@ h1.super-thanks-title {
 .super-field-size-large .super-filled .super-adaptive-placeholder:before,
 .super-field-size-large .super-adaptive-positioning:before {
   font-size: 11px !important;
-  transform: translate(0px, -20px);
+  line-height: 14px;
+  transform: translate(0px, -15px);
 }
 
 /* Huge size */
@@ -990,18 +972,17 @@ h1.super-thanks-title {
 .super-field-size-huge .super-filled .super-adaptive-placeholder:before,
 .super-field-size-huge .super-adaptive-positioning:before {
   font-size: 12px !important;
-  transform: translate(0px, -25px);
+  line-height: 16px;
+  transform: translate(0px, -22px);
 }
 
 /* Full rounded theme */
 .super-full-rounded .super-focus .super-adaptive-placeholder:before,
-.super-full-rounded .super-filled .super-adaptive-placeholder:before,
-.super-full-rounded .super-adaptive-positioning {
+.super-full-rounded .super-filled .super-adaptive-placeholder:before {
   margin-left: 2px;
 }
 .super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
-.super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
-.super-full-rounded.super-field-size-huge .super-adaptive-positioning {
+.super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before {
   margin-left: 7px;
 }
 .super-full-rounded .super-focus .super-adaptive-placeholder:before,
@@ -1049,17 +1030,6 @@ h1.super-thanks-title {
 }
 .super-rtl.super-field-size-huge.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-adaptive-placeholder {
   padding-right: 40px;
-}
-
-/* RTL Icons Inside - Icons Right */
-.super-rtl.super-full-rounded .super-icon-inside.super-icon-right textarea.super-shortcode-field {
-  padding-top: 10px;
-}
-.super-rtl.super-full-rounded.super-field-size-large .super-icon-inside.super-icon-right textarea.super-shortcode-field {
-  padding-top: 10px;
-}
-.super-rtl.super-full-rounded.super-field-size-huge .super-icon-inside.super-icon-right textarea.super-shortcode-field {
-  padding-top: 15px;
 }
 
 .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-adaptive-placeholder {
@@ -1411,10 +1381,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   background-color: #EAEAEA;
   border: 1px solid #CDCDCD;
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, #EAEAEA), color-stop(1, #EAEAEA)) !important;
-}
-.super-field .super-field-wrapper textarea.super-shortcode-field {
-  min-height: 100px;
-  padding: 10px 15px 10px 15px;
 }
 .super-field .super-field-wrapper.super-icon-inside.super-icon-left .super-shortcode-field, .super-field .super-field-wrapper.super-icon-outside.super-icon-left {
   padding-left: 40px;
@@ -3841,9 +3807,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   line-height: 33px;
 }
 
-.super-full-rounded.super-field-size-medium .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 10px 20px 10px 20px;
-}
 .super-full-rounded.super-field-size-medium .super-field .super-field-wrapper .super-shortcode-field {
   padding: 0px 20px;
 }
@@ -4097,9 +4060,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   line-height: 43px;
 }
 
-.super-full-rounded.super-field-size-large .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 10px 20px 10px 20px;
-}
 .super-full-rounded.super-field-size-large .super-field .super-field-wrapper .super-shortcode-field {
   padding: 0px 20px;
 }
@@ -4368,13 +4328,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   height: 53px;
   line-height: 53px;
 }
-.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 15px 15px 15px 15px;
-}
 
-.super-full-rounded.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
-  padding: 15px 25px 15px 25px;
-}
 .super-full-rounded.super-field-size-huge .super-field .super-field-wrapper .super-shortcode-field {
   padding: 0px 25px;
 }
@@ -5195,6 +5149,149 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-field-size-huge .display-slider .super-item:after {
   left: 22px;
+}
+
+/* Adaptive Placeholder Theme Sizes */
+.super-field-size-medium .super-adaptive-placeholder {
+  height: 33px;
+}
+
+.super-field-size-large .super-adaptive-placeholder {
+  height: 43px;
+}
+
+.super-field-size-huge .super-adaptive-placeholder {
+  height: 53px;
+}
+
+.super-field-size-medium .super-focus .super-adaptive-placeholder:before,
+.super-field-size-medium .super-filled .super-adaptive-placeholder:before,
+.super-field-size-medium .super-adaptive-positioning:before {
+  transform: translate(0px, -15px);
+}
+
+.super-field-size-large .super-focus .super-adaptive-placeholder:before,
+.super-field-size-large .super-filled .super-adaptive-placeholder:before,
+.super-field-size-large .super-adaptive-positioning:before {
+  transform: translate(0px, -20px);
+}
+
+.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
+.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
+.super-field-size-huge .super-adaptive-positioning:before {
+  transform: translate(0px, -25px);
+}
+
+.super-field-size-medium .super-adaptive-positioning:before {
+  margin-left: -2px;
+}
+.super-field-size-medium .super-focus .super-adaptive-positioning:before {
+  margin-left: 5px;
+}
+
+.super-field-size-large .super-adaptive-positioning:before {
+  margin-left: -2px;
+}
+.super-field-size-large .super-focus .super-adaptive-positioning:before {
+  margin-left: 5px;
+}
+
+.super-field-size-huge .super-adaptive-positioning:before {
+  margin-left: -2px;
+}
+.super-field-size-huge .super-focus .super-adaptive-positioning:before {
+  margin-left: 5px;
+}
+
+.super-full-rounded.super-field-size-medium .super-adaptive-positioning:before {
+  margin-left: 2px;
+}
+.super-full-rounded.super-field-size-medium .super-focus .super-adaptive-positioning:before {
+  margin-left: 8px;
+}
+.super-full-rounded.super-field-size-large .super-adaptive-positioning:before {
+  margin-left: 4px;
+}
+.super-full-rounded.super-field-size-large .super-focus .super-adaptive-positioning:before {
+  margin-left: 12px;
+}
+.super-full-rounded.super-field-size-huge .super-adaptive-positioning:before {
+  margin-left: 7px;
+}
+.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-positioning:before {
+  margin-left: 17px;
+}
+
+.super-rtl.super-field-size-medium .super-adaptive-positioning:before {
+  margin-left: 0;
+}
+.super-rtl.super-field-size-medium .super-focus .super-adaptive-positioning:before {
+  margin-right: 0;
+}
+
+.super-rtl.super-field-size-medium .super-adaptive-positioning:before {
+  margin-right: -2px;
+}
+.super-rtl.super-field-size-medium .super-focus .super-adaptive-positioning:before {
+  margin-right: 5px;
+}
+
+.super-rtl.super-field-size-large .super-adaptive-positioning:before {
+  margin-right: -2px;
+}
+.super-rtl.super-field-size-large .super-focus .super-adaptive-positioning:before {
+  margin-right: 5px;
+}
+
+.super-rtl.super-field-size-huge .super-adaptive-positioning:before {
+  margin-right: -2px;
+}
+.super-rtl.super-field-size-huge .super-focus .super-adaptive-positioning:before {
+  margin-right: 5px;
+}
+
+.super-rtl.super-full-rounded.super-field-size-medium .super-adaptive-positioning:before {
+  margin-right: 2px;
+}
+.super-rtl.super-full-rounded.super-field-size-medium .super-focus .super-adaptive-positioning:before {
+  margin-right: 8px;
+}
+.super-rtl.super-full-rounded.super-field-size-large .super-adaptive-positioning:before {
+  margin-right: 4px;
+}
+.super-rtl.super-full-rounded.super-field-size-large .super-focus .super-adaptive-positioning:before {
+  margin-right: 12px;
+}
+.super-rtl.super-full-rounded.super-field-size-huge .super-adaptive-positioning:before {
+  margin-right: 7px;
+}
+.super-rtl.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-positioning:before {
+  margin-right: 17px;
+}
+
+.super-field-size-medium .super-field .super-field-wrapper textarea.super-shortcode-field {
+  min-height: 100px;
+  padding: 8px 15px 8px 15px;
+}
+
+.super-field-size-large .super-field .super-field-wrapper textarea.super-shortcode-field {
+  min-height: 120px;
+  padding: 13px 15px 13px 15px;
+}
+
+.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
+  min-height: 140px;
+  padding: 18px 15px 18px 15px;
+}
+
+.super-full-rounded.super-field-size-medium .super-field .super-field-wrapper textarea.super-shortcode-field {
+  padding: 8px 20px 8px 20px;
+}
+.super-full-rounded.super-field-size-large .super-field .super-field-wrapper textarea.super-shortcode-field {
+  padding: 13px 20px 13px 20px;
+}
+.super-full-rounded.super-field-size-huge .super-field .super-field-wrapper textarea.super-shortcode-field {
+  padding: 18px 25px 18px 25px;
 }
 
 .super-tabs.super-prev-next > .super-tabs-contents > .super-content-prev, .super-tabs.super-prev-next > .super-tabs-contents > .super-content-next {
