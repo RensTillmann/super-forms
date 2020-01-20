@@ -178,7 +178,7 @@ if(!class_exists('SUPER_Stripe')) :
             'UAH'=>array('symbol'=>'₴'),
             'UGX'=>array('symbol'=>'USh'),
             'UYU*'=>array('symbol'=>'$U'),
-            'UZS'=>array('symbol'=>'so\'m'),
+            'UZS'=>array('symbol'=>'so’m'),
             'VND'=>array('symbol'=>'₫','format'=>'0'),
             'VUV'=>array('symbol'=>'VT'),
             'WST'=>array('symbol'=>'SAT'),
@@ -424,8 +424,8 @@ if(!class_exists('SUPER_Stripe')) :
                         'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
                         'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
                         'requested_by_customer' => esc_html__( 'Add more details about this refund', 'super-forms' ),
-                        'other' => esc_html__( 'Add a reason for this\' refund', 'super-forms' ),
-                        'other_note' => sprintf( esc_html__( 'A note is required when a provided reason isn%st selected', 'super-forms' ), '\'' )
+                        'other' => esc_html__( 'Add a reason for this refund', 'super-forms' ),
+                        'other_note' => esc_html__( 'A note is required when a provided reason isn’t selected', 'super-forms' )
                     ),
                     'declineCodes' => array(
                         'authentication_required' => array(
@@ -529,7 +529,7 @@ if(!class_exists('SUPER_Stripe')) :
                             'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
                         ),
                         'merchant_blacklist' => array(
-                            'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user\'s block list.', 'super-forms' ),
+                            'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user’s block list.', 'super-forms' ),
                             'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
                         ),
                         'new_account_information_available' => array(
@@ -2443,7 +2443,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                         'chargeable' => esc_html__( 'Completing your order...', 'super_forms' ),
                         'consumed' => sprintf( 
-                            esc_html__( '%sThank you for your order!%s%sWe\'ll send your receipt as soon as your payment is confirmed.%s', 'super_forms' ), 
+                            esc_html__( '%sThank you for your order!%s%sWe’ll send your receipt as soon as your payment is confirmed.%s', 'super_forms' ), 
                             '<div class="title">', 
                             '</div>', 
                             '<div class="description">', 
@@ -2462,7 +2462,7 @@ if(!class_exists('SUPER_Stripe')) :
                             '</div>'
                         ),
                         'failed' => sprintf( 
-                            esc_html__( '%sPayment failed!%s%sWe couldn\'t process your order.%s', 'super_forms' ), 
+                            esc_html__( '%sPayment failed!%s%sWe couldn’t process your order.%s', 'super_forms' ), 
                             '<div class="title">', 
                             '</div>', 
                             '<div class="description">', 
@@ -2694,7 +2694,7 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                     'stripe_statement_descriptor' => array(
                         'name' => esc_html__( 'Statement descriptor', 'super-forms' ),
-                        'label' => esc_html__( 'You can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters. An arbitrary string to be displayed on your customer\'s statement. As an example, if your website is "RunClub" and the item you\'re charging for is a race ticket, you may want to specify "RunClub 5K race ticket".', 'super-forms' ),
+                        'label' => esc_html__( 'You can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters. An arbitrary string to be displayed on your customer’s statement. As an example, if your website is "RunClub" and the item you’re charging for is a race ticket, you may want to specify "RunClub 5K race ticket".', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_statement_descriptor', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'stripe_checkout_advanced',
@@ -2704,7 +2704,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // Owner
                     'stripe_email' => array(
-                        'name' => esc_html__( 'Owner\'s email address', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s email address', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_email', $settings['settings'], '' ),
                         'filter' => true,
@@ -2712,7 +2712,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_name' => array(
-                        'name' => esc_html__( 'Owner\'s full name', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s full name', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_name', $settings['settings'], '' ),
                         'filter' => true,
@@ -2720,7 +2720,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_city' => array(
-                        'name' => esc_html__( 'Owner\'s City', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s City', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_city', $settings['settings'], '' ),
                         'filter' => true,
@@ -2728,7 +2728,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_country' => array(
-                        'name' => esc_html__( 'Owner\'s Country', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s Country', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_country', $settings['settings'], '' ),
                         'filter' => true,
@@ -2736,7 +2736,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_line1' => array(
-                        'name' => esc_html__( 'Owner\'s Address line1', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s Address line1', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_line1', $settings['settings'], '' ),
                         'filter' => true,
@@ -2744,7 +2744,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_line2' => array(
-                        'name' => esc_html__( 'Owner\'s Address line 2', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s Address line 2', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_line2', $settings['settings'], '' ),
                         'filter' => true,
@@ -2752,7 +2752,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_postal_code' => array(
-                        'name' => esc_html__( 'Owner\'s Postal code', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s Postal code', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_postal_code', $settings['settings'], '' ),
                         'filter' => true,
@@ -2760,7 +2760,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_state' => array(
-                        'name' => esc_html__( 'Owner\'s State', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s State', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_state', $settings['settings'], '' ),
                         'filter' => true,
@@ -2768,7 +2768,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
                     'stripe_phone' => array(
-                        'name' => esc_html__( 'Owner\'s phone number', 'super-forms' ),
+                        'name' => esc_html__( 'Owner’s phone number', 'super-forms' ),
                         'label' => esc_html__( '(optional)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_phone', $settings['settings'], '' ),
                         'filter' => true,

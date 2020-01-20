@@ -576,6 +576,7 @@ if(!class_exists('SUPER_Register_Login')) :
                             'label' => $label,
                             'description'=> $description,
                             'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
+                            'placeholderFilled' => ( function_exists( 'SUPER_Shortcodes::placeholderFilled' ) ? SUPER_Shortcodes::placeholderFilled( $attributes, '' ) : SUPER_Shortcodes::placeholder( $attributes, '' ) ),
                             'tooltip' => $tooltip,
                         )
                     ),

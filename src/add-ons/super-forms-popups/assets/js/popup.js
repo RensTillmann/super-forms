@@ -2,14 +2,15 @@
 (function($) { // Hide scope, no $ conflict
 	"use strict";
 	// Prevent scrolling on validation
-	SUPER.init_before_scrolling_to_error_popup = function($proceed, $form, $scroll){
-        if($form.parents('.super-popup-content:eq(0)').length){
-            $form.parents('.super-popup-content:eq(0)').animate({
+	SUPER.init_before_scrolling_to_error_popup = function(proceed, form, $scroll){
+		var popupContent = form.closest('.super-popup-content');
+		if(popupContent.length){
+            $(popupContent).animate({
                 scrollTop: $scroll
             }, 1000);
-            $proceed = false;
+            proceed = false;
         }
-		return $proceed;
+		return proceed;
 	};
 
 	// Scroll to top of popup content after appending message

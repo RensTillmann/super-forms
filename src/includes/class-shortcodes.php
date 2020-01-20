@@ -1481,6 +1481,8 @@ class SUPER_Shortcodes {
         // @since 4.9.3 - Adaptive Placeholders
         // If adaptive placeholders is enabled, we will not want to use the default placeholders
         if(!isset($settings['enable_adaptive_placeholders'])) $settings['enable_adaptive_placeholders'] = '';
+        // Do not use Adaptive placeholder for minimal theme
+        if(!empty($settings['theme_style']) && $settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
         if( (empty($settings['enable_adaptive_placeholders'])) ) {
             if( !empty( $atts['default_placeholder'] ) ) {
                 $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
@@ -1572,8 +1574,10 @@ class SUPER_Shortcodes {
 
     // @since 4.9.3 - Adaptive Placeholders
     public static function adaptivePlaceholders( $settings, $atts, $tag ) {
+        if($settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
         if( (!empty($settings['enable_adaptive_placeholders'])) && (!empty($atts['placeholder'])) ) {
-            return '<span class="super-adaptive-placeholder'.(!empty($settings['placeholder_adaptive_positioning']) ? ' super-adaptive-positioning' : '').'" data-placeholder="'.esc_attr($atts['placeholder']).' (default)" data-placeholderFilled="' . esc_attr($atts['placeholder']) . ' (filled)"></span>';
+            if(empty($atts['placeholderFilled'])) $atts['placeholderFilled'] = $atts['placeholder'];
+            return '<span class="super-adaptive-placeholder' . (!empty($settings['placeholder_adaptive_positioning']) ? ' super-adaptive-positioning' : '') . '" data-placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholderFilled="' . esc_attr($atts['placeholderFilled']) . '"></span>';
         } 
     }
 
@@ -3967,8 +3971,11 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="password"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
+
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
@@ -4709,6 +4716,15 @@ class SUPER_Shortcodes {
             'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
             'name' => esc_html__( 'Placeholder', 'super-forms' ), 
             'desc' => esc_html__( 'Indicate what the user needs to enter or select. (leave blank to remove)', 'super-forms' ),
+            'i18n' => true
+        );
+        return $array;
+    }
+    public static function placeholderFilled( $attributes=null, $default=null ) {
+        $array = array(
+            'default' => ( !isset( $attributes['placeholder'] ) ? $default : $attributes['placeholder'] ),
+            'name' => esc_html__( 'Placeholder when the field is filled out', 'super-forms' ), 
+            'label' => '(' . esc_html__( 'only used when Adaptive Placeholders are enabled', 'super-forms' ) . ')',
             'i18n' => true
         );
         return $array;
