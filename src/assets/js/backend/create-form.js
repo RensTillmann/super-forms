@@ -1977,9 +1977,9 @@
             }
             field.value = selected;
             if(this.closest('.super-form-settings')){
-                SUPER.init_field_filter_visibility(this.closest('.super-field'));
+                SUPER.init_field_filter_visibility($(this.closest('.super-field')));
             }else{
-                SUPER.init_field_filter_visibility(this.closest('.super-field'), 'element_settings');
+                SUPER.init_field_filter_visibility($(this.closest('.super-field')), 'element_settings');
             }
         });
 
@@ -3168,7 +3168,7 @@
                 }
             }
             // Update filter items
-            SUPER.init_field_filter_visibility(item[0], 'element_settings');
+            SUPER.init_field_filter_visibility(item, 'element_settings');
             // Push updates
             SUPER.update_element_push_updates();
         });
