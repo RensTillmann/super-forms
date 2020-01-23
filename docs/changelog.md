@@ -1,4 +1,4 @@
-### Jan 20, 2020 - Version 4.9.204
+### Jan 22, 2020 - Version 4.9.205
 - NEW: Adaptive Placeholders
 - Added: Option for Dropdown element to choose a `Filter logic` between `Contains` or `Starts with (from left to right)` so that when a user starts typing it either filters from the beginning of the string instead of doing a global search. This is useful for filtering countries, because you would want the user to jump to `Switzerland` when typing `Sw` and not to `Botswana`.
 - Improved: Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.

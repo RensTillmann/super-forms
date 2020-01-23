@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.2.0
+ * Version:     1.3.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.2.0';
+		public $version = '1.3.0';
 
 		
 		/**
@@ -1701,6 +1701,29 @@ if (!class_exists('SUPER_PayPal')):
 					$data = $atts['post']['data'];
 				}
 			}
+
+			// @since 1.3.0 - check if we do not want to checkout to PayPal conditionally
+			if( !empty($settings['conditionally_paypal_checkout']) ) {
+				$settings['paypal_checkout'] = '';
+				if( !empty($settings['conditionally_paypal_checkout_check']) ) {
+					$values = explode(',', $settings['conditionally_paypal_checkout_check']);
+					// let's replace tags with values
+					foreach( $values as $k => $v ) {
+						$values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
+					}
+					if(!isset($values[0])) $values[0] = '';
+					if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+					if(!isset($values[2])) $values[2] = '';
+					// if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
+					if( ($values[0]!='') || ($values[2]!='') ) {
+						// Check if values match eachother
+						if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
+							$settings['paypal_checkout'] = 'true';
+						}
+					}
+				}
+			}
+
 			if ((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')) {
 				if (!isset($settings['paypal_mode'])) $settings['paypal_mode'] = '';
 				if (!isset($settings['paypal_payment_type'])) $settings['paypal_payment_type'] = 'product';
@@ -2152,6 +2175,29 @@ if (!class_exists('SUPER_PayPal')):
 						'filter' => true,
 						'parent' => 'paypal_checkout',
 						'filter_value' => 'true',
+					),
+					// @since 1.3.0 - Conditionally PayPal Checkout
+					'conditionally_paypal_checkout' => array(
+						'hidden_setting' => true,
+						'default' => SUPER_Settings::get_value(0, 'conditionally_paypal_checkout', $settings['settings'], '' ),
+						'type' => 'checkbox',
+						'filter'=>true,
+						'values' => array(
+							'true' => esc_html__( 'Conditionally checkout to PayPal', 'super-forms' ),
+						),
+						'parent' => 'paypal_checkout',
+						'filter_value' => 'true'
+					),
+					'conditionally_paypal_checkout_check' => array(
+						'hidden_setting' => true,
+						'type' => 'conditional_check',
+						'name' => esc_html__( 'Only checkout to PayPal when following condition is met', 'super-forms' ),
+						'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
+						'default' => SUPER_Settings::get_value(0, 'conditionally_paypal_checkout_check', $settings['settings'], '' ),
+						'placeholder' => "{fieldname},value",
+						'filter'=>true,
+						'parent' => 'conditionally_paypal_checkout',
+						'filter_value' => 'true'
 					),
 					'paypal_merchant_email' => array(
 						'name' => esc_html__( 'PayPal merchant email (to receive payments)', 'super-forms' ),

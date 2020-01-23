@@ -3338,7 +3338,7 @@ function SUPERreCaptcha(){
                                 });
                             }
                         } else {
-                            alert('Geocode was not successful for the following reason: ' + status);
+                            console.log('Geocode was not successful for the following reason: ' + status);
                         }
                     });
                 }
