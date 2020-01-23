@@ -519,7 +519,6 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                         }
                         wp_set_object_terms( $post_id, $tax_input_array, $cat_taxonomy );
                     }
-                    exit;
 
                     // Collect tags from the field tags_input
                     if( $tags_input!='' ) {
