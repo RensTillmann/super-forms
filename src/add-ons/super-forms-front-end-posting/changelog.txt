@@ -1,3 +1,6 @@
+Jan 23, 2020 - Version 1.5.0
+- Added: Option to save multiple taxonomies and categories when creating a post
+
 Jan 15, 2020 - Version 1.4.2
 - Fix: Compatibility with ACF and ACF Pro: If the meta key does not exist in ACF, we must save it as regular metadata, instead of trying to save through ACF function (this is for instance the case with `_sku`, used by WooCommerce products)
                             
