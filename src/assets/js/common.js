@@ -1874,12 +1874,9 @@ function SUPERreCaptcha(){
     // Check for errors, validate fields
     SUPER.handle_validations = function(el, validation, conditionalValidation, duration, form) {
         if(el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
-        var i, nodes,
-            parent = el.closest('.super-field'),
+        var parent = el.closest('.super-field'),
             result,
             error = false,
-            isEmpty = false,
-            isEmptyError = false,
             regex,
             value,
             numbers,
@@ -1899,24 +1896,34 @@ function SUPERreCaptcha(){
             index,
             checked,
             custom_regex = (el.parentNode.querySelector('.super-custom-regex') ? el.parentNode.querySelector('.super-custom-regex').value : undefined), // @since 1.2.5 - custom regex
-            may_be_empty = el.dataset.mayBeEmpty,
+            mayBeEmpty = el.dataset.mayBeEmpty,
+            allowEmpty = false,
             urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
-
-        if( (may_be_empty===true) && (el.value.length===0) ) {
-            return false;
-        }
-
-        nodes = form.querySelectorAll('.super-field.conditional[data-conditionalfield="'+el.name+'"]');
-        for (i = 0; i < nodes.length; ++i) {
-            if(nodes[i].dataset.conditionalvalue==el.value){
-                nodes[i].classList.add('super-active');
-                nodes[i].querySelector.dataset.excludeconditional = '0';
-            }else{
-                nodes[i].classList.remove('super-active');
-                nodes[i].querySelector.dataset.excludeconditional = '1';
+        
+        // @since   4.9.0 -  Conditional required fields
+        // Before we proceed, check if field is empty
+        if (el.value === '') {
+            // If it is empty, check if it allowed to be empty
+            if (typeof mayBeEmpty !== 'undefined') {
+                if (mayBeEmpty == 'false') {
+                    allowEmpty = false; // Do not allow field to be empty
+                }
+                if (mayBeEmpty == 'true') {
+                    allowEmpty = true; // Allow field to be empty
+                }
+                if (mayBeEmpty == 'conditions') {
+                    // Allow field to be empty only when following conditions are met
+                    allowEmpty = true; 
+                    conditions = parent.querySelectorAll('.super-validate-conditions');
+                    if (conditions) {
+                        result = SUPER.conditional_logic.loop(el, form, false, conditions); // returns (bool) true when condition is not met
+                        if (!result) {
+                            allowEmpty = false; // when condition is met, we do not allow field to be empty
+                        }
+                    }
+                }
             }
         }
-
         if( custom_regex ) {
             regex = new RegExp(custom_regex);
             if(!regex.test(el.value)) error = true;
@@ -1931,20 +1938,6 @@ function SUPERreCaptcha(){
         if (validation == 'float') {
             regex = /^[+-]?\d+(\.\d+)?$/;
             if (!regex.test(el.value)) error = true;
-        }
-        if (validation == 'empty') {
-            if(parent.classList.contains('super-keyword-tags')){
-                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
-                if(total===0) {
-                    isEmpty = true;
-                    isEmptyError = true;
-                }
-            }else{
-                if(SUPER.trim(el.value)==='') {
-                    isEmpty = true;
-                    isEmptyError = true;
-                }
-            }
         }
         if (validation == 'email') {
             if ((el.value.length < 4) || (!/^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test(el.value))) {
@@ -1965,12 +1958,10 @@ function SUPERreCaptcha(){
             pattern = new RegExp(urlRegex);
             if(!pattern.test(el.value)) error = true;
         }
-
         // @since 2.6.0 - IBAN validation
         if (validation == 'iban') {
             if( (IBAN.isValid(el.value)===false) && (el.value!=='') ) error = true;
         }
-
         attr = el.dataset.minlength;
         if (typeof attr !== 'undefined' && attr !== false) {
             text_field = true;
@@ -1998,7 +1989,6 @@ function SUPERreCaptcha(){
                 }
             }       
         }
-
         attr = el.dataset.maxlength;
         if (typeof attr !== 'undefined' && attr !== false) {
             text_field = true;
@@ -2024,7 +2014,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-
         attr = el.dataset.minnumber;
         if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
@@ -2045,7 +2034,6 @@ function SUPERreCaptcha(){
                 if( parseFloat(el.value) < parseFloat(attr) ) error = true;
             }
         }
-
         attr = el.dataset.maxnumber;
         if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
@@ -2064,7 +2052,6 @@ function SUPERreCaptcha(){
                 if( parseFloat(el.value) > parseFloat(attr) ) error = true;
             }
         }
-
         // @since   1.0.6
         logic = conditionalValidation;
         if( typeof logic!=='undefined' && logic!='none' && logic!=='' ) {
@@ -2116,23 +2103,6 @@ function SUPERreCaptcha(){
             if( (logic=='greater_than_or_equal_or_less_than_or_equal') && ((field_value>=value) || (field_value<=value2)) ) counter++;
             if(counter===0) error = true;
         }
-        
-        // @since   4.9.0 -  Conditional required fields
-        // Allow field to be empty, but not if the following conditions are met
-        // Check if field is empty
-        if(isEmpty && may_be_empty=='conditions'){
-            conditions = parent.querySelectorAll('.super-validate-conditions');
-            if(conditions){
-                result = SUPER.conditional_logic.loop(el, form, false, conditions);
-                // false = condition is met
-                if( result ) {
-                    isEmptyError = false;
-                    // true = condition is not met, this means the field is validated, and no errors need to be printed
-                    // if there where errors from previous validation we will delete them below
-                }
-            }
-        }
-
         // @since 4.3.0 - extra validation check for files
         if(el.classList.contains('super-fileupload')){
             attr = el.parentNode.querySelector('.super-active-files').dataset.minfiles;
@@ -2149,9 +2119,11 @@ function SUPERreCaptcha(){
                 error = true;
             }
         }
-        // Check if a general error occured, and check for any fields that failed to Conditionally validate (for conditionally required field)
-        if(error || isEmptyError){
-            error = true;
+        // Display error messages
+        if(allowEmpty && el.value===''){
+            error = false;
+        }
+        if(error){
             SUPER.handle_errors(el);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
@@ -2160,7 +2132,7 @@ function SUPERreCaptcha(){
         }else{
             el.closest('.super-field').classList.remove('super-error-active');
         }
-        
+        // Remove error class from Multi-part if no more errors where found
         if( el.closest('.super-multipart') && 
             el.closest('.super-multipart').querySelector('.super-error-active') &&
             el.closest('.super-multipart').querySelector('.super-error-active').length===0){
@@ -5159,7 +5131,7 @@ function SUPERreCaptcha(){
             $name;
         if(typeof $this ==='undefined'){
             $nodes = $('.super-elements-container .super-field.super-filter[data-filtervalue], .super-settings .super-field.super-filter[data-filtervalue]');
-            $nodes.addClass('hidden');
+            $nodes.addClass('super-hidden');
         }else{
             $name = $this.find('.element-field').attr('name');
             $nodes =  $('.super-elements-container .super-field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
@@ -5187,7 +5159,7 @@ function SUPERreCaptcha(){
             if(typeof $value==='undefined') $value = '';
             $parent = $parent.parents('.super-field.super-filter:eq(0)');
 
-            $visibility = $parent.hasClass('hidden');
+            $visibility = $parent.hasClass('super-hidden');
             if($visibility===true){
                 $visibility = 'hidden';
             }else{
@@ -5201,9 +5173,9 @@ function SUPERreCaptcha(){
                 }
             });
             if( ($value!=='') && ($match_found) && ($visibility!='hidden') ) {
-                $this.removeClass('hidden');
+                $this.removeClass('super-hidden');
             }else{
-                $this.addClass('hidden');
+                $this.addClass('super-hidden');
             }
             SUPER.init_field_filter_visibility($this, type);
         });
@@ -5456,6 +5428,7 @@ function SUPERreCaptcha(){
                 current,
                 placeholder,
                 nextIndex,
+                submitButton,
                 keyCode = e.keyCode || e.which;
 
             // 13 = enter
@@ -5474,7 +5447,8 @@ function SUPERreCaptcha(){
                         }
                         if( !element.classList.contains('super-textarea') ) {
                             if(!form.querySelector('.super-form-button.super-loading')){
-                                SUPER.validate_form( form, form.querySelector('.super-form-button .super-button-wrap'), undefined, e, true );
+                                submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]').parentNode;
+                                SUPER.validate_form( form, submitButton, undefined, e, true );
                             }
                             e.preventDefault();
                         }

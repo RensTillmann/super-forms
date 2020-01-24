@@ -1,3 +1,6 @@
+Jan 24, 2020 - Version 2.1.2
+- Fix: W3C validation error
+
 Jan 15, 2020 - Version 2.1.1
 - Fix: Datepicker and Calculator not working when `Return age for calculation fields` and `Enable birthdate calculations` are used together to return Age/Months/Days
 
