@@ -89,7 +89,15 @@ if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4E
 if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
 
+
 // @since 4.9.3 - Adaptive Placeholders */
+if( empty( $v['theme_field_colors_placeholder'] ) ) $v['theme_field_colors_placeholder'] = '#9a9a9a';
+if( empty( $v['adaptive_placeholder_focus'] ) ) $v['adaptive_placeholder_focus'] = '#4EB1B6';
+if( empty( $v['adaptive_placeholder_filled'] ) ) $v['adaptive_placeholder_filled'] = '#9a9a9a';
+if( empty( $v['adaptive_placeholder_bg_top_focus'] ) ) $v['adaptive_placeholder_bg_top_focus'] = '#ffffff';
+if( empty( $v['adaptive_placeholder_bg_bottom_focus'] ) ) $v['adaptive_placeholder_bg_bottom_focus'] = '#ffffff';
+if( empty( $v['adaptive_placeholder_bg_top_filled'] ) ) $v['adaptive_placeholder_bg_top_filled'] = '#ffffff';
+if( empty( $v['adaptive_placeholder_bg_bottom_filled'] ) ) $v['adaptive_placeholder_bg_bottom_filled'] = '#ffffff';
 $bottom = $v['adaptive_placeholder_bg_bottom_focus'];
 $top = $v['adaptive_placeholder_bg_top_focus'];
 $placeholder_bg_focus = "

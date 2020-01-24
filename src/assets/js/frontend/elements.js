@@ -2152,7 +2152,9 @@
                 this.closest('.super-shortcode').classList.add('super-focus');
             }
             input.onblur = function () {
-                this.closest('.super-shortcode').classList.remove('super-focus');
+                if(!this.closest('.super-shortcode').classList.contains('super-string-found')){
+                    this.closest('.super-shortcode').classList.remove('super-focus');
+                }
             }
             input.addEventListener('keyup', function () {
                 var parent = this.closest('.super-shortcode');

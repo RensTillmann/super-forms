@@ -134,6 +134,31 @@ class SUPER_Shortcodes {
 
 
     /** 
+     *  Get default value
+     *
+     *  @since      4.9.3
+    */
+    public static function get_default_value( $tag, $atts, $settings, $entry_data, $default='' ) {
+        // Check if we can find parameters
+        if( isset( $_GET[$atts['name']] ) ) {
+            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
+            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+        }
+        // Get the value for from entry data
+        if( !isset( $atts['value'] ) ) $atts['value'] = $default;
+        $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+        if(!empty($entry_data_value)){
+            $atts['value'] = $entry_data_value;
+        }
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+        // Add shortcode compatibility for default field value
+        $atts['value'] = do_shortcode($atts['value']);
+        return $atts['value'];
+    }
+
+
+    /** 
      *  Get all items by post_type
      *
      *  @since      1.0.0
@@ -1288,6 +1313,7 @@ class SUPER_Shortcodes {
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . $tag;
+        if(!empty($atts['value'])) $result .= ' super-filled';
 
         $align = '';
         if( isset( $atts['align'] ) ) $align = ' super-align-' . $atts['align'];
@@ -2419,6 +2445,9 @@ class SUPER_Shortcodes {
         if( $settings['theme_field_size']=='large' ) $atts['wrapper_width'] = $atts['wrapper_width']+20;
         if( $settings['theme_field_size']=='huge' ) $atts['wrapper_width'] = $atts['wrapper_width']+30;
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
+        
         $result = self::opening_tag( $tag, $atts );
         $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2428,17 +2457,6 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
 
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( empty($atts['value']) ) $atts['value'] = '0';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-        
         if( empty($atts['minnumber']) ) $atts['minnumber'] = 0;
         if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
 
@@ -2449,7 +2467,7 @@ class SUPER_Shortcodes {
             $atts['value'] = $atts['maxnumber'];
         }
 
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -2491,6 +2509,10 @@ class SUPER_Shortcodes {
             if($settings['theme_field_size']=='large') $atts['wrapper_width'] = $atts['wrapper_width']+20;
             if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+40;
         }
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
+
         $result = self::opening_tag( $tag, $atts );
         
         if(!isset($atts['prefix_label'])) $atts['prefix_label'] = '';
@@ -2503,17 +2525,6 @@ class SUPER_Shortcodes {
         }
 
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) $atts['value'] = '0';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         $toggle_active = false;
         if($atts['value']==$atts['on_value']){
@@ -2573,6 +2584,9 @@ class SUPER_Shortcodes {
             if($settings['theme_field_size']=='huge') $atts['wrapper_width'] = $atts['wrapper_width']+40;
         }
         
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
         $result = self::opening_tag( $tag, $atts );
 
         if( !isset($atts['prefix_label']) ) $atts['prefix_label'] = '';
@@ -2590,23 +2604,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
-
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
@@ -2640,23 +2637,16 @@ class SUPER_Shortcodes {
 
         wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION );    
         wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION ); 
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         $result .= '<input class="super-shortcode-field" type="text"';
-        
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
 
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '0';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '" data-minnumber="' . $atts['minnumber'] . '" data-maxnumber="' . $atts['maxnumber'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
 
@@ -2681,6 +2671,9 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
 
         wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
+        
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -2695,20 +2688,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="tel"';
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
 
         // @since 4.2.0 - custom threshold to trigger hooks
@@ -2797,27 +2776,10 @@ class SUPER_Shortcodes {
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
         $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+        
         $result = self::opening_tag( $tag, $atts, $class );
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-        if(!empty($entry_data_value)){
-            $atts['value'] = $entry_data_value;
-        }
-
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
-
 
         $wrapper_class = '';
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
@@ -3048,25 +3010,12 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+        
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
         $result  = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = stripslashes( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = stripslashes( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since   1.2.4
         if( !isset( $atts['editor'] ) ) $atts['editor'] = 'false';
@@ -3275,6 +3224,8 @@ class SUPER_Shortcodes {
             $distance_calculator_class .= ' super-distance-calculator';
         }
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3284,17 +3235,6 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-        
         // @since   4.7.7 - make sure we do not lose the default placeholder
         // This is required for dynamic columns
         $atts['default_placeholder'] = $atts['placeholder'];
@@ -3350,19 +3290,11 @@ class SUPER_Shortcodes {
             $classes .= ' super-c-' . $atts['display_columns'];
         }
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3445,19 +3377,11 @@ class SUPER_Shortcodes {
             $classes .= ' super-c-' . $atts['display_columns'];
         }
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
         $result = self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-     
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';     
@@ -3643,30 +3567,12 @@ class SUPER_Shortcodes {
         
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
-        $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
-        $result .= '<input class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
-        $format = $atts['format'];
-        if( $format=='custom' ) $format = $atts['custom_format'];
-
-        // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
-        if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
-        if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
-
-        // @since 1.2.5 - added option to add or deduct days based on connected datepicker
-        if( !isset( $atts['connected_min_days'] ) ) $atts['connected_min_days'] = '1';
-        if( !isset( $atts['connected_max_days'] ) ) $atts['connected_max_days'] = '1';
-
-        if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
-        if( !isset( $atts['first_day'] ) ) $atts['first_day'] = '1'; // @since 3.1.0 - start day of the week
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         // @since 1.3 - Return the current date as default value 
+        $format = $atts['format'];
+        if( $format=='custom' ) $format = $atts['custom_format'];
         if( !isset( $atts['current_date'] ) ) $atts['current_date'] = '';
         if( $atts['current_date']=='true' ) {
             $new_format = $format;
@@ -3694,6 +3600,30 @@ class SUPER_Shortcodes {
             $new_format = str_replace('yy', 'Y', $new_format);
             $atts['value'] = date_i18n($new_format);
         }
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
+        $result = self::opening_tag( $tag, $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+
+        // @since 1.9 - custom class
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+
+        $result .= '<input class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
+
+
+        // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
+        if( !isset( $atts['connected_min'] ) ) $atts['connected_min'] = '';
+        if( !isset( $atts['connected_max'] ) ) $atts['connected_max'] = '';
+
+        // @since 1.2.5 - added option to add or deduct days based on connected datepicker
+        if( !isset( $atts['connected_min_days'] ) ) $atts['connected_min_days'] = '1';
+        if( !isset( $atts['connected_max_days'] ) ) $atts['connected_max_days'] = '1';
+
+        if( !isset( $atts['range'] ) ) $atts['range'] = '-100:+5';
+        if( !isset( $atts['first_day'] ) ) $atts['first_day'] = '1'; // @since 3.1.0 - start day of the week
+
 
         // Javascript date format parameters:
         // yy = short year
@@ -3734,20 +3664,6 @@ class SUPER_Shortcodes {
                 $jsformat = str_replace('y', 'yy', $jsformat);
             }
         }
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         $result .= ' value="' . $atts['value'] . '" 
         name="' . $atts['name'] . '" 
@@ -3792,28 +3708,18 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js' );
-        $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         // @since 1.3 - Return the current date as default value
         if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';
         if( $atts['current_time']=='true' ) {
             $atts['value'] = date($atts['format']);
         }
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);        
+        
+        $result = self::opening_tag( $tag, $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3837,6 +3743,9 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+        
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);   
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3844,17 +3753,6 @@ class SUPER_Shortcodes {
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
 
         $i=1;
         while( $i < 6 ) {
@@ -3883,26 +3781,15 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);   
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $multiple = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
@@ -3955,16 +3842,11 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -3990,26 +3872,6 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $classes = ' hidden';
-        $result = self::opening_tag( $tag, $atts, $classes );
-
-        // @since   1.1.8 - check if we can find parameters
-        if( isset( $_GET[$atts['name']] ) ) {
-            $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
-        }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
-            $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
-        }
-
-        // @since   4.7.5 - get the value for from entry data
-        if( !isset( $atts['value'] ) ) $atts['value'] = '';
-        $atts['value'] = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-
-        // @since   3.0.0 - also allow tags for hidden fields 
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
-
-        // @since 3.5.0 - add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']); 
-
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
 
@@ -4028,6 +3890,12 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
             $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_invoice'], $atts['code_invoice_padding'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
         }
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
+        $classes = ' hidden';
+        $result = self::opening_tag( $tag, $atts, $classes );
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
@@ -5458,6 +5326,12 @@ class SUPER_Shortcodes {
         if( !empty( $settings['save_form_progress'] ) ) {
             $class .= ' super-save-progress';
         }
+
+        // @since 4.9.3     - Adaptive placeholders
+        if($settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
+        if( !empty($settings['enable_adaptive_placeholders']) ) {
+            $class .= ' super-adaptive';
+        } 
 
         // Always load the default styles (these can be overwritten by the above loaded style file
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );

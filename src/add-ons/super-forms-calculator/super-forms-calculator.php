@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Calculator
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.1.1
+ * Version:     2.1.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.1.1';
+        public $version = '2.1.2';
 
 
         /**
@@ -531,8 +531,8 @@ if(!class_exists('SUPER_Calculator')) :
             $dataFields = '';
             if(!empty($fields)) $dataFields = ' data-fields="{' . $fields . '}"';
             $result .= '<div class="super-calculator-wrapper"' . ($dataFields ? $dataFields : '') . ($atts['date_math']!='' ? ' data-date-math="' . $atts['date_math'] . '"' : '') . ' data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-super-math="' . $atts['math'] . '"';
-            if(!empty($jsformat)) $result .= ' data-jsformat="' . $jsformat . '" ';
-            $result .= '">';
+            if(!empty($jsformat)) $result .= ' data-jsformat="' . $jsformat . '"';
+            $result .= '>';
 
             $result .= '<span class="super-calculator-label">' . $atts['amount_label'] . '</span>';
 
