@@ -3955,7 +3955,7 @@ function SUPERreCaptcha(){
 
     // @since 2.0.0 - clear / reset form fields
     SUPER.init_clear_form = function(form, clone){
-        var field, nodes, innerNodes, items, el, i, ii, iii,
+        var field, nodes, innerNodes, el, i, ii,
             children, index, element, dropdown, dropdownItem, 
             option, switchBtn, activeItem,
             value = '',
@@ -4040,6 +4040,14 @@ function SUPERreCaptcha(){
             if(index>0) nodes[i].remove();
         }
 
+        // Remove error classes and filled classes
+        nodes = form.querySelectorAll('.super-error, .super-error-active, .super-filled');
+        for (i = 0; i < nodes.length; i++) { 
+            nodes[i].classList.remove('super-error');
+            nodes[i].classList.remove('super-error-active');
+            nodes[i].classList.remove('super-filled');
+        }
+
         // Clear all fields
         nodes = form.querySelectorAll('.super-shortcode-field');
         for (i = 0; i < nodes.length; i++) { 
@@ -4051,7 +4059,6 @@ function SUPERreCaptcha(){
                 default_value = element.dataset.absoluteDefault;
             }
             field = element.closest('.super-field');
-            
             // Checkbox and Radio buttons
             if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
                 innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-active');
@@ -4081,6 +4088,15 @@ function SUPERreCaptcha(){
             if(field.classList.contains('super-currency')){
                 if(default_value==='') default_value = 0;
                 $(element).maskMoney('mask', parseFloat(default_value));
+                continue; // Continue to next field
+            }
+
+            // Color picker
+            if(field.classList.contains('super-color')){
+                if(typeof $.fn.spectrum === "function") {
+                    if(default_value==='') default_value = '#fff';
+                    $(field.querySelector('.super-shortcode-field')).spectrum('set', default_value);
+                }
                 continue; // Continue to next field
             }
 
@@ -4161,6 +4177,44 @@ function SUPERreCaptcha(){
                 continue;
             }
 
+
+            // Countries field
+            if(field.classList.contains('super-countries')){
+                placeholder = element.placeholder;
+                dropdown = field.querySelector('.super-dropdown-ui');
+                innerNodes = dropdown.querySelectorAll('.super-item.super-active');
+                if(typeof placeholder === 'undefined' ) {
+                    option = field.querySelector('.super-dropdown-ui .super-item')[2];
+                    for (ii = 0; ii < innerNodes.length; ii++) {
+                        innerNodes[ii].classList.remove('super-active');
+                    }
+                    if(dropdown.querySelectorAll('.super-default-selected')){
+                        dropdown.querySelectorAll('.super-default-selected').classList.add('super-active');
+                    }
+                    dropdown.querySelector('.super-placeholder').dataset.value = option.dataset.value;
+                    dropdown.querySelector('.super-placeholder').innerHTML = option.innerHTML;
+                    element.value = option.dataset.value;
+                }else{
+                    for (ii = 0; ii < innerNodes.length; ii++) {
+                        innerNodes[ii].classList.remove('super-active');
+                    }
+                    el = dropdown.querySelector('.super-placeholder');
+                    el.dataset.value = '';
+                    el.innerHTML = placeholder;
+                    element.value = '';
+                }
+                field.classList.remove('super-focus');
+                continue;
+            }
+
+            // File upload field
+            if(field.classList.contains('super-file')){
+                field.querySelector('.super-fileupload-files').innerHTML = '';
+                field.querySelector('.super-progress-bar').removeAttribute('style');
+                field.querySelector('.super-active-files').value = '';
+                continue;
+            }
+
             if(typeof default_value !== 'undefined'){
                 value = default_value;
                 element.value = value;
@@ -4182,45 +4236,6 @@ function SUPERreCaptcha(){
                             innerNodes[ii].classList.remove('super-active');
                         }
                     }
-                }
-            }else{
-                // Countries field
-                if(field.classList.contains('super-countries')){
-                    placeholder = element.placeholder;
-                    if(typeof placeholder === 'undefined' ) {
-                        dropdown = field.querySelector('.super-dropdown-ui');
-                        option = field.querySelector('.super-dropdown-ui .super-item')[2];
-                        innerNodes = dropdown.querySelectorAll('.super-item.super-active');
-                        for (ii = 0; ii < innerNodes.length; ii++) {
-                            innerNodes[ii].classList.remove('super-active');
-                        }
-                        if(dropdown.querySelectorAll('.super-default-selected')){
-                            dropdown.querySelectorAll('.super-default-selected').classList.add('super-active');
-                        }
-                        dropdown.querySelector('.super-placeholder').dataset.value = option.dataset.value;
-                        dropdown.querySelector('.super-placeholder').innerHTML = option.innerHTML;
-                        element.value = option.dataset.value;
-                    }else{
-                        innerNodes = dropdown.querySelectorAll('.super-dropdown-ui');
-                        for (ii = 0; ii < innerNodes.length; ii++) {
-                            items = innerNodes[ii].querySelectorAll('.super-item.super-active');
-                            for (iii = 0; iii < items.length; iii++) {
-                                items[iii].classList.remove('super-active');
-                            }
-                            el = dropdown.querySelector('.super-placeholder');
-                            el.dataset.value = '';
-                            el.innerHTML = placeholder;
-                        }
-                        element.value = '';
-                    }
-                    continue;
-                }
-                // File upload field
-                if(field.classList.contains('super-file')){
-                    field.querySelector('.super-fileupload-files').innerHTML = '';
-                    field.querySelector('.super-progress-bar').removeAttribute('style');
-                    field.querySelector('.super-active-files').value = '';
-                    continue;
                 }
             }
             element.value = value;

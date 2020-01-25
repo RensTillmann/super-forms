@@ -298,6 +298,11 @@
             $($this).datepicker({
                 onClose: function( selectedDate ) {
                     SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
+                    if(selectedDate===''){
+                        this.parentNode.classList.remove('super-filled');
+                    }else{
+                        this.parentNode.classList.add('super-filled');
+                    }
                 },
                 beforeShowDay: function(dt) {
                     var day = dt.getDay();
@@ -455,6 +460,11 @@
 
         $('.super-timepicker').on('changeTime', function() {
             set_timepicker_dif($(this));
+            if(this.value===''){
+                this.parentNode.classList.remove('super-filled');
+            }else{
+                this.parentNode.classList.add('super-filled');
+            }
         });
         $('.super-timepicker').parent().find('.super-icon').on('click',function(){
             $(this).parent().find('.super-timepicker').timepicker('show');
@@ -1507,7 +1517,7 @@
                         }
                     });
                     [].forEach.call(items_to_show, function(el) {
-                        el.style.display = 'block';
+                        el.style.display = 'flex';
                         //el.classList.add('super-active');
                     });
                     [].forEach.call(items_to_hide, function(el) {
@@ -1600,7 +1610,7 @@
         });
 
         $doc.on('mouseleave', '.super-dropdown-ui:not(.super-autosuggest-tags-list)', function(){
-            $(this).parents('.super-field:eq(0)').removeClass('super-focus-dropdown').removeClass('super-string-found'); 
+            $(this).parents('.super-field:eq(0)').removeClass('super-focus').removeClass('super-focus-dropdown').removeClass('super-string-found'); 
             $(this).parents('.super-field:eq(0)').find('input[name="super-dropdown-search"]').val('');
         });
 
@@ -1688,7 +1698,9 @@
         $doc.on('click', '.super-dropdown-ui .super-item:not(.super-placeholder)', function(e){
             var i, nodes,
                 form,
+                field = this.closest('.super-field'),
                 input,
+                wrapper,
                 parent,
                 placeholder,
                 value,
@@ -1703,10 +1715,11 @@
                 counter;
 
             e.stopPropagation();
-            if(this.closest('.super-field').classList.contains('super-focus-dropdown')){
-                this.closest('.super-field').classList.remove('super-focus-dropdown');
+            if(field.classList.contains('super-focus-dropdown')){
+                field.classList.remove('super-focus-dropdown');
                 form = SUPER.get_frontend_or_backend_form(this);
-                input = this.closest('.super-field-wrapper').querySelector('.super-shortcode-field');
+                wrapper = this.closest('.super-field-wrapper');
+                input = wrapper.querySelector('.super-shortcode-field');
                 parent = this.closest('.super-dropdown-ui');
                 placeholder = parent.querySelector('.super-placeholder');
                 if(!parent.classList.contains('multiple')){
@@ -1721,6 +1734,7 @@
                     }
                     this.classList.add('super-active');
                     input.value = value;
+                    field.classList.remove('super-focus');
                 }else{
                     max = input.dataset.maxlength;
                     min = input.dataset.minlength;
@@ -1751,6 +1765,11 @@
                     }
                     placeholder.innerHTML = names;
                     input.value = values;
+                }
+                if(input.value===''){
+                    wrapper.classList.remove('super-filled');
+                }else{
+                    wrapper.classList.add('super-filled');
                 }
                 validation = input.dataset.validation;
                 if(typeof validation !== 'undefined' && validation !== false){
