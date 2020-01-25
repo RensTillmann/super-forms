@@ -2700,6 +2700,9 @@ class SUPER_Shortcodes {
 
         $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
 
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
+
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
@@ -3693,6 +3696,9 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' readonly="true" />';
 
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
+
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
@@ -3729,6 +3735,9 @@ class SUPER_Shortcodes {
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' />';
+        
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
@@ -3831,7 +3840,10 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
         $result .= '</div>';
+
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
