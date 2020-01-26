@@ -1033,15 +1033,15 @@ h1.super-thanks-title {
 
 /* Icons outside */
 .super-icon-outside.super-icon-left .super-adaptive-placeholder {
-  margin-left: 60px !important;
+  margin-left: 65px !important;
 }
 
 .super-field-size-large .super-icon-outside.super-icon-left .super-adaptive-placeholder {
-  margin-left: 70px !important;
+  margin-left: 75px !important;
 }
 
 .super-field-size-huge .super-icon-outside.super-icon-left .super-adaptive-placeholder {
-  margin-left: 80px !important;
+  margin-left: 90px !important;
 }
 
 /* Icons inside */
@@ -3709,10 +3709,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding: 5px 25px 5px 0px;
 }
 
-.display-vertical .super-icon-left .super-item {
-  padding-left: 40px;
-}
-
 .super-radio.display-horizontal .super-icon-left .super-item {
   padding: 8px 0px 8px 30px;
 }
@@ -3827,14 +3823,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   height: 10px;
 }
 .super-field-size-medium .display-vertical .super-item {
-  padding: 4px 0px 4px 25px;
+  padding-left: 25px;
 }
 .super-field-size-medium .display-vertical .super-item:after {
   top: 8px;
   left: 4px;
 }
 .super-field-size-medium.super-rtl .display-vertical .super-item {
-  padding: 4px 25px 4px 0px;
+  padding-right: 25px;
 }
 .super-field-size-medium .display-vertical .super-item.super-has-image {
   padding: 0px 25px 8px 0px;
@@ -3886,9 +3882,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 
 .super-full-rounded.super-field-size-medium .super-shortcode-field {
   padding: 0px 20px;
-}
-.super-full-rounded.super-field-size-medium .super-item {
-  padding: 0px 0px 0px 20px;
 }
 .super-full-rounded.super-field-size-medium .super-fileupload-files {
   padding: 0px 0px 0px 15px;
@@ -4070,14 +4063,14 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   left: 4px;
 }
 .super-field-size-large .display-vertical .super-item {
-  padding: 5px 0px 5px 35px;
+  padding-left: 35px;
 }
 .super-field-size-large .display-vertical .super-item:after {
   top: 8px;
   left: 4px;
 }
 .super-field-size-large.super-rtl .display-vertical .super-item {
-  padding: 5px 35px 5px 0px;
+  padding-right: 35px;
 }
 .super-field-size-large .display-vertical .super-item.super-has-image {
   padding: 0px 35px 10px 0px;
@@ -4132,9 +4125,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 
 .super-full-rounded.super-field-size-large .super-shortcode-field {
   padding: 0px 20px;
-}
-.super-full-rounded.super-field-size-large .super-item {
-  padding: 0px 0px 0px 20px;
 }
 .super-full-rounded.super-field-size-large .super-fileupload-files {
   padding: 0px 0px 0px 15px;

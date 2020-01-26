@@ -2041,8 +2041,8 @@ function SUPERreCaptcha(){
                 value = el.value;
                 currency = el.dataset.currency;
                 format = el.dataset.format;
-                thousand_separator = el.data('thousand-separator');
-                decimal_seperator = el.data('decimal-separator');
+                thousand_separator = el.dataset.thousandSeparator;
+                decimal_seperator = el.dataset.decimalSeparator;
                 value = value.replace(currency, '').replace(format, '');
                 value = value.split(thousand_separator).join('');
                 value = value.split(decimal_seperator).join('.');
@@ -4086,8 +4086,7 @@ function SUPERreCaptcha(){
 
             // Currency field
             if(field.classList.contains('super-currency')){
-                if(default_value==='') default_value = 0;
-                $(element).maskMoney('mask', parseFloat(default_value));
+                element.value = default_value;
                 continue; // Continue to next field
             }
 
@@ -4909,6 +4908,8 @@ function SUPERreCaptcha(){
                 $steps = $field.data('steps');
                 $min = $field.data('minnumber');
                 $max = $field.data('maxnumber');
+                if(typeof $min === 'undefined') $min = 0;
+                if(typeof $max === 'undefined') $max = 100;
                 $currency = $field.data('currency');
                 $format = $field.data('format');
                 $value = ($field.val()==='' ? 0 : parseFloat($field.val()));
@@ -5187,7 +5188,7 @@ function SUPERreCaptcha(){
                     $match_found = true;
                 }
             });
-            if( ($value!=='') && ($match_found) && ($visibility!='hidden') ) {
+            if( $match_found && ($visibility!='hidden') ) {
                 $this.removeClass('super-hidden');
             }else{
                 $this.addClass('super-hidden');
