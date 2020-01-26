@@ -1585,11 +1585,11 @@ class SUPER_Shortcodes {
                 }
             }
 
-            if( (isset($atts['maxnumber'])) && ($atts['maxnumber']>0) ) {
-                $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
-            }
             if( (isset($atts['minnumber'])) && ($atts['minnumber']>0) ) {
                 $result .= ' data-minnumber="' . esc_attr($atts['minnumber']) . '"';
+            }
+            if( (isset($atts['maxnumber'])) && ($atts['maxnumber']>0) ) {
+                $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
             }
         }
 
@@ -2457,9 +2457,8 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
 
-        if( empty($atts['minnumber']) ) $atts['minnumber'] = 0;
+        if( empty( $atts['minnumber']) ) $atts['minnumber'] = 0;
         if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
-
         if( $atts['value']<$atts['minnumber'] ) {
             $atts['value'] = $atts['minnumber'];
         }
@@ -2699,7 +2698,7 @@ class SUPER_Shortcodes {
         $result .= ' />';
 
         $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
-
+        
         // @since 4.9.3 - Adaptive placeholders
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
@@ -3275,6 +3274,8 @@ class SUPER_Shortcodes {
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
+        // @since 4.9.3 - Adaptive placeholders
+        $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
         $result .= '</div>';
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
@@ -3810,7 +3811,9 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         // @since 1.2.8     - auto scroll to value after key press
-        $result .= '<input type="text" name="super-dropdown-search" value="" />';
+        if(empty($atts['disable_filter'])){
+            $result .= '<input type="text" name="super-dropdown-search" value="" data-logic="' . esc_attr($atts['filter_logic']) . '" />';
+        }
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';

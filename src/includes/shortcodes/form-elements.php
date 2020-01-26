@@ -1142,7 +1142,6 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name($attributes, ''),
                         'email' => SUPER_Shortcodes::email($attributes, ''),
-
                         'disable_filter' => array(
                             'name' => esc_html__( 'Disallow users to filter items', 'super-forms' ), 
                             'label' => esc_html__( 'Enabling this will also prevent the keyboard from popping up on mobile devices', 'super-forms' ), 
@@ -1161,12 +1160,10 @@ $array['form_elements'] = array(
                                 'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
                                 'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
                             ),
-                            'filter'=>true,
-                            'parent'=>'disable_filter',
-                            'filter_value'=>'' // [method[show/hide]]:[condition[is/not]]:[filterValue] (HIDE when IS "true")
+                            'filter' => true,
+                            'parent' => 'disable_filter',
+                            'filter_value' => ''
                         ),
-
-
                         'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], '' ),
                         'retrieve_method_exclude_users' => SUPER_Shortcodes::sf_retrieve_method_exclude_users( $attributes['retrieve_method_exclude_users'], 'retrieve_method' ),
                         'retrieve_method_role_filters' => SUPER_Shortcodes::sf_retrieve_method_role_filters( $attributes['retrieve_method_role_filters'], 'retrieve_method' ),
@@ -1207,7 +1204,8 @@ $array['form_elements'] = array(
 
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, '' ),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
+                        'placeholderFilled' => SUPER_Shortcodes::placeholderFilled( $attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $validation_empty,
                         'may_be_empty' => $allow_empty,
@@ -2163,8 +2161,10 @@ $array['form_elements'] = array(
                     'tag' => 'currency',
                     'group' => 'form_elements',
                     'data' => array(
-                        'name' => esc_html__( 'amount', 'super-forms' ),
-                        'email' => esc_html__( 'Amount', 'super-forms' ) . ':',
+                        'name' => esc_html__( 'price', 'super-forms' ),
+                        'email' => esc_html__( 'Price', 'super-forms' ) . ':',
+                        'placeholder' => esc_html__( 'Enter the price', 'super-forms' ),
+                        'placeholderFilled' => esc_html__( 'Price', 'super-forms' ),
                         'currency' => '$',
                         'thousand_separator' => ',',
                         'icon' => 'dollar-sign',
@@ -2185,7 +2185,9 @@ $array['form_elements'] = array(
                         'name' => SUPER_Shortcodes::name($attributes, ''),
                         'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
-                        'description'=>$description,                        
+                        'description'=>$description,
+                        'placeholder' => SUPER_Shortcodes::placeholder($attributes,''),
+                        'placeholderFilled' => SUPER_Shortcodes::placeholderFilled( $attributes, '' ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
@@ -2876,6 +2878,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => esc_html__( 'country', 'super-forms' ),
                         'email' => esc_html__( 'Country', 'super-forms' ) . ':',
+                        'filter_logic' => 'start',
                         'placeholder' => esc_html__( '- select your country -', 'super-forms' ),
                         'icon' => 'globe'
                     )
@@ -2894,6 +2897,28 @@ $array['form_elements'] = array(
                     'fields' => array(
                         'name' => SUPER_Shortcodes::name( $attributes, '' ),
                         'email' => SUPER_Shortcodes::email( $attributes, '' ),
+                        'disable_filter' => array(
+                            'name' => esc_html__( 'Disallow users to filter items', 'super-forms' ), 
+                            'label' => esc_html__( 'Enabling this will also prevent the keyboard from popping up on mobile devices', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['disable_filter'] ) ? '' : $attributes['disable_filter'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => esc_html__( 'Disallow users to filter items', 'super-forms' ),
+                            )
+                        ),
+                        'filter_logic' => array(
+                            'name' => esc_html__( 'Filter logic', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
+                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                            ),
+                            'filter' => true,
+                            'parent' => 'disable_filter',
+                            'filter_value' => ''
+                        ),
                         'label' => $label,
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),

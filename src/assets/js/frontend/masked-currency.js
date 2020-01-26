@@ -1,4 +1,11 @@
-// jshint ignore: start
+/*
+ *  jquery-maskmoney - v3.1.1
+ *  jQuery plugin to mask data entry in the input text in the form of money (currency)
+ *  https://github.com/plentz/jquery-maskmoney
+ *
+ *  Made by Diego Plentz
+ *  Under MIT License
+ */
 (function ($) {
     "use strict";
     if (!$.browser) {
@@ -7,10 +14,24 @@
         $.browser.webkit = /webkit/.test(navigator.userAgent.toLowerCase());
         $.browser.opera = /opera/.test(navigator.userAgent.toLowerCase());
         $.browser.msie = /msie/.test(navigator.userAgent.toLowerCase());
+        $.browser.device = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(navigator.userAgent.toLowerCase());
     }
 
-    var methods = {
-        destroy : function () {
+    var defaultOptions = {
+                prefix: "",
+                suffix: "",
+                affixesStay: true,
+                thousands: ",",
+                decimal: ".",
+                precision: 2,
+                allowZero: false,
+                allowNegative: false,
+                doubleClickSelection: true,
+                allowEmpty: false,
+                bringCaretAtEndOnFocus: true
+            },
+		methods = {
+        destroy: function () {
             $(this).unbind(".maskMoney");
 
             if ($.browser.msie) {
@@ -19,7 +40,14 @@
             return this;
         },
 
-        mask : function (value) {
+        applyMask: function (value) {
+            var $input = $(this);
+            // data-* api
+            var settings = $input.data("settings");
+            return maskValue(value, settings);
+        },
+
+        mask: function (value) {
             return this.each(function () {
                 var $this = $(this);
                 if (typeof value === "number") {
@@ -29,17 +57,17 @@
             });
         },
 
-        unmasked : function () {
+        unmasked: function () {
             return this.map(function () {
                 var value = ($(this).val() || "0"),
                     isNegative = value.indexOf("-") !== -1,
                     decimalPart;
                 // get the last position of the array that is a number(coercion makes "" to be evaluated as false)
                 $(value.split(/\D/).reverse()).each(function (index, element) {
-                    if(element) {
+                    if (element) {
                         decimalPart = element;
                         return false;
-                   }
+                    }
                 });
                 value = value.replace(/\D/g, "");
                 value = value.replace(new RegExp(decimalPart + "$"), "." + decimalPart);
@@ -50,17 +78,19 @@
             });
         },
 
-        init : function (parameters) {
-            parameters = $.extend({
-                prefix: "",
-                suffix: "",
-                affixesStay: true,
-                thousands: ",",
-                decimal: ".",
-                precision: 2,
-                allowZero: false,
-                allowNegative: false
-            }, parameters);
+		unmaskedWithOptions: function () {
+            return this.map(function () {
+                var value = ($(this).val() || "0"),
+					settings = $(this).data("settings") || defaultOptions,
+					regExp = new RegExp((settings.thousandsForUnmasked || settings.thousands), "g");
+                value = value.replace(regExp, "");
+                return parseFloat(value);
+            });
+        },
+
+        init: function (parameters) {
+			// the default options should not be shared with others
+            parameters = $.extend($.extend({}, defaultOptions), parameters);
 
             return this.each(function () {
                 var $input = $(this), settings,
@@ -69,6 +99,10 @@
                 // data-* api
                 settings = $.extend({}, parameters);
                 settings = $.extend(settings, $input.data());
+
+                // Store settings for use with the applyMask method.
+                $input.data("settings", settings);
+
 
                 function getInputSelection() {
                     var el = $input.get(0),
@@ -133,6 +167,15 @@
                 }
 
                 function setCursorPosition(pos) {
+                    // Do not set the position if
+                    // the we're formatting on blur.
+                    // This is because we do not want
+                    // to refocus on the control after
+                    // the blur.
+                    if (settings.formatOnBlur) {
+                        return;
+                    }
+
                     $input.each(function (index, elem) {
                         if (elem.setSelectionRange) {
                             elem.focus();
@@ -147,56 +190,43 @@
                     });
                 }
 
-                function setSymbol(value) {
-                    var operator = "";
-                    if (value.indexOf("-") > -1) {
-                        value = value.replace("-", "");
-                        operator = "-";
-                    }
-                    return operator + settings.prefix + value + settings.suffix;
-                }
-
-                function maskValue(value) {
-                    var negative = (value.indexOf("-") > -1 && settings.allowNegative) ? "-" : "",
-                        onlyNumbers = value.replace(/[^0-9]/g, ""),
-                        integerPart = onlyNumbers.slice(0, onlyNumbers.length - settings.precision),
-                        newValue,
-                        decimalPart,
-                        leadingZeros;
-
-                    // remove initial zeros
-                    integerPart = integerPart.replace(/^0*/g, "");
-                    // put settings.thousands every 3 chars
-                    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, settings.thousands);
-                    if (integerPart === "") {
-                        integerPart = "0";
-                    }
-                    newValue = negative + integerPart;
-
-                    if (settings.precision > 0) {
-                        decimalPart = onlyNumbers.slice(onlyNumbers.length - settings.precision);
-                        leadingZeros = new Array((settings.precision + 1) - decimalPart.length).join(0);
-                        newValue += settings.decimal + leadingZeros + decimalPart;
-                    }
-                    return setSymbol(newValue);
-                }
-
-
                 function maskAndPosition(startPos) {
                     var originalLen = $input.val().length,
                         newLen;
-                    $input.val(maskValue($input.val()));
+                    $input.val(maskValue($input.val(), settings));
                     newLen = $input.val().length;
-                    startPos = startPos - (originalLen - newLen);
+                    // If the we're using the reverse option,
+                    // do not put the cursor at the end of
+                    // the input. The reverse option allows
+                    // the user to input text from left to right.
+                    if (!settings.reverse) {
+                        startPos = startPos - (originalLen - newLen);
+                    }
                     setCursorPosition(startPos);
                 }
 
                 function mask() {
                     var value = $input.val();
-                    if (settings.precision > 0 && value.indexOf(settings.decimal) < 0) {
-                        value += settings.decimal + new Array(settings.precision+1).join(0);
+                    if (settings.allowEmpty && value === "") {
+                        return;
                     }
-                    $input.val(maskValue(value));
+					var decimalPointIndex = value.indexOf(settings.decimal);
+                    if (settings.precision > 0) {
+						if(decimalPointIndex < 0){
+							value += settings.decimal + new Array(settings.precision + 1).join(0);
+						}
+						else {
+							// If the following decimal part dosen't have enough length against the precision, it needs to be filled with zeros.
+							var integerPart = value.slice(0, decimalPointIndex),
+								decimalPart = value.slice(decimalPointIndex + 1);
+							value = integerPart + settings.decimal + decimalPart +
+									new Array((settings.precision + 1) - decimalPart.length).join(0);
+						}
+                    } else if (decimalPointIndex > 0) {
+                        // if the precision is 0, discard the decimal part
+                        value = value.slice(0, decimalPointIndex);
+                    }
+                    $input.val(maskValue(value, settings));
                 }
 
                 function changeSign() {
@@ -220,53 +250,100 @@
                     }
                 }
 
+                function fixMobile() {
+                    if ($.browser.device) {
+                        $input.attr("type", "tel");
+                    }
+                }
+
                 function keypressEvent(e) {
                     e = e || window.event;
                     var key = e.which || e.charCode || e.keyCode,
-                        keyPressedChar,
-                        selection,
-                        startPos,
-                        endPos,
-                        value;
+                        decimalKeyCode = settings.decimal.charCodeAt(0);
                     //added to handle an IE "special" event
                     if (key === undefined) {
                         return false;
                     }
 
-                    // any key except the numbers 0-9
-                    if (key < 48 || key > 57) {
-                        // -(minus) key
-                        if (key === 45) {
-                            $input.val(changeSign());
-                            return false;
-                        // +(plus) key
-                        } else if (key === 43) {
-                            $input.val($input.val().replace("-", ""));
-                            return false;
-                        // enter key or tab key
-                        } else if (key === 13 || key === 9) {
-                            return true;
-                        } else if ($.browser.mozilla && (key === 37 || key === 39) && e.charCode === 0) {
-                            // needed for left arrow key or right arrow key with firefox
-                            // the charCode part is to avoid allowing "%"(e.charCode 0, e.keyCode 37)
-                            return true;
-                        } else { // any other key with keycode less than 48 and greater than 57
-                            preventDefault(e);
-                            return true;
-                        }
+                    // any key except the numbers 0-9. if we're using settings.reverse,
+                    // allow the user to input the decimal key
+                    if ((key < 48 || key > 57) && (key !== decimalKeyCode || !settings.reverse)) {
+                        return handleAllKeysExceptNumericalDigits(key, e);
                     } else if (!canInputMoreNumbers()) {
                         return false;
                     } else {
+                        if (key === decimalKeyCode && shouldPreventDecimalKey()) {
+                            return false;
+                        }
+                        if (settings.formatOnBlur) {
+                            return true;
+                        }
                         preventDefault(e);
-
-                        keyPressedChar = String.fromCharCode(key);
-                        selection = getInputSelection();
-                        startPos = selection.start;
-                        endPos = selection.end;
-                        value = $input.val();
-                        $input.val(value.substring(0, startPos) + keyPressedChar + value.substring(endPos, value.length));
-                        maskAndPosition(startPos + 1);
+                        applyMask(e);
                         return false;
+                    }
+                }
+
+                function shouldPreventDecimalKey() {
+                    // If all text is selected, we can accept the decimal
+                    // key because it will replace everything.
+                    if (isAllTextSelected()) {
+                        return false;
+                    }
+
+                    return alreadyContainsDecimal();
+                }
+
+                function isAllTextSelected() {
+                    var length = $input.val().length;
+                    var selection = getInputSelection();
+                    // This should if all text is selected or if the
+                    // input is empty.
+                    return selection.start === 0 && selection.end === length;
+                }
+
+                function alreadyContainsDecimal() {
+                    return $input.val().indexOf(settings.decimal) > -1;
+                }
+
+                function applyMask(e) {
+                    e = e || window.event;
+                    var key = e.which || e.charCode || e.keyCode,
+                        keyPressedChar = "",
+                        selection,
+                        startPos,
+                        endPos,
+                        value;
+                    if (key >= 48 && key <= 57) {
+                        keyPressedChar = String.fromCharCode(key);
+                    }
+                    selection = getInputSelection();
+                    startPos = selection.start;
+                    endPos = selection.end;
+                    value = $input.val();
+                    $input.val(value.substring(0, startPos) + keyPressedChar + value.substring(endPos, value.length));
+                    maskAndPosition(startPos + 1);
+                }
+
+                function handleAllKeysExceptNumericalDigits(key, e) {
+                    // -(minus) key
+                    if (key === 45) {
+                        $input.val(changeSign());
+                        return false;
+                        // +(plus) key
+                    } else if (key === 43) {
+                        $input.val($input.val().replace("-", ""));
+                        return false;
+                        // enter key or tab key
+                    } else if (key === 13 || key === 9) {
+                        return true;
+                    } else if ($.browser.mozilla && (key === 37 || key === 39) && e.charCode === 0) {
+                        // needed for left arrow key or right arrow key with firefox
+                        // the charCode part is to avoid allowing "%"(e.charCode 0, e.keyCode 37)
+                        return true;
+                    } else { // any other key with keycode less than 48 and greater than 57
+                        preventDefault(e);
+                        return true;
                     }
                 }
 
@@ -291,6 +368,7 @@
                         preventDefault(e);
 
                         value = $input.val();
+
                         // not a selection
                         if (startPos === endPos) {
                             // backspace
@@ -303,7 +381,7 @@
                                     startPos = value.length - lastNumber - 1;
                                     endPos = startPos + 1;
                                 }
-                            //delete
+                                //delete
                             } else {
                                 endPos += 1;
                             }
@@ -320,20 +398,23 @@
                     }
                 }
 
-                // function focusEvent() {
-                //     onFocusValue = $input.val();
-                //     mask();
-                //     var input = $input.get(0),
-                //         textRange;
-                //     if (input.createTextRange) {
-                //         textRange = input.createTextRange();
-                //         textRange.collapse(false); // set the cursor at the end of the input
-                //         textRange.select();
-                //     }
-                // }
+                function focusEvent() {
+                    onFocusValue = $input.val();
+                    mask();
+                    var input = $input.get(0),
+                        textRange;
+
+                    if (settings.selectAllOnFocus) {
+                        input.select();
+                    } else if (input.createTextRange && settings.bringCaretAtEndOnFocus) {
+                        textRange = input.createTextRange();
+                        textRange.collapse(false); // set the cursor at the end of the input
+                        textRange.select();
+                    }
+                }
 
                 function cutPasteEvent() {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         mask();
                     }, 0);
                 }
@@ -348,13 +429,19 @@
                         keypressEvent(e);
                     }
 
-                    if ($input.val() === "" || $input.val() === setSymbol(getDefaultMask())) {
+                    if (!!settings.formatOnBlur && $input.val() !== onFocusValue) {
+                        applyMask(e);
+                    }
+
+                    if ($input.val() === "" && settings.allowEmpty) {
+                        $input.val("");
+                    } else if ($input.val() === "" || $input.val() === setSymbol(getDefaultMask(), settings)) {
                         if (!settings.allowZero) {
                             $input.val("");
                         } else if (!settings.affixesStay) {
                             $input.val(getDefaultMask());
                         } else {
-                            $input.val(setSymbol(getDefaultMask()));
+                            $input.val(setSymbol(getDefaultMask(), settings));
                         }
                     } else {
                         if (!settings.affixesStay) {
@@ -367,23 +454,43 @@
                     }
                 }
 
-                // function clickEvent() {
-                //     var input = $input.get(0),
-                //         length;
-                //     if (input.setSelectionRange) {
-                //         length = $input.val().length;
-                //         input.setSelectionRange(length, length);
-                //     } else {
-                //         $input.val($input.val());
-                //     }
-                // }
+                function clickEvent() {
+                    var input = $input.get(0),
+                        length;
+                    if (settings.selectAllOnFocus) {
+                        // selectAllOnFocus will be handled by
+                        // the focus event. The focus event is
+                        // also fired when the input is clicked.
+                        return;
+                    } else if (input.setSelectionRange && settings.bringCaretAtEndOnFocus) {
+                        length = $input.val().length;
+                        input.setSelectionRange(length, length);
+                    } else {
+                        $input.val($input.val());
+                    }
+                }
 
+                function doubleClickEvent() {
+                    var input = $input.get(0),
+                        start,
+                        length;
+                    if (input.setSelectionRange && settings.bringCaretAtEndOnFocus) {
+                        length = $input.val().length;
+                        start = settings.doubleClickSelection ? 0 : length;
+                        input.setSelectionRange(start, length);
+                    } else {
+                        $input.val($input.val());
+                    }
+                }
+
+                fixMobile();
                 $input.unbind(".maskMoney");
                 $input.bind("keypress.maskMoney", keypressEvent);
                 $input.bind("keydown.maskMoney", keydownEvent);
                 $input.bind("blur.maskMoney", blurEvent);
-                //$input.bind("focus.maskMoney", focusEvent);
-                //$input.bind("click.maskMoney", clickEvent);
+                $input.bind("focus.maskMoney", focusEvent);
+                $input.bind("click.maskMoney", clickEvent);
+                $input.bind("dblclick.maskMoney", doubleClickEvent);
                 $input.bind("cut.maskMoney", cutPasteEvent);
                 $input.bind("paste.maskMoney", cutPasteEvent);
                 $input.bind("mask.maskMoney", mask);
@@ -391,13 +498,94 @@
         }
     };
 
+    function setSymbol(value, settings) {
+        var operator = "";
+        if (value.indexOf("-") > -1) {
+            value = value.replace("-", "");
+            operator = "-";
+        }
+        if (value.indexOf(settings.prefix) > -1) {
+            value = value.replace(settings.prefix, "");
+        }
+        if (value.indexOf(settings.suffix) > -1) {
+            value = value.replace(settings.suffix, "");
+        }
+        return operator + settings.prefix + value + settings.suffix;
+    }
+
+    function maskValue(value, settings) {
+        if (settings.allowEmpty && value === "") {
+            return "";
+        }
+        if (settings.reverse) {
+            return maskValueReverse(value, settings);
+        }
+        return maskValueStandard(value, settings);
+    }
+
+    function maskValueStandard(value, settings) {
+        var negative = (value.indexOf("-") > -1 && settings.allowNegative) ? "-" : "",
+            onlyNumbers = value.replace(/[^0-9]/g, ""),
+            integerPart = onlyNumbers.slice(0, onlyNumbers.length - settings.precision),
+            newValue,
+            decimalPart,
+            leadingZeros;
+
+        newValue = buildIntegerPart(integerPart, negative, settings);
+
+        if (settings.precision > 0) {
+            decimalPart = onlyNumbers.slice(onlyNumbers.length - settings.precision);
+            leadingZeros = new Array((settings.precision + 1) - decimalPart.length).join(0);
+            newValue += settings.decimal + leadingZeros + decimalPart;
+        }
+        return setSymbol(newValue, settings);
+    }
+
+    function maskValueReverse(value, settings) {
+        var negative = (value.indexOf("-") > -1 && settings.allowNegative) ? "-" : "",
+            valueWithoutSymbol = value.replace(settings.prefix, "").replace(settings.suffix, ""),
+            integerPart = valueWithoutSymbol.split(settings.decimal)[0],
+            newValue,
+            decimalPart = "";
+
+        if (integerPart === "") {
+            integerPart = "0";
+        }
+        newValue = buildIntegerPart(integerPart, negative, settings);
+
+        if (settings.precision > 0) {
+            var arr = valueWithoutSymbol.split(settings.decimal);
+            if (arr.length > 1) {
+                decimalPart = arr[1];
+            }
+            newValue += settings.decimal + decimalPart;
+            var rounded = Number.parseFloat((integerPart + "." + decimalPart)).toFixed(settings.precision);
+            var roundedDecimalPart = rounded.toString().split(settings.decimal)[1];
+            newValue = newValue.split(settings.decimal)[0] + "." + roundedDecimalPart;
+        }
+
+        return setSymbol(newValue, settings);
+    }
+
+    function buildIntegerPart(integerPart, negative, settings) {
+        // remove initial zeros
+        integerPart = integerPart.replace(/^0*/g, "");
+
+        // put settings.thousands every 3 chars
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, settings.thousands);
+        if (integerPart === "") {
+            integerPart = "0";
+        }
+        return negative + integerPart;
+    }
+
     $.fn.maskMoney = function (method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === "object" || ! method) {
+        } else if (typeof method === "object" || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error("Method " +  method + " does not exist on jQuery.maskMoney");
+            $.error("Method " + method + " does not exist on jQuery.maskMoney");
         }
     };
 })(window.jQuery || window.Zepto);

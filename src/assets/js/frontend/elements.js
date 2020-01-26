@@ -33,11 +33,10 @@
                 suffix: $format,
                 affixesStay: true,
                 allowNegative: true,
-                allowZero: true,
                 thousands: $thousand_separator,
                 decimal: $decimal_seperator,
                 precision: $decimals
-            }).maskMoney('mask');
+            });
         });
     };
 
@@ -297,12 +296,12 @@
 
             $($this).datepicker({
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
                     if(selectedDate===''){
                         this.parentNode.classList.remove('super-filled');
                     }else{
                         this.parentNode.classList.add('super-filled');
                     }
+                    SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
                 },
                 beforeShowDay: function(dt) {
                     var day = dt.getDay();
@@ -801,8 +800,10 @@
                         if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
                             items_to_show.push(el);
                             found = true;
-                            var $regex = RegExp([value].join('|'), 'gi');
-                            el.innerHTML = '<span class="super-wp-tag">'+el.innerText.replace($regex, '<span>$&</span>')+'</span>';
+                            var regex = RegExp([value].join('|'), 'gi');
+                            var stringBold = '<span class="super-wp-tag">'+el.innerText.replace(regex, '<span>$&</span>')+'</span>';
+                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                            el.innerHTML = stringBold;
                         }else{
                             items_to_hide.push(el);
                             el.innerHTML = '<span class="super-wp-tag">'+string_value+'</span>';
@@ -1509,8 +1510,10 @@
                         if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
                             items_to_show.push(el);
                             found = true;
-                            var $regex = RegExp([value].join('|'), 'gi');
-                            el.innerHTML = el.innerText.replace($regex, '<span>$&</span>');
+                            var regex = RegExp([value].join('|'), 'gi');
+                            var stringBold = el.innerText.replace(regex, '<span>$&</span>');
+                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                            el.innerHTML = stringBold;
                         }else{
                             items_to_hide.push(el);
                             el.innerHTML = string_value;
@@ -1542,6 +1545,7 @@
                 $('.super-focus').removeClass('super-focus');
                 $('.super-focus-dropdown').removeClass('super-focus-dropdown');
                 $this.parents('.super-field:eq(0)').addClass('super-focus').addClass('super-focus-dropdown');
+                $this.parents('.super-field-wrapper').addClass('super-focus'); // Required for adaptive placeholders
                 $this.parent().find('input[name="super-dropdown-search"]').focus();
             }
         });
@@ -1584,6 +1588,7 @@
                         regex = RegExp(words.join('|'), 'gi');
                         replacement = '<span>$&</span>';
                         stringBold = nodes[i].innerText.replace(regex, replacement);
+                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
                         nodes[i].innerHTML = stringBold;
                         nodes[i].classList.add('super-active');
                     }else{
@@ -1596,8 +1601,13 @@
                     for(i=0; i<nodes.length; i++){
                         nodes[i].classList.remove('super-active');
                     }
+                    // If only one found, make it selected option by default
+                    if(nodes.length===1){
+                        field.classList.remove('super-string-found');
+                    }else{
+                        field.classList.add('super-string-found');
+                    }
                     if(firstFound) firstFound.classList.add('super-active');
-                    field.classList.add('super-string-found');
                     field.classList.add('super-focus');
                     dropdownUI = $(field).find('.super-dropdown-ui');
                     dropdownUI.scrollTop(dropdownUI.scrollTop() - dropdownUI.offset().top + $(firstFound).offset().top - 50); 
@@ -1607,11 +1617,6 @@
                     field.classList.remove('super-string-found');
                 }
             }
-        });
-
-        $doc.on('mouseleave', '.super-dropdown-ui:not(.super-autosuggest-tags-list)', function(){
-            $(this).parents('.super-field:eq(0)').removeClass('super-focus').removeClass('super-focus-dropdown').removeClass('super-string-found'); 
-            $(this).parents('.super-field:eq(0)').find('input[name="super-dropdown-search"]').val('');
         });
 
         // Focus fields
@@ -1735,6 +1740,7 @@
                     this.classList.add('super-active');
                     input.value = value;
                     field.classList.remove('super-focus');
+                    wrapper.classList.remove('super-focus');
                 }else{
                     max = input.dataset.maxlength;
                     min = input.dataset.minlength;
@@ -2163,6 +2169,17 @@
 
         });
 
+        // Unfocus dropdown
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('.super-dropdown-ui') && !e.target.classList.contains('super-dropdown-ui')){
+                var nodes = document.querySelectorAll('.super-focus-dropdown');
+                for(var i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-focus-dropdown');
+                    nodes[i].classList.remove('super-focus');
+                }
+            }
+        });
+
         // @since 4.9.3 - Adaptive Placeholders
         var adaptivePlaceholder = document.querySelectorAll('.super-adaptive-placeholder');
         for (var i = 0; i < adaptivePlaceholder.length; i++) {
@@ -2176,17 +2193,38 @@
                 }
             }
             input.addEventListener('keyup', function () {
-                var parent = this.closest('.super-shortcode');
-                parent.classList.add('super-filled');
-                if (this.value.length === 0) parent.classList.remove('super-filled');
+                var filled = true,
+                    parent = this.closest('.super-shortcode');
+                if(parent.classList.contains('super-currency')){
+                    if($(this).maskMoney('unmasked')[0]===0){
+                       filled = false;
+                    }
+                }
+                if (this.value.length === 0) filled = false;
+                if(filled){
+                    parent.classList.add('super-filled');
+                }else{
+                    parent.classList.remove('super-filled');
+                }
             });
             input.oncut = input.onpaste = function () {
-                var input = event.target,
+                var filled = true,
+                    input = event.target,
                     parent = event.target.closest('.super-shortcode');
+
+                if(parent.classList.contains('super-currency')){
+                    if($(input).maskMoney('unmasked')[0]===0){
+                        filled = false;
+                     }
+                }
                 if (event.type == 'cut' || event.type == 'paste') {
                     setTimeout(function () {
-                        parent.classList.add('super-filled');
-                        if (input.value.length === 0) parent.classList.remove('super-filled');
+                        if (input.value.length === 0) filled = false;
+                        if(filled){
+                            parent.classList.add('super-filled');
+                        }else{
+                            parent.classList.remove('super-filled');
+                        }
                     }, 100);
                 }
             }
