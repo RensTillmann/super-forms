@@ -835,6 +835,35 @@
 
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
         $doc.on('click', '.super-keyword-tags .super-dropdown-ui .super-item', function(){
+            var i, nodes, html = '', counter = 0,
+                field = this.closest('.super-field'),
+                value = this.dataset.value, // first_choice
+                searchValue = this.dataset.searchValue, // First choice
+                wrapper = this.closest('.super-field-wrapper'),
+                keywordField = wrapper.querySelector('.super-keyword'),
+                max = keywordField.dataset.keywordMax,
+                keywordFieldValue = keywordField.value,
+                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                filterField = wrapper.querySelector('.super-shortcode-field');
+
+            // if this tag doesn't exists yet
+            if(keywordFieldValue.indexOf(value)===-1){
+                html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+                tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                counter = tagsContainer.querySelectorAll('span').length;
+                // Check if limit is reached after adding this, if so hide the filter field
+                if(counter>=max) filterField.style.display = 'none';
+                SUPER.set_keyword_tags_width(field, counter, max);
+                this.classList.add('super-active');
+                field.classList.remove('super-focus');
+                field.classList.remove('super-string-found');
+                SUPER.after_field_change_blur_hook(keywordField);
+            }else{
+                // this tag exists, don't add it...
+            }
+
+            /*
+            debugger;
             var $this = $(this);
             if($this.data('value')==='') return true;
 
@@ -878,9 +907,11 @@
                 $field.removeClass('super-focus').removeClass('super-string-found');
                 SUPER.after_field_change_blur_hook($shortcode_field[0]);
             }
+            */
         });
         // @since 3.7.0 - delete autosuggest keyword wordpress tag
         $doc.on('click', '.super-autosuggest-tags > div > span', function(){
+            debugger;
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
@@ -899,7 +930,7 @@
                 if ($counter !== 0) $value = $value + ',' + $(this).text();
                 $counter++;
             });
-            $shortcode_field.val($value);
+            $field.find('.super-keyword').val($value);
             // Add back the placeholder
             if($value===''){
                 $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
@@ -1666,6 +1697,7 @@
             field.classList.remove('super-focus');
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
+            wrapper.parentNode.classList.add('super-filled');
             SUPER.after_field_change_blur_hook(wrapper.querySelector('.super-shortcode-field'));
             if(populate=='true'){
                 SUPER.populate_form_data_ajax(field);
@@ -1683,6 +1715,8 @@
                 items[i].classList.remove('super-active');
             }
             wrapper.classList.remove('super-overlap');
+            wrapper.parentNode.classList.remove('super-filled');
+            field.focus();
             SUPER.after_field_change_blur_hook(field);
         });
 

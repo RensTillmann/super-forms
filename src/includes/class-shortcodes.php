@@ -2770,9 +2770,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['wc_order_search'] ) ) $atts['wc_order_search'] = '';
         $class .= ($atts['wc_order_search']=='true' ? 'super-wc-order-search ' : '');
 
-        // @since   3.7.0 - auto suggest wp tags
-        if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
-        $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
+        // @since   3.7.0 - keyword tags
+        if( !empty($atts['enable_keywords']) ) {
+            if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
+            $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
+        }
 
         // @since   3.1.0 - uppercase transformation
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';

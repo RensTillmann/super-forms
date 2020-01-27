@@ -312,17 +312,16 @@ h1.super-thanks-title
 
 .super-autosuggest-tags
   cursor: text
-
-.super-field
-  &.super-text .super-autosuggest-tags
-    position: absolute
-    left: 0px
-    top: 0px
-    width: 100%
-    padding-left: 0px
-    padding-right: 0px
-    overflow: hidden
-  .super-autosuggest-tags > div
+  display: flex
+  align-items: center
+  position: absolute
+  left: 0px
+  top: 0px
+  width: 100%
+  padding-left: 0px
+  padding-right: 0px
+  overflow: hidden
+  > div
     float: left
     > span
       float: left
@@ -331,53 +330,61 @@ h1.super-thanks-title
       border-color: transparent
       display: inline-block
       padding: 4px 25px 4px 10px
-      margin: 3px 0px 0px 3px
       position: relative
       cursor: pointer
       font-size: 12px
+      &:after
+        content: unicode("f057")
+        position: absolute
+        right: 5px
+        top: 5px
+        font-size: 15px
+        color: #2e8a90
+        height: 15px
+        line-height: 15px
+      &:hover:after
+        color: #246569
+  .super-shortcode-field
+    float: left
+    width: 50%
+    +borderRadius(0px!important)
+    padding: 0
+    height: 100%
+    border: 0!important
+    +boxShadow(inherit)
 
 .super-style-one .super-autosuggest-tags > div > span:last-child
   margin-right: 15px
 
-.super-autosuggest-tags
-  > div > span
-    &:after
-      content: unicode("f057")
-      position: absolute
-      right: 5px
-      top: 5px
-      font-size: 15px
-      color: #2e8a90
-      height: 15px
-      line-height: 15px
-    &:hover:after
-      color: #246569
+.super-field-size-medium .super-autosuggest-tags
   .super-shortcode-field
-    float: left
-    width: 50%
-    +borderRadius(0px)
-    margin: 0px 15px
-    padding: 0
-    height: 100%
-    border: 0
-    +boxShadow(inherit)
+    margin: 0px 0px 0px 0px
+  > div > span
+    padding: 0px 23px 1px 7px
+    margin-left: 7px
+    &:after
+      right: 3px
+      top: 2px
 
-.super-field-size-large .super-autosuggest-tags > div > span
-  margin: 5px 0px 0px 5px
-  padding: 7px 30px 7px 15px
-  &:after
-    right: 8px
-    top: 8px
+.super-field-size-large .super-autosuggest-tags
+  .super-shortcode-field
+    margin: 0px 0px 0px 0px
+  > div > span
+    padding: 3px 25px 3px 10px
+    margin-left: 10px
+    &:after
+      right: 5px
+      top: 4px
 
 .super-field-size-huge .super-autosuggest-tags
   .super-shortcode-field
-    margin: 0px 0px 0px 25px
+    margin: 0px 0px 0px 0px
   > div > span
-    margin: 7px 0px 0px 7px
-    padding: 10px 35px 10px 20px
+    padding: 5px 25px 5px 12px
+    margin-left: 12px
     &:after
-      right: 11px
-      top: 11px
+      right: 6px
+      top: 6px
 
 .super-field-size-medium
   .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
@@ -459,24 +466,21 @@ h1.super-thanks-title
       padding-left: 0
       padding-right: 0
 
+
+
 .super-field.super-text.super-keyword-tags
   .super-autosuggest-tags
     cursor: default
   input.super-shortcode-field
     width: 0px
+  &.super-string-found 
+    .super-item, .super-no-results
+      width: 32%
+      margin: 1% 0% 1% 1%
+      height: auto
+      padding: 10px
   &.super-string-found .super-item
-    width: 32%
     display: none
-    margin: 1% 0% 1% 1%
-    height: auto
-    padding: 10px
-  &.super-no-match .super-item.super-no-results
-    display: block
-    padding-top: 0
-    padding-bottom: 0
-    background: none !important
-    cursor: text
-  &.super-string-found .super-item
     &.super-active
       display: inline-block
       vertical-align: top
@@ -510,6 +514,17 @@ h1.super-thanks-title
         font-size: 11px
         line-height: 11px
         padding-top: 5px
+
+.super-no-results
+  display: none
+.super-keyword-tags
+  &.super-no-match
+    .super-no-results
+      display: block
+      padding-top: 0
+      padding-bottom: 0
+      background: none !important
+      cursor: text
 
 .super-style-one
   &.super-field-size-medium .super-dropdown-ui.super-autosuggest-tags-list, &.super-field-size-large .super-dropdown-ui.super-autosuggest-tags-list, &.super-field-size-huge .super-dropdown-ui.super-autosuggest-tags-list
@@ -1159,6 +1174,7 @@ textarea
 
 .super-preview-elements .super-field
   display: block !important
+  margin-bottom: 0
 
 .super-field.super-grouped
   width: auto
@@ -1799,6 +1815,20 @@ textarea
     overflow: auto
     top: 33px
 
+
+.super-field-size-medium
+  .super-auto-suggest .super-icon-outside
+    .super-dropdown-ui
+      width: calc(100% - 45px)
+.super-field-size-large
+  .super-auto-suggest .super-icon-outside
+    .super-dropdown-ui
+      width: calc(100% - 55px)
+.super-field-size-huge
+  .super-auto-suggest .super-icon-outside
+    .super-dropdown-ui
+      width: calc(100% - 65px)
+
 .super-field-size-medium
   .super-icon-outside.super-icon-right
     .super-dropdown-ui
@@ -2184,23 +2214,23 @@ textarea
     visibility: hidden !important
     height: 0px !important
     width: 0px !important
-  .super-html-title
-    font-size: 14px
-    font-weight: bold
-    line-height: 14px
-    padding: 0px 0px 5px 0px
-    &.super-bottom-margin
-      padding: 0px 0px 15px 0px
-  .super-html-subtitle
-    font-size: 12px
-    line-height: 14px
+.super-html-title
+  font-size: 14px
+  font-weight: bold
+  line-height: 14px
+  padding: 0px 0px 5px 0px
+  &.super-bottom-margin
     padding: 0px 0px 15px 0px
-    &.super-no-bottom-margin
-      padding: 0px 0px 0px 0px
-  .super-html-content
-    font-size: 12px
-    line-height: 14px
+.super-html-subtitle
+  font-size: 12px
+  line-height: 14px
+  padding: 0px 0px 15px 0px
+  &.super-no-bottom-margin
     padding: 0px 0px 0px 0px
+.super-html-content
+  font-size: 12px
+  line-height: 14px
+  padding: 0px 0px 0px 0px
 
 .super-button
   display: inline-block
@@ -2767,7 +2797,7 @@ ul.super-multipart-steps .super-multipart-step
   .super-field
     .super-label, .super-description, .super-shortcode-field
       text-align: right
-  .super-html .super-html-content
+  .super-html-content
     text-align: right
   .super-field.super-quantity .super-shortcode-field
     text-align: center
@@ -3438,7 +3468,7 @@ ul.super-multipart-steps .super-multipart-step
     margin-left: 0px
     li
       padding-left: 50px
-  .super-shortcode-field
+  .super-shortcode-field, .super-keyword, .super-autosuggest-tags
     height: 53px
   .super-icon-outside .super-icon, .super-icon-inside .super-icon
     width: 53px
