@@ -193,12 +193,12 @@ return $import_fonts."
 ".$s.".super-field .super-label,
 ".$s.".super-field .super-toggle-prefix-label,
 ".$s.".super-field .super-toggle-suffix-label,
-".$s.".super-html .super-html-title {
+".$s.".super-html-title {
     color: ".$v['theme_field_label'].";
 }
 ".$s.".super-field .super-description,
-".$s.".super-html .super-html-subtitle,
-".$s.".super-html .super-html-content {
+".$s.".super-html-subtitle,
+".$s.".super-html-content {
     color: ".$v['theme_field_description'].";
 }
 ".$s.".super-load-icon {
@@ -416,8 +416,9 @@ return $import_fonts."
 
 
 /* @since 2.9.0 - font sizes adjustments */
-".$s.".super-html .super-html-subtitle,
-".$s.".super-html .super-html-content,
+".$s.".super-no-results,
+".$s.".super-html-subtitle,
+".$s.".super-html-content,
 ".$s.".super-slider .super-field-wrapper span.amount,
 ".$s.".super-fileupload-button,
 ".$s.".super-msg,

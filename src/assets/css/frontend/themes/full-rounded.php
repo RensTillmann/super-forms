@@ -6,61 +6,64 @@ $v = $settings;
 
 return "
 ".$s.".super-shortcode-field,
-".$s.".super-field .super-field-wrapper .super-shortcode-field,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
-".$s.".super-field-wrapper.super-icon-outside .super-icon,
-".$s.".super-field-wrapper.super-icon-inside .super-icon,
+".$s.".super-keyword,
+".$s.".super-shortcode-field,
+".$s.".super-autosuggest-tags,
+".$s.".super-icon-outside .super-icon,
+".$s.".super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-ui,
 ".$s.".super-dropdown-ui .super-item.super-placeholder,
-".$s.".super-field.super-quantity .super-minus-button,
-".$s.".super-field.super-quantity .super-plus-button,
-".$s.".super-rating .super-rating i:nth-child(1),
-".$s.".super-rating .super-rating i:nth-child(5),
+".$s.".super-quantity .super-minus-button,
+".$s.".super-quantity .super-plus-button,
+".$s.".super-rating i:nth-child(1),
+".$s.".super-rating i:nth-child(5),
 ".$s.".super-toggle-switch,
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span, 
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
-".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
-".$s.".super-field .super-field-wrapper .super-stripe-base {
+".$s.".super-autosuggest-tags > div > span, 
+".$s.".super-string-found .super-dropdown-ui .super-item,
+".$s.".super-string-found .super-dropdown-ui .super-item span.super-wp-tag,
+".$s.".super-stripe-base {
 	-webkit-border-radius:18px;
 	-moz-border-radius:18px;
 	border-radius:18px;
 }
 ".$s_large.".super-shortcode-field,
+".$s_large.".super-keyword,
 ".$s_large.".super-autosuggest-tags,
-".$s_large.".super-field .super-field-wrapper .super-shortcode-field,
-".$s_large.".super-field-wrapper.super-icon-outside .super-icon,
-".$s_large.".super-field-wrapper.super-icon-inside .super-icon,
+".$s_large.".super-shortcode-field,
+".$s_large.".super-icon-outside .super-icon,
+".$s_large.".super-icon-inside .super-icon,
 ".$s_large.".super-fileupload-button,
 ".$s_large.".super-dropdown-ui,
 ".$s_large.".super-dropdown-ui .super-item.super-placeholder,
-".$s.".super-field.super-quantity .super-minus-button,
-".$s.".super-field.super-quantity .super-plus-button,
-".$s_large.".super-rating .super-rating i:nth-child(1),
-".$s_large.".super-rating .super-rating i:nth-child(5),
+".$s_large.".super-quantity .super-minus-button,
+".$s_large.".super-quantity .super-plus-button,
+".$s_large.".super-rating i:nth-child(1),
+".$s_large.".super-rating i:nth-child(5),
 ".$s_large.".super-toggle-switch,
-".$s_large.".super-field .super-field-wrapper .super-stripe-base {
+".$s_large.".super-stripe-base {
 	-webkit-border-radius:21px;
 	-moz-border-radius:21px;
 	border-radius:21px;
 }
 ".$s_huge.".super-shortcode-field,
+".$s_huge.".super-keyword,
 ".$s_huge.".super-autosuggest-tags,
-".$s_huge.".super-field .super-field-wrapper .super-shortcode-field,
-".$s_huge.".super-field-wrapper.super-icon-outside .super-icon,
-".$s_huge.".super-field-wrapper.super-icon-inside .super-icon,
+".$s_huge.".super-shortcode-field,
+".$s_huge.".super-icon-outside .super-icon,
+".$s_huge.".super-icon-inside .super-icon,
 ".$s_huge.".super-fileupload-button,
 ".$s_huge.".super-dropdown-ui,
 ".$s_huge.".super-dropdown-ui .super-item.super-placeholder,
-".$s.".super-field.super-quantity .super-minus-button,
-".$s.".super-field.super-quantity .super-plus-button,
-".$s_huge.".super-rating .super-rating i:nth-child(1),
-".$s_huge.".super-rating .super-rating i:nth-child(5),
+".$s_huge.".super-quantity .super-minus-button,
+".$s_huge.".super-quantity .super-plus-button,
+".$s_huge.".super-rating i:nth-child(1),
+".$s_huge.".super-rating i:nth-child(5),
 ".$s_huge.".super-toggle-switch,
-".$s_huge.".super-field .super-field-wrapper .super-stripe-base {
+".$s_huge.".super-stripe-base {
 	-webkit-border-radius:26px;
 	-moz-border-radius:26px;
 	border-radius:26px;
