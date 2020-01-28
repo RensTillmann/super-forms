@@ -694,16 +694,21 @@ class SUPER_Shortcodes {
                     }else{
                         $data_value = $v['post_title'];
                     }
+                    $sku = '';
+                    if(function_exists('wc_get_product')){
+                        $product = wc_get_product( $v['ID'] );
+                        $sku = ';'.$product->get_sku();    
+                    }
                     $item_value = $data_value;
                     if($tag=='text') {
                         if($prefix=='keywords_'){
-                            $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . $v['post_title'] . '</span></li>';
+                            $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '"><span class="super-wp-tag">' . esc_html($v['post_title']) . '</span></li>';
                         }else{
-                            $items[] = '<li class="super-item" ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>';
+                            $items[] = '<li class="super-item" ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '">' . esc_html($v['post_title']) . '</li>';
                             $item_value = explode(';', $data_value)[0];
                         }
                     }
-                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title'] ) . '">' . $v['post_title'] . '</li>'; 
+                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '">' . esc_html($v['post_title']) . '</li>'; 
                     if($tag=='checkbox'){
                         $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_featured_image_url);
                     }

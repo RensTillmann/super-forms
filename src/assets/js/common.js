@@ -4821,7 +4821,59 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.7.0 - set correct input width for keyword tags fields
-    SUPER.set_keyword_tags_width = function($field, $counter, $max_tags){
+    // SUPER.itemWidth = function(node){
+    //     var style = window.getComputedStyle ? getComputedStyle(node, null) : node.currentStyle,
+    //         marginLeft = parseFloat(style.marginLeft) || 0,
+    //         marginRight = parseFloat(style.marginRight) || 0,
+    //         paddingLeft = parseFloat(style.paddingLeft) || 0,
+    //         paddingRight = parseFloat(style.paddingRight) || 0;
+    //     debugger;
+    //     return node.offsetWidth+(marginLeft+marginRight)-(paddingLeft+paddingRight);
+    //     //return node.offsetWidth+(marginLeft+marginRight);
+    // };
+    SUPER.set_keyword_tags_width = function(field, counter, maxTags){
+        var i, x, nodes = [], tagsWidth = 0, tags, style, marginLeft, marginRight, paddingLeft, paddingRight, autosuggest, filterField, autosuggestWidth, newFilterFieldWidth;
+        if(typeof field === 'undefined'){
+            nodes = document.querySelectorAll('.super-keyword-tags');
+        }else{
+            nodes[0] = field;
+        }
+        for(i=0; i < nodes.length; i++){
+            autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
+            autosuggestWidth = autosuggest.offsetWidth;
+            tagsWidth = 0;
+            newFilterFieldWidth = autosuggestWidth-tagsWidth;
+            filterField = nodes[i].querySelector('.super-shortcode-field');
+            filterField.style.width = newFilterFieldWidth+'px';
+            console.log('autosuggestWidth (932px): ', autosuggestWidth);
+            console.log('tagsWidth (211px): ', tagsWidth);
+            console.log('newFilterFieldWidth (718px): ', newFilterFieldWidth);
+            
+            // tags = nodes[i].querySelectorAll('.super-autosuggest-tags > div > span');
+            // tagsWidth = 0;
+            // for(x=0; x < tags.length; x++){
+            //     style = window.getComputedStyle ? getComputedStyle(tags[x], null) : tags[x].currentStyle;
+            //     marginLeft = parseFloat(style.marginLeft) || 0;
+            //     marginRight = parseFloat(style.marginRight) || 0;
+            //     paddingLeft = parseFloat(style.paddingLeft) || 0;
+            //     paddingRight = parseFloat(style.paddingRight) || 0;
+            //     tagsWidth += tags[x].offsetWidth+marginLeft+marginRight+paddingLeft+paddingRight;
+            // }
+            // autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
+            // style = window.getComputedStyle ? getComputedStyle(autosuggest, null) : autosuggest.currentStyle;
+            // marginLeft = parseFloat(style.marginLeft) || 0;
+            // marginRight = parseFloat(style.marginRight) || 0;
+            // paddingLeft = parseFloat(style.paddingLeft) || 0;
+            // paddingRight = parseFloat(style.paddingRight) || 0;
+            // autosuggestWidth = autosuggest.offsetWidth+marginLeft+marginRight-paddingLeft-paddingRight;
+            // newFilterFieldWidth = autosuggestWidth-tagsWidth-10;
+            // filterField = nodes[i].querySelector('.super-shortcode-field');
+            // filterField.style.width = newFilterFieldWidth+'px';
+            // autosuggestWidth: 932px
+            // tagsWidth: 211px
+
+        }
+        /*
         if(typeof $field === 'undefined'){
             $field = $('.super-keyword-tags');
         }
@@ -4875,6 +4927,7 @@ function SUPERreCaptcha(){
                 $autosuggest.children('input').css('width',$new_width+'px');
             }
         });
+        */
     };
 
     // Init Slider fields

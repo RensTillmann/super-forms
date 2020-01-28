@@ -835,7 +835,7 @@
 
         // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
         $doc.on('click', '.super-keyword-tags .super-dropdown-ui .super-item', function(){
-            var i, nodes, html = '', counter = 0,
+            var html = '', counter = 0,
                 field = this.closest('.super-field'),
                 value = this.dataset.value, // first_choice
                 searchValue = this.dataset.searchValue, // First choice
@@ -853,10 +853,10 @@
                 counter = tagsContainer.querySelectorAll('span').length;
                 // Check if limit is reached after adding this, if so hide the filter field
                 if(counter>=max) filterField.style.display = 'none';
-                SUPER.set_keyword_tags_width(field, counter, max);
                 this.classList.add('super-active');
                 field.classList.remove('super-focus');
                 field.classList.remove('super-string-found');
+                SUPER.set_keyword_tags_width(field, counter, max);
                 SUPER.after_field_change_blur_hook(keywordField);
             }else{
                 // this tag exists, don't add it...
@@ -919,7 +919,7 @@
             // Always display the filter field again
             $autosuggest.show();
             $this.remove();
-            SUPER.set_keyword_tags_width($field);
+            SUPER.set_keyword_tags_width($field[0]);
             $autosuggest.val('').focus();
             $field.find('.super-keyword').val('');
             $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
@@ -1518,55 +1518,56 @@
         
         // @since 1.2.4 - autosuggest text field
         // @since 4.4.0 - autosuggest speed improvements
-        var autosuggest_timeout = null;
-        $doc.on('keyup', '.super-field.super-auto-suggest .super-shortcode-field', function(){
-            var el = $(this)[0];
-            var time = 250;
-            if (autosuggest_timeout !== null) {
-                clearTimeout(autosuggest_timeout);
-            }
-            autosuggest_timeout = setTimeout(function () {
-                var value = el.value.toString();
-                var parent = el.closest('.super-field');
-                if( value==='' ) {
-                    parent.classList.remove('super-string-found');
-                }else{
-                    var items_to_show = [];
-                    var items_to_hide = [];
-                    var wrapper = el.closest('.super-field-wrapper');
-                    var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
-                    var found = false;
-                    [].forEach.call(items, function(el) {
-                        var string_value = el.dataset.searchValue.toString();
-                        if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
-                            items_to_show.push(el);
-                            found = true;
-                            var regex = RegExp([value].join('|'), 'gi');
-                            var stringBold = el.innerText.replace(regex, '<span>$&</span>');
-                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
-                            el.innerHTML = stringBold;
-                        }else{
-                            items_to_hide.push(el);
-                            el.innerHTML = string_value;
-                        }
-                    });
-                    [].forEach.call(items_to_show, function(el) {
-                        el.style.display = 'flex';
-                        //el.classList.add('super-active');
-                    });
-                    [].forEach.call(items_to_hide, function(el) {
-                        el.style.display = 'none';
-                        //el.classList.remove('super-active');
-                    });
+        var autosuggestTimeout = null;
+        $doc.on('keyup', '.super-auto-suggest .super-shortcode-field', function () {
+            var i,
+                el = this,
+                parent = el.closest('.super-field'),
+                itemsToShow = [],
+                itemsToHide = [],
+                value,
+                text = '',
+                searchValue,
+                regex,
+                stringBold,
+                wrapper = el.closest('.super-field-wrapper'),
+                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
 
-                    if( found===true ) {
-                        parent.classList.add('super-string-found');
-                        parent.classList.add('super-focus');
+            if (autosuggestTimeout !== null) clearTimeout(autosuggestTimeout);
+            autosuggestTimeout = setTimeout(function () {
+                value = el.value.toString();
+                if (value === '') {
+                    parent.classList.remove('super-string-found');
+                    return false;
+                }
+                for (i = 0; i < nodes.length; i++) {
+                    searchValue = nodes[i].dataset.searchValue.toString();
+                    text = searchValue.split(';')[0];
+                    if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                        itemsToShow.push(nodes[i]);
+                        regex = RegExp([value].join('|'), 'gi');
+                        stringBold = text.replace(regex, '<span>$&</span>');
+                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                        nodes[i].innerHTML = stringBold;
                     }else{
-                        parent.classList.remove('super-string-found');
+                        itemsToHide.push(nodes[i]);
                     }
                 }
-            }, time);
+                [].forEach.call(itemsToShow, function (el) {
+                    el.style.display = 'flex';
+                    el.style.whiteSpace = 'pre-wrap';
+                });
+                [].forEach.call(itemsToHide, function (el) {
+                    el.style.display = 'none';
+                    el.style.whiteSpace = '';
+                });
+                if (itemsToShow.length>0) {
+                    parent.classList.add('super-string-found');
+                    parent.classList.add('super-focus');
+                } else {
+                    parent.classList.remove('super-string-found');
+                }
+            }, 250);
         });
 
         // Focus dropdowns
