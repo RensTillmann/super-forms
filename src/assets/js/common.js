@@ -109,22 +109,22 @@ function SUPERreCaptcha(){
         if(typeof name === 'undefined') name = '';
         regex = (typeof regex === 'undefined' ? '' : regex );
         // If we want to return all but not by name
-        if(name==='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files, .super-recaptcha');
+        if(name==='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload), .super-active-files, .super-recaptcha');
         // If name is empty just return the first field only
-        if(name==='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-keyword, .super-active-files');
+        if(name==='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-active-files');
         // If no regex was defined return all field just by their exact name match
-        if(name!=='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(name!=='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If regex is set to 'all' we want to search for multiple fields
         // This is currently being used by the builder to determine duplicate field names
-        if(name!=='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        if(name!=='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If a regex is defined, search for fields based on the regex
-        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name'+regex+'="'+name+'"], .super-keyword[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
+        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     SUPER.fields = function(form, selector){
         return form.querySelectorAll(selector);
     };
     SUPER.fieldsByName = function(form, name){
-        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-keyword[name="'+name+'"], .super-active-files[name="'+name+'"]');
+        return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
@@ -1980,7 +1980,7 @@ function SUPERreCaptcha(){
             }
             if(parent.classList.contains('super-keyword-tags')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-shortcode-field > div > span').length;
+                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
                 if(total < attr) error = true;
             }
             if(text_field===true){
@@ -2005,7 +2005,7 @@ function SUPERreCaptcha(){
             }
             if(parent.classList.contains('super-keyword-tags')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-shortcode-field > div > span').length;
+                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
                 if(total > attr) error = true;
             }
             if(text_field===true){
@@ -2689,12 +2689,7 @@ function SUPERreCaptcha(){
 
             // Proceed only if it's a valid field (which must have a field name)
             if(typeof $this.attr('name')==='undefined') {
-                // Except for super-keyword-tags
-                if(!$this.parents('.super-field:eq(0)').hasClass('super-keyword-tags')){
-                    return true;
-                }else{
-                    $this = $this.parents('.super-field:eq(0)').find('.super-keyword');
-                }
+                return true;
             }
 
             $this.parents('.super-shortcode.super-column').each(function(){
@@ -2958,26 +2953,8 @@ function SUPERreCaptcha(){
                             }
                             $i++;
                         });
-                        $data[$super_field.find('.super-keyword').attr('name')].value = $new_value; 
-                    }else{
-                        // @since 2.9.0 - keywords
-                        if( $this.hasClass('super-keyword') ) {
-                            $parent = $this.parent().find('.super-entered-keywords');
-                            $tags = '';
-                            $counter = 0;
-                            $parent.children('span').each(function(){
-                                if($counter===0){
-                                    $tags += $(this).text();
-                                }else{
-                                    $tags += ', '+$(this).text();
-                                }
-                                $counter++;
-                            });
-                            $data[$this.attr('name')].value = $tags; 
-                        }
+                        $data[$super_field.find('.super-shortcoded-field').attr('name')].value = $new_value; 
                     }
-
-
                 }
             }
         });
@@ -3177,11 +3154,7 @@ function SUPERreCaptcha(){
     };
 
     SUPER.get_field_name = function($field){
-        // Check if field does not have a name, in that case it might be a keyword field
         if($field.name) return $field.name;
-        if($field.closest('.super-field').classList.contains('super-keyword-tags')){
-            return $field.closest('.super-field').querySelector('.super-keyword').name;
-        }
     };
 
     // @since 3.5.0 - function for intializing google maps elements
@@ -4004,7 +3977,7 @@ function SUPERreCaptcha(){
             nodes[i].classList.remove('super-overlap');
         }
         // @since 4.8.20 - reset keyword fields
-        nodes = form.querySelectorAll('.super-keyword-tags .super-shortcode-field');
+        nodes = form.querySelectorAll('.super-keyword-tags .super-keyword-filter');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].style.display = 'block';
             nodes[i].value = '';
@@ -4017,13 +3990,13 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-active');
         }
-        nodes = form.querySelectorAll('.super-keyword-tags .super-keyword');
+        nodes = form.querySelectorAll('.super-keyword-tags .super-shortcode-field');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].value = '';
         }
         nodes = form.querySelectorAll('.super-keyword-tags');
         for (i = 0; i < nodes.length; i++) {
-            field = nodes[i].querySelector('.super-shortcode-field');
+            field = nodes[i].querySelector('.super-keyword-filter');
             field.placeholder = field.dataset.placeholder;
             SUPER.set_keyword_tags_width($(field));
         }
@@ -4832,47 +4805,47 @@ function SUPERreCaptcha(){
     //     //return node.offsetWidth+(marginLeft+marginRight);
     // };
     SUPER.set_keyword_tags_width = function(field, counter, maxTags){
-        var i, x, nodes = [], tagsWidth = 0, tags, style, marginLeft, marginRight, paddingLeft, paddingRight, autosuggest, filterField, autosuggestWidth, newFilterFieldWidth;
-        if(typeof field === 'undefined'){
-            nodes = document.querySelectorAll('.super-keyword-tags');
-        }else{
-            nodes[0] = field;
-        }
-        for(i=0; i < nodes.length; i++){
-            autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
-            autosuggestWidth = autosuggest.offsetWidth;
-            tagsWidth = 0;
-            newFilterFieldWidth = autosuggestWidth-tagsWidth;
-            filterField = nodes[i].querySelector('.super-shortcode-field');
-            filterField.style.width = newFilterFieldWidth+'px';
-            console.log('autosuggestWidth (932px): ', autosuggestWidth);
-            console.log('tagsWidth (211px): ', tagsWidth);
-            console.log('newFilterFieldWidth (718px): ', newFilterFieldWidth);
+        // var i, x, nodes = [], tagsWidth = 0, tags, style, marginLeft, marginRight, paddingLeft, paddingRight, autosuggest, filterField, autosuggestWidth, newFilterFieldWidth;
+        // if(typeof field === 'undefined'){
+        //     nodes = document.querySelectorAll('.super-keyword-tags');
+        // }else{
+        //     nodes[0] = field;
+        // }
+        // for(i=0; i < nodes.length; i++){
+        //     autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
+        //     autosuggestWidth = autosuggest.offsetWidth;
+        //     tagsWidth = 0;
+        //     newFilterFieldWidth = autosuggestWidth-tagsWidth;
+        //     filterField = nodes[i].querySelector('.super-keyword-filter');
+        //     filterField.style.width = newFilterFieldWidth+'px';
+        //     console.log('autosuggestWidth (932px): ', autosuggestWidth);
+        //     console.log('tagsWidth (211px): ', tagsWidth);
+        //     console.log('newFilterFieldWidth (718px): ', newFilterFieldWidth);
             
-            // tags = nodes[i].querySelectorAll('.super-autosuggest-tags > div > span');
-            // tagsWidth = 0;
-            // for(x=0; x < tags.length; x++){
-            //     style = window.getComputedStyle ? getComputedStyle(tags[x], null) : tags[x].currentStyle;
-            //     marginLeft = parseFloat(style.marginLeft) || 0;
-            //     marginRight = parseFloat(style.marginRight) || 0;
-            //     paddingLeft = parseFloat(style.paddingLeft) || 0;
-            //     paddingRight = parseFloat(style.paddingRight) || 0;
-            //     tagsWidth += tags[x].offsetWidth+marginLeft+marginRight+paddingLeft+paddingRight;
-            // }
-            // autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
-            // style = window.getComputedStyle ? getComputedStyle(autosuggest, null) : autosuggest.currentStyle;
-            // marginLeft = parseFloat(style.marginLeft) || 0;
-            // marginRight = parseFloat(style.marginRight) || 0;
-            // paddingLeft = parseFloat(style.paddingLeft) || 0;
-            // paddingRight = parseFloat(style.paddingRight) || 0;
-            // autosuggestWidth = autosuggest.offsetWidth+marginLeft+marginRight-paddingLeft-paddingRight;
-            // newFilterFieldWidth = autosuggestWidth-tagsWidth-10;
-            // filterField = nodes[i].querySelector('.super-shortcode-field');
-            // filterField.style.width = newFilterFieldWidth+'px';
-            // autosuggestWidth: 932px
-            // tagsWidth: 211px
+        //     // tags = nodes[i].querySelectorAll('.super-autosuggest-tags > div > span');
+        //     // tagsWidth = 0;
+        //     // for(x=0; x < tags.length; x++){
+        //     //     style = window.getComputedStyle ? getComputedStyle(tags[x], null) : tags[x].currentStyle;
+        //     //     marginLeft = parseFloat(style.marginLeft) || 0;
+        //     //     marginRight = parseFloat(style.marginRight) || 0;
+        //     //     paddingLeft = parseFloat(style.paddingLeft) || 0;
+        //     //     paddingRight = parseFloat(style.paddingRight) || 0;
+        //     //     tagsWidth += tags[x].offsetWidth+marginLeft+marginRight+paddingLeft+paddingRight;
+        //     // }
+        //     // autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
+        //     // style = window.getComputedStyle ? getComputedStyle(autosuggest, null) : autosuggest.currentStyle;
+        //     // marginLeft = parseFloat(style.marginLeft) || 0;
+        //     // marginRight = parseFloat(style.marginRight) || 0;
+        //     // paddingLeft = parseFloat(style.paddingLeft) || 0;
+        //     // paddingRight = parseFloat(style.paddingRight) || 0;
+        //     // autosuggestWidth = autosuggest.offsetWidth+marginLeft+marginRight-paddingLeft-paddingRight;
+        //     // newFilterFieldWidth = autosuggestWidth-tagsWidth-10;
+        //     // filterField = nodes[i].querySelector('.super-shortcode-field');
+        //     // filterField.style.width = newFilterFieldWidth+'px';
+        //     // autosuggestWidth: 932px
+        //     // tagsWidth: 211px
 
-        }
+        // }
         /*
         if(typeof $field === 'undefined'){
             $field = $('.super-keyword-tags');
@@ -5356,6 +5329,12 @@ function SUPERreCaptcha(){
         if( next.classList.contains('super-color')) {
             next.classList.add('super-focus');
             $(next.querySelector('.super-shortcode-field')).spectrum('show');
+            e.preventDefault();
+            return false;
+        }
+        if( next.classList.contains('super-keyword-tags')) {
+            next.classList.add('super-focus');
+            next.querySelector('.super-keyword-filter').focus();
             e.preventDefault();
             return false;
         }

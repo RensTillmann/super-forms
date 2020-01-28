@@ -654,11 +654,7 @@
         
         SUPER.init_common_fields();
 
-        var $doc = $(document);    
-
-        // @since 3.7.0 - autosuggest keyword with wordpress tags
-        // @since 4.4.0 - autosuggest keyword speed improvements
-        var autosuggest_tags_timeout = null;
+        var $doc = $(document);
 
         // @SINCE 4.9.0 - TABS content next/prev switching
         $doc.on('click', '.super-content-prev, .super-content-next', function(e){
@@ -772,177 +768,6 @@
             }
         });
 
-        // Empty any string when unfocussing the input/search/filter field
-        $doc.on('blur', '.super-keyword-tags .super-shortcode-field', function(){
-            $(this).val('');
-        });
-
-        // On keyup filter any keyword tags from the list
-        $doc.on('keyup', '.super-keyword-tags .super-shortcode-field', function(){
-            var el = $(this)[0];
-            var time = 250;
-            if (autosuggest_tags_timeout !== null) {
-                clearTimeout(autosuggest_tags_timeout);
-            }
-            autosuggest_tags_timeout = setTimeout(function () {
-                var value = el.value.toString();
-                var parent = el.closest('.super-field');
-                if( value==='' ) {
-                    parent.classList.remove('super-string-found');
-                }else{
-                    var items_to_show = [];
-                    var items_to_hide = [];
-                    var wrapper = el.closest('.super-field-wrapper');
-                    var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
-                    var found = false;
-                    [].forEach.call(items, function(el) {
-                        var string_value = el.dataset.searchValue.toString();
-                        if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
-                            items_to_show.push(el);
-                            found = true;
-                            var regex = RegExp([value].join('|'), 'gi');
-                            var stringBold = '<span class="super-wp-tag">'+el.innerText.replace(regex, '<span>$&</span>')+'</span>';
-                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
-                            el.innerHTML = stringBold;
-                        }else{
-                            items_to_hide.push(el);
-                            el.innerHTML = '<span class="super-wp-tag">'+string_value+'</span>';
-                        }
-                    });
-                    [].forEach.call(items_to_show, function(el) {
-                        el.style.display = 'inline-block';
-                        el.classList.add('super-active');
-                    });
-                    [].forEach.call(items_to_hide, function(el) {
-                        el.style.display = 'none';
-                        el.classList.remove('super-active');
-                    });
-
-                    parent.classList.add('super-focus');
-                    parent.classList.add('super-string-found');
-                    if( found===true ) {
-                        parent.classList.remove('super-no-match');
-                    }else{
-                        parent.classList.add('super-no-match');
-                    }
-                }
-            }, time);
-        });
-
-        $doc.on('click', '.super-autosuggest-tags', function(){
-            $(this).parents('.super-field:eq(0)').find('.super-shortcode-field').focus();
-        });
-
-        // @since 3.7.0 - add autosuggest keyword wordpress tag to field value/items
-        $doc.on('click', '.super-keyword-tags .super-dropdown-ui .super-item', function(){
-            var html = '', counter = 0,
-                field = this.closest('.super-field'),
-                value = this.dataset.value, // first_choice
-                searchValue = this.dataset.searchValue, // First choice
-                wrapper = this.closest('.super-field-wrapper'),
-                keywordField = wrapper.querySelector('.super-keyword'),
-                max = keywordField.dataset.keywordMax,
-                keywordFieldValue = keywordField.value,
-                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
-                filterField = wrapper.querySelector('.super-shortcode-field');
-
-            // if this tag doesn't exists yet
-            if(keywordFieldValue.indexOf(value)===-1){
-                html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
-                tagsContainer.innerHTML = tagsContainer.innerHTML + html;
-                counter = tagsContainer.querySelectorAll('span').length;
-                // Check if limit is reached after adding this, if so hide the filter field
-                if(counter>=max) filterField.style.display = 'none';
-                this.classList.add('super-active');
-                field.classList.remove('super-focus');
-                field.classList.remove('super-string-found');
-                SUPER.set_keyword_tags_width(field, counter, max);
-                SUPER.after_field_change_blur_hook(keywordField);
-            }else{
-                // this tag exists, don't add it...
-            }
-
-            /*
-            debugger;
-            var $this = $(this);
-            if($this.data('value')==='') return true;
-
-            var $parent = $this.parent(),
-                $field = $this.parents('.super-field:eq(0)'),
-                $shortcode_field = $field.find('input.super-keyword:eq(0)'),
-                $autosuggest = $field.find('.super-shortcode-field'),
-                $tag_value = $this.data('value'),
-                $tag_name = $this.data('search-value'),
-                $tags = $shortcode_field.val().split(','),
-                $found_tag = ($tags.indexOf($tag_value) > -1),
-                $value,
-                $counter = 0;
-
-            if(!$found_tag){
-                $('<span class="super-noselect" data-value="'+$tag_value+'" title="remove this tag">'+$tag_name+'</span>').appendTo($field.find('.super-autosuggest-tags > div'));
-                $autosuggest.val('').focus();
-                $value = '';
-                $counter = 0;
-                $field.find('.super-autosuggest-tags > div > span').each(function () {
-                    if ($counter === 0) $value = $(this).text();
-                    if ($counter !== 0) $value = $value + ',' + $(this).text();
-                    $counter++;
-                });
-                $shortcode_field.val($value);
-
-                // Clear placeholder
-                if($value!==''){
-                    $autosuggest.attr('placeholder','');
-                }
-                
-                // Check if limit is reached after adding this, if so hide the filter field
-                var $max_tags = $shortcode_field.data('keyword-max');
-                if($counter>=$max_tags){
-                    $autosuggest.hide();
-                }
-                SUPER.set_keyword_tags_width($field, $counter, $max_tags);
-
-                $parent.find('li').removeClass('super-active');
-                $(this).addClass('super-active');
-                $field.removeClass('super-focus').removeClass('super-string-found');
-                SUPER.after_field_change_blur_hook($shortcode_field[0]);
-            }
-            */
-        });
-        // @since 3.7.0 - delete autosuggest keyword wordpress tag
-        $doc.on('click', '.super-autosuggest-tags > div > span', function(){
-            debugger;
-            var $this = $(this);
-            var $field = $this.parents('.super-field:eq(0)');
-            var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
-            var $autosuggest = $field.find('.super-shortcode-field');
-            // Always display the filter field again
-            $autosuggest.show();
-            $this.remove();
-            SUPER.set_keyword_tags_width($field[0]);
-            $autosuggest.val('').focus();
-            $field.find('.super-keyword').val('');
-            $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
-            var $value = '';
-            var $counter = 0;
-            $field.find('.super-autosuggest-tags > div > span').each(function () {
-                if ($counter === 0) $value = $(this).text();
-                if ($counter !== 0) $value = $value + ',' + $(this).text();
-                $counter++;
-            });
-            $field.find('.super-keyword').val($value);
-            // Add back the placeholder
-            if($value===''){
-                $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
-            }
-
-            SUPER.after_field_change_blur_hook($shortcode_field[0]);
-        });
-        // @since 3.7.0 - close tags list when clicked outside element
-        $(window).click(function() {
-            $('.super-form .super-keyword-tags.super-string-found.super-focus').removeClass('super-string-found');
-        });
-
         // @since 3.1.0 - auto transform to uppercase
         $doc.on('input', '.super-form .super-uppercase .super-shortcode-field', function() {
             $(this).val(function(_, val) {
@@ -1013,53 +838,6 @@
             $input_field.val($new_value);
             SUPER.after_field_change_blur_hook($input_field[0]);
         });
-
-
-        // @since 2.9.0 - keyword tag field
-        $doc.on('click', '.super-entered-keywords > span', function(){
-            var $this = $(this);
-            var $parent = $this.parent();
-            $this.remove();
-            var $tags = '';
-            var $counter = 0;
-            $parent.children('span').each(function(){
-                if($counter===0){
-                    $tags += $(this).text();
-                }else{
-                    $tags += ', '+$(this).text();
-                }
-                $counter++;
-            });
-            $parent.parent().find('.super-keyword').val($tags);
-        });
-        $doc.on('keyup keydown', '.super-keyword',function(){
-            var $this = $(this),
-                $value = $this.val(),
-                $split_method = $this.data('split-method'),
-                $max_tags = $this.data('keyword-max'),
-                $tags,
-                $tags_html = '',
-                $counter = 0,
-                $duplicate_tags = {};
-
-            if($split_method=='both') $tags = $value.split(/[ ,]+/);
-            if($split_method=='comma') $tags = $value.split(/[,]+/);
-            if($split_method=='space') $tags = $value.split(/[ ]+/);
-            $.each($tags,function(index,value){
-                if(typeof $duplicate_tags[value]==='undefined'){
-                    $counter++;
-                    if($counter<=$max_tags){
-                        if($split_method!='comma') value = value.replace(/ /g,'');
-                        if( (value!=='') && (value.length>1) ) {
-                            $tags_html += '<span class="super-noselect">'+value+'</span>';
-                        }
-                    }
-                }
-                $duplicate_tags[value] = value;
-            });
-            $this.parent().find('.super-entered-keywords').html($tags_html);
-        });
-
 
         // @since 2.1 - trigger field change hook after currency field value has changed
         // @since 4.2 - trigger field change hook after quantity field value has changed
@@ -1160,7 +938,7 @@
             field_names = {};
             field_labels = {};
             counter = 0;
-            nodes = first.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            nodes = first.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
                 if(field.classList.contains('super-fileupload')){
@@ -1197,7 +975,7 @@
             added_fields_without_suffix = [];
             field_counter = 0;
 
-            nodes = clone.querySelectorAll('.super-shortcode-field[name], .super-keyword[name]');
+            nodes = clone.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
                 if(field.classList.contains('super-fileupload')){
@@ -2265,6 +2043,525 @@
             }
         }
 
+        // // @since 3.7.0 - Keyword/Tags field
+        // document.querySelector('.super-keyword-filter').addEventListener(['click', 'mousedown'], function(){
+        //     this.closest('.super-field').classList.add('super-focus');
+        // });
+        
+        // // Empty any string when unfocussing the input/search/filter field
+        // $doc.on('blur', '.super-keyword-tags .super-keyword-filter', function(){
+        //     $(this).val('');
+        // });
+
+
+        // @since 3.7.0 - autosuggest keyword with wordpress tags
+        // @since 4.4.0 - autosuggest keyword speed improvements
+        // var autosuggest_tags_timeout = null;
+
+        // // On keyup filter any keyword tags from the list
+        // $doc.on('keyup', '.super-keyword-tags .super-keyword-filter', function(){
+        //     var el = $(this)[0];
+        //     var time = 250;
+        //     if (autosuggest_tags_timeout !== null) {
+        //         clearTimeout(autosuggest_tags_timeout);
+        //     }
+        //     autosuggest_tags_timeout = setTimeout(function () {
+        //         var value = el.value.toString();
+        //         var parent = el.closest('.super-field');
+        //         if( value==='' ) {
+        //             parent.classList.remove('super-string-found');
+        //         }else{
+        //             var items_to_show = [];
+        //             var items_to_hide = [];
+        //             var wrapper = el.closest('.super-field-wrapper');
+        //             var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
+        //             var found = false;
+        //             [].forEach.call(items, function(el) {
+        //                 var string_value = el.dataset.searchValue.toString();
+        //                 if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
+        //                     items_to_show.push(el);
+        //                     found = true;
+        //                     var regex = RegExp([value].join('|'), 'gi');
+        //                     var stringBold = '<span class="super-wp-tag">'+el.innerText.replace(regex, '<span>$&</span>')+'</span>';
+        //                     stringBold = stringBold.replace(/\r?\n|\r/g, "");
+        //                     el.innerHTML = stringBold;
+        //                 }else{
+        //                     items_to_hide.push(el);
+        //                     el.innerHTML = '<span class="super-wp-tag">'+string_value+'</span>';
+        //                 }
+        //             });
+        //             [].forEach.call(items_to_show, function(el) {
+        //                 el.style.display = 'inline-block';
+        //                 el.classList.add('super-active');
+        //             });
+        //             [].forEach.call(items_to_hide, function(el) {
+        //                 el.style.display = 'none';
+        //                 el.classList.remove('super-active');
+        //             });
+
+        //             parent.classList.add('super-focus');
+        //             parent.classList.add('super-string-found');
+        //             if( found===true ) {
+        //                 parent.classList.remove('super-no-match');
+        //             }else{
+        //                 parent.classList.add('super-no-match');
+        //             }
+        //         }
+        //     }, time);
+        // });
+
+
+        // $doc.on('click', '.super-autosuggest-tags', function(){
+        //     $(this).parents('.super-field:eq(0)').addClass('super-focus');
+        //     $(this).parents('.super-field:eq(0)').find('.super-keyword-filter').focus();
+        // });
+        // $doc.on('blur', '.super-keyword-filter', function(){
+        //     $(this).parents('.super-field:eq(0)').removeClass('super-focus');
+        // });
+        // $doc.on('click', '.super-keyword-tags .super-item', function(){
+        //     debugger;
+        //     var html = '', counter = 0,
+        //         field = this.closest('.super-field'),
+        //         value = this.dataset.value, // first_choice
+        //         searchValue = this.dataset.searchValue, // First choice
+        //         wrapper = this.closest('.super-field-wrapper'),
+        //         keywordField = wrapper.querySelector('.super-shortcode-field'),
+        //         max = keywordField.dataset.keywordMax,
+        //         keywordFieldValue = keywordField.value,
+        //         tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+        //         filterField = wrapper.querySelector('.super-keyword-filter');
+
+        //     // if this tag doesn't exists yet
+        //     if(keywordFieldValue.indexOf(value)===-1){
+        //         html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+        //         tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+        //         counter = tagsContainer.querySelectorAll('span').length;
+        //         // Check if limit is reached after adding this, if so hide the filter field
+        //         if(counter>=max) filterField.style.display = 'none';
+        //         this.classList.add('super-active');
+        //         field.classList.remove('super-focus');
+        //         field.classList.remove('super-string-found');
+        //         SUPER.set_keyword_tags_width(field, counter, max);
+        //         SUPER.after_field_change_blur_hook(keywordField);
+        //     }else{
+        //         // this tag exists, don't add it...
+        //     }
+        // });
+        // $doc.on('click', '.super-autosuggest-tags > div > span', function(){
+        //     debugger;
+        //     var $this = $(this);
+        //     var $field = $this.parents('.super-field:eq(0)');
+        //     var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
+        //     var $autosuggest = $field.find('.super-keyword-filter');
+        //     // Always display the filter field again
+        //     $autosuggest.show();
+        //     $this.remove();
+        //     SUPER.set_keyword_tags_width($field[0]);
+        //     $autosuggest.val('').focus();
+        //     $field.find('.super-shortcode-field').val('');
+        //     $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
+        //     var $value = '';
+        //     var $counter = 0;
+        //     $field.find('.super-autosuggest-tags > div > span').each(function () {
+        //         if ($counter === 0) $value = $(this).text();
+        //         if ($counter !== 0) $value = $value + ',' + $(this).text();
+        //         $counter++;
+        //     });
+        //     $field.find('.super-shortcode-field').val($value);
+        //     // Add back the placeholder
+        //     if($value===''){
+        //         $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
+        //     }
+
+        //     SUPER.after_field_change_blur_hook($shortcode_field[0]);
+        // });
+        // // Close tags list when clicked outside element
+        // $(window).click(function() {
+        //     $('.super-form .super-keyword-tags.super-string-found.super-focus').removeClass('super-string-found');
+        // });
+        // $doc.on('click', '.super-entered-keywords > span', function(){
+        //     debugger;
+        //     var $this = $(this);
+        //     var $parent = $this.parent();
+        //     $this.remove();
+        //     var $tags = '';
+        //     var $counter = 0;
+        //     $parent.children('span').each(function(){
+        //         if($counter===0){
+        //             $tags += $(this).text();
+        //         }else{
+        //             $tags += ', '+$(this).text();
+        //         }
+        //         $counter++;
+        //     });
+        //     $parent.parent().find('.super-keyword').val($tags);
+        // });
+        // $doc.on('keyup keydown', '.super-keyword-tags .super-keyword-filter',function(){
+        //     var $this = $(this),
+        //         $value = $this.val(),
+        //         $split_method = $this.data('split-method'),
+        //         $max_tags = $this.data('keyword-max'),
+        //         $tags,
+        //         $tags_html = '',
+        //         $counter = 0,
+        //         $duplicate_tags = {};
+
+        //     if($split_method=='both') $tags = $value.split(/[ ,]+/);
+        //     if($split_method=='comma') $tags = $value.split(/[,]+/);
+        //     if($split_method=='space') $tags = $value.split(/[ ]+/);
+        //     $.each($tags,function(index,value){
+        //         if(typeof $duplicate_tags[value]==='undefined'){
+        //             $counter++;
+        //             if($counter<=$max_tags){
+        //                 if($split_method!='comma') value = value.replace(/ /g,'');
+        //                 if( (value!=='') && (value.length>1) ) {
+        //                     $tags_html += '<span class="super-noselect">'+value+'</span>';
+        //                 }
+        //             }
+        //         }
+        //         $duplicate_tags[value] = value;
+        //     });
+        //     $this.parent().find('.super-entered-keywords').html($tags_html);
+        // });
+
     });
 
 })(jQuery);
+
+(function () {
+    "use strict"; // Minimize mutable state :)
+    // Define all the events for our elements
+    var app = {};
+    // querySelector shorthand
+    app.q = function (s) {
+        return document.querySelector(s);
+    };
+    // querySelectorAll shorthand
+    app.qa = function (s) {
+        return document.querySelectorAll(s);
+    };
+    // querySelectorAll based on parent shorthand
+    app.qap = function (s, p) {
+        // If no parent provided, default to Top element
+        if (typeof p === 'undefined') p = app.wrapper;
+        if (typeof p === 'string') p = app.wrapper.querySelector(p);
+        return p.querySelectorAll(s);
+    };
+    // Remove all elements
+    app.remove = function (e) {
+        if (typeof e === 'undefined' || !e) return true;
+        if (e.length) {
+            for (var i = 0; i < e.length; i++) {
+                e[i].remove();
+            }
+        } else {
+            e.remove();
+        }
+        return true;
+    };
+    // Remove class from elements
+    app.removeClass = function (elements, class_name) {
+        if (elements.length === 0) return true;
+        if (elements.length) {
+            for (var key = 0; key < elements.length; key++) {
+                elements[key].classList.remove(class_name);
+            }
+        } else {
+            elements.classList.remove(class_name);
+        }
+    };
+    // Add class from elements
+    app.addClass = function (elements, class_name) {
+        if (elements.length === 0) return true;
+        if (elements.length) {
+            for (var key = 0; key < elements.length; key++) {
+                elements[key].classList.add(class_name);
+            }
+        } else {
+            elements.classList.add(class_name);
+        }
+    };
+    // Get index of element based on parent node
+    app.index = function (node, class_name) {
+        var index = 0;
+        while (node.previousElementSibling) {
+            node = node.previousElementSibling;
+            // Based on specified class name
+            if (class_name) {
+                if (node.classList.contains(class_name)) {
+                    index++;
+                }
+            } else {
+                index++;
+            }
+
+        }
+        return index;
+    };
+    // Check if clicked inside element, by looping over it's "path"
+    app.inPath = function (e, class_name) {
+        if (!e.path) return false;
+        var found = false;
+        Object.keys(e.path).forEach(function (key) {
+            if (e.path[key].classList) {
+                if (e.path[key].classList.contains(class_name)) {
+                    found = true;
+                }
+            }
+        });
+        return found;
+    };
+
+    app.focusField = function(e, target){
+        target.focus();
+        target.closest('.super-field').classList.add('super-focus');
+    };
+    app.unfocusField = function(e, target){
+        console.log('unfocusField()');
+        // if(target.classList.contains('super-keyword-filter')){
+        //     target.value = '';
+        // }
+        target.blur();
+        target.closest('.super-field').classList.remove('super-focus');
+    };
+    app.autosuggestTagsTimeout = null;
+    app.keywords = {
+        add: function(e, target){
+            var html = '',
+                field = target.closest('.super-field'),
+                value = target.dataset.value, // first_choice
+                searchValue = target.dataset.searchValue, // First choice
+                wrapper = target.closest('.super-field-wrapper'),
+                keywordField = wrapper.querySelector('.super-shortcode-field'),
+                max = parseFloat(keywordField.dataset.keywordMax),
+                keywordFieldValue = keywordField.value,
+                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                filterField = wrapper.querySelector('.super-keyword-filter');
+
+            // if this tag doesn't exists yet
+            if(keywordFieldValue.indexOf(value)===-1){
+                html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+                tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                target.classList.add('super-active');
+            }
+            if(!app.qap('span', tagsContainer).length){
+                field.classList.remove('super-filled');
+            }else{
+                field.classList.add('super-filled');
+            }
+            filterField.value = '';
+            filterField.focus();
+            field.classList.remove('super-string-found');
+            field.classList.add('super-focus');
+            SUPER.after_field_change_blur_hook(keywordField);
+        },
+        remove: function(e, target){
+            // debugger;
+            // var $this = $(target);
+            // var $field = $this.parents('.super-field:eq(0)');
+            // var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
+            // var $autosuggest = $field.find('.super-keyword-filter');
+            // // Always display the filter field again
+            // $autosuggest.show();
+            // $this.remove();
+            // SUPER.set_keyword_tags_width($field[0]);
+            // $autosuggest.val('').focus();
+            // $field.find('.super-shortcode-field').val('');
+            // $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
+            // var $value = '';
+            // var $counter = 0;
+            // $field.find('.super-autosuggest-tags > div > span').each(function () {
+            //     if ($counter === 0) $value = $(this).text();
+            //     if ($counter !== 0) $value = $value + ',' + $(this).text();
+            //     $counter++;
+            // });
+            // $field.find('.super-shortcode-field').val($value);
+            // // Add back the placeholder
+            // if($value===''){
+            //     $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
+            // }
+            // SUPER.after_field_change_blur_hook($shortcode_field[0]);
+        },
+        filter: function(e, target, eventType){
+            console.log(e, target, eventType);
+            // On keyup filter any keyword tags from the list
+            var i,
+                parent = target.closest('.super-field'),
+                itemsToShow = [],
+                itemsToHide = [],
+                value,
+                text = '',
+                searchValue,
+                regex,
+                stringBold,
+                wrapper = target.closest('.super-field-wrapper'),
+                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
+
+            if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
+            app.autosuggestTagsTimeout = setTimeout(function () {
+                value = target.value.toString();
+                if (value === '') {
+                    parent.classList.remove('super-string-found');
+                    return false;
+                }
+                for (i = 0; i < nodes.length; i++) {
+                    searchValue = nodes[i].dataset.searchValue.toString();
+                    text = searchValue.split(';')[0];
+                    if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                        itemsToShow.push(nodes[i]);
+                        regex = RegExp([value].join('|'), 'gi');
+                        stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
+                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                        nodes[i].innerHTML = stringBold;
+                    }else{
+                        itemsToHide.push(nodes[i]);
+                    }
+                }
+                [].forEach.call(itemsToShow, function (el) {
+                    el.style.display = 'inline-block';
+                    el.classList.add('super-active');
+                });
+                [].forEach.call(itemsToHide, function (el) {
+                    el.style.display = 'none';
+                    el.classList.remove('super-active');
+                });
+                if (itemsToShow.length>0) {
+                    parent.classList.add('super-string-found');
+                    parent.classList.add('super-focus');
+                } else {
+                    parent.classList.remove('super-string-found');
+                }
+            }, 250);
+        }
+    }
+
+    // Trigger Events
+    app.triggerEvent = function (e, target, eventType) {
+        // Get element actions, and check for multiple event methods
+        console.log(e, target, eventType);
+        var actions, _event, _function, _currentFunc, sfevents;
+        try {
+            console.log(target.attributes.sfevents.value);
+            sfevents = JSON.parse(target.attributes.sfevents.value);
+        } catch (error) {
+            console.log(error);
+            alert(error);
+        }
+        Object.keys(sfevents).forEach(function (key) {
+            // Check if contains comma, meaning it has multiple event methods for this function
+            _event = key.split(',');
+            if (_event.length > 1) {
+                // Seems it contains multiple events, so let's split them up and create a new sfevents object
+                Object.keys(_event).forEach(function (e_key) {
+                    sfevents[_event[e_key]] = sfevents[key];
+                });
+                delete sfevents[key];
+            }
+        });
+        actions = sfevents[eventType];
+        if (actions) {
+            if(typeof actions === 'string'){
+                _currentFunc = app;
+                if(actions.split('.').length>1){
+                    _function = actions.split('.');
+                    for (var i = 0; i < _function.length; i++) {
+                        // Skip if function name is 'app'
+                        if (_function[i] == 'app') continue;
+                        if (_currentFunc[_function[i]]) {
+                            _currentFunc = _currentFunc[_function[i]];
+                        } else {
+                            console.log('Function ' + actions + '() is undefined!');
+                            break;
+                        }
+                    }
+                    _currentFunc(e, target, eventType, actions);
+                }else{
+                    if (_currentFunc[actions]) {
+                        _currentFunc = _currentFunc[actions];
+                    } else {
+                        console.log('Function ' + actions + '() is undefined!');
+                    }
+                    _currentFunc(e, target, eventType, actions);
+                }
+            }else{
+                Object.keys(actions).forEach(function (key) { // key = function name
+                    _currentFunc = app;
+                    _function = key.split('.');
+                    for (var i = 0; i < _function.length; i++) {
+                        // Skip if function name is 'app'
+                        if (_function[i] == 'app') continue;
+                        if (_currentFunc[_function[i]]) {
+                            _currentFunc = _currentFunc[_function[i]];
+                        } else {
+                            console.log('Function ' + key + '() is undefined!');
+                            break;
+                        }
+                    }
+                    _currentFunc(e, target, eventType, actions[key]);
+                });
+            }
+        }
+    };
+    // Equivalent for jQuery's .on() function
+    app.delegate = function (element, event, elements, callback) {
+        element.addEventListener(event, function (event) {
+            var target = event.target;
+            while (target && target !== this) {
+                if (target.matches(elements)) {
+                    callback(event, target);
+                    return false;
+                }
+                target = target.parentNode;
+            }
+        });
+    };
+    // Iterate over all events, and listen to any event being triggered
+    app.events = {
+        click: [
+            'body',
+            '.super-keyword-filter',
+            '.super-keyword-tags .super-item'
+        ],
+        mousedown: [
+            '.super-keyword-filter'
+        ],
+        onblur: [
+            '.super-keyword-filter'
+        ],
+        keyup: [
+            '.super-keyword-filter'
+        ],
+        keydown: [
+            '.super-keyword-filter'
+        ]
+    };
+    Object.keys(app.events).forEach(function (eventType) {
+        var elements = app.events[eventType].join(", ");
+        app.delegate(document, eventType, elements, function (e, target) {
+            if (eventType == 'click') {
+                if (!app.inPath(e, 'super-focus')) {
+                    console.log('not in path, unfocus');
+                    var i, nodes = document.querySelectorAll('.super-focus');
+                    for(i=0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-focus');
+                    }
+                }
+                // // Close Context Menu if clicked outside
+                // if ((!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn'))) {
+                //     // Close context menu
+                //     app.ui.contextMenu.close();
+                // }
+                // if (!app.inPath(e, app.ui.modal.containerClassName)) {
+                //     // Close modal
+                //     app.ui.modal.close();
+                // }
+            }
+
+            // Trigger event(s)
+            if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
+        });
+    });
+
+
+
+})();
