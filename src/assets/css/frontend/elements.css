@@ -403,12 +403,6 @@ h1.super-thanks-title {
   top: 6px;
 }
 
-.super-field-size-medium .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 32px;
-}
-.super-field-size-medium.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 45px;
-}
 .super-field-size-medium .super-field.super-text .super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 45px;
   width: -moz-calc(100% - 45px);
@@ -428,12 +422,6 @@ h1.super-thanks-title {
   width: calc(100% - 45px);
 }
 
-.super-field-size-large .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 42px;
-}
-.super-field-size-large.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 55px;
-}
 .super-field-size-large .super-field.super-text .super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 55px;
   width: -moz-calc(100% - 55px);
@@ -453,12 +441,6 @@ h1.super-thanks-title {
   width: calc(100% - 55px);
 }
 
-.super-field-size-huge .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 53px;
-}
-.super-field-size-huge.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags {
-  padding-left: 65px;
-}
 .super-field-size-huge .super-field.super-text .super-icon-outside.super-icon-left .super-autosuggest-tags {
   margin-left: 65px;
   width: -moz-calc(100% - 65px);
@@ -1443,14 +1425,17 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   border-radius: 0px;
 }
 
-.super-shortcode-field,
-.super-keyword {
+.super-shortcode-field {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   -ms-box-shadow: none;
   -o-box-shadow: none;
   box-shadow: none;
   float: left;
+}
+
+.super-keyword {
+  opacity: 0;
 }
 
 .super-transparent-fields input, .super-transparent-fields .super-dropdown-ui, .super-transparent-fields textarea, .super-transparent-fields .super-field div .super-fileupload-button, .super-transparent-fields input:focus, .super-transparent-fields .super-focus .super-dropdown-ui, .super-transparent-fields textarea:focus, .super-transparent-fields .super-field div .super-fileupload-button {

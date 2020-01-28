@@ -387,10 +387,6 @@ h1.super-thanks-title
       top: 6px
 
 .super-field-size-medium
-  .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 32px
-  &.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 45px
   .super-field.super-text .super-icon-outside
     &.super-icon-left
       .super-autosuggest-tags
@@ -410,10 +406,6 @@ h1.super-thanks-title
         width: calc(100% - 45px)
 
 .super-field-size-large
-  .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 42px
-  &.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 55px
   .super-field.super-text .super-icon-outside
     &.super-icon-left
       .super-autosuggest-tags
@@ -433,10 +425,6 @@ h1.super-thanks-title
         width: calc(100% - 55px)
 
 .super-field-size-huge
-  .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 53px
-  &.super-style-one .super-field.super-text .super-icon-inside.super-icon-left .super-autosuggest-tags
-    padding-left: 65px
   .super-field.super-text .super-icon-outside
     &.super-icon-left
       .super-autosuggest-tags
@@ -1273,10 +1261,12 @@ textarea
   line-height: normal
   +borderRadius(0px)
 
-.super-shortcode-field,
-.super-keyword
+.super-shortcode-field
   +boxShadow(none)
   float: left
+
+.super-keyword
+  opacity: 0
 
 .super-transparent-fields
   input, .super-dropdown-ui, textarea, .super-field div .super-fileupload-button, input:focus, .super-focus .super-dropdown-ui, textarea:focus, .super-field div .super-fileupload-button
