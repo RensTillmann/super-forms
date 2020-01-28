@@ -207,8 +207,8 @@ return $import_fonts."
 ".$s."input,
 ".$s.".super-dropdown-ui,
 ".$s."textarea,
-".$s.".super-field div .super-fileupload-button,
 ".$s.".super-autosuggest-tags,
+".$s.".super-field div .super-fileupload-button,
 ".$s.".super-stripe-base {
     color: ".$v['theme_field_colors_font'].";
     background-color: ".$v['theme_field_colors_top'].";
@@ -226,7 +226,8 @@ return $import_fonts."
 }
 ".$s."input:focus,
 ".$s.".super-focus .super-dropdown-ui,
-".$s."textarea:focus {
+".$s."textarea:focus,
+".$s.".super-focus .super-autosuggest-tags {
     color: ".$v['theme_field_colors_font_focus'].";
     background-color: ".$v['theme_field_colors_top_focus'].";
     border: solid 1px ".$v['theme_field_colors_border_focus'].";
@@ -428,6 +429,7 @@ return $import_fonts."
 ".$s.".super-checkbox.display-vertical .super-field-wrapper label,
 ".$s.".super-error-msg,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-keyword-filter,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-fileupload-files > div .super-fileupload-name,

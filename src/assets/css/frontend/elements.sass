@@ -360,10 +360,11 @@ h1.super-thanks-title
   .super-shortcode-field
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 0px 23px 1px 7px
-    margin-left: 7px
+    padding: 1px 25px 1px 5px
+    margin: 6px 5px 6px 0px
+    line-height: normal
     &:after
-      right: 3px
+      right: 4px
       top: 2px
 
 .super-field-size-large .super-autosuggest-tags
@@ -371,7 +372,7 @@ h1.super-thanks-title
     margin: 0px 0px 0px 0px
   > div > span
     padding: 3px 25px 3px 10px
-    margin-left: 10px
+    margin-right: 10px
     &:after
       right: 5px
       top: 4px
@@ -381,7 +382,7 @@ h1.super-thanks-title
     margin: 0px 0px 0px 0px
   > div > span
     padding: 5px 25px 5px 12px
-    margin-left: 12px
+    margin-right: 12px
     &:after
       right: 6px
       top: 6px
@@ -463,10 +464,9 @@ h1.super-thanks-title
     width: 0px
   &.super-string-found 
     .super-item, .super-no-results
-      width: 32%
-      margin: 1% 0% 1% 1%
+      margin: 5px 0px 5px 5px
       height: auto
-      padding: 10px
+      padding: 5px 10px 5px 10px
   &.super-string-found .super-item
     display: none
     &.super-active
@@ -1249,8 +1249,6 @@ textarea
   right: 0px
 
 .super-shortcode-field,
-.super-autosuggest-tags,
-.super-keyword,
 .super-captcha .captcha
   width: 100%
   margin: 0px
@@ -1265,7 +1263,7 @@ textarea
   +boxShadow(none)
   float: left
 
-.super-keyword
+.super-keyword-tags .super-shortcode-field
   opacity: 0
 
 .super-transparent-fields
@@ -1841,7 +1839,7 @@ textarea
 .super-field
   &.super-text.super-string-found
     &.super-focus .super-dropdown-ui
-      display: block
+      display: flex
     .super-item
       &.super-active
         display: flex
@@ -3052,7 +3050,7 @@ ul.super-multipart-steps .super-multipart-step
       padding-left: 45px
   .super-shortcode-field,
   .super-autosuggest-tags,
-  .super-keyword,
+  .super-keyword-filter,
   .super-stripe-base
     height: 33px
   .super-icon
@@ -3229,7 +3227,10 @@ ul.super-multipart-steps .super-multipart-step
   .display-vertical .super-icon-left
     padding: 0px 0px 0px 45px
   .super-field
-    &.display-horizontal .super-icon-inside.super-icon-left, .super-icon-inside.super-icon-left .super-shortcode-field, &.super-slider .super-icon-inside.super-icon-left
+    &.display-horizontal .super-icon-inside.super-icon-left, 
+    .super-icon-inside.super-icon-left .super-shortcode-field,
+    .super-icon-inside.super-icon-left .super-autosuggest-tags, 
+    &.super-slider .super-icon-inside.super-icon-left
       padding-left: 35px
     &.super-toggle .super-icon-inside.super-icon-left
       padding-left: 42px
@@ -3251,8 +3252,6 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-field-size-large
   .super-shortcode-field,
-  .super-autosuggest-tags,
-  .super-keyword,
   .super-stripe-base
     height: 43px
   .super-icon
@@ -3458,7 +3457,7 @@ ul.super-multipart-steps .super-multipart-step
     margin-left: 0px
     li
       padding-left: 50px
-  .super-shortcode-field, .super-keyword, .super-autosuggest-tags
+  .super-shortcode-field
     height: 53px
   .super-icon-outside .super-icon, .super-icon-inside .super-icon
     width: 53px
@@ -4506,6 +4505,24 @@ ul.super-multipart-steps .super-multipart-step
   align-items: center
   justify-content: flex-start
 
+
+
+.super-keyword-filter
+  border: 0!important
+  background: initial!important
+  padding-left: 0!important
+.super-autosuggest-tags
+  display: flex
+  justify-content: flex-start
+  align-items: flex-end
+  > div
+    flex-grow: 0
+    overflow-y: scroll
+    height: 100%
+    margin-right: 10px
+  .super-keyword-filter
+    flex-grow: 1
+    min-width: 100px
 
 
 @media (min-width: 0px)

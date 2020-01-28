@@ -6,9 +6,7 @@ $v = $settings;
 
 return "
 ".$s.".super-shortcode-field,
-".$s.".super-keyword,
 ".$s.".super-shortcode-field,
-".$s.".super-autosuggest-tags,
 ".$s.".super-icon-outside .super-icon,
 ".$s.".super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
@@ -31,8 +29,6 @@ return "
 	border-radius:18px;
 }
 ".$s_large.".super-shortcode-field,
-".$s_large.".super-keyword,
-".$s_large.".super-autosuggest-tags,
 ".$s_large.".super-shortcode-field,
 ".$s_large.".super-icon-outside .super-icon,
 ".$s_large.".super-icon-inside .super-icon,
@@ -50,8 +46,6 @@ return "
 	border-radius:21px;
 }
 ".$s_huge.".super-shortcode-field,
-".$s_huge.".super-keyword,
-".$s_huge.".super-autosuggest-tags,
 ".$s_huge.".super-shortcode-field,
 ".$s_huge.".super-icon-outside .super-icon,
 ".$s_huge.".super-icon-inside .super-icon,

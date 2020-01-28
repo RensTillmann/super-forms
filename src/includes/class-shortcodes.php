@@ -306,9 +306,9 @@ class SUPER_Shortcodes {
                         foreach( $atts['keywords_items'] as $k => $v ) {
                             if( $v['checked']=='true' || $v['checked']==1 ) {
                                 $selected_items[] = $v['value'];
-                                $item = '<li class="super-item super-active" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                                $item = '<li class="super-item super-active" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
                             }else{
-                                $item = '<li class="super-item" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
                             }
                             $item .= '<span class="super-wp-tag">' . stripslashes($v['label']) . '</span>'; 
                             $item .= '</li>';
@@ -453,7 +453,7 @@ class SUPER_Shortcodes {
                 if($tag=='text') {
                     if($prefix=='keywords_'){
                         // text - keywords - taxonomy
-                        $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($v->name) . '"><span class="super-wp-tag">' . $v->name . '</span></li>';
+                        $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($v->name) . '"><span class="super-wp-tag">' . $v->name . '</span></li>';
                     }else{
                         // text - autosuggest - taxonomy
                         $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
@@ -630,7 +630,7 @@ class SUPER_Shortcodes {
                         }
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
+                                $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
                             }else{
                                 $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
                             }
@@ -702,9 +702,9 @@ class SUPER_Shortcodes {
                     $item_value = $data_value;
                     if($tag=='text') {
                         if($prefix=='keywords_'){
-                            $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '"><span class="super-wp-tag">' . esc_html($v['post_title']) . '</span></li>';
+                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '"><span class="super-wp-tag">' . esc_html($v['post_title']) . '</span></li>';
                         }else{
-                            $items[] = '<li class="super-item" ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '">' . esc_html($v['post_title']) . '</li>';
+                            $items[] = '<li class="super-item ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . $sku . '">' . esc_html($v['post_title']) . '</li>';
                             $item_value = explode(';', $data_value)[0];
                         }
                     }
@@ -739,7 +739,7 @@ class SUPER_Shortcodes {
                         foreach( $attributes as $v ) {
                             if($tag=='text') {
                                 if($prefix=='keywords_'){
-                                    $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"><span class="super-wp-tag">' . $v . '</span></li>'; 
+                                    $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"><span class="super-wp-tag">' . $v . '</span></li>'; 
                                 }else{
                                     $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
                                 }
@@ -777,7 +777,7 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-                        $item = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
                         $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
                         $item .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
                         if( !empty($v->description) ) {
@@ -828,7 +828,7 @@ class SUPER_Shortcodes {
                         }else{
                             // text - keywords - csv
                             if($prefix=='keywords_'){
-                                $item = '<li class="super-item" data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
                                 $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
                                 $item .= '</li>';
                                 $items[] = $item;
@@ -917,7 +917,7 @@ class SUPER_Shortcodes {
 
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $item = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
                                 $item .= '<span class="super-wp-tag">' . $label . '</span>'; 
                                 $item .= '</li>';
                                 $items[] = $item;
@@ -1014,8 +1014,7 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-
-                        $item = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
                         $item .= '<span class="super-wp-tag">' . $label . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
@@ -1093,7 +1092,7 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-                        $item = '<li class="super-item" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">';
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">';
                         $item .= '<span class="super-wp-tag">' . $final_label . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
@@ -2807,11 +2806,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
         if( !isset( $atts['keyword_max'] ) ) $atts['keyword_max'] = 5;
 
-        if( $atts['enable_keywords']=='true' ) {
-            $result .= '<input class="super-keyword';
-        }else{
-            $result .= '<input class="super-shortcode-field';
-        }
+        $result .= '<input class="super-shortcode-field';
         $result .= $distance_calculator_class;
         $result .= $address_auto_populate_class; 
         if( !empty($atts['class']) ) {
@@ -2971,7 +2966,8 @@ class SUPER_Shortcodes {
             }else{
                 $result .= '<div class="super-autosuggest-tags">';
                     $result .= '<div></div>';
-                    $result .= '<input class="super-shortcode-field" type="text"';
+                    $result .= '<input class="super-keyword-filter" type="text" ';
+                    $result .= 'sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
                     if( !empty( $atts['placeholder'] ) ) {
                         $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
                     }
