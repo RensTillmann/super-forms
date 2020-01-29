@@ -840,7 +840,7 @@ h1.super-thanks-title
   content: attr(data-placeholderFilled)
 
 /* Default Theme & Size
-.super-focus .super-adaptive-placeholder,
+.super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
 .super-filled .super-adaptive-placeholder,
 .super-adaptive-positioning
   &:before
@@ -851,7 +851,7 @@ h1.super-thanks-title
 
 /* Large size
 .super-field-size-large
-  .super-focus .super-adaptive-placeholder,
+  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
@@ -861,7 +861,7 @@ h1.super-thanks-title
 
 /* Huge size
 .super-field-size-huge
-  .super-focus .super-adaptive-placeholder,
+  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
@@ -1839,7 +1839,7 @@ textarea
 .super-field
   &.super-text.super-string-found
     &.super-focus .super-dropdown-ui
-      display: flex
+      display: block
     .super-item
       &.super-active
         display: flex
@@ -3673,6 +3673,9 @@ ul.super-multipart-steps .super-multipart-step
 .super-overlap .super-shortcode-field
   visibility: hidden
 
+.super-auto-suggest .super-overlap .super-shortcode-field
+  position: absolute
+
 .super-field.super-text .super-overlap .super-dropdown-ui
   display: block
   background: none
@@ -4297,19 +4300,19 @@ ul.super-multipart-steps .super-multipart-step
     height: 53px
 
 .super-field-size-medium
-  .super-focus .super-adaptive-placeholder,
+  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
       transform: translate(0px, -15px)
 .super-field-size-large
-  .super-focus .super-adaptive-placeholder,
+  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
       transform: translate(0px, -20px)
 .super-field-size-huge
-  .super-focus .super-adaptive-placeholder,
+  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
@@ -4517,13 +4520,15 @@ ul.super-multipart-steps .super-multipart-step
   align-items: flex-end
   > div
     flex-grow: 0
-    overflow-y: scroll
+    overflow-y: auto
     height: 100%
-    margin-right: 10px
   .super-keyword-filter
     flex-grow: 1
     min-width: 100px
-
+.super-filled
+  .super-autosuggest-tags
+    > div
+      margin-right: 10px
 
 @media (min-width: 0px)
   .super-tabs.super-prev-next >

@@ -1318,7 +1318,6 @@ class SUPER_Shortcodes {
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . $tag;
         if(!empty($atts['value'])) $result .= ' super-filled';
-
         $align = '';
         if( isset( $atts['align'] ) ) $align = ' super-align-' . $atts['align'];
         $result .= $align;
@@ -2768,25 +2767,23 @@ class SUPER_Shortcodes {
 
         // @since   1.2.4 - auto suggest feature
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
-        $class = ($atts['enable_auto_suggest']=='true' ? 'super-auto-suggest ' : '');
+        $class = ($atts['enable_auto_suggest']=='true' ? ' super-auto-suggest' : '');
 
         // @since   4.6.0 - wc order search
         if( !isset( $atts['wc_order_search'] ) ) $atts['wc_order_search'] = '';
-        $class .= ($atts['wc_order_search']=='true' ? 'super-wc-order-search ' : '');
+        $class .= ($atts['wc_order_search']=='true' ? ' super-wc-order-search' : '');
 
         // @since   3.7.0 - keyword tags
         if( !empty($atts['enable_keywords']) ) {
-            if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
-            $class .= ($atts['keywords_retrieve_method']!='free' ? 'super-keyword-tags ' : '');
+            $class .= ' super-keyword-tags';
         }
 
         // @since   3.1.0 - uppercase transformation
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
-        $class .= ($atts['uppercase']=='true' ? ' super-uppercase ' : '');
+        $class .= ($atts['uppercase']=='true' ? ' super-uppercase' : '');
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
-        
         $result = self::opening_tag( $tag, $atts, $class );
 
         $wrapper_class = '';
@@ -2794,7 +2791,12 @@ class SUPER_Shortcodes {
             // Check if value exist in one of the items
             // If so add overlap class, otherwise don't and check if user is allowed to enter none-existing values (manual input)
             $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
-            if(in_array($entry_data[$atts['name']]['value'], $get_items['items_values'])){
+            $firstItemValues = array();
+            foreach($get_items['items_values'] as $v){
+                $firstValue = explode(';', $v)[0];
+                $firstItemValues[] = $firstValue;
+            }
+            if(in_array($entry_data[$atts['name']]['value'], $firstItemValues)){
                 $wrapper_class = 'super-overlap'; 
             }
         }
@@ -2817,9 +2819,6 @@ class SUPER_Shortcodes {
         $result .= '" type="' . $atts['type'] . '"';
         if( ($atts['type']=='number') && (!empty($atts['step'])) ) {
             $result .= '" step="' . $atts['step'] . '"';
-        }
-        if( $atts['enable_keywords']=='true' ) {
-            $result .= ' data-keyword-max="' . $atts['keyword_max'] . '" data-split-method="' . $atts['keyword_split_method'] . '"';
         }
         if( $atts['enable_distance_calculator']=='true' ) {
             $result .= $data_attributes;
@@ -2952,40 +2951,48 @@ class SUPER_Shortcodes {
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
 
         // @since 2.9.0 - entered keywords
-        if( !empty($atts['enable_keywords']) ) {
+        if( !empty($atts['enable_keywords']) ) {            
+            
+            $get_items = self::get_items(array(), $tag, $atts, 'keywords_', $settings, $entry_data);
+            $items = $get_items['items'];
+            $atts = $get_items['atts'];
 
-            if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
-
-            if( $atts['keywords_retrieve_method']=='free' ) {
-                $result .= '<div class="super-entered-keywords">';
-                $values = explode( ",", $atts['value'] );
-                foreach( $values as $k => $v ) {
-                    if($v!='') $result .= '<span>' . $v . '</span>';
-                }
-                $result .= '</div>';
-            }else{
-                $result .= '<div class="super-autosuggest-tags">';
-                    $result .= '<div></div>';
-                    $result .= '<input class="super-keyword-filter" type="text" ';
-                    $result .= 'sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
-                    if( !empty( $atts['placeholder'] ) ) {
-                        $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
+            $result .= '<div class="super-autosuggest-tags">';
+                $result .= '<div>';
+                // Populate form with data
+                if(!empty($atts['value'])){
+                    $tags = explode(',', $atts['value']);
+                    if( empty( $items) ) { // User can input his own tags, no predefined items here
+                        foreach( $tags as $tag ) {
+                            $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag) . '" title="remove this tag">' . esc_html($tag) . '</span>';
+                        }
+                    }else{
+                        foreach( $atts['keywords_items'] as $tag ) {
+                            if(in_array($tag['value'], $tags)) {
+                                $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag['value']) . '" title="remove this tag">' . esc_html($tag['label']) . '</span>';
+                            }
+                        }
                     }
-                    $result .= ' />';
-                $result .= '</div>';
-
-                $get_items = self::get_items(array(), $tag, $atts, 'keywords_', $settings, $entry_data);
-                $items = $get_items['items'];
-                $atts = $get_items['atts'];
-
-                $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
-                $result .= '<li data-value="" data-search-value="" class="super-no-results">' . esc_html__( 'No matches found', 'super-forms' ) . '...</li>';
-                foreach( $items as $k => $v ) {
-                    $result .= $v;
                 }
-                $result .= '</ul>';
+                $result .= '</div>';
+                if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
+                $result .= '<input class="super-keyword-filter" type="text"';
+                $result .= ' data-method="' . esc_attr($atts['keywords_retrieve_method']) . '"';
+                $result .= ' data-keyword-max="' . esc_attr($atts['keyword_max']) . '"';
+                $result .= ' data-split-method="' . esc_attr($atts['keyword_split_method']) . '"';
+                $result .= ' sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
+                if( !empty( $atts['placeholder'] ) ) {
+                    $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
+                }
+                $result .= ' />';
+            $result .= '</div>';
 
+            $result .= '<ul class="super-dropdown-ui super-autosuggest-tags-list">';
+            $result .= '<li data-value="" data-search-value="" class="super-no-results">' . esc_html__( 'No matches found', 'super-forms' ) . '...</li>';
+            foreach( $items as $k => $v ) {
+                $result .= $v;
             }
+            $result .= '</ul>';
         }
 
         // @since 1.2.5     - custom regex validation

@@ -981,7 +981,7 @@ h1.super-thanks-title {
 }
 
 /* Default Theme & Size */
-.super-focus .super-adaptive-placeholder:before,
+.super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-filled .super-adaptive-placeholder:before,
 .super-adaptive-positioning:before {
   font-size: 10px !important;
@@ -991,7 +991,7 @@ h1.super-thanks-title {
 }
 
 /* Large size */
-.super-field-size-large .super-focus .super-adaptive-placeholder:before,
+.super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-large .super-filled .super-adaptive-placeholder:before,
 .super-field-size-large .super-adaptive-positioning:before {
   font-size: 11px !important;
@@ -1000,7 +1000,7 @@ h1.super-thanks-title {
 }
 
 /* Huge size */
-.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
+.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-huge .super-filled .super-adaptive-placeholder:before,
 .super-field-size-huge .super-adaptive-positioning:before {
   font-size: 12px !important;
@@ -2108,7 +2108,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 
 .super-field.super-text.super-string-found.super-focus .super-dropdown-ui {
-  display: flex;
+  display: block;
 }
 .super-field.super-text.super-string-found .super-item {
   font-weight: bold;
@@ -4510,6 +4510,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   visibility: hidden;
 }
 
+.super-auto-suggest .super-overlap .super-shortcode-field {
+  position: absolute;
+}
+
 .super-field.super-text .super-overlap .super-dropdown-ui {
   display: block;
   background: none;
@@ -5248,19 +5252,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   height: 53px;
 }
 
-.super-field-size-medium .super-focus .super-adaptive-placeholder:before,
+.super-field-size-medium .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-medium .super-filled .super-adaptive-placeholder:before,
 .super-field-size-medium .super-adaptive-positioning:before {
   transform: translate(0px, -15px);
 }
 
-.super-field-size-large .super-focus .super-adaptive-placeholder:before,
+.super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-large .super-filled .super-adaptive-placeholder:before,
 .super-field-size-large .super-adaptive-positioning:before {
   transform: translate(0px, -20px);
 }
 
-.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
+.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-huge .super-filled .super-adaptive-placeholder:before,
 .super-field-size-huge .super-adaptive-positioning:before {
   transform: translate(0px, -25px);
@@ -5493,13 +5497,16 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-autosuggest-tags > div {
   flex-grow: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   height: 100%;
-  margin-right: 10px;
 }
 .super-autosuggest-tags .super-keyword-filter {
   flex-grow: 1;
   min-width: 100px;
+}
+
+.super-filled .super-autosuggest-tags > div {
+  margin-right: 10px;
 }
 
 @media (min-width: 0px) {
