@@ -1332,12 +1332,10 @@
                     }
                 }
                 [].forEach.call(itemsToShow, function (el) {
-                    el.style.display = 'flex';
-                    el.style.whiteSpace = 'pre-wrap';
+                    el.style.display = 'block';
                 });
                 [].forEach.call(itemsToHide, function (el) {
                     el.style.display = 'none';
-                    el.style.whiteSpace = '';
                 });
                 if (itemsToShow.length>0) {
                     parent.classList.add('super-string-found');
@@ -1355,7 +1353,6 @@
                 $('.super-focus').removeClass('super-focus');
                 $('.super-focus-dropdown').removeClass('super-focus-dropdown');
                 $this.parents('.super-field:eq(0)').addClass('super-focus').addClass('super-focus-dropdown');
-                $this.parents('.super-field-wrapper').addClass('super-focus'); // Required for adaptive placeholders
                 $this.parent().find('input[name="super-dropdown-search"]').focus();
             }
         });
@@ -1553,7 +1550,6 @@
                     this.classList.add('super-active');
                     input.value = value;
                     field.classList.remove('super-focus');
-                    wrapper.classList.remove('super-focus');
                 }else{
                     max = input.dataset.maxlength;
                     min = input.dataset.minlength;
@@ -2042,188 +2038,6 @@
                 }
             }
         }
-
-        // // @since 3.7.0 - Keyword/Tags field
-        // document.querySelector('.super-keyword-filter').addEventListener(['click', 'mousedown'], function(){
-        //     this.closest('.super-field').classList.add('super-focus');
-        // });
-        
-        // // Empty any string when unfocussing the input/search/filter field
-        // $doc.on('blur', '.super-keyword-tags .super-keyword-filter', function(){
-        //     $(this).val('');
-        // });
-
-
-        // @since 3.7.0 - autosuggest keyword with wordpress tags
-        // @since 4.4.0 - autosuggest keyword speed improvements
-        // var autosuggest_tags_timeout = null;
-
-        // // On keyup filter any keyword tags from the list
-        // $doc.on('keyup', '.super-keyword-tags .super-keyword-filter', function(){
-        //     var el = $(this)[0];
-        //     var time = 250;
-        //     if (autosuggest_tags_timeout !== null) {
-        //         clearTimeout(autosuggest_tags_timeout);
-        //     }
-        //     autosuggest_tags_timeout = setTimeout(function () {
-        //         var value = el.value.toString();
-        //         var parent = el.closest('.super-field');
-        //         if( value==='' ) {
-        //             parent.classList.remove('super-string-found');
-        //         }else{
-        //             var items_to_show = [];
-        //             var items_to_hide = [];
-        //             var wrapper = el.closest('.super-field-wrapper');
-        //             var items = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
-        //             var found = false;
-        //             [].forEach.call(items, function(el) {
-        //                 var string_value = el.dataset.searchValue.toString();
-        //                 if(string_value.toLowerCase().indexOf(value.toLowerCase())!=-1){
-        //                     items_to_show.push(el);
-        //                     found = true;
-        //                     var regex = RegExp([value].join('|'), 'gi');
-        //                     var stringBold = '<span class="super-wp-tag">'+el.innerText.replace(regex, '<span>$&</span>')+'</span>';
-        //                     stringBold = stringBold.replace(/\r?\n|\r/g, "");
-        //                     el.innerHTML = stringBold;
-        //                 }else{
-        //                     items_to_hide.push(el);
-        //                     el.innerHTML = '<span class="super-wp-tag">'+string_value+'</span>';
-        //                 }
-        //             });
-        //             [].forEach.call(items_to_show, function(el) {
-        //                 el.style.display = 'inline-block';
-        //                 el.classList.add('super-active');
-        //             });
-        //             [].forEach.call(items_to_hide, function(el) {
-        //                 el.style.display = 'none';
-        //                 el.classList.remove('super-active');
-        //             });
-
-        //             parent.classList.add('super-focus');
-        //             parent.classList.add('super-string-found');
-        //             if( found===true ) {
-        //                 parent.classList.remove('super-no-match');
-        //             }else{
-        //                 parent.classList.add('super-no-match');
-        //             }
-        //         }
-        //     }, time);
-        // });
-
-
-        // $doc.on('click', '.super-autosuggest-tags', function(){
-        //     $(this).parents('.super-field:eq(0)').addClass('super-focus');
-        //     $(this).parents('.super-field:eq(0)').find('.super-keyword-filter').focus();
-        // });
-        // $doc.on('blur', '.super-keyword-filter', function(){
-        //     $(this).parents('.super-field:eq(0)').removeClass('super-focus');
-        // });
-        // $doc.on('click', '.super-keyword-tags .super-item', function(){
-        //     debugger;
-        //     var html = '', counter = 0,
-        //         field = this.closest('.super-field'),
-        //         value = this.dataset.value, // first_choice
-        //         searchValue = this.dataset.searchValue, // First choice
-        //         wrapper = this.closest('.super-field-wrapper'),
-        //         keywordField = wrapper.querySelector('.super-shortcode-field'),
-        //         max = keywordField.dataset.keywordMax,
-        //         keywordFieldValue = keywordField.value,
-        //         tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
-        //         filterField = wrapper.querySelector('.super-keyword-filter');
-
-        //     // if this tag doesn't exists yet
-        //     if(keywordFieldValue.indexOf(value)===-1){
-        //         html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
-        //         tagsContainer.innerHTML = tagsContainer.innerHTML + html;
-        //         counter = tagsContainer.querySelectorAll('span').length;
-        //         // Check if limit is reached after adding this, if so hide the filter field
-        //         if(counter>=max) filterField.style.display = 'none';
-        //         this.classList.add('super-active');
-        //         field.classList.remove('super-focus');
-        //         field.classList.remove('super-string-found');
-        //         SUPER.set_keyword_tags_width(field, counter, max);
-        //         SUPER.after_field_change_blur_hook(keywordField);
-        //     }else{
-        //         // this tag exists, don't add it...
-        //     }
-        // });
-        // $doc.on('click', '.super-autosuggest-tags > div > span', function(){
-        //     debugger;
-        //     var $this = $(this);
-        //     var $field = $this.parents('.super-field:eq(0)');
-        //     var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
-        //     var $autosuggest = $field.find('.super-keyword-filter');
-        //     // Always display the filter field again
-        //     $autosuggest.show();
-        //     $this.remove();
-        //     SUPER.set_keyword_tags_width($field[0]);
-        //     $autosuggest.val('').focus();
-        //     $field.find('.super-shortcode-field').val('');
-        //     $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
-        //     var $value = '';
-        //     var $counter = 0;
-        //     $field.find('.super-autosuggest-tags > div > span').each(function () {
-        //         if ($counter === 0) $value = $(this).text();
-        //         if ($counter !== 0) $value = $value + ',' + $(this).text();
-        //         $counter++;
-        //     });
-        //     $field.find('.super-shortcode-field').val($value);
-        //     // Add back the placeholder
-        //     if($value===''){
-        //         $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
-        //     }
-
-        //     SUPER.after_field_change_blur_hook($shortcode_field[0]);
-        // });
-        // // Close tags list when clicked outside element
-        // $(window).click(function() {
-        //     $('.super-form .super-keyword-tags.super-string-found.super-focus').removeClass('super-string-found');
-        // });
-        // $doc.on('click', '.super-entered-keywords > span', function(){
-        //     debugger;
-        //     var $this = $(this);
-        //     var $parent = $this.parent();
-        //     $this.remove();
-        //     var $tags = '';
-        //     var $counter = 0;
-        //     $parent.children('span').each(function(){
-        //         if($counter===0){
-        //             $tags += $(this).text();
-        //         }else{
-        //             $tags += ', '+$(this).text();
-        //         }
-        //         $counter++;
-        //     });
-        //     $parent.parent().find('.super-keyword').val($tags);
-        // });
-        // $doc.on('keyup keydown', '.super-keyword-tags .super-keyword-filter',function(){
-        //     var $this = $(this),
-        //         $value = $this.val(),
-        //         $split_method = $this.data('split-method'),
-        //         $max_tags = $this.data('keyword-max'),
-        //         $tags,
-        //         $tags_html = '',
-        //         $counter = 0,
-        //         $duplicate_tags = {};
-
-        //     if($split_method=='both') $tags = $value.split(/[ ,]+/);
-        //     if($split_method=='comma') $tags = $value.split(/[,]+/);
-        //     if($split_method=='space') $tags = $value.split(/[ ]+/);
-        //     $.each($tags,function(index,value){
-        //         if(typeof $duplicate_tags[value]==='undefined'){
-        //             $counter++;
-        //             if($counter<=$max_tags){
-        //                 if($split_method!='comma') value = value.replace(/ /g,'');
-        //                 if( (value!=='') && (value.length>1) ) {
-        //                     $tags_html += '<span class="super-noselect">'+value+'</span>';
-        //                 }
-        //             }
-        //         }
-        //         $duplicate_tags[value] = value;
-        //     });
-        //     $this.parent().find('.super-entered-keywords').html($tags_html);
-        // });
-
     });
 
 })(jQuery);
@@ -2317,7 +2131,7 @@
         target.closest('.super-field').classList.add('super-focus');
     };
     app.unfocusField = function(e, target){
-        console.log('unfocusField()');
+        //console.log('unfocusField()');
         // if(target.classList.contains('super-keyword-filter')){
         //     target.value = '';
         // }
@@ -2326,6 +2140,21 @@
     };
     app.autosuggestTagsTimeout = null;
     app.keywords = {
+        updateValue: function(field, tagsContainer, keywordField, filterField, wrapper){
+            var i, values=[], nodes = wrapper.querySelectorAll('.super-autosuggest-tags > div > span');
+            for(i=0; i<nodes.length; i++){
+                values.push(nodes[i].dataset.value);
+            }
+            keywordField.value = values.join(',');
+            filterField.value = '';
+            filterField.focus();
+            if(!app.qap('span', tagsContainer).length){
+                field.classList.remove('super-filled');
+            }else{
+                field.classList.add('super-filled');
+            }
+            SUPER.after_field_change_blur_hook(keywordField);
+        },
         add: function(e, target){
             var html = '',
                 field = target.closest('.super-field'),
@@ -2333,14 +2162,13 @@
                 searchValue = target.dataset.searchValue, // First choice
                 wrapper = target.closest('.super-field-wrapper'),
                 keywordField = wrapper.querySelector('.super-shortcode-field'),
-                max = parseFloat(keywordField.dataset.keywordMax),
                 keywordFieldValue = keywordField.value,
                 tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
                 filterField = wrapper.querySelector('.super-keyword-filter');
 
             // if this tag doesn't exists yet
             if(keywordFieldValue.indexOf(value)===-1){
-                html = '<span class="super-noselect" data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+                html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
                 tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                 target.classList.add('super-active');
             }
@@ -2349,44 +2177,35 @@
             }else{
                 field.classList.add('super-filled');
             }
-            filterField.value = '';
-            filterField.focus();
+            // Scroll to bottom of tags container
+            tagsContainer.scrollTop = tagsContainer.scrollHeight;
             field.classList.remove('super-string-found');
             field.classList.add('super-focus');
-            SUPER.after_field_change_blur_hook(keywordField);
+            app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
         },
         remove: function(e, target){
-            // debugger;
-            // var $this = $(target);
-            // var $field = $this.parents('.super-field:eq(0)');
-            // var $shortcode_field = $field.find('input.super-shortcode-field:eq(0)');
-            // var $autosuggest = $field.find('.super-keyword-filter');
-            // // Always display the filter field again
-            // $autosuggest.show();
-            // $this.remove();
-            // SUPER.set_keyword_tags_width($field[0]);
-            // $autosuggest.val('').focus();
-            // $field.find('.super-shortcode-field').val('');
-            // $field.find('.super-autosuggest-tags-list .super-active').removeClass('super-active');
-            // var $value = '';
-            // var $counter = 0;
-            // $field.find('.super-autosuggest-tags > div > span').each(function () {
-            //     if ($counter === 0) $value = $(this).text();
-            //     if ($counter !== 0) $value = $value + ',' + $(this).text();
-            //     $counter++;
-            // });
-            // $field.find('.super-shortcode-field').val($value);
-            // // Add back the placeholder
-            // if($value===''){
-            //     $autosuggest.attr('placeholder',$autosuggest.attr('data-placeholder'));
-            // }
-            // SUPER.after_field_change_blur_hook($shortcode_field[0]);
+            var wrapper = target.closest('.super-field-wrapper'),
+                keywordField = wrapper.querySelector('.super-shortcode-field'),
+                filterField = wrapper.querySelector('.super-keyword-filter'),
+                field = target.closest('.super-field'),
+                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div');
+
+            target.remove();
+            filterField.focus();
+            app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
         },
         filter: function(e, target, eventType){
             console.log(e, target, eventType);
             // On keyup filter any keyword tags from the list
             var i,
                 parent = target.closest('.super-field'),
+                counter = 0,
+                html = '',
+                tag, tags,
+                duplicates = {},
+                max = target.dataset.keywordMax,
+                method = target.dataset.method,
+                splitMethod = target.dataset.splitMethod,
                 itemsToShow = [],
                 itemsToHide = [],
                 value,
@@ -2395,53 +2214,110 @@
                 regex,
                 stringBold,
                 wrapper = target.closest('.super-field-wrapper'),
+                field = target.closest('.super-field'),
+                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                keywordField = wrapper.querySelector('.super-shortcode-field'),
                 nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
 
-            if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
-            app.autosuggestTagsTimeout = setTimeout(function () {
-                value = target.value.toString();
-                if (value === '') {
-                    parent.classList.remove('super-string-found');
-                    return false;
-                }
-                for (i = 0; i < nodes.length; i++) {
-                    searchValue = nodes[i].dataset.searchValue.toString();
-                    text = searchValue.split(';')[0];
-                    if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
-                        itemsToShow.push(nodes[i]);
-                        regex = RegExp([value].join('|'), 'gi');
-                        stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
-                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
-                        nodes[i].innerHTML = stringBold;
-                    }else{
-                        itemsToHide.push(nodes[i]);
+            if(method=='free'){
+                if(splitMethod=='both') tags = target.value.split(/[ ,]+/);
+                if(splitMethod=='comma') tags = target.value.split(/[,]+/);
+                if(splitMethod=='space') tags = target.value.split(/[ ]+/);
+                if(tags.length>1){
+                    tag = tags[0];
+                    // First check if already exists
+                    if(keywordField.value.indexOf(tag)===-1){
+                        if(typeof duplicates[tag]==='undefined'){
+                            counter++;
+                            if(counter<=max){
+                                if(splitMethod!='comma') tag = tag.replace(/ /g,'');
+                                if( (tag!=='') && (tag.length>1) ) {
+                                    html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
+                                }
+                            }
+                        }
+                        duplicates[tag] = tag;
+                        tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                     }
+                    app.keywords.updateValue(field, tagsContainer, keywordField, target, wrapper);
                 }
-                [].forEach.call(itemsToShow, function (el) {
-                    el.style.display = 'inline-block';
-                    el.classList.add('super-active');
-                });
-                [].forEach.call(itemsToHide, function (el) {
-                    el.style.display = 'none';
-                    el.classList.remove('super-active');
-                });
-                if (itemsToShow.length>0) {
-                    parent.classList.add('super-string-found');
-                    parent.classList.add('super-focus');
-                } else {
-                    parent.classList.remove('super-string-found');
-                }
-            }, 250);
+            }else{
+                if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
+                app.autosuggestTagsTimeout = setTimeout(function () {
+                    value = target.value.toString();
+                    if (value === '') {
+                        parent.classList.remove('super-string-found');
+                        return false;
+                    }
+                    for (i = 0; i < nodes.length; i++) {
+                        searchValue = nodes[i].dataset.searchValue.toString();
+                        text = searchValue.split(';')[0];
+                        if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                            itemsToShow.push(nodes[i]);
+                            regex = RegExp([value].join('|'), 'gi');
+                            stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
+                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                            nodes[i].innerHTML = stringBold;
+                        }else{
+                            itemsToHide.push(nodes[i]);
+                        }
+                    }
+                    [].forEach.call(itemsToShow, function (el) {
+                        el.style.display = 'inline-block';
+                        el.classList.add('super-active');
+                    });
+                    [].forEach.call(itemsToHide, function (el) {
+                        el.style.display = 'none';
+                        el.classList.remove('super-active');
+                    });
+                    if (itemsToShow.length>0) {
+                        parent.classList.add('super-string-found');
+                        parent.classList.add('super-focus');
+                    } else {
+                        parent.classList.remove('super-string-found');
+                    }
+                }, 250);
+            }
+
+
+        // $doc.on('keyup keydown', '.super-keyword-tags .super-keyword-filter',function(){
+        //     var $this = $(this),
+        //         $value = $this.val(),
+        //         $split_method = $this.data('split-method'),
+        //         $max_tags = $this.data('keyword-max'),
+        //         $tags,
+        //         $tags_html = '',
+        //         $counter = 0,
+        //         $duplicate_tags = {};
+
+        //     if($split_method=='both') $tags = $value.split(/[ ,]+/);
+        //     if($split_method=='comma') $tags = $value.split(/[,]+/);
+        //     if($split_method=='space') $tags = $value.split(/[ ]+/);
+        //     $.each($tags,function(index,value){
+        //         if(typeof $duplicate_tags[value]==='undefined'){
+        //             $counter++;
+        //             if($counter<=$max_tags){
+        //                 if($split_method!='comma') value = value.replace(/ /g,'');
+        //                 if( (value!=='') && (value.length>1) ) {
+        //                     $tags_html += '<span class="super-noselect">'+value+'</span>';
+        //                 }
+        //             }
+        //         }
+        //         $duplicate_tags[value] = value;
+        //     });
+        //     $this.parent().find('.super-entered-keywords').html($tags_html);
+        // });
+
         }
     }
 
     // Trigger Events
     app.triggerEvent = function (e, target, eventType) {
         // Get element actions, and check for multiple event methods
-        console.log(e, target, eventType);
+        //console.log(e, target, eventType);
         var actions, _event, _function, _currentFunc, sfevents;
         try {
-            console.log(target.attributes.sfevents.value);
+            //console.log(target.attributes.sfevents.value);
             sfevents = JSON.parse(target.attributes.sfevents.value);
         } catch (error) {
             console.log(error);
@@ -2520,7 +2396,8 @@
         click: [
             'body',
             '.super-keyword-filter',
-            '.super-keyword-tags .super-item'
+            '.super-keyword-tags .super-item',
+            '.super-keyword-tag'
         ],
         mousedown: [
             '.super-keyword-filter'
@@ -2540,7 +2417,7 @@
         app.delegate(document, eventType, elements, function (e, target) {
             if (eventType == 'click') {
                 if (!app.inPath(e, 'super-focus')) {
-                    console.log('not in path, unfocus');
+                    //console.log('not in path, unfocus');
                     var i, nodes = document.querySelectorAll('.super-focus');
                     for(i=0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-focus');

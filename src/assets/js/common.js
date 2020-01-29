@@ -510,7 +510,6 @@ function SUPERreCaptcha(){
         if( $did_loop===false ) {
             SUPER.update_variable_fields($changed_field, $form, $doing_submit);
         }
-        SUPER.set_keyword_tags_width();
     };
 
     // @since 3.6.0 - always make sure to return the value of the field in case it uses advanced tags like function like: value;value2
@@ -932,7 +931,16 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            $field.value = ''; // No match was found just set to an empty string
+                                            // @important - we must check if changed field is undefined
+                                            // because when either "Save form progression" or "Retrieve last entry data" is enabled
+                                            // in combination with a variable field depending on a other field to retrieve it values
+                                            // (think of, search customer field, e.g: autosuggest feature with customer data)
+                                            // because it would try to re-populate the variable field (could be text field) with it's data
+                                            // but on page load this text field might already contain data which we rather not override :)
+                                            // @important - or should we grab the data-default-value attribute?
+                                            if(typeof $changed_field !== 'undefined'){
+                                                $field.value = ''; // No match was found just set to an empty string
+                                            }
                                         }
                                     }else{
                                         if($match_found>=1) {
@@ -942,7 +950,16 @@ function SUPERreCaptcha(){
                                             }
                                             $field.value = v.new_value;
                                         }else{
-                                            $field.value = ''; // No match was found just set to an empty string
+                                            // @important - we must check if changed field is undefined
+                                            // because when either "Save form progression" or "Retrieve last entry data" is enabled
+                                            // in combination with a variable field depending on a other field to retrieve it values
+                                            // (think of, search customer field, e.g: autosuggest feature with customer data)
+                                            // because it would try to re-populate the variable field (could be text field) with it's data
+                                            // but on page load this text field might already contain data which we rather not override :)
+                                            // @important - or should we grab the data-default-value attribute?
+                                            if(typeof $changed_field !== 'undefined'){
+                                                $field.value = ''; // No match was found just set to an empty string
+                                            }
                                         }
                                     }
                                     // No matter what, we will always apply and then remove the 'entry-data' attribute if it existed
@@ -2683,8 +2700,6 @@ function SUPERreCaptcha(){
                 $new_value,
                 $selected_items,
                 $email_value,
-                $tags,
-                $counter,
                 $item_value;
 
             // Proceed only if it's a valid field (which must have a field name)
@@ -2939,21 +2954,6 @@ function SUPERreCaptcha(){
                             });
                             $data[$this.attr('name')].entry_value = $new_value; 
                         }
-                    }
-
-                    // @since 3.7.0 - autosuggest tags
-                    if( $super_field.hasClass('super-keyword-tags') ) {
-                        $i = 0;
-                        $new_value = '';
-                        $super_field.find('.super-autosuggest-tags > div > span').each(function(){
-                            if($i===0){
-                                $new_value += $(this).data('value');
-                            }else{
-                                $new_value += ','+$(this).data('value');
-                            }
-                            $i++;
-                        });
-                        $data[$super_field.find('.super-shortcoded-field').attr('name')].value = $new_value; 
                     }
                 }
             }
@@ -3998,7 +3998,6 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) {
             field = nodes[i].querySelector('.super-keyword-filter');
             field.placeholder = field.dataset.placeholder;
-            SUPER.set_keyword_tags_width($(field));
         }
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
         nodes = form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
@@ -4793,116 +4792,6 @@ function SUPERreCaptcha(){
         
     };
 
-    // @since 3.7.0 - set correct input width for keyword tags fields
-    // SUPER.itemWidth = function(node){
-    //     var style = window.getComputedStyle ? getComputedStyle(node, null) : node.currentStyle,
-    //         marginLeft = parseFloat(style.marginLeft) || 0,
-    //         marginRight = parseFloat(style.marginRight) || 0,
-    //         paddingLeft = parseFloat(style.paddingLeft) || 0,
-    //         paddingRight = parseFloat(style.paddingRight) || 0;
-    //     debugger;
-    //     return node.offsetWidth+(marginLeft+marginRight)-(paddingLeft+paddingRight);
-    //     //return node.offsetWidth+(marginLeft+marginRight);
-    // };
-    SUPER.set_keyword_tags_width = function(field, counter, maxTags){
-        // var i, x, nodes = [], tagsWidth = 0, tags, style, marginLeft, marginRight, paddingLeft, paddingRight, autosuggest, filterField, autosuggestWidth, newFilterFieldWidth;
-        // if(typeof field === 'undefined'){
-        //     nodes = document.querySelectorAll('.super-keyword-tags');
-        // }else{
-        //     nodes[0] = field;
-        // }
-        // for(i=0; i < nodes.length; i++){
-        //     autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
-        //     autosuggestWidth = autosuggest.offsetWidth;
-        //     tagsWidth = 0;
-        //     newFilterFieldWidth = autosuggestWidth-tagsWidth;
-        //     filterField = nodes[i].querySelector('.super-keyword-filter');
-        //     filterField.style.width = newFilterFieldWidth+'px';
-        //     console.log('autosuggestWidth (932px): ', autosuggestWidth);
-        //     console.log('tagsWidth (211px): ', tagsWidth);
-        //     console.log('newFilterFieldWidth (718px): ', newFilterFieldWidth);
-            
-        //     // tags = nodes[i].querySelectorAll('.super-autosuggest-tags > div > span');
-        //     // tagsWidth = 0;
-        //     // for(x=0; x < tags.length; x++){
-        //     //     style = window.getComputedStyle ? getComputedStyle(tags[x], null) : tags[x].currentStyle;
-        //     //     marginLeft = parseFloat(style.marginLeft) || 0;
-        //     //     marginRight = parseFloat(style.marginRight) || 0;
-        //     //     paddingLeft = parseFloat(style.paddingLeft) || 0;
-        //     //     paddingRight = parseFloat(style.paddingRight) || 0;
-        //     //     tagsWidth += tags[x].offsetWidth+marginLeft+marginRight+paddingLeft+paddingRight;
-        //     // }
-        //     // autosuggest = nodes[i].querySelector('.super-autosuggest-tags');
-        //     // style = window.getComputedStyle ? getComputedStyle(autosuggest, null) : autosuggest.currentStyle;
-        //     // marginLeft = parseFloat(style.marginLeft) || 0;
-        //     // marginRight = parseFloat(style.marginRight) || 0;
-        //     // paddingLeft = parseFloat(style.paddingLeft) || 0;
-        //     // paddingRight = parseFloat(style.paddingRight) || 0;
-        //     // autosuggestWidth = autosuggest.offsetWidth+marginLeft+marginRight-paddingLeft-paddingRight;
-        //     // newFilterFieldWidth = autosuggestWidth-tagsWidth-10;
-        //     // filterField = nodes[i].querySelector('.super-shortcode-field');
-        //     // filterField.style.width = newFilterFieldWidth+'px';
-        //     // autosuggestWidth: 932px
-        //     // tagsWidth: 211px
-
-        // }
-        /*
-        if(typeof $field === 'undefined'){
-            $field = $('.super-keyword-tags');
-        }
-        $field.each(function(){
-            var $this = $(this),
-                $width = $this.outerWidth(true),
-                $wrapper_width = $this.find('.super-field-wrapper').width(),
-                $icon_width = 0,
-                $autosuggest,
-                $padding,
-                $total_width = 0,
-                $input_margins,
-                $new_width,
-                $min_input_width,
-                $margin;
-
-            if($wrapper_width>=$width){
-                $icon_width = $this.find('.super-icon').outerWidth(true);
-                $width = $width-$icon_width;
-            }else{
-                $width = $wrapper_width;
-            }
-            $autosuggest = $this.find('.super-autosuggest-tags');
-            $autosuggest.children('div').css('margin-left','');
-            $padding = $autosuggest.innerWidth() - $autosuggest.width();
-            $width = $width - $padding + $icon_width;
-            $autosuggest.find('div > span').each(function(){
-                $total_width = $total_width + $(this).outerWidth(true);
-            });
-            // Set input field to width 0px so we know what the margin/padding is
-            $autosuggest.children('input').css('width','0px');
-            $input_margins = $autosuggest.children('input').outerWidth(true);
-            $new_width = $width-$total_width-$input_margins-3;
-            $autosuggest.children('input').css('width',$new_width+'px');
-            // Let's check if we have to move the tags up to the left a bit, in case we do not have enough space for the input field.
-            // This prevents the input field moving below the tags because of insufficient space
-            $min_input_width = parseFloat($autosuggest.width()/2).toFixed(0);
-            $min_input_width = parseFloat($min_input_width);
-
-            if($total_width>$min_input_width){
-                // When the maximum was reached, we should leave out the search field width
-                if($counter>=$max_tags){
-                    $autosuggest.children('div').css('margin-left','');
-                }else{
-                    $margin = $total_width - $min_input_width;
-                    $autosuggest.children('div').css('margin-left',-$margin+'px');
-                }
-                $autosuggest.children('input').css('width',($min_input_width-$input_margins-3)+'px');
-            }else{
-                $autosuggest.children('div').css('margin-left','');
-                $autosuggest.children('input').css('width',$new_width+'px');
-            }
-        });
-        */
-    };
-
     // Init Slider fields
     SUPER.init_slider_field = function(){
         $('.super-slider').each(function () {
@@ -5157,9 +5046,6 @@ function SUPERreCaptcha(){
                 }
             }
         });
-
-        // @since 3.7.0 
-        SUPER.set_keyword_tags_width();
 
         // @since 1.3
         SUPER.after_responsive_form_hook($classes, $new_class, $window_classes, $new_window_class);
@@ -5489,7 +5375,7 @@ function SUPERreCaptcha(){
                     if(element){
                         form = element.closest('.super-form');
                         // @since 3.3.0 - Do not submit form if Enter is disabled
-                        if(form.dataset.disableEnter===true){
+                        if(form.dataset.disableEnter=='true'){
                             e.preventDefault();
                             return false;
                         }

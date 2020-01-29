@@ -1,4 +1,5 @@
-### Jan 24, 2020 - Version 4.9.206
+### Jan 29, 2020 - Version 4.9.208
+- Fix: `Form settings` > `Prevent submitting form on pressing "Enter" keyboard button` was no longer working
 - Fix: W3C validation errors
 - Fix: Issue with `Allow field to be empty` not taking effect in combination with for instance `Website` validation method
 - NEW: Adaptive Placeholders
