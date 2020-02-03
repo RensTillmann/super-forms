@@ -1804,7 +1804,7 @@ if (!class_exists('SUPER_PayPal')):
 				$action = 'https://www.' . ($settings['paypal_mode'] == 'sandbox' ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr';
 				$message = '';
 
-				$message .= '<form target="_self" id="super_paypal_' . $atts['post']['form_id'] . '" action="' . $action . '" method="post">';
+				$message .= '<form target="_self" id="super_paypal_' . $atts['post']['form_id'] . '" action="' . esc_attr($action) . '" method="post">';
 
 				// If continue shopping is enabled (e.g: custom URL redirect is enabled for the form)
 	            if( !empty( $settings['form_redirect_option'] ) ) {
@@ -1821,11 +1821,11 @@ if (!class_exists('SUPER_PayPal')):
 	            }
 
 
-	            $message .= '<input type="hidden" name="cmd" value="' . $cmd . '">';
+	            $message .= '<input type="hidden" name="cmd" value="' . esc_attr($cmd) . '">';
 
 	            // Sets the character set and character encoding for the billing information/log-in page on the PayPal website. In addition, this variable sets the same values for information that you send to PayPal in your HTML button code. Default is based on the language encoding settings in your account profile.
 				if( !empty($settings['paypal_charset']) ) {
-					$message .= '<input type="hidden" name="charset" value="' . SUPER_Common::email_tags($settings['paypal_charset'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="charset" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_charset'], $data, $settings)) . '">';
 				}else{
 					$message .= '<input type="hidden" name="charset" value="UTF-8">';
 				}
@@ -1847,7 +1847,7 @@ if (!class_exists('SUPER_PayPal')):
 				// 1. Do not prompt for an address.
 				// 2. Prompt for an address and require one.
 				if( !empty($settings['paypal_no_shipping']) ) {
-					$message .= '<input type="hidden" name="no_shipping" value="' . $settings['paypal_no_shipping'] . '">';
+					$message .= '<input type="hidden" name="no_shipping" value="' . esc_attr($settings['paypal_no_shipping']) . '">';
 				}
 
 				// The URL to which PayPal redirects buyers' browser after they complete their payments. For example, specify a URL on your site that displays a hank you for your payment page.
@@ -1860,24 +1860,24 @@ if (!class_exists('SUPER_PayPal')):
 				$message .= '<input type="hidden" name="cancel_return" value="' . esc_url(SUPER_Common::email_tags($settings['paypal_cancel_url'], $data, $settings)) . '">';
 				
 				// The currency of the payment. Default is USD.
-				$message .= '<input type="hidden" name="currency_code" value="' . SUPER_Common::email_tags($settings['paypal_currency_code'], $data, $settings) . '" />';
+				$message .= '<input type="hidden" name="currency_code" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_currency_code'], $data, $settings)) . '" />';
 				
 				// Pass-through variable for your own tracking purposes, which buyers do not see.
 				$message .= '<input type="hidden" name="custom" value="' . esc_attr(implode("|", $custom)) . '">';
 				
 				// Pass-through variable you can use to identify your invoice number for this purchase.
 				if( !empty($settings['paypal_invoice']) ) {
-					$message .= '<input type="hidden" name="invoice" value="' . SUPER_Common::email_tags($settings['paypal_invoice'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="invoice" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_invoice'], $data, $settings)) . '">';
 				}
 
 				if( !empty($settings['paypal_night_phone_a']) ) {
-					$message .= '<input type="hidden" name="night_phone_a" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_a'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="night_phone_a" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_night_phone_a'], $data, $settings)) . '">';
 				}
 				if( !empty($settings['paypal_night_phone_b']) ) {
-					$message .= '<input type="hidden" name="night_phone_b" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_b'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="night_phone_b" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_night_phone_b'], $data, $settings)) . '">';
 				}
 				if( !empty($settings['paypal_night_phone_c']) ) {
-					$message .= '<input type="hidden" name="night_phone_c" value="' . SUPER_Common::email_tags($settings['paypal_night_phone_c'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="night_phone_c" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_night_phone_c'], $data, $settings)) . '">';
 				}
 
 				// Parse custom address to paypal
@@ -1886,53 +1886,53 @@ if (!class_exists('SUPER_PayPal')):
 					if( (!empty($settings['paypal_address_override'])) && ($settings['paypal_address_override']=='true') ) {
 						$message .= '<input type="hidden" name="address_override" value="1">';
 					}
-					$message .= '<input type="hidden" name="first_name" value="' . SUPER_Common::email_tags($settings['paypal_first_name'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="last_name" value="' . SUPER_Common::email_tags($settings['paypal_last_name'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="email" value="' . SUPER_Common::email_tags($settings['paypal_email'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="address1" value="' . SUPER_Common::email_tags($settings['paypal_address1'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="address2" value="' . SUPER_Common::email_tags($settings['paypal_address2'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="city" value="' . SUPER_Common::email_tags($settings['paypal_city'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="state" value="' . SUPER_Common::email_tags($settings['paypal_state'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="zip" value="' . SUPER_Common::email_tags($settings['paypal_zip'], $data, $settings) . '">';
-					$message .= '<input type="hidden" name="country" value="' . SUPER_Common::email_tags($settings['paypal_country'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="first_name" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_first_name'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="last_name" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_last_name'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="email" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_email'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="address1" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_address1'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="address2" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_address2'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="city" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_city'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="state" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_state'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="zip" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_zip'], $data, $settings)) . '">';
+					$message .= '<input type="hidden" name="country" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_country'], $data, $settings)) . '">';
 				}
 
 
 				if ($cmd == '_cart') {
 					// tax_cart
 					if( !empty($settings['paypal_tax_cart']) ) {
-						$message .= '<input type="hidden" name="tax_cart" value="' . SUPER_Common::email_tags($settings['paypal_tax_cart'], $data, $settings) . '">';
+						$message .= '<input type="hidden" name="tax_cart" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_tax_cart'], $data, $settings)) . '">';
 					}
 					// weight_cart
 					if( !empty($settings['paypal_weight_cart']) ) {
-						$message .= '<input type="hidden" name="weight_cart" value="' . SUPER_Common::email_tags($settings['paypal_weight_cart'], $data, $settings) . '">';
+						$message .= '<input type="hidden" name="weight_cart" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_weight_cart'], $data, $settings)) . '">';
 					}
 					// discount_amount_cart
 					if( !empty($settings['paypal_discount_amount_cart']) ) {
-						$message .= '<input type="hidden" name="discount_amount_cart" value="' . SUPER_Common::email_tags($settings['paypal_discount_amount_cart'], $data, $settings) . '">';
+						$message .= '<input type="hidden" name="discount_amount_cart" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_discount_amount_cart'], $data, $settings)) . '">';
 					}
 					// discount_rate_cart
 					if( !empty($settings['paypal_discount_rate_cart']) ) {
-						$message .= '<input type="hidden" name="discount_rate_cart" value="' . SUPER_Common::email_tags($settings['paypal_discount_rate_cart'], $data, $settings) . '">';
+						$message .= '<input type="hidden" name="discount_rate_cart" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_discount_rate_cart'], $data, $settings)) . '">';
 					}
 					// handling_cart
 					if( !empty($settings['paypal_handling_cart']) ) {
-						$message .= '<input type="hidden" name="handling_cart" value="' . SUPER_Common::email_tags($settings['paypal_handling_cart'], $data, $settings) . '">';
+						$message .= '<input type="hidden" name="handling_cart" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_handling_cart'], $data, $settings)) . '">';
 					}
 				}
 
 				// Handling charges. This variable is not quantity-specific. The same handling cost applies, regardless of the number of items on the order.
 				if( !empty($settings['paypal_handling']) ) {
-					$message .= '<input type="hidden" name="handling" value="' . SUPER_Common::email_tags($settings['paypal_handling'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="handling" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_handling'], $data, $settings)) . '">';
 				}
 
 				// The unit of measure if weight_cart is specified. Valid value is lbs or kgs.
 				if( !empty($settings['paypal_weight_unit']) ) {
-					$message .= '<input type="hidden" name="weight_unit" value="' . SUPER_Common::email_tags($settings['paypal_weight_unit'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="weight_unit" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_weight_unit'], $data, $settings)) . '">';
 				}
 
 				if( !empty($settings['paypal_lc']) ) {
-					$message .= '<input type="hidden" name="lc" value="' . SUPER_Common::email_tags($settings['paypal_lc'], $data, $settings) . '">';
+					$message .= '<input type="hidden" name="lc" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_lc'], $data, $settings)) . '">';
 				}
 
 
@@ -1948,34 +1948,34 @@ if (!class_exists('SUPER_PayPal')):
 							$message .= '<input type="hidden" name="item_number" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_number'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_item_quantity']) ) {
-							$message .= '<input type="hidden" name="quantity" value="' . SUPER_Common::email_tags($settings['paypal_item_quantity'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="quantity" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_quantity'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_item_shipping']) ) {
-							$message .= '<input type="hidden" name="shipping" value="' . SUPER_Common::email_tags($settings['paypal_item_shipping'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="shipping" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_shipping'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_item_shipping2']) ) {
-							$message .= '<input type="hidden" name="shipping2" value="' . SUPER_Common::email_tags($settings['paypal_item_shipping2'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="shipping2" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_shipping2'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_undefined_quantity']) ) {
-							$message .= '<input type="hidden" name="undefined_quantity" value="' . SUPER_Common::email_tags($settings['paypal_undefined_quantity'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="undefined_quantity" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_undefined_quantity'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_item_weight']) ) {
-							$message .= '<input type="hidden" name="weight" value="' . SUPER_Common::email_tags($settings['paypal_item_weight'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="weight" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_weight'], $data, $settings)) . '">';
 						}
 						if( !empty($settings['paypal_item_discount_amount']) ) {
 							$paypal_item_discount_amount = SUPER_Common::email_tags($settings['paypal_item_discount_amount'], $data, $settings);
 							$paypal_item_discount_amount = self::tofloat($paypal_item_discount_amount);
-							$message .= '<input type="hidden" name="discount_amount" value="' . $paypal_item_discount_amount . '">';
-							$message .= '<input type="hidden" name="discount_amount2" value="' . $paypal_item_discount_amount . '">';
+							$message .= '<input type="hidden" name="discount_amount" value="' . esc_attr($paypal_item_discount_amount) . '">';
+							$message .= '<input type="hidden" name="discount_amount2" value="' . esc_attr($paypal_item_discount_amount) . '">';
 						}
 						if( !empty($settings['paypal_item_discount_rate']) ) {
 							$paypal_item_discount_rate = SUPER_Common::email_tags($settings['paypal_item_discount_rate'], $data, $settings);
 							$paypal_item_discount_rate = self::tofloat($paypal_item_discount_rate);
-							$message .= '<input type="hidden" name="discount_rate" value="' . $paypal_item_discount_rate . '">';
-							$message .= '<input type="hidden" name="discount_rate2" value="' . $paypal_item_discount_rate . '">';
+							$message .= '<input type="hidden" name="discount_rate" value="' . esc_attr($paypal_item_discount_rate) . '">';
+							$message .= '<input type="hidden" name="discount_rate2" value="' . esc_attr($paypal_item_discount_rate) . '">';
 						}
 						if( !empty($settings['paypal_item_discount_num']) ) {
-							$message .= '<input type="hidden" name="discount_num" value="' . SUPER_Common::email_tags($settings['paypal_item_discount_num'], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="discount_num" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_discount_num'], $data, $settings)) . '">';
 						}
 					}
 				}
@@ -2002,41 +2002,41 @@ if (!class_exists('SUPER_PayPal')):
 						$k = $absolute_key;
 
 						$amount = self::tofloat($amount);
-						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . $amount . '">';
-						$message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . $quantity . '">';
+						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . esc_attr($amount) . '">';
+						$message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . esc_attr($quantity) . '">';
 						
 						$ii = 2;
 						if(!empty($options[$ii])) {
-							$message .= '<input type="hidden" name="item_name_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
+							$message .= '<input type="hidden" name="item_name_' . ($k+1) . '" value="' . esc_attr(SUPER_Common::email_tags($options[$ii], $data, $settings)) . '">';
 						}
 
 						$ii++;
 						if(!empty($options[$ii])) {
 							$tax = SUPER_Common::email_tags($options[$ii], $data, $settings);
 							$tax = self::tofloat($tax);
-							$message .= '<input type="hidden" name="tax_' . ($k+1) . '" value="' . $tax . '">';
+							$message .= '<input type="hidden" name="tax_' . ($k+1) . '" value="' . esc_attr($tax) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
 							$shipping = self::tofloat($shipping);
-							$message .= '<input type="hidden" name="shipping_' . ($k+1) . '" value="' . $shipping . '">';
+							$message .= '<input type="hidden" name="shipping_' . ($k+1) . '" value="' . esc_attr($shipping) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
 							$shipping = self::tofloat($shipping);
-							$message .= '<input type="hidden" name="shipping2_' . ($k+1) . '" value="' . $shipping . '">';
+							$message .= '<input type="hidden" name="shipping2_' . ($k+1) . '" value="' . esc_attr($shipping) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$discount_amount = SUPER_Common::email_tags($options[$ii], $data, $settings);
 							$discount_amount = self::tofloat($discount_amount);
-							$message .= '<input type="hidden" name="discount_amount_' . ($k+1) . '" value="' . $discount_amount . '">';
+							$message .= '<input type="hidden" name="discount_amount_' . ($k+1) . '" value="' . esc_attr($discount_amount) . '">';
 						}
 
 						$ii++;
-						if(!empty($options[$ii])) $message .= '<input type="hidden" name="discount_rate_' . ($k+1) . '" value="' . SUPER_Common::email_tags($options[$ii], $data, $settings) . '">';
+						if(!empty($options[$ii])) $message .= '<input type="hidden" name="discount_rate_' . ($k+1) . '" value="' . esc_attr(SUPER_Common::email_tags($options[$ii], $data, $settings)) . '">';
 					
 						// Let's check if at least on of the options contains a {tag}
 						foreach( $options as $op => $ov ) {
@@ -2099,18 +2099,17 @@ if (!class_exists('SUPER_PayPal')):
 					$counter = 3;
 					foreach( $periods as $k => $v ) {
 						$options = explode("|", $v);
-						
+						$amount = SUPER_Common::email_tags($options[0], $data, $settings);
+						$amount = self::tofloat($amount);
+						$period = SUPER_Common::email_tags($options[1], $data, $settings);
+						$time_format = SUPER_Common::email_tags($options[2], $data, $settings);
 						// a3 - the price of the subscription e.g: 5.00
-						$message .= '<input type="hidden" name="a' . $counter . '" value="' . SUPER_Common::email_tags($options[0], $data, $settings) . '">';
-						
+						$message .= '<input type="hidden" name="a' . $counter . '" value="' . esc_attr($amount) . '">';
 						// p3 - the period of the subscription e.g: 7 (for 7 days if t1 has value of D)
-						$message .= '<input type="hidden" name="p' . $counter . '" value="' . SUPER_Common::email_tags($options[1], $data, $settings) . '">';
-						
+						$message .= '<input type="hidden" name="p' . $counter . '" value="' . esc_attr($period) . '">';
 						// t3 - the time format for the period e.g: D=days, W=weeks, M=months, Y=years
-						$message .= '<input type="hidden" name="t' . $counter . '" value="' . SUPER_Common::email_tags($options[2], $data, $settings) . '">';
-
+						$message .= '<input type="hidden" name="t' . $counter . '" value="' . esc_attr($time_format) . '">';
 						$counter--;
-
 						// Check if we only have 1 trial period:
 						if(count($periods)==2){
 							$counter--;

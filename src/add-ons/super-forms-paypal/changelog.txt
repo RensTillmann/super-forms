@@ -1,5 +1,6 @@
-Jan 23 - Version 1.3.0
+Feb 03 - Version 1.3.0
 - Added: option to conditionally checkout to PayPal, this allows you to optionally let the user pay via PayPal
+- Fix: Subscription checkout amount must be converted to type float
 
 Jan 07, 2020 - Version 1.2.0
 - Replaced deprecated function with new one
