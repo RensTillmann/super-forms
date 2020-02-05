@@ -808,6 +808,9 @@ class SUPER_Shortcodes {
             if( isset( $atts[$prefix.'retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts[$prefix.'retrieve_method_enclosure']);
             $file = get_attached_file($atts[$prefix.'retrieve_method_csv']);
             if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                // Progress file pointer and get first 3 characters to compare to the BOM string.
+                $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
+                if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
                 $placeholder = array();
                 $items = array();
                 while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
@@ -1691,6 +1694,9 @@ class SUPER_Shortcodes {
                 if( $file ) {
                     $row = 0;
                     if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                        // Progress file pointer and get first 3 characters to compare to the BOM string.
+                        $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
+                        if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
                         while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
                             $rows[] = $data;
                         }
@@ -3214,6 +3220,8 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+        $placeholder = (!empty($atts['placeholder']) ? $atts['placeholder'] : '');
+        $placeholderFilled = (!empty($atts['placeholderFilled']) ? $atts['placeholderFilled'] : '');
 
         // @since 3.5.0 - google distance calculation between 2 addresses for dropdown
         $data_attributes = '';
@@ -3275,16 +3283,19 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<ul class="super-dropdown-ui' . $multiple . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">';
+        $item_placeholder = $atts['placeholder'];
         if(!empty($get_items['atts']['placeholder'])) {
-            $atts['placeholder'] = $get_items['atts']['placeholder'];
+            $item_placeholder = $get_items['atts']['placeholder'];
         }
-        $result .= '<li data-value="" class="super-item super-placeholder">' . $atts['placeholder'] . '</li>';
+        $result .= '<li data-value="" class="super-item super-placeholder">' . $item_placeholder . '</li>';
         foreach( $items as $v ) {
             $result .= $v;
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"></span>';
         // @since 4.9.3 - Adaptive placeholders
+        $atts['placeholder'] = $placeholder;
+        $atts['placeholderFilled'] = $placeholderFilled;
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
         $result .= '</div>';
         $result .= self::loop_conditions( $atts, $tag );
@@ -4006,7 +4017,7 @@ class SUPER_Shortcodes {
             }else{
                 $url = get_permalink( $atts['link'] );
             }
-            $url = ' href="' . $url . '"';
+            $url = ' href="' . esc_url($url) . '"';
         }
         $result .= '<div class="super-image align-' . $atts['alignment'] . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
         $result .= '<div class="super-image-inner">';
@@ -4435,8 +4446,8 @@ class SUPER_Shortcodes {
                 }
                 if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . esc_attr($atts['target']) . '" ';
             }
-            
-            $result .= '<div ' . $atts['target'] . 'data-href="' . esc_url($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
+
+            $result .= '<div ' . $atts['target'] . 'data-href="' . esc_attr($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
                 $result .= '<div class="super-button-name" data-action="' . esc_attr($action) . '" data-status="' . esc_attr($atts['entry_status']) . '" data-status-update="' .esc_attr($atts['entry_status_update']) . '" data-normal="' . esc_attr($name) . '" data-loading="' . esc_attr($loading) . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {

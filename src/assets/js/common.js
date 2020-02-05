@@ -2177,7 +2177,7 @@ function SUPERreCaptcha(){
 
         var i = 0, nodes,
             action = (submitButton.querySelector('.super-button-name') ? submitButton.querySelector('.super-button-name').dataset.action : ''),
-            url = submitButton.dataset.href,
+            url = decodeURIComponent(submitButton.dataset.href),
             proceed = SUPER.before_submit_button_click_hook(e, submitButton),
             regex = /\{(.*?)\}/g,
             array = [],
@@ -2538,6 +2538,13 @@ function SUPERreCaptcha(){
         SUPER.save_form_progress($form); // @since 3.2.0
     };
     SUPER.after_field_change_blur_hook = function($field, $form, $skip){
+        if( typeof $field !== 'undefined' ) {
+            if($field.value===''){
+                $field.closest('.super-shortcode').classList.remove('super-filled');
+            }else{
+                $field.closest('.super-shortcode').classList.add('super-filled');
+            }
+        }
         $form = SUPER.get_frontend_or_backend_form($field, $form);
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
@@ -3789,7 +3796,6 @@ function SUPERreCaptcha(){
 
     // @since 2.0.0 - set dropdown placeholder function
     SUPER.init_set_dropdown_placeholder = function($form){
-
         if(typeof $form === 'undefined') $form = $('.super-form');
 
         $form.find('.super-dropdown-ui').each(function(){
@@ -4229,7 +4235,6 @@ function SUPERreCaptcha(){
 
     // Populate form with entry data found after ajax call
     SUPER.populate_form_with_entry_data = function(data, form){
-        
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
             html,files,element,field,stars,currentStar,placeholder,firstField,firstFieldName,
             switchBtn,activeItem,signatureDataUrl,placeholderHtml,fieldName,
@@ -4238,6 +4243,7 @@ function SUPERreCaptcha(){
         
         data = JSON.parse(data);
         if(data!==false){
+        
             // First clear the form
             SUPER.init_clear_form(form);
 
@@ -4283,6 +4289,13 @@ function SUPERreCaptcha(){
                 field = element.closest('.super-field');
                 // Update field value by default
                 element.value = data[i].value;
+                
+                // If field is filled out add the class otherwise remove the class
+                if(element.value===''){
+                    element.closest('.super-shortcode').classList.remove('super-filled');
+                }else{
+                    element.closest('.super-shortcode').classList.add('super-filled');
+                }
 
                 // Color picker
                 if(field.classList.contains('super-color')){
@@ -4390,6 +4403,7 @@ function SUPERreCaptcha(){
                         for ( ii = 0; ii < options.length; ii++){
                             innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value^="'+options[ii]+'"]');
                             for ( iii = 0; iii < innerNodes.length; iii++){
+                                itemFirstValue = innerNodes[iii].dataset.value.split(';')[0];
                                 innerNodes[iii].classList.add('super-active');
                                 if(setFieldValue===''){
                                     setFieldValue += itemFirstValue;
@@ -4420,6 +4434,9 @@ function SUPERreCaptcha(){
                         input = items[ii].querySelector('input');
                         items[ii].classList.remove('super-active');
                         input.checked = false;
+                    }
+                    for( ii = 0; ii < items.length; ii++){
+                        input = items[ii].querySelector('input');
                         if(data[i].value!=='' && input.value == data[i].value){
                             input.checked = true;
                             items[ii].classList.add('super-active');

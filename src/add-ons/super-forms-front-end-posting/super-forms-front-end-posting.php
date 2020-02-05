@@ -1156,8 +1156,9 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     'frontend_posting_meta' => array(
                         'name' => esc_html__( 'Save custom post meta', 'super-forms' ),
                         'desc' => esc_html__( 'Based on your form fields you can save custom meta for your post', 'super-forms' ),
+                        'placeholder' => "field_name|meta_key\nfield_name2|meta_key2\nfield_name3|meta_key3",
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'frontend_posting_meta', $settings, "field_name|meta_key\nfield_name2|meta_key2\nfield_name3|meta_key3" ),
+                        'default' => SUPER_Settings::get_value( 0, 'frontend_posting_meta', $settings, '' ),
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',

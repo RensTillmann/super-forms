@@ -115,6 +115,13 @@
 
     // init connected datepickers
     SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
+
+        if(selectedDate===''){
+            $this.parentNode.classList.remove('super-filled');
+        }else{
+            $this.parentNode.classList.add('super-filled');
+        }
+
         var original_selectedDate = selectedDate,
             $format = $this.dataset.jsformat,
             d,
@@ -296,11 +303,6 @@
 
             $($this).datepicker({
                 onClose: function( selectedDate ) {
-                    if(selectedDate===''){
-                        this.parentNode.classList.remove('super-filled');
-                    }else{
-                        this.parentNode.classList.add('super-filled');
-                    }
                     SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
                 },
                 beforeShowDay: function(dt) {

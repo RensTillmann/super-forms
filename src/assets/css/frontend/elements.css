@@ -2130,6 +2130,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   display: none;
   justify-content: flex-start;
   align-items: center;
+  white-space: nowrap;
 }
 .super-field .super-dropdown-ui .super-item.super-placeholder {
   padding-left: 15px;
@@ -4510,10 +4511,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   visibility: hidden;
 }
 
-.super-auto-suggest .super-overlap .super-shortcode-field {
-  position: absolute;
-}
-
 .super-field.super-text .super-overlap .super-dropdown-ui {
   display: block;
   background: none;
@@ -5485,9 +5482,12 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-keyword-filter {
+  padding-left: 15px;
+}
+
+.super-keyword-filter {
   border: 0 !important;
   background: initial !important;
-  padding-left: 0 !important;
 }
 
 .super-autosuggest-tags {
@@ -5503,10 +5503,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-autosuggest-tags .super-keyword-filter {
   flex-grow: 1;
   min-width: 100px;
-}
-
-.super-filled .super-autosuggest-tags > div {
-  margin-right: 10px;
 }
 
 @media (min-width: 0px) {

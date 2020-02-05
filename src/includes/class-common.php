@@ -585,26 +585,12 @@ class SUPER_Common {
      */
     public static function get_form_settings($form_id) {
         if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
-        $form_id = absint($form_id);
-        if($form_id!=0){
-            $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
-            $global_settings = SUPER_Common::get_global_settings();
-            $default_settings = SUPER_Settings::get_defaults($form_settings, 1);
-            $global_settings = array_merge( $default_settings, $global_settings );
-
-            if(is_array($form_settings)) {
-                $settings = array_merge( $global_settings, $form_settings );
-            }else{
-                $settings = $global_settings;
-            }
-            if(!isset($settings['id'])){
-                $settings['id'] = $form_id;
-            }
-        }else{
-            $global_settings = SUPER_Common::get_global_settings();
-            $default_settings = SUPER_Settings::get_defaults(null, 1);
-            $settings = array_merge( $default_settings, $global_settings );
-        }
+        $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
+        if(!$form_settings) $form_settings = array();
+        $global_settings = self::get_global_settings();
+        $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+        $global_settings = array_merge( $defaults, $global_settings );
+        $settings = array_merge( $global_settings, $form_settings );
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
     }
 

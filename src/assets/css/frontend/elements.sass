@@ -1860,6 +1860,7 @@ textarea
     display: none
     justify-content: flex-start
     align-items: center
+    white-space: nowrap
   .super-icon-inside.super-icon-left .super-item
     padding-left: 40px
   .super-dropdown-ui .super-item:hover:not(:first-child)
@@ -3673,9 +3674,6 @@ ul.super-multipart-steps .super-multipart-step
 .super-overlap .super-shortcode-field
   visibility: hidden
 
-.super-auto-suggest .super-overlap .super-shortcode-field
-  position: absolute
-
 .super-field.super-text .super-overlap .super-dropdown-ui
   display: block
   background: none
@@ -4509,11 +4507,12 @@ ul.super-multipart-steps .super-multipart-step
   justify-content: flex-start
 
 
+.super-keyword-filter
+  padding-left: 15px
 
 .super-keyword-filter
   border: 0!important
   background: initial!important
-  padding-left: 0!important
 .super-autosuggest-tags
   display: flex
   justify-content: flex-start
@@ -4525,10 +4524,6 @@ ul.super-multipart-steps .super-multipart-step
   .super-keyword-filter
     flex-grow: 1
     min-width: 100px
-.super-filled
-  .super-autosuggest-tags
-    > div
-      margin-right: 10px
 
 @media (min-width: 0px)
   .super-tabs.super-prev-next >
