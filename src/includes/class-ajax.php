@@ -614,24 +614,25 @@ class SUPER_Ajax {
             if($method=='equals') $query = "post_title = BINARY '$value'";
             if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
             $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
-            $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-            unset($data['hidden_form_id']);
-
-            // @since 3.2.0 - skip specific fields from being populated
-            $skip = sanitize_text_field($_POST['skip']);
-            $skip_fields = explode( "|", $skip );
-            foreach($skip_fields as $field_name){
-                if( isset($data[$field_name]) ) {
-                    unset($data[$field_name]);
-                }
-            }
-            
+            $data = array();
             if( isset($entry[0])) {
-                $data['hidden_contact_entry_id'] = array(
-                    'name' => 'hidden_contact_entry_id',
-                    'value' => $entry[0]->ID,
-                    'type' => 'entry_id'
-                );
+                $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                unset($data['hidden_form_id']);
+                // @since 3.2.0 - skip specific fields from being populated
+                $skip = sanitize_text_field($_POST['skip']);
+                $skip_fields = explode( "|", $skip );
+                foreach($skip_fields as $field_name){
+                    if( isset($data[$field_name]) ) {
+                        unset($data[$field_name]);
+                    }
+                }
+                if( isset($entry[0])) {
+                    $data['hidden_contact_entry_id'] = array(
+                        'name' => 'hidden_contact_entry_id',
+                        'value' => $entry[0]->ID,
+                        'type' => 'entry_id'
+                    );
+                }
             }
             echo json_encode($data);
         }
@@ -964,6 +965,9 @@ class SUPER_Ajax {
         if( $file ) {
             $row = 0;
             if (($handle = fopen($file, "r")) !== FALSE) {
+                // Progress file pointer and get first 3 characters to compare to the BOM string.
+                $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
+                if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
                 while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
                     if( ( $skip_first=='true' ) && ( $row==0 ) ) {
                         $row++;
@@ -1096,6 +1100,9 @@ class SUPER_Ajax {
         if( $file ) {
             $row = 1;
             if (($handle = fopen($file, "r")) !== FALSE) {
+                // Progress file pointer and get first 3 characters to compare to the BOM string.
+                $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
+                if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
                 while (($data = fgetcsv($handle, 0, $delimiter, $enclosure)) !== FALSE) {
                     $num = count($data);
                     $row++;
@@ -1454,31 +1461,15 @@ class SUPER_Ajax {
     */
     public static function import_global_settings() {
         if( ( isset ( $_POST['method'] ) ) && ( $_POST['method']=='load-default' ) ) {
-            $fields = SUPER_Settings::fields( null, 1 );
-            $array = array();
-            foreach( $fields as $k => $v ) {
-                if( !isset( $v['fields'] ) ) continue;
-                foreach( $v['fields'] as $fk => $fv ) {
-                    if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
-                        foreach( $fv['colors'] as $ck => $cv ) {
-                            if( !isset( $cv['default'] ) ) $cv['default'] = '';
-                            $array[$ck] = $cv['default'];
-                        }
-                    }else{
-                        if( !isset( $fv['default'] ) ) $fv['default'] = '';
-                        $array[$fk] = $fv['default'];
-                    }
-                }
-            }
-            update_option( 'super_settings', $array );    
+            $settings = SUPER_Settings::get_defaults();
         }else{
             $settings = $_POST['settings'];
             $settings = json_decode( stripslashes( $settings ), true );
             if( json_last_error() != 0 ) {
                 var_dump( 'JSON error: ' . json_last_error() );
             }
-            update_option( 'super_settings', $settings );
         }
+        update_option( 'super_settings', $settings );
         die();
     }
 
@@ -2759,6 +2750,9 @@ class SUPER_Ajax {
             }
         }
         if( $form_id!=0 ) {
+
+            // Clear form progression
+            SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, false );
 
             // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {

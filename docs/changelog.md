@@ -1,8 +1,13 @@
-### Jan 23, 2020 - Version 4.9.205
+### Feb 05, 2020 - Version 4.9.213
+- Fix: {tags} no longer working on custom URL for `Button` element due to usage of `esc_url()`
+- Fix: `Form settings` > `Prevent submitting form on pressing "Enter" keyboard button` was no longer working
+- Fix: W3C validation errors
+- Fix: Issue with `Allow field to be empty` not taking effect in combination with for instance `Website` validation method
 - NEW: Adaptive Placeholders
 - Added: Option for Dropdown element to choose a `Filter logic` between `Contains` or `Starts with (from left to right)` so that when a user starts typing it either filters from the beginning of the string instead of doing a global search. This is useful for filtering countries, because you would want the user to jump to `Switzerland` when typing `Sw` and not to `Botswana`.
 - Improved: Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - Added: `PayPal Add-on` - option to conditionally checkout to PayPal, this allows you to optionally let the user pay via PayPal
+- Improved: When reading CSV file make sure to remove BOM (Byte order mark)
 
 ### Jan 15, 2020 - Version 4.9.200
 - Improved: UX, better naming convention in regards to validation settings

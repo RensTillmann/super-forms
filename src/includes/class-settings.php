@@ -26,9 +26,9 @@ class SUPER_Settings {
      *
      *  @since 4.6.0
      */
-    public static function get_defaults(){
+    public static function get_defaults($settings=null, $strict=1){
         // First retrieve all the fields and their default value
-        $fields = self::fields( null, 1 );
+        $fields = self::fields( $settings, $strict );
         // Loop through all the settings and create a nice array so we can save it to our database
         $array = array();
         foreach( $fields as $k => $v ) {
