@@ -2155,6 +2155,8 @@
             }else{
                 field.classList.add('super-filled');
             }
+            // Scroll to bottom of tags container
+            tagsContainer.scrollTop = tagsContainer.scrollHeight;
             SUPER.after_field_change_blur_hook(keywordField);
         },
         add: function(e, target){
@@ -2179,8 +2181,6 @@
             }else{
                 field.classList.add('super-filled');
             }
-            // Scroll to bottom of tags container
-            tagsContainer.scrollTop = tagsContainer.scrollHeight;
             field.classList.remove('super-string-found');
             field.classList.add('super-focus');
             app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
