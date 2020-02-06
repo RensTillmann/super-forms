@@ -169,7 +169,7 @@ function SUPERreCaptcha(){
             var urlparameter = defaultvalue;
             if(window.location.href.indexOf(parameter) > -1){
                 urlparameter = getUrlVars()[parameter];
-                }
+            }
             return urlparameter;
         }
         return key+'_'+getUrlParam('id', 0);
@@ -1913,7 +1913,7 @@ function SUPERreCaptcha(){
             index,
             checked,
             custom_regex = (el.parentNode.querySelector('.super-custom-regex') ? el.parentNode.querySelector('.super-custom-regex').value : undefined), // @since 1.2.5 - custom regex
-            mayBeEmpty = el.dataset.mayBeEmpty,
+            mayBeEmpty = (typeof el.dataset.mayBeEmpty !== 'undefined' ? el.dataset.mayBeEmpty : 'false'),
             allowEmpty = false,
             urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-zA-Z0-9]+([-.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
         
@@ -2137,9 +2137,8 @@ function SUPERreCaptcha(){
             }
         }
         // Display error messages
-        if(allowEmpty && el.value===''){
-            error = false;
-        }
+        if(allowEmpty && el.value==='') error = false;
+        if(typeof validation !== 'undefined' && !allowEmpty && el.value==='') error = true;
         if(error){
             SUPER.handle_errors(el);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
@@ -2177,7 +2176,7 @@ function SUPERreCaptcha(){
 
         var i = 0, nodes,
             action = (submitButton.querySelector('.super-button-name') ? submitButton.querySelector('.super-button-name').dataset.action : ''),
-            url = decodeURIComponent(submitButton.dataset.href),
+            url = (typeof submitButton.dataset.href !== 'undefined' ? decodeURIComponent(submitButton.dataset.href) : undefined) ,
             proceed = SUPER.before_submit_button_click_hook(e, submitButton),
             regex = /\{(.*?)\}/g,
             array = [],

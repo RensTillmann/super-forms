@@ -353,6 +353,18 @@ h1.super-thanks-title
     border: 0!important
     +boxShadow(inherit)
 
+.super-rtl 
+  &.super-field-size-medium
+    .super-icon-inside.super-icon-right 
+      .super-autosuggest-tags
+        > div
+          margin-right: 20px
+    .super-filled
+      .super-icon-inside.super-icon-right 
+        .super-autosuggest-tags
+          > div
+            margin-right: 30px
+
 .super-style-one .super-autosuggest-tags > div > span:last-child
   margin-right: 15px
 
@@ -361,11 +373,15 @@ h1.super-thanks-title
     margin: 0px 0px 0px 0px
   > div > span
     padding: 1px 25px 1px 5px
-    margin: 6px 5px 6px 0px
+    margin: 6px 0px 6px 6px
     line-height: normal
     &:after
       right: 4px
       top: 2px
+
+.super-rtl.super-field-size-medium .super-autosuggest-tags
+  > div > span
+    margin: 6px 6px 6px 0px
 
 .super-field-size-large .super-autosuggest-tags
   .super-shortcode-field
@@ -2785,7 +2801,7 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-rtl
   .super-field
-    .super-label, .super-description, .super-shortcode-field
+    .super-label, .super-description, .super-shortcode-field, .super-keyword-filter
       text-align: right
   .super-html-content
     text-align: right
@@ -4228,6 +4244,7 @@ ul.super-multipart-steps .super-multipart-step
   padding: 0px 10px 10px 0px
   text-align: center
   margin: 0px 0px 0px 0px
+  height: auto
 
 // Horizontal list radio/checkbox
 .super-field-size-medium
@@ -4525,6 +4542,10 @@ ul.super-multipart-steps .super-multipart-step
   .super-keyword-filter
     flex-grow: 1
     min-width: 100px
+
+.super-rtl
+  .super-autosuggest-tags
+    flex-direction: row-reverse
 
 @media (min-width: 0px)
   .super-tabs.super-prev-next >

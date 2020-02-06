@@ -1,4 +1,4 @@
-### Feb 05, 2020 - Version 4.9.213
+### Feb 05, 2020 - Version 4.9.215
 - Fix: {tags} no longer working on custom URL for `Button` element due to usage of `esc_url()`
 - Fix: `Form settings` > `Prevent submitting form on pressing "Enter" keyboard button` was no longer working
 - Fix: W3C validation errors

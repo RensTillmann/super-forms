@@ -1,6 +1,6 @@
 /* globals SUPER */
 "use strict";
-(function($) { // Hide scope, no $ conflict
+(function() { // Hide scope, no $ conflict
 
     /**
      * Get all DOM element up the tree that contain a class, ID, or data attribute
@@ -123,6 +123,7 @@
 
         // Load iframe
         var iframe = document.createElement('iframe');
+        // eslint-disable-next-line no-undef
         iframe.src = super_front_end_listing_i18n.get_home_url+'?super-fel-id='+entry_id;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
@@ -151,12 +152,14 @@
           console.log(this);
           console.log("** An error occurred during the transaction");
         };
+        // eslint-disable-next-line no-undef
         xhttp.open("POST", ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         var params = JSON.stringify({
             super_ajax : 'true',
             action: 'delete_entry',
             entry_id: entry_id,
+            // eslint-disable-next-line no-undef
             wp_root: super_front_end_listing_i18n.wp_root
         });
         xhttp.send(params);
@@ -191,8 +194,8 @@
                     width = width - (width/100)*10;
                 }else{
                     // Resize by 5%
-                    height = height;
-                    width = width;
+                    height = height - (height/100)*5;
+                    width = width - (width/100)*5;
                 }
             }
         }
