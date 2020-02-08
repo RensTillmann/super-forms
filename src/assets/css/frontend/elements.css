@@ -378,7 +378,7 @@ h1.super-thanks-title {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-medium .super-autosuggest-tags > div > span {
-  padding: 1px 25px 1px 5px;
+  padding: 1px 25px 1px 10px;
   margin: 6px 0px 6px 6px;
   line-height: normal;
 }
@@ -395,24 +395,34 @@ h1.super-thanks-title {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-large .super-autosuggest-tags > div > span {
-  padding: 3px 25px 3px 10px;
-  margin-right: 10px;
+  padding: 6px 25px 6px 10px;
+  margin: 6px 0px 6px 6px;
+  line-height: normal;
 }
 .super-field-size-large .super-autosuggest-tags > div > span:after {
   right: 5px;
-  top: 4px;
+  top: 7px;
+}
+
+.super-rtl.super-field-size-large .super-autosuggest-tags > div > span {
+  margin: 6px 10px 6px 0px;
 }
 
 .super-field-size-huge .super-autosuggest-tags .super-shortcode-field {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-huge .super-autosuggest-tags > div > span {
-  padding: 5px 25px 5px 12px;
-  margin-right: 12px;
+  padding: 11px 30px 11px 15px;
+  margin: 6px 0px 6px 6px;
+  line-height: normal;
 }
 .super-field-size-huge .super-autosuggest-tags > div > span:after {
-  right: 6px;
-  top: 6px;
+  right: 8px;
+  top: 12px;
+}
+
+.super-rtl.super-field-size-huge .super-autosuggest-tags > div > span {
+  margin: 6px 12px 6px 0px;
 }
 
 .super-field-size-medium .super-field.super-text .super-icon-outside.super-icon-left .super-autosuggest-tags {
@@ -485,6 +495,8 @@ h1.super-thanks-title {
 
 .super-field.super-text.super-keyword-tags .super-autosuggest-tags {
   cursor: default;
+  z-index: 2;
+  height: 100%;
 }
 .super-field.super-text.super-keyword-tags input.super-shortcode-field {
   width: 0px;
@@ -3289,20 +3301,20 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   outline: none !important;
 }
 
-.super-form.super-full-rounded .super-shortcode-field, .super-form.super-full-rounded .super-icon-outside .super-icon, .super-form.super-full-rounded .super-fileupload-button {
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+.super-form.super-full-rounded .super-shortcode-field, .super-form.super-full-rounded .super-icon-outside .super-icon, .super-form.super-full-rounded .super-fileupload-button, .super-form.super-full-rounded .super-autosuggest-tags {
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-form.super-full-rounded .super-dropdown-ui {
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-form.super-full-rounded .super-dropdown-ui .super-placeholder {
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-form.super-full-rounded > p {
   -webkit-border-radius: 4px;
@@ -3831,9 +3843,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium .super-slider .slider .dragger {
   width: 16px;
   height: 16px;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-field-size-medium .super-slider .slider .track {
   height: 4px;
@@ -4069,9 +4081,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-large .super-slider .slider .dragger {
   width: 20px;
   height: 20px;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-field-size-large .super-slider .slider .track {
   height: 8px;
@@ -4317,9 +4329,9 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-huge .super-slider .slider .dragger {
   width: 25px;
   height: 25px;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  border-radius: 20px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
 }
 .super-field-size-huge .super-slider .slider .track {
   height: 12px;
@@ -5516,6 +5528,15 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-autosuggest-tags .super-keyword-filter {
   flex-grow: 1;
   min-width: 100px;
+  height: 100%;
+}
+
+.super-field-size-large .super-icon-inside.super-icon-left .super-autosuggest-tags > div {
+  margin-left: 35px;
+}
+
+.super-field-size-huge .super-icon-inside.super-icon-left .super-autosuggest-tags > div {
+  margin-left: 45px;
 }
 
 .super-rtl .super-autosuggest-tags {

@@ -6,7 +6,6 @@ $v = $settings;
 
 return "
 ".$s.".super-shortcode-field,
-".$s.".super-shortcode-field,
 ".$s.".super-icon-outside .super-icon,
 ".$s.".super-icon-inside .super-icon,
 ".$s.".super-fileupload-button,
@@ -20,15 +19,15 @@ return "
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s.".super-autosuggest-tags > div > span, 
 ".$s.".super-string-found .super-dropdown-ui .super-item,
 ".$s.".super-string-found .super-dropdown-ui .super-item span.super-wp-tag,
+".$s.".super-autosuggest-tags,
+".$s.".super-autosuggest-tags > div > span, 
 ".$s.".super-stripe-base {
 	-webkit-border-radius:18px;
 	-moz-border-radius:18px;
 	border-radius:18px;
 }
-".$s_large.".super-shortcode-field,
 ".$s_large.".super-shortcode-field,
 ".$s_large.".super-icon-outside .super-icon,
 ".$s_large.".super-icon-inside .super-icon,
@@ -40,12 +39,13 @@ return "
 ".$s_large.".super-rating i:nth-child(1),
 ".$s_large.".super-rating i:nth-child(5),
 ".$s_large.".super-toggle-switch,
+".$s_large.".super-autosuggest-tags,
+".$s_large.".super-autosuggest-tags > div > span, 
 ".$s_large.".super-stripe-base {
 	-webkit-border-radius:21px;
 	-moz-border-radius:21px;
 	border-radius:21px;
 }
-".$s_huge.".super-shortcode-field,
 ".$s_huge.".super-shortcode-field,
 ".$s_huge.".super-icon-outside .super-icon,
 ".$s_huge.".super-icon-inside .super-icon,
@@ -57,6 +57,8 @@ return "
 ".$s_huge.".super-rating i:nth-child(1),
 ".$s_huge.".super-rating i:nth-child(5),
 ".$s_huge.".super-toggle-switch,
+".$s_huge.".super-autosuggest-tags,
+".$s_huge.".super-autosuggest-tags > div > span, 
 ".$s_huge.".super-stripe-base {
 	-webkit-border-radius:26px;
 	-moz-border-radius:26px;
