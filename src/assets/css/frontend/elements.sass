@@ -372,13 +372,12 @@ h1.super-thanks-title
   .super-shortcode-field
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 1px 25px 1px 5px
+    padding: 1px 25px 1px 10px
     margin: 6px 0px 6px 6px
     line-height: normal
     &:after
       right: 4px
       top: 2px
-
 .super-rtl.super-field-size-medium .super-autosuggest-tags
   > div > span
     margin: 6px 6px 6px 0px
@@ -387,21 +386,30 @@ h1.super-thanks-title
   .super-shortcode-field
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 3px 25px 3px 10px
-    margin-right: 10px
+    padding: 6px 25px 6px 10px
+    margin: 6px 0px 6px 6px
+    line-height: normal
     &:after
       right: 5px
-      top: 4px
+      top: 7px
+.super-rtl.super-field-size-large .super-autosuggest-tags
+  > div > span
+    margin: 6px 10px 6px 0px
 
 .super-field-size-huge .super-autosuggest-tags
   .super-shortcode-field
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 5px 25px 5px 12px
-    margin-right: 12px
+    padding: 11px 30px 11px 15px
+    margin: 6px 0px 6px 6px
+    line-height: normal
     &:after
-      right: 6px
-      top: 6px
+      right: 8px
+      top: 12px
+
+.super-rtl.super-field-size-huge .super-autosuggest-tags
+  > div > span
+    margin: 6px 12px 6px 0px
 
 .super-field-size-medium
   .super-field.super-text .super-icon-outside
@@ -471,11 +479,11 @@ h1.super-thanks-title
       padding-left: 0
       padding-right: 0
 
-
-
 .super-field.super-text.super-keyword-tags
   .super-autosuggest-tags
     cursor: default
+    z-index: 2
+    height: 100%
   input.super-shortcode-field
     width: 0px
   &.super-string-found 
@@ -2710,12 +2718,12 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-form
   &.super-full-rounded
-    .super-shortcode-field, .super-icon-outside .super-icon, .super-fileupload-button
-      +borderRadius(20px)
+    .super-shortcode-field, .super-icon-outside .super-icon, .super-fileupload-button, .super-autosuggest-tags
+      +borderRadius(50px)
     .super-dropdown-ui
       .super-placeholder
-        +borderRadius(20px)
-      +borderRadius(20px)
+        +borderRadius(50px)
+      +borderRadius(50px)
     > p
       +borderRadius(4px)
     ul.super-multipart-steps .super-multipart-step
@@ -3115,7 +3123,7 @@ ul.super-multipart-steps .super-multipart-step
     .dragger
       width: 16px
       height: 16px
-      +borderRadius(20px)
+      +borderRadius(50px)
     .track
       height: 4px
 
@@ -3316,7 +3324,7 @@ ul.super-multipart-steps .super-multipart-step
     .dragger
       width: 20px
       height: 20px
-      +borderRadius(20px)
+      +borderRadius(50px)
     .track
       height: 8px
 
@@ -3522,7 +3530,7 @@ ul.super-multipart-steps .super-multipart-step
     .dragger
       width: 25px
       height: 25px
-      +borderRadius(20px)
+      +borderRadius(50px)
     .track
       height: 12px
   .super-fileupload-button i
@@ -4542,6 +4550,19 @@ ul.super-multipart-steps .super-multipart-step
   .super-keyword-filter
     flex-grow: 1
     min-width: 100px
+    height: 100%
+
+.super-field-size-large
+  .super-icon-inside.super-icon-left
+    .super-autosuggest-tags
+      > div
+        margin-left: 35px
+
+.super-field-size-huge
+  .super-icon-inside.super-icon-left
+    .super-autosuggest-tags
+      > div
+        margin-left: 45px
 
 .super-rtl
   .super-autosuggest-tags

@@ -1866,7 +1866,7 @@
             $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
             
             // Remove initialized class
-            $form.children('form').html('');
+            $form.find('form').html('');
             $form.removeClass('super-initialized');
             $.ajax({
                 url: super_elements_i18n.ajaxurl,
@@ -1883,7 +1883,7 @@
                     }else{
                         $form.removeClass('super-rtl');
                     }
-                    $form.children('form').html(data.html);
+                    $form.find('form').html(data.html);
                 },
                 complete: function(){
                     $form.addClass('super-initialized');
@@ -2129,15 +2129,11 @@
     };
 
     app.focusField = function(e, target){
-        target.focus();
+        app.removeClass(app.qa('.super-focus'), 'super-focus');
         target.closest('.super-field').classList.add('super-focus');
     };
     app.unfocusField = function(e, target){
-        //console.log('unfocusField()');
-        // if(target.classList.contains('super-keyword-filter')){
-        //     target.value = '';
-        // }
-        target.blur();
+        app.removeClass(app.qa('.super-focus'), 'super-focus');
         target.closest('.super-field').classList.remove('super-focus');
     };
     app.autosuggestTagsTimeout = null;
@@ -2166,7 +2162,7 @@
                 searchValue = target.dataset.searchValue, // First choice
                 wrapper = target.closest('.super-field-wrapper'),
                 keywordField = wrapper.querySelector('.super-shortcode-field'),
-                keywordFieldValue = keywordField.value,
+                keywordFieldValue = keywordField.value.split(','),
                 tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
                 filterField = wrapper.querySelector('.super-keyword-filter');
 
@@ -2228,7 +2224,7 @@
                 if(tags.length>1){
                     tag = tags[0];
                     // First check if already exists
-                    if(keywordField.value.indexOf(tag)===-1){
+                    if(keywordField.value.split(',').indexOf(tag)===-1){
                         if(typeof duplicates[tag]==='undefined'){
                             counter++;
                             if(counter<=max){

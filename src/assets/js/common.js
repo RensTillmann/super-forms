@@ -1725,7 +1725,6 @@ function SUPERreCaptcha(){
                         html += '>';
                     }
 
-
                     // Trigger js hook and continue
                     SUPER.after_email_send_hook(form, data, old_html, result);
                     // If a hook is redirecting we should avoid doing other things
@@ -1748,8 +1747,8 @@ function SUPERreCaptcha(){
                     }
 
                     // @since 2.2.0 - custom form POST method
-                    if( (form.children('form').attr('method')=='post') && (form.children('form').attr('action')!=='') ){
-                        form.children('form').submit(); // When doing custom POST, the form will redirect itself
+                    if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
+                        form.find('form').submit(); // When doing custom POST, the form will redirect itself
                         return false;
                     }
 
@@ -2146,7 +2145,7 @@ function SUPERreCaptcha(){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
             }
         }else{
-            el.closest('.super-field').classList.remove('super-error-active');
+            if(el.closest('.super-field')) el.closest('.super-field').classList.remove('super-error-active');
         }
         // Remove error class from Multi-part if no more errors where found
         if( el.closest('.super-multipart') && 
@@ -2167,7 +2166,7 @@ function SUPERreCaptcha(){
 
     // Output errors for each field
     SUPER.handle_errors = function(el){       
-        el.closest('.super-field').classList.add('super-error-active');
+        if(el.closest('.super-field')) el.closest('.super-field').classList.add('super-error-active');
     };
 
     // Validate the form

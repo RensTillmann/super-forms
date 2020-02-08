@@ -350,7 +350,7 @@
 // 						//document.location.href = window.super_stripe_redirect;
 // 						// // Insert the token ID into the form so it gets submitted to the server
 // 						//    var source = result.token;
-// 						// var form = $form.children('form')[0];
+// 						// var form = $form.find('form')[0];
 // 						//   var div = document.createElement('div');
 // 						//   div.className = 'super-shortcode super-field super-hidden';
 // 						//   var input = document.createElement('input');
