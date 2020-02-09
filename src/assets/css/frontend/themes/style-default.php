@@ -122,6 +122,19 @@ $placeholder_bg_filled = "
 
 return $import_fonts."
 
+/* Dropdown placeholder */
+".$s.".super-dropdown-ui .super-item.super-placeholder {
+    color:".$v['theme_field_colors_placeholder'].";
+    font-size: ".$v['font_global_size']."px;
+    font-family: ".$v['font_global_family'].";
+}
+".$s.".super-focus .super-dropdown-ui .super-item.super-placeholder {
+    color:".$v['adaptive_placeholder_focus'].";
+}
+".$s.".super-filled .super-dropdown-ui .super-item.super-placeholder {
+    color: ".$v['theme_field_colors_font'].";
+}
+
 /* @since 4.9.3 - Adaptive Placeholders */
 /* Initial Color */
 ".$s.".super-adaptive-placeholder:before {
