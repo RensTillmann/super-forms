@@ -3,12 +3,12 @@
 	line-height: 33px;
 }
 .super-field.super-calculator .super-calculator-wrapper span {
-	font-size:20px;
+	font-size: 20px;
 	display: inline-block;
 }
 .super-field.super-calculator .super-calculator-wrapper span.super-calculator-label {
 	font-size: 12px;
-	float:left;
+	float: left;
 }
 .super-field.super-calculator.super-align-left {
 	text-align: left;
@@ -20,8 +20,11 @@
 	text-align: right;
 }
 .super-field.super-calculator .super-field-wrapper {
-	float:none;
-	margin:auto;
-	width:auto;
+	float: none;
+	margin: auto;
+	width: auto;
 	display: inline-block;
+}
+.super-rtl .super-field.super-calculator .super-field-wrapper {
+	float: right;
 }

@@ -1349,16 +1349,41 @@
         });
 
         // Focus dropdowns
-        $doc.on('click', '.super-dropdown-ui:not(.super-autosuggest-tags-list), .super-dropdown-arrow', function(){
-            var $this = $(this);
-            if(!$this.parents('.super-field:eq(0)').hasClass('super-focus-dropdown')){
-                $('.super-focus').removeClass('super-focus');
-                $('.super-focus-dropdown').removeClass('super-focus-dropdown');
-                $this.parents('.super-field:eq(0)').addClass('super-focus').addClass('super-focus-dropdown');
-                $this.parent().find('input[name="super-dropdown-search"]').focus();
+        $doc.on('click', '.super-dropdown-ui:not(.super-autosuggest-tags-list)', function(e){
+            var i, nodes, field = e.target.closest('.super-field');
+            if(e.target.classList.contains('super-placeholder')){
+                if(field.classList.contains('super-focus-dropdown')){
+                    field.classList.remove('super-focus');
+                    field.classList.remove('super-focus-dropdown');
+                    return false;
+                }
+            }
+            if(!field.classList.contains('super-focus-dropdown')){
+                nodes = document.querySelectorAll('.super-focus');
+                for(i=0; i<nodes.length; i++){
+                    nodes[i].classList.remove('super-focus');
+                    nodes[i].classList.remove('super-focus-dropdown');
+                }
+                nodes = document.querySelectorAll('.super-focus-dropdown');
+                for(i=0; i<nodes.length; i++){
+                    nodes[i].classList.remove('super-focus-dropdown');
+                }
+                field.classList.add('super-focus');
+                field.classList.add('super-focus-dropdown');
+                e.target.parentNode.querySelector('input[name="super-dropdown-search"]').focus();
             }
         });
-
+        // Unfocus dropdown
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('.super-dropdown-ui') && !e.target.classList.contains('super-dropdown-ui')){
+                var nodes = document.querySelectorAll('.super-focus-dropdown');
+                for(var i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-focus-dropdown');
+                    nodes[i].classList.remove('super-focus');
+                }
+            }
+        });
+        
         // @since 1.2.8     - filter dropdown options based on keyboard press
         var timeout = null;
         $doc.on('keyup', 'input[name="super-dropdown-search"]', function(e){
@@ -1978,17 +2003,6 @@
             // Focus first TAB index field in next multi-part
             super_focus_first_tab_index_field(e, form, multipart);
 
-        });
-
-        // Unfocus dropdown
-        document.addEventListener('click', function(e){
-            if(!e.target.closest('.super-dropdown-ui') && !e.target.classList.contains('super-dropdown-ui')){
-                var nodes = document.querySelectorAll('.super-focus-dropdown');
-                for(var i = 0; i < nodes.length; i++){
-                    nodes[i].classList.remove('super-focus-dropdown');
-                    nodes[i].classList.remove('super-focus');
-                }
-            }
         });
 
         // @since 4.9.3 - Adaptive Placeholders
