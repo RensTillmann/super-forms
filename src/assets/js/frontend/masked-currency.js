@@ -434,10 +434,10 @@
                     }
 
                     if ($input.val() === "" && settings.allowEmpty) {
-                        $input.val("");
+                        $input.val("").trigger('change'); // trigger change so super forms removes super-filled class
                     } else if ($input.val() === "" || $input.val() === setSymbol(getDefaultMask(), settings)) {
                         if (!settings.allowZero) {
-                            $input.val("");
+                            $input.val("").trigger('change'); // trigger change so super forms removes super-filled class
                         } else if (!settings.affixesStay) {
                             $input.val(getDefaultMask());
                         } else {
