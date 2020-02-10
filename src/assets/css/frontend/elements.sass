@@ -1218,16 +1218,29 @@ textarea
   line-height: 33px
   font-size: 16px
   +rotating()
-
 .super-field-size-large
   .super-populating:after, .super-calculating-distance:after
     right: 13px
     top: 3px
-
 .super-field-size-huge
   .super-populating:after, .super-calculating-distance:after
     right: 19px
     top: 9px
+
+.super-rtl
+  .super-populating:after,
+  .super-calculating-distance:after
+    right: initial
+    left: 10px
+.super-rtl.super-field-size-large
+  .super-populating:after, .super-calculating-distance:after
+    right: initial
+    left: 13px
+.super-rtl.super-field-size-huge
+  .super-populating:after, .super-calculating-distance:after
+    right: initial
+    left: 19px
+
 
 .super-custom-regex
   display: none !important
@@ -3545,6 +3558,7 @@ ul.super-multipart-steps .super-multipart-step
       line-height: 53px
   .super-dropdown-ui .super-item
     height: 53px
+    line-height: 53px
     padding: 0px 0px 0px 25px
   .super-icon-inside.super-icon-left .super-item
     padding: 0px 0px 0px 50px

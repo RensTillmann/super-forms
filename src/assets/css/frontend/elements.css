@@ -1377,6 +1377,22 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   top: 9px;
 }
 
+.super-rtl .super-populating:after,
+.super-rtl .super-calculating-distance:after {
+  right: initial;
+  left: 10px;
+}
+
+.super-rtl.super-field-size-large .super-populating:after, .super-rtl.super-field-size-large .super-calculating-distance:after {
+  right: initial;
+  left: 13px;
+}
+
+.super-rtl.super-field-size-huge .super-populating:after, .super-rtl.super-field-size-huge .super-calculating-distance:after {
+  right: initial;
+  left: 19px;
+}
+
 .super-custom-regex {
   display: none !important;
   opacity: 0 !important;
@@ -4345,6 +4361,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-field-size-huge .super-dropdown-ui .super-item {
   height: 53px;
+  line-height: 53px;
   padding: 0px 0px 0px 25px;
 }
 .super-field-size-huge .super-icon-inside.super-icon-left .super-item {

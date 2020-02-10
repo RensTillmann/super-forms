@@ -506,7 +506,7 @@ class SUPER_Shortcodes {
                 );
                 foreach($filters as $fv){
                     $params = explode("|", $fv);
-                    if(isset($params[0]) && isset($params[0]) && isset($params[0])) {
+                    if(isset($params[0]) && isset($params[1]) && isset($params[2])) {
                         $field = $params[0];
                         $value = $params[1];
                         $taxonomy = $params[2];
