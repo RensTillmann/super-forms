@@ -2206,7 +2206,7 @@
             filterField.focus();
             app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
         },
-        filter: function(e, target, eventType){
+        filter: function(e, target){
             // On keyup filter any keyword tags from the list
             var i,
                 parent = target.closest('.super-field'),
