@@ -371,8 +371,8 @@
 	
 	// Do the calculation
 	SUPER.init_calculator.do_calculation = function(form, target, name, numericMath){
-		var element,text_field,selected,checked,values,new_value_array,currency,
-			format,thousandSeparator,decimalSeparator,parent,value,new_value,sum,value_n,
+		var element,text_field,selected,checked,values,new_value_array,
+			parent,value,new_value,sum,value_n,
 			oldName = name,
             names = name.toString().split(';');
 
@@ -501,14 +501,7 @@
 			// Check if currency field (since Super Forms v2.1)
 			if( parent.classList.contains('super-currency') ) {
 				text_field = false;
-                value = element.value;
-                currency = element.dataset.currency;
-                format = element.dataset.format;
-                thousandSeparator = element.dataset.thousandSeparator;
-                decimalSeparator = element.dataset.decimalSeparator;
-				value = value.replace(currency, '').replace(format, '');
-				value = value.split(thousandSeparator).join('');
-				value = value.split(decimalSeparator).join('.');
+				value = $(element).maskMoney('unmasked')[0];
 				value = (value) ? parseFloat(value) : 0;
 			}
 

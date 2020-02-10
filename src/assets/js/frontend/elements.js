@@ -2207,7 +2207,6 @@
             app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
         },
         filter: function(e, target, eventType){
-            console.log(e, target, eventType);
             // On keyup filter any keyword tags from the list
             var i,
                 parent = target.closest('.super-field'),
@@ -2326,10 +2325,8 @@
     // Trigger Events
     app.triggerEvent = function (e, target, eventType) {
         // Get element actions, and check for multiple event methods
-        //console.log(e, target, eventType);
         var actions, _event, _function, _currentFunc, sfevents;
         try {
-            //console.log(target.attributes.sfevents.value);
             sfevents = JSON.parse(target.attributes.sfevents.value);
         } catch (error) {
             console.log(error);
@@ -2429,28 +2426,15 @@
         app.delegate(document, eventType, elements, function (e, target) {
             if (eventType == 'click') {
                 if (!app.inPath(e, 'super-focus')) {
-                    //console.log('not in path, unfocus');
                     var i, nodes = document.querySelectorAll('.super-focus');
                     for(i=0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-focus');
                     }
                 }
-                // // Close Context Menu if clicked outside
-                // if ((!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn'))) {
-                //     // Close context menu
-                //     app.ui.contextMenu.close();
-                // }
-                // if (!app.inPath(e, app.ui.modal.containerClassName)) {
-                //     // Close modal
-                //     app.ui.modal.close();
-                // }
             }
-
             // Trigger event(s)
             if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
         });
     });
-
-
 
 })();

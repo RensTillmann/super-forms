@@ -684,10 +684,6 @@ function SUPERreCaptcha(){
     SUPER.get_conditional_validation_value = function(value, form){
         var conditionalParent,
             text_field,
-            currency,
-            format,
-            thousand_separator,
-            decimal_seperator,
             string_value,
             bracket,
             regular_expression,
@@ -730,14 +726,7 @@ function SUPERreCaptcha(){
                 // Check if currency field
                 if(conditionalParent.classList.contains('super-currency')){
                     text_field = false;
-                    value = element.value;
-                    currency = element.dataset.currency;
-                    format = element.dataset.format;
-                    thousand_separator = element.dataset.thousandSeparator;
-                    decimal_seperator = element.dataset.decimalSeparator;
-                    value = value.replace(currency, '').replace(format, '');
-                    value = value.split(thousand_separator).join('');
-                    value = value.split(decimal_seperator).join('.');
+                    value = $(element).maskMoney('unmasked')[0];
                     value = (value) ? parseFloat(value) : 0;
                 }
                 // Check if text or textarea field
@@ -772,14 +761,7 @@ function SUPERreCaptcha(){
             // @since 2.3.0 - compatibility with conditional logic
             // Check if currency field (since Super Forms v2.1)
             if( $parent.classList.contains('super-currency') ) {
-                var $value = $shortcode_field.value,
-                    $currency = $shortcode_field.dataset.currency,
-                    $format = $shortcode_field.dataset.format,
-                    $thousand_separator = $shortcode_field.dataset.thousandSeparator,
-                    $decimal_seperator = $shortcode_field.dataset.decimalSeparator;
-                $value = $value.replace($currency, '').replace($format, '');
-                $value = $value.split($thousand_separator).join('');
-                $value = $value.split($decimal_seperator).join('.');
+                var $value = $($shortcode_field).maskMoney('unmasked')[0];
                 $shortcode_field_value = ($value) ? parseFloat($value) : 0;
             }
         }
@@ -1900,10 +1882,6 @@ function SUPERreCaptcha(){
             attr,
             text_field,
             total,
-            currency,
-            format,
-            thousand_separator,
-            decimal_seperator,
             logic,
             conditions,
             field_value,
@@ -1956,7 +1934,8 @@ function SUPERreCaptcha(){
             if (!regex.test(el.value)) error = true;
         }
         if (validation == 'email') {
-            if ((el.value.length < 4) || (!/^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/.test(el.value))) {
+            regex = /^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/;
+            if ((el.value.length < 4) || (!regex.test(el.value))) {
                 error = true;
             }
         }
@@ -2034,18 +2013,9 @@ function SUPERreCaptcha(){
         if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
             if(parent.classList.contains('super-currency')){
-                value = el.value;
-                currency = el.dataset.currency;
-                format = el.dataset.format;
-                thousand_separator = el.dataset.thousandSeparator;
-                decimal_seperator = el.dataset.decimalSeparator;
-                value = value.replace(currency, '').replace(format, '');
-                value = value.split(thousand_separator).join('');
-                value = value.split(decimal_seperator).join('.');
+                value = $(el).maskMoney('unmasked')[0];
                 value = (value) ? parseFloat(value) : 0;
-                if( value < parseFloat(attr) ) {
-                    error = true;
-                }
+                if( value < parseFloat(attr) ) error = true;
             }else{
                 if( parseFloat(el.value) < parseFloat(attr) ) error = true;
             }
@@ -2054,14 +2024,7 @@ function SUPERreCaptcha(){
         if (typeof attr !== 'undefined' && attr !== false) {
             // Check if currency field
             if(parent.classList.contains('super-currency')){
-                value = el.value;
-                currency = el.dataset.currency;
-                format = el.dataset.format;
-                thousand_separator = el.dataset.thousandSeparator;
-                decimal_seperator = el.dataset.decimalSeparator;
-                value = value.replace(currency, '').replace(format, '');
-                value = value.split(thousand_separator).join('');
-                value = value.split(decimal_seperator).join('.');
+                value = $(el).maskMoney('unmasked')[0];
                 value = (value) ? parseFloat(value) : 0;
                 if( value > parseFloat(attr) ) error = true;
             }else{
@@ -2074,14 +2037,7 @@ function SUPERreCaptcha(){
             field_value = el.value;
             // Check if currency field
             if(parent.classList.contains('super-currency')){
-                value = el.value;
-                currency = el.dataset.currency;
-                format = el.dataset.format;
-                thousand_separator = el.dataset.thousandSeparator;
-                decimal_seperator = el.dataset.decimalSeparator;
-                value = value.replace(currency, '').replace(format, '');
-                value = value.split(thousand_separator).join('');
-                value = value.split(decimal_seperator).join('.');
+                value = $(el).maskMoney('unmasked')[0];
                 field_value = (value) ? parseFloat(value) : 0;
             }
             value = el.dataset.conditionalValidationValue;
