@@ -1,4 +1,5 @@
 ### Feb 05, 2020 - Version 4.9.215
+- Added: Super Forms Widget for `Elementor` plugin. You are now no longer allowed to use a Text widget to render your forms. Instead you must either use the native `Super Forms Widget` or the build in `Shortcode Widget` of Elementor (if you don't an error will be shown)
 - Fix: {tags} no longer working on custom URL for `Button` element due to usage of `esc_url()`
 - Fix: `Form settings` > `Prevent submitting form on pressing "Enter" keyboard button` was no longer working
 - Fix: W3C validation errors
