@@ -268,6 +268,8 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
             // build-SUPER_FORMS_BUNDLE_END
 
+            include_once( 'elementor/elementor-super-forms-extension.php' );
+
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
             // @since 1.9
@@ -940,6 +942,7 @@ if(!class_exists('SUPER_Forms')) :
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
                     'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                    'elementor'=>SUPER_Forms()->common_i18n['elementor'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
@@ -1066,6 +1069,10 @@ if(!class_exists('SUPER_Forms')) :
                     'tab_index_exclusion' => '.super-color,.super-calculator,.super-toggle,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.super-rating,.super-file,.super-slider,.hidden,.super-prev-multipart,.super-html',
 
                     'loading' => esc_html__( 'Loading...', 'super-forms' ),
+                    'elementor' => array(
+                        'notice' => esc_html__( 'Notice', 'super-forms' ),
+                        'msg' => esc_html__( 'when using Elementor, you must use the native Super Forms Widget or Shortcode Widget to display your forms', 'super-forms' ),
+                    ),
                     'directions' => array(
                         'next' => esc_html__( 'Next', 'super-forms' ),
                         'prev' => esc_html__( 'Prev', 'super-forms' ),
@@ -1411,6 +1418,7 @@ if(!class_exists('SUPER_Forms')) :
                         'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                         'loading'=>$this->common_i18n['loading'],
                         'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
+                        'elementor'=>$this->common_i18n['elementor'],
                         'directions'=>$this->common_i18n['directions'],
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
@@ -1721,6 +1729,7 @@ if(!class_exists('SUPER_Forms')) :
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                             'loading' => SUPER_Forms()->common_i18n['loading'],
                             'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                            'elementor' => SUPER_Forms()->common_i18n['elementor'],
                             'directions' => SUPER_Forms()->common_i18n['directions'],
                             'errors' => SUPER_Forms()->common_i18n['errors'],
                             // @since 3.6.0 - google tracking

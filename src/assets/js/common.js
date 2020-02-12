@@ -2097,7 +2097,7 @@ function SUPERreCaptcha(){
         if(error){
             SUPER.handle_errors(el);
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+            if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
             }
         }else{
@@ -2108,7 +2108,7 @@ function SUPERreCaptcha(){
             el.closest('.super-multipart').querySelector('.super-error-active') &&
             el.closest('.super-multipart').querySelector('.super-error-active').length===0){
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if(el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+            if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
             }
         }
@@ -4649,6 +4649,12 @@ function SUPERreCaptcha(){
                 $progress_steps,
                 $progress_bar,
                 $clone;
+
+            if($form.parent().hasClass('elementor-text-editor')){
+                var $form_id = $form.find('input[name="hidden_form_id"]').val();
+                $form.html('<p style="color:red;font-size:12px;"><strong>'+super_common_i18n.elementor.notice+':</strong> [Form ID: '+$form_id+ '] - '+super_common_i18n.elementor.msg+'</p>');
+                return false;
+            }
 
             if( $total!==0 ) {
                 // Lets check if this form has already rendered the multi-parts
