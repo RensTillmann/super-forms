@@ -223,29 +223,24 @@
 
         nodes = document.querySelectorAll('.super-datepicker:not(.super-picker-initialized)');
         for (i = 0; i < nodes.length; ++i) {
-            var $this = nodes[i],
-                $format = $this.dataset.format, //'MM/dd/yyyy';
-                $jsformat = $this.dataset.jsformat, //'MM/dd/yyyy';
-                $value = $this.value,
-                $is_rtl = ($this.closest('.super-form') ? $this.closest('.super-form').classList.contains('super-rtl') : false),
-                $parse,
-                year,month,day,firstDate,$date,
-                $min = $this.dataset.minlength,
-                $max = $this.dataset.maxlength,
-                $work_days = ($this.dataset.workDays == 'true'),
-                $weekends = ($this.dataset.weekends == 'true'),
-                $excl_days = $this.dataset.exclDays,
-                $range = $this.dataset.range,
-                $first_day = $this.dataset.firstDay,
-                $widget,
-                $connected_min_days,
-                $min_date,
-                $connected_max_days,
-                $max_date,
-
+            var el = nodes[i],
+                form = SUPER.get_frontend_or_backend_form(el),
+                format = el.dataset.format, //'MM/dd/yyyy';
+                jsformat = el.dataset.jsformat, //'MM/dd/yyyy';
+                isRtl = (el.closest('.super-form') ? el.closest('.super-form').classList.contains('super-rtl') : false),
+                min = el.dataset.minlength,
+                max = el.dataset.maxlength,
+                workDays = (el.dataset.workDays == 'true'),
+                weekends = (el.dataset.weekends == 'true'),
+                regex = /\{(.*?)\}/g,
+                range = el.dataset.range,
+                firstDay = el.dataset.firstDay,
+                widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
+                parse,year,month,firstDate,$date,days,found,date,fullDate,dateFrom,
+                dateTo,d1,d2,from,to,check,day,exclDays,exclDates,exclDatesReplaced,
                 // @since 2.5.0 - Date.parseExact compatibility
-                $parse_format = [
-                    $jsformat
+                parseFormat = [
+                    jsformat
                 ];
 
             // yy = short year
@@ -269,101 +264,143 @@
             // a = AM/PM marker
             // p = a.m./p.m. marker
 
-            if(typeof $min !== 'undefined') $min = $min.toString();
-            if(typeof $max !== 'undefined') $max = $max.toString();
+            if(typeof min !== 'undefined') min = min.toString();
+            if(typeof max !== 'undefined') max = max.toString();
 
-            $this.classList.add('super-picker-initialized');
-            if( $value!=='' ) {
-                $parse = Date.parseExact($value, $parse_format);
-                if( $parse!==null ) {
-                    year = $parse.toString('yyyy');
-                    month = $parse.toString('MM');
-                    day = $parse.toString('dd');
-                    $this.dataset.mathYear = year;
-                    $this.dataset.mathMonth = month;
-                    $this.dataset.mathDay = day;
+            el.classList.add('super-picker-initialized');
+            if( el.value!=='' ) {
+                parse = Date.parseExact(el.value, parseFormat);
+                if( parse!==null ) {
+                    year = parse.toString('yyyy');
+                    month = parse.toString('MM');
+                    day = parse.toString('dd');
+                    el.dataset.mathYear = year;
+                    el.dataset.mathMonth = month;
+                    el.dataset.mathDay = day;
                     firstDate = new Date(Date.UTC(year, month-1, day));
-                    $this.dataset.mathDiff = firstDate.getTime();
-                    $this.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
-                    $this.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
-                    $this.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
-                    $date = Date.parseExact(day+'-'+month+'-'+year, $parse_format);
+                    el.dataset.mathDiff = firstDate.getTime();
+                    el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
+                    el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
+                    el.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
+                    $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
                     if($date!==null){
                         $date = $date.toString("dd-MM-yyyy");
-                        SUPER.init_connected_datepicker($this, $date, $parse_format, oneDay);
+                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay);
                     }
                 }
             }else{
-                $this.dataset.mathYear = '0';
-                $this.dataset.mathMonth = '0';
-                $this.dataset.mathDay = '0';
-                $this.dataset.mathDiff = '0';
-                $this.dataset.mathAge = '0';
+                el.dataset.mathYear = '0';
+                el.dataset.mathMonth = '0';
+                el.dataset.mathDay = '0';
+                el.dataset.mathDiff = '0';
+                el.dataset.mathAge = '0';
             }
 
-            $($this).datepicker({
+            $(el).datepicker({
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, $parse_format, oneDay);
+                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
                 },
                 beforeShowDay: function(dt) {
-                    var day = dt.getDay();
-                    if(typeof $excl_days !== 'undefined'){
-                        var $days = $excl_days.split(',');
-                        var $found = ($days.indexOf(day.toString()) > -1);
-                        if($found){
+                    day = dt.getDay(),
+                    exclDays = this.dataset.exclDays,
+                    exclDates = (typeof this.dataset.exclDates !=='undefined' ? this.dataset.exclDates : undefined);
+                    if(typeof exclDays !== 'undefined'){
+                        days = exclDays.split(',');
+                        found = (days.indexOf(day.toString()) > -1);
+                        if(found){
                             return [false, "super-disabled-day"];
                         }
                     }
-                    if( ($weekends===true) && ($work_days===true) ) {
+                    if(typeof exclDates !== 'undefined'){
+                        exclDatesReplaced = SUPER.update_variable_fields.replace_tags(form, regex, exclDates);
+                        exclDatesReplaced = exclDatesReplaced.split("\n");
+                        date = ('0' + dt.getDate()).slice(-2);
+                        month = ('0' + (dt.getMonth()+1)).slice(-2);
+                        fullDate = dt.getFullYear() + '-' + month + '-' + date;
+                        i;
+                        for( i=0; i < exclDatesReplaced.length; i++ ) {
+                            if(exclDatesReplaced[i]==='') continue;
+                            // If excluding a fixed day of month
+                            if(exclDatesReplaced[i].length<=2){
+                                if(exclDatesReplaced[i]==day){
+                                    return [false, "super-disabled-day"];
+                                }
+                            }
+                            // If excluding a specific month
+                            if(exclDatesReplaced[i].length==3){
+                                if(exclDatesReplaced[i].toLowerCase()==dt.toString('MMM').toLowerCase()){
+                                    return [false, "super-disabled-day"];
+                                }
+                            }
+                            // If excluding a date range
+                            if(exclDatesReplaced[i].split(';').length>1){
+                                dateFrom = exclDatesReplaced[i].split(';')[0];
+                                dateTo = exclDatesReplaced[i].split(';')[1];
+                                d1 = dateFrom.split("-");
+                                d2 = dateTo.split("-");
+                                from = new Date(d1[0], parseInt(d1[1])-1, d1[2]);  // -1 because months are from 0 to 11
+                                to   = new Date(d2[0], parseInt(d2[1])-1, d2[2]);
+                                check = new Date(dt.getFullYear(), parseInt(month)-1, date);
+                                if(check >= from && check <= to){
+                                    return [false, "super-disabled-day"];
+                                }
+                            }
+                            // If excluding single date
+                            if(exclDatesReplaced[i]==fullDate){
+                                return [false, "super-disabled-day"];
+                            }
+                        }
+                    }
+                    if( (weekends===true) && (workDays===true) ) {
                         return [true, ""];
                     }else{
-                        if($weekends===true){
+                        if(weekends===true){
                             return [day === 0 || day == 6, ""];
                         }
-                        if($work_days===true){
+                        if(workDays===true){
                             return [day == 1 || day == 2 || day == 3 || day == 4 || day == 5, ""];
                         }
                     }
                     return [];
                 },
                 beforeShow: function(input, inst) {
-                    $widget = $(inst).datepicker('widget');
-                    $widget[0].classList.add('super-datepicker-dialog');
+                    widget = $(inst).datepicker('widget');
+                    widget[0].classList.add('super-datepicker-dialog');
                     $('.super-datepicker[data-connected-min="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
-                            $connected_min_days = $(this).data('connected-min-days');
-                            $min_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_min_days }).toString($jsformat);
-                            $($this).datepicker('option', 'minDate', $min_date );
+                            connectedMinDays = $(this).data('connected-min-days');
+                            minDate = Date.parseExact($(this).val(), parseFormat).add({ days: connectedMinDays }).toString(jsformat);
+                            $(el).datepicker('option', 'minDate', minDate );
                         }
                     });
                     $('.super-datepicker[data-connected-max="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
-                            $connected_max_days = $(this).data('connected-max-days');
-                            $max_date = Date.parseExact($(this).val(), $parse_format).add({ days: $connected_max_days }).toString($jsformat);
-                            $($this).datepicker('option', 'maxDate', $max_date );
+                            connectedMaxDays = $(this).data('connected-max-days');
+                            maxDate = Date.parseExact($(this).val(), parseFormat).add({ days: connectedMaxDays }).toString(jsformat);
+                            $(el).datepicker('option', 'maxDate', maxDate );
                         }
                     });
                 },
-                yearRange: $range, //'-100:+5', // specifying a hard coded year range
+                yearRange: range, //'-100:+5', // specifying a hard coded year range
                 changeMonth: true,
                 changeYear: true,
                 showAnim: '',
                 showOn: $(this).parent().find('.super-icon'),
-                minDate: $min,
-                maxDate: $max,
-                dateFormat: $format, //mm/dd/yy    -    yy-mm-dd    -    d M, y    -    d MM, y    -    DD, d MM, yy    -    &apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy
+                minDate: min,
+                maxDate: max,
+                dateFormat: format, //mm/dd/yy    -    yy-mm-dd    -    d M, y    -    d MM, y    -    DD, d MM, yy    -    &apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy
                 monthNames: super_elements_i18n.monthNames, // set month names
                 monthNamesShort: super_elements_i18n.monthNamesShort, // set short month names
                 dayNames: super_elements_i18n.dayNames, // set days names
                 dayNamesShort: super_elements_i18n.dayNamesShort, // set short day names
                 dayNamesMin: super_elements_i18n.dayNamesMin, // set more short days names
                 weekHeader: super_elements_i18n.weekHeader,
-                firstDay: $first_day,
-                isRTL: $is_rtl,
+                firstDay: firstDay,
+                isRTL: isRtl,
                 showMonthAfterYear: false,
                 yearSuffix: ""
             });
-            $($this).parent().find('.super-icon').css('cursor','pointer');
+            $(el).parent().find('.super-icon').css('cursor','pointer');
         }
         $('.super-datepicker').parent().find('.super-icon').on('click',function(){
             $(this).parent().find('.super-datepicker').datepicker('show');
