@@ -2545,10 +2545,18 @@ $array['form_elements'] = array(
                         ),
                         // @since 3.6.0 - excl specific days from calendar
                         'excl_days' => array(
-                            'name' => esc_html__( 'Exclude specific days from being selected by user', 'super-forms' ),
+                            'name' => esc_html__( 'Exclude specific days', 'super-forms' ),
                             'label' => sprintf( esc_html__( 'Use numbers to specify days to exclude seperated by comma\'s e.g: 0,1,2%sWhere: 0 = Sunday and 1 = Monday etc.', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Disable the option to select the specific day in the calendar e.g Sunday, Monday etc.', 'super-forms' ),
                             'default'=> ( !isset( $attributes['excl_days'] ) ? '' : $attributes['excl_days'] ),
+                        ),
+                        // @since 4.9.3 - excl specific dates and date ranges from calendar
+                        'excl_dates' => array(
+                            'name' => esc_html__( 'Exclude dates or a range of dates', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each on a new line.%1$sExamples:%1$s2020-03-25 (excludes a specific date)%1$s2020-06-12;2020-07-26 (excludes a date range)%1$s01 (excludes first day for all months)%1$s10 (excludes 10th day for all months)%1$sJan (excludes the month January)%1$sMar (excludes the month March)%1$sDec (excludes the month December)', 'super-forms' ), '<br />' ),
+                            'desc' => esc_html__( 'Dissallow user from selecting the specified dates or date ranges in the calendar', 'super-forms' ),
+                            'type'=> 'textarea',
+                            'default'=> ( !isset( $attributes['excl_dates'] ) ? '' : $attributes['excl_dates'] ),
                         ),
                         'format' => array(
                             'name'=>esc_html__( 'Date Format', 'super-forms' ), 

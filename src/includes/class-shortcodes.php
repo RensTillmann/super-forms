@@ -3689,16 +3689,16 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= ' value="' . $atts['value'] . '" 
-        name="' . $atts['name'] . '" 
-        data-format="' . $format . '" 
-        data-jsformat="' . $jsformat. '" 
-        data-connected-min="' . $atts['connected_min'] . '" 
-        data-connected-min-days="' . $atts['connected_min_days'] . '" 
-        data-connected-max="' . $atts['connected_max'] . '" 
-        data-connected-max-days="' . $atts['connected_max_days'] . '" 
-        data-range="' . $atts['range'] . '" 
-        data-first-day="' . $atts['first_day'] . '" ';
+        $result .= ' value="' . esc_attr($atts['value']) . '" 
+        name="' . esc_attr($atts['name']) . '" 
+        data-format="' . esc_attr($format) . '" 
+        data-jsformat="' . esc_attr($jsformat) . '" 
+        data-connected-min="' . esc_attr($atts['connected_min']) . '" 
+        data-connected-min-days="' . esc_attr($atts['connected_min_days']) . '" 
+        data-connected-max="' . esc_attr($atts['connected_max']) . '" 
+        data-connected-max-days="' . esc_attr($atts['connected_max_days']) . '" 
+        data-range="' . esc_attr($atts['range']) . '" 
+        data-first-day="' . esc_attr($atts['first_day']) . '" ';
 
         // @since 1.5.0 - Allow work days selection
         if( !empty($atts['work_days']) ) {
@@ -3711,9 +3711,12 @@ class SUPER_Shortcodes {
 
         // @since 3.6.0 - Exclude specific days
         if( isset($atts['excl_days']) && $atts['excl_days']!='' ) {
-            $result .= 'data-excl-days="' . $atts['excl_days'] . '"';
+            $result .= 'data-excl-days="' . esc_attr($atts['excl_days']) . '"';
         }
-
+        // @since 4.9.3 - Exclude specific dates
+        if( isset($atts['excl_dates']) && $atts['excl_dates']!='' ) {
+            $result .= 'data-excl-dates="' . esc_attr($atts['excl_dates']) . '"';
+        }
         $result .= self::common_attributes( $atts, $tag );
         $result .= ' readonly="true" />';
 
