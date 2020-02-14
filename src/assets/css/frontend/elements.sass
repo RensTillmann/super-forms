@@ -19,8 +19,6 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
   -moz-user-select: $property
   -ms-user-select: $property
   user-select: $property
-%noSelect
-  +userSelect(none)
   outline: 0
 
 =transition($property)
@@ -50,7 +48,6 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
   -ms-backface-visibility: $property
   -o-backface-visibility: $property
   backface-visibility: $property
-  ms-backface-visibility: $property
 
 =transform($property)
   -webkit-transform: $property
@@ -58,7 +55,6 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
   -ms-transform: $property
   -o-transform: $property
   transform: $property
-  ms-transform: $property
 
 =boxShadow($property)
   -webkit-box-shadow: $property
@@ -118,27 +114,21 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
     margin-right: auto
 
 .super-noselect
-  @extend %noSelect
-  outline: 0
+  +userSelect(none)
 
 .super-msg
   .close, a
-    @extend %noSelect
-    outline: 0
+    +userSelect(none)
 
 .super-item, .super-multipart-step
-  @extend %noSelect
-  outline: 0
+  +userSelect(none)
 
 .super-dropdown-ui
-  @extend %noSelect
-  outline: 0
+  +userSelect(none)
   li
-    @extend %noSelect
-    outline: 0
+    +userSelect(none)
 .super-dropdown-arrow
-  @extend %noSelect
-  outline: 0
+  +userSelect(none)
 
 .super-button
   .super-button-name, &.super-type-diagonal .super-button-wrap .super-after
@@ -328,7 +318,6 @@ h1.super-thanks-title
       color: #ffffff
       background-color: #4eb1b6
       border-color: transparent
-      display: inline-block
       padding: 4px 25px 4px 10px
       position: relative
       cursor: pointer
@@ -881,7 +870,7 @@ h1.super-thanks-title
     &:before
       font-size: 11px !important
       line-height: 14px
-      transform: translate(0px, -15px)
+      +transform(translate(0px, -15px))
 
 /* Huge size
 .super-field-size-huge
@@ -891,7 +880,7 @@ h1.super-thanks-title
     &:before
       font-size: 12px !important
       line-height: 16px
-      transform: translate(0px, -22px)
+      +transform(translate(0px, -22px))
 
 /* Full rounded theme
 .super-full-rounded
@@ -913,7 +902,7 @@ h1.super-thanks-title
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
-      border-radius: 22px
+      +borderRadius(22px)
 
 /* Icons outside
 .super-icon-outside.super-icon-left .super-adaptive-placeholder
@@ -1143,9 +1132,9 @@ h1.super-thanks-title
     overflow: hidden
 
 .super-image
-  max-width: 100% !important
+  max-width: 100%
   img
-    max-width: 100% !important
+    max-width: 100%
 
 .super-field
   &.super-tooltip
@@ -1627,9 +1616,9 @@ textarea
   height: 33px
   border: 1px solid
   overflow: hidden
-  @extend %noSelect
+  +userSelect(none)
   *
-    @extend %noSelect
+    +userSelect(none)
 
 .super-toggle-prefix-label
   float: left
@@ -2111,15 +2100,18 @@ textarea
   z-index: 2147483647 !important
   border: solid 1px #cdcdcd
   background-color: white
-  width: 280px
   +boxSizing(border-box)
   .ui-datepicker-header
     position: relative
-    height: 40px
+    height: 30px
+    margin-bottom: 10px
     border: 0
     background: none
+    display: flex
     .ui-datepicker-title
-      margin: 0px
+      margin: 0px 0px 0px 10px
+      width: 70%
+      display: flex
     .ui-datepicker-month, .ui-datepicker-year
       font-size: 16px
       line-height: 20px
@@ -2132,66 +2124,84 @@ textarea
       padding: 0px 5px
       width: 125px
       margin: 0px 0px 0px 0px
-      display: inline-block
+      display: flex
+      align-items: center
+      height: 100%
     .ui-datepicker-month
-      margin-right: 7px
+      margin-left: 5px
   &.ui-datepicker-rtl .ui-datepicker-header .ui-datepicker-month
-    margin-left: 7px
-    margin-right: 0
+    margin-right: 5px
+    margin-left: 0
   .ui-datepicker-header
     .ui-datepicker-prev, .ui-datepicker-next
-      display: none
-      position: absolute
-      right: 0px
-      top: 0px
       text-align: center
       cursor: pointer
       color: #444444
       text-decoration: none
       border: 1px solid #cdcdcd
-      height: 30px
-      width: 30px
       line-height: 27px
+      width: 15%
+      height: 100%
+      display: flex
+      align-items: center
+      justify-content: center
+      +userSelect(none)
     .ui-datepicker-prev
-      right: 29px
+      margin-right: 5px
       span
         display: none
     .ui-datepicker-next span
       display: none
     .ui-datepicker-prev::after
-      content: "<"
-      color: #cdcdcd
+      content: "«"
     .ui-datepicker-next::after
-      content: ">"
-      color: #cdcdcd
+      content: "»"
   .ui-datepicker-calendar
+    border-spacing: 5px
+    width: 100%
+    border: 0px
+    border-collapse: collapse
+    margin: 0px
+    .ui-datepicker-week-col
+      background-color: #f1f3f4
+      text-align: center
+      color: #444444
+      border-right: 4px solid white
+    .ui-datepicker-other-month
+      opacity: 0.5
     tr
       border: 0px
     th
       border: 0px
-      padding: 0px
+      padding: 10px 0px 0px 0px
       text-align: center
     td
-      border: 0px
       padding: 0px
-      text-align: center
-      text-align: center
       margin: 0px
-      padding: 0px
-      cell-padding: 0px
+      text-align: center
+      border: 0
+      width: 40px
       a
-        &.ui-state-highlight
-          margin: 2px
-        text-align: center
-        width: 33px !important
-        text-decoration: none
-        line-height: 33px
-        height: 33px
-        border: solid 1px #cdcdcd
-        display: inline-block
         color: #444444
-        margin: 2px
-        +boxSizing(border-box)
+        width: 40px
+        height: 40px
+        display: flex
+        justify-content: center
+        align-items: center
+        text-decoration: none
+        +userSelect(none)
+        &.ui-state-highlight
+          background-color: #1a73e8
+          color: white
+          +borderRadius(50px)
+        &:hover
+          background-color: #f1f3f4
+          color: #444444
+          +borderRadius(50px)
+        &.ui-state-active
+          +borderRadius(50px)
+          color: #185abc
+          background-color: #d2e3fc
       span.ui-state-default
         text-align: center
         width: 33px !important
@@ -2206,13 +2216,6 @@ textarea
         border: 0
         height: 27px
         line-height: 27px
-      a.ui-state-active
-        border: 1px solid #909090
-        background-color: #E4E4E4
-    border-spacing: 5px
-    width: auto
-    border: 0px
-    border-collapse: collapse
 
 .ui-timepicker-wrapper.super-timepicker-dialog
   overflow-y: auto
@@ -2692,7 +2695,6 @@ ul.super-multipart-steps
 
 ul.super-multipart-steps
   .super-multipart-step
-    display: inline-block
     width: 56px
     height: 56px
     position: relative
@@ -2836,11 +2838,7 @@ ul.super-multipart-steps .super-multipart-step
       background: #fafafa
       border-color: #555d66
       color: #23282d
-      -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)
-      -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)
-      -ms-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)
-      -o-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)
-      box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)
+      +boxShadow('inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)')
       outline: 0
   .mce-ico.mce-i-resize
     font-family: tinymce, Arial
@@ -2911,7 +2909,6 @@ ul.super-multipart-steps .super-multipart-step
   i
     position: inherit
     +transform(translate(0, 0))
-    display: inline-block
     float: inherit
   display: inline-block
   width: auto
@@ -4138,8 +4135,8 @@ ul.super-multipart-steps .super-multipart-step
   position: relative
   margin-bottom: 1em
 .super-accordion-header, .super-accordion-content
-  backface-visibility: hidden
-  transform: translateZ(0)
+  +backfaceVisibility(hidden)
+  +transform(translateZ(0))
   transition: all 0.2s
 .super-accordion-header
   border-style: solid
@@ -4164,22 +4161,22 @@ ul.super-multipart-steps .super-multipart-step
     width: 2px
     height: 0.75em
     transition: transform 0.2s
-    -webkit-backface-visibility: hidden
-    -webkit-transform: translate3d(0,0,0)
+    +backfaceVisibility(hidden)
+    +transform(translate3d(0,0,0))
     background-color: #49B4B6
   &:after
-    transform: rotate(90deg)
+    +transform(rotate(90deg))
 .super-accordion-item
   .super-accordion-header, .super-accordion-content
-    box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)
+    +boxShadow('3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)')
     &:hover
-      box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)
+      +boxShadow('3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)')
 .super-accordion-image
   padding: 0px 10px 0px 10px
   display: flex
   img
-    -webkit-backface-visibility: hidden
-    -webkit-transform: translate3d(0,0,0)
+    +backfaceVisibility(hidden)
+    +transform(translate3d(0,0,0))
 .super-accordion-title
   border-right: 1px solid rgba(black, 0.2)
   padding: 0px 10px 0px 0px
@@ -4201,12 +4198,12 @@ ul.super-multipart-steps .super-multipart-step
   display: none
 .super-accordion-item.super-active
   > .super-accordion-header, > .super-accordion-content
-    box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd
+    +boxShadow('3px 3px 6px #ddd, -3px 3px 6px #ddd')
     max-height: 99999999px
   > .super-accordion-content > *
     display: block
   > .super-accordion-header:before
-    transform: rotate(90deg) !important
+    +transform(rotate(90deg) !important)
 
 .display-grid
   .super-field-wrapper
@@ -4371,19 +4368,19 @@ ul.super-multipart-steps .super-multipart-step
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
-      transform: translate(0px, -15px)
+      +transform(translate(0px, -15px))
 .super-field-size-large
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
-      transform: translate(0px, -20px)
+      +transform(translate(0px, -20px))
 .super-field-size-huge
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
     &:before
-      transform: translate(0px, -25px)
+      +transform(translate(0px, -25px))
 
 .super-field-size-medium
   .super-adaptive-positioning:before
@@ -4486,7 +4483,7 @@ ul.super-multipart-steps .super-multipart-step
     position: absolute
     top: 0
     right: 0px
-    transform: translate3d(0, 0, 0)
+    +transform(translate3d(0, 0, 0))
     top: 50%
     margin-top: -25px
   .super-tabs-contents > .super-content-prev i, .super-tabs-contents > .super-content-next i
@@ -4497,38 +4494,38 @@ ul.super-multipart-steps .super-multipart-step
     transition: all 0.15s ease
     top: 50%
     left: -4px
-    border-radius: 25px
+    +borderRadius(25px)
   .super-tabs-contents > .super-content-prev i, .super-tabs-contents > .super-content-next i
     transform-origin: 100% 50%
   .super-tabs-contents > .super-content-prev .top-line
-    transform: translate(0px, 1px) rotate(40deg)
+    +transform(translate(0px, 1px) rotate(40deg))
   .super-tabs-contents > .super-content-next .top-line
-    transform: translate(0px, -2px) rotate(40deg)
+    +transform(translate(0px, -2px) rotate(40deg))
   .super-tabs-contents > .super-content-prev .bottom-line
-    transform: translate(0px, -1px) rotate(-40deg)
+    +transform(translate(0px, -1px) rotate(-40deg))
   .super-tabs-contents > .super-content-next .bottom-line
-    transform: translate(0px, -4px) rotate(-40deg)
+    +transform(translate(0px, -4px) rotate(-40deg))
   .super-tabs-contents > .super-content-prev:hover .top-line
-    transform: translate(5px, 1px) rotate(40deg)
+    +transform(translate(5px, 1px) rotate(40deg))
     width: 30px
   .super-tabs-contents > .super-content-next:hover .top-line
-    transform: translate(5px, -2px) rotate(40deg)
+    +transform(translate(5px, -2px) rotate(40deg))
     width: 30px
   .super-tabs-contents > .super-content-prev:hover .bottom-line
-    transform: translate(5px, -1px) rotate(-40deg)
+    +transform(translate(5px, -1px) rotate(-40deg))
     width: 30px
   .super-tabs-contents > .super-content-next:hover .bottom-line
-    transform: translate(5px, -4px) rotate(-40deg)
+    +transform(translate(5px, -4px) rotate(-40deg))
     width: 30px
   .super-tabs-contents > .super-content-prev[data-state=disabled], .super-tabs-contents > .super-content-next[data-state=disabled]
     opacity: 0.3
     cursor: default
   .super-tabs-contents > .super-content-prev[data-state=disabled]
     .top-line, .bottom-line
-      transform: translate(5px, 0) rotate(0deg)
+      +transform(translate(5px, 0) rotate(0deg))
   .super-tabs-contents > .super-content-next[data-state=disabled]
     .top-line, .bottom-line
-      transform: translate(5px, 0) rotate(0deg)
+      +transform(translate(5px, 0) rotate(0deg))
 
 
 
@@ -4563,11 +4560,11 @@ ul.super-multipart-steps .super-multipart-step
 .super-default-rounded 
   .super-overlap
     .super-item.super-active:before
-      border-radius: 3px
+      +borderRadius(3px)
 .super-full-rounded
   .super-overlap
     .super-item.super-active:before
-      border-radius: 50px
+      +borderRadius(50px)
 
 .super-checkbox .super-item,
 .super-radio .super-item
@@ -4648,36 +4645,36 @@ ul.super-multipart-steps .super-multipart-step
 @media (min-width: 0px)
   .super-tabs.super-prev-next >
     .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
-      transform: scale(0.7)
+      +transform(scale(0.7))
       right: -25px
     .super-tabs-contents > .super-content-prev
       right: initial
       left: -25px
-      transform: scale(0.7) rotate(180deg)
+      +transform(scale(0.7) rotate(180deg))
     .super-tabs-contents
       padding-left: 40px
       padding-right: 40px
 @media (min-width: 768px)
   .super-tabs.super-prev-next >
     .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
-      transform: scale(0.85)
+      +transform(scale(0.85))
       right: -15px
     .super-tabs-contents > .super-content-prev
       right: initial
       left: -15px
-      transform: scale(0.85) rotate(180deg)
+      +transform(scale(0.85) rotate(180deg))
     .super-tabs-contents
       padding-left: 65px
       padding-right: 65px
 @media (min-width: 1200px)
   .super-tabs.super-prev-next >
     .super-tabs-contents > .super-content-prev, .super-tabs-contents > .super-content-next
-      transform: scale(1)
+      +transform(scale(1))
       right: -5px
     .super-tabs-contents > .super-content-prev
       right: initial
       left: -5px
-      transform: scale(1) rotate(180deg)
+      +transform(scale(1) rotate(180deg))
     .super-tabs-contents
       padding-left: 80px
       padding-right: 80px

@@ -588,11 +588,12 @@
     width:100%;
     position: relative;
     z-index: 1;
+    display: flex;
 }
 .super-preview {
     float: left;
     clear: both;
-    width: 70%;
+    width: 100%;
     position: relative;
     z-index: 3;
 }
@@ -1028,16 +1029,16 @@
 }
 .super-elements {
     float: left;
-    width: 30%;
+    width: 200px;
     position: relative;
     z-index: 3;
     padding-left: 10px;
     top: 0px;
 }
-.super-create-form.sticky .super-elements {
-    position:fixed;
-    right:10px;
-    top: 80px;
+.super-elements:hover,
+.super-elements.super-active {
+    width: 50%;
+    max-width: 500px;
 }
 .super-elements .super-element {
     float:left;
@@ -1069,14 +1070,21 @@
     font-size: 14px;
 }
 .super-elements .super-element .super-elements-container {
-    padding: 10px;
+    padding: 0px;
     float: left;
     width: 100%;
     -webkit-transition: initial;
     -moz-transition: initial;
     transition: initial;
     display: none;
+    /* height: 0; */
 }
+.super-elements:hover .super-element .super-elements-container,
+.super-elements.super-active .super-element .super-elements-container {
+   padding: 10px;
+   height: auto;
+}
+
 .super-elements .super-element .super-elements-container.super-loading {
     min-height:100px;
     display: block!important;
@@ -1117,8 +1125,8 @@
 .super-elements .super-element.super-layout-elements .super-elements-container {
     display:block;
 }
-.super-elements .super-element.super-form-elements .super-elements-container {
-    padding:5px;
+.super-elements .super-elements-container {
+    flex-wrap: wrap;
 }
 .super-elements .super-element .super-elements-container .cancel-update {
     background-color: #7F7F7F;
@@ -1128,6 +1136,9 @@
 .super-form-settings-tabs {
     width:100%;
     float:left;
+    border-bottom: 2px dashed #49b4b6;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
 }
 .super-element-settings-tabs > select,
 .super-form-settings-tabs > select,
@@ -1139,9 +1150,8 @@
     font-weight: bold;
     line-height: 25px;
     float: left;
-    margin: 0px 0px 10px 0px;
+    margin: 0px 0px 0px 0px;
     width: 100%;
-    border: 2px solid #49B4B6;
     max-width: 100%;
     border-radius: 0;
 }
@@ -1153,8 +1163,8 @@
     max-height: 500px;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: 15px;
-    padding-left: 10px;
+    padding-right: 5px;
+    padding-left: 0px;
     padding-bottom: 0px;
     margin-bottom: 10px;
 }
@@ -1344,7 +1354,7 @@
 .super-element-settings .field-input > textarea.multi-items-json {
     display:none;
 }
-.super-element-settings .field-input .super-multi-items {
+.super-element-settings .super-multi-items {
     float:left;
     width:100%;
     border: 1px solid #E0E0E0;
@@ -1352,28 +1362,28 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
     background-color: #F9F9F9;
-    padding: 5px;
+    padding: 5px 5px 30px 5px;
     margin-bottom: 5px;
     position: relative;
     min-height: 60px;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item {
+.super-element-settings .super-multi-items.address-auto-popuplate-item {
     min-height:auto;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item > strong {
+.super-element-settings .super-multi-items.address-auto-popuplate-item > strong {
     width:100px;
     max-width: 33%;
 }
-.super-element-settings .field-input .super-multi-items.address-auto-popuplate-item * {
+.super-element-settings .super-multi-items.address-auto-popuplate-item * {
     width: 33%;
 }
-.super-element-settings .field-input .super-multi-items > p {
+.super-element-settings .super-multi-items > p {
     width:100%;
     text-align:left!important;
     margin:0px 0px 0px 0px!important;
     padding:0px 0px 0px 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field {
+.super-element-settings .super-multi-items > .image-field {
     width: auto;
     height: auto;
     text-align:center;
@@ -1383,42 +1393,42 @@
     margin: 1px 0px 0px 23px;
     clear: left;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview {
+.super-element-settings .super-multi-items > .image-field .image-preview {
     width: auto;
     padding: 0px 0px 0px 0px;
     margin: 4px 0px 0px 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .delete {
+.super-element-settings .super-multi-items > .image-field .image-preview .delete {
     float:left;
     clear: initial;
     padding: 0;
     margin: 0;
     width: 100%;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_width"],
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview input[name="max_height"] {
+.super-element-settings .super-multi-items > .image-field .image-preview input[name="max_width"],
+.super-element-settings .super-multi-items > .image-field .image-preview input[name="max_height"] {
     float:left;
     width:50px;
     margin: 5px 5px 0px 5px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview li > span {
+.super-element-settings .super-multi-items > .image-field .image-preview li > span {
     float:left;
     margin-top: 4px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image {
+.super-element-settings .super-multi-items > .image-field .image-preview .image {
     overflow:hidden;
     padding: 5px 0px 0px 0px;
     max-width: 36px;
     float: left;
     margin-left: 5px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field .image-preview .image img {
+.super-element-settings .super-multi-items > .image-field .image-preview .image img {
     max-height: 37px;
     max-width: 37px;
     margin: 0px;
     padding: 0px;
 }
-.super-element-settings .field-input .super-multi-items > .image-field > span {
+.super-element-settings .super-multi-items > .image-field > span {
     height: 20px;
     width: 25px;
     line-height: 19px;
@@ -1432,84 +1442,81 @@
     float: left;
     color: #A2A2A2;
 }
-.super-element-settings .field-input .super-multi-items > .image-field > span:hover {
+.super-element-settings .super-multi-items > .image-field > span:hover {
     color: #4E4E4E;
 }
-.super-element-settings .field-input .super-multi-items > * {
-    width: 25%;
+.super-element-settings .super-multi-items > * {
     float:left;
-    height: 20px;
-    line-height: 20px;
-    margin:0px;
-    font-size: 11px;
-    padding: 0px 5px 0px 5px;
-    margin-right:-1px;
-    margin-bottom:-1px;
-    border-radius: 0px;
 }
 .super-element-settings .super-multi-items.super-dropdown-item input {
     width:40%;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_field"],
-.super-element-settings .field-input .super-multi-items > select[name="conditional_field_and"] {
-    width:70px;
+
+.super-element-settings input[name="conditional_field"],
+.super-element-settings input[name="conditional_value"] {
+  width:45%!important;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_logic"],
-.super-element-settings .field-input .super-multi-items > select[name="conditional_logic_and"] {
-    width: 9%;
+.super-element-settings select[name="conditional_logic"] {
+  width:10%!important;
+  margin:0px -1px 0px -1px;
 }
-.super-element-settings .field-input .super-multi-items > input[name="conditional_value"],
-.super-element-settings .field-input .super-multi-items > input[name="conditional_value_and"] {
-    width: 12%;
+
+.super-element-settings input[name="conditional_field_and"],
+.super-element-settings input[name="conditional_value_and"] {
+  width:45%!important;
 }
-.super-element-settings .field-input .super-multi-items > select[name="conditional_and_method"] {
-    width: 8%;
+.super-element-settings input[name="conditional_field_and"] {
+  clear: left;
 }
-.super-element-settings .field-input .super-multi-items > span.line-break {
-    width:100%;
-    border-top: 1px dashed #E0E0E0;
-    margin-top:5px;
-    height:7px;
+.super-element-settings select[name="conditional_logic_and"] {
+  width:10%!important;
+  margin:0px -1px 0px -1px;
 }
-.super-element-settings .field-input .super-multi-items > .sorting .up,
-.super-element-settings .field-input .super-multi-items > .sorting .down {
+.super-element-settings select[name="conditional_and_method"] {
+    clear: left;
+    margin:-1px 0px -1px 0px;
+    width:calc(100% - 2px)!important;
+}
+
+.super-element-settings .super-multi-items > span.line-break {
+    display: none;
+}
+.super-element-settings .super-multi-items > .sorting .up,
+.super-element-settings .super-multi-items > .sorting .down {
     display: block;
     float: left;
     text-align: center;
     width: 100%;
     height: 15px;
 }
-.super-element-settings .field-input .super-multi-items > textarea {
+.super-element-settings .super-multi-items > textarea {
     width:70px;
     margin-right:10px;
     padding:0px 0px 0px 5px;
 }
-.super-element-settings .field-input .super-multi-items > i {
-    width: 20px;
-    height: 20px;
+.super-element-settings .super-multi-items > i {
     line-height: 20px;
     text-align:center;
-    padding:0px;
+    padding: 3px 8px 3px 8px;
     font-size:14px;
     cursor: pointer;
     opacity: 0.5;
+    float: right;
     position: absolute;
-    right: 4px;
-    top: 4px;
+    right: 0px;
+    bottom: 0px;
 }
-.super-element-settings .field-input .super-multi-items > i.add {
-    margin-left: 1%;
-    right: 4px;
-    bottom: 3px;
-    top: inherit;
+.super-element-settings .super-multi-items > i.delete {
+    right:30px;
 }
-.super-element-settings .field-input .super-multi-items:not(:first-child) > i.delete {
+
+.super-element-settings .super-multi-items:not(:first-child) > i.delete {
     visibility:visible!important;
 }
-.super-element-settings .field-input .super-multi-items > i:hover {
+.super-element-settings .super-multi-items > i:hover {
     opacity:1;
 }
-.super-element-settings .field-input .super-multi-items .sorting {
+.super-element-settings .super-multi-items .sorting {
     float: left;
     height: 35px;
     width: 27px;
@@ -1518,7 +1525,7 @@
     left: 0px;
     bottom: 0px;
 }
-.super-element-settings .field-input .super-multi-items .sorting span i {
+.super-element-settings .super-multi-items .sorting span i {
     height: 15px;
     line-height: 15px;
     text-align: center;
@@ -1529,10 +1536,10 @@
     float: left;
     width: 100%;
 }
-.super-element-settings .field-input .super-multi-items .sorting span i:hover {
+.super-element-settings .super-multi-items .sorting span i:hover {
     opacity:1;
 }
-.super-element-settings .field-input .super-multi-items textarea {
+.super-element-settings .super-multi-items textarea {
     width: 155px;
     float: left;
     height: 20px;
@@ -1543,8 +1550,8 @@
     margin-right: -1px;
     margin-bottom: -1px;
 }
-.super-element-settings .field-input .super-multi-items input[type="checkbox"],
-.super-element-settings .field-input .super-multi-items input[type="radio"] {
+.super-element-settings .super-multi-items input[type="checkbox"],
+.super-element-settings .super-multi-items input[type="radio"] {
     width:16px;
     height:16px;
     margin-right: 10px;
@@ -1646,7 +1653,6 @@
 .super-element > .super-elements-container > .super-element {
     cursor: pointer;
     float: left;
-    width: 31%;
     margin: 0px -1px -1px 0px!important;
     height: 20px;
     line-height: 18px;
@@ -1657,12 +1663,13 @@
     left: initial!important;
     border: 1px solid #ECECEC;
     color: grey;
+    width: 20%;
 }
 .super-element > .super-elements-container > .super-element.super-shortcode-stripe_cc,
 .super-element > .super-elements-container > .super-element.super-shortcode-stripe_ideal {
     padding-left:38px;
 }
-.super-element.super-form-elements > .super-elements-container > .super-element:hover {
+.super-elements-container > .super-element:hover {
     color: #49B4B6;
     border: 1px solid #49B4B6;
     position:relative;
@@ -2280,7 +2287,6 @@
 .super-subtabcontent.super-active {
     display:block;
 }
-
 
 .super-tab-content.super-tab-code textarea {
     float:left;

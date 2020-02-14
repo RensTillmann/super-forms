@@ -227,7 +227,7 @@
                 form = SUPER.get_frontend_or_backend_form(el),
                 format = el.dataset.format, //'MM/dd/yyyy';
                 jsformat = el.dataset.jsformat, //'MM/dd/yyyy';
-                isRtl = (el.closest('.super-form') ? el.closest('.super-form').classList.contains('super-rtl') : false),
+                isRTL = (el.closest('.super-form') ? el.closest('.super-form').classList.contains('super-rtl') : false),
                 min = el.dataset.minlength,
                 max = el.dataset.maxlength,
                 workDays = (el.dataset.workDays == 'true'),
@@ -235,9 +235,18 @@
                 regex = /\{(.*?)\}/g,
                 range = el.dataset.range,
                 firstDay = el.dataset.firstDay,
+                localization = el.dataset.localization,
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
                 parse,year,month,firstDate,$date,days,found,date,fullDate,dateFrom,
                 dateTo,d1,d2,from,to,check,day,exclDays,exclDates,exclDatesReplaced,
+                changeMonth = (typeof el.dataset.changeMonth !== 'undefined' ? 'true' : 'false'),
+                changeYear = (typeof el.dataset.changeYear !== 'undefined' ? 'true' : 'false'),
+                showMonthAfterYear = (typeof el.dataset.showMonthAfterYear !== 'undefined' ? true : 'false'),
+                showWeek = (typeof el.dataset.showWeek !== 'undefined' ? 'true' : 'false'),
+                numberOfMonths = (typeof el.dataset.numberOfMonths !== 'undefined' ? parseInt(el.dataset.numberOfMonths, 10) : 1),
+                showOtherMonths = (typeof el.dataset.showOtherMonths !== 'undefined' ? 'true' : 'false'),
+                selectOtherMonths = (typeof el.dataset.selectOtherMonths !== 'undefined' ? 'true' : 'false'),
+
                 // @since 2.5.0 - Date.parseExact compatibility
                 parseFormat = [
                     jsformat
@@ -327,7 +336,7 @@
                                 }
                             }
                             // If excluding a specific month
-                            if(exclDatesReplaced[i].length==3){
+                            if(exclDatesReplaced[i].length===3){
                                 if(exclDatesReplaced[i].toLowerCase()==dt.toString('MMM').toLowerCase()){
                                     return [false, "super-disabled-day"];
                                 }
@@ -338,9 +347,9 @@
                                 dateTo = exclDatesReplaced[i].split(';')[1];
                                 d1 = dateFrom.split("-");
                                 d2 = dateTo.split("-");
-                                from = new Date(d1[0], parseInt(d1[1])-1, d1[2]);  // -1 because months are from 0 to 11
-                                to   = new Date(d2[0], parseInt(d2[1])-1, d2[2]);
-                                check = new Date(dt.getFullYear(), parseInt(month)-1, date);
+                                from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
+                                to   = new Date(d2[0], parseInt(d2[1], 10)-1, d2[2]);
+                                check = new Date(dt.getFullYear(), parseInt(month, 10)-1, date);
                                 if(check >= from && check <= to){
                                     return [false, "super-disabled-day"];
                                 }
@@ -382,24 +391,42 @@
                     });
                 },
                 yearRange: range, //'-100:+5', // specifying a hard coded year range
-                changeMonth: true,
-                changeYear: true,
                 showAnim: '',
                 showOn: $(this).parent().find('.super-icon'),
                 minDate: min,
                 maxDate: max,
                 dateFormat: format, //mm/dd/yy    -    yy-mm-dd    -    d M, y    -    d MM, y    -    DD, d MM, yy    -    &apos;day&apos; d &apos;of&apos; MM &apos;in the year&apos; yy
+                firstDay: firstDay,
+                isRTL: isRTL,
+                closeText: super_elements_i18n.closeText,
+                prevText: super_elements_i18n.prevText,
+                nextText: super_elements_i18n.nextText,
+                currentText: super_elements_i18n.currentText,
                 monthNames: super_elements_i18n.monthNames, // set month names
                 monthNamesShort: super_elements_i18n.monthNamesShort, // set short month names
                 dayNames: super_elements_i18n.dayNames, // set days names
                 dayNamesShort: super_elements_i18n.dayNamesShort, // set short day names
                 dayNamesMin: super_elements_i18n.dayNamesMin, // set more short days names
                 weekHeader: super_elements_i18n.weekHeader,
-                firstDay: firstDay,
-                isRTL: isRtl,
-                showMonthAfterYear: false,
-                yearSuffix: ""
+                changeMonth: changeMonth,
+                changeYear: changeYear,
+                showMonthAfterYear: showMonthAfterYear,
+                showWeek: showWeek,
+                numberOfMonths: numberOfMonths,
+                yearSuffix: '',
+                showOtherMonths: showOtherMonths,
+                selectOtherMonths: selectOtherMonths
             });
+            console.log(typeof changeMonth);
+            console.log(changeMonth);
+
+            // @since 4.9.3 - Datepicker localization (language and format)
+            if(localization!==''){
+                console.log($.datepicker.regional[localization]);
+                $.datepicker.regional[localization].yearSuffix = '';
+                $(el).datepicker( "option", $.datepicker.regional[localization] );
+            }
+
             $(el).parent().find('.super-icon').css('cursor','pointer');
         }
         $('.super-datepicker').parent().find('.super-icon').on('click',function(){

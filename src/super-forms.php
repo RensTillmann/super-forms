@@ -1512,17 +1512,17 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'jquery-ui' => array(
-                        'src'     => $backend_path . 'jquery-ui.css',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form',
-                            'edit-super_contact_entry'
-                        ),
-                        'method'  => 'enqueue',
-                    ),
+                    // 'jquery-ui' => array(
+                    //     'src'     => $backend_path . 'jquery-ui.css',
+                    //     'deps'    => '',
+                    //     'version' => SUPER_VERSION,
+                    //     'media'   => 'all',
+                    //     'screen'  => array( 
+                    //         'super-forms_page_super_create_form',
+                    //         'edit-super_contact_entry'
+                    //     ),
+                    //     'method'  => 'enqueue',
+                    // ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.css',
                         'deps'    => '',

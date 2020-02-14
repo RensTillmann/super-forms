@@ -286,7 +286,7 @@
 
                 <div class="super-live-preview"></div>
             </div>
-            <div class="super-elements">
+            <div class="super-elements super-active">
                 <?php
                 echo '<div class="super-element super-element-settings">';
                     echo '<h3><i class="fas fa-th-large"></i>' . esc_html__( 'Element Settings & Options', 'super-forms' ) . '</h3>';
