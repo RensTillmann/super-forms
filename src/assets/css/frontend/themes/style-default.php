@@ -455,7 +455,10 @@ return $import_fonts."
     font-size: ".$v['font_global_size']."px;
     font-family: ".$v['font_global_family'].";
 }
-.super-datepicker-dialog {
+.super-datepicker-dialog,
+.super-datepicker-dialog *,
+.super-datepicker-dialog .ui-datepicker-month,
+.super-datepicker-dialog .ui-datepicker-year {
     font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-button .super-button-name {

@@ -130,6 +130,8 @@
             SUPER.validate_form( form, this, undefined, e, true );
             return false;
         });
+        // Delete WP forms.css stylesheet (we don't want it!)
+        $('#forms-css').remove();
     });
 
 })(jQuery);

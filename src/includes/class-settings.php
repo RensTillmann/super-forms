@@ -1066,7 +1066,7 @@ class SUPER_Settings {
                 // this is currently being used by the Front-end Listing Add-on when "Open via form page" is enabled as the "Edit" button instead of a Modal/Popup
                 'form_location' => array(
                     'name' => esc_html__( 'Where is this form located?', 'super-forms' ),
-                    'desc' => esc_html__( 'Enter the full URL address e.g: https://domain.com/my/page/', 'super-forms' ),
+                    'label' => esc_html__( 'Enter the full URL address e.g: https://domain.com/my/page/', 'super-forms' ) . '<br />(' . esc_html__( 'used by the Front-end Listing Add-on when the "Edit" button has the action "Open via form page" enabled', 'super-forms' ) . ')',
                     'type' => 'text',
                     'default' => self::get_value( $default, 'form_location', $settings, '' )
                 )

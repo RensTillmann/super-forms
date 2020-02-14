@@ -3591,6 +3591,11 @@ class SUPER_Shortcodes {
         
         wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION );
         wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js' );
+        // @since 4.9.3 - datepicker localizations
+        if(empty($atts['localization'])) $atts['localization'] = '';
+        if(!empty($atts['localization'])){
+            wp_enqueue_script( 'jquery-ui-datepicker-' . $atts['localization'], SUPER_PLUGIN_FILE . 'assets/js/frontend/datepicker/i18n/datepicker-' . $atts['localization'] . '.js' );
+        }
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
@@ -3688,7 +3693,6 @@ class SUPER_Shortcodes {
                 $jsformat = str_replace('y', 'yy', $jsformat);
             }
         }
-
         $result .= ' value="' . esc_attr($atts['value']) . '" 
         name="' . esc_attr($atts['name']) . '" 
         data-format="' . esc_attr($format) . '" 
@@ -3698,7 +3702,15 @@ class SUPER_Shortcodes {
         data-connected-max="' . esc_attr($atts['connected_max']) . '" 
         data-connected-max-days="' . esc_attr($atts['connected_max_days']) . '" 
         data-range="' . esc_attr($atts['range']) . '" 
-        data-first-day="' . esc_attr($atts['first_day']) . '" ';
+        data-first-day="' . esc_attr($atts['first_day']) . '"
+        data-localization="' . esc_attr($atts['localization']) . '"
+        data-changeMonth="' . ( !isset($atts['changeMonth']) ? 'true' : esc_attr($atts['changeMonth']) ) . '"
+        data-changeYear="' . ( !isset($atts['changeMonth']) ? 'true' : esc_attr($atts['changeYear']) ) . '"
+        data-showMonthAfterYear="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showMonthAfterYear']) ) . '"
+        data-showWeek="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showWeek']) ) . '"
+        data-numberOfMonths="' . ( !isset($atts['changeMonth']) ? '1' : esc_attr($atts['numberOfMonths']) ) . '"
+        data-showOtherMonths="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showOtherMonths']) ) . '"
+        data-selectOtherMonths="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['selectOtherMonths']) ) . '" ';
 
         // @since 1.5.0 - Allow work days selection
         if( !empty($atts['work_days']) ) {

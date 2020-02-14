@@ -1947,6 +1947,7 @@
         });
 
         function cancel_update() {
+            $('.super-elements.super-active').removeClass('super-active');
             $('.super-preview-elements .super-element').removeClass('editing');
             $('.super-element.super-element-settings .super-elements-container').html('<p>' + super_create_form_i18n.not_editing_an_element + '</p>');
         }
@@ -2033,8 +2034,16 @@
         });
 
         $doc.on('click', '.super-elements .super-element h3', function () {
-            $(this).parent().children('.super-elements-container').slideToggle();
-            $(this).parent().siblings().children().next('.super-elements-container').slideUp();
+            if($(this).parent().hasClass('super-active')){
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $('.super-elements.super-active').removeClass('super-active');
+            }else{
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $(this).parent().addClass('super-active');
+                $('.super-elements').addClass('super-active');
+            }
+            $(this).parent().children('.super-elements-container').slideToggle(0);
+            $(this).parent().siblings().children().next('.super-elements-container').slideUp(0);
             return false;
         });
 
@@ -2068,6 +2077,7 @@
         });
 
         $doc.on('click', '.super-element-actions .edit', function () {
+            $('.super-elements').addClass('super-active');
             var $parent = $(this).parents('.super-element:eq(0)');
             if ($parent.hasClass('editing')) {
                 return false;
@@ -3267,4 +3277,8 @@
         });
 
     });
+    $(document).ready(function($){
+        $('body.wp-admin').addClass('folded');
+    });
+    
 })(jQuery);

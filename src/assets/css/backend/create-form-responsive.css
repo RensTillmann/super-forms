@@ -7,7 +7,10 @@
     for more specific device targeting (feeling4design).
 */
 
-@media only screen and (min-width: 100px) and (max-width: 479px) {
+@media only screen and (max-width: 1145px) {
+    .super-header .super-actions span {
+        clear: none;
+    }
     .super-header .form-name {
         width: 245px;
     }
@@ -81,18 +84,12 @@
         width: 48%;
         margin-bottom: 5px!important;
     }
-    .super-element > .super-elements-container > .super-element {
-        width: 50%;
-    }
     .super-elements .super-element .super-elements-container,
     .super-element-settings .tab-content, .super-form-settings .tab-content {
         max-height: inherit!important;
-    }    
-    .super-element-settings .field-input .super-multi-items input {
-        width:43%;
     }
 }
-@media only screen and (min-width: 480px) and (max-width: 767px) {
+@media only screen and (min-width: 480px) and (max-width: 1145px) {
     .super-switch-forms {
         margin-bottom: 5px;
     }
@@ -127,8 +124,21 @@
         padding: 0px 10px 0px 10px;
         width: auto;
     }
+    .super-builder {
+        flex-wrap: wrap-reverse;
+    }
+
+    .super-elements:hover,
+    .super-elements.super-active {
+        width: 100%;
+        max-width: 500px;
+    }
+    .super-form-history {
+        margin-bottom:5px;
+    }
     .super-preview {
         width: 100%;
+        padding: 0px 0px 0px 30px;
     }
     .super-preview-elements {
         padding: 5px;
@@ -166,6 +176,7 @@
     .super-elements {
         width: 100%;
         margin-top: 20px;
+        margin-bottom: 20px;
         padding: 0px;
         max-width: none!important;
     }
@@ -173,18 +184,12 @@
         width: 23%;
         margin-bottom: 5px!important;
     }
-    .super-element > .super-elements-container > .super-element {
-        width: 33.33%;
-    }
     .super-elements .super-element .super-elements-container,
     .super-element-settings .tab-content, .super-form-settings .tab-content {
         max-height: inherit!important;
-    }
-    .super-element-settings .field-input .super-multi-items input {
-        width:44%;
     }       
 }
-@media only screen and (min-width: 768px) and (max-width: 999px) {
+@media only screen and (min-width: 768px) and (max-width: 1145px) {
     .super-header .super-actions {
         float: left;
         margin: 10px 0px 5px 0px;
@@ -243,9 +248,6 @@
     .super-element-settings .tab-content, .super-form-settings .tab-content {
         max-height: inherit!important;
     }
-    .super-element-settings .field-input .super-multi-items textarea {
-        width:46%;
-    }
 }
 @media only screen and (min-width: 1000px) and (max-width: 1500px) {
     .super-element.super-layout-elements > .super-elements-container > .super-element {
@@ -256,18 +258,5 @@
 @media only screen and (min-width: 1000px) and (max-width: 1679px) {
     .super-element > .super-elements-container > .super-element {
         width: 50%;
-    }
-    .super-element-settings .field-input .super-multi-items textarea {
-        width:35%;
-    }
-}
-@media only screen and (min-width: 1280px) and (max-width: 1999px) {
-    .super-element-settings .field-input .super-multi-items textarea {
-        width:40%;
-    }
-}
-@media only screen and (min-width: 2000px)  {
-    .super-element-settings .field-input .super-multi-items textarea {
-        width:45%;
     }
 }
