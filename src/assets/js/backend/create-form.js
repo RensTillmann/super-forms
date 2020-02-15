@@ -1399,9 +1399,7 @@
         SUPER.init_drop_here_placeholder();
         SUPER.init_dragable_elements();
         SUPER.init_image_browser();
-
-        $('.super-layout-elements .super-elements-container').css('display', 'block');
-
+        $('.super-layout-elements').addClass('super-active');
         SUPER.init_resize_element_labels();
 
         // @since 2.9.0 - Form setup wizard
@@ -1947,9 +1945,8 @@
         });
 
         function cancel_update() {
-            $('.super-elements.super-active').removeClass('super-active');
+            $('.super-elements.super-active, .super-element.super-active').removeClass('super-active');
             $('.super-preview-elements .super-element').removeClass('editing');
-            $('.super-element.super-element-settings .super-elements-container').html('<p>' + super_create_form_i18n.not_editing_an_element + '</p>');
         }
 
         $doc.on('click', '.super-element-settings .cancel-update', function () {
@@ -2042,8 +2039,6 @@
                 $(this).parent().addClass('super-active');
                 $('.super-elements').addClass('super-active');
             }
-            $(this).parent().children('.super-elements-container').slideToggle(0);
-            $(this).parent().siblings().children().next('.super-elements-container').slideUp(0);
             return false;
         });
 
@@ -2077,6 +2072,7 @@
         });
 
         $doc.on('click', '.super-element-actions .edit', function () {
+            cancel_update();
             $('.super-elements').addClass('super-active');
             var $parent = $(this).parents('.super-element:eq(0)');
             if ($parent.hasClass('editing')) {
@@ -2089,13 +2085,12 @@
             if ($tag == 'column') {
                 $data.size = $parent.attr('data-size');
             }
+            $('.super-element-settings').addClass('super-active');
             var $target = $('.super-element-settings > .super-elements-container');
             $target.html('');
             $('.super-preview-elements .super-element').removeClass('editing');
             $parent.addClass('editing');
-
-            $('.super-element .super-elements-container').hide();
-            $('.super-element.super-element-settings .super-elements-container').show().addClass('super-loading');
+            $target.addClass('super-loading');
 
             // Check if in translation mode
             var xhttp = new XMLHttpRequest();
@@ -2394,40 +2389,30 @@
 
         // @since   1.0.6
         var $elements = $('.super-create-form .super-elements');
-        $(window).on('load scroll resize', function () {
-            var $width = $elements.outerWidth(true);
+        $(window).on('load resize', function () {
             init_form_settings_container_heights();
+            
+        });
+
+        $(window).on('scroll', function () {
             var $window_width = $(window).outerWidth(true);
-            if ($window_width >= 983) {
-                var $scroll = $(window).scrollTop();
-                if ($scroll > 40) {
-                    $('.super-create-form .super-elements').css('max-width', $width + 'px');
-                    $('.super-create-form').addClass('sticky');
-                } else {
-                    $('.super-create-form .super-elements').css('max-width', '');
-                    $('.super-create-form').removeClass('sticky');
-                }
-            } else {
-                $('.super-create-form .super-elements').css('max-width', '');
-                $('.super-create-form').removeClass('sticky');
+            if ($window_width > 1145) {
+                var $scrolled = $(window).scrollTop();
+                $('.super-actions, .super-elements').css('transform','translateY('+$scrolled+'px)');
             }
         });
 
         function init_form_settings_container_heights() {
-            var $window_height = $(window).outerHeight(true);
-            var $wp_admin_bar = $('#wpadminbar').outerHeight(true) + 55;
-            var $offset_top = $('.super-create-form').offset().top;
-            var $tabs_height = 0;
-            var $container_padding = 50;
-            var $settings_tab = 20;
-            $('.super-create-form .super-elements > .super-element h3').each(function () {
-                $tabs_height = $(this).outerHeight(true) + $tabs_height;
-            });
-            var $max_height = $window_height - $tabs_height - $wp_admin_bar - $offset_top;
-            $('.super-element-settings > .super-elements-container > .tab-content').css('max-height', $max_height - $settings_tab - $container_padding);
-            $('.super-form-settings > .super-elements-container > .tab-content').css('max-height', $max_height - $settings_tab - $container_padding);
-            $('.super-form-elements > .super-elements-container').css('max-height', $max_height);
-            $('.super-shortcode-fields .tabs_content').css('max-height', ($window_height / 2));
+            var $window_width = $(window).outerWidth(true);
+            if ($window_width > 1145) {
+                var windowHeight = $(window).outerHeight(true);
+                var actions = $('.super-actions').outerHeight(true);
+                var elementsHeight = 0;
+                $('.super-elements .super-element h3').each(function(){
+                    elementsHeight += $(this).outerHeight(true);
+                })
+                $('.super-elements-container > .tab-content').css('max-height', windowHeight-(elementsHeight+actions)-167);
+            }
         }
 
         SUPER.regenerate_element_inner($('.super-preview-elements'), false);

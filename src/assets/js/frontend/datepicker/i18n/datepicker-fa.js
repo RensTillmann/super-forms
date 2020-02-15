@@ -2,13 +2,14 @@
 /* Javad Mowlanezhad -- jmowla@gmail.com */
 /* Jalali calendar should supported soon! (Its implemented but I have to test it) */
 ( function( factory ) {
+	// eslint-disable-next-line no-undef
 	if ( typeof define === "function" && define.amd ) {
-
 		// AMD. Register as an anonymous module.
+		// eslint-disable-next-line no-undef
 		define( [ "../widgets/datepicker" ], factory );
 	} else {
-
 		// Browser globals
+		// eslint-disable-next-line no-undef
 		factory( jQuery.datepicker );
 	}
 }( function( datepicker ) {

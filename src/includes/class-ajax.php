@@ -1499,8 +1499,8 @@ class SUPER_Ajax {
                     $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
                 }else{
                     // Just remove deleted translations
-                    if(!empty($v['data']['i18n'])){
-                        foreach($v['data']['i18n'] as $ik => $iv){
+                    if( !empty($v['data']['i18n']) && is_array($v['data']['i18n']) ) {
+                        foreach( $v['data']['i18n'] as $ik => $iv ) {
                             if(!isset($translations[$ik])){
                                 // Delete translation
                                 unset($elements[$k]['data']['i18n'][$ik]);

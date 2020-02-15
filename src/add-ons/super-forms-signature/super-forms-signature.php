@@ -409,11 +409,17 @@ if(!class_exists('SUPER_Signature')) :
 	        }else{
 	            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
 	        }
-	        $styles = '';
-	        $image = wp_prepare_attachment_for_js( $atts['background_img'] );
-            if( $image==null ) $image['url'] = plugin_dir_url( __FILE__ ) . 'assets/images/sign-here.png';
+            $styles = '';
+            
+            if( !isset( $atts['background_img'] ) ) $atts['background_img'] = 0;
+            $attachment_id = absint($atts['background_img']);
+            if( $attachment_id===0 ) {
+                $url = plugin_dir_url( __FILE__ ) . 'assets/images/sign-here.png';
+            }else{
+                $url = wp_get_attachment_url( $attachment_id );
+            }
 	        $styles .= 'height:' . $atts['height'] . 'px;';
-	        $styles .= 'background-image:url(\'' . $image['url'] . '\');';
+	        $styles .= 'background-image:url(\'' . esc_url($url) . '\');';
 	        $styles .= 'background-size:' . $atts['bg_size'] . 'px;';
 	        $result .= '<div class="super-signature-canvas" style="' . $styles . '"></div>';
 	        $result .= '<span class="super-signature-clear"></span>';
