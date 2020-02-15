@@ -42,6 +42,8 @@
                     $new_files = $new_files ? $new_files + "," + $(this).attr('data-file') : $(this).attr('data-file');
                 });
                 $field.val($new_files);
+                // First make sure to update the multi items json
+                SUPER.update_multi_items();
             });
             $button.on('click', function () {
                 $('.ui-widget-overlay').hide();

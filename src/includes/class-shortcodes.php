@@ -2088,8 +2088,14 @@ class SUPER_Shortcodes {
 
         // @since 4.9.0 - display image if set, otherwise the icon if set
         if( !empty($atts['step_image']) ) {
-            $image = wp_prepare_attachment_for_js( $atts['step_image'] );
-            $result .= ' data-image="' . esc_url($image['url']) . '"';
+            if( !isset( $atts['step_image'] ) ) $atts['step_image'] = 0;
+            $attachment_id = absint($atts['step_image']);
+            if( $attachment_id===0 ) {
+                $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+            }else{
+                $url = wp_get_attachment_url( $attachment_id );
+            } 
+            $result .= ' data-image="' . esc_url($url) . '"';
         }else{
             if( !empty($atts['show_icon']) ) {
                 $result .= ' data-icon="' . esc_attr($atts['icon']) . '"';
@@ -3520,7 +3526,15 @@ class SUPER_Shortcodes {
 
         // @since 1.2.8
         if( ($atts['enable_image_button']=='true') && ($atts['image']!='') ) {
-            $image = wp_prepare_attachment_for_js( $atts['image'] );
+            if( !isset( $atts['image'] ) ) $atts['image'] = 0;
+            $attachment_id = absint($atts['image']);
+            if( $attachment_id===0 ) {
+                $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+            }else{
+                $title = get_the_title( $attachment_id );
+                $url = wp_get_attachment_url( $attachment_id );
+                $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+            } 
             $img_styles = '';
             if( !isset( $atts['max_img_width'] ) ) $atts['max_img_width'] = 0;
             if( !isset( $atts['max_img_height'] ) ) $atts['max_img_height'] = 0;
@@ -3530,10 +3544,10 @@ class SUPER_Shortcodes {
             if( $atts['max_img_height']>0 ) {
                 $img_styles .= 'max-height:' . $atts['max_img_height'] . 'px;';
             }
-            if($img_styles!='') $img_styles = 'style="' . $img_styles . '" ';
-            $result .= '<img src="' . $image['url'] . '" ' . $img_styles . 'alt="' . $image['alt'] . '" title="' . $image['title'] . '" />';
+            if($img_styles!='') $img_styles = 'style="' . esc_attr($img_styles) . '" ';
+            $result .= '<img src="' . esc_url($url) . '" ' . $img_styles . 'alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" />';
         }else{
-            $result .= '<i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . $atts['placeholder'] . '</span>';
+            $result .= '<i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . esc_html($atts['placeholder']) . '</span>';
         }
 
         $result .= '</div>';
@@ -4021,8 +4035,6 @@ class SUPER_Shortcodes {
         $style = '';
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
         if( $atts['width']!=0 ) $style .= 'max-width:' . $atts['width'] . 'px;';
-        if( !isset( $atts['image'] ) ) $atts['image'] = 0;
-        $image = wp_prepare_attachment_for_js( $atts['image'] );
         $url = '';
         if( !isset( $atts['link'] ) ) $atts['link'] = '';
         if( $atts['link']!='' ) {
@@ -4033,21 +4045,26 @@ class SUPER_Shortcodes {
             }
             $url = ' href="' . esc_url($url) . '"';
         }
-        $result .= '<div class="super-image align-' . $atts['alignment'] . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
+        $result .= '<div class="super-image align-' . esc_attr($atts['alignment']) . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
         $result .= '<div class="super-image-inner">';
         if( !isset( $atts['target'] ) ) $atts['target'] = '';
-        $result .= '<a target="' . $atts['target'] . '"' . $url . '>';
+        $result .= '<a target="' . esc_attr($atts['target']) . '"' . $url . '>';
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        if( ($image==null) || ($image['url']=='') ) {
-            $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-            $result .= '<img src="' . $image . '"' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' itemprop="contentURL"';
+        if( !isset( $atts['image'] ) ) $atts['image'] = 0;
+        $attachment_id = absint($atts['image']);
+        if( $attachment_id===0 ) {
+            $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' itemprop="contentURL"';
         }else{
-            $result .= '<img src="' . $image['url'] . '"' . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' alt="' . $image['alt'] . '" title="' . $image['title'] . '" itemprop="contentURL"';
-        }
-        if( !empty( $style ) ) $result .= ' style="' . $style . '"';
+            $title = get_the_title( $attachment_id );
+            $url = wp_get_attachment_url( $attachment_id );
+            $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" itemprop="contentURL"';
+        } 
+        if( !empty( $style ) ) $result .= ' style="' . esc_attr($style) . '"';
         $result .= '>';
         $result .= '</a>';
         $result .= '</div>';
@@ -5563,7 +5580,6 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
 
         // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
         if( !empty($settings['user_form_locker']) ) {

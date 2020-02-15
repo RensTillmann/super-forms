@@ -1,13 +1,14 @@
 /* Lithuanian (UTF-8) initialisation for the jQuery UI date picker plugin. */
 /* @author Arturas Paleicikas <arturas@avalon.lt> */
 ( function( factory ) {
+	// eslint-disable-next-line no-undef
 	if ( typeof define === "function" && define.amd ) {
-
 		// AMD. Register as an anonymous module.
+		// eslint-disable-next-line no-undef
 		define( [ "../widgets/datepicker" ], factory );
 	} else {
-
 		// Browser globals
+		// eslint-disable-next-line no-undef
 		factory( jQuery.datepicker );
 	}
 }( function( datepicker ) {

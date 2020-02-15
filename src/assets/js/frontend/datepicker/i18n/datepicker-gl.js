@@ -1,13 +1,14 @@
 /* Galician localization for 'UI date picker' jQuery extension. */
 /* Translated by Jorge Barreiro <yortx.barry@gmail.com>. */
 ( function( factory ) {
+	// eslint-disable-next-line no-undef
 	if ( typeof define === "function" && define.amd ) {
-
 		// AMD. Register as an anonymous module.
+		// eslint-disable-next-line no-undef
 		define( [ "../widgets/datepicker" ], factory );
 	} else {
-
 		// Browser globals
+		// eslint-disable-next-line no-undef
 		factory( jQuery.datepicker );
 	}
 }( function( datepicker ) {

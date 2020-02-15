@@ -2,15 +2,15 @@
 /* Used in most of Arab countries, primarily in Bahrain, */
 /* Kuwait, Oman, Qatar, Saudi Arabia and the United Arab Emirates, Egypt, Sudan and Yemen. */
 /* Written by Mohammed Alshehri -- m@dralshehri.com */
-
 ( function( factory ) {
+	// eslint-disable-next-line no-undef
 	if ( typeof define === "function" && define.amd ) {
-
 		// AMD. Register as an anonymous module.
+		// eslint-disable-next-line no-undef
 		define( [ "../widgets/datepicker" ], factory );
 	} else {
-
 		// Browser globals
+		// eslint-disable-next-line no-undef
 		factory( jQuery.datepicker );
 	}
 }( function( datepicker ) {
