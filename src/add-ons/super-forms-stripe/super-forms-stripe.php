@@ -625,6 +625,10 @@ if(!class_exists('SUPER_Stripe')) :
                 ),
                 'method'  => 'enqueue'
             );
+            if(isset($scripts['masked-currency'])){
+                $scripts['masked-currency']['screen'][] = 'super-forms_page_super_stripe_dashboard';
+            }
+
             return $scripts;
         }
 
