@@ -699,7 +699,7 @@
     font-size: 24px;
 }
 .super-preview-elements {
-    margin: 0px 0px 0px 0px;
+    margin: 10px 0px 0px 0px;
     padding: 10px;
     min-height: 190px;
     background: #fff;
@@ -712,6 +712,7 @@
 }
 .super-preview-elements .super-field {
     display: block!important;
+    margin-bottom: 0!important;
 }
 .super-translation-mode .super-preview-elements .super-field {
     margin:0px!important;
