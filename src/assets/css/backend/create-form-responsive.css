@@ -41,37 +41,37 @@
     .super-preview {
         width: 100%;
     }
-    .super-preview-elements.super-form {
+    .super-preview-elements {
         padding: 5px;
     }
-    .super-preview-elements.super-form .super-element.super_one_full {
+    .super-preview-elements .super-element.super_one_full {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_four_fifth {
+    .super-preview-elements .super-element.super_four_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_three_fourth {
+    .super-preview-elements .super-element.super_three_fourth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_two_third {
+    .super-preview-elements .super-element.super_two_third {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_three_fifth {
+    .super-preview-elements .super-element.super_three_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_half {
+    .super-preview-elements .super-element.super_one_half {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_two_fifth {
+    .super-preview-elements .super-element.super_two_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_third {
+    .super-preview-elements .super-element.super_one_third {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_fourth {
+    .super-preview-elements .super-element.super_one_fourth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_fifth {
+    .super-preview-elements .super-element.super_one_fifth {
         width: 99%;
     }
     .super-elements {
@@ -140,37 +140,37 @@
         width: 100%;
         padding: 0px 0px 0px 30px;
     }
-    .super-preview-elements.super-form {
+    .super-preview-elements {
         padding: 5px;
     }
-    .super-preview-elements.super-form .super-element.super_one_full {
+    .super-preview-elements .super-element.super_one_full {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_four_fifth {
+    .super-preview-elements .super-element.super_four_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_three_fourth {
+    .super-preview-elements .super-element.super_three_fourth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_two_third {
+    .super-preview-elements .super-element.super_two_third {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_three_fifth {
+    .super-preview-elements .super-element.super_three_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_half {
+    .super-preview-elements .super-element.super_one_half {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_two_fifth {
+    .super-preview-elements .super-element.super_two_fifth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_third {
+    .super-preview-elements .super-element.super_one_third {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_fourth {
+    .super-preview-elements .super-element.super_one_fourth {
         width: 99%;
     }
-    .super-preview-elements.super-form .super-element.super_one_fifth {
+    .super-preview-elements .super-element.super_one_fifth {
         width: 99%;
     }
     .super-elements {
@@ -228,7 +228,7 @@
     .super-preview {
         width: 100%;
     }
-    .super-preview-elements.super-form {
+    .super-preview-elements {
         padding: 5px;
     }
     .super-elements {
