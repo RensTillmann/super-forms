@@ -11,7 +11,7 @@
     SUPER.Stripe.cards = [];
     SUPER.Stripe.ideal = [];
     SUPER.Stripe.iban = [];
-    SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+    SUPER.Stripe.forms = document.querySelectorAll('.super-form');
     console.log(SUPER.Stripe.forms);
 
     var classes = {
@@ -53,7 +53,7 @@
     SUPER.init_stripe_elements = function() {
         console.log('test1');
         console.log(SUPER.Stripe.forms);
-        SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+        SUPER.Stripe.forms = document.querySelectorAll('.super-form');
         SUPER.Stripe.forms.forEach(function(form, index) {
             console.log('test2');
             if(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')){
@@ -133,7 +133,7 @@
 
     // Handle form submission.
     SUPER.stripe_ideal_create_payment_method = function($form, $data, $old_html, $response) {
-        SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+        SUPER.Stripe.forms = document.querySelectorAll('.super-form');
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) ) {
                 console.log('match ideal!');
@@ -194,7 +194,7 @@
 
     // Handle form submission.
     SUPER.stripe_iban_create_payment_method = function($form, $data, $old_html, $response) {
-        SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+        SUPER.Stripe.forms = document.querySelectorAll('.super-form');
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')) ) {
                 console.log('match iban!');
@@ -367,7 +367,7 @@
     // Handle form submission.
     SUPER.stripe_cc_create_payment_method = function($form, $data, $old_html, $response) {
         console.log('test2222');
-        SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+        SUPER.Stripe.forms = document.querySelectorAll('.super-form');
         SUPER.Stripe.forms.forEach(function(form, index) {
             if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')) ) {
                 console.log('match cc!');
