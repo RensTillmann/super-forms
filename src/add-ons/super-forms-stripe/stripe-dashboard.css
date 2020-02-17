@@ -561,13 +561,19 @@
 
 .super-stripe-currency {
     position: absolute;
-    top: 50%;
+    top: 15px;
     right: 8px;
     z-index: 2;
     margin-top: -9px;
     transition: color 240ms;
     pointer-events: none;
 }
+
+.super-stripe-error {
+    color: #cd3d64;
+    margin:5px 0px 0px 0px;
+}
+
 
 .super-field-type-currency input {
     padding-right: 50px;

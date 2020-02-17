@@ -26,8 +26,6 @@
             for (var i = 0; i < e.length; i++) {
                 e[i].remove();
             }
-        } else {
-            e.remove();
         }
         return true;
     };
@@ -187,34 +185,37 @@
                             html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="height: 12px; width: 12px;"><path d="M11.891 9.992a1 1 0 1 1 1.416 1.415l-4.3 4.3a1 1 0 0 1-1.414 0l-4.3-4.3A1 1 0 0 1 4.71 9.992l3.59 3.591 3.591-3.591zm0-3.984L8.3 2.417 4.709 6.008a1 1 0 0 1-1.416-1.415l4.3-4.3a1 1 0 0 1 1.414 0l4.3 4.3a1 1 0 1 1-1.416 1.415z"></path></svg>';
                         }
                         if (type === 'currency') {
-                            var currency = json.currency.toUpperCase(),
-                                amount = json.amount,
+                            var currency = 'EUR', // json.currency.toUpperCase(),
+                                amount = json.amount/100,
                                 // eslint-disable-next-line no-undef
                                 value = OSREC.CurrencyFormatter.format(amount, {
-                                    currency: currency
+                                    pattern: '#,##0.00'
                                 });
 
-                            // TJS (Tajikistani somoni) is not supported, we have to use our own formatting
-                            // [ЅM](! #,##0.00)
-                            if (currency == 'TJS') {
-                                // eslint-disable-next-line no-undef
-                                value = OSREC.CurrencyFormatter.format(amount, {
-                                    currency: currency,
-                                    symbol: 'ЅM',
-                                    pattern: '! #,##0.00'
-                                });
-                            }
-                            //  RON (Romanian leu) is not supported, we have to use our own formatting
-                            // [lei](! #,##0.00)
-                            if (currency == 'RON') { // Romanian leu
-                                // eslint-disable-next-line no-undef
-                                value = OSREC.CurrencyFormatter.format(amount, {
-                                    currency: currency,
-                                    symbol: 'lei',
-                                    pattern: '! #,##0.00'
-                                });
-                            }
-                            html += '<input type="text" name="' + key + '" value="' + value + '" />';
+                            // // TJS (Tajikistani somoni) is not supported, we have to use our own formatting
+                            // // [ЅM](! #,##0.00)
+                            // if (currency == 'TJS') {
+                            //     // eslint-disable-next-line no-undef
+                            //     value = OSREC.CurrencyFormatter.format(amount, {
+                            //         currency: currency,
+                            //         symbol: 'ЅM',
+                            //         pattern: '! #,##0.00'
+                            //     });
+                            // }
+                            // //  RON (Romanian leu) is not supported, we have to use our own formatting
+                            // // [lei](! #,##0.00)
+                            // if (currency == 'RON') { // Romanian leu
+                            //     // eslint-disable-next-line no-undef
+                            //     value = OSREC.CurrencyFormatter.format(amount, {
+                            //         currency: currency,
+                            //         symbol: 'lei',
+                            //         pattern: '! #,##0.00'
+                            //     });
+                            // }
+                            console.log(json);
+                            console.log(value);
+                            console.log(OSREC.CurrencyFormatter.parse(value)); // Returns 100.99
+                            html += '<input type="text" name="' + key + '" value="' + value + '" sfevents=\'{"keyup":{"api.refund.validateAmount":{"max":'+amount+', "currency":"'+currency+'"}}}\' />';
                             html += '<span class="super-stripe-currency">' + currency + '</span>';
                         }
                         html += '</div>';
@@ -225,6 +226,16 @@
                 modalContainer.innerHTML = html;
                 modalWrapper.appendChild(modalContainer);
                 document.body.appendChild(modalWrapper);
+                if(app.q('.super-field-type-currency input')){
+                    // eslint-disable-next-line no-undef
+                    jQuery(app.q('.super-field-type-currency input')).maskMoney({
+                        affixesStay: true,
+                        allowNegative: true,
+                        thousands: ',',
+                        decimal: '.',
+                        precision: 2
+                    });
+                }
                 app.ui.modal.reposition(modalContainer);
                 app.ui.contextMenu.close();
                 app.ui.backdrop.add();
@@ -235,6 +246,9 @@
                 var node, i18n = super_stripe_dashboard_i18n.refundReasons;
                 if (target.parentNode.querySelector('textarea')) {
                     target.parentNode.querySelector('textarea').remove();
+                }
+                if(target.parentNode.querySelector('i')) {
+                    target.parentNode.querySelector('i').remove();
                 }
                 switch (target.value) {
                     case 'duplicate':
@@ -465,8 +479,20 @@
         },
 
         // Refund
-        refund: function () {
-            alert('Refund payment API requests...');
+        refund: {
+            validateAmount: function (e, target, eventType, attr) {
+                var amount = parseFloat(target.value);
+                var msg = '';
+                if(amount<=0) msg = 'Refund cannot be '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
+                if(parseFloat(target.value) > parseFloat(attr.max))  msg = 'Refund cannot be more than '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
+                app.remove(app.qa('.super-stripe-error'));
+                if(msg!==''){
+                    var node = document.createElement('p');
+                    node.className = 'super-stripe-error';
+                    node.innerHTML = msg;
+                    target.parentNode.appendChild(node);
+                }
+            }
         },
 
         // Invoice
@@ -964,6 +990,9 @@
         ],
         change: [
             '.super-stripe-field-wrapper select'
+        ],
+        keyup: [
+            '.super-field-type-currency input'
         ]
     };
     Object.keys(app.events).forEach(function (eventType) {
