@@ -166,7 +166,7 @@
     overflow: initial;
     color: white;
     height: 30px!important;
-    line-height: 30px!important;
+    line-height: normal!important;
     padding: 8px 15px 8px 15px!important;
     float: initial;
     font-size: 12px!important;
