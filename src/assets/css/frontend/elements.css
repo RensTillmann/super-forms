@@ -3564,11 +3564,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   background: #fafafa;
   border-color: #555d66;
   color: #23282d;
-  -webkit-box-shadow: "inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)";
-  -moz-box-shadow: "inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)";
-  -ms-box-shadow: "inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)";
-  -o-box-shadow: "inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)";
-  box-shadow: "inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)";
+  -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08);
+  -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08);
+  -ms-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08);
+  -o-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08);
   outline: 0;
 }
 .super-form .mce-ico.mce-i-resize {
@@ -5204,18 +5204,18 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-accordion-item .super-accordion-header, .super-accordion-item .super-accordion-content {
-  -webkit-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)";
-  -moz-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)";
-  -ms-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)";
-  -o-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)";
-  box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)";
+  -webkit-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25);
+  -moz-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25);
+  -ms-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25);
+  -o-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25);
+  box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25);
 }
 .super-accordion-item .super-accordion-header:hover, .super-accordion-item .super-accordion-content:hover {
-  -webkit-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)";
-  -moz-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)";
-  -ms-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)";
-  -o-box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)";
-  box-shadow: "3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)";
+  -webkit-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45);
+  -moz-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45);
+  -ms-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45);
+  -o-box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45);
+  box-shadow: 3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45);
 }
 
 .super-accordion-image {
@@ -5264,11 +5264,11 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-accordion-item.super-active > .super-accordion-header, .super-accordion-item.super-active > .super-accordion-content {
-  -webkit-box-shadow: "3px 3px 6px #ddd, -3px 3px 6px #ddd";
-  -moz-box-shadow: "3px 3px 6px #ddd, -3px 3px 6px #ddd";
-  -ms-box-shadow: "3px 3px 6px #ddd, -3px 3px 6px #ddd";
-  -o-box-shadow: "3px 3px 6px #ddd, -3px 3px 6px #ddd";
-  box-shadow: "3px 3px 6px #ddd, -3px 3px 6px #ddd";
+  -webkit-box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
+  -moz-box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
+  -ms-box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
+  -o-box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
+  box-shadow: 3px 3px 6px #ddd, -3px 3px 6px #ddd;
   max-height: 99999999px;
 }
 .super-accordion-item.super-active > .super-accordion-content > * {

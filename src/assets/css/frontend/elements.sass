@@ -62,6 +62,12 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
   -ms-box-shadow: $property
   -o-box-shadow: $property
   box-shadow: $property
+=boxShadow2($property, $property2)
+  -webkit-box-shadow: $property, $property2
+  -moz-box-shadow: $property, $property2
+  -ms-box-shadow: $property, $property2
+  -o-box-shadow: $property, $property2
+  box-shadow: $property, $property2
 
 =boxSizing($property)
   -moz-box-sizing: $property
@@ -72,10 +78,10 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
   z-index: 2999999999!important
 
 .super-initialized,
-.super-multipart-progress,
-ul.super-multipart-steps
-  *
-    +transition(all .5s ease-out 0s)
+  .super-multipart-progress,
+  ul.super-multipart-steps
+    *
+      +transition(all .5s ease-out 0s)
 .super-progress-bar
   float: left
   height: 4px
@@ -2868,7 +2874,7 @@ ul.super-multipart-steps .super-multipart-step
       background: #fafafa
       border-color: #555d66
       color: #23282d
-      +boxShadow('inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08)')
+      +boxShadow2(inset 0 1px 0 #fff, 0 1px 0 rgba(0, 0, 0, 0.08))
       outline: 0
   .mce-ico.mce-i-resize
     font-family: tinymce, Arial
@@ -4198,9 +4204,9 @@ ul.super-multipart-steps .super-multipart-step
     +transform(rotate(90deg))
 .super-accordion-item
   .super-accordion-header, .super-accordion-content
-    +boxShadow('3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25)')
+    +boxShadow2(3px 3px 6px rgba(221, 221, 221, 0.25), -3px 3px 6px rgba(221, 221, 221, 0.25))
     &:hover
-      +boxShadow('3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45)')
+      +boxShadow2(3px 3px 6px rgba(221, 221, 221, 0.45), -3px 3px 6px rgba(221, 221, 221, 0.45))
 .super-accordion-image
   padding: 0px 10px 0px 10px
   display: flex
@@ -4228,7 +4234,7 @@ ul.super-multipart-steps .super-multipart-step
   display: none
 .super-accordion-item.super-active
   > .super-accordion-header, > .super-accordion-content
-    +boxShadow('3px 3px 6px #ddd, -3px 3px 6px #ddd')
+    +boxShadow2(3px 3px 6px #ddd, -3px 3px 6px #ddd)
     max-height: 99999999px
   > .super-accordion-content > *
     display: block
