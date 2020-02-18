@@ -113,8 +113,8 @@ class SUPER_Pages {
                         RTL
                     </div>
                     <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" data-title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="choose a language first!">
-                    <div class="edit super-tooltip" data-title="<?php echo esc_html__('Edit Translation', 'super-forms' ); ?>"></div>
-                    <div class="delete super-tooltip" data-title="<?php echo esc_html__('Delete Translation', 'super-forms' ); ?>"></div>
+                    <div class="super-edit super-tooltip" data-title="<?php echo esc_html__('Edit Translation', 'super-forms' ); ?>"></div>
+                    <div class="super-delete super-tooltip" data-title="<?php echo esc_html__('Delete Translation', 'super-forms' ); ?>"></div>
                 </li>
 
                 <?php
@@ -174,10 +174,10 @@ class SUPER_Pages {
                             }
                             ?>
                             <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
-                            <div class="edit super-tooltip" title="<?php echo ($i==0 ? esc_html__('Return to builder', 'super-forms' ) : esc_html__('Edit Translation', 'super-forms' )); ?>"></div>
+                            <div class="super-edit super-tooltip" title="<?php echo ($i==0 ? esc_html__('Return to builder', 'super-forms' ) : esc_html__('Edit Translation', 'super-forms' )); ?>"></div>
                             <?php
                             if($i>0){
-                                echo '<div class="delete super-tooltip" title="' . esc_html__('Delete Translation', 'super-forms' ) . '"></div>';
+                                echo '<div class="super-delete super-tooltip" title="' . esc_html__('Delete Translation', 'super-forms' ) . '"></div>';
                             }
                             ?>
                         </li>
@@ -230,7 +230,7 @@ class SUPER_Pages {
                         }
                         ?>
                         <input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="<?php echo esc_html__('Paste shortcode on any page', 'super-forms' ); ?>" value="<?php echo $shortcode; ?>">
-                        <div class="edit super-tooltip" title="<?php echo esc_html__('Return to builder', 'super-forms' ); ?>"></div>
+                        <div class="super-edit super-tooltip" title="<?php echo esc_html__('Return to builder', 'super-forms' ); ?>"></div>
                     </li>
                     <?php
                 }
@@ -238,8 +238,8 @@ class SUPER_Pages {
 
             </ul>
 
-            <div class="create-translation">
-                <span class="super-button super-create-translation save"><?php echo esc_html__( 'Add Translation', 'super-forms' ); ?></span>
+            <div class="create-translation-wrapper">
+                <span class="super-button super-create-translation super-save"><?php echo esc_html__( 'Add Translation', 'super-forms' ); ?></span>
             </div>
 
         </div>

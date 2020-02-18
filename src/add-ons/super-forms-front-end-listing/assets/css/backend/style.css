@@ -41,8 +41,8 @@ div[data-name="custom_columns"] .super-text:nth-child(4) {
 div[data-name="custom_columns"] .super-text:nth-child(5) {
   max-width: 140px;
 }
-.super-sub-settings .add-column,
-.super-sub-settings .delete-column {
+.super-sub-settings .super-add-column,
+.super-sub-settings .super-delete-column {
     float: left;
     margin-top: 17px;
     height: 30px;
@@ -55,18 +55,18 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
     cursor: pointer;
     padding: 5px 0px 0px 0px;
 }
-.super-sub-settings .delete-column {
+.super-sub-settings .super-delete-column {
     background-color: #f5234b;
     margin-left: 5px;
 }
-.super-sub-settings .add-column:hover {
+.super-sub-settings .super-add-column:hover {
     background-color: #5ea700;
 }
-.super-sub-settings .delete-column:hover {
+.super-sub-settings .super-delete-column:hover {
     background-color: #de153b;
 }
-.super-sub-settings .add-column:before,
-.super-sub-settings .delete-column:before {
+.super-sub-settings .super-add-column:before,
+.super-sub-settings .super-delete-column:before {
     content:'\f067';
     font-weight:900;
     font-family: 'Font awesome 5 free';
@@ -74,7 +74,7 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
     color:#ffffff;
     text-align:center;
 }
-.super-sub-settings .delete-column:before {
+.super-sub-settings .super-delete-column:before {
     content:'\f1f8';
 }
 
@@ -183,8 +183,6 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   display:block;
 }
 
-
-
 .super-create-listing {
     box-shadow: initial;
     border: 0;
@@ -195,7 +193,6 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
     height: 30px!important;
     line-height: 30px!important;
     padding: 0px 15px 0px 15px!important;
-    display: inline-block;
     float: initial;
     font-size: 12px!important;
     position: relative;

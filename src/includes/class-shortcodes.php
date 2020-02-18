@@ -1262,13 +1262,13 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $result .= '<div class="super-element-actions">';
-                    $result .= '<span class="edit super-tooltip" title="' . esc_html__( 'Edit element', 'super-forms' ) . '"><i class="fas fa-pencil-alt"></i></span>';
-                    $result .= '<span class="duplicate super-tooltip" title="' . esc_html__( 'Duplicate element', 'super-forms' ) . '"><i class="fas fa-copy"></i></span>';
-                    $result .= '<span class="move super-tooltip" title="' . esc_html__( 'Reposition element', 'super-forms' ) . '"><i class="fas fa-arrows-alt"></i></span>';
-                    $result .= '<span class="transfer super-tooltip" title="' . esc_html__( 'Transfer this element (also works across forms)', 'super-forms' ) . '"><i class="fas fa-exchange-alt"></i></span>';
-                    $result .= '<span class="transfer-drop super-tooltip" title="' . esc_html__( 'Transfer after this element', 'super-forms' ) . '"><i class="fas fa-arrow-circle-down"></i></span>';
-                    $result .= '<span class="minimize super-tooltip" title="' . esc_html__( 'Minimize', 'super-forms' ) . '"><i class="fas fa-minus-square"></i></span>';
-                    $result .= '<span class="delete super-tooltip" title="' . esc_html__( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
+                    $result .= '<span class="super-edit super-tooltip" title="' . esc_html__( 'Edit element', 'super-forms' ) . '"><i class="fas fa-pencil-alt"></i></span>';
+                    $result .= '<span class="super-duplicate super-tooltip" title="' . esc_html__( 'Duplicate element', 'super-forms' ) . '"><i class="fas fa-copy"></i></span>';
+                    $result .= '<span class="super-move super-tooltip" title="' . esc_html__( 'Reposition element', 'super-forms' ) . '"><i class="fas fa-arrows-alt"></i></span>';
+                    $result .= '<span class="super-transfer super-tooltip" title="' . esc_html__( 'Transfer this element (also works across forms)', 'super-forms' ) . '"><i class="fas fa-exchange-alt"></i></span>';
+                    $result .= '<span class="super-transfer-drop super-tooltip" title="' . esc_html__( 'Transfer after this element', 'super-forms' ) . '"><i class="fas fa-arrow-circle-down"></i></span>';
+                    $result .= '<span class="super-minimize super-tooltip" title="' . esc_html__( 'Minimize', 'super-forms' ) . '"><i class="fas fa-minus-square"></i></span>';
+                    $result .= '<span class="super-delete super-tooltip" title="' . esc_html__( 'Delete', 'super-forms' ) . '"><i class="fas fa-times"></i></span>';
                 $result .= '</div>';
             $result .= '</div>';
             

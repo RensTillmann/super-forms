@@ -1,7 +1,7 @@
 <div class="super-settings">
     <div class="super-header"></div>
     <div class="super-wrapper">
-        <ul class="super-tabs noselect">
+        <ul class="super-tabs super-noselect">
             <?php
             $counter = 0;
             foreach( $fields as $k => $v ) {

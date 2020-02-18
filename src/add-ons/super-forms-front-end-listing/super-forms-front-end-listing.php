@@ -368,8 +368,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                     <textarea name="filter_items" placeholder="<?php echo esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms' ); ?>"><?php echo (isset($cv['filter_items']) ? $cv['filter_items'] : ''); ?></textarea>
                                                 </div>
 
-                                                <span class="add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>
-                                                <span class="delete-column" onclick="SUPER.frontEndListing.deleteColumn(this)"></span>
+                                                <span class="super-add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>
+                                                <span class="super-delete-column" onclick="SUPER.frontEndListing.deleteColumn(this)"></span>
                                             </li>
                                             <?php
                                         }
