@@ -501,11 +501,11 @@
     width: 14px;
     margin: 0px 10px 0px 0px;
 }
-.super-settings .super-export-import-entries .file-preview .delete {
+.super-settings .super-export-import-entries .file-preview .super-delete {
     color:red;
     margin:0px 0px 0px 10px;
 }
-.super-settings .super-export-import-entries .file-preview .delete:hover {
+.super-settings .super-export-import-entries .file-preview .super-delete:hover {
     text-decoration:underline;
     cursor:pointer;
 }
@@ -515,12 +515,12 @@
     width: 100%;
     margin-bottom:10px;
 }
-.super-settings .super-export-import-entries .export-entries {
+.super-settings .super-export-import-entries .super-export-entries {
     float:left;
     display: block;
     margin-top: 25px;
 }
-.super-settings .super-export-import-entries .export-entries[data-type="csv"] {
+.super-settings .super-export-import-entries .super-export-entries[data-type="csv"] {
     clear:left;
 }
 .super-settings .super-export-import-entries span {
@@ -594,9 +594,6 @@
     cursor:pointer;
     color: #444444;
 }
-.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev:hover,
-.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next:hover {
-}
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev {
     right: 19px;
 }
@@ -624,7 +621,6 @@
     text-align:center;
     margin:0px;
     padding:0px;
-    cell-padding:0px;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td a,
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {

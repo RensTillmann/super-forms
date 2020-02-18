@@ -8,7 +8,7 @@
         <div class="super-first-time-setup super-active">
             <div class="super-wizard-settings">
                 <h2><?php echo esc_html__( 'Form setup wizard', 'super-forms' ); ?> <input type="text" name="wizard_title" value="<?php echo esc_html__( 'Form name', 'super-forms' ); ?>" /></h2>
-                <ul class="super-tabs noselect">
+                <ul class="super-tabs super-noselect">
                     <li class="super-active"><?php echo esc_html__( 'Theme & styles', 'super-forms' ); ?></li>
                     <li><?php echo esc_html__( 'Admin email', 'super-forms' ); ?></li>
                     <li><?php echo esc_html__( 'Confirmation email', 'super-forms' ); ?></li>
@@ -18,7 +18,7 @@
                     <li class="super-active">
                         <div>
                             <span><?php echo esc_html__( 'Theme style', 'super-forms' ); ?>:</span>
-                            <ul class="super-theme-style-wizard noselect">
+                            <ul class="super-theme-style-wizard super-noselect">
                                 <li class="super-active" data-value="squared"><?php echo esc_html__( 'Squared', 'super-forms' ); ?></li>
                                 <li data-value="rounded"><?php echo esc_html__( 'Rounded', 'super-forms' ); ?></li>
                                 <li data-value="full-rounded"><?php echo esc_html__( 'Full Rounded', 'super-forms' ); ?></li>
@@ -28,7 +28,7 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Field size', 'super-forms' ); ?>:</span>
-                            <ul class="super-field-size-wizard noselect">
+                            <ul class="super-field-size-wizard super-noselect">
                                 <li class="super-active" data-value="medium"><?php echo esc_html__( 'Medium', 'super-forms' ); ?></li>
                                 <li data-value="large"><?php echo esc_html__( 'Large', 'super-forms' ); ?></li>
                                 <li data-value="huge"><?php echo esc_html__( 'Huge', 'super-forms' ); ?></li>
@@ -37,7 +37,7 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Enable icons', 'super-forms' ); ?>:</span>
-                            <ul class="super-theme-hide-icons-wizard noselect">
+                            <ul class="super-theme-hide-icons-wizard super-noselect">
                                 <li class="super-active" data-value="no"><?php echo esc_html__( 'No (default)', 'super-forms' ); ?></li>
                                 <li data-value="yes"><?php echo esc_html__( 'Yes', 'super-forms' ); ?></li>
                             </ul>
@@ -121,8 +121,8 @@
                 <img data-preview-url="<?php echo SUPER_PLUGIN_FILE; ?>" src="<?php echo SUPER_PLUGIN_FILE . 'assets/images/wizard-preview/squared-medium.png'; ?>" />
             </div>
 
-            <span class="super-button skip-wizard"><?php echo esc_html__( 'Skip wizard', 'super-forms' ); ?></span>
-            <span class="super-button save-wizard"><?php echo esc_html__( 'Save settings', 'super-forms' ); ?></span>
+            <span class="super-button super-skip-wizard"><?php echo esc_html__( 'Skip wizard', 'super-forms' ); ?></span>
+            <span class="super-button super-save-wizard"><?php echo esc_html__( 'Save settings', 'super-forms' ); ?></span>
         </div>
         <div class="super-first-time-setup-bg super-active"></div>
         <?php
@@ -158,8 +158,8 @@
                 }
                 ?>
             </div>
-            <span class="super-button skip-wizard"><?php echo esc_html__( 'Close', 'super-forms' ); ?></span>
-            <span class="super-button delete-backups"><?php echo esc_html__( 'Delete all backups', 'super-forms' ); ?></span>
+            <span class="super-button super-skip-wizard"><?php echo esc_html__( 'Close', 'super-forms' ); ?></span>
+            <span class="super-button super-delete-backups"><?php echo esc_html__( 'Delete all backups', 'super-forms' ); ?></span>
         </div>
         <div class="super-first-time-setup-bg"></div>
         <?php
@@ -195,13 +195,13 @@
             }
             echo '<p>' . esc_html__('Take the shortcode and place it anywere!', 'super-forms' ) . '</p>';
             echo '<div class="super-actions">';
-                echo '<span class="save super-tooltip" title="' . esc_attr__('Save your form', 'super-forms' ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
-                echo '<span class="clear super-tooltip" title="' . esc_attr__('Start all over', 'super-forms' ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
-                echo '<span class="delete super-tooltip" title="' . esc_attr__('Delete complete form', 'super-forms' ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
-                echo '<span class="preview desktop super-tooltip super-active" title="' . esc_attr__('Desktop preview', 'super-forms' ) . '" ><i class="fas fa-desktop"></i></span>';
-                echo '<span class="preview tablet super-tooltip" title="' . esc_attr__('Tablet preview', 'super-forms' ) . '" ><i class="fas fa-tablet"></i></span>';
-                echo '<span class="preview mobile super-tooltip" title="' . esc_attr__('Mobile preview', 'super-forms' ) . '" ><i class="fas fa-mobile"></i></span>';
-                echo '<span class="preview switch super-tooltip" title="' . esc_attr__('Live preview', 'super-forms' ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
+                echo '<span class="super-save super-tooltip" title="' . esc_attr__('Save your form', 'super-forms' ) . '" ><i class="fas fa-save"></i>' . esc_html__('Save', 'super-forms' ) . '</span>';
+                echo '<span class="super-clear super-tooltip" title="' . esc_attr__('Start all over', 'super-forms' ) . '" ><i class="fas fa-eraser"></i>' . esc_html__('Clear', 'super-forms' ) . '</span>';
+                echo '<span class="super-delete super-tooltip" title="' . esc_attr__('Delete complete form', 'super-forms' ) . '" ><i class="fas fa-trash-alt"></i>' . esc_html__('Delete', 'super-forms' ) . '</span>';
+                echo '<span class="super-preview super-desktop super-tooltip super-active" title="' . esc_attr__('Desktop preview', 'super-forms' ) . '" ><i class="fas fa-desktop"></i></span>';
+                echo '<span class="super-preview super-tablet super-tooltip" title="' . esc_attr__('Tablet preview', 'super-forms' ) . '" ><i class="fas fa-tablet"></i></span>';
+                echo '<span class="super-preview super-mobile super-tooltip" title="' . esc_attr__('Mobile preview', 'super-forms' ) . '" ><i class="fas fa-mobile"></i></span>';
+                echo '<span class="super-preview super-switch super-tooltip" title="' . esc_attr__('Live preview', 'super-forms' ) . '" >' . esc_html__('Preview', 'super-forms' ) . '</span>';
                 echo '<label><input type="checkbox" name="allow_duplicate_names" /><i>' . esc_html__( 'Allow saving form with duplicate field names (for developers only)', 'super-forms' ) . '</i></label>';
             echo '</div>';
             ?>

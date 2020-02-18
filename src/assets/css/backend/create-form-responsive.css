@@ -27,13 +27,13 @@
         text-indent: -9999px;
         margin: 0px;
     }
-    .super-header .super-actions span.delete {
+    .super-header .super-actions span.super-delete {
         margin-right: 15px;
     }
     .super-header .super-actions span i {
         text-indent: 0px;
     }
-    .super-header .super-actions span.switch {
+    .super-header .super-actions span.super-switch {
         text-indent: initial;
         padding: 0px 10px 0px 10px;
         width: auto;
@@ -113,13 +113,13 @@
         text-indent: -9999px;
         margin: 0px;
     }
-    .super-header .super-actions span.delete {
+    .super-header .super-actions span.super-delete {
         margin-right: 15px;
     }
     .super-header .super-actions span i {
         text-indent: 0px;
     }
-    .super-header .super-actions span.switch {
+    .super-header .super-actions span.super-switch {
         text-indent: initial;
         padding: 0px 10px 0px 10px;
         width: auto;
@@ -194,7 +194,7 @@
         float: left;
         margin: 10px 0px 5px 0px;
     }
-    .super-header .super-actions span.save {
+    .super-header .super-actions span.super-save {
         margin-left: 0px;
     }
     .super-switch-forms {
@@ -214,13 +214,13 @@
         float: left;
         clear: left;
     }
-    .super-header .super-actions span.delete {
+    .super-header .super-actions span.super-delete {
         margin-right: 15px;
     }
     .super-header .super-actions span i {
         text-indent: 0px;
     }
-    .super-header .super-actions span.switch {
+    .super-header .super-actions span.super-switch {
         text-indent: initial;
         padding: 0px 10px 0px 10px;
         width: auto;

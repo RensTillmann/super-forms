@@ -1848,8 +1848,8 @@ class SUPER_Ajax {
                 }
             $result .= '</div>';
         }
-        $result .= '<span class="super-button update-element">' . esc_html__( 'Update Element', 'super-forms' ) . '</span>';
-        $result .= '<span class="super-button cancel-update">' . esc_html__( 'Close', 'super-forms' ) . '</span>';
+        $result .= '<span class="super-button super-update-element">' . esc_html__( 'Update Element', 'super-forms' ) . '</span>';
+        $result .= '<span class="super-button super-cancel-update">' . esc_html__( 'Close', 'super-forms' ) . '</span>';
         echo $result;        
         die();
         

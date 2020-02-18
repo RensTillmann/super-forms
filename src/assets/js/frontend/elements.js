@@ -417,12 +417,9 @@
                 showOtherMonths: showOtherMonths,
                 selectOtherMonths: selectOtherMonths
             });
-            console.log(typeof changeMonth);
-            console.log(changeMonth);
 
             // @since 4.9.3 - Datepicker localization (language and format)
             if(localization!==''){
-                console.log($.datepicker.regional[localization]);
                 $.datepicker.regional[localization].yearSuffix = '';
                 $(el).datepicker( "option", $.datepicker.regional[localization] );
             }
@@ -1434,7 +1431,8 @@
                 }
                 field.classList.add('super-focus');
                 field.classList.add('super-focus-dropdown');
-                e.target.parentNode.querySelector('input[name="super-dropdown-search"]').focus();
+                var searchField = e.target.closest('.super-field-wrapper').querySelector('input[name="super-dropdown-search"]');
+                if(searchField) searchField.focus();
             }
         });
         // Unfocus dropdown
@@ -1899,12 +1897,12 @@
                 multipart,
                 skip;
 
-            // @since 2.0 - validate multi-part before going to next step
+            // @since 2.0.0 - validate multi-part before going to next step
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
                 if(validate=='true'){
                     result = SUPER.validate_form( currentActive, el, true, e, true );
-                    if(result===false) return false;
+                    if(result!==true) return false;
                 }
             }
             progress = 100 / total;

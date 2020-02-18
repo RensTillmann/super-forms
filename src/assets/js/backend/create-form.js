@@ -170,7 +170,7 @@
         }
         SUPER.set_session_data('_super_elements', JSON.stringify($elements));
         if ($target == 2) {
-            SUPER.save_form($('.super-actions .save'), 2);
+            SUPER.save_form($('.super-actions .super-save'), 2);
         } else {
             if ($history) {
                 SUPER.trigger_redo_undo($elements, $old_code);
@@ -704,12 +704,12 @@
                 var response = this.responseText;
                 $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
                 $('.super-create-form input[name="form_id"]').val(response);
-                $('.super-create-form .super-actions .save').html('<i class="fas fa-save"></i>Save');
+                $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                 if ($method == 3) { // When switching from language
                     callback($button);
                 } else {
                     if ($method == 1) {
-                        var $this = $('.super-create-form .super-actions .preview:eq(3)');
+                        var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
                         callback();
                         SUPER.preview_form($this);
                     } else {
@@ -932,7 +932,7 @@
                 // so we must check for that, too. Thankfully, null is falsey, so this suffices:
                 if (o && typeof o === "object") {
                     SUPER.set_session_data('_super_elements', formCode, undefined, true);
-                    SUPER.save_form($('.super-actions .save'), 2, undefined, undefined, undefined, true);
+                    SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, undefined, true);
                     notice.innerHTML = super_create_form_i18n.edit_json_notice;
                     notice.classList.remove('sfui-red');
                     notice.classList.add('sfui-yellow');
@@ -1000,9 +1000,9 @@
             $parent.children('span').removeClass('super-active');
             $this.addClass('super-active');
             $('.super-tabs-content').css('display', '');
-            $('.preview.switch').removeClass('super-active');
+            $('.super-preview.switch').removeClass('super-active');
             $('.super-live-preview').css('display', 'none');
-            $('.preview.switch').removeClass('super-active');
+            $('.super-preview.switch').removeClass('super-active');
             $('.super-tabs-content .super-tab-content').removeClass('super-active');
             $('.super-tabs-content .super-tab-' + $tab).addClass('super-active');
         });
@@ -1107,7 +1107,7 @@
             SUPER.init_tooltips();
         });
         // edit translation
-        $doc.on('click', '.translations-list .edit', function () {
+        $doc.on('click', '.translations-list .super-edit', function () {
             var $row = $(this).parent(),
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
                 $language_title = $language.html(),
@@ -1170,7 +1170,7 @@
 
             // Always save the form before switching to a different language
             // This will prevent loading "old" / "unsaved" form elements and settings
-            SUPER.save_form($('.super-actions .save'), 3, $(this), $initial_i18n, function ($button) {
+            SUPER.save_form($('.super-actions .super-save'), 3, $(this), $initial_i18n, function ($button) {
                 // When saving finished we can continue
                 $row = $button.parent();
                 // Reload builder html, and form settings TAB
@@ -1205,7 +1205,7 @@
             });
         });
         // delete translation
-        $doc.on('click', '.translations-list .delete', function () {
+        $doc.on('click', '.translations-list .super-delete', function () {
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
             if ($delete === true) {
                 // Before removing language check if currently in translation mode for this language
@@ -1299,7 +1299,7 @@
             }
 
         });
-        $doc.on('click', '.delete-backups', function () {
+        $doc.on('click', '.super-delete-backups', function () {
             var $old_html = $(this).html();
             var $button = $(this);
             $button.html(super_create_form_i18n.deleting).addClass('super-loading');
@@ -1414,14 +1414,14 @@
             if ($parent.hasClass('super-theme-hide-icons-wizard')) SUPER.update_wizard_preview(null, null, $value, false);
         });
 
-        $doc.on('click', '.skip-wizard, .super-first-time-setup-bg', function () {
+        $doc.on('click', '.super-skip-wizard, .super-first-time-setup-bg', function () {
             $('.super-first-time-setup, .super-first-time-setup-bg').removeClass('super-active');
         });
 
-        $doc.on('click', '.save-wizard', function () {
+        $doc.on('click', '.super-save-wizard', function () {
             $(this).addClass('super-loading').html('Saving settings...');
             SUPER.update_wizard_preview(null, null, null, true);
-            $('.super-actions .save').trigger('click');
+            $('.super-actions .super-save').trigger('click');
         });
         $doc.on('click', '.super-wizard-settings .super-tabs > li', function () {
             var $index = $(this).index();
@@ -1471,7 +1471,7 @@
             SUPER.regenerate_element_inner($('.super-preview-elements'));
         });
 
-        $doc.on('click', '.super-element-actions .duplicate', function () {
+        $doc.on('click', '.super-element-actions .super-duplicate', function () {
             var $parent = $(this).parents('.super-element:eq(0)');
             $parent.find('.tooltip').remove();
             var $new = $parent.clone();
@@ -1500,7 +1500,7 @@
         });
 
         // @since 4.6.0 - transfer this element to either a different location in the current form or to a completely different form (works cross-site)
-        $doc.on('click', '.super-element-actions .transfer', function () {
+        $doc.on('click', '.super-element-actions .super-transfer', function () {
             var $parent = $(this).parents('.super-element:eq(0)');
             $parent.find('.tooltip').remove();
             var $node = $parent.clone();
@@ -1509,7 +1509,7 @@
             SUPER.set_session_data('_super_transfer_element_html', $node[0].outerHTML, 'local');
         });
         // @since 4.6.0 - transfer this element to either a different location in the current form or to a completely different form (works cross-site)
-        $doc.on('click', '.super-element-actions .transfer-drop', function () {
+        $doc.on('click', '.super-element-actions .super-transfer-drop', function () {
             var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
             var $parent = $(this).parents('.super-element:eq(0)');
             $($html).insertAfter($parent);
@@ -1554,7 +1554,7 @@
             SUPER.regenerate_element_inner($('.super-preview-elements'));
         });
 
-        $doc.on('click', '.super-element-actions .minimize', function () {
+        $doc.on('click', '.super-element-actions .super-minimize', function () {
             var $this = $(this).parents('.super-element:eq(0)');
             var $minimized = $this.attr('data-minimized');
             if ($minimized === 'undefined') $minimized = 'no';
@@ -1567,7 +1567,7 @@
             SUPER.init_drag_and_drop();
             SUPER.regenerate_element_inner($('.super-preview-elements'));
         });
-        $doc.on('click', '.super-element-actions .delete', function () {
+        $doc.on('click', '.super-element-actions .super-delete', function () {
             $(this).parents('.super-element:eq(0)').remove();
             SUPER.init_drag_and_drop();
             SUPER.regenerate_element_inner($('.super-preview-elements'));
@@ -1640,7 +1640,7 @@
             $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
         });
 
-        $doc.on('click', '.super-multi-items .add', function () {
+        $doc.on('click', '.super-multi-items .super-add', function () {
             var $this = $(this);
             var $parent = $this.parents('.super-multi-items:eq(0)');
 
@@ -1658,9 +1658,9 @@
             $item.find('.super-initialized').removeClass('super-initialized');
             $item.find('input[type="radio"]').prop('checked', false);
             if ($parent.find('.super-multi-items').length > 1) {
-                $parent.find('.delete').css('visibility', '');
+                $parent.find('.super-delete').css('visibility', '');
             } else {
-                $parent.find('.delete').css('visibility', 'hidden');
+                $parent.find('.super-delete').css('visibility', 'hidden');
             }
             if (!$parent.hasClass('super-conditional-item')) {
                 SUPER.init_image_browser();
@@ -1821,7 +1821,7 @@
             SUPER.update_element_update_data($fields);
         };
 
-        $doc.on('click', '.super-element-settings .update-element', function () {
+        $doc.on('click', '.super-element-settings .super-update-element', function () {
 
             // Update element data (json code)
             // This json code holds all the settings for this specific element
@@ -1949,7 +1949,7 @@
             $('.super-preview-elements .super-element').removeClass('editing');
         }
 
-        $doc.on('click', '.super-element-settings .cancel-update', function () {
+        $doc.on('click', '.super-element-settings .super-cancel-update', function () {
             cancel_update();
         });
 
@@ -1981,7 +1981,7 @@
             }
         });
 
-        $doc.on('click', '.super-multi-items .sorting span.up i', function () {
+        $doc.on('click', '.super-multi-items .super-sorting span.up i', function () {
             var $parent = $(this).parents('.field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if ($count > 1) {
@@ -1996,7 +1996,7 @@
             }
         });
 
-        $doc.on('click', '.super-multi-items .sorting span.down i', function () {
+        $doc.on('click', '.super-multi-items .super-sorting span.down i', function () {
             var $parent = $(this).parents('.field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if ($count > 1) {
@@ -2042,7 +2042,7 @@
             return false;
         });
 
-        $doc.on('click', '.super-create-form .super-actions .clear', function () {
+        $doc.on('click', '.super-create-form .super-actions .super-clear', function () {
             var $clear = confirm(super_create_form_i18n.confirm_clear_form);
             if ($clear === true) {
                 SUPER.set_session_data('_super_elements', '');
@@ -2051,7 +2051,7 @@
             }
         });
 
-        $doc.on('click', '.super-create-form .super-actions .delete', function () {
+        $doc.on('click', '.super-create-form .super-actions .super-delete', function () {
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
             if ($delete === true) {
                 var $this = $(this);
@@ -2071,7 +2071,7 @@
             }
         });
 
-        $doc.on('click', '.super-element-actions .edit', function () {
+        $doc.on('click', '.super-element-actions .super-edit', function () {
             cancel_update();
             $('.super-elements').addClass('super-active');
             var $parent = $(this).parents('.super-element:eq(0)');
@@ -2131,22 +2131,22 @@
             return false;
         });
 
-        $doc.on('click', '.super-create-form .super-actions .save', function () {
+        $doc.on('click', '.super-create-form .super-actions .super-save', function () {
             var $this = $(this);
             SUPER.save_form($this);
         });
 
-        $doc.on('click', '.super-create-form .super-actions .preview', function () {
-            var $this = $('.super-create-form .super-actions .preview:eq(3)');
+        $doc.on('click', '.super-create-form .super-actions .super-preview', function () {
+            var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
             if ($(this).hasClass('mobile')) {
                 $('.super-live-preview').removeClass('tablet');
-                $('.super-create-form .super-actions .preview.tablet').removeClass('super-active');
-                $('.super-create-form .super-actions .preview.desktop').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.tablet').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.desktop').removeClass('super-active');
                 $(this).addClass('super-active');
                 $('.super-live-preview').addClass('mobile');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function () {
+                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
                 }
@@ -2155,13 +2155,13 @@
             }
             if ($(this).hasClass('tablet')) {
                 $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .preview.mobile').removeClass('super-active');
-                $('.super-create-form .super-actions .preview.desktop').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.desktop').removeClass('super-active');
                 $(this).addClass('super-active');
                 $('.super-live-preview').addClass('tablet');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function () {
+                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
                 }
@@ -2171,12 +2171,12 @@
             if ($(this).hasClass('desktop')) {
                 $('.super-live-preview').removeClass('tablet');
                 $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .preview.mobile').removeClass('super-active');
-                $('.super-create-form .super-actions .preview.tablet').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.tablet').removeClass('super-active');
                 $(this).addClass('super-active');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
-                    SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function () {
+                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
                 }
@@ -2185,7 +2185,7 @@
             }
             if (!$this.hasClass('super-active')) {
                 $this.html('Loading...');
-                SUPER.save_form($('.super-actions .save'), 1, undefined, undefined, function () {
+                SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                     $('.super-tabs-content').css('display', 'none');
                 });
             } else {
@@ -2196,7 +2196,7 @@
         });
 
         // @since 3.8.0 - reset user submission counter
-        $doc.on('click', '.reset-user-submission-counter', function () {
+        $doc.on('click', '.super-reset-user-submission-counter', function () {
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
             if ($reset === true) {
                 var $button = $(this);
@@ -2216,7 +2216,7 @@
         });
 
         // @since 3.4.0 - reset submission counter
-        $doc.on('click', '.reset-submission-counter', function () {
+        $doc.on('click', '.super-reset-submission-counter', function () {
             var $reset = confirm(super_create_form_i18n.confirm_reset_submission_counter);
             if ($reset === true) {
                 var $button = $(this);
@@ -2388,10 +2388,8 @@
         });
 
         // @since   1.0.6
-        var $elements = $('.super-create-form .super-elements');
         $(window).on('load resize', function () {
             init_form_settings_container_heights();
-            
         });
 
         $(window).on('scroll', function () {
@@ -2544,7 +2542,7 @@
                         description: '<h1>The Description for your thank you message</h1><span class="super-tip">This can be used to provide some additional information that is important to the user after they successfully submitted the form.</span>' + $tags_allowed,
                     },
                     {
-                        selector: '.super-button.save-wizard',
+                        selector: '.super-button.super-save-wizard',
                         event: 'click',
                         showNext: false,
                         description: '<h1>Click this button to save the configuration and to start building your form</h1>',
@@ -2612,20 +2610,20 @@
                     },
                     {
                         onBeforeStart: function () {
-                            $('.super-element-actions .minimize').css('pointer-events', 'none');
-                            $('.super-element-actions .delete').css('pointer-events', 'none');
+                            $('.super-element-actions .super-minimize').css('pointer-events', 'none');
+                            $('.super-element-actions .super-delete').css('pointer-events', 'none');
                         },
-                        selector: '.super-element-actions .minimize',
+                        selector: '.super-element-actions .super-minimize',
                         radius: 10,
                         shape: 'circle',
                         description: '<h1>Here you can minimize your element</h1><span class="super-tip">This comes in handy especially when working with large forms. To benefit from this feature make sure you use columns to group your elements. With columns you can minimize a set of elements at once to make building forms even easier, faster and better manageable.</span>',
                     },
                     {
                         onBeforeStart: function () {
-                            $('.super-element-actions .minimize').css('pointer-events', '');
-                            $('.super-element-actions .delete').css('pointer-events', '');
+                            $('.super-element-actions .super-minimize').css('pointer-events', '');
+                            $('.super-element-actions .super-delete').css('pointer-events', '');
                         },
-                        selector: '.super-element-actions .delete',
+                        selector: '.super-element-actions .super-delete',
                         radius: 10,
                         event: 'click',
                         shape: 'circle',
@@ -2670,26 +2668,26 @@
                         description: '<h1>Maximizing all elements</h1><span class="super-tip">Whenever you are working with large forms and used the minimize button, you can maximize all of your elements at once to quickly find the element that you need to edit.</span>',
                     },
                     {
-                        selector: '.super-element-actions .transfer',
+                        selector: '.super-element-actions .super-transfer',
                         radius: 10,
                         shape: 'circle',
                         description: '<h1>Transfering elements between different forms can be done via this button</h1><span class="super-tip">When transfering Columns or Multi-parts all inner elements will be also be transfered along with them, making life even easier :)</span><span class="super-tip">You can also use this feature to clone the element and reposition it at a different location within the form you are working on. If needed you can also navigate to a different form and transfer this element over to that form.</span>',
                     },
                     {
-                        selector: '.super-element-actions .move',
+                        selector: '.super-element-actions .super-move',
                         radius: 10,
                         shape: 'circle',
                         description: '<h1>Moving your element can be done via this button</h1><span class="super-tip">Drag & Drop your element into a different location or inside a different layout element with ease.</span>',
                     },
                     {
-                        selector: '.super-element-actions .duplicate',
+                        selector: '.super-element-actions .super-duplicate',
                         event: 'click',
                         radius: 10,
                         shape: 'circle',
                         description: '<h1>Duplicate this element</h1><span class="super-tip">Duplicating elements that you already created will speed up your building process! When duplicating Columns or Multi-parts all inner elements will be duplicated along with them, making life even easier :)</span>',
                     },
                     {
-                        selector: '.super-element-actions .edit',
+                        selector: '.super-element-actions .super-edit',
                         radius: 10,
                         event: 'click',
                         shape: 'circle',
@@ -2790,26 +2788,26 @@
                         description: '<h1>Language switcher</h1><span class="super-tip">If you don\'t want to use shortcodes to explicit define the form language you can also allow your users to choose the desired language from a dropdown. When this option is enabled it will add a so called "Language Switcher" at the top of your form.</span>'
                     },
                     {
-                        selector: '.super-actions .save',
+                        selector: '.super-actions .super-save',
                         description: '<h1>You can save your form simply by clicking the "Save" button</h1><span class="super-tip">Every time you save your form an automatic backup of your form will be stored, this way you can always revert back to a previous version in case you made a mistake.</span>',
                     },
                     {
-                        selector: '.super-actions .clear',
+                        selector: '.super-actions .super-clear',
                         description: '<h1>If you want to start with a blank form you can use the "Clear" button</h1><span class="super-tip">Please note that this will erase your current work in progress and will delete all the elements that are currently on the canvas.</span>',
                     },
                     {
-                        selector: '.super-actions .delete',
+                        selector: '.super-actions .super-delete',
                         onBeforeStart: function () {
-                            $('.super-actions .delete').css('pointer-events', 'none');
+                            $('.super-actions .super-delete').css('pointer-events', 'none');
                         },
                         description: '<h1>Here you can delete your form</h1><span class="super-tip">This will delete the form itself allong with it\'s Elements, Settings and all it\'s backups. It will not delete the associated Contact Entries that were created by the form.</span>',
                     },
                     {
                         onBeforeStart: function () {
-                            $('.super-actions .delete').css('pointer-events', '');
+                            $('.super-actions .super-delete').css('pointer-events', '');
                             $('.enjoyhint_close_btn').css('display', 'none');
                         },
-                        selector: '.super-actions .preview.switch',
+                        selector: '.super-actions .super-preview.switch',
                         description: '<h1>To see how your form will look on the front-end you can click the "Preview" button</h1><span class="super-tip">You can also preview the form on mobile and tablet devices to test it\'s responsiveness.</span>',
                     },
                     {
@@ -2889,7 +2887,7 @@
             SUPER.update_element_push_updates();
         });
         // Delete Accordion Item
-        $doc.on('click', '.super-element-settings .super-tab-item .delete', function () {
+        $doc.on('click', '.super-element-settings .super-tab-item .super-delete', function () {
             var active,
                 item = $(this),
                 index = item.parent().index(),
@@ -3248,13 +3246,13 @@
         });
 
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas
-        $doc.on('click', '.super-multi-items .delete', function () {
+        $doc.on('click', '.super-multi-items .super-delete', function () {
             var $this = $(this);
             var $parent = $this.parents('.field-input:eq(0)');
             if ($parent.find('.super-multi-items').length <= 2) {
-                $parent.find('.delete').css('visibility', 'hidden');
+                $parent.find('.super-delete').css('visibility', 'hidden');
             } else {
-                $parent.find('.delete').css('visibility', '');
+                $parent.find('.super-delete').css('visibility', '');
             }
             $(this).parent().remove();
             // First make sure to update the multi items json

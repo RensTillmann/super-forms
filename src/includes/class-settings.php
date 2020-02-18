@@ -2453,7 +2453,7 @@ class SUPER_Settings {
             'name' => esc_html__( 'Restore Default Settings', 'super-forms' ),
             'label' => esc_html__( 'Restore Default Settings', 'super-forms' ),
             'html' => array(
-                '<span class="super-button restore-default delete">' . esc_html__( 'Restore Default Settings', 'super-forms' ) . '</span>',
+                '<span class="super-button super-restore-default super-delete">' . esc_html__( 'Restore Default Settings', 'super-forms' ) . '</span>',
             ),
         );
         $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings ) );
@@ -2493,7 +2493,7 @@ class SUPER_Settings {
 
                     '<div class="super-field">
                         <div class="field-name">' . esc_html__( 'Export form settings and elements', 'super-forms' ) . ':</div>
-                        <span class="super-button super-export clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
+                        <span class="super-button super-export super-clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
                     </div>',
 
                     '<div class="super-field">
@@ -2516,11 +2516,11 @@ class SUPER_Settings {
                                 </label>
                             </div>
                         </div>
-                        <span class="super-button super-import delete">' . esc_html__( 'Start Import', 'super-forms' ) . '</span>
+                        <span class="super-button super-import super-delete">' . esc_html__( 'Start Import', 'super-forms' ) . '</span>
                     </div>',
 
                     '<div class="super-field">
-                        <span class="super-button super-reset-global-settings clear">' . esc_html__( 'Reset to global settings', 'super-forms' ) . '</span>
+                        <span class="super-button super-reset-global-settings super-clear">' . esc_html__( 'Reset to global settings', 'super-forms' ) . '</span>
                     </div>',
 
                 '</div>',
@@ -2532,14 +2532,14 @@ class SUPER_Settings {
                     '<hr />',
                     '<strong>' . esc_html__( 'Import Settings', 'super-forms' ) . ':</strong>',
                     '<textarea name="import-json"></textarea>',
-                    '<span class="super-button import-settings delete">' . esc_html__( 'Import Settings', 'super-forms' ) . '</span>',
-                    '<span class="super-button load-default-settings clear">' . esc_html__( 'Load default Settings', 'super-forms' ) . '</span>',
+                    '<span class="super-button super-import-settings super-delete">' . esc_html__( 'Import Settings', 'super-forms' ) . '</span>',
+                    '<span class="super-button super-load-default-settings super-clear">' . esc_html__( 'Load default Settings', 'super-forms' ) . '</span>',
                 '</div>',
 
                 // @since 1.9 - export forms
                 '<div class="super-export-import-forms">',
                     '<strong>' . esc_html__( 'Export Forms', 'super-forms' ) . ':</strong>',
-                    '<span class="super-button export-forms delete" data-type="csv">' . esc_html__( 'Export Forms', 'super-forms' ) . '</span>',
+                    '<span class="super-button super-export-forms super-delete" data-type="csv">' . esc_html__( 'Export Forms', 'super-forms' ) . '</span>',
                 '</div>',
 
                 // @since 1.9 - import forms
@@ -2558,7 +2558,7 @@ class SUPER_Settings {
                     '<p>' . esc_html__( 'Below you can change the default delimiter and enclosure characters', 'super-forms' ) . ':</p>',
                     '<span>' . esc_html__( 'Delimiter', 'super-forms' ) . ':</span> <input type="text" value="," name="delimiter" />',
                     '<span>' . esc_html__( 'Enclosure', 'super-forms' ) . ':</span> <input type="text" value="' . htmlentities('"') . '" name="enclosure" />',
-                    '<span class="super-button export-entries delete" data-type="csv">' . esc_html__( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',
+                    '<span class="super-button super-export-entries super-delete" data-type="csv">' . esc_html__( 'Export Contact Entries to CSV', 'super-forms' ) . '</span>',
                 '</div>',
 
                 '<div class="super-export-import-entries">',

@@ -369,18 +369,18 @@
     background: none;
     width: 480px;
 }
-.super-first-time-setup .super-button.skip-wizard {
+.super-first-time-setup .super-button.super-skip-wizard {
     position:absolute;
     left:25px;
     bottom: -50px;
 }
-.super-first-time-setup .super-button.delete-backups {
+.super-first-time-setup .super-button.super-delete-backups {
     position: absolute;
     right: 25px;
     bottom: -50px;
     background-color: #F5234B;   
 }  
-.super-first-time-setup .super-button.save-wizard {
+.super-first-time-setup .super-button.super-save-wizard {
     position:absolute;
     right:25px;
     bottom: -50px;
@@ -560,27 +560,27 @@
     left: 0px;
     line-height: 30px;
 }
-.super-header .super-actions span.preview {
+.super-header .super-actions span.super-preview {
     padding: 0px 10px 0px 10px;
     margin-left: 1px;
 }
-.super-header .super-actions span.preview > i {
+.super-header .super-actions span.super-preview > i {
     border:0px;
 }
-.super-header .super-actions span.save {
+.super-header .super-actions span.super-save {
     background-color: #69BA00;
 }
-.super-header .super-actions span.clear {
+.super-header .super-actions span.super-clear {
     background-color: #7F7F7F;
 }
-.super-header .super-actions span.delete {
+.super-header .super-actions span.super-delete {
     background-color: #F5234B;
     margin-right: 5px;
 }
-.super-header .super-actions span.preview {
+.super-header .super-actions span.super-preview {
     background-color: #2372F5;
 }
-.super-header .super-actions span.preview.super-active {
+.super-header .super-actions span.super-preview.super-active {
     background-color: #75A2EC;
 }
 .super-builder {
@@ -591,7 +591,7 @@
     display: flex;
     align-items: flex-start;
 }
-.super-preview {
+.super-builder .super-preview {
     float: left;
     clear: both;
     width: 100%;
@@ -958,23 +958,23 @@
     font-size: 12px;
     line-height: 12px;
 }
-.super-element-actions .transfer-drop {
+.super-element-actions .super-transfer-drop {
     background-color:#69ba00;
     color:white;
     display:none;
 }
-.super-transfering .super-element-actions .transfer-drop {
+.super-transfering .super-element-actions .super-transfer-drop {
     display:block;
 }
-.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize,
-.super-preview-elements .super-element .super-element-header .super-element-actions span.delete {
+.super-preview-elements .super-element .super-element-header .super-element-actions span.super-minimize,
+.super-preview-elements .super-element .super-element-header .super-element-actions span.super-delete {
     float: right;
     padding: 4px 8px 3px 8px;
     position: absolute;
     right: 0px;
     top:0px;
 }
-.super-preview-elements .super-element .super-element-header .super-element-actions span.minimize {
+.super-preview-elements .super-element .super-element-header .super-element-actions span.super-minimize {
     right: 20px;
     top:1px;
 }
@@ -1133,7 +1133,7 @@
 .super-elements .super-elements-container {
     flex-wrap: wrap;
 }
-.super-elements .super-element .super-elements-container .cancel-update {
+.super-elements .super-element .super-elements-container .super-cancel-update {
     background-color: #7F7F7F;
     margin-left: 10px;
 }
@@ -1228,8 +1228,8 @@
     font-size: 10px;
     padding: 0px 0px 5px 0px;
 }
-.super-elements .super-button.reset-submission-counter,
-.super-elements .super-button.reset-user-submission-counter {
+.super-elements .super-button.super-reset-submission-counter,
+.super-elements .super-button.super-reset-user-submission-counter {
     margin-top:5px;
     margin-bottom:20px;
 }
@@ -1396,7 +1396,7 @@
     padding: 0px 0px 0px 0px;
     margin: 4px 0px 0px 0px;
 }
-.super-element-settings .super-multi-items > .image-field .image-preview .delete {
+.super-element-settings .super-multi-items > .image-field .image-preview .super-delete {
     float:left;
     clear: initial;
     padding: 0;
@@ -1469,8 +1469,8 @@
 .super-element-settings .super-multi-items > span.line-break {
     display: none;
 }
-.super-element-settings .super-multi-items > .sorting .up,
-.super-element-settings .super-multi-items > .sorting .down {
+.super-element-settings .super-multi-items > .super-sorting .up,
+.super-element-settings .super-multi-items > .super-sorting .down {
     display: block;
     float: left;
     text-align: center;
@@ -1494,17 +1494,17 @@
     right: 0px;
     bottom: 0px;
 }
-.super-element-settings .super-multi-items > i.delete {
+.super-element-settings .super-multi-items > i.super-delete {
     right:30px;
 }
 
-.super-element-settings .super-multi-items:not(:first-child) > i.delete {
+.super-element-settings .super-multi-items:not(:first-child) > i.super-delete {
     visibility:visible!important;
 }
 .super-element-settings .super-multi-items > i:hover {
     opacity:1;
 }
-.super-element-settings .super-multi-items .sorting {
+.super-element-settings .super-multi-items .super-sorting {
     float: left;
     height: 35px;
     width: 27px;
@@ -1513,7 +1513,7 @@
     left: 3px;
     top: 30px;
 }
-.super-element-settings .super-multi-items .sorting span i {
+.super-element-settings .super-multi-items .super-sorting span i {
     height: 15px;
     line-height: 15px;
     text-align: center;
@@ -1524,7 +1524,7 @@
     float: left;
     width: 100%;
 }
-.super-element-settings .super-multi-items .sorting span i:hover {
+.super-element-settings .super-multi-items .super-sorting span i:hover {
     opacity:1;
 }
 .super-element-settings .super-multi-items textarea {
@@ -1735,8 +1735,8 @@
     clear:both;
     text-decoration: underline;
 }
-.field-input .browse-images .image-preview > li > a.delete,
-.field-input .browse-files .file-preview > li > a.delete {
+.field-input .browse-images .image-preview > li > a.super-delete,
+.field-input .browse-files .file-preview > li > a.super-delete {
     text-decoration:none;
     margin-top:5px;
     border: 1px solid #dedede;
@@ -1744,13 +1744,13 @@
     border-right: 0;
     border-bottom: 0;
 }
-.field-input .browse-images .image-preview > li > a.delete:after,
-.field-input .browse-files .file-preview > li > a.delete:after {
+.field-input .browse-images .image-preview > li > a.super-delete:after,
+.field-input .browse-files .file-preview > li > a.super-delete:after {
     content:'\f1f8';
     padding:0px 0px 0px 5px;
 }
-.field-input .browse-images .image-preview > li > a.delete:hover,
-.field-input .browse-files .file-preview > li > a.delete:hover {
+.field-input .browse-images .image-preview > li > a.super-delete:hover,
+.field-input .browse-files .file-preview > li > a.super-delete:hover {
     color:red;
 }
 
@@ -1920,13 +1920,13 @@
     font-weight:600;
 }
 /* hide field names on the element */
-.super-translation-mode .super-actions .clear,
+.super-translation-mode .super-actions .super-clear,
 .super-translation-mode .super-elements .super-layout-elements,
 .super-translation-mode .super-elements .super-form-elements,
 .super-translation-mode .super-elements .super-html-elements,
 .super-translation-mode .super-element .super-element-header .super-title input,
 .super-translation-mode .super-element-header .super-resize,   
-.super-translation-mode .super-element-actions > span:not(.edit) {
+.super-translation-mode .super-element-actions > span:not(.super-edit) {
     display:none;
 }
 .super-translation-mode .super-column > .super-element-header > .super-element-actions {
@@ -2013,8 +2013,8 @@
     margin: 0px 0px 0px 0px;
     border-top: 1px solid #efefef;
 }
-.translations-list .edit,
-.translations-list .delete {
+.translations-list .super-edit,
+.translations-list .super-delete {
     float:left;
     margin-top: 4px;
     height:32px;
@@ -2026,16 +2026,16 @@
     text-align:center;
     cursor:pointer;
 }
-.translations-list .edit:hover {
+.translations-list .super-edit:hover {
     background-color:#565656;
 }
 
 .translations-list li.super-default-language {
     border-top:0px;
 }
-.translations-list .edit:before,
-.translations-list .edit:after,
-.translations-list .delete:before {
+.translations-list .super-edit:before,
+.translations-list .super-edit:after,
+.translations-list .super-delete:before {
     content:'\f1ab';
     font-weight:900;
     line-height:32px;
@@ -2045,21 +2045,21 @@
     float:left;
     margin-left:15px;
 }
-.translations-list .edit:after {
+.translations-list .super-edit:after {
     content:'\f304';
     font-size:16px;
     margin-left:10px;
 }
-.translations-list .delete {
+.translations-list .super-delete {
     height:32px;
     width:33px;
     background-color:#f5234b;
     margin-left:15px;
 }
-.translations-list .delete:hover {
+.translations-list .super-delete:hover {
     background-color:#de153b;
 }
-.translations-list .delete:before {
+.translations-list .super-delete:before {
     content:'\f1f8';
     font-size:16px;
     margin-left:10px;
@@ -2089,22 +2089,22 @@
 .super-default-language .edit:before {
     display:none;
 }
-.create-translation {
+.create-translation-wrapper {
     border-top:1px solid #efefef;
     float:left;
     width:100%;
     padding-top: 25px;
 }
-.create-translation p {
+.create-translation-wrapper p {
     padding:0;
     font-style: italic;
     color:#a0a0a0; 
 }
-.create-translation .super-button {
+.create-translation-wrapper .super-button {
     float:left;
     clear:both;
 }
-.create-translation .super-button:after {
+.create-translation-wrapper .super-button:after {
     content: '\f067';
     font-family: 'Font awesome 5 free';
     font-weight:900;

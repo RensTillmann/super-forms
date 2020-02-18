@@ -54,7 +54,7 @@ class SUPER_Field_Types {
                 }
                 $return .= '<div class="super-multi-items super-tab-item">';
                     if($translating!=='true'){
-                        $return .= '<div class="sorting">';
+                        $return .= '<div class="super-sorting">';
                             $return .= '<span class="up"><i class="fas fa-arrow-up"></i></span>';
                             $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
                         $return .= '</div>';
@@ -62,8 +62,8 @@ class SUPER_Field_Types {
                     $return .= '<input type="text" placeholder="' . esc_html__( 'Title', 'super-forms' ) . '" value="' . esc_attr( $v['title'] ) . '" name="title">';
                     $return .= '<textarea placeholder="' . esc_html__( 'Description', 'super-forms' ) . '" name="desc">' . esc_attr( $v['desc'] ) . '</textarea>';
                     if($translating!=='true'){
-                        $return .= '<i class="add super-add-item fas fa-plus"></i>';
-                        $return .= '<i class="delete fas fa-trash-alt"></i>';
+                        $return .= '<i class="super-add super-add-item fas fa-plus"></i>';
+                        $return .= '<i class="super-delete fas fa-trash-alt"></i>';
                         if( !isset( $v['image'] ) ) $v['image'] = '';
                         $return .= '<div class="image-field browse-images">';
                         $return .= '<span class="button super-insert-image"><i class="far fa-image"></i></span>';
@@ -77,7 +77,7 @@ class SUPER_Field_Types {
                             $return .= '<span>px</span>';
                             $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                             $return .= '<span>px</span>';
-                            $return .= '<a href="#" class="delete">Delete</a>';
+                            $return .= '<a href="#" class="super-delete">Delete</a>';
                             $return .= '</li>';
                         }
                         $return .= '</ul>';
@@ -95,7 +95,7 @@ class SUPER_Field_Types {
     // @since 3.8.0 - field to reset submission counter for users
     public static function reset_user_submission_count( $id, $field ) {
         $return  = '<div class="input">';
-            $return .= '<span class="super-button reset-user-submission-counter delete">' . esc_html__( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
+            $return .= '<span class="super-button super-reset-user-submission-counter super-delete">' . esc_html__( 'Reset Submission Counter for Users', 'super-forms' ) . '</span>';
         $return .= '</div>';
         return $return;
     }
@@ -104,7 +104,7 @@ class SUPER_Field_Types {
     public static function reset_submission_count( $id, $field ) {
         $return  = '<div class="input">';
             $return .= '<input type="number" id="field-' . $id . '" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
-            $return .= '<span class="super-button reset-submission-counter delete">' . esc_html__( 'Reset Submission Counter', 'super-forms' ) . '</span>';
+            $return .= '<span class="super-button super-reset-submission-counter super-delete">' . esc_html__( 'Reset Submission Counter', 'super-forms' ) . '</span>';
         $return .= '</div>';
         return $return;
     }
@@ -186,7 +186,7 @@ class SUPER_Field_Types {
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
                     if($translating!=='true'){
                         $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . ( ($v['checked']==1 || $v['checked']=='true') ? ' checked="checked"' : '' ) . '">';
-                        $return .= '<div class="sorting">';
+                        $return .= '<div class="super-sorting">';
                             $return .= '<span class="up"><i class="fas fa-arrow-up"></i></span>';
                             $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
                         $return .= '</div>';
@@ -195,8 +195,8 @@ class SUPER_Field_Types {
                     $return .= '<input type="text" ' . ($translating=='true' ? 'disabled="disabled" ' : '') . 'placeholder="' . esc_html__( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     
                     if($translating!=='true'){
-                        $return .= '<i class="add super-add-item fas fa-plus"></i>';
-                        $return .= '<i class="delete fas fa-trash-alt"></i>';
+                        $return .= '<i class="super-add super-add-item fas fa-plus"></i>';
+                        $return .= '<i class="super-delete fas fa-trash-alt"></i>';
 
                         // @since v1.2.3
                         if( ($id=='checkbox_items') || ($id=='radio_items') ) {
@@ -213,7 +213,7 @@ class SUPER_Field_Types {
                                 $return .= '<span>px</span>';
                                 $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                                 $return .= '<span>px</span>';
-                                $return .= '<a href="#" class="delete">Delete</a>';
+                                $return .= '<a href="#" class="super-delete">Delete</a>';
                                 $return .= '</li>';
                             }
                             $return .= '</ul>';
@@ -249,7 +249,7 @@ class SUPER_Field_Types {
         if( !empty( $image ) ) {
             $return .= '<li data-file="' . $field['default'] . '">';
             $return .= '<div class="image"><img src="' . $image . '"></div>';
-            $return .= '<a href="#" class="delete">Delete</a>';
+            $return .= '<a href="#" class="super-delete">Delete</a>';
             $return .= '</li>';
         }
         $return .= '</ul>';
@@ -294,7 +294,7 @@ class SUPER_Field_Types {
                 $return .= '<li data-file="' . $v . '">';
                 $return .= '<div class="image"><img src="' . $icon . '"></div>';
                 $return .= '<a href="' . $url . '">' . $filename . '</a>';
-                $return .= '<a href="#" class="delete">Delete</a>';
+                $return .= '<a href="#" class="super-delete">Delete</a>';
                 $return .= '</li>';
             }
         }
@@ -516,8 +516,8 @@ class SUPER_Field_Types {
                         }
                     $return .= '</select>';
                     $return .= '<input type="text" placeholder="Value" value="' . $v['value_and'] . '" name="conditional_value_and">';
-                    $return .= '<i class="add fas fa-plus"></i>';
-                    $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
+                    $return .= '<i class="super-add fas fa-plus"></i>';
+                    $return .= '<i class="super-delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
                 $return .= '</div>';
             }
@@ -544,8 +544,8 @@ class SUPER_Field_Types {
                     }
                 $return .= '</select>';
                 $return .= '<input type="text" placeholder="Value" value="" name="conditional_value_and">';
-                $return .= '<i class="add fas fa-plus"></i>';
-                $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
+                $return .= '<i class="super-add fas fa-plus"></i>';
+                $return .= '<i class="super-delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                 $return .= '<span class="line-break"></span>';
             $return .= '</div>';
         }
@@ -597,8 +597,8 @@ class SUPER_Field_Types {
                         }
                     $return .= '</select>';
                     $return .= '<input type="text" placeholder="Value" value="' . $v['value_and'] . '" name="conditional_value_and">';
-                    $return .= '<i class="add fas fa-plus"></i>';
-                    $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
+                    $return .= '<i class="super-add fas fa-plus"></i>';
+                    $return .= '<i class="super-delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                     $return .= '<span class="line-break"></span>';
                     $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
                     $return .= '<textarea placeholder="New value" name="conditional_new_value">' . ( isset($v['new_value']) ? stripslashes( $v['new_value'] ) : '' ) . '</textarea>';
@@ -627,8 +627,8 @@ class SUPER_Field_Types {
                     }
                 $return .= '</select>';
                 $return .= '<input type="text" placeholder="Value" value="" name="conditional_value_and">';
-                $return .= '<i class="add fas fa-plus"></i>';
-                $return .= '<i class="delete fas fa-trash-alt" style="visibility: hidden;"></i>';
+                $return .= '<i class="super-add fas fa-plus"></i>';
+                $return .= '<i class="super-delete fas fa-trash-alt" style="visibility: hidden;"></i>';
                 $return .= '<span class="line-break"></span>';
                 $return .= '<p>' . esc_html__( 'When above conditions are met set following value:', 'super-forms' ) . '</p>';
                 $return .= '<textarea placeholder="New value" value="" name="conditional_new_value"></textarea>';

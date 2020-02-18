@@ -71,7 +71,7 @@
             var $field = $this.children('input');
             var $frame;
             var $id = $field.val();
-            $preview.on('click', 'a.delete', function () {
+            $preview.on('click', 'a.super-delete', function () {
                 $field.val('');
                 $preview.html('');
             });
@@ -124,7 +124,7 @@
                                         var $html = '';
                                         $html += '<div class="image"><img src="' + $attachment.icon + '" /></div>';
                                         $html += $attachment.filename;
-                                        $html += '<a href="#" class="delete">Delete</a>';
+                                        $html += '<a href="#" class="super-delete">Delete</a>';
                                         $html += '<ul class="import-column-connections">';
                                         $.each($result, function( index, value ) {
                                             $html += '<li>';
@@ -234,7 +234,7 @@
             });
         });
 
-        $doc.on('click','.super-settings .export-entries',function(){
+        $doc.on('click','.super-settings .super-export-entries',function(){
             var $this = $(this);
             var $old_html = $this.html();
             var $type = $this.data('type');
@@ -287,7 +287,7 @@
             $($tags).insertBefore($(this));
         });
             
-        $doc.on('click','.super-settings .restore-default',function(){ 
+        $doc.on('click','.super-settings .super-restore-default',function(){ 
             if(confirm(super_settings_i18n.restore_default_confirm) === true) {
                 var $this = $(this);
                 $this.val(super_settings_i18n.restore_default_working);
@@ -400,12 +400,12 @@
         }
 
         // @since   1.0.6
-        $doc.on('click','.super-settings .import-settings, .super-settings .load-default-settings',function(){
+        $doc.on('click','.super-settings .super-import-settings, .super-settings .super-load-default-settings',function(){
             var $method = 'import';
             var $button = $(this);
             var $settings = $('.super-export-import textarea[name="import-json"]').val();
             $button.addClass('super-loading');
-            if($button.hasClass('load-default-settings')){
+            if($button.hasClass('super-load-default-settings')){
                 $method = 'load-default';
             }
             $.ajax({
@@ -480,7 +480,7 @@
             });
         }
 
-        $doc.on('click','.super-settings .export-forms',function(){
+        $doc.on('click','.super-settings .super-export-forms',function(){
             super_export_forms($(this));
         });
 
@@ -494,7 +494,7 @@
             var $field = $this.children('input');
             var $frame;
             var $id = $field.val();
-            $preview.on('click', 'a.delete', function () {
+            $preview.on('click', 'a.super-delete', function () {
                 $field.val('');
                 $preview.html('');
             });

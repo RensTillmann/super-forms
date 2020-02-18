@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Feb 17, 2020 - Version 4.9.222
+## Feb 18, 2020 - Version 4.9.224
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
@@ -19,6 +19,7 @@
 - **Fixed:** {tags} where no longer working on custom URL for `Button` element due to usage of `esc_url()`
 - **Fixed:** `Form settings` > `Prevent submitting form on pressing "Enter" keyboard button` was no longer working
 - **Fixed:** W3C validation errors
+- **Fixed:** JavaScript error with dropdown filter
 - **Fixed:** Issue with `Allow field to be empty` not taking effect in combination with for instance `Website` validation method
 - **Improved:** Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - **Improved:** When reading CSV file make sure to remove BOM (Byte order mark)
