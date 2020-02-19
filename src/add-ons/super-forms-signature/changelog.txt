@@ -1,3 +1,6 @@
+Feb 19, 2020 - Version 1.5.1
+- Improved: load script/styles on ajax load via super forms hook (used in for instance Elementor builder interface)
+
 Jan 07, 2020 - Version 1.5.0
 - Replaced deprecated function with new one
 - Improved: When using "Contact Entry Search" the signature will be redrawn based on the entry data

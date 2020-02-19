@@ -87,7 +87,7 @@ class Elementor_Super_Forms_Widget extends \Elementor\Widget_Base {
 			'numberposts' => -1
         );
         $forms = get_posts( $args );
-        $form_ids = [];
+        $form_ids = [ '0' => __( '- select -', 'super-forms' ) ];
         foreach($forms as $value){
             $form_ids[$value->ID] = $value->post_title;
 		}
@@ -96,7 +96,10 @@ class Elementor_Super_Forms_Widget extends \Elementor\Widget_Base {
 			[
 				'label' => __( 'Select a form', 'super-forms' ),
 				'type' => \Elementor\Controls_Manager::SELECT2,
-				'options' => $form_ids
+				'options' => $form_ids,
+				'default' => '0',
+				'separator' => 'after',
+				'label_block' => true
 			]
 		);		
 

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Calculator
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.1.2
+ * Version:     2.1.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.1.2';
+        public $version = '2.1.3';
 
 
         /**
@@ -168,13 +168,9 @@ if(!class_exists('SUPER_Calculator')) :
                 add_filter( 'super_form_styles_filter', array( $this, 'add_element_styles' ), 10, 2 );
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
 
-                // Actions since 1.0.0
-                $global_settings = get_option( 'super_settings' );
-                if( isset( $global_settings['enable_ajax'] ) ) {
-                    if( $global_settings['enable_ajax']=='1' ) {
-                        add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
-                    }
-                }
+                // Load scripts before Ajax request
+                add_action( 'super_after_enqueue_element_scripts_action', array( $this, 'load_scripts' ) );
+
             }
             
             if ( $this->is_request( 'admin' ) ) {
@@ -296,10 +292,12 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *  @since      1.0.0
         */
-        public static function load_frontend_scripts_before_ajax() {
-            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
-            wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
+        public static function load_scripts($atts) {
+            if($atts['ajax']) {
+                wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
+                wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
+                wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
+            }
         }
 
 

@@ -17,9 +17,12 @@
         // Add space for Elementor Menu Anchor link
         if ( window.elementorFrontend ) {
             // eslint-disable-next-line no-undef
-            elementorFrontend.hooks.addAction( 'frontend/element_ready/widget', function() {
-                SUPER.init_super_form_frontend();
-            });
+            if ( elementorFrontend.hooks && elementorFrontend.hooks.addAction ) {
+                // eslint-disable-next-line no-undef
+                elementorFrontend.hooks.addAction( 'frontend/element_ready/widget', function() {
+                    SUPER.init_super_form_frontend();
+                });
+            }
         }
     });
 })(jQuery);

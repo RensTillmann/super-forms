@@ -1315,7 +1315,7 @@ class SUPER_Shortcodes {
         }
         if( !empty( $atts['tooltip'] ) ) {
             wp_enqueue_style( 'tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION );    
-            wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array(), SUPER_VERSION );   
+            wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array( 'jquery' ), SUPER_VERSION, false );   
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
@@ -1464,7 +1464,7 @@ class SUPER_Shortcodes {
 
         // @since 2.6.0 - IBAN validation
         if( $atts['validation']=='iban' ) {
-            wp_enqueue_script( 'iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array(), SUPER_VERSION );
+            wp_enqueue_script( 'iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array( 'jquery' ), SUPER_VERSION, false );
         }
 
         $data_attributes = array(
@@ -1573,7 +1573,7 @@ class SUPER_Shortcodes {
                 if( $tag=='text' ) {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !empty($atts['mask']) ) {
-                        wp_enqueue_script( 'masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array(), SUPER_VERSION );
+                        wp_enqueue_script( 'masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array( 'jquery' ), SUPER_VERSION, false );
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
@@ -2588,7 +2588,7 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_style( 'super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION );    
-        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
+        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js', array( 'jquery' ), SUPER_VERSION, false );
 
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2650,7 +2650,7 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION );    
-        wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array(), SUPER_VERSION ); 
+        wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array( 'jquery' ), SUPER_VERSION, false ); 
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
@@ -2683,7 +2683,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
-        wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array(), SUPER_VERSION ); 
+        wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false ); 
         
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
@@ -3368,7 +3368,7 @@ class SUPER_Shortcodes {
             // Check if this the "Slider" layout is enabled, if so we will add a wrapper so that the "CarouselJS" can initilize the slider/carousel
             if(!empty($atts['display']) && $atts['display']=='slider'){
                 wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
-                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js' );
+                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
                 $result .= '<div class="carouseljs">';
                 // Override default configuration for the carousel based on element settings
                 $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
@@ -3454,7 +3454,7 @@ class SUPER_Shortcodes {
             // Check if this the "Slider" layout is enabled, if so we will add a wrapper so that the "CarouselJS" can initilize the slider/carousel
             if(!empty($atts['display']) && $atts['display']=='slider'){
                 wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
-                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js' );
+                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
                 $result .= '<div class="carouseljs">';
                 // Override default configuration for the carousel based on element settings
                 $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
@@ -3763,7 +3763,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js' );
+        wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js', array( 'jquery' ), SUPER_VERSION, false );
 
         // @since 1.3 - Return the current date as default value
         if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';

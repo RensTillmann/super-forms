@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.235
+ * Version:     4.9.240
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.235';
+        public $version = '4.9.240';
         public $slug = 'super-forms';
 
 
@@ -964,30 +964,40 @@ if(!class_exists('SUPER_Forms')) :
             wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
             wp_enqueue_script( $handle );
 
-            // Add js files that are needed in case when theme makes an Ajax call to load content dynamically
+            // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
+            // This is also used on the Elementor editor pages
             if( $ajax==true ) {
-                // We need to add these, just in case the form has an file upload element
+                wp_enqueue_media(); // Needed for Text Editor
+                wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_style( 'tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION, false );
+                wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'iban-check', SUPER_PLUGIN_FILE . 'assets/js/frontend/iban-check.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_style( 'super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION, false );    
+                wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js' );
+                wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE.'assets/css/backend/simpleslider.css', array(), SUPER_VERSION );
+                wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE.'assets/js/backend/simpleslider.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false );
+                wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
+                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
                 wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION, false );
-                wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js', array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js', array( 'jquery' ), SUPER_VERSION, false );
-        
-                wp_enqueue_style( 'simpleslider', SUPER_PLUGIN_FILE . 'assets/css/backend/simpleslider.css', array(), SUPER_VERSION, false ); 
-                wp_enqueue_script( 'simpleslider', SUPER_PLUGIN_FILE . 'assets/js/backend/simpleslider.js', array( 'jquery' ), SUPER_VERSION, false );
-
+                wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js', array( 'jquery' ), SUPER_VERSION, false );
+                if(!empty($settings['form_recaptcha_v3'])){
+                    wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $settings['form_recaptcha_v3']);
+                }else{
+                    wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+                }
+                // @since 3.1.0 - google maps API places library
+                if( !empty($settings['form_google_places_api']) ) {
+                    wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                }
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
                 wp_enqueue_script( 'upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                
-                // @since 3.1.0 - google maps API places library
-                if( !empty($settings['form_google_places_api']) ) {
-                    wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
-                }
-
-                // Needed for Text Editor
-                wp_enqueue_media();
-
             }
 
             // @since 1.2.8 -   super_after_enqueue_element_scripts_action
@@ -999,7 +1009,7 @@ if(!class_exists('SUPER_Forms')) :
         /**
          * Enqueue scripts before ajax call is made
          *
-         *  @since      1.1.9.5
+         *  @since      1.1.9
         */
         public static function load_frontend_scripts_before_ajax() {
             $global_settings = SUPER_Common::get_global_settings();
