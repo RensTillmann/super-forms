@@ -157,24 +157,41 @@
 }
 
 .super-stripe-action-btn {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: white;
-    width: 35px;
+    width: auto;
+    padding: 2px 10px 2px 10px;
     height: 25px;
     position: relative;
     border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     text-align: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
 }
-
 .super-stripe-action-btn:hover {
     background-color: rgb(255, 255, 255);
     box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 3px 9px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
 }
+.super-stripe-action-btn.super-stripe-primary {
+    color:white;
+    background-color: rgb(84, 105, 212);
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgb(84, 105, 212) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+.super-stripe-action-btn.super-stripe-primary:hover {
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.12) 0px 1px 1px 0px, rgb(84, 105, 212) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.42) 0px 3px 9px 0px, rgba(60, 66, 87, 0.12) 0px 2px 5px 0px;
+}
+
 
 .super-stripe-action-btn svg {
-    margin-top: 7px;
+    margin-top: 1px;
 }
 
 .super-stripe-headings {
@@ -431,7 +448,8 @@
 }
 
 .super-stripe-modal-fields input,
-.super-stripe-modal-fields textarea {
+.super-stripe-modal-fields textarea,
+.super-stripe-action-btn {
     border: 0;
     background-color: rgb(255, 255, 255);
     box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
@@ -439,7 +457,8 @@
 }
 
 .super-stripe-modal-fields input:focus,
-.super-stripe-modal-fields textarea:focus {
+.super-stripe-modal-fields textarea:focus,
+.super-stripe-action-btn:active {
     box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(58, 151, 212, 0.34) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
 }
 
@@ -582,4 +601,17 @@
 
 .super-field-type-currency {
     width: 40%;
+}
+
+.super-stripe-modal-actions {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    padding:15px 5px 15px 15px;
+    box-sizing:border-box;
+}
+
+.super-stripe-modal-actions .super-stripe-action-btn {
+  margin-right: 10px;
 }

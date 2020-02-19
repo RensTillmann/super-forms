@@ -22,6 +22,9 @@
     // Remove all elements
     app.remove = function (e) {
         if (typeof e === 'undefined' || !e) return true;
+        if(typeof e.length === 'undefined'){
+            e.remove();
+        }
         if (e.length) {
             for (var i = 0; i < e.length; i++) {
                 e[i].remove();
@@ -125,14 +128,30 @@
                 // Get Raw JSON data
                 var html = '',
                     json = JSON.parse(app.api.rawJSON),
+                    currency = 'EUR', //json.currency.toUpperCase(),
+                    symbol = ( typeof OSREC.CurrencyFormatter.symbols[currency] !== 'undefined' ? OSREC.CurrencyFormatter.symbols[currency] : currency + '' ),
+                    amount = json.amount/100,
+                    amountPretty = OSREC.CurrencyFormatter.format(amount, {pattern: '#,##0.00'}),
                     modalWrapper = document.createElement('div'),
                     modalContainer = document.createElement('div');
+
                 modalWrapper.className = app.ui.modal.wrapperClassName;
                 modalContainer.className = app.ui.modal.containerClassName;
-
                 if (attr.type == 'refundPayment') {
                     var modalTitle = 'Refund payment';
                     var modalInfo = 'Refunds take 5-10 days to appear on a customer\'s statement.';
+                    var modalActions = {
+                        "cancel": {
+                            name: "Cancel",
+                            color: "default",
+                            events: {click: {"ui.modal.close":{}}}
+                        },
+                        "refund": {
+                            name: "Refund",
+                            color: "primary",
+                            events: {click: {"api.refund.post":{}}}
+                        }
+                    };
                     var modalFields = {
                         "amount": {
                             label: "Refund",
@@ -185,13 +204,6 @@
                             html += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" style="height: 12px; width: 12px;"><path d="M11.891 9.992a1 1 0 1 1 1.416 1.415l-4.3 4.3a1 1 0 0 1-1.414 0l-4.3-4.3A1 1 0 0 1 4.71 9.992l3.59 3.591 3.591-3.591zm0-3.984L8.3 2.417 4.709 6.008a1 1 0 0 1-1.416-1.415l4.3-4.3a1 1 0 0 1 1.414 0l4.3 4.3a1 1 0 1 1-1.416 1.415z"></path></svg>';
                         }
                         if (type === 'currency') {
-                            var currency = 'EUR', // json.currency.toUpperCase(),
-                                amount = json.amount/100,
-                                // eslint-disable-next-line no-undef
-                                value = OSREC.CurrencyFormatter.format(amount, {
-                                    pattern: '#,##0.00'
-                                });
-
                             // // TJS (Tajikistani somoni) is not supported, we have to use our own formatting
                             // // [ЅM](! #,##0.00)
                             // if (currency == 'TJS') {
@@ -212,10 +224,7 @@
                             //         pattern: '! #,##0.00'
                             //     });
                             // }
-                            console.log(json);
-                            console.log(value);
-                            console.log(OSREC.CurrencyFormatter.parse(value)); // Returns 100.99
-                            html += '<input type="text" name="' + key + '" value="' + value + '" sfevents=\'{"keyup":{"api.refund.validateAmount":{"max":'+amount+', "currency":"'+currency+'"}}}\' />';
+                            html += '<input type="text" name="' + key + '" value="' + amountPretty + '" sfevents=\'{"keyup":{"api.refund.validateAmount":{"max":'+amount+',"currency":"'+currency+'","symbol":"'+symbol+'"}}}\' />';
                             html += '<span class="super-stripe-currency">' + currency + '</span>';
                         }
                         html += '</div>';
@@ -223,6 +232,18 @@
                     });
                     html += '</div>';
                 }
+                if (modalActions) {
+                    html += '<div class="super-stripe-modal-actions">';
+                    Object.keys(modalActions).forEach(function (key) {
+                        var action = modalActions[key];
+                        html += '<div class="super-stripe-action-btn super-stripe-'+action.color+'" sfevents=\''+JSON.stringify(action.events)+'\'>';
+                        if(key==='refund') action.name = action.name+' '+symbol+amountPretty;    
+                        html += '<span>'+action.name+'</span>';
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+
                 modalContainer.innerHTML = html;
                 modalWrapper.appendChild(modalContainer);
                 document.body.appendChild(modalWrapper);
@@ -480,12 +501,16 @@
 
         // Refund
         refund: {
+            post: function(){
+                alert('Post refund request');
+            },
             validateAmount: function (e, target, eventType, attr) {
-                var amount = parseFloat(target.value);
+                var amount = parseFloat(OSREC.CurrencyFormatter.parse(target.value));
                 var msg = '';
                 if(amount<=0) msg = 'Refund cannot be '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
-                if(parseFloat(target.value) > parseFloat(attr.max))  msg = 'Refund cannot be more than '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
+                if(amount > parseFloat(attr.max))  msg = 'Refund cannot be more than '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
                 app.remove(app.qa('.super-stripe-error'));
+                app.q('.super-stripe-modal-actions .super-stripe-primary').innerHTML = 'Refund '+attr.symbol+target.value;
                 if(msg!==''){
                     var node = document.createElement('p');
                     node.className = 'super-stripe-error';
