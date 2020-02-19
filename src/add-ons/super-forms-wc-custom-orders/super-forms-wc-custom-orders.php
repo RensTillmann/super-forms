@@ -177,18 +177,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                     echo '</p>';
                 echo '</div>';
             }
-            if( !class_exists( 'woocommerce' ) ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %1$sWooCommerce%2$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
         }
 
 

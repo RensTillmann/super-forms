@@ -1,7 +1,8 @@
 # Super Forms - Changelog
 
-## Feb 18, 2020 - Version 4.9.235
+## Feb 19, 2020 - Version 4.9.240
 
+- **Fix:** JavaScript error in Elementor builder interface
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
   - `2020-03-25` (excludes a specific date)

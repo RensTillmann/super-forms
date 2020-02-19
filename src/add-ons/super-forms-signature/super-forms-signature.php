@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Signature
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
- * Version:     1.5.0
+ * Version:     1.5.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Signature')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.0';
+        public $version = '1.5.1';
 
 
         /**
@@ -166,18 +166,9 @@ if(!class_exists('SUPER_Signature')) :
                 // Filters since 1.2.2
                 add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 110, 2 );
 
-                /**
-                 * Check if this site uses Ajax calls to generate content dynamically
-                 * If this is the case make sure the styles and scripts for the element(s) are loaded
-                 *
-                 *  @since      1.0.2
-                */
-                $global_settings = get_option( 'super_settings' );
-                if( isset( $global_settings['enable_ajax'] ) ) {
-                    if( $global_settings['enable_ajax']=='1' ) {
-                        add_action( 'wp_enqueue_scripts', array( $this, 'load_frontend_scripts_before_ajax' ) );
-                    }
-                }
+                // Load scripts before Ajax request
+                add_action( 'super_after_enqueue_element_scripts_action', array( $this, 'load_scripts' ) );
+
             }
             
             if ( $this->is_request( 'admin' ) ) {
@@ -282,10 +273,12 @@ if(!class_exists('SUPER_Signature')) :
          *
          *  @since      1.0.2
         */
-        public static function load_frontend_scripts_before_ajax() {
-            wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
-            wp_enqueue_script( 'jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
-            wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common', 'jquery-signature' ), SUPER_Signature()->version );
+        public static function load_scripts($atts) {
+            if($atts['ajax']) {
+                wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
+                wp_enqueue_script( 'jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
+                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common', 'jquery-signature' ), SUPER_Signature()->version );
+            }
         }
 
 

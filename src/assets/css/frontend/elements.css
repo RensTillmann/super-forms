@@ -3,9 +3,8 @@
   z-index: 2999999999 !important;
 }
 
-.super-initialized *,
-.super-multipart-progress *,
-ul.super-multipart-steps * {
+.super-initialized .super-multipart-progress *,
+.super-initialized ul.super-multipart-steps * {
   -webkit-transition: all 0.5s ease-out 0s;
   -moz-transition: all 0.5s ease-out 0s;
   -ms-transition: all 0.5s ease-out 0s;
