@@ -2,7 +2,6 @@
 
 ## Feb 19, 2020 - Version 4.9.240
 
-- **Fix:** JavaScript error in Elementor builder interface
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
   - `2020-03-25` (excludes a specific date)
@@ -22,6 +21,8 @@
 - **Fixed:** W3C validation errors
 - **Fixed:** JavaScript error with dropdown filter
 - **Fixed:** Issue with `Allow field to be empty` not taking effect in combination with for instance `Website` validation method
+- **Fix:** Currency field with decimal (precision) set to 0 would return value in cents, 1 would become 0.01 instead
+- **Fix:** JavaScript error in Elementor builder interface
 - **Improved:** Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - **Improved:** When reading CSV file make sure to remove BOM (Byte order mark)
 

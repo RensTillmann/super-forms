@@ -87,6 +87,20 @@
 
     // UI    
     app.ui = {
+        toast: {
+            show: function(){
+                var toastWrapper = document.createElement('div'),
+                    toastText = 'Some text',
+                    toastURL = 'http://google.com',
+                    toastLinkText = 'View';
+                toastWrapper.className = 'super-stripe-toast-wrapper';
+                toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>'+toastText+'</span><a href="'+toastURL+'">'+toastLinkText+'</a></div>';
+                document.body.appendChild(toastWrapper);
+                setTimeout(function(){
+                    toastWrapper.style.bottom = '10px';
+                }, 10);
+            }
+        },
         backdrop: {
             className: 'super-stripe-backdrop',
             add: function () {
@@ -149,7 +163,7 @@
                         "refund": {
                             name: "Refund",
                             color: "primary",
-                            events: {click: {"api.refund.post":{}}}
+                            events: {click: {"api.refund.post":{"id": attr.id}}}
                         }
                     };
                     var modalFields = {
@@ -326,14 +340,14 @@
                         // Open up new context menu
                         var contextMenu = document.createElement('div');
                         contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
+                        var row = target.closest('.super-stripe-row');
+                        app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
                         var html = '';
                         html += '<span>ACTIONS</span>';
-                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment"}}}\'>Refund payment...</div>';
+                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"'+row.id+'"}}}\'>Refund payment...</div>';
                         html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
                         html += '<divider></divider>';
                         html += '<span>CONNECTIONS</span>';
-                        var row = target.closest('.super-stripe-row');
-                        app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
 
                         var testData = row.querySelector('.super-stripe-testdata').length;
                         var customerID = row.querySelector('.super-stripe-customer').customer;
@@ -501,8 +515,24 @@
 
         // Refund
         refund: {
-            post: function(){
-                alert('Post refund request');
+            post: function(e, target, eventType, attr){
+                console.log(e, target, eventType, attr);
+                var amount = app.q('.super-stripe-modal-fields input[name="amount"]').value;
+                amount = parseFloat(OSREC.CurrencyFormatter.parse(amount));
+                console.log(amount);
+                console.log('Post refund request');
+                var data = {
+                    type: 'refund.create',
+                    // ID of the PaymentIntent to refund.
+                    payment_intent: attr.id,
+                    // String indicating the reason for the refund. If set, possible values are duplicate, fraudulent, and requested_by_customer.
+                    // If you believe the charge to be fraudulent, specifying fraudulent as the reason will add the associated card and email to your block lists, and will also help us improve our fraud detection algorithms.
+                    reason: 'requested_by_customer',
+                    // A positive integer in cents representing how much of this charge to refund.
+                    // Can refund only up to the remaining, unrefunded amount of the charge.
+                    amount: amount*100
+                };
+                app.api.handler(data);
             },
             validateAmount: function (e, target, eventType, attr) {
                 var amount = parseFloat(OSREC.CurrencyFormatter.parse(target.value));
@@ -862,24 +892,35 @@
             }
 
         },
-        handler: function (obj) {
+        handler: function (data) {
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4) {
-                    if (this.status === 200) {
-                        // Success:
-                        if (obj.type == 'invoice.online' || obj.type == 'invoice.pdf') {
+                    if (this.status === 200) { // Success:
+                        console.log(data.type);
+                        try {
+                            var payload = JSON.parse(this.response);
+                        } catch (error) {
+                            console.log(error);
+                            alert(error);
+                        }
+                        console.log(payload);
+                        if (data.type == 'refund.create'){
+                            if(payload.status==='succeeded'){
+                                app.ui.toast.show();
+                            }else{
+                                if(payload.error){
+                                    alert(payload.error.message);
+                                }
+                            }
+                            return true;
+                        }
+                        if (data.type == 'invoice.online' || data.type == 'invoice.pdf') {
                             console.log('just testing...');
-                        } else {
-                            try {
-                                var payload = JSON.parse(this.response);
-                            } catch (error) {
-                                console.log(error);
-                                alert(error);
-                            }
-                            for (var i = 0; i < payload.length; i++) {
-                                app.api.addRows[obj.type](payload[i]);
-                            }
+                            return true;
+                        }
+                        for (var i = 0; i < payload.length; i++) {
+                            app.api.addRows[data.type](payload[i]);
                         }
                     }
                     // Complete:
@@ -894,14 +935,12 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_stripe_api_handler',
-                type: obj.type, // e.g: 'paymentIntents', 'products', 'customers'
-                id: obj.id, // e.g: 'paymentIntents', 'products', 'customers'
-                starting_after: (typeof obj.starting_after === 'undefined' ? '' : obj.starting_after)
+                data: data
             };
             xhttp.send(app.serialize(params));
         },
-        payment_intents: function (obj) {
-            app.api.handler(obj);
+        payment_intents: function (data) {
+            app.api.handler(data);
         }
     };
 
@@ -1044,4 +1083,5 @@
         app.ui.modal.reposition();
     });
 
+    window.app = app;
 })();
