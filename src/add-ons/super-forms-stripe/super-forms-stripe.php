@@ -810,41 +810,8 @@ if(!class_exists('SUPER_Stripe')) :
                         ],
                     ]);
                 }
-            } catch(\Stripe\Error\Card $e) {
-                // Since it's a decline, \Stripe\Error\Card will be caught
-                $message = $e->getJsonBody()['error']['message'];
-                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                die();
-            } catch(\Stripe\Exception\CardException $e) {
-                // Since it's a decline, \Stripe\Exception\CardException will be caught
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\RateLimitException $e) {
-                // Too many requests made to the API too quickly
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\InvalidRequestException $e) {
-                // Invalid parameters were supplied to Stripe's API
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\AuthenticationException $e) {
-                // Authentication with Stripe's API failed
-                // (maybe you changed API keys recently)
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiConnectionException $e) {
-                // Network communication with Stripe failed
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiErrorException $e) {
-                // Display a very generic error to the user, and maybe send
-                // yourself an email
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                die();
-            } catch (Exception $e) {
-                // Something else happened, completely unrelated to Stripe
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                die();
+            } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                self::exceptionHandler($e);
             }
 
             try {
@@ -860,41 +827,8 @@ if(!class_exists('SUPER_Stripe')) :
                     'payment_behavior' => 'allow_incomplete',
                     'expand' => ['latest_invoice.payment_intent']
                 ]);
-            } catch(\Stripe\Error\Card $e) {
-                // Since it's a decline, \Stripe\Error\Card will be caught
-                $message = $e->getJsonBody()['error']['message'];
-                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                die();
-            } catch(\Stripe\Exception\CardException $e) {
-                // Since it's a decline, \Stripe\Exception\CardException will be caught
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\RateLimitException $e) {
-                // Too many requests made to the API too quickly
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\InvalidRequestException $e) {
-                // Invalid parameters were supplied to Stripe's API
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\AuthenticationException $e) {
-                // Authentication with Stripe's API failed
-                // (maybe you changed API keys recently)
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiConnectionException $e) {
-                // Network communication with Stripe failed
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiErrorException $e) {
-                // Display a very generic error to the user, and maybe send
-                // yourself an email
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                die();
-            } catch (Exception $e) {
-                // Something else happened, completely unrelated to Stripe
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                die();
+            } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                self::exceptionHandler($e);
             }
 
             // Check if the user is logged in
@@ -1054,41 +988,8 @@ if(!class_exists('SUPER_Stripe')) :
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
                 }
                 $intent = \Stripe\PaymentIntent::create($data);
-            } catch(\Stripe\Error\Card $e) {
-                // Since it's a decline, \Stripe\Error\Card will be caught
-                $message = $e->getJsonBody()['error']['message'];
-                echo json_encode( array( 'error' => array( 'message' => $message ) ) );
-                die();
-            } catch(\Stripe\Exception\CardException $e) {
-                // Since it's a decline, \Stripe\Exception\CardException will be caught
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\RateLimitException $e) {
-                // Too many requests made to the API too quickly
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\InvalidRequestException $e) {
-                // Invalid parameters were supplied to Stripe's API
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\AuthenticationException $e) {
-                // Authentication with Stripe's API failed
-                // (maybe you changed API keys recently)
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiConnectionException $e) {
-                // Network communication with Stripe failed
-                echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
-                die();
-            } catch (\Stripe\Exception\ApiErrorException $e) {
-                // Display a very generic error to the user
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
-                die();
-            } catch (Exception $e) {
-                var_dump($e);
-                // Something else happened, completely unrelated to Stripe
-                echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
-                die();
+            } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                self::exceptionHandler($e);
             }
             return $intent;
         }
@@ -1374,6 +1275,63 @@ if(!class_exists('SUPER_Stripe')) :
         public static function getInvoice($id) {
             return \Stripe\Invoice::retrieve($id);
         }
+        public static function exceptionHandler($e){
+            echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
+            die();
+            // catch(\Stripe\Error\Card $e) {
+            //     // Since it's a decline, \Stripe\Error\Card will be caught
+            //     $message = $e->getJsonBody()['error']['message'];
+            //     echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+            //     die();
+            // } catch(\Stripe\Exception\CardException $e) {
+            //     // Since it's a decline, \Stripe\Exception\CardException will be caught
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     die();
+            // } catch (\Stripe\Exception\RateLimitException $e) {
+            //     // Too many requests made to the API too quickly
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     die();
+            // } catch (\Stripe\Exception\InvalidRequestException $e) {
+            //     // Invalid parameters were supplied to Stripe's API
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     die();
+            // } catch (\Stripe\Exception\AuthenticationException $e) {
+            //     // Authentication with Stripe's API failed
+            //     // (maybe you changed API keys recently)
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     die();
+            // } catch (\Stripe\Exception\ApiConnectionException $e) {
+            //     // Network communication with Stripe failed
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     die();
+            // } catch (\Stripe\Exception\ApiErrorException $e) {
+            //     // Display a very generic error to the user, and maybe send
+            //     // yourself an email
+            //     echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+            //     die();
+            // } catch (Exception $e) {
+            //     // Something else happened, completely unrelated to Stripe
+            //     echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+            //     die();
+            // }
+
+            // if( isset($e) && function_exists($e->getError()) && isset($e->getError()->message) )
+            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) ); die();
+            // echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) ); die();
+        }
+        public static function createRefund($payment_intent, $reason, $amount) {
+            try {
+                $response = \Stripe\Refund::create([
+                    'payment_intent' => $payment_intent,
+                    'reason' => $reason,
+                    'amount' => $amount
+                ]);
+            } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                self::exceptionHandler($e);
+            }
+            echo json_encode($response->toArray(), JSON_PRETTY_PRINT);
+            die();
+        }
         public static function getPaymentIntents( $formatted=true, $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
             $paymentIntents = \Stripe\PaymentIntent::all([
                 // optional
@@ -1488,24 +1446,48 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
          */
         public static function super_stripe_api_handler() {  
-            if( !empty($_POST['type']) ) {
-                self::setAppInfo();
-                $items = array();
-                $type = sanitize_text_field($_POST['type']);
-                $id = '';
-                if(empty($_POST['formatted'])) $formatted = true;
-                if(!empty($_POST['id'])) $id = sanitize_text_field($_POST['id']);
-                $starting_after = sanitize_text_field($_POST['starting_after']);
-                if(empty($starting_after)) $starting_after = null;
-                if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
-                    $items = self::getInvoice($id);
+            if( !empty($_POST['data']) ) {
+                $data = $_POST['data'];
+                if( !empty($data['type']) ) {
+                    self::setAppInfo();
+                    $type = sanitize_text_field($data['type']);
+                    if( $type=='invoice.online' || $type=='paymentIntents' || $type=='products' || $type=='customers' ) {
+                        $payload = array();
+                        $id = '';
+                        $starting_after = null;
+                        if(empty($data['formatted'])) $formatted = true;
+                        if(!empty($data['id'])) $id = sanitize_text_field($data['id']);
+                        if(!empty($data['starting_after'])) $starting_after = sanitize_text_field($data['starting_after']);
+                        if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
+                            $payload = self::getInvoice($id);
+                        }
+                        if( $type=='invoice.online' ) {
+                            $payload = self::getPaymentIntents($formatted, 3, $starting_after);
+                        }
+                        if( $type=='paymentIntents' ) {
+                            $payload = self::getPaymentIntents($formatted, 3, $starting_after);
+                        }
+                        if( $type=='products' ) {
+                            $payload = self::getProducts($formatted, 3, $starting_after);
+                        }
+                        if( $type=='customers' ) {
+                            $payload = self::getCustomers($formatted, 3, $starting_after);
+                        }
+                    }
+                    if( $type=='refund.create' ) {
+                        // ID of the PaymentIntent to refund.
+                        $payment_intent = sanitize_text_field($data['payment_intent']);
+                        // String indicating the reason for the refund. If set, possible values are duplicate, fraudulent, and requested_by_customer.
+                        // If you believe the charge to be fraudulent, specifying fraudulent as the reason will add the associated card and email to your block lists, and will also help us improve our fraud detection algorithms.
+                        $reason = sanitize_text_field($data['reason']);
+                        // A positive integer in cents representing how much of this charge to refund.
+                        // Can refund only up to the remaining, unrefunded amount of the charge.
+                        $amount = sanitize_text_field($data['amount']);
+                        $payload = self::createRefund($payment_intent, $reason, $amount);
+                    }
+                    $payload = json_encode($payload);
+                    echo $payload;
                 }
-                if( $type=='invoice.online' )   $items = self::getPaymentIntents($formatted, 3, $starting_after);
-                if( $type=='paymentIntents' )   $items = self::getPaymentIntents($formatted, 3, $starting_after);
-                if( $type=='products' )         $items = self::getProducts($formatted, 3, $starting_after);
-                if( $type=='customers' )        $items = self::getCustomers($formatted, 3, $starting_after);
-                $items = json_encode($items);
-                echo $items;
             }
             die();
         }    

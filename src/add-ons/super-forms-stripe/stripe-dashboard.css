@@ -613,5 +613,37 @@
 }
 
 .super-stripe-modal-actions .super-stripe-action-btn {
-  margin-right: 10px;
+    margin-right: 10px;
+}
+
+.super-stripe-toast-wrapper {
+    position: fixed;
+    bottom: -100px;
+    left: 0px;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+    transition: all 0.5s;
+}
+
+.super-stripe-toast {
+    color: #fff;
+    background-color: #3c4257;
+    border-radius: 4px;
+    box-shadow: 0 7px 14px 0 rgba(60, 66, 87, 0.12), 0 3px 6px 0 rgba(0, 0, 0, 0.12);
+}
+
+.super-stripe-toast span {
+    padding: 12px 20px 12px 20px;
+    display: inline-block;
+}
+
+.super-stripe-toast a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    box-shadow: inset 1px 0 #4f566b;
+    padding: 12px 20px 12px 20px;
+    display: inline-block;
 }

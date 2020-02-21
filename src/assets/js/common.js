@@ -4262,7 +4262,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-signature')){
                     if(typeof $.fn.signature === "function") {
                         signatureDataUrl = data[i].value;
-                        field.classList.add('super-not-empty'); // Make sure to be able to delete signature to be able to draw a new one
+                        field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                         $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
                     }
                 }
