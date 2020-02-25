@@ -22,7 +22,7 @@
     // Remove all elements
     app.remove = function (e) {
         if (typeof e === 'undefined' || !e) return true;
-        if(typeof e.length === 'undefined'){
+        if (typeof e.length === 'undefined') {
             e.remove();
         }
         if (e.length) {
@@ -88,15 +88,18 @@
     // UI    
     app.ui = {
         toast: {
-            show: function(){
+            show: function (payload) {
                 var toastWrapper = document.createElement('div'),
-                    toastText = 'Some text',
-                    toastURL = 'http://google.com',
+                    // eslint-disable-next-line no-undef
+                    toastText = OSREC.CurrencyFormatter.format(payload.amount / 100, {
+                        currency: payload.currency
+                    }) + ' Refunded',
+                    toastURL = 'https://dashboard.stripe.com/payments/' + payload.payment_intent,
                     toastLinkText = 'View';
                 toastWrapper.className = 'super-stripe-toast-wrapper';
-                toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>'+toastText+'</span><a href="'+toastURL+'">'+toastLinkText+'</a></div>';
+                toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>' + toastText + '</span><a target="_blank" href="' + toastURL + '">' + toastLinkText + '</a></div>';
                 document.body.appendChild(toastWrapper);
-                setTimeout(function(){
+                setTimeout(function () {
                     toastWrapper.style.bottom = '10px';
                 }, 10);
             }
@@ -143,9 +146,13 @@
                 var html = '',
                     json = JSON.parse(app.api.rawJSON),
                     currency = 'EUR', //json.currency.toUpperCase(),
-                    symbol = ( typeof OSREC.CurrencyFormatter.symbols[currency] !== 'undefined' ? OSREC.CurrencyFormatter.symbols[currency] : currency + '' ),
-                    amount = json.amount/100,
-                    amountPretty = OSREC.CurrencyFormatter.format(amount, {pattern: '#,##0.00'}),
+                    // eslint-disable-next-line no-undef
+                    symbol = (typeof OSREC.CurrencyFormatter.symbols[currency] !== 'undefined' ? OSREC.CurrencyFormatter.symbols[currency] : currency + ''),
+                    amount = json.amount / 100,
+                    // eslint-disable-next-line no-undef
+                    amountPretty = OSREC.CurrencyFormatter.format(amount, {
+                        pattern: '#,##0.00'
+                    }),
                     modalWrapper = document.createElement('div'),
                     modalContainer = document.createElement('div');
 
@@ -158,12 +165,22 @@
                         "cancel": {
                             name: "Cancel",
                             color: "default",
-                            events: {click: {"ui.modal.close":{}}}
+                            events: {
+                                click: {
+                                    "ui.modal.close": {}
+                                }
+                            }
                         },
                         "refund": {
                             name: "Refund",
                             color: "primary",
-                            events: {click: {"api.refund.post":{"id": attr.id}}}
+                            events: {
+                                click: {
+                                    "api.refund.post": {
+                                        "id": attr.id
+                                    }
+                                }
+                            }
                         }
                     };
                     var modalFields = {
@@ -238,7 +255,7 @@
                             //         pattern: '! #,##0.00'
                             //     });
                             // }
-                            html += '<input type="text" name="' + key + '" value="' + amountPretty + '" sfevents=\'{"keyup":{"api.refund.validateAmount":{"max":'+amount+',"currency":"'+currency+'","symbol":"'+symbol+'"}}}\' />';
+                            html += '<input type="text" name="' + key + '" value="' + amountPretty + '" sfevents=\'{"keyup":{"api.refund.validate.amount":{"max":' + amount + ',"currency":"' + currency + '","symbol":"' + symbol + '"}}}\' />';
                             html += '<span class="super-stripe-currency">' + currency + '</span>';
                         }
                         html += '</div>';
@@ -250,9 +267,9 @@
                     html += '<div class="super-stripe-modal-actions">';
                     Object.keys(modalActions).forEach(function (key) {
                         var action = modalActions[key];
-                        html += '<div class="super-stripe-action-btn super-stripe-'+action.color+'" sfevents=\''+JSON.stringify(action.events)+'\'>';
-                        if(key==='refund') action.name = action.name+' '+symbol+amountPretty;    
-                        html += '<span>'+action.name+'</span>';
+                        html += '<div class="super-stripe-action-btn super-stripe-' + action.color + '" sfevents=\'' + JSON.stringify(action.events) + '\'>';
+                        if (key === 'refund') action.name = action.name + ' ' + symbol + amountPretty;
+                        html += '<span>' + action.name + '</span>';
                         html += '</div>';
                     });
                     html += '</div>';
@@ -261,7 +278,7 @@
                 modalContainer.innerHTML = html;
                 modalWrapper.appendChild(modalContainer);
                 document.body.appendChild(modalWrapper);
-                if(app.q('.super-field-type-currency input')){
+                if (app.q('.super-field-type-currency input')) {
                     // eslint-disable-next-line no-undef
                     jQuery(app.q('.super-field-type-currency input')).maskMoney({
                         affixesStay: true,
@@ -275,7 +292,13 @@
                 app.ui.contextMenu.close();
                 app.ui.backdrop.add();
             },
-            refundReasonChanged: function (e, target, eventType, attr) {
+            refundReasonChanged: function (e, target) {
+                // Remove error
+                if (target.value !== '' && target.value !== 'null') {
+                    app.remove(app.qap('.super-stripe-error', target.closest('.super-stripe-modal-field')));
+                    target.closest('.super-stripe-modal-field').classList.remove('super-error');
+                }
+                /*
                 console.log(e, target, eventType, attr);
                 // eslint-disable-next-line no-undef
                 var node, i18n = super_stripe_dashboard_i18n.refundReasons;
@@ -284,6 +307,11 @@
                 }
                 if(target.parentNode.querySelector('i')) {
                     target.parentNode.querySelector('i').remove();
+                }
+                // Remove error
+                if(target.value!=='' && target.value!=='null'){
+                    app.remove(app.qap('.super-stripe-error', target.closest('.super-stripe-modal-field')));
+                    target.closest('.super-stripe-modal-field').classList.remove('super-error');
                 }
                 switch (target.value) {
                     case 'duplicate':
@@ -314,6 +342,7 @@
                         target.parentNode.appendChild(node);
                         break;
                 }
+                */
             }
         },
         contextMenu: {
@@ -344,17 +373,16 @@
                         app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
                         var html = '';
                         html += '<span>ACTIONS</span>';
-                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"'+row.id+'"}}}\'>Refund payment...</div>';
+                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"' + row.id + '"}}}\'>Refund payment...</div>';
                         html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
                         html += '<divider></divider>';
                         html += '<span>CONNECTIONS</span>';
 
-                        var testData = row.querySelector('.super-stripe-testdata').length;
                         var customerID = row.querySelector('.super-stripe-customer').customer;
                         if (customerID) {
-                            html += '<a target="_blank" href="https://dashboard.stripe.com/' + (testData !== 0 ? 'test/' : '') + 'customers/' + customerID + '">View customer</a>';
+                            html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + customerID + '">View customer</a>';
                         }
-                        html += '<a target="_blank" href="https://dashboard.stripe.com/' + (testData !== 0 ? 'test/' : '') + 'payments/' + row.id + '">View payment details</a>';
+                        html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">View payment details</a>';
                         contextMenu.innerHTML = html;
 
                         // Get the position relative to the viewport (i.e. the window)
@@ -515,9 +543,16 @@
 
         // Refund
         refund: {
-            post: function(e, target, eventType, attr){
+            post: function (e, target, eventType, attr) {
+                debugger;
+                if ((target.closest('.super-stripe-modal').classList.contains('super-loading')) ||
+                    (app.api.refund.validate.all())) return false;
+                target.closest('.super-stripe-modal').classList.add('super-loading');
                 console.log(e, target, eventType, attr);
-                var amount = app.q('.super-stripe-modal-fields input[name="amount"]').value;
+                target.innerHTML += '<svg viewBox="0 0 24 24"><g transform="translate(1 1)" fill-rule="nonzero" fill="none"><circle cx="11" cy="11" r="11"></circle><path d="M10.998 22a.846.846 0 0 1 0-1.692 9.308 9.308 0 0 0 0-18.616 9.286 9.286 0 0 0-7.205 3.416.846.846 0 1 1-1.31-1.072A10.978 10.978 0 0 1 10.998 0c6.075 0 11 4.925 11 11s-4.925 11-11 11z" fill="currentColor"></path></g></svg>';
+                var amount = app.q('.super-stripe-modal input[name="amount"]').value;
+                var reason = app.q('.super-stripe-modal select[name="reason"]').value;
+                // eslint-disable-next-line no-undef
                 amount = parseFloat(OSREC.CurrencyFormatter.parse(amount));
                 console.log(amount);
                 console.log('Post refund request');
@@ -527,27 +562,68 @@
                     payment_intent: attr.id,
                     // String indicating the reason for the refund. If set, possible values are duplicate, fraudulent, and requested_by_customer.
                     // If you believe the charge to be fraudulent, specifying fraudulent as the reason will add the associated card and email to your block lists, and will also help us improve our fraud detection algorithms.
-                    reason: 'requested_by_customer',
+                    reason: reason,
                     // A positive integer in cents representing how much of this charge to refund.
                     // Can refund only up to the remaining, unrefunded amount of the charge.
-                    amount: amount*100
+                    amount: parseFloat(amount * 100).toFixed(0)
                 };
                 app.api.handler(data);
             },
-            validateAmount: function (e, target, eventType, attr) {
-                var amount = parseFloat(OSREC.CurrencyFormatter.parse(target.value));
-                var msg = '';
-                if(amount<=0) msg = 'Refund cannot be '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
-                if(amount > parseFloat(attr.max))  msg = 'Refund cannot be more than '+parseFloat(attr.max).toFixed(2)+' '+attr.currency+'.';
-                app.remove(app.qa('.super-stripe-error'));
-                app.q('.super-stripe-modal-actions .super-stripe-primary').innerHTML = 'Refund '+attr.symbol+target.value;
-                if(msg!==''){
-                    var node = document.createElement('p');
-                    node.className = 'super-stripe-error';
-                    node.innerHTML = msg;
-                    target.parentNode.appendChild(node);
+            validate: {
+                all: function () {
+                    var error = false;
+                    error = (app.api.refund.validate.amount() === true ? true : error);
+                    error = (app.api.refund.validate.reason() === true ? true : error);
+                    return error;
+                },
+                amount: function () {
+                    var node,
+                        sfevents = {},
+                        attr = {},
+                        msg = '',
+                        amount,
+                        error = false,
+                        target = app.q('.super-stripe-modal select[name="reason"]');
+                    target = app.q('.super-stripe-modal input[name="amount"]');
+                    sfevents = JSON.parse(target.attributes.sfevents.value);
+                    attr = sfevents.keyup['api.refund.validate.amount'];
+                    // eslint-disable-next-line no-undef
+                    amount = parseFloat(OSREC.CurrencyFormatter.parse(target.value));
+                    if (amount <= 0) msg = 'Refund cannot be ' + parseFloat(attr.max).toFixed(2) + ' ' + attr.currency + '.';
+                    if (amount > parseFloat(attr.max)) msg = 'Refund cannot be more than ' + parseFloat(attr.max).toFixed(2) + ' ' + attr.currency + '.';
+                    app.remove(app.qap('.super-stripe-error', target.closest('.super-stripe-modal-field')));
+                    app.q('.super-stripe-modal-actions .super-stripe-primary').innerHTML = 'Refund ' + attr.symbol + target.value;
+                    if (msg !== '') {
+                        error = true;
+                        target.closest('.super-stripe-modal-field').classList.add('super-error');
+                        node = document.createElement('p');
+                        node.className = 'super-stripe-error';
+                        node.innerHTML = msg;
+                        target.parentNode.appendChild(node);
+                    } else {
+                        target.closest('.super-stripe-modal-field').classList.remove('super-error');
+                    }
+                    return error;
+                },
+                reason: function () {
+                    var node,
+                        error = false,
+                        target = app.q('.super-stripe-modal select[name="reason"]');
+                    target = app.q('.super-stripe-modal select[name="reason"]');
+                    app.remove(app.qap('.super-stripe-error', target.closest('.super-stripe-modal-field')));
+                    if (target.value === '' || target.value === 'null') {
+                        error = true;
+                        target.closest('.super-stripe-modal-field').classList.add('super-error');
+                        node = document.createElement('p');
+                        node.className = 'super-stripe-error';
+                        node.innerHTML = 'Required';
+                        target.parentNode.appendChild(node);
+                    } else {
+                        target.closest('.super-stripe-modal-field').classList.remove('super-error');
+                    }
+                    return error;
                 }
-            }
+            },
         },
 
         // Invoice
@@ -571,7 +647,15 @@
         },
 
         addRows: {
+            refreshPaymentIntent: function (payload) {
+                app.api.addRows.paymentIntents(payload);
+            },
             paymentIntents: function (payload) {
+
+                // check if row already exists, if so then we need to update the row instead of adding a new one
+                var replace = false;
+                if (app.q('#' + payload.id)) replace = app.q('#' + payload.id);
+
                 // eslint-disable-next-line no-undef
                 var $declineCodes = super_stripe_dashboard_i18n.declineCodes;
                 var parentNode = app.q('.super-stripe-transactions .super-stripe-table-rows');
@@ -719,7 +803,7 @@
                 console.log(payload.customer);
                 if (payload.customer) {
                     column.customer = payload.customer.id;
-                    html += '<a target="_blank" href="https://dashboard.stripe.com/' + (!payload.livemode ? 'test/' : '') + 'customers/' + payload.customer.id + '">';
+                    html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">';
                     if (payload.customer.email) {
                         html += payload.customer.email
                     } else {
@@ -818,7 +902,16 @@
                 column.innerHTML = payload.createdFormatted;
                 newRow.appendChild(column);
 
-                parentNode.appendChild(newRow);
+                // If we are replacing/refreshing an existing row
+                if(replace) {
+                    // Place new row right after replace
+                    replace.parentNode.insertBefore(newRow, replace.nextSibling);
+                    replace.remove();
+                }else{
+                    // Add the row to the parent (the list/table)
+                    parentNode.appendChild(newRow);
+                }
+
                 app.resizeColumns(parentNode.parentNode);
                 app.addClass(app.q('.super-stripe-transactions'), 'super-initialized');
             },
@@ -893,7 +986,7 @@
 
         },
         handler: function (data) {
-            var xhttp = new XMLHttpRequest();
+            var i, xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4) {
                     if (this.status === 200) { // Success:
@@ -905,11 +998,19 @@
                             alert(error);
                         }
                         console.log(payload);
-                        if (data.type == 'refund.create'){
-                            if(payload.status==='succeeded'){
-                                app.ui.toast.show();
-                            }else{
-                                if(payload.error){
+                        if (data.type == 'refund.create') {
+                            if (payload.status === 'succeeded') {
+                                app.ui.modal.close(); // Close modal
+                                app.ui.toast.show(payload); // Display "View" link
+                                // Refresh this payment intent in the table/list
+                                app.api.handler({
+                                    type: 'refreshPaymentIntent',
+                                    id: payload.payment_intent,
+                                    limit: 1
+                                });
+                            } else {
+                                app.removeClass(app.q('.super-stripe-modal.super-loading'), 'super-loading');
+                                if (payload.error) {
                                     alert(payload.error.message);
                                 }
                             }
@@ -919,7 +1020,14 @@
                             console.log('just testing...');
                             return true;
                         }
-                        for (var i = 0; i < payload.length; i++) {
+                        if (data.type == 'refreshPaymentIntent') {
+                            console.log('just testing refresh row...');
+                            for (i = 0; i < payload.length; i++) {
+                                app.api.addRows[data.type](payload[i]);
+                            }
+                            return true;
+                        }
+                        for (i = 0; i < payload.length; i++) {
                             app.api.addRows[data.type](payload[i]);
                         }
                     }
@@ -938,23 +1046,20 @@
                 data: data
             };
             xhttp.send(app.serialize(params));
-        },
-        payment_intents: function (data) {
-            app.api.handler(data);
         }
     };
 
     // Load first items
     if (app.qa('.super-stripe-tabs-content > div').length) {
-        app.api.payment_intents({
+        app.api.handler({
             type: 'paymentIntents',
             limit: 3
         });
-        app.api.payment_intents({
+        app.api.handler({
             type: 'products',
             limit: 3
         });
-        app.api.payment_intents({
+        app.api.handler({
             type: 'customers',
             limit: 3
         });
@@ -978,7 +1083,7 @@
         if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
         lastChild = nodes[nodes.length - 1];
         starting_after = lastChild.id;
-        app.api.payment_intents({
+        app.api.handler({
             type: attr.type,
             limit: 3,
             starting_after: starting_after

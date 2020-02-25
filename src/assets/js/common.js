@@ -4196,7 +4196,7 @@ function SUPERreCaptcha(){
             updatedFields = {};        
         
         data = JSON.parse(data);
-        if(data!==false){
+        if(data!==false && data.length!==0){
         
             // First clear the form
             SUPER.init_clear_form(form);
@@ -4826,7 +4826,7 @@ function SUPERreCaptcha(){
                 $slider_width = $slider.outerWidth(true);
                 $amount_width = $wrapper.children('.amount').outerWidth(true);
                 $position = $slider.find('.dragger').position();
-                if( (($position.left+$amount_width) + 5) < $slider_width ) {
+                if( ( typeof $position!=='undefined' && ($position.left+$amount_width) + 5) < $slider_width ) {
                     $wrapper.children('.amount').css('left', $position.left+'px');
                 }
                 $field.bind("slider:changed", function ($event, $data) {

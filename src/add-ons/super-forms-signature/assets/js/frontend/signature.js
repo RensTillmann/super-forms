@@ -81,7 +81,6 @@
 				var canvasWrapperHeight = canvasWrapper.offsetHeight;
 				var canvas = nodes[i].querySelector('canvas');
 				var canvasWidth = canvas.offsetWidth;
-				var canvasHeight = canvas.offsetHeight;
 				var ratio = (canvasWidth/canvasWrapperWidth)*100;
 				console.log(canvasWrapperWidth, canvasWidth, ratio);
 				canvas.width = canvasWrapperWidth;
