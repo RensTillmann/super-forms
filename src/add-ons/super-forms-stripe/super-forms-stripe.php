@@ -1333,23 +1333,30 @@ if(!class_exists('SUPER_Stripe')) :
             die();
         }
         public static function getPaymentIntents( $formatted=true, $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
-            $paymentIntents = \Stripe\PaymentIntent::all([
-                // optional
-                // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
-                'limit' => $limit,
-                // optional
-                // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
-                'starting_after' => $starting_after,
-                // optional associative array
-                // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
-                'created' => $created,
-                // optional
-                // Only return PaymentIntents for the customer specified by this customer ID.
-                'customer' => $customer,
-                // optional
-                // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
-                'ending_before' => $ending_before
-            ]);
+            if($limit==1){
+                $paymentIntents->data[] = \Stripe\PaymentIntent::retrieve(
+                    $starting_after // in this case it holds the payment intent ID
+                );
+            }else{
+                $paymentIntents = \Stripe\PaymentIntent::all([
+                    // optional
+                    // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+                    'limit' => $limit,
+                    // optional
+                    // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
+                    'starting_after' => $starting_after,
+                    // optional associative array
+                    // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
+                    'created' => $created,
+                    // optional
+                    // Only return PaymentIntents for the customer specified by this customer ID.
+                    'customer' => $customer,
+                    // optional
+                    // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
+                    'ending_before' => $ending_before
+                ]);
+            }
+
 
             // Because Stripe doesn't provide us with the customer details
             // we don't have any other choice than looping over every single
@@ -1451,28 +1458,38 @@ if(!class_exists('SUPER_Stripe')) :
                 if( !empty($data['type']) ) {
                     self::setAppInfo();
                     $type = sanitize_text_field($data['type']);
-                    if( $type=='invoice.online' || $type=='paymentIntents' || $type=='products' || $type=='customers' ) {
-                        $payload = array();
-                        $id = '';
-                        $starting_after = null;
-                        if(empty($data['formatted'])) $formatted = true;
-                        if(!empty($data['id'])) $id = sanitize_text_field($data['id']);
-                        if(!empty($data['starting_after'])) $starting_after = sanitize_text_field($data['starting_after']);
-                        if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
-                            $payload = self::getInvoice($id);
-                        }
-                        if( $type=='invoice.online' ) {
-                            $payload = self::getPaymentIntents($formatted, 3, $starting_after);
-                        }
-                        if( $type=='paymentIntents' ) {
-                            $payload = self::getPaymentIntents($formatted, 3, $starting_after);
-                        }
-                        if( $type=='products' ) {
-                            $payload = self::getProducts($formatted, 3, $starting_after);
-                        }
-                        if( $type=='customers' ) {
-                            $payload = self::getCustomers($formatted, 3, $starting_after);
-                        }
+
+                    if( $type=='invoice.online' || 
+                        $type=='paymentIntents' || 
+                        $type=='refreshPaymentIntent' || 
+                        $type=='products' || 
+                        $type=='customers' ) {
+
+                            $payload = array();
+                            $id = '';
+                            $starting_after = null;
+                            if(empty($data['formatted'])) $formatted = true;
+                            if(!empty($data['limit'])) $limit = absint($data['limit']);
+                            if(!empty($data['id'])) $id = sanitize_text_field($data['id']);
+                            if(!empty($data['starting_after'])) $starting_after = sanitize_text_field($data['starting_after']);
+                            if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
+                                $payload = self::getInvoice($id);
+                            }
+                            if( $type=='invoice.online' ) {
+                                $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
+                            }
+                            if( $type=='paymentIntents' || $type=='refreshPaymentIntent' ) {
+                                if( (!empty($id)) && (($type=='refreshPaymentIntent')) ) {
+                                    $starting_after = $id;
+                                }
+                                $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
+                            }
+                            if( $type=='products' ) {
+                                $payload = self::getProducts($formatted, $limit, $starting_after);
+                            }
+                            if( $type=='customers' ) {
+                                $payload = self::getCustomers($formatted, $limit, $starting_after);
+                            }
                     }
                     if( $type=='refund.create' ) {
                         // ID of the PaymentIntent to refund.
