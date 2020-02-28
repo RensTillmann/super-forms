@@ -204,6 +204,7 @@ return $import_fonts."
 
 
 ".$s.".super-field .super-label,
+".$s.".super-field .super-group-title,
 ".$s.".super-field .super-toggle-prefix-label,
 ".$s.".super-field .super-toggle-suffix-label,
 ".$s.".super-html-title {
@@ -468,7 +469,8 @@ return $import_fonts."
 ".$s.".super-entered-keywords > span {
     font-family: ".$v['font_global_family'].";
 }
-".$s.".super-field .super-label {
+".$s.".super-field .super-label,
+".$s.".super-field .super-group-title {
     font-size: ".$v['font_label_size']."px;
     line-height: ".$v['font_label_size']."px;
 }

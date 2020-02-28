@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Feb 19, 2020 - Version 4.9.240
+## Feb 28, 2020 - Version 4.9.243
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
@@ -23,6 +23,9 @@
 - **Fixed:** Issue with `Allow field to be empty` not taking effect in combination with for instance `Website` validation method
 - **Fix:** Currency field with decimal (precision) set to 0 would return value in cents, 1 would become 0.01 instead
 - **Fix:** JavaScript error in Elementor builder interface
+- **Fix:** Hidden field could not have a default value of `0` due to the usage of the `empty()` PHP function
+- **Fix:** `MailChimp Add-on` - when displaying Groups/Interests loop over all groups instead of just one
+- **Fix:** Filter users by role(s) for retrieve method `Users (wp_users)` was not working
 - **Improved:** Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - **Improved:** When reading CSV file make sure to remove BOM (Byte order mark)
 

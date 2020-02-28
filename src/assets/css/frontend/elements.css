@@ -198,7 +198,7 @@ h1.super-thanks-title {
   margin: 0px 0px 20px 0px;
 }
 
-.super-field .super-label, .super-toggle-prefix-label, .super-toggle-suffix-label {
+.super-field .super-label, .super-group-title, .super-toggle-prefix-label, .super-toggle-suffix-label {
   font-size: 14px;
   font-weight: bold;
   line-height: 14px;
@@ -3467,6 +3467,16 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
+.super-form.super-full-rounded .super-focus .super-dropdown-ui {
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  border-radius: 16px;
+}
+.super-form.super-full-rounded .super-focus .super-dropdown-ui .super-placeholder {
+  -webkit-border-radius: 16px;
+  -moz-border-radius: 16px;
+  border-radius: 16px;
+}
 .super-form.super-full-rounded > p {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
@@ -3577,7 +3587,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   text-align: right;
 }
 
-.super-rtl .super-field .super-label, .super-rtl .super-field .super-description, .super-rtl .super-field .super-shortcode-field, .super-rtl .super-field .super-keyword-filter {
+.super-rtl .super-field .super-label, .super-rtl .super-field .super-group-title, .super-rtl .super-field .super-description, .super-rtl .super-field .super-shortcode-field, .super-rtl .super-field .super-keyword-filter {
   text-align: right;
 }
 .super-rtl .super-html-content {
