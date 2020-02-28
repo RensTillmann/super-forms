@@ -85,10 +85,46 @@
         return found;
     };
 
-    // UI    
+    // UI
     app.ui = {
+        svg: {
+            loader: {
+                html: '<svg class="super-stripe-loader" viewBox="0 0 24 24"><g transform="translate(1 1)" fill-rule="nonzero" fill="none"><circle cx="11" cy="11" r="11"></circle><path d="M10.998 22a.846.846 0 0 1 0-1.692 9.308 9.308 0 0 0 0-18.616 9.286 9.286 0 0 0-7.205 3.416.846.846 0 1 1-1.31-1.072A10.978 10.978 0 0 1 10.998 0c6.075 0 11 4.925 11 11s-4.925 11-11 11z" fill="currentColor"></path></g></svg>',
+                remove: function () {
+                    app.remove(app.qa('svg.super-stripe-loader'));
+                }
+            },
+            delete: {
+                html: '<svg class="super-stripe-delete" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z" fill-rule="evenodd"></path></svg>',
+                remove: function () {
+                    app.remove(app.qa('svg.super-stripe-delete'));
+                }
+            },
+            risk: {
+                not_assessed: {
+                    html: '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 16px; width: 16px;"><path d="M8 0c1.857 1.667 4.024 2.667 6.5 3L14 8.5c-.287 3.89-2.556 6.289-6 7.5-3.385-1.215-5.677-3.674-6-7.5L1.5 3C3.979 2.667 6.145 1.667 8 0z" fill-rule="evenodd"></path></svg>'
+                }
+            },
+            paymentMethods: {
+                ideal: {
+                    html: '<svg height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg" style="height: 20px; width: 20px;"><g fill="none" fill-rule="evenodd"><path d="M0 0h32v32H0z" fill="#db308b"></path><path d="M17.876 8c2.394 0 4.39.639 5.771 1.847C25.209 11.213 26 13.283 26 16c0 5.383-2.657 8-8.124 8H7V8z" fill="#fff"></path><path d="M17.845 8.196c2.34 0 4.29.623 5.64 1.802 1.526 1.332 2.3 3.352 2.3 6.002 0 5.252-2.598 7.804-7.94 7.804H7.215V8.196zM18.074 7H6v18h12.074v-.003c2.636-.035 4.726-.68 6.209-1.92C26.086 21.57 27 19.188 27 16c0-1.524-.24-2.891-.715-4.062a7.404 7.404 0 0 0-1.993-2.834c-1.53-1.336-3.677-2.059-6.218-2.1z" fill="#000"></path><path d="M17.678 21.24h-3.53V10.524h3.53-.143c2.944 0 6.078 1.14 6.078 5.372 0 4.472-3.133 5.343-6.078 5.343h.143z" fill="#db4093"></path><path d="M9.085 21.099v-5.646h3.47v5.645h-3.47zm3.732-8.467c0 1.063-.88 1.925-1.965 1.925s-1.964-.862-1.964-1.925c0-1.063.88-1.925 1.964-1.925s1.965.862 1.965 1.925z" fill="#000"></path></g></svg>'
+                },
+                card: {
+                    visa: {
+                        html: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="height: 20px; width: 20px;"><g fill="none" fill-rule="evenodd"><path d="M0 0h32v32H0z" fill="#00579f"></path><g fill="#fff" fill-rule="nonzero"><path d="M13.823 19.876H11.8l1.265-7.736h2.023zm7.334-7.546a5.036 5.036 0 0 0-1.814-.33c-1.998 0-3.405 1.053-3.414 2.56-.016 1.11 1.007 1.728 1.773 2.098.783.379 1.05.626 1.05.963-.009.518-.633.757-1.216.757-.808 0-1.24-.123-1.898-.411l-.267-.124-.283 1.737c.475.213 1.349.403 2.257.411 2.123 0 3.505-1.037 3.521-2.641.008-.881-.532-1.556-1.698-2.107-.708-.354-1.141-.593-1.141-.955.008-.33.366-.667 1.165-.667a3.471 3.471 0 0 1 1.507.297l.183.082zm2.69 4.806l.807-2.165c-.008.017.167-.452.266-.74l.142.666s.383 1.852.466 2.239h-1.682zm2.497-4.996h-1.565c-.483 0-.85.14-1.058.642l-3.005 7.094h2.123l.425-1.16h2.597c.059.271.242 1.16.242 1.16h1.873zm-16.234 0l-1.982 5.275-.216-1.07c-.366-1.234-1.515-2.575-2.797-3.242l1.815 6.765h2.14l3.18-7.728z"></path><path d="M6.289 12.14H3.033L3 12.297c2.54.641 4.221 2.189 4.912 4.049l-.708-3.556c-.116-.494-.474-.633-.915-.65z"></path></g></g></svg>'
+                    },
+                    amex: {
+                        html: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="height: 20px; width: 20px;"><g fill="none" fill-rule="evenodd"><path fill="#0193CE" d="M0 0h32v32H0z"></path><path d="M17.79 18.183h4.29l1.31-1.51 1.44 1.51h1.52l-2.2-2.1 2.21-2.27h-1.52l-1.44 1.51-1.26-1.5H17.8v-.85h4.68l.92 1.18 1.09-1.18h4.05l-3.04 3.11 3.04 2.94h-4.05l-1.1-1.17-.92 1.17h-4.68v-.84zm3.67-.84h-2.53v-.84h2.36v-.83h-2.36v-.84h2.7l1.01 1.26-1.18 1.25zm-14.5 1.68h-3.5l2.97-6.05h2.8l.35.67v-.67h3.5l.7 1.68.7-1.68h3.31v6.05h-2.63v-.84l-.34.84h-2.1l-.35-.84v.84H8.53l-.35-1h-.87l-.35 1zm9.96-.84v-4.37h-1.74l-1.4 3.03-1.41-3.03h-1.74v4.04l-2.1-4.04h-1.4l-2.1 4.37h1.23l.35-1h2.27l.35 1h2.43v-3.36l1.6 3.36h1.05l1.57-3.36v3.36h1.04zm-8.39-1.85l-.7-1.85-.87 1.85h1.57z" fill="#FFF"></path></g></svg>'
+                    },
+                    mastercard: {
+                        html: '<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="height: 20px; width: 20px;"><g fill="none" fill-rule="evenodd"><path d="M0 0h32v32H0z" fill="#000"></path><g fill-rule="nonzero"><path d="M13.02 10.505h5.923v10.857H13.02z" fill="#ff5f00"></path><path d="M13.396 15.935a6.944 6.944 0 0 1 2.585-5.43c-2.775-2.224-6.76-1.9-9.156.745s-2.395 6.723 0 9.368 6.38 2.969 9.156.744a6.944 6.944 0 0 1-2.585-5.427z" fill="#eb001b"></path><path d="M26.934 15.935c0 2.643-1.48 5.054-3.81 6.21s-5.105.851-7.143-.783a6.955 6.955 0 0 0 2.587-5.428c0-2.118-.954-4.12-2.587-5.429 2.038-1.633 4.81-1.937 7.142-.782s3.811 3.566 3.811 6.21z" fill="#f79e1b"></path></g></g></svg>'
+                    }
+                }
+            }
+        },
         toast: {
             show: function (payload) {
+                app.remove(app.qa('.super-stripe-toast-wrapper')); // First remove any existing toast
                 var toastWrapper = document.createElement('div'),
                     // eslint-disable-next-line no-undef
                     toastText = OSREC.CurrencyFormatter.format(payload.amount / 100, {
@@ -97,11 +133,18 @@
                     toastURL = 'https://dashboard.stripe.com/payments/' + payload.payment_intent,
                     toastLinkText = 'View';
                 toastWrapper.className = 'super-stripe-toast-wrapper';
-                toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>' + toastText + '</span><a target="_blank" href="' + toastURL + '">' + toastLinkText + '</a></div>';
+                toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>' + toastText + '</span><a target="_blank" href="' + toastURL + '">' + toastLinkText + '</a><div class="super-stripe-toast-close" sfevents=\'{"click":{"ui.toast.close":{}}}\'>' + app.ui.svg.delete.html + '</div></div>';
                 document.body.appendChild(toastWrapper);
                 setTimeout(function () {
                     toastWrapper.style.bottom = '10px';
                 }, 10);
+            },
+            close: function () {
+                var toastWrapper = app.q('.super-stripe-toast-wrapper');
+                toastWrapper.style.bottom = '';
+                setTimeout(function () {
+                    toastWrapper.remove();
+                }, 500);
             }
         },
         backdrop: {
@@ -144,7 +187,7 @@
                 console.log(e, target, eventType, attr);
                 // Get Raw JSON data
                 var html = '',
-                    json = JSON.parse(app.api.rawJSON),
+                    json = app.api.rawJSON,
                     currency = 'EUR', //json.currency.toUpperCase(),
                     // eslint-disable-next-line no-undef
                     symbol = (typeof OSREC.CurrencyFormatter.symbols[currency] !== 'undefined' ? OSREC.CurrencyFormatter.symbols[currency] : currency + ''),
@@ -358,21 +401,33 @@
                     // Before we do anything, determine if this button was already clicked, and has active state
                     // If it has active state, we can simple close the context menu and do nothing
                     console.log(e, target, eventType, attr);
-                    if (target.classList.contains('super-contextmenu-active')) {
+                    if (target.closest('.super-stripe-row').classList.contains('super-contextmenu-active')) {
                         // Close (delete) any existing context menu
                         app.ui.contextMenu.close();
                     } else {
                         // First close (delete) existing one
                         app.ui.contextMenu.close();
                         // Set active state on button
-                        app.addClass(target, 'super-contextmenu-active');
+                        app.addClass(target.closest('.super-stripe-row'), 'super-contextmenu-active');
                         // Open up new context menu
                         var contextMenu = document.createElement('div');
                         contextMenu.className = app.ui.contextMenu.className + ' super-stripe-contextmenu-actions';
                         var row = target.closest('.super-stripe-row');
-                        app.api.rawJSON = row.querySelector('.super-stripe-raw').value;
+                        app.api.rawJSON = JSON.parse(row.querySelector('.super-stripe-raw').value);
+                        var payload = app.api.rawJSON;
                         var html = '';
                         html += '<span>ACTIONS</span>';
+                        // Edit
+                        html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">Edit</a>';
+                        // View Receipt
+                        var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
+                        if (payload.receipt_url) receiptUrl = payload.receipt_url;
+                        if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a>';
+                        // Download Invoice
+                        if (payload.invoice) {
+                            html += '<div sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</div>';
+                            html += '<div sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</div>';
+                        }
                         html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"' + row.id + '"}}}\'>Refund payment...</div>';
                         html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
                         html += '<divider></divider>';
@@ -461,25 +516,33 @@
         },
 
         app.resizeColumns = function (parent) {
-            console.log(parent);
-            //if(!parent.classList.contains('super-initialized')){
-            var x, y, widths = [],
-                itemWidth, columns, rows = app.qap('.super-stripe-row', parent);
-            for (x = 0; x < rows.length; x++) {
-                columns = app.qap('.super-stripe-column', rows[x]);
-                for (y = 0; y < columns.length; y++) {
-                    if (typeof widths[y] === 'undefined') widths[y] = 0;
-                    itemWidth = app.itemWidth(columns[y]);
-                    if (itemWidth > widths[y]) widths[y] = itemWidth;
-                }
-            }
-            for (x = 0; x < rows.length; x++) {
-                columns = app.qap('.super-stripe-column', rows[x]);
-                for (y = 0; y < columns.length; y++) {
-                    columns[y].style.maxWidth = widths[y] + 'px';
-                }
-            }
-            console.log(widths);
+            // console.log(parent);
+            // //if(!parent.classList.contains('super-initialized')){
+            // var x, y, widths = [], itemWidth, columns, rows = app.qap('.super-stripe-row', parent);
+            // for (x = 0; x < rows.length; x++) {
+            //     columns = app.qap('.super-stripe-column', rows[x]);
+            //     for (y = 0; y < columns.length; y++) {
+            //         if (typeof widths[y] === 'undefined') widths[y] = 0;
+            //         itemWidth = app.itemWidth(columns[y]);
+            //         if (itemWidth > widths[y]) widths[y] = itemWidth;
+            //     }
+            // }
+            // for (x = 0; x < rows.length; x++) {
+            //     columns = app.qap('.super-stripe-column', rows[x]);
+            //     for (y = 0; y < columns.length; y++) {
+            //         columns[y].style.maxWidth = widths[y] + 'px';
+            //     }
+            // }
+            // amounts = app.qap('.super-stripe-column span.super-stripe-amount', parent);
+            // for (x = 0; x < amounts.length; x++) {
+            //     width = app.itemWidth(amounts[x]);
+            //     if (width > amountWidth) amountWidth = width;
+            // }
+            // for (x = 0; x < amounts.length; x++) {
+            //     amounts[x].style.flexBasis = amountWidth + 'px';
+            // }
+            // console.log(amountWidth);
+            // console.log(widths);
             //var columns = app.qap('.super-stripe-column', parent);
             // // This is a page load
             // var widths = [];
@@ -521,7 +584,8 @@
         rawJSON: {},
         // Copy Payment ID
         copyPaymentID: function (e, target) {
-            var tmpHTML, row = app.q('.super-contextmenu-active').closest('.super-stripe-row'),
+            var tmpHTML,
+                row = app.q('.super-contextmenu-active'),
                 node = document.createElement('input');
             node.type = 'text';
             node.value = row.id;
@@ -544,12 +608,11 @@
         // Refund
         refund: {
             post: function (e, target, eventType, attr) {
-                debugger;
                 if ((target.closest('.super-stripe-modal').classList.contains('super-loading')) ||
                     (app.api.refund.validate.all())) return false;
                 target.closest('.super-stripe-modal').classList.add('super-loading');
                 console.log(e, target, eventType, attr);
-                target.innerHTML += '<svg viewBox="0 0 24 24"><g transform="translate(1 1)" fill-rule="nonzero" fill="none"><circle cx="11" cy="11" r="11"></circle><path d="M10.998 22a.846.846 0 0 1 0-1.692 9.308 9.308 0 0 0 0-18.616 9.286 9.286 0 0 0-7.205 3.416.846.846 0 1 1-1.31-1.072A10.978 10.978 0 0 1 10.998 0c6.075 0 11 4.925 11 11s-4.925 11-11 11z" fill="currentColor"></path></g></svg>';
+                target.innerHTML += app.ui.svg.loader.html;
                 var amount = app.q('.super-stripe-modal input[name="amount"]').value;
                 var reason = app.q('.super-stripe-modal select[name="reason"]').value;
                 // eslint-disable-next-line no-undef
@@ -630,6 +693,7 @@
         invoice: {
             // Download as PDF
             pdf: function (e, target, eventType, attr) {
+                target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
                 // "invoice_pdf": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X/pdf",
                 app.api.handler({
                     type: 'invoice.pdf',
@@ -638,6 +702,7 @@
             },
             // View invoice online
             online: function (e, target, eventType, attr) {
+                target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
                 // "hosted_invoice_url": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X",
                 app.api.handler({
                     type: 'invoice.online',
@@ -646,6 +711,27 @@
             }
         },
 
+        // Load more Transactions, Products, Customers
+        loadMore: function (e, target, eventType, attr) {
+            if (target.parentNode.classList.contains('super-loading')) {
+                return false;
+            }
+            app.addClass(target.parentNode, 'super-loading');
+            target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
+            var nodes, lastChild, starting_after;
+            if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-row');
+            if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-row');
+            if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
+            lastChild = nodes[nodes.length - 1];
+            starting_after = lastChild.id;
+            app.api.handler({
+                type: attr.type,
+                limit: 20,
+                starting_after: starting_after
+            });
+        },
+
+        // Add new rows
         addRows: {
             refreshPaymentIntent: function (payload) {
                 app.api.addRows.paymentIntents(payload);
@@ -679,25 +765,31 @@
                 html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
-                html += '<div class="super-stripe-action-options">';
-                var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
-                if (payload.receipt_url) receiptUrl = payload.receipt_url;
-                if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a><br />';
-                if (payload.invoice) {
-                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</span><br />';
-                    html += '<span class="super-stripe-invoice-btn" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</span><br />';
-                }
-                html += '</div>';
                 column.innerHTML = html
                 newRow.appendChild(column);
 
                 // Amount
                 html = '';
                 column = document.createElement('div');
-                column.className = columnClass + 'super-stripe-amount super-stripe-status';
-                html += payload.amountFormatted;
+                column.className = columnClass + 'super-stripe-amount';
+                // eslint-disable-next-line no-undef
+                payload.amountFormatted = OSREC.CurrencyFormatter.format(payload.amount / 100, {
+                    currency: payload.currency
+                });
+                html += '<span class="super-stripe-amount">' + payload.amountFormatted + '</span>';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // Currency
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-currency';
+                column.innerHTML = payload.currency.toUpperCase();
+                newRow.appendChild(column);
 
                 // Status
+                html = '';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-status';
                 var $label = '',
                     $labelColor = '#4f566b;',
                     $title = '',
@@ -734,6 +826,7 @@
                         }
                     }
                 }
+            
                 if (payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
                     if (((payload['last_payment_error'])) && (($declineCodes[payload['last_payment_error']['decline_code']]))) {
                         $class = ' super-stripe-failed';
@@ -753,19 +846,24 @@
                     }
                 }
                 if (payload.status == 'succeeded') {
-                    if (payload.refunded) {
+                    if (payload.charges.data[0].refunded) {
                         $label = 'Refunded';
                         $title = '';
                         $class = ' super-stripe-refunded';
                         $pathFill = '#697386';
                         $path = 'M10.5 5a5 5 0 0 1 0 10 1 1 0 0 1 0-2 3 3 0 0 0 0-6l-6.586-.007L6.45 9.528a1 1 0 0 1-1.414 1.414L.793 6.7a.997.997 0 0 1 0-1.414l4.243-4.243A1 1 0 0 1 6.45 2.457L3.914 4.993z';
                     } else {
-                        if (payload.amount_refundedFormatted) {
+                        if (payload.charges.data[0].amount_refunded) {
                             $label = 'Partial refund';
                             $labelColor = '#3d4eac;';
-                            $title = ' title="' + payload.amount_refundedFormatted + ' ' + 'was refunded"';
+                            // eslint-disable-next-line no-undef
+                            payload.charges.data[0].amount_refundedFormatted = OSREC.CurrencyFormatter.format(payload.charges.data[0].amount_refunded / 100, {
+                                currency: payload.currency
+                            });
+                            $title = ' title="' + payload.charges.data[0].amount_refundedFormatted + ' ' + 'was refunded"';
                             $class = ' super-stripe-partial-refund';
                             $pathFill = '#5469d4';
+                            $bgColor = '#d6ecff';
                             $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
                         } else {
                             $label = 'Succeeded';
@@ -778,15 +876,27 @@
                         }
                     }
                 }
+
+                // Check for Blocked payment
+                if (payload.charges && payload.charges.data && payload.charges.data[0] && payload.charges.data[0].payment_method_details) {
+                    var chargeData = payload.charges.data[0];
+                    if (chargeData.outcome) {
+                        var outcome = chargeData.outcome;
+                        if(outcome.type==='blocked'){
+                            $class = ' super-stripe-blocked';
+                            $label = 'Blocked';
+                            $title = ' title="' + outcome.seller_message + '"';
+                            $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm-3.477-3.11a6 6 0 0 0 8.367-8.367zM3.11 11.478l8.368-8.368a6 6 0 0 0-8.367 8.367z';
+                        }
+                    }
+                }
+
                 html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
                 html += $label;
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
                 html += '<path style="fill:' + $pathFill + ';" d="' + $path + '" fill-rule="evenodd"></path>';
                 html += '</svg>';
                 html += '</span>';
-                if (!payload.livemode) {
-                    html += '<span class="super-stripe-testdata">TEST DATA</span>';
-                }
                 column.innerHTML = html;
                 newRow.appendChild(column);
 
@@ -817,7 +927,46 @@
                 // Shipping address
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-shipping';
-                column.innerHTML = payload.shipping;
+
+                html = '';
+                if (payload.shipping) {
+                    if (payload.shipping.address) {
+                        html += '<div class="super-stripe-address">';
+                        if (payload.shipping.carrier) {
+                            html += '<div class="super-stripe-carrier">';
+                            html += '<strong>Carrier:</strong>';
+                            html += '<span>' + payload.shipping.carrier + '</span>';
+                            html += '</div>';
+                        }
+                        if (payload.shipping.tracking_number) {
+                            html += '<div class="super-stripe-tracking-number">';
+                            html += '<strong>Carrier:</strong>';
+                            html += '<span>' + payload.shipping.tracking_number + '</span>';
+                            html += '</div>';
+                        }
+                        if (payload.shipping.name) {
+                            html += '<div class="super-stripe-recipient">';
+                            html += '<strong>Recipient:</strong>';
+                            html += '<span>' + payload.shipping.name + (payload.shipping.phone ? '(' + payload.shipping.phone + ')' : '') + '</span>';
+                            html += '</div>';
+                        }
+                        if (payload.shipping.address) {
+                            html += '<div class="super-stripe-address">';
+                            html += '<strong>Address:</strong>';
+                            html += '<span>';
+                            html += (payload.shipping.address.line1 ? payload.shipping.address.line1 + '<br />' : '');
+                            html += (payload.shipping.address.line2 ? payload.shipping.address.line2 + '<br />' : '');
+                            html += (payload.shipping.address.city ? payload.shipping.address.city + ', ' : '');
+                            html += (payload.shipping.address.state ? payload.shipping.address.state + ' ' : '');
+                            html += (payload.shipping.address.postal_code ? payload.shipping.address.postal_code + ' ' : '');
+                            html += (payload.shipping.address.country ? payload.shipping.address.country : '');
+                            html += '</span>';
+                            html += '</div>';
+                        }
+                        html += '</div>';
+                    }
+                }
+                column.innerHTML = html;
                 newRow.appendChild(column);
 
                 // Payment Method
@@ -825,28 +974,30 @@
                 column.className = columnClass + 'super-stripe-method';
                 html = '';
                 console.log(payload);
-                if (payload.charges && payload.charges.data && payload.charges.data.payment_method_details) {
+                if (payload.charges && payload.charges.data && payload.charges.data[0] && payload.charges.data[0].payment_method_details) {
+                    chargeData = payload.charges.data[0];
+                    var details = chargeData.payment_method_details;
                     console.log(methodType);
-                    var methodType = payload.charges.data.payment_method_details.type; // card
-                    var methodDetails = payload.charges.data.payment_method_details[methodType];
+                    var methodType = details.type; // card
+                    var methodDetails = details[methodType];
                     switch (methodType) {
                         case 'ach_credit_transfer':
                             html += methodDetails.bank_name + ' - ' + methodDetails.routing_number + ' - ' + methodDetails.swift_code + ' - ' + methodDetails.account_number;
                             break;
                         case 'ach_debit':
-                            html += methodDetails.bank_name + ' - ' + methodDetails.last4;
+                            html += methodDetails.bank_name + ' •••• ' + methodDetails.last4;
                             break;
                         case 'alipay':
                             html += 'Alipay: ' + methodDetails.alipay;
                             break;
                         case 'bancontact':
-                            html += methodDetails.bank_name + ' - ' + methodDetails.iban_last4;
+                            html += methodDetails.bank_name + ' •••• ' + methodDetails.iban_last4;
                             break;
                         case 'card':
-                            html += methodDetails.brand + ' - ' + methodDetails.last4;
+                            html += app.ui.svg.paymentMethods.card[methodDetails.brand].html + ' •••• ' + methodDetails.last4;
                             break;
                         case 'card_present':
-                            html += methodDetails.brand + ' / ' + methodDetails.last4;
+                            html += methodDetails.brand + ' •••• ' + methodDetails.last4;
                             break;
                         case 'eps':
                             html += 'EPS: ' + methodDetails.verified_name;
@@ -855,7 +1006,7 @@
                             html += 'Giropay: ' + methodDetails.bank_name + ' / ' + methodDetails.bic + ' / ' + methodDetails.verified_name;
                             break;
                         case 'ideal':
-                            html += 'iDeal: ' + methodDetails.bank + ' / ' + methodDetails.iban_last4;
+                            html += app.ui.svg.paymentMethods.ideal.html + ' •••• ' + methodDetails.iban_last4;
                             break;
                         case 'klarna':
                             html += 'Klarna: ' + methodDetails;
@@ -867,10 +1018,10 @@
                             html += 'przelewy24: ' + methodDetails.reference;
                             break;
                         case 'sepa_debit':
-                            html += 'SEPA Debit: ' + methodDetails.last4;
+                            html += 'SEPA Debit: •••• ' + methodDetails.last4;
                             break;
                         case 'sofort':
-                            html += 'Sofort: ' + methodDetails.iban_last4;
+                            html += 'Sofort: •••• ' + methodDetails.iban_last4;
                             break;
                         case 'stripe_account':
                             html += 'Stripe Account: ' + methodDetails;
@@ -892,6 +1043,52 @@
 
                     // methodDetails.brand // visa
                     // methodDetails.last4 // 4242
+
+                    // If LIVE data
+                    // if (chargeData.outcome) {
+                    //     outcome = chargeData.outcome;
+                    //     html += '<span title="' + outcome.seller_message + '" class="super-stripe-risk-score lvl-' + outcome.risk_level + '">';
+                    //     switch (outcome.risk_level) {
+                    //         case 'highest':
+                    //             html += outcome.risk_score;
+                    //             break;
+                    //         case 'elevated':
+                    //             html += outcome.risk_score;
+                    //             break;
+                    //         case 'normal':
+                    //             html += outcome.risk_score;
+                    //             break;
+                    //         case 'not_assessed' || 'unknown':
+                    //             html += app.ui.svg.risk[outcome.risk_level].html;
+                    //             break;
+                    //         default:
+                    //             html += outcome.risk_score;
+                    //     }
+                    //     html += '</span>';
+                    //     switch (outcome.risk_level) {
+                    //         case 'highest':
+                    //             html += 'Blocked';
+                    //             break;
+                    //         case 'elevated':
+                    //             html += 'Elevated';
+                    //             break;
+                    //         case 'normal':
+                    //             html += 'Normal';
+                    //             break;
+                    //         case 'not_assessed':
+                    //             html += 'Not evaluated';
+                    //             break;
+                    //         case 'unknown':
+                    //             html += 'Unknown';
+                    //             break;
+                    //         default:
+                    //             html += outcome.risk_level;
+                    //     }
+                    // }
+                }
+                // If sandbox/test data
+                if (!payload.livemode) {
+                    html += '<span class="super-stripe-testdata">TEST DATA</span>';
                 }
                 column.innerHTML = html;
                 newRow.appendChild(column);
@@ -903,11 +1100,11 @@
                 newRow.appendChild(column);
 
                 // If we are replacing/refreshing an existing row
-                if(replace) {
+                if (replace) {
                     // Place new row right after replace
                     replace.parentNode.insertBefore(newRow, replace.nextSibling);
                     replace.remove();
-                }else{
+                } else {
                     // Add the row to the parent (the list/table)
                     parentNode.appendChild(newRow);
                 }
@@ -1017,6 +1214,17 @@
                             return true;
                         }
                         if (data.type == 'invoice.online' || data.type == 'invoice.pdf') {
+                            console.log(payload);
+                            if (data.type == 'invoice.online') {
+                                window.open(payload.hosted_invoice_url, '_blank');
+                                app.ui.svg.loader.remove(); // Delete loader
+                            }
+                            if (data.type == 'invoice.pdf') {
+                                window.location.href = payload.invoice_pdf;
+                                setTimeout(function () {
+                                    app.ui.svg.loader.remove(); // Delete loader
+                                }, 3000);
+                            }
                             console.log('just testing...');
                             return true;
                         }
@@ -1032,6 +1240,8 @@
                         }
                     }
                     // Complete:
+                    app.ui.svg.loader.remove();
+                    app.removeClass(app.q('.super-stripe-load-more'), 'super-loading');
                 }
             };
             xhttp.onerror = function () {
@@ -1053,15 +1263,15 @@
     if (app.qa('.super-stripe-tabs-content > div').length) {
         app.api.handler({
             type: 'paymentIntents',
-            limit: 3
+            limit: 20
         });
         app.api.handler({
             type: 'products',
-            limit: 3
+            limit: 20
         });
         app.api.handler({
             type: 'customers',
-            limit: 3
+            limit: 20
         });
     }
 
@@ -1074,21 +1284,6 @@
             clearInterval(removeLoader);
         }
     }, 100);
-
-    // Load more Transactions, Products, Customers
-    app.loadMore = function (e, target, eventType, attr) {
-        var nodes, lastChild, starting_after;
-        if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-row');
-        if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-row');
-        if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
-        lastChild = nodes[nodes.length - 1];
-        starting_after = lastChild.id;
-        app.api.handler({
-            type: attr.type,
-            limit: 3,
-            starting_after: starting_after
-        });
-    };
 
     // Trigger Events
     app.triggerEvent = function (e, target, eventType) {
@@ -1152,9 +1347,10 @@
         click: [
             'body',
             '.super-stripe-tab',
-            '.super-stripe-load-more',
+            '.super-stripe-load-more > div',
             '.super-stripe-invoice-btn',
             '.super-stripe-action-btn',
+            '.super-stripe-toast-close',
             '.' + app.ui.contextMenu.className + ' > div'
         ],
         change: [
