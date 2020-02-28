@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.5.0
+ * Version:     1.5.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.0';
+        public $version = '1.5.2';
 
         
         /**
@@ -228,9 +228,8 @@ if(!class_exists('SUPER_Mailchimp')) :
         */
         public static function add_stylesheet( $array ) {
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
-            $backend_path   = $assets_path . 'css/backend/';
             $array['super-mailchimp'] = array(
-                'src'     => $backend_path . 'mailchimp.css',
+                'src'     => $assets_path . 'css/backend/mailchimp.css',
                 'deps'    => '',
                 'version' => SUPER_Mailchimp()->version,
                 'media'   => 'all',
@@ -239,6 +238,17 @@ if(!class_exists('SUPER_Mailchimp')) :
                 ),
                 'method'  => 'enqueue',
             );
+            $array['super-mailchimp'] = array(
+                'src'     => $assets_path . 'css/frontend/mailchimp.css',
+                'deps'    => '',
+                'version' => SUPER_Mailchimp()->version,
+                'media'   => 'all',
+                'screen'  => array( 
+                    'super-forms_page_super_create_form'
+                ),
+                'method'  => 'enqueue',
+            );
+
             return $array;
         }
 
@@ -286,6 +296,8 @@ if(!class_exists('SUPER_Mailchimp')) :
         */
         public static function mailchimp( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
           
+            wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
+
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
                 $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
@@ -332,7 +344,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     	if( $atts['display_interests']=='yes' ) {
 	                        $datacenter = $datacenter[1];
 	                        $endpoint = 'https://' . $datacenter . '.api.mailchimp.com/3.0/';
-	                        $request = 'lists/' . $list_id . '/interest-categories/';
+                            $request = 'lists/' . $list_id . '/interest-categories/';
 	                        $url = $endpoint . $request;
 	                        $ch = curl_init();
 	                        curl_setopt( $ch, CURLOPT_URL, $url );
@@ -341,7 +353,7 @@ if(!class_exists('SUPER_Mailchimp')) :
 	                        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 	                        curl_setopt( $ch, CURLOPT_ENCODING, '' );
 	                        $output = curl_exec( $ch );
-	                        $output = json_decode( $output );
+                            $output = json_decode( $output );
 	                        if( ( isset( $output->status ) ) && ( $output->status==401 ) ) {
 								$result .= '<strong style="color:red;">' . esc_html($output->detail) . '</strong>';
 	                        }else{
@@ -350,8 +362,8 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                        }else{
 		                            $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $global_settings );
 		                            foreach( $output->categories as $k => $v ) {
-		                                $request = $request . $v->id . '/interests/';
-		                                $url = $endpoint.$request;
+		                                $url = $request . $v->id . '/interests/?count=1000'; // make sure to set limit to 1000 (maximum) otherwise would default to only 10 (by default)
+		                                $url = $endpoint.$url;
 		                                $ch = curl_init();
 		                                curl_setopt( $ch, CURLOPT_URL, $url );
 		                                curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'content-type: application/json' ) );
@@ -359,7 +371,8 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                                curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		                                curl_setopt( $ch, CURLOPT_ENCODING, '' );
 		                                $output = curl_exec( $ch );
-		                                $output = json_decode( $output );
+                                        $output = json_decode( $output );
+                                        $result .= '<span class="super-group-title">' . $v->title . '</span>';
 		                                foreach( $output->interests as $ik => $iv ) {
 		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . esc_html($iv->name) . '</label>';
 		                                }
