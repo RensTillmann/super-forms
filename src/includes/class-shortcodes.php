@@ -944,19 +944,22 @@ class SUPER_Shortcodes {
         // text - autosuggest - author
         // text - keywords - author
         if($atts[$prefix.'retrieve_method']=='users') {
-            $exclude_users = '';
-            $role_filters = '';
+            $exclude_users = array();
+            $role_filters = array();
             $default_user_label = '#{ID} - {first_name} {last_name} ({user_email})';
             $meta_keys = 'ID';
-            if( !empty( $atts[$prefix.'retrieve_method_exclude_users'] ) ) $exclude_users = $atts[$prefix.'retrieve_method_exclude_users'];
-            if( !empty( $atts[$prefix.'retrieve_method_role_filters'] ) ) $role_filters = $atts[$prefix.'retrieve_method_role_filters'];
+            if( !empty( $atts[$prefix.'retrieve_method_exclude_users'] ) ) $exclude_users = explode(",",$atts[$prefix.'retrieve_method_exclude_users']);
+            if( !empty( $atts[$prefix.'retrieve_method_role_filters'] ) ) $role_filters = explode("\n",$atts[$prefix.'retrieve_method_role_filters']);
             if( !empty( $atts[$prefix.'retrieve_method_user_label'] ) ) $default_user_label = $atts[$prefix.'retrieve_method_user_label'];
             if( !empty( $atts[$prefix.'retrieve_method_user_meta_keys'] ) ) $meta_keys = $atts[$prefix.'retrieve_method_user_meta_keys'];
+            foreach($role_filters as $k => $v){
+                $role_filters[$k] = trim($v);    
+            }
             $args = array(
-                'role__in'     => array(),
+                'role__in'     => $role_filters,
                 'orderby'      => 'login',
                 'order'        => 'ASC',
-                'exclude'      => array()
+                'exclude'      => $exclude_users
             ); 
             $users = (array) get_users( $args );
             $regex = '/\{(.*?)\}/';
@@ -3963,7 +3966,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
-        if( !empty($atts['value']) ) $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '" data-absolute-default="' . $atts['value'] . '"';
+        $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '" data-absolute-default="' . $atts['value'] . '"';
         if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
         if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
         if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';

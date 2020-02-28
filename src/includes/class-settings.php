@@ -1323,6 +1323,21 @@ class SUPER_Settings {
                     )
                 ),
 
+                'theme_placeholder_colors' => array(
+                    'name' => esc_html__('Placeholder Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_field_colors_placeholder'=>array(
+                            'label'=>'Placeholder color',
+                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#9a9a9a' ),
+                        ),
+                        'adaptive_placeholder_focus'=>array(
+                            'label'=> esc_html__( 'Focussed font color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'adaptive_placeholder_focus', $settings, '#4EB1B6' ),
+                        ),
+                    ),
+                ),
+
                 // @since 4.9.3 - Adaptive Placeholders
                 'enable_adaptive_placeholders' => array(
                     'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
@@ -1346,22 +1361,15 @@ class SUPER_Settings {
                     'parent'=>'enable_adaptive_placeholders',
                     'filter_value'=>'true',
                 ),
+
                 'theme_adaptive_placeholder_colors' => array(
                     'name' => esc_html__('Adaptive Placeholder Colors', 'super-forms' ),
                     'type'=>'multicolor', 
                     'filter'=>true,
                     'parent'=>'enable_adaptive_placeholders',
                     'filter_value'=>'true',
-                    'colors'=>array(                        
-                        'theme_field_colors_placeholder'=>array(
-                            'label'=>'Placeholder color',
-                            'default' => self::get_value( $default, 'theme_field_colors_placeholder', $settings, '#9a9a9a' ),
-                        ),
+                    'colors'=>array(
                         // Font color
-                        'adaptive_placeholder_focus'=>array(
-                            'label'=> esc_html__( 'Focussed font color', 'super-forms' ),
-                            'default' => self::get_value( $default, 'adaptive_placeholder_focus', $settings, '#4EB1B6' ),
-                        ),
                         'adaptive_placeholder_filled'=>array(
                             'label'=> esc_html__( 'Filled font color', 'super-forms' ),
                             'default' => self::get_value( $default, 'adaptive_placeholder_filled', $settings, '#9a9a9a' ),

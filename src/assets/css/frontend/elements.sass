@@ -197,7 +197,7 @@ $fontAwesomeBrands: 'Font Awesome 5 Brands'
 h1.super-thanks-title
   margin: 0px 0px 20px 0px
 
-.super-field .super-label, .super-toggle-prefix-label, .super-toggle-suffix-label
+.super-field .super-label, .super-group-title, .super-toggle-prefix-label, .super-toggle-suffix-label
   font-size: 14px
   font-weight: bold
   line-height: 14px
@@ -2802,6 +2802,11 @@ ul.super-multipart-steps .super-multipart-step
       .super-placeholder
         +borderRadius(50px)
       +borderRadius(50px)
+    .super-focus
+      .super-dropdown-ui
+        .super-placeholder
+          +borderRadius(16px)
+        +borderRadius(16px)
     > p
       +borderRadius(4px)
     ul.super-multipart-steps .super-multipart-step
@@ -2883,7 +2888,7 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-rtl
   .super-field
-    .super-label, .super-description, .super-shortcode-field, .super-keyword-filter
+    .super-label, .super-group-title, .super-description, .super-shortcode-field, .super-keyword-filter
       text-align: right
   .super-html-content
     text-align: right
