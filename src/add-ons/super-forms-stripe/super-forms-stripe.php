@@ -1332,7 +1332,7 @@ if(!class_exists('SUPER_Stripe')) :
             echo json_encode($response->toArray(), JSON_PRETTY_PRINT);
             die();
         }
-        public static function getPaymentIntents( $formatted=true, $limit=3, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+        public static function getPaymentIntents( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
             if($limit==1){
                 $paymentIntents->data[] = \Stripe\PaymentIntent::retrieve(
                     $starting_after // in this case it holds the payment intent ID
@@ -1393,7 +1393,7 @@ if(!class_exists('SUPER_Stripe')) :
                 return $paymentIntents->data;
             }
         }
-        public static function getProducts($formatted=true, $limit=3, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
+        public static function getProducts($formatted=true, $limit=20, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
             $products = \Stripe\Product::all([
                 // optional
                 // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
@@ -1425,7 +1425,7 @@ if(!class_exists('SUPER_Stripe')) :
             ]);
             return $products->data;
         }
-        public static function getCustomers($formatted=true, $limit=3, $starting_after=null, $created=null, $email=null, $ending_before=null) {
+        public static function getCustomers($formatted=true, $limit=20, $starting_after=null, $created=null, $email=null, $ending_before=null) {
             $customers = \Stripe\Customer::all([
                 // optional
                 // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
@@ -1460,6 +1460,7 @@ if(!class_exists('SUPER_Stripe')) :
                     $type = sanitize_text_field($data['type']);
 
                     if( $type=='invoice.online' || 
+                        $type=='invoice.pdf' || 
                         $type=='paymentIntents' || 
                         $type=='refreshPaymentIntent' || 
                         $type=='products' || 
@@ -1475,9 +1476,9 @@ if(!class_exists('SUPER_Stripe')) :
                             if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
                                 $payload = self::getInvoice($id);
                             }
-                            if( $type=='invoice.online' ) {
-                                $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
-                            }
+                            //if( $type=='invoice.online' ) {
+                            //    $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
+                            //}
                             if( $type=='paymentIntents' || $type=='refreshPaymentIntent' ) {
                                 if( (!empty($id)) && (($type=='refreshPaymentIntent')) ) {
                                     $starting_after = $id;

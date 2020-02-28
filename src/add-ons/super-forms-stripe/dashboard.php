@@ -47,6 +47,8 @@
             $columns = array(
                 'actions' => esc_html__( 'Actions', 'super-forms' ),
                 'amount' => esc_html__( 'Amount', 'super-forms' ),
+                'currency' => '',
+                'status' => '',
                 'description' => esc_html__( 'Description', 'super-forms' ),
                 'customer' => esc_html__( 'Customer', 'super-forms' ),
                 'shipping' => esc_html__( 'Shipping', 'super-forms' ),
@@ -62,9 +64,12 @@
             echo '</div>';
             echo '<div class="super-stripe-table-rows"></div>';
             ?>
-            <div class="super-stripe-load-more" sfevents='{"click":{"loadMore":{"type":"paymentIntents"}}}'>
-                <?php echo esc_html__( 'Load More', 'super-forms' ); ?>
+            <div class="super-stripe-load-more">
+                <span class="super-stripe-action-btn super-stripe-default" sfevents='{"click":{"api.loadMore":{"type":"paymentIntents"}}}'>
+                    <?php echo esc_html__( 'Load More', 'super-forms' ); ?>
+                </span>
             </div>
+
         </div>
         <div class="super-stripe-products">
             <?php 
