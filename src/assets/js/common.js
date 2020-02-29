@@ -1629,7 +1629,6 @@ function SUPERreCaptcha(){
 
     // Send form submission through ajax request
     SUPER.create_ajax_request = function( event, form, data, duration, old_html, status, status_update, token ){
-        
         form = $(form);
 
         var html,
@@ -1670,7 +1669,6 @@ function SUPERreCaptcha(){
         }else{
             version = 'v3';
         }
-        
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -1706,36 +1704,40 @@ function SUPERreCaptcha(){
                         }
                         html += '>';
                     }
-
-                    // Trigger js hook and continue
-                    SUPER.after_email_send_hook(form, data, old_html, result);
-                    // If a hook is redirecting we should avoid doing other things
-                    if(form.data('is-redirecting')){
-                        // However if a hook is doing things in the back-end, we must check until finished
-                        if(form.data('is-doing-things')){
-                            clearInterval(SUPER.submit_form_interval);
-                            SUPER.submit_form_interval = setInterval(function(){
-                                if(form.data('is-doing-things')){
-                                    console.log('still doing things...', form.data('is-doing-things'));
-                                }else{
-                                    console.log('done with things...', form.data('is-doing-things'));
-                                    clearInterval(SUPER.submit_form_interval);
-                                    // Form submission is finished
-                                    SUPER.form_submission_finished(form, result, html, old_html, duration);
-                                }
-                            }, 100);
+                    if(result.error===true){
+                        // Display error message
+                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                    }else{
+                        // Trigger js hook and continue
+                        SUPER.after_email_send_hook(form, data, old_html, result);
+                        // If a hook is redirecting we should avoid doing other things
+                        if(form.data('is-redirecting')){
+                            // However if a hook is doing things in the back-end, we must check until finished
+                            if(form.data('is-doing-things')){
+                                clearInterval(SUPER.submit_form_interval);
+                                SUPER.submit_form_interval = setInterval(function(){
+                                    if(form.data('is-doing-things')){
+                                        console.log('still doing things...', form.data('is-doing-things'));
+                                    }else{
+                                        console.log('done with things...', form.data('is-doing-things'));
+                                        clearInterval(SUPER.submit_form_interval);
+                                        // Form submission is finished
+                                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                                    }
+                                }, 100);
+                            }
+                            return false; // Stop here, we are redirecting the form (used by Stripe)
                         }
-                        return false; // Stop here, we are redirecting the form (used by Stripe)
-                    }
 
-                    // @since 2.2.0 - custom form POST method
-                    if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
-                        form.find('form').submit(); // When doing custom POST, the form will redirect itself
-                        return false;
-                    }
+                        // @since 2.2.0 - custom form POST method
+                        if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
+                            form.find('form').submit(); // When doing custom POST, the form will redirect itself
+                            return false;
+                        }
 
-                    // Form submission is finished
-                    SUPER.form_submission_finished(form, result, html, old_html, duration);
+                        // Form submission is finished
+                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                    }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);

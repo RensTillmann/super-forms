@@ -10,11 +10,11 @@
 
 Create your form and enable and define the popup settings under `Form Settings` > `Popup Settings`.
 
-### Adding the popup to a page or all pages
+### Adding the popup to a single page or multiple pages
 
 Grab the form shortcode and add it on the page(s) where you want to display the popup (form).
 
-### Adding the popup all pages
+### Adding the popup to all pages
 
 If you want to display the popup on all of your pages, it is recommended to use a `Text Widget` with the form shortcode and to put it into the footer of your website. This way the popup and form will be loaded on all pages and can be triggered on all pages.
 
