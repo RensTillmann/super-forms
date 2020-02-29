@@ -901,18 +901,18 @@ if(!class_exists('SUPER_Stripe')) :
             // Set meta data
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
-            $md = array();
-            $md['form_id'] = $form_id;
-            $md['user_id'] = get_current_user_id();
+            $metadata = array();
+            $metadata['form_id'] = $form_id;
+            $metadata['user_id'] = get_current_user_id();
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
-                $md['frontend_post_id'] = absint($post_id);
+                $metadata['frontend_post_id'] = absint($post_id);
             }
             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             if( !empty($user_id) ) {
-                $md['frontend_user_id'] = absint($user_id);
+                $metadata['frontend_user_id'] = absint($user_id);
             }
             // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
@@ -923,21 +923,30 @@ if(!class_exists('SUPER_Stripe')) :
                         $contact_entry_id = absint($response['response_data']['contact_entry_id']);
                     }
                 }
-                $md['contact_entry_id'] = $contact_entry_id;
+                $metadata['contact_entry_id'] = $contact_entry_id;
             }
             // Allow devs to filter metadata if needed
-            $md = apply_filters( 'super_stripe_prepare_payment_metadata', $md, array('settings'=>$settings, 'data'=>$data, 'ideal'=>$ideal) );
+            $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'paymentMethod'=>$paymentMethod ) );
 
             // Single Payments:
             // Create Payment Intent
             if( $settings['stripe_method']=='single' ) {
-                $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $md);
+                // The URL the customer should be redirected to after the authorization process.
+                if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
+                $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $metadata);
+                echo json_encode( 
+                    array( 
+                        'client_secret' => $intent->client_secret,
+                        'return_url' => $stripe_return_url // Required for iDeal payment method
+                    )
+                );
             }
             die();
         }
 
         // Create PaymentIntent
-        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $md){
+        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $metadata){
             // // SEPA Direct Debit Subscription
             // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-subscription'){
             // }
@@ -981,7 +990,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'tracking_number' => 'XXX-XXX-XXXXXX'
                     ),
                     'metadata' => array(
-                        '_super_data' => json_encode($md) // must be a string under 500 characters
+                        '_super_data' => json_encode($metadata) // must be a string under 500 characters
                     )
                 );
                 if( $paymentMethod=='sepa_debit' ) {
@@ -1671,10 +1680,10 @@ if(!class_exists('SUPER_Stripe')) :
                     echo (isset($d['description']) ? esc_html($d['description']) : '');
                     break;
                 case 'stripe_connections':
-                    $md = ( isset($d['metadata']['_super_data']) ? $d['metadata']['_super_data'] : '' );
-                    $md = json_decode($md, true);
-                    if( isset($md['user_id']) ) {
-                        $user_id = absint($md['user_id']);
+                    $metadata = ( isset($d['metadata']['_super_data']) ? $d['metadata']['_super_data'] : '' );
+                    $metadata = json_decode($metadata, true);
+                    if( isset($metadata['user_id']) ) {
+                        $user_id = absint($metadata['user_id']);
                         $user = get_user_by( 'ID', $user_id );
                         $name = '';
                         if( !empty($user->first_name) ) {
@@ -1705,9 +1714,9 @@ if(!class_exists('SUPER_Stripe')) :
                     }
 
 
-                    // $contact_entry_id = (isset($md['contact_entry_id']) ? absint($md['contact_entry_id']) : 0 );
-                    // $frontend_post_id = (isset($md['frontend_post_id']) ? absint($md['frontend_post_id']) : 0 );
-                    // $frontend_user_id = (isset($md['frontend_user_id']) ? absint($md['frontend_user_id']) : 0 );
+                    // $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+                    // $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+                    // $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
 
                     break;
             }
@@ -1725,32 +1734,33 @@ if(!class_exists('SUPER_Stripe')) :
 
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
-            $md = array();
-            $md['form_id'] = absint($data['hidden_form_id']['value']);
-            $md['user_id'] = get_current_user_id();
-            //$md['description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
+            $metadata = array();
+            $metadata['form_id'] = absint($data['hidden_form_id']['value']);
+            $metadata['user_id'] = get_current_user_id();
+            //$metadata['description'] = SUPER_Common::email_tags( $settings['stripe_description'], $data, $settings );
 
             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
             if( !empty($post_id) ) {
-                $md['frontend_post_id'] = absint($post_id);
+                $metadata['frontend_post_id'] = absint($post_id);
             }
             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
             if( !empty($user_id) ) {
-                $md['frontend_user_id'] = absint($user_id);
+                $metadata['frontend_user_id'] = absint($user_id);
             }
             // Get Contact Entry ID and save it so we can update the entry status after successfull payment
             if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
-                $md['contact_entry_id'] = absint($data['contact_entry_id']['value']);
+                $metadata['contact_entry_id'] = absint($data['contact_entry_id']['value']);
             }
 
             // Allow devs to filter metadata if needed
-            $md = apply_filters( 'super_stripe_source_metadata', $md, array('settings'=>$settings, 'data'=>$data ) );
+            $metadata = apply_filters( 'super_stripe_source_metadata', $metadata, array('settings'=>$settings, 'data'=>$data ) );
 
             // Check if Stripe checkout is enabled
             if($settings['stripe_checkout']=='true'){
-
+                var_dump('stripe_checkout1');
+                exit;
                 // If subscription checkout
                 if($settings['stripe_method']=='subscription'){
 
@@ -1817,7 +1827,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     'redirect' => array(
                                         'return_url' => $stripe_return_url // Required for iDeal Source
                                     ),
-                                    'metadata' => array('_super_data' => $md)
+                                    'metadata' => array('_super_data' => $metadata)
                                 )
                             )
                         );
@@ -2060,14 +2070,14 @@ if(!class_exists('SUPER_Stripe')) :
                 return $post->ID;
             }else{
                 //error_log( "does not exists!", 0 );
-                $md = (isset($paymentIntent['metadata']['_super_data']) ? $paymentIntent['metadata']['_super_data'] : '');
-                $md = json_decode($md, true);
-                $form_id = (isset($md['form_id']) ? absint($md['form_id']) : 0 );
+                $metadata = (isset($paymentIntent['metadata']['_super_data']) ? $paymentIntent['metadata']['_super_data'] : '');
+                $metadata = json_decode($metadata, true);
+                $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
                 $settings = SUPER_Common::get_form_settings($form_id);
-                $user_id = (isset($md['user_id']) ? absint($md['user_id']) : 0 );
-                $contact_entry_id = (isset($md['contact_entry_id']) ? absint($md['contact_entry_id']) : 0 );
-                $frontend_post_id = (isset($md['frontend_post_id']) ? absint($md['frontend_post_id']) : 0 );
-                $frontend_user_id = (isset($md['frontend_user_id']) ? absint($md['frontend_user_id']) : 0 );
+                $user_id = (isset($metadata['user_id']) ? absint($metadata['user_id']) : 0 );
+                $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+                $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+                $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
                 // Create transaction
                 $post = array(
                     'post_status' => 'publish',
