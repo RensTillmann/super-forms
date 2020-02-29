@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-(function($) { // Hide scope, no $ conflict
+(function ($) { // Hide scope, no $ conflict
     "use strict";
 
     SUPER.Stripe = {};
@@ -30,7 +30,7 @@
             color: super_stripe_i18n.styles.color,
             iconColor: super_stripe_i18n.styles.iconColor,
             fontFamily: super_stripe_i18n.styles.fontFamily,
-            fontSize: super_stripe_i18n.styles.fontSize+'px',
+            fontSize: super_stripe_i18n.styles.fontSize + 'px',
             padding: super_stripe_i18n.styles.idealPadding, // padding // available for the idealBank Element. Accepts integer px values.
             ':focus': {
                 color: super_stripe_i18n.styles.colorFocus,
@@ -50,16 +50,16 @@
     };
 
     // Initialize Stripe Elements
-    SUPER.init_stripe_elements = function() {
+    SUPER.init_stripe_elements = function () {
         console.log('test1');
         console.log(SUPER.Stripe.forms);
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
-        SUPER.Stripe.forms.forEach(function(form, index) {
+        SUPER.Stripe.forms.forEach(function (form, index) {
             console.log('test2');
-            if(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')){
+            if (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')) {
                 console.log('test3');
                 // Check if not yet initialized
-                if(!SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.contains('super-stripe-initialized')){
+                if (!SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.contains('super-stripe-initialized')) {
                     console.log('test4');
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.add('super-stripe-initialized');
@@ -78,10 +78,10 @@
                     SUPER.Stripe.iban[index].mount(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element'));
                 }
             }
-            if(SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')){
+            if (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) {
                 console.log('test3');
                 // Check if not yet initialized
-                if(!SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.contains('super-stripe-initialized')){
+                if (!SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.contains('super-stripe-initialized')) {
                     console.log('test4');
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.add('super-stripe-initialized');
@@ -99,9 +99,9 @@
                     SUPER.Stripe.ideal[index].mount(SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element'));
                 }
             }
-            if(SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')){
+            if (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')) {
                 // Check if not yet initialized
-                if(!SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element').classList.contains('super-stripe-initialized')){
+                if (!SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element').classList.contains('super-stripe-initialized')) {
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
@@ -115,14 +115,14 @@
                         hideIcon: false // Hides the icon in the Element. Default is false.
                     });
                     SUPER.Stripe.cards[index].mount(SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element'));
-                    SUPER.Stripe.cards[index].addEventListener('change', function(event) {
+                    SUPER.Stripe.cards[index].addEventListener('change', function (event) {
                         var $parent = $(SUPER.Stripe.cards[index]._parent).parents('.super-field:eq(0)');
                         if (event.error) {
-                            if($parent.children('.super-error-msg').length===0) {
+                            if ($parent.children('.super-error-msg').length === 0) {
                                 $('<div class="super-error-msg">' + event.error.message + '</div>').appendTo($parent);
                             }
                             $parent.addClass('super-error-active');
-                        }else{
+                        } else {
                             $parent.removeClass('super-error-active');
                         }
                     });
@@ -132,16 +132,21 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_ideal_create_payment_method = function($form, $data, $old_html, $response) {
+    SUPER.stripe_ideal_create_payment_method = function ($form, $data, $old_html, $response) {
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
-        SUPER.Stripe.forms.forEach(function(form, index) {
-            if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) ) {
+        SUPER.Stripe.forms.forEach(function (form, index) {
+            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element'))) {
                 console.log('match ideal!');
+                // Check if element exists and if not empty
+                if (SUPER.Stripe.ideal[index] && SUPER.Stripe.ideal[index]._empty) {
+                    console.log('skip ideal element, because it is empty');
+                    return false;
+                }
                 // Only if element is not conditionally hidden
                 var $this = $(SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')),
                     $hidden = false,
                     $parent = $this.parents('.super-shortcode:eq(0)');
-                $this.parents('.super-shortcode.super-column').each(function() {
+                $this.parents('.super-shortcode.super-column').each(function () {
                     if ($(this).css('display') == 'none') {
                         $hidden = true;
                     }
@@ -164,25 +169,34 @@
                             data: $data,
                             response: $response
                         },
-                        success: function(result) {
+                        success: function (result) {
                             result = JSON.parse(result);
-                            if( result.method=='subscription' ) {
+                            if (result.method == 'subscription') {
                                 alert('Subscriptions can not be paid through iDeal, please choose a different payment method!');
-                            }else{
+                            } else {
                                 // Single payment checkout
                                 // Redirect to Stripe iDeal payment page
                                 SUPER.Stripe.StripesIdeal[index].confirmIdealPayment(result.client_secret, {
                                     payment_method: {
                                         ideal: SUPER.Stripe.ideal[index],
+                                        billing_details: {
+                                            name: 'Rens Tillmann'
+                                        }
                                     },
-                                    return_url: result.return_url //'http://f4d.nl/dev/checkout/complete',
+                                    return_url: result.return_url // Required for iDeal payment method
+                                }).then(function (result) {
+                                    if (result.error) {
+                                        debugger;
+                                        SUPER.stripe_proceed(result, $form, $old_html);
+                                    }
                                 });
+
                             }
                         },
-                        complete: function() {
+                        complete: function () {
                             console.log('completed');
                         },
-                        error: function(xhr, ajaxOptions, thrownError) {
+                        error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
                             alert('Failed to process data, please try again');
                         }
@@ -193,16 +207,21 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_iban_create_payment_method = function($form, $data, $old_html, $response) {
+    SUPER.stripe_iban_create_payment_method = function ($form, $data, $old_html, $response) {
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
-        SUPER.Stripe.forms.forEach(function(form, index) {
-            if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')) ) {
+        SUPER.Stripe.forms.forEach(function (form, index) {
+            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element'))) {
                 console.log('match iban!');
+                // Check if element exists and if not empty
+                if (SUPER.Stripe.iban[index] && SUPER.Stripe.iban[index]._empty) {
+                    console.log('skip iban element, because it is empty');
+                    return false;
+                }
                 // Only if element is not conditionally hidden
                 var $this = $(SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')),
                     $hidden = false,
                     $parent = $this.parents('.super-shortcode:eq(0)');
-                $this.parents('.super-shortcode.super-column').each(function() {
+                $this.parents('.super-shortcode.super-column').each(function () {
                     if ($(this).css('display') == 'none') {
                         $hidden = true;
                     }
@@ -225,12 +244,12 @@
                             data: $data,
                             response: $response
                         },
-                        success: function(result) {
+                        success: function (result) {
                             result = JSON.parse(result);
-                            if( result.method=='subscription' ) {
+                            if (result.method == 'subscription') {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
-                                if( result.sepa_debit ) {
+                                if (result.sepa_debit) {
                                     // Because this is a subscription that is paid via iDeal we must create a source to handle Sepa Debit
                                     console.log(SUPER.Stripe.iban[index]);
                                     console.log(result.source.id);
@@ -243,7 +262,7 @@
                                         owner: {
                                             name: 'Jenny SEPA',
                                         },
-                                    }).then(function(result) {
+                                    }).then(function (result) {
                                         console.log(result);
                                         // payment_method_not_available
                                         // processing_error
@@ -253,15 +272,15 @@
                                         // handle result.error or result.source
                                     });
                                 }
-                            }else{
+                            } else {
                                 // Single payment checkout
                                 // Create a charge?
                             }
                         },
-                        complete: function() {
+                        complete: function () {
                             console.log('completed');
                         },
-                        error: function(xhr, ajaxOptions, thrownError) {
+                        error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
                             alert('Failed to process data, please try again');
                         }
@@ -273,7 +292,7 @@
 
 
     // Handle error
-    SUPER.stripe_proceed = function(result, $form, $old_html, $data, stripe){
+    SUPER.stripe_proceed = function (result, $form, $old_html, $data, stripe) {
         if (result.error) {
             // Display error.message in your UI.
             console.log(result.error.message);
@@ -293,7 +312,7 @@
             $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
             $form.find('.super-form-button.super-loading').removeClass('super-loading');
         } else {
-            if(typeof result.paymentMethod !== 'undefined'){
+            if (typeof result.paymentMethod !== 'undefined') {
                 console.log(result);
                 console.log(result.paymentMethod.id);
                 // Create the subscriptions
@@ -305,39 +324,39 @@
                         payment_method: result.paymentMethod.id,
                         data: $data
                     },
-                    success: function(result) {
+                    success: function (result) {
                         result = JSON.parse(result);
                         console.log(result);
                         // If an error occured
-                        if(result.error){
-                            SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
+                        if (result.error) {
+                            SUPER.stripe_proceed(result, $form, $old_html);
                         }
                         // Outcome 1: Payment succeeds
-                        if( (result.subscription_status=='active') && (result.invoice_status=='paid') && (result.paymentintent_status=='succeeded') ) {
+                        if ((result.subscription_status == 'active') && (result.invoice_status == 'paid') && (result.paymentintent_status == 'succeeded')) {
                             console.log('Payment succeeds');
                             // The payment has succeeded. Display a success message.
                             console.log('The payment has succeeded, show success message1.');
                             $form.data('is-doing-things', ''); // Finish form submission
                         }
                         // Outcome 2: Trial starts
-                        if( (result.subscription_status=='trialing') && (result.invoice_status=='paid') ) {
+                        if ((result.subscription_status == 'trialing') && (result.invoice_status == 'paid')) {
                             console.log('Trial starts');
                             $form.data('is-doing-things', ''); // Finish form submission
                         }
                         // Outcome 3: Payment fails
-                        if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_payment_method') ) {
+                        if ((result.subscription_status == 'incomplete') && (result.invoice_status == 'open') && (result.paymentintent_status == 'requires_payment_method')) {
                             console.log('Payment fails');
                             console.log(result);
                             // result.error = {message: 'The charge attempt for the subscription failed, please try with a new payment method'};
 
                         }
                         // Outcome 4: Requires action
-                        if( (result.subscription_status=='incomplete') && (result.invoice_status=='open') && (result.paymentintent_status=='requires_action') ) {
+                        if ((result.subscription_status == 'incomplete') && (result.invoice_status == 'open') && (result.paymentintent_status == 'requires_action')) {
                             // Notify customer that further action is required
-                            stripe.confirmCardPayment(result.client_secret).then(function(result) {
+                            stripe.confirmCardPayment(result.client_secret).then(function (result) {
                                 if (result.error) {
                                     // Display error.message in your UI.
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
+                                    SUPER.stripe_proceed(result, $form, $old_html);
                                 } else {
                                     // The payment has succeeded. Display a success message.
                                     console.log('The payment has succeeded, show success message2.');
@@ -346,15 +365,15 @@
                             });
                         }
                     },
-                    complete: function() {
+                    complete: function () {
                         console.log('completed');
                     },
-                    error: function(xhr, ajaxOptions, thrownError) {
+                    error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr, ajaxOptions, thrownError);
                         alert('Failed to process data, please try again');
                     }
                 });
-            }else{
+            } else {
                 if (result.paymentIntent.status === 'succeeded') {
                     // The payment has succeeded. Display a success message.
                     console.log('The payment has succeeded, show success message3.');
@@ -365,20 +384,22 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_cc_create_payment_method = function($form, $data, $old_html, $response) {
+    SUPER.stripe_cc_create_payment_method = function ($form, $data, $old_html, $response) {
         console.log('test2222');
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
-        SUPER.Stripe.forms.forEach(function(form, index) {
-            if( ($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')) ) {
+        SUPER.Stripe.forms.forEach(function (form, index) {
+            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element'))) {
                 console.log('match cc!');
+                // Check if element exists and if not empty
+                if (SUPER.Stripe.cards[index] && SUPER.Stripe.cards[index]._empty) {
+                    console.log('skip card element, because it is empty');
+                    return false;
+                }
                 // Only if element is not conditionally hidden
                 var $this = $(SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element')),
                     $hidden = false,
                     $parent = $this.parents('.super-shortcode:eq(0)');
-
-                console.log($this);
-
-                $this.parents('.super-shortcode.super-column').each(function() {
+                $this.parents('.super-shortcode.super-column').each(function () {
                     if ($(this).css('display') == 'none') {
                         $hidden = true;
                     }
@@ -401,30 +422,36 @@
                             data: $data,
                             response: $response
                         },
-                        success: function(result) {
+                        success: function (result) {
                             result = JSON.parse(result);
                             console.log(result);
+                            // Check for errors
+                            if (result.error) {
+                                // Display error.message in your UI.
+                                SUPER.stripe_proceed(result, $form, $old_html);
+                                return false;
+                            }
                             // Check if this is a single payment or a subscription
-                            if( result.stripe_method=='subscription' ) {
+                            if (result.stripe_method == 'subscription') {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
                                 var $atts = {};
-                                if( result.sepa_debit ) {
+                                if (result.sepa_debit) {
                                     $atts.type = result.payment_method;
                                     $atts.sepa_debit.iban = '';
                                     $atts.iban = SUPER.Stripe.iban[index];
-                                }else{
+                                } else {
                                     $atts.type = result.payment_method;
                                     $atts.card = SUPER.Stripe.cards[index];
                                 }
                                 $atts.billing_details = {
                                     name: 'Rens Tillmann'
                                 };
-                                SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function(result) {
+                                SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function (result) {
                                     // It will return "result.paymentMethod.id" which is the payment ID e.g: pm_XXXXXXX
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
-                            }else{
+                            } else {
                                 // Single payment checkout
                                 SUPER.Stripe.StripesCc[index].confirmCardPayment(result.client_secret, {
                                     payment_method: {
@@ -433,15 +460,15 @@
                                             name: 'Rens Tillmann'
                                         }
                                     }
-                                }).then(function(result) {
+                                }).then(function (result) {
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             }
                         },
-                        complete: function() {
+                        complete: function () {
                             console.log('completed');
                         },
-                        error: function(xhr, ajaxOptions, thrownError) {
+                        error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
                             alert('Failed to process data, please try again');
                         }

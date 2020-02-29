@@ -238,7 +238,7 @@ class SUPER_Common {
                 }
                 return '';
             }else{
-                $values = [];
+                $values = array();
                 if($tag=='checkbox'){
                     if(!empty($element['data']['checkbox_items'])){
                         $items = $element['data']['checkbox_items'];
