@@ -194,7 +194,7 @@
                             }
                         },
                         complete: function () {
-                            console.log('completed');
+                            console.log('completed1');
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
@@ -278,7 +278,7 @@
                             }
                         },
                         complete: function () {
-                            console.log('completed');
+                            console.log('completed2');
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
@@ -366,7 +366,7 @@
                         }
                     },
                     complete: function () {
-                        console.log('completed');
+                        console.log('completed3');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr, ajaxOptions, thrownError);
@@ -466,7 +466,7 @@
                             }
                         },
                         complete: function () {
-                            console.log('completed');
+                            console.log('completed4');
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
