@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Mar 02, 2020 - Version 4.9.244
+## Mar 02, 2020 - Version 4.9.245
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:

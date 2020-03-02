@@ -2539,6 +2539,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-title {
   margin: 0px 0px 0px 10px;
+  padding: 0px;
   width: 70%;
   display: flex;
 }
@@ -2632,6 +2633,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   text-align: center;
   border: 0;
   width: 40px;
+  background: none;
 }
 .super-datepicker-dialog .ui-datepicker-calendar td a {
   color: #444444;
