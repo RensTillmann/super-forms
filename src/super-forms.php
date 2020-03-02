@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.243
+ * Version:     4.9.245
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.243';
+        public $version = '4.9.245';
         public $slug = 'super-forms';
 
 
@@ -1569,12 +1569,12 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'enqueue',
                     ),
-                    'super-marketplace' => array(
-                        'src'     => $backend_path . 'marketplace.css',
+                    'super-demos' => array(
+                        'src'     => $backend_path . 'demos.css',
                         'deps'    => '',
                         'version' => SUPER_VERSION,
                         'media'   => 'all',
-                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'screen'  => array( 'super-forms_page_super_demos' ),
                         'method'  => 'enqueue',
                     ),
                     // @since 4.8.0 - CarouselJS for "Display Layout > Slider" for Radio/Checkbox elements
@@ -1630,7 +1630,7 @@ if(!class_exists('SUPER_Forms')) :
                             'super-forms_page_super_settings',
                             'edit-super_contact_entry',
                             'admin_page_super_contact_entry',
-                            'super-forms_page_super_marketplace'
+                            'super-forms_page_super_demos'
                         ),
                         'method'  => 'enqueue',
                     ),
@@ -1837,12 +1837,12 @@ if(!class_exists('SUPER_Forms')) :
                             'save_error' => esc_html__( 'Something went wrong while saving your settings.', 'super-forms' ),
                         ),
                     ),
-                    'super-marketplace' => array(
-                        'src'     => $backend_path . 'marketplace.js',
+                    'super-demos' => array(
+                        'src'     => $backend_path . 'demos.js',
                         'deps'    => array( 'jquery' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
-                        'screen'  => array( 'super-forms_page_super_marketplace' ),
+                        'screen'  => array( 'super-forms_page_super_demos' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
                             'reason' => esc_html__( 'Reason', 'super-forms' ),

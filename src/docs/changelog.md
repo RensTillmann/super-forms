@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Feb 28, 2020 - Version 4.9.243
+## Mar 02, 2020 - Version 4.9.245
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
@@ -26,6 +26,8 @@
 - **Fix:** Hidden field could not have a default value of `0` due to the usage of the `empty()` PHP function
 - **Fix:** `MailChimp Add-on` - when displaying Groups/Interests loop over all groups instead of just one
 - **Fix:** Filter users by role(s) for retrieve method `Users (wp_users)` was not working
+- **Fix:** JavaScript error due to new localization feature on datepicker
+- **Fix:** Issue with multi-part Next button inheritting the action from the form Submit button causing possible action to become `Clear` or `Print` instead of going to next multi-part section
 - **Improved:** Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - **Improved:** When reading CSV file make sure to remove BOM (Byte order mark)
 
@@ -856,7 +858,7 @@
 
 - **Fixed:** Avada giving styles to anything with popup class, conflicting Super Forms tooltips
 - **Fixed:** Firefox issue with editing labels in form builder
-- **Added:** Super Forms Marketplace (share / sell your own forms)
+- **Added:** Super Forms Demos (share / sell your own forms)
 - **Added:** RTL support (text from right to left)
 - **Added:** Option to add custom CSS per form
 - **Added:** Option to allow user input filter the dropdown options/values

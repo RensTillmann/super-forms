@@ -465,7 +465,7 @@ msgid "What's New?"
 msgstr "Что нового?"
 
 #: includes/class-menu.php:107 includes/class-menu.php:108
-msgid "Marketplace"
+msgid "Demos"
 msgstr "Рынок"
 
 #: includes/class-menu.php:115 includes/class-menu.php:116
@@ -2261,18 +2261,18 @@ msgstr "Высота в пикселях"
 msgid "Enter 0 for 100% max height"
 msgstr "Введите 0 для 100% Макс высота"
 
-#: includes/admin/views/page-marketplace.php:16
+#: includes/admin/views/page-demos.php:16
 #: includes/admin/views/page-create-form.php:183
 msgid "No forms found, create one!"
 msgstr "Нет формы нашли, создать одну!"
 
-#: includes/admin/views/page-marketplace.php:81
-#: includes/admin/views/page-marketplace.php:82
-#: includes/admin/views/page-marketplace.php:84
+#: includes/admin/views/page-demos.php:81
+#: includes/admin/views/page-demos.php:82
+#: includes/admin/views/page-demos.php:84
 msgid "Search Forms"
 msgstr "Поиск форм"
 
-#: includes/admin/views/page-marketplace.php:93
+#: includes/admin/views/page-demos.php:93
 msgid ""
 "The below forms have been added by other Super Forms users. You can install "
 "any form of your choosing, or even add your own forms to this list!"
@@ -2281,25 +2281,25 @@ msgstr ""
 "Можно установить любую форму по вашему выбору, или даже добавлять "
 "собственные формы в этот список!"
 
-#: includes/admin/views/page-marketplace.php:98
+#: includes/admin/views/page-demos.php:98
 msgid "Your payment has been completed, you can now import the form!"
 msgstr "Ваш платеж уже завершен, теперь можно импортировать формы!"
 
-#: includes/admin/views/page-marketplace.php:102
+#: includes/admin/views/page-demos.php:102
 msgid ""
 "You canceled your payment, we have brought you back to the page you came "
 "from!"
 msgstr "Вы отменили платеж, мы вернули вас на страницу, из которой вы пришли!"
 
-#: includes/admin/views/page-marketplace.php:171
+#: includes/admin/views/page-demos.php:171
 msgid "No forms match your request."
 msgstr "Нет формы соответствуют Вашему запросу."
 
-#: includes/admin/views/page-marketplace.php:326
+#: includes/admin/views/page-demos.php:326
 msgid "Popular tags"
 msgstr "Популярные теги"
 
-#: includes/admin/views/page-marketplace.php:327
+#: includes/admin/views/page-demos.php:327
 msgid ""
 "You may also browse based on the most popular tags in the Form Directory:"
 msgstr ""

@@ -1138,7 +1138,7 @@ msgid "FAQ"
 msgstr "FAQ"
 
 #: includes/class-menu.php:107 includes/class-menu.php:108
-msgid "Marketplace"
+msgid "Demos"
 msgstr "Marktplatz"
 
 #: includes/class-menu.php:115 includes/class-menu.php:116
@@ -2277,18 +2277,18 @@ msgstr "Text für Weiter-Button"
 msgid "Custom URL"
 msgstr "eigene URL"
 
-#: includes/admin/views/page-marketplace.php:16
+#: includes/admin/views/page-demos.php:16
 #: includes/admin/views/page-create-form.php:183
 msgid "No forms found, create one!"
 msgstr "Keine Formulare gefunden, erstellen Sie eines!"
 
-#: includes/admin/views/page-marketplace.php:81
-#: includes/admin/views/page-marketplace.php:82
-#: includes/admin/views/page-marketplace.php:84
+#: includes/admin/views/page-demos.php:81
+#: includes/admin/views/page-demos.php:82
+#: includes/admin/views/page-demos.php:84
 msgid "Search Forms"
 msgstr "Formulare durchsuchen"
 
-#: includes/admin/views/page-marketplace.php:93
+#: includes/admin/views/page-demos.php:93
 msgid ""
 "The below forms have been added by other Super Forms users. You can install "
 "any form of your choosing, or even add your own forms to this list!"
@@ -2297,25 +2297,25 @@ msgstr ""
 "hinzugefügt. Sie können jedes beliebige Formulare installieren oder Ihre "
 "eigenen Formulare hinzufügen."
 
-#: includes/admin/views/page-marketplace.php:98
+#: includes/admin/views/page-demos.php:98
 msgid "Your payment has been completed, you can now import the form!"
 msgstr "Bezahlung komplett, Sie können das Formular nun importieren!"
 
-#: includes/admin/views/page-marketplace.php:102
+#: includes/admin/views/page-demos.php:102
 msgid ""
 "You canceled your payment, we have brought you back to the page you came "
 "from!"
 msgstr "Bezahlung abgebrochen, wir haben Sie zur vorigen Seite zurückgebracht."
 
-#: includes/admin/views/page-marketplace.php:171
+#: includes/admin/views/page-demos.php:171
 msgid "No forms match your request."
 msgstr "Keine Formulare passen auf Ihre Anfrage."
 
-#: includes/admin/views/page-marketplace.php:326
+#: includes/admin/views/page-demos.php:326
 msgid "Popular tags"
 msgstr "Beliebte Stichwörter"
 
-#: includes/admin/views/page-marketplace.php:327
+#: includes/admin/views/page-demos.php:327
 msgid ""
 "You may also browse based on the most popular tags in the Form Directory:"
 msgstr ""

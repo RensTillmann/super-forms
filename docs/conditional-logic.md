@@ -62,4 +62,4 @@ The last step is to define the condition itself. You will be able to set the fol
 
 ### Example Form
 
-You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Conditional Logic`
+You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Conditional Logic`

@@ -1333,9 +1333,20 @@ textarea
   opacity: 0
 
 .super-transparent-fields
-  input, .super-dropdown-ui, textarea, .super-field div .super-fileupload-button, input:focus, .super-focus .super-dropdown-ui, textarea:focus, .super-field div .super-fileupload-button
+  input, .super-dropdown-ui,
+  textarea,
+  .super-field div .super-fileupload-button,
+  input:focus,
+  .super-focus .super-dropdown-ui,
+  textarea:focus,
+  .super-field div .super-fileupload-button
     background: none !important
     background-image: none !important
+  .super-dropdown
+    .super-item:not(.super-placeholder)
+      background-color: white!important
+    .super-item:hover:not(.super-placeholder)
+      background-color: #1E90FF!important
 
 .super-shortcode-field[disabled]
   background: inherit
@@ -2146,6 +2157,7 @@ textarea
     display: flex
     .ui-datepicker-title
       margin: 0px 0px 0px 10px
+      padding: 0px
       width: 70%
       display: flex
     .ui-datepicker-month, .ui-datepicker-year
@@ -2217,6 +2229,7 @@ textarea
       text-align: center
       border: 0
       width: 40px
+      background: none
       a
         color: #444444
         width: 40px

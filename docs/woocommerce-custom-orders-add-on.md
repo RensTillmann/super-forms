@@ -63,5 +63,5 @@ Create orders on the fly without the need to use the normal workflow WooCommerce
 ### Installing Demo Form
 
 Even though you can easily start building your form from scratch it is adviced to check out the demo forms for this add-on.
-You can "One-click" install them from the menu `Super Forms` > `Marketplace`.
+You can "One-click" install them from the menu `Super Forms` > `Demos`.
 Once installed you can see how everything works and change/alter elements and settings where needed :)

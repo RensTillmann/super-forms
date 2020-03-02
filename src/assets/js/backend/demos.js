@@ -1,4 +1,4 @@
-/* globals jQuery, super_marketplace_i18n, ajaxurl */
+/* globals jQuery, super_demos_i18n, ajaxurl */
 "use strict";
 (function() { // Hide scope, no $ conflict
 
@@ -6,7 +6,7 @@
     
         var $doc = $(document);
 
-        $doc.on('click', '.super-marketplace .install-now', function(){
+        $doc.on('click', '.super-demos .install-now', function(){
             var $this = $(this);
             if(!$this.hasClass('button-disabled')){
                 $this.html('Installing...').addClass('button-disabled');
@@ -19,7 +19,7 @@
                     type: 'post',
                     url: ajaxurl,
                     data: {
-                        action: 'super_marketplace_install_item',
+                        action: 'super_demos_install_item',
                         title: $title,
                         elements: $elements,
                         settings: $settings,
@@ -29,7 +29,7 @@
                         window.location.href = "admin.php?page=super_create_form&id="+result;
                     },
                     error: function () {
-                        alert(super_marketplace_i18n.connection_lost);
+                        alert(super_demos_i18n.connection_lost);
                     }
                 });
             }

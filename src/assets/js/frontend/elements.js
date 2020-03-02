@@ -420,8 +420,10 @@
 
             // @since 4.9.3 - Datepicker localization (language and format)
             if(localization!==''){
-                $.datepicker.regional[localization].yearSuffix = '';
-                $(el).datepicker( "option", $.datepicker.regional[localization] );
+                if(typeof $.datepicker.regional[localization] !== 'undefined'){
+                    $.datepicker.regional[localization].yearSuffix = '';
+                    $(el).datepicker( "option", $.datepicker.regional[localization] );
+                }
             }
 
             $(el).parent().find('.super-icon').css('cursor','pointer');

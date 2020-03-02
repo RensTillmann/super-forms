@@ -56,4 +56,4 @@ The final step is to enter the [Unique field name](unique-field-name) which the 
 
 ### Example form
 
-You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Distance calculator`
+You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Distance calculator`

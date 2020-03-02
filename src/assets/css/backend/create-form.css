@@ -684,7 +684,7 @@
     color:#cccccc;
     cursor:default;
 }
-.super-preview .super-marketplace-notice {
+.super-preview .super-demos-notice {
     border: 2px dashed #ded367;
     float:left;
     padding: 20px 20px 20px 20px;
@@ -693,7 +693,7 @@
     color: #86804a;
     width: 100%;
 }
-.super-preview .super-marketplace-notice h2 {
+.super-preview .super-demos-notice h2 {
     color: #86804a;
     margin: 0px 0px 0px 0px;
     font-size: 24px;

@@ -78,4 +78,4 @@ Variable fields can deal with {tags}, please read the [{tags} system](tags-syste
 
 ### Example form
 
-You can find an example form that uses conditional logic under: `Super Forms` > `Marketplace` > `Variable Fields`
+You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Variable Fields`
