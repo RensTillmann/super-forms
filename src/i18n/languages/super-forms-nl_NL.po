@@ -399,8 +399,8 @@ msgid "What's New?"
 msgstr ""
 
 #: includes/class-menu.php:107 includes/class-menu.php:108
-msgid "Marketplace"
-msgstr "Marketplace"
+msgid "Demos"
+msgstr "Demos"
 
 #: includes/class-menu.php:115 includes/class-menu.php:116
 msgid "View contact entry"

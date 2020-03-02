@@ -1540,9 +1540,21 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   opacity: 0;
 }
 
-.super-transparent-fields input, .super-transparent-fields .super-dropdown-ui, .super-transparent-fields textarea, .super-transparent-fields .super-field div .super-fileupload-button, .super-transparent-fields input:focus, .super-transparent-fields .super-focus .super-dropdown-ui, .super-transparent-fields textarea:focus, .super-transparent-fields .super-field div .super-fileupload-button {
+.super-transparent-fields input, .super-transparent-fields .super-dropdown-ui,
+.super-transparent-fields textarea,
+.super-transparent-fields .super-field div .super-fileupload-button,
+.super-transparent-fields input:focus,
+.super-transparent-fields .super-focus .super-dropdown-ui,
+.super-transparent-fields textarea:focus,
+.super-transparent-fields .super-field div .super-fileupload-button {
   background: none !important;
   background-image: none !important;
+}
+.super-transparent-fields .super-dropdown .super-item:not(.super-placeholder) {
+  background-color: white !important;
+}
+.super-transparent-fields .super-dropdown .super-item:hover:not(.super-placeholder) {
+  background-color: #1E90FF !important;
 }
 
 .super-shortcode-field[disabled] {

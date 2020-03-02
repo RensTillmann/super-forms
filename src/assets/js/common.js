@@ -2159,6 +2159,11 @@ function SUPERreCaptcha(){
             conditionalValidation,
             textField;
 
+        // Set action to empty string when the button is a multi-part button
+        if(submitButton.classList.contains('super-next-multipart') || submitButton.classList.contains('super-prev-multipart')){
+            action = '';
+        }
+
         if(action=='clear'){
             SUPER.init_clear_form(form);
             return false;
@@ -2200,7 +2205,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-
         // @since 2.0 - multipart validation
         if(typeof validateMultipart === 'undefined') validateMultipart = '';
 
@@ -2259,7 +2263,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-
         if(error===false){  
             // @since 2.0.0 - multipart validation
             if(validateMultipart===true) return true;

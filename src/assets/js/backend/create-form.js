@@ -2820,8 +2820,8 @@
                         description: '<h1>Open the the WordPres menu</h1>'
                     },
                     {
-                        selector: '.wp-submenu a[href*="page=super_marketplace"]',
-                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Marketplace with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="' + $git + '">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="' + $git + 'add-ons">Add-ons</a> for Super Forms!</span>',
+                        selector: '.wp-submenu a[href*="page=super_demos"]',
+                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Demos with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="' + $git + '">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="' + $git + 'add-ons">Add-ons</a> for Super Forms!</span>',
                         nextButton: {
                             text: "Finish"
                         },

@@ -298,10 +298,10 @@ class SUPER_Pages {
     /**
      * List of all the demo forms & community forms
      */
-    public static function marketplace() {
+    public static function demos() {
         wp_enqueue_script( 'thickbox' );
         wp_enqueue_style( 'thickbox' );  
-        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-marketplace.php' );
+        include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-demos.php' );
     }
 
 

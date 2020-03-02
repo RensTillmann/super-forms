@@ -225,11 +225,11 @@
             <div class="super-preview"> 
                 <?php
                 if( $form_id==0 ) {
-                    $admin_url = get_admin_url() . 'admin.php?page=super_marketplace';
-                    echo '<div class="super-marketplace-notice">';
+                    $admin_url = get_admin_url() . 'admin.php?page=super_demos';
+                    echo '<div class="super-demos-notice">';
                     echo '<h2>Creating a new form?</h2>';
-                    echo '<p>Take the time to check out one of the many ready to use forms in the <a target="_blank" href="' . $admin_url . '">Marketplace</a>!</p>';
-                    echo ' <a target="_blank" href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Marketplace!</a>';
+                    echo '<p>Take the time to check out one of the many ready to use forms in the <a target="_blank" href="' . $admin_url . '">Demos</a>!</p>';
+                    echo ' <a target="_blank" href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Demos!</a>';
                     echo '</div>';
                 }
 

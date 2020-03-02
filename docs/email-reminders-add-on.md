@@ -16,7 +16,7 @@ https://codecanyon.net/item/super-forms-email-reminders-appointment-reminders-ad
 
 A live demo can be found here: [http://f4d.nl/super-forms/documentation/email-reminders/](http://f4d.nl/super-forms/documentation/email-reminders/)
 
-And a 1-click installable form is avilable via your WordPress menu: `Super Forms` > `Marketplace` > `Email Reminder`
+And a 1-click installable form is avilable via your WordPress menu: `Super Forms` > `Demos` > `Email Reminder`
 
 
 ### Description

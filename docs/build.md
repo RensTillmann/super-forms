@@ -1,7 +1,7 @@
 # Building a form
 
 This guide will walk you through the steps to create a form from scratch.<br />
-If you wish to install example forms you can do so via `Super Forms` > `Marketplace`.
+If you wish to install example forms you can do so via `Super Forms` > `Demos`.
 
 ### 1. Creating a new form
 

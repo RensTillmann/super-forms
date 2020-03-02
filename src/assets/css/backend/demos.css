@@ -1,17 +1,17 @@
-.super-marketplace {
+.super-demos {
 
 }
-.super-marketplace .plugin-card .column-compatibility span:before {
+.super-demos .plugin-card .column-compatibility span:before {
     display:none;
 }
-.super-marketplace .popular-tags a {
+.super-demos .popular-tags a {
     display:inline-block;
 }
-.super-marketplace .plugin-card .desc,
-.super-marketplace .plugin-card .name {
+.super-demos .plugin-card .desc,
+.super-demos .plugin-card .name {
     margin-left:0px;
 }
-.super-marketplace .plugin-card .under-review {
+.super-demos .plugin-card .under-review {
     background-color: #ff6262;
     color:white;
     padding: 5px;
@@ -19,21 +19,21 @@
     display: block;
     text-align: center;
 }
-.super-marketplace .report {
+.super-demos .report {
     cursor:pointer;
     margin-top: 50px;
     display: block;
 }
-.super-marketplace .report:before {
+.super-demos .report:before {
     content:'\f024';
     font-family:'Font Awesome 5 Free';
     padding-right:5px;
 }
-.super-marketplace .report.reported {
+.super-demos .report.reported {
     color:red;
     cursor:default;
 }
-.super-marketplace .report.reported:before {
+.super-demos .report.reported:before {
     content:'';
     color:red;
 }
@@ -51,7 +51,7 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;  
 }
-.super-marketplace > .super-msg {
+.super-demos > .super-msg {
     margin-bottom:20px;
 }
 .super-msg.super-error {

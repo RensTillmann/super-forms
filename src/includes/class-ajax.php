@@ -51,7 +51,7 @@ class SUPER_Ajax {
             'prepare_contact_entry_import'  => false, // @since 1.2.6
             'import_contact_entries'        => false, // @since 1.2.6
 
-            'marketplace_install_item'      => false, // @since 1.2.8
+            'demos_install_item'            => false, // @since 1.2.8
 
             'get_entry_export_columns'      => false, // @since 1.7
             'export_selected_entries'       => false, // @since 1.7
@@ -827,11 +827,11 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Install marketplace item
+     *  Install demos item
      *
      *  @since      1.2.8
     */
-    public static function marketplace_install_item() {
+    public static function demos_install_item() {
         $title = $_POST['title'];
         if( !empty($_POST['import']) ) {
             $import = maybe_unserialize(stripslashes($_POST['import']));
