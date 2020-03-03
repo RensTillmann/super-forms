@@ -3710,6 +3710,15 @@ class SUPER_Shortcodes {
                 $jsformat = str_replace('y', 'yy', $jsformat);
             }
         }
+
+        if(!isset($atts['changeMonth'])) $atts['changeMonth'] = 'true';
+        if(!isset($atts['changeYear'])) $atts['changeYear'] = 'true';
+        if(!isset($atts['showMonthAfterYear'])) $atts['showMonthAfterYear'] = 'false';
+        if(!isset($atts['showWeek'])) $atts['showWeek'] = 'true';
+        if(!isset($atts['numberOfMonths'])) $atts['numberOfMonths'] = '1';
+        if(!isset($atts['showOtherMonths'])) $atts['showOtherMonths'] = 'false';
+        if(!isset($atts['selectOtherMonths'])) $atts['selectOtherMonths'] = 'false';
+
         $result .= ' value="' . esc_attr($atts['value']) . '" 
         name="' . esc_attr($atts['name']) . '" 
         data-format="' . esc_attr($format) . '" 
@@ -3721,13 +3730,13 @@ class SUPER_Shortcodes {
         data-range="' . esc_attr($atts['range']) . '" 
         data-first-day="' . esc_attr($atts['first_day']) . '"
         data-localization="' . esc_attr($atts['localization']) . '"
-        data-changeMonth="' . ( !isset($atts['changeMonth']) ? 'true' : esc_attr($atts['changeMonth']) ) . '"
-        data-changeYear="' . ( !isset($atts['changeMonth']) ? 'true' : esc_attr($atts['changeYear']) ) . '"
-        data-showMonthAfterYear="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showMonthAfterYear']) ) . '"
-        data-showWeek="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showWeek']) ) . '"
-        data-numberOfMonths="' . ( !isset($atts['changeMonth']) ? '1' : esc_attr($atts['numberOfMonths']) ) . '"
-        data-showOtherMonths="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['showOtherMonths']) ) . '"
-        data-selectOtherMonths="' . ( !isset($atts['changeMonth']) ? 'false' : esc_attr($atts['selectOtherMonths']) ) . '" ';
+        data-change-month="' . esc_attr($atts['changeMonth']) . '"
+        data-change-year="' . esc_attr($atts['changeYear']) . '"
+        data-show-month-after-year="' . esc_attr($atts['showMonthAfterYear']) . '"
+        data-show-week="' . esc_attr($atts['showWeek']) . '"
+        data-number-of-months="' . esc_attr($atts['numberOfMonths']) . '"
+        data-show-other-months="' . esc_attr($atts['showOtherMonths']) . '"
+        data-select-other-months="' . esc_attr($atts['selectOtherMonths']) . '" ';
 
         // @since 1.5.0 - Allow work days selection
         if( !empty($atts['work_days']) ) {

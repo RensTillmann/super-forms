@@ -239,19 +239,19 @@
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
                 parse,year,month,firstDate,$date,days,found,date,fullDate,dateFrom,
                 dateTo,d1,d2,from,to,check,day,exclDays,exclDates,exclDatesReplaced,
-                changeMonth = (typeof el.dataset.changeMonth !== 'undefined' ? 'true' : 'false'),
-                changeYear = (typeof el.dataset.changeYear !== 'undefined' ? 'true' : 'false'),
-                showMonthAfterYear = (typeof el.dataset.showMonthAfterYear !== 'undefined' ? true : 'false'),
-                showWeek = (typeof el.dataset.showWeek !== 'undefined' ? 'true' : 'false'),
-                numberOfMonths = (typeof el.dataset.numberOfMonths !== 'undefined' ? parseInt(el.dataset.numberOfMonths, 10) : 1),
-                showOtherMonths = (typeof el.dataset.showOtherMonths !== 'undefined' ? 'true' : 'false'),
-                selectOtherMonths = (typeof el.dataset.selectOtherMonths !== 'undefined' ? 'true' : 'false'),
+                changeMonth =(el.dataset.changeMonth==='true' ? true : false),
+                changeYear =(el.dataset.changeYear==='true' ? true : false),
+                showMonthAfterYear = (el.dataset.showMonthAfterYear==='true' ? true : false),
+                showWeek = (el.dataset.showWeek==='true' ? true : false),
+                numberOfMonths = parseInt(el.dataset.numberOfMonths, 10),
+                showOtherMonths = (el.dataset.showOtherMonths==='true' ? true : false),
+                selectOtherMonths = (el.dataset.selectOtherMonths==='true' ? true : false),
 
                 // @since 2.5.0 - Date.parseExact compatibility
                 parseFormat = [
                     jsformat
                 ];
-
+            
             // yy = short year
             // yyyy = long year
             // M = month (1-12)
