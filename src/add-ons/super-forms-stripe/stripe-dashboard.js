@@ -433,11 +433,26 @@
                         html += '<divider></divider>';
                         html += '<span>CONNECTIONS</span>';
 
-                        var customerID = row.querySelector('.super-stripe-customer').customer;
-                        if (customerID) {
-                            html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + customerID + '">View customer</a>';
+                        var formID = 0, contactEntryID = 0, userID = 0;
+                        if(payload.metadata){
+                            // Based on form
+                            if(payload.metadata.form_id) formID = payload.metadata.form_id;
+                            // Contact entry
+                            if(payload.metadata.contact_entry_id) contactEntryID = payload.metadata.contact_entry_id;
+                            // WordPress user
+                            if(payload.metadata.user_id) userID = payload.metadata.user_id;
+                            // Registered user
+                            if(payload.metadata.frontend_user_id) userID = payload.metadata.frontend_user_id;
                         }
+                        console.log(payload.metadata);
+                        console.log('formID:', formID);
+                        console.log('contactEntryID:', contactEntryID);
+                        console.log('userID:', userID);
+                        if(contactEntryID!==0) html += '<a target="_blank" href="admin.php?page=super_contact_entry&id=' + contactEntryID + '">Contact Entry</a>';
+                        if(userID!==0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
+                        if(payload.customer) html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">Stripe Customer</a>';
                         html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">View payment details</a>';
+                        if(formID!==0) html += '<a target="_blank" href="admin.php?page=super_create_form&id=' + formID + '">Form</a>';
                         contextMenu.innerHTML = html;
 
                         // Get the position relative to the viewport (i.e. the window)
@@ -826,17 +841,20 @@
                         }
                     }
                 }
-            
-                if (payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
+                if (payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
                     if (((payload['last_payment_error'])) && (($declineCodes[payload['last_payment_error']['decline_code']]))) {
                         $class = ' super-stripe-failed';
                         $label = 'Failed';
                         $title = ' title="' + $declineCodes[payload['last_payment_error']['decline_code']]['desc'] + '"';
                     } else {
-                        if (payload.status == 'requires_payment_method') {
+                        if (payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method') {
                             $class = ' super-stripe-incomplete';
                             $label = 'Incomplete';
-                            $title = ' title="The customer has not entered their payment method"';
+                            if(payload.status == 'requires_confirmation'){
+                                $title = ' title="The customer has not completed the payment."';
+                            }else{
+                                $title = ' title="The customer has not entered their payment method."';
+                            }
                         } else {
                             $class = ' super-stripe-uncaptured';
                             $label = 'Uncaptured';
@@ -910,17 +928,24 @@
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-customer';
                 html = '';
-                console.log(payload.customer);
-                if (payload.customer) {
-                    column.customer = payload.customer.id;
-                    html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">';
-                    if (payload.customer.email) {
-                        html += payload.customer.email
-                    } else {
-                        html += payload.customer.id;
-                    }
-                    html += '</a>';
+                if(payload.wp_user_info){
+                    html += '<a target="_blank" href="' + payload.wp_user_info.data.edit_link + '">'+payload.wp_user_info.data.display_name+'</a>';
                 }
+                //if(userID!==0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
+                //html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">WP User';
+                //html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">Stripe Customer';
+
+                // console.log(payload.customer);
+                // if (payload.customer) {
+                //     column.customer = payload.customer.id;
+                //     html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">';
+                //     if (payload.customer.email) {
+                //         html += payload.customer.email
+                //     } else {
+                //         html += payload.customer.id;
+                //     }
+                //     html += '</a>';
+                // }
                 column.innerHTML = html;
                 newRow.appendChild(column);
 
@@ -940,14 +965,14 @@
                         }
                         if (payload.shipping.tracking_number) {
                             html += '<div class="super-stripe-tracking-number">';
-                            html += '<strong>Carrier:</strong>';
+                            html += '<strong>Tracking:</strong>';
                             html += '<span>' + payload.shipping.tracking_number + '</span>';
                             html += '</div>';
                         }
                         if (payload.shipping.name) {
                             html += '<div class="super-stripe-recipient">';
                             html += '<strong>Recipient:</strong>';
-                            html += '<span>' + payload.shipping.name + (payload.shipping.phone ? '(' + payload.shipping.phone + ')' : '') + '</span>';
+                            html += '<span>' + payload.shipping.name + (payload.shipping.phone ? ' (' + payload.shipping.phone + ')' : '') + '</span>';
                             html += '</div>';
                         }
                         if (payload.shipping.address) {
@@ -1134,7 +1159,7 @@
 
                 column = document.createElement('td');
                 column.className = 'super-stripe-customer';
-                column.innerHTML = payload.customer;
+                //column.innerHTML = payload.customer;
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
@@ -1168,7 +1193,7 @@
 
                 column = document.createElement('td');
                 column.className = 'super-stripe-customer';
-                column.innerHTML = payload.customer;
+                //column.innerHTML = payload.customer;
                 newRow.appendChild(column);
 
                 column = document.createElement('td');
