@@ -50,7 +50,7 @@
                 'currency' => '',
                 'status' => '',
                 'description' => esc_html__( 'Description', 'super-forms' ),
-                'customer' => esc_html__( 'Customer', 'super-forms' ),
+                'customer' => esc_html__( 'Customer/User', 'super-forms' ),
                 'shipping' => esc_html__( 'Shipping', 'super-forms' ),
                 'method' => esc_html__( 'Payment Method', 'super-forms' ),
                 'date' => esc_html__( 'Date', 'super-forms' ),
@@ -79,7 +79,7 @@
                 'livemode' => esc_html__( 'livemode', 'super-forms' ),
                 'amount' => esc_html__( 'Amount', 'super-forms' ),
                 'description' => esc_html__( 'Description', 'super-forms' ),
-                'customer' => esc_html__( 'Customer', 'super-forms' ),
+                'customer' => esc_html__( 'Customer/User', 'super-forms' ),
                 'shipping' => esc_html__( 'Shipping', 'super-forms' ),
                 'invoice' => esc_html__( 'Invoice', 'super-forms' ),
             );
@@ -100,7 +100,7 @@
                 'livemode' => esc_html__( 'livemode', 'super-forms' ),
                 'amount' => esc_html__( 'Amount', 'super-forms' ),
                 'description' => esc_html__( 'Description', 'super-forms' ),
-                'customer' => esc_html__( 'Customer', 'super-forms' ),
+                'customer' => esc_html__( 'Customer/User', 'super-forms' ),
                 'shipping' => esc_html__( 'Shipping', 'super-forms' ),
                 'invoice' => esc_html__( 'Invoice', 'super-forms' ),
             );
