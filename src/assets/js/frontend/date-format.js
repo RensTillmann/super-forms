@@ -626,12 +626,12 @@ Date.CultureInfo = {
     };
     $N.fromNow = $N.after = function(date) {
         var c = {};
-        c[this._dateElement] = this;
+        if(typeof this !== 'undefined') c[this._dateElement] = this;
         return ((!date) ? new Date() : date.clone()).add(c);
     };
     $N.ago = $N.before = function(date) {
         var c = {};
-        c[this._dateElement] = this * -1;
+        if(typeof this !== 'undefined') c[this._dateElement] = this * -1;
         return ((!date) ? new Date() : date.clone()).add(c);
     };
     var dx = ("sunday monday tuesday wednesday thursday friday saturday").split(/\s/),
@@ -742,7 +742,7 @@ Date.CultureInfo = {
     };
     var nf = function(n) {
         return function() {
-            this._dateElement = n;
+            if(typeof this !== 'undefined') this._dateElement = n;
             return this;
         };
     };
