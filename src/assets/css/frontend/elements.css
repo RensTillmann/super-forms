@@ -5781,6 +5781,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  height: auto;
 }
 
 .super-keyword-filter {

@@ -10,7 +10,7 @@
  * Plugin Name: Super Forms - Popups
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Create fully customizable popups for Super Forms
- * Version:     1.5.1
+ * Version:     1.5.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.5.1';
+        public $version = '1.5.2';
 
 
         /**
@@ -351,16 +351,16 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-jquery-gsap' => array(
-                        'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js',
-                        'deps'    => array( 'super-tween-lite' ),
-                        'version' => SUPER_Popup()->version,
-                        'footer'  => false,
-                        'screen'  => array( 
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue',
-                    ),
+                    // 'super-jquery-gsap' => array(
+                    //     'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js',
+                    //     'deps'    => array( 'super-tween-lite' ),
+                    //     'version' => SUPER_Popup()->version,
+                    //     'footer'  => false,
+                    //     'screen'  => array( 
+                    //         'super-forms_page_super_create_form',
+                    //     ),
+                    //     'method'  => 'enqueue',
+                    // ),
                     'super-popup' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/popup.js',
                         'deps'    => array( 'super-jquery-gsap' ),
