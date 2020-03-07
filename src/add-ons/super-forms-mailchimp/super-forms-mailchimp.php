@@ -374,7 +374,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                                         $output = json_decode( $output );
                                         $result .= '<span class="super-group-title">' . $v->title . '</span>';
 		                                foreach( $output->interests as $ik => $iv ) {
-		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" />' . esc_html($iv->name) . '</label>';
+		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" /><div>' . esc_html($iv->name) . '</div></label>';
 		                                }
 		                            }
 		                            $result .= '<input class="super-shortcode-field" type="hidden"';
