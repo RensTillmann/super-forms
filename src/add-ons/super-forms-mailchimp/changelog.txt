@@ -1,4 +1,4 @@
-Feb 26, 2020 - Version 1.5.2
+Mar 07, 2020 - Version 1.5.3
 - Fix: When displaying Groups/Interests loop over all groups instead of just one
 
 Jan 07, 2020 - Version 1.5.0

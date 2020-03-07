@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Mar 07, 2020 - Version 4.9.304
+## Mar 07, 2020 - Version 4.9.305
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 - **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
@@ -31,6 +31,7 @@
 - **Fix:** Bug with datepicker settings not being applied due to name mismatch/typo e.g `Show week numbers` was always shown even when not enabled
 - **Fix:** Remove padding for inactive TAB items for for TAB element with location set to: `Vertical tabs`
 - **Fix:** `Popup Add-on` updated GSAP to v3.2.4 (solves conflict with Avada theme)
+- **Improved:** Radio/Checkbox Label vertical alignment for long text/html
 - **Improved:** Allow user to go to previous step in multi-part when `Check for errors before going to next step` is enabled.
 - **Improved:** When reading CSV file make sure to remove BOM (Byte order mark)
 
