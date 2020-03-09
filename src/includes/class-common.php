@@ -59,7 +59,110 @@ class SUPER_Common {
         }
         return $items;
     }
-
+    // Function to replace tags inside dynamic columns for conditional logic and conditional variable logic
+    public static function replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, $settingName){
+        if(isset($v['data'][$settingName])){
+            foreach($v['data'][$settingName] as $ck => $cv){
+                // Replace {tags}
+                // `field`
+                if(!empty($cv['field'])){
+                    $str = $cv['field'];
+                    if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
+                    // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                    if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
+                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $mk => $mv){
+                        // In case advanced tag is used explode it
+                        $values = explode(";", $mv[1]);
+                        if(in_array($values[0], $dynamic_field_names)){
+                            $new_name = $values[0].'_'.$i;
+                            $values[0] = $new_name;
+                            $new_tag = implode(";", $values);
+                            $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
+                        }
+                    }
+                    $v['data'][$settingName][$ck]['field'] = $str;
+                }
+                // `field_and`
+                if(!empty($cv['field_and'])){
+                    $str = $cv['field_and'];
+                    if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
+                    // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                    if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
+                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $mk => $mv){
+                        // In case advanced tag is used explode it
+                        $values = explode(";", $mv[1]);
+                        if(in_array($values[0], $dynamic_field_names)){
+                            $new_name = $values[0].'_'.$i;
+                            $values[0] = $new_name;
+                            $new_tag = implode(";", $values);
+                            $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
+                        }
+                    }
+                    $v['data'][$settingName][$ck]['field_and'] = $str;
+                }
+                // `value`
+                if(!empty($cv['value'])){
+                    $str = $cv['value'];
+                    if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
+                    // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                    if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
+                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $mk => $mv){
+                        // In case advanced tag is used explode it
+                        $values = explode(";", $mv[1]);
+                        if(in_array($values[0], $dynamic_field_names)){
+                            $new_name = $values[0].'_'.$i;
+                            $values[0] = $new_name;
+                            $new_tag = implode(";", $values);
+                            $cv['value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value']);
+                        }
+                    }
+                    $v['data'][$settingName][$ck]['value'] = $cv['value'];
+                }
+                // `value_and`
+                if(!empty($cv['value_and'])){
+                    $str = $cv['value_and'];
+                    if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
+                    // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                    if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
+                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $mk => $mv){
+                        // In case advanced tag is used explode it
+                        $values = explode(";", $mv[1]);
+                        if(in_array($values[0], $dynamic_field_names)){
+                            $new_name = $values[0].'_'.$i;
+                            $values[0] = $new_name;
+                            $new_tag = implode(";", $values);
+                            $cv['value_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value_and']);
+                        }
+                    }
+                    $v['data'][$settingName][$ck]['value_and'] = $cv['value_and'];
+                }
+                // `new_value`
+                if(!empty($cv['new_value'])){
+                    $str = $cv['new_value'];
+                    if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
+                    // If field name doesn't contain any curly braces, then append and prepend them and continue;
+                    if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
+                    preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                    foreach($matches as $mk => $mv){
+                        // In case advanced tag is used explode it
+                        $values = explode(";", $mv[1]);
+                        if(in_array($values[0], $dynamic_field_names)){
+                            $new_name = $values[0].'_'.$i;
+                            $values[0] = $new_name;
+                            $new_tag = implode(";", $values);
+                            $cv['new_value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['new_value']);
+                        }
+                    }
+                    $v['data'][$settingName][$ck]['new_value'] = $cv['new_value'];
+                }
+            }
+        }
+        return $v;
+    }
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
         // Rename Email Label and Field name accordingly 
@@ -83,106 +186,8 @@ class SUPER_Common {
         if($i>1){
             // If inside dynamic column, and not the first dynamic column we need to replace all the {tags} accordingly
             // Rename conditional logics accordingly
-            if(isset($v['data']['conditional_items'])){
-                foreach($v['data']['conditional_items'] as $ck => $cv){
-                    // Replace {tags}
-                    // `field`
-                    if(!empty($cv['field'])){
-                        $str = $cv['field'];
-                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
-                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
-                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
-                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                        foreach($matches as $mk => $mv){
-                            // In case advanced tag is used explode it
-                            $values = explode(";", $mv[1]);
-                            if(in_array($values[0], $dynamic_field_names)){
-                                $new_name = $values[0].'_'.$i;
-                                $values[0] = $new_name;
-                                $new_tag = implode(";", $values);
-                                $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
-                            }
-                        }
-                        $v['data']['conditional_items'][$ck]['field'] = $str;
-                    }
-                    // `field_and`
-                    if(!empty($cv['field_and'])){
-                        $str = $cv['field_and'];
-                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
-                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
-                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
-                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                        foreach($matches as $mk => $mv){
-                            // In case advanced tag is used explode it
-                            $values = explode(";", $mv[1]);
-                            if(in_array($values[0], $dynamic_field_names)){
-                                $new_name = $values[0].'_'.$i;
-                                $values[0] = $new_name;
-                                $new_tag = implode(";", $values);
-                                $str = str_replace($mv[0], '{'.$new_tag.'}', $str);
-                            }
-                        }
-                        $v['data']['conditional_items'][$ck]['field_and'] = $str;
-                    }
-                    // `value`
-                    if(!empty($cv['value'])){
-                        $str = $cv['value'];
-                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
-                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
-                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
-                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                        foreach($matches as $mk => $mv){
-                            // In case advanced tag is used explode it
-                            $values = explode(";", $mv[1]);
-                            if(in_array($values[0], $dynamic_field_names)){
-                                $new_name = $values[0].'_'.$i;
-                                $values[0] = $new_name;
-                                $new_tag = implode(";", $values);
-                                $cv['value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value']);
-                            }
-                        }
-                        $v['data']['conditional_items'][$ck]['value'] = $cv['value'];
-                    }
-                    // `value_and`
-                    if(!empty($cv['value_and'])){
-                        $str = $cv['value_and'];
-                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
-                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
-                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
-                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                        foreach($matches as $mk => $mv){
-                            // In case advanced tag is used explode it
-                            $values = explode(";", $mv[1]);
-                            if(in_array($values[0], $dynamic_field_names)){
-                                $new_name = $values[0].'_'.$i;
-                                $values[0] = $new_name;
-                                $new_tag = implode(";", $values);
-                                $cv['value_and'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['value_and']);
-                            }
-                        }
-                        $v['data']['conditional_items'][$ck]['value_and'] = $cv['value_and'];
-                    }
-                    // `new_value`
-                    if(!empty($cv['new_value'])){
-                        $str = $cv['new_value'];
-                        if($str=='{}') continue; // We must skip accidentaly empty tags or it might result in JS error
-                        // If field name doesn't contain any curly braces, then append and prepend them and continue;
-                        if ( strpos( $str, '{') === false ) $str = '{'.$str.'}';
-                        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                        foreach($matches as $mk => $mv){
-                            // In case advanced tag is used explode it
-                            $values = explode(";", $mv[1]);
-                            if(in_array($values[0], $dynamic_field_names)){
-                                $new_name = $values[0].'_'.$i;
-                                $values[0] = $new_name;
-                                $new_tag = implode(";", $values);
-                                $cv['new_value'] = str_replace($mv[0], '{'.$new_tag.'}', $cv['new_value']);
-                            }
-                        }
-                        $v['data']['conditional_items'][$ck]['new_value'] = $cv['new_value'];
-                    }
-                }
-            }
+            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, 'conditional_items');
+            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, 'conditional_variable_items');
             // Replace HTML {tags}
             if($v['tag']=='html') {
                 $str = $v['data']['html'];

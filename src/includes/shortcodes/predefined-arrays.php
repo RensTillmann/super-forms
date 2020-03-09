@@ -617,11 +617,12 @@ $conditional_variable_array = array(
             'filter_value'=>'csv'
         ),
 
-        'conditional_items' => array( 
+        'conditional_variable_items' => array( 
             'name'=>esc_html__( 'Conditions', 'super-forms' ), 
             'desc'=>esc_html__( 'The conditions that this element should listen to.', 'super-forms' ),
             'type'=>'variable_conditions',
-            'default'=> (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']),
+            // Backwards compatibility to make sure old variable fields will keep working correctly.
+            'default'=> (isset($attributes['conditional_variable_items']) ? $attributes['conditional_variable_items'] : (!isset($attributes['conditional_items']) ? '' : $attributes['conditional_items']) ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',
             'filter_value'=>'manual'

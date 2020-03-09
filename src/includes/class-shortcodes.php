@@ -358,7 +358,7 @@ class SUPER_Shortcodes {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
                         $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
-                        if($v['label']!='') $item .= '<span class="super-item-label">' . esc_html($v['label']) . '</span>';
+                        if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
                         $item .='</label>';
                     }else{
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '><input type="checkbox" value="' . esc_attr( $v['value'] ) . '" /><div>' . $v['label'] . '</div></label>';
@@ -411,7 +411,7 @@ class SUPER_Shortcodes {
                             $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
                         $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                        if($v['label']!='') $item .= '<span class="super-item-label">' . esc_html($v['label']) . '</span>';
+                        if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
                         $item .='</label>';
                     }else{
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '><input type="radio" value="' . esc_attr( $v['value'] ) . '" /><div>' . $v['label'] . '</div></label>';
@@ -970,6 +970,7 @@ class SUPER_Shortcodes {
                 $user_label = $default_user_label;
                 preg_match_all($regex, $user_label, $matches, PREG_SET_ORDER, 0);
                 foreach($matches as $mk => $mv){
+                    if( empty($mv[1]) ) continue;
                     if( isset($mv[1]) && isset($v[$mv[1]]) ) {
                         $user_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $user_label );
                     }else{
@@ -982,6 +983,7 @@ class SUPER_Shortcodes {
                 $mk = explode("\n", $meta_keys);
                 $user_value = array();
                 foreach($mk as $mv){
+                    if( empty($mv) ) continue;
                     if( isset($v[$mv]) ) {
                         $user_value[] = $v[$mv];
                     }else{
@@ -1684,6 +1686,8 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
         if( $atts['conditional_variable_action']!='disabled' ) {
             if( !isset( $atts['conditional_items'] ) ) $atts['conditional_items'] = '';
+            // Backwards compatibility to make sure old variable fields will keep working correctly.
+            if( !empty( $atts['conditional_variable_items'] ) ) $atts['conditional_items'] = $atts['conditional_variable_items'];
 
             // @since 4.2.0 - variable conditions based on CSV file
             if( (!empty($atts['conditional_variable_method'])) && ($atts['conditional_variable_method']=='csv') ) {
