@@ -556,6 +556,7 @@ class SUPER_Field_Types {
 
     // @since 1.2.7 Variable Conditions
     public static function variable_conditions( $id, $field, $data ) {
+        
         $options = array(
             'contains' => '?? Contains',
             'not_contains' => '!! Not contains',
@@ -566,9 +567,23 @@ class SUPER_Field_Types {
             'greater_than_or_equal' => '>= Greater than or equal to',
             'less_than_or_equal' => '<= Less than or equal',            
         );
-        if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
+
+        // Backward compatability
+        $variable_conditions = array();
+        if($id==='conditional_variable_items'){
+            // Check if it exists, if so use it
+            if( !empty( $data[$id] ) ) {
+                $variable_conditions = $data[$id];
+            }else{
+                // Try to get the old conditions
+                if( ( isset( $data['conditional_items'] ) ) && ( $data['conditional_items']!='' ) ) {
+                    $variable_conditions = $data['conditional_items'];
+                }
+            }
+        }
+        if( !empty($variable_conditions) ) {
             $return = '';
-            foreach( $data[$id] as $k => $v ) {
+            foreach( $variable_conditions as $k => $v ) {
                 if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';

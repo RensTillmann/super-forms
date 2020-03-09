@@ -1912,6 +1912,10 @@ class SUPER_Ajax {
                     $data = $_POST['data'];
                 }
             }
+            if(is_array($data)) {
+                $data = array_map('stripslashes_deep', $data);
+            }
+
             // If updating TAB element, we only want to update the TABs, not the content
             $builder = explode(';', $builder);
             $from = $builder[0];
