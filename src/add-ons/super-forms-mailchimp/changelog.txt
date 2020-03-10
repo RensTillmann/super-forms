@@ -1,5 +1,6 @@
-Mar 07, 2020 - Version 1.5.3
+Mar 10, 2020 - Version 1.5.4
 - Fix: When displaying Groups/Interests loop over all groups instead of just one
+- Improved: Do not store the MailChimp data such as interests ID's and list ID into the Contact Entry to keep the data clean
 
 Jan 07, 2020 - Version 1.5.0
 - Replaced deprecated function with new one

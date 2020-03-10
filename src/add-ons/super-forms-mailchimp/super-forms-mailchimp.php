@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.5.3
+ * Version:     1.5.4
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.3';
+        public $version = '1.5.4';
 
         
         /**
@@ -167,7 +167,23 @@ if(!class_exists('SUPER_Mailchimp')) :
             if ( $this->is_request( 'ajax' ) ) {
                 add_action( 'super_before_sending_email_hook', array( $this, 'update_mailchimp_subscribers' ) );
             }
-            
+
+            // @since 1.5.4
+            add_filter( 'super_before_sending_email_data_filter', array( $this, 'remove_mailchimp_data' ), 10, 2 );
+        }
+
+
+        // @since 1.5.4 - Make sure to remove the mailchimp data such as list ID and interests ID's
+        public function remove_mailchimp_data($data, $atts){
+            unset($data['mailchimp_interests']);
+            unset($data['mailchimp_send_confirmation']);
+            unset($data['mailchimp_list_id']);
+            foreach($data as $k => $v){
+                if(substr($k, 0, 24)==='mailchimp_custom_fields_') {
+                    unset($data[$k]);
+                }
+            }
+            return $data;
         }
 
 
@@ -688,9 +704,10 @@ if(!class_exists('SUPER_Mailchimp')) :
                         foreach( $obj['interests'] as $k => $v ) {
                             if(!isset($user_data['interest'][$k])){
                                 $obj['interests'][$k] = false;
+                                if(isset($user_data['interests'][$k])) $obj['interests'][$k] = true;
                             }
                         }
-                        $user_data['interests'] = array_merge( $obj['interests'], $user_data['interests'] );
+                        $user_data['interests'] = $obj['interests'];
                         $data_string = json_encode($user_data); 
                     }
                     // Now update the user with it's new interests
