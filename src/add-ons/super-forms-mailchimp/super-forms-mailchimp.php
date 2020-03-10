@@ -170,8 +170,24 @@ if(!class_exists('SUPER_Mailchimp')) :
 
             // @since 1.5.4
             add_filter( 'super_before_sending_email_data_filter', array( $this, 'remove_mailchimp_data' ), 10, 2 );
+
+            // Load scripts before Ajax request
+            add_action( 'super_after_enqueue_element_scripts_action', array( $this, 'load_scripts' ) );
+
         }
 
+
+        /**
+         * Enqueue scripts before ajax call is made
+         *
+         *  @since      1.0.0
+        */
+        public static function load_scripts($atts) {
+            if($atts['ajax']) {
+                wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
+            }
+        }
+        
 
         // @since 1.5.4 - Make sure to remove the mailchimp data such as list ID and interests ID's
         public function remove_mailchimp_data($data, $atts){

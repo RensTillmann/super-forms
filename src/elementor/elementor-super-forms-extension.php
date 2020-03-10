@@ -111,8 +111,10 @@ final class Elementor_Super_Forms_Extension {
 
 		// Add Plugin actions
 		add_action( 'elementor/widgets/widgets_registered', [ $this, 'init_widgets' ] );
-		// Only enqueue if Elementor plugin exists
-		add_action('elementor/frontend/after_enqueue_styles', [ $this, 'load_frontend_scripts_before_ajax' ] );
+		// Only enqueue scripts in preview mode (which is also the editor mode)
+		if(!empty($_GET['elementor-preview'])){
+			add_action('elementor/frontend/after_enqueue_styles', [ $this, 'load_frontend_scripts_before_ajax' ] );
+		}
 
         add_action( 'elementor/editor/footer', function() {
 			?>
