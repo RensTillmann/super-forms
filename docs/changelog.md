@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 10, 2020 - Version 4.9.401
+
+- **Improved:** When using `Elementor` only enqueue all scripts/styles when in preview/editor mode
+
 ## Mar 09, 2020 - Version 4.9.400
 
 - **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
