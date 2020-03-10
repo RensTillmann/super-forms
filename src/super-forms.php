@@ -984,10 +984,12 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'jquery-ui-datepicker', false, array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'date-format', SUPER_PLUGIN_FILE . 'assets/js/frontend/date-format.js', array( 'jquery' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-timepicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/timepicker.js', array( 'jquery' ), SUPER_VERSION, false );
-                if(!empty($settings['form_recaptcha_v3'])){
+                if( !empty($settings['form_recaptcha_v3']) && !empty($settings['form_recaptcha_v3']) ) {
                     wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=' . $settings['form_recaptcha_v3']);
                 }else{
-                    wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+                    if( !empty($settings['form_recaptcha']) && !empty($settings['form_recaptcha_secret']) ) {
+                        wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
+                    }
                 }
                 // @since 3.1.0 - google maps API places library
                 if( !empty($settings['form_google_places_api']) ) {
