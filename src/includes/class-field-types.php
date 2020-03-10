@@ -583,7 +583,7 @@ class SUPER_Field_Types {
         }
         if( !empty($variable_conditions) ) {
             $return = '';
-            foreach( $variable_conditions as $k => $v ) {
+            foreach( $variable_conditions as $v ) {
                 if( !isset( $v['and_method'] ) ) $v['and_method'] = '';
                 if( !isset( $v['field_and'] ) ) $v['field_and'] = '';
                 if( !isset( $v['logic_and'] ) ) $v['logic_and'] = '';
