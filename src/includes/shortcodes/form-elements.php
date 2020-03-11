@@ -3227,6 +3227,7 @@ $array['form_elements'] = array(
                             'name' => esc_html__( 'Default value', 'super-forms' ),
                             'label' => sprintf( esc_html__( 'Please note that you can only use a fixed value and one of the %sPredefined {tags}%s (see docs). In case you want to use field {tags} you will have to make it a %sVariable Field%s (see docs). This allows you to dynamically update the hidden field based on a other fields value.', 'super-forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/tags-system?id=predefined-tags-that-are-useful">', '</a>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/variable-fields">', '</a>' ),
                             'desc' => esc_html__( 'The value for your hidden field.', 'super-forms' ),
+                            'i18n' => true
                         ),
                     ),
                 ),

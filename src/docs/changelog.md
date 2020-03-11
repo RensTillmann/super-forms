@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 11, 2020 - Version 4.9.402
+
+- **Fix:** Predefined tags inside `Default value` not working with translated forms
+
 ## Mar 10, 2020 - Version 4.9.401
 
 - **Improved:** When using `Elementor` only enqueue all scripts/styles when in preview/editor mode

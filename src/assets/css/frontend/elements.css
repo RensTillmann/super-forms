@@ -5807,6 +5807,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   flex-grow: 1;
   min-width: 100px;
   height: 100%;
+  margin-bottom: 0;
 }
 
 .super-field-size-medium .super-icon-inside.super-icon-left .super-autosuggest-tags > div {

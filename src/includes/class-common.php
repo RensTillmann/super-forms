@@ -1066,471 +1066,476 @@ class SUPER_Common {
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( ($value==='') && ($skip==true) ) return '';
-
-        // @since 4.0.0 - retrieve author id if on profile page
-        // First check if we are on the author profile page, and see if we can find author based on slug
-        //get_current_user_id()
-        $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $author_name = basename($page_url);
-        $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
-        if( $current_author ) {
-            // This is an author profile page
-            $author_id = $current_author->ID;
-            $user_info = get_userdata($author_id);
-            if($user_info!=false){
-                $author_email = $user_info->user_email;
+        
+        // @since 4.9.402 - check if switching from language, if so grab initial tag values from session
+        if( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) {
+            // Try to get data from session
+            $tags = SUPER_Forms()->session->get( 'super_tags_values' );
+        }else{
+            // @since 4.0.0 - retrieve author id if on profile page
+            // First check if we are on the author profile page, and see if we can find author based on slug
+            //get_current_user_id()
+            $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $author_name = basename($page_url);
+            $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
+            if( $current_author ) {
+                // This is an author profile page
+                $author_id = $current_author->ID;
+                $user_info = get_userdata($author_id);
+                if($user_info!=false){
+                    $author_email = $user_info->user_email;
+                }
             }
-        }
-        global $post;
-        if( !isset( $post ) ) {
-            if( isset( $_REQUEST['post_id'] ) ) {
-                $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
-                $post_id = (string)$_REQUEST['post_id'];
+            global $post;
+            if( !isset( $post ) ) {
+                if( isset( $_REQUEST['post_id'] ) ) {
+                    $post_title = get_the_title( absint( $_REQUEST['post_id'] ) );
+                    $post_id = (string)$_REQUEST['post_id'];
+                    if ( class_exists( 'WooCommerce' ) ) {
+                        $product = wc_get_product( $post_id );
+                        if($product){
+                            $product_regular_price = $product->get_regular_price();
+                            $product_sale_price = $product->get_sale_price();
+                            $product_price = $product->get_price();
+                        }
+                    }
+                }
+            }else{
+                $post_title = get_the_title($post->ID);
+                $post_permalink = get_permalink($post->ID);
+                $post_id = (string)$post->ID;
+                if(!isset($author_id)) $author_id = $post->post_author;
+                $user_info = get_userdata($author_id);
+                $current_author = $user_info;
+                if($user_info!=false){
+                    if(!isset($author_email)) $author_email = $user_info->user_email;
+                }
                 if ( class_exists( 'WooCommerce' ) ) {
                     $product = wc_get_product( $post_id );
                     if($product){
                         $product_regular_price = $product->get_regular_price();
                         $product_sale_price = $product->get_sale_price();
                         $product_price = $product->get_price();
-                    }
+                   }
+               }
+            }
+            
+            // Make sure all variables are set
+            if(!isset($post_id)) $post_id = '';
+            if(!isset($post_title)) $post_title = '';
+            if(!isset($post_permalink)) $post_permalink = '';
+            if(!isset($author_id)) $author_id = '';
+            if(!isset($author_email)) $author_email = '';
+    
+            if(!isset($product_regular_price)) $product_regular_price = 0;
+            if(!isset($product_sale_price)) $product_sale_price = 0;
+            if(!isset($product_price)) $product_price = 0;
+            
+            $current_user = wp_get_current_user();
+    
+            $user_roles = implode(',', $current_user->roles); // @since 3.2.0
+    
+            // @since 3.3.0 - save http_referrer into a session
+            $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
+            if( $http_referrer==false ) {
+                $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+            }
+            SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
+            
+            // @since 3.4.0 - Retrieve latest contact entry based on form ID
+            // @since 3.4.0 - retrieve the lock count
+            $last_entry_id = 0;
+            $last_entry_status = '';
+            $user_last_entry_status = '';
+            $form_submission_count = '';
+            if(!isset($settings['id'])) {
+                $form_id = 0;
+            }else{
+                $form_id = $settings['id'];
+            }
+            if($form_id!=0){
+                global $wpdb;
+                $table = $wpdb->prefix . 'posts';
+                $entry = $wpdb->get_results("
+                SELECT  ID 
+                FROM    $table 
+                WHERE   post_parent = $form_id AND
+                        post_status IN ('publish','super_unread','super_read') AND 
+                        post_type = 'super_contact_entry'
+                ORDER BY ID DESC
+                LIMIT 1");
+                if( isset($entry[0])) {
+                    $last_entry_id = absint($entry[0]->ID);
+                    $last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
+                }
+                $form_submission_count = absint(get_post_meta( $form_id, '_super_submission_count', true ));
+            }
+    
+            // @since 4.7.7     - Get last entry status bas on currently logged in user
+            $user_last_entry_id = 0;
+            $user_last_entry_status = '';
+            if($current_user->ID>0){
+                global $wpdb;
+                $entry = $wpdb->get_results(
+                    $wpdb->prepare("
+                        SELECT  ID
+                        FROM    $wpdb->posts
+                        WHERE   post_parent = %d AND 
+                                post_author = %d AND
+                                post_status IN ('publish','super_unread','super_read') AND 
+                                post_type = 'super_contact_entry'
+                        ORDER BY ID DESC
+                        LIMIT 1",
+                        array( $form_id, $current_user->ID )
+                    )
+                );
+                if( isset($entry[0])) {
+                    $user_last_entry_id = absint($entry[0]->ID);
+                    $user_last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
                 }
             }
-        }else{
-            $post_title = get_the_title($post->ID);
-            $post_permalink = get_permalink($post->ID);
-            $post_id = (string)$post->ID;
-            if(!isset($author_id)) $author_id = $post->post_author;
-            $user_info = get_userdata($author_id);
-            $current_author = $user_info;
-            if($user_info!=false){
-                if(!isset($author_email)) $author_email = $user_info->user_email;
+    
+            $_SERVER_HTTP_REFERER = '';
+            if( isset($_SERVER['HTTP_REFERER']) ) {
+                $_SERVER_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
             }
-            if ( class_exists( 'WooCommerce' ) ) {
-                $product = wc_get_product( $post_id );
-                if($product){
-                    $product_regular_price = $product->get_regular_price();
-                    $product_sale_price = $product->get_sale_price();
-                    $product_price = $product->get_price();
-               }
-           }
-        }
-        
-        // Make sure all variables are set
-        if(!isset($post_id)) $post_id = '';
-        if(!isset($post_title)) $post_title = '';
-        if(!isset($post_permalink)) $post_permalink = '';
-        if(!isset($author_id)) $author_id = '';
-        if(!isset($author_email)) $author_email = '';
-
-        if(!isset($product_regular_price)) $product_regular_price = 0;
-        if(!isset($product_sale_price)) $product_sale_price = 0;
-        if(!isset($product_price)) $product_price = 0;
-        
-        $current_user = wp_get_current_user();
-
-        $user_roles = implode(',', $current_user->roles); // @since 3.2.0
-
-        // @since 3.3.0 - save http_referrer into a session
-        $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
-        if( $http_referrer==false ) {
-            $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
-        }
-        SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
-        
-        // @since 3.4.0 - Retrieve latest contact entry based on form ID
-        // @since 3.4.0 - retrieve the lock count
-        $last_entry_id = 0;
-        $last_entry_status = '';
-        $user_last_entry_status = '';
-        $form_submission_count = '';
-        if(!isset($settings['id'])) {
-            $form_id = 0;
-        }else{
-            $form_id = $settings['id'];
-        }
-        if($form_id!=0){
-            global $wpdb;
-            $table = $wpdb->prefix . 'posts';
-            $entry = $wpdb->get_results("
-            SELECT  ID 
-            FROM    $table 
-            WHERE   post_parent = $form_id AND
-                    post_status IN ('publish','super_unread','super_read') AND 
-                    post_type = 'super_contact_entry'
-            ORDER BY ID DESC
-            LIMIT 1");
-            if( isset($entry[0])) {
-                $last_entry_id = absint($entry[0]->ID);
-                $last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
-            }
-            $form_submission_count = absint(get_post_meta( $form_id, '_super_submission_count', true ));
-        }
-
-        // @since 4.7.7     - Get last entry status bas on currently logged in user
-        $user_last_entry_id = 0;
-        $user_last_entry_status = '';
-        if($current_user->ID>0){
-            global $wpdb;
-            $entry = $wpdb->get_results(
-                $wpdb->prepare("
-                    SELECT  ID
-                    FROM    $wpdb->posts
-                    WHERE   post_parent = %d AND 
-                            post_author = %d AND
-                            post_status IN ('publish','super_unread','super_read') AND 
-                            post_type = 'super_contact_entry'
-                    ORDER BY ID DESC
-                    LIMIT 1",
-                    array( $form_id, $current_user->ID )
-                )
-            );
-            if( isset($entry[0])) {
-                $user_last_entry_id = absint($entry[0]->ID);
-                $user_last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
-            }
-        }
-
-        $_SERVER_HTTP_REFERER = '';
-        if( isset($_SERVER['HTTP_REFERER']) ) {
-            $_SERVER_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
-        }
-
-        $tags = array(
-            'field_*****' => array(
-                esc_html__( 'Any field value submitted by the user', 'super-forms' ),
-                ''
-            ),
-            'field_label_*****' => array(
-                esc_html__( 'Any field value submitted by the user', 'super-forms' ),
-                ''
-            ),
-
-            // @since 4.4.0 - option to retrieve setting values from the form settings
-            'form_setting_*****' => array(
-                esc_html__( 'Any setting value used for the form', 'super-forms' ),
-                ''
-            ),
-            
-            'option_admin_email' => array(
-                esc_html__( 'E-mail address of blog administrator', 'super-forms' ),
-                get_option('admin_email')
-            ),
-            'option_blogname' => array(
-                esc_html__( 'Weblog title; set in General Options', 'super-forms' ),
-                get_option('blogname')
-            ),
-            'option_blogdescription' => array(
-                esc_html__( 'Tagline for your blog; set in General Options', 'super-forms' ),
-                get_option('blogdescription')
-            ),
-            'option_blog_charset' => array(
-                esc_html__( 'Blog Charset', 'super-forms' ),
-                get_option('blog_charset')
-            ),
-            'option_date_format' => array(
-                esc_html__( 'Date Format', 'super-forms' ),
-                get_option('date_format')
-            ),            
-            'option_default_category' => array(
-                esc_html__( 'Default post category; set in Writing Options', 'super-forms' ),
-                get_option('default_category')
-            ),
-            'option_home' => array(
-                esc_html__( 'The blog\'s home web address; set in General Options', 'super-forms' ),
-                home_url()
-            ),
-            'option_siteurl' => array(
-                esc_html__( 'WordPress web address; set in General Options', 'super-forms' ),
-                get_option('siteurl')
-            ),
-            'option_template' => array(
-                esc_html__( 'The current theme\'s name; set in Presentation', 'super-forms' ),
-                get_option('template')
-            ),
-            'option_start_of_week' => array(
-                esc_html__( 'Start of the week', 'super-forms' ),
-                get_option('start_of_week')
-            ),
-            'option_upload_path' => array(
-                esc_html__( 'Default upload location; set in Miscellaneous Options', 'super-forms' ),
-                get_option('upload_path')
-            ),
-            'option_posts_per_page' => array(
-                esc_html__( 'Posts per page', 'super-forms' ),
-                get_option('posts_per_page')
-            ),
-            'option_posts_per_rss' => array(
-                esc_html__( 'Posts per RSS feed', 'super-forms' ),
-                get_option('posts_per_rss')
-            ),
-            'real_ip' => array(
-                esc_html__( 'Retrieves the submitter\'s IP address', 'super-forms' ),
-                self::real_ip()
-            ),
-            'loop_label' => array(
-                esc_html__( 'Retrieves the field label for the field loop {loop_fields}', 'super-forms' ),
-            ),
-            'loop_value' => array(
-                esc_html__( 'Retrieves the field value for the field loop {loop_fields}', 'super-forms' ),
-            ),
-            'loop_fields' => array(
-                esc_html__( 'Retrieves the loop anywhere in your email', 'super-forms' ),
-            ),
-            'post_title' => array(
-                esc_html__( 'Retrieves the current page or post title', 'super-forms' ),
-                $post_title
-            ),
-            'post_id' => array(
-                esc_html__( 'Retrieves the current page or post ID', 'super-forms' ),
-                $post_id
-            ),
-
-            // @since 4.0.0 - return profile author ID and E-mail with tag
-            'author_id' => array(
-                esc_html__( 'Retrieves the current author ID', 'super-forms' ),
-                $author_id
-            ),
-            'author_email' => array(
-                esc_html__( 'Retrieves the current author email', 'super-forms' ),
-                $author_email
-            ),
-
-            // @since 2.9.0 - return post author ID and E-mail with tag
-            'post_author_id' => array(
-                esc_html__( 'Retrieves the current page or post author ID', 'super-forms' ),
-                $author_id
-            ),
-            'post_author_email' => array(
-                esc_html__( 'Retrieves the current page or post author email', 'super-forms' ),
-                $author_email
-            ),
-
-            // @since 3.0.0 - return post URL (permalink) with tag
-            'post_permalink' => array(
-                esc_html__( 'Retrieves the current page URL', 'super-forms' ),
-                $post_permalink
-            ),
-
-
-            // @since 1.1.6
-            'user_login' => array(
-                esc_html__( 'Retrieves the current logged in user login (username)', 'super-forms' ),
-                $current_user->user_login
-            ),
-            'user_email' => array(
-                esc_html__( 'Retrieves the current logged in user email', 'super-forms' ),
-                $current_user->user_email
-            ),
-            'user_firstname' => array(
-                esc_html__( 'Retrieves the current logged in user first name', 'super-forms' ),
-                $current_user->user_firstname
-            ),
-            'user_lastname' => array(
-                esc_html__( 'Retrieves the current logged in user last name', 'super-forms' ),
-                $current_user->user_lastname
-            ),
-            'user_display' => array(
-                esc_html__( 'Retrieves the current logged in user display name', 'super-forms' ),
-                $current_user->display_name
-            ),
-            'user_id' => array(
-                esc_html__( 'Retrieves the current logged in user ID', 'super-forms' ),
-                $current_user->ID
-            ),
-            'user_roles' => array(
-                esc_html__( 'Retrieves the current logged in user roles', 'super-forms' ),
-                $user_roles
-            ),
-
-            // @since 3.3.0 - tags to retrieve http_referrer (users previous location), and timestamp and date values
-            'server_http_referrer' => array(
-                esc_html__( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
-                $_SERVER_HTTP_REFERER
-            ),
-            'server_http_referrer_session' => array(
-                esc_html__( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),
-                $http_referrer
-            ),
-            'server_timestamp_gmt' => array(
-                esc_html__( 'Retrieves the server timestamp (UTC/GMT)', 'super-forms' ),
-                strtotime(date_i18n('Y-m-d H:i:s', false, 'gmt'))
-            ),
-            'server_day_gmt' => array(
-                esc_html__( 'Retrieves the current day of the month (UTC/GMT)', 'super-forms' ),
-                date_i18n('d', false, 'gmt')
-            ),
-            'server_month_gmt' => array(
-                esc_html__( 'Retrieves the current month of the year (UTC/GMT)', 'super-forms' ),
-                date_i18n('m', false, 'gmt')
-            ),
-            'server_year_gmt' => array(
-                esc_html__( 'Retrieves the current year of time (UTC/GMT)', 'super-forms' ),
-                date_i18n('Y', false, 'gmt')
-            ),
-            'server_hour_gmt' => array(
-                esc_html__( 'Retrieves the current hour of the day (UTC/GMT)', 'super-forms' ),
-                date_i18n('H', false, 'gmt')
-            ),
-            'server_minute_gmt' => array(
-                esc_html__( 'Retrieves the current minute of the hour (UTC/GMT)', 'super-forms' ),
-                date_i18n('i', false, 'gmt')
-            ),
-            'server_seconds_gmt' => array(
-                esc_html__( 'Retrieves the current second of the minute (UTC/GMT)', 'super-forms' ),
-                date_i18n('s', false, 'gmt')
-            ),
-
-            // @since 3.4.0 - tags to return local times
-            'server_timestamp' => array(
-                esc_html__( 'Retrieves the server timestamp (Local time)', 'super-forms' ),
-                strtotime(date_i18n('Y-m-d H:i:s', false, false))
-            ),
-            'server_day' => array(
-                esc_html__( 'Retrieves the current day of the month (Local time)', 'super-forms' ),
-                date_i18n('d', false, false)
-            ),
-            'server_month' => array(
-                esc_html__( 'Retrieves the current month of the year (Local time)', 'super-forms' ),
-                date_i18n('m', false, false)
-            ),
-            'server_year' => array(
-                esc_html__( 'Retrieves the current year of time (Local time)', 'super-forms' ),
-                date_i18n('Y', false, false)
-            ),
-            'server_hour' => array(
-                esc_html__( 'Retrieves the current hour of the day (Local time)', 'super-forms' ),
-                date_i18n('H', false, false)
-            ),
-            'server_minute' => array(
-                esc_html__( 'Retrieves the current minute of the hour (Local time)', 'super-forms' ),
-                date_i18n('i', false, false)
-            ),
-            'server_seconds' => array(
-                esc_html__( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
-                date_i18n('s', false, false)
-            ),
-
-            // @since 3.4.0 - retrieve the lock
-            'submission_count' => array(
-                esc_html__( 'Retrieves the total submission count (if form locker is used)', 'super-forms' ),
-                $form_submission_count
-            ),
-
-            // @since 3.4.0 - retrieve the last entry status
-            'last_entry_status' => array(
-                esc_html__( 'Retrieves the latest Contact Entry status', 'super-forms' ),
-                $last_entry_status
-            ),
-            // @since 4.7.7 - retrieve the last entry ID
-            'last_entry_id' => array(
-                esc_html__( 'Retrieves the latest Contact Entry ID', 'super-forms' ),
-                $last_entry_id
-            ),
-            
-            // @since 4.7.7 - retrieve last entry status and ID of the logged in user
-            'user_last_entry_status' => array(
-                esc_html__( 'Retrieves the latest Contact Entry status of the logged in user', 'super-forms' ),
-                $user_last_entry_status
-            ),
-            'user_last_entry_id' => array(
-                esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user', 'super-forms' ),
-                $user_last_entry_id
-            ),
-
-        );
-        
-        // Make sure to replace tags with correct user data
-        if( $user!=null ) {
-            $user_tags = array(
-                'user_id' => array(
-                    esc_html__( 'User ID', 'super-forms' ),
-                    $user->ID
+    
+            $tags = array(
+                'field_*****' => array(
+                    esc_html__( 'Any field value submitted by the user', 'super-forms' ),
+                    ''
                 ),
+                'field_label_*****' => array(
+                    esc_html__( 'Any field value submitted by the user', 'super-forms' ),
+                    ''
+                ),
+    
+                // @since 4.4.0 - option to retrieve setting values from the form settings
+                'form_setting_*****' => array(
+                    esc_html__( 'Any setting value used for the form', 'super-forms' ),
+                    ''
+                ),
+                
+                'option_admin_email' => array(
+                    esc_html__( 'E-mail address of blog administrator', 'super-forms' ),
+                    get_option('admin_email')
+                ),
+                'option_blogname' => array(
+                    esc_html__( 'Weblog title; set in General Options', 'super-forms' ),
+                    get_option('blogname')
+                ),
+                'option_blogdescription' => array(
+                    esc_html__( 'Tagline for your blog; set in General Options', 'super-forms' ),
+                    get_option('blogdescription')
+                ),
+                'option_blog_charset' => array(
+                    esc_html__( 'Blog Charset', 'super-forms' ),
+                    get_option('blog_charset')
+                ),
+                'option_date_format' => array(
+                    esc_html__( 'Date Format', 'super-forms' ),
+                    get_option('date_format')
+                ),            
+                'option_default_category' => array(
+                    esc_html__( 'Default post category; set in Writing Options', 'super-forms' ),
+                    get_option('default_category')
+                ),
+                'option_home' => array(
+                    esc_html__( 'The blog\'s home web address; set in General Options', 'super-forms' ),
+                    home_url()
+                ),
+                'option_siteurl' => array(
+                    esc_html__( 'WordPress web address; set in General Options', 'super-forms' ),
+                    get_option('siteurl')
+                ),
+                'option_template' => array(
+                    esc_html__( 'The current theme\'s name; set in Presentation', 'super-forms' ),
+                    get_option('template')
+                ),
+                'option_start_of_week' => array(
+                    esc_html__( 'Start of the week', 'super-forms' ),
+                    get_option('start_of_week')
+                ),
+                'option_upload_path' => array(
+                    esc_html__( 'Default upload location; set in Miscellaneous Options', 'super-forms' ),
+                    get_option('upload_path')
+                ),
+                'option_posts_per_page' => array(
+                    esc_html__( 'Posts per page', 'super-forms' ),
+                    get_option('posts_per_page')
+                ),
+                'option_posts_per_rss' => array(
+                    esc_html__( 'Posts per RSS feed', 'super-forms' ),
+                    get_option('posts_per_rss')
+                ),
+                'real_ip' => array(
+                    esc_html__( 'Retrieves the submitter\'s IP address', 'super-forms' ),
+                    self::real_ip()
+                ),
+                'loop_label' => array(
+                    esc_html__( 'Retrieves the field label for the field loop {loop_fields}', 'super-forms' ),
+                ),
+                'loop_value' => array(
+                    esc_html__( 'Retrieves the field value for the field loop {loop_fields}', 'super-forms' ),
+                ),
+                'loop_fields' => array(
+                    esc_html__( 'Retrieves the loop anywhere in your email', 'super-forms' ),
+                ),
+                'post_title' => array(
+                    esc_html__( 'Retrieves the current page or post title', 'super-forms' ),
+                    $post_title
+                ),
+                'post_id' => array(
+                    esc_html__( 'Retrieves the current page or post ID', 'super-forms' ),
+                    $post_id
+                ),
+    
+                // @since 4.0.0 - return profile author ID and E-mail with tag
+                'author_id' => array(
+                    esc_html__( 'Retrieves the current author ID', 'super-forms' ),
+                    $author_id
+                ),
+                'author_email' => array(
+                    esc_html__( 'Retrieves the current author email', 'super-forms' ),
+                    $author_email
+                ),
+    
+                // @since 2.9.0 - return post author ID and E-mail with tag
+                'post_author_id' => array(
+                    esc_html__( 'Retrieves the current page or post author ID', 'super-forms' ),
+                    $author_id
+                ),
+                'post_author_email' => array(
+                    esc_html__( 'Retrieves the current page or post author email', 'super-forms' ),
+                    $author_email
+                ),
+    
+                // @since 3.0.0 - return post URL (permalink) with tag
+                'post_permalink' => array(
+                    esc_html__( 'Retrieves the current page URL', 'super-forms' ),
+                    $post_permalink
+                ),
+    
+    
+                // @since 1.1.6
                 'user_login' => array(
-                    esc_html__( 'User username', 'super-forms' ),
-                    $user->user_login
-                ),
-                'display_name' => array(
-                    esc_html__( 'User display name', 'super-forms' ),
-                    $user->user_nicename
-                ),
-                'user_nicename' => array(
-                    esc_html__( 'User nicename', 'super-forms' ),
-                    $user->user_nicename
+                    esc_html__( 'Retrieves the current logged in user login (username)', 'super-forms' ),
+                    $current_user->user_login
                 ),
                 'user_email' => array(
-                    esc_html__( 'User email', 'super-forms' ),
-                    $user->user_email
+                    esc_html__( 'Retrieves the current logged in user email', 'super-forms' ),
+                    $current_user->user_email
                 ),
-                'user_url' => array(
-                    esc_html__( 'User URL (website)', 'super-forms' ),
-                    $user->user_url
+                'user_firstname' => array(
+                    esc_html__( 'Retrieves the current logged in user first name', 'super-forms' ),
+                    $current_user->user_firstname
                 ),
-                'user_registered' => array(
-                    esc_html__( 'User Registered (registration date)', 'super-forms' ),
-                    $user->user_registered
-                )
+                'user_lastname' => array(
+                    esc_html__( 'Retrieves the current logged in user last name', 'super-forms' ),
+                    $current_user->user_lastname
+                ),
+                'user_display' => array(
+                    esc_html__( 'Retrieves the current logged in user display name', 'super-forms' ),
+                    $current_user->display_name
+                ),
+                'user_id' => array(
+                    esc_html__( 'Retrieves the current logged in user ID', 'super-forms' ),
+                    $current_user->ID
+                ),
+                'user_roles' => array(
+                    esc_html__( 'Retrieves the current logged in user roles', 'super-forms' ),
+                    $user_roles
+                ),
+    
+                // @since 3.3.0 - tags to retrieve http_referrer (users previous location), and timestamp and date values
+                'server_http_referrer' => array(
+                    esc_html__( 'Retrieves the location where user came from (if exists any) before loading the page with the form', 'super-forms' ),
+                    $_SERVER_HTTP_REFERER
+                ),
+                'server_http_referrer_session' => array(
+                    esc_html__( 'Retrieves the location where user came from from a session (if exists any) before loading the page with the form', 'super-forms' ),
+                    $http_referrer
+                ),
+                'server_timestamp_gmt' => array(
+                    esc_html__( 'Retrieves the server timestamp (UTC/GMT)', 'super-forms' ),
+                    strtotime(date_i18n('Y-m-d H:i:s', false, 'gmt'))
+                ),
+                'server_day_gmt' => array(
+                    esc_html__( 'Retrieves the current day of the month (UTC/GMT)', 'super-forms' ),
+                    date_i18n('d', false, 'gmt')
+                ),
+                'server_month_gmt' => array(
+                    esc_html__( 'Retrieves the current month of the year (UTC/GMT)', 'super-forms' ),
+                    date_i18n('m', false, 'gmt')
+                ),
+                'server_year_gmt' => array(
+                    esc_html__( 'Retrieves the current year of time (UTC/GMT)', 'super-forms' ),
+                    date_i18n('Y', false, 'gmt')
+                ),
+                'server_hour_gmt' => array(
+                    esc_html__( 'Retrieves the current hour of the day (UTC/GMT)', 'super-forms' ),
+                    date_i18n('H', false, 'gmt')
+                ),
+                'server_minute_gmt' => array(
+                    esc_html__( 'Retrieves the current minute of the hour (UTC/GMT)', 'super-forms' ),
+                    date_i18n('i', false, 'gmt')
+                ),
+                'server_seconds_gmt' => array(
+                    esc_html__( 'Retrieves the current second of the minute (UTC/GMT)', 'super-forms' ),
+                    date_i18n('s', false, 'gmt')
+                ),
+    
+                // @since 3.4.0 - tags to return local times
+                'server_timestamp' => array(
+                    esc_html__( 'Retrieves the server timestamp (Local time)', 'super-forms' ),
+                    strtotime(date_i18n('Y-m-d H:i:s', false, false))
+                ),
+                'server_day' => array(
+                    esc_html__( 'Retrieves the current day of the month (Local time)', 'super-forms' ),
+                    date_i18n('d', false, false)
+                ),
+                'server_month' => array(
+                    esc_html__( 'Retrieves the current month of the year (Local time)', 'super-forms' ),
+                    date_i18n('m', false, false)
+                ),
+                'server_year' => array(
+                    esc_html__( 'Retrieves the current year of time (Local time)', 'super-forms' ),
+                    date_i18n('Y', false, false)
+                ),
+                'server_hour' => array(
+                    esc_html__( 'Retrieves the current hour of the day (Local time)', 'super-forms' ),
+                    date_i18n('H', false, false)
+                ),
+                'server_minute' => array(
+                    esc_html__( 'Retrieves the current minute of the hour (Local time)', 'super-forms' ),
+                    date_i18n('i', false, false)
+                ),
+                'server_seconds' => array(
+                    esc_html__( 'Retrieves the current second of the minute (Local time)', 'super-forms' ),
+                    date_i18n('s', false, false)
+                ),
+    
+                // @since 3.4.0 - retrieve the lock
+                'submission_count' => array(
+                    esc_html__( 'Retrieves the total submission count (if form locker is used)', 'super-forms' ),
+                    $form_submission_count
+                ),
+    
+                // @since 3.4.0 - retrieve the last entry status
+                'last_entry_status' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry status', 'super-forms' ),
+                    $last_entry_status
+                ),
+                // @since 4.7.7 - retrieve the last entry ID
+                'last_entry_id' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry ID', 'super-forms' ),
+                    $last_entry_id
+                ),
+                
+                // @since 4.7.7 - retrieve last entry status and ID of the logged in user
+                'user_last_entry_status' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry status of the logged in user', 'super-forms' ),
+                    $user_last_entry_status
+                ),
+                'user_last_entry_id' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user', 'super-forms' ),
+                    $user_last_entry_id
+                ),
+    
             );
-            $tags = array_merge( $tags, $user_tags );
-        }
-
-
-        // @since 3.6.0 - tags to retrieve cart information
-        if ( class_exists( 'WooCommerce' ) ) {
-            global $woocommerce;
-            if($woocommerce->cart!=null){
-                $items = $woocommerce->cart->get_cart();
-                $cart_total = $woocommerce->cart->get_cart_total();
-                $cart_total_float = $woocommerce->cart->total;
-                $cart_items = '';
-                $cart_items_price = '';
-                foreach($items as $item => $values) { 
-                    $product =  wc_get_product( $values['data']->get_id() ); 
-                    $cart_items .= absint($values['quantity']) . 'x - ' . $product->get_title() . '<br />'; 
-                    $cart_items_price .= absint($values['quantity']) . 'x - ' . $product->get_title() . ' (' . wc_price(get_post_meta($values['product_id'], '_price', true)) . ')<br />'; 
-                }
-            }else{
-                $cart_total = 0;
-                $cart_total_float = 0;
-                $cart_items = '';
-                $cart_items_price = '';
+            
+            // Make sure to replace tags with correct user data
+            if( $user!=null ) {
+                $user_tags = array(
+                    'user_id' => array(
+                        esc_html__( 'User ID', 'super-forms' ),
+                        $user->ID
+                    ),
+                    'user_login' => array(
+                        esc_html__( 'User username', 'super-forms' ),
+                        $user->user_login
+                    ),
+                    'display_name' => array(
+                        esc_html__( 'User display name', 'super-forms' ),
+                        $user->user_nicename
+                    ),
+                    'user_nicename' => array(
+                        esc_html__( 'User nicename', 'super-forms' ),
+                        $user->user_nicename
+                    ),
+                    'user_email' => array(
+                        esc_html__( 'User email', 'super-forms' ),
+                        $user->user_email
+                    ),
+                    'user_url' => array(
+                        esc_html__( 'User URL (website)', 'super-forms' ),
+                        $user->user_url
+                    ),
+                    'user_registered' => array(
+                        esc_html__( 'User Registered (registration date)', 'super-forms' ),
+                        $user->user_registered
+                    )
+                );
+                $tags = array_merge( $tags, $user_tags );
             }
-            $wc_tags = array(
-                'wc_cart_total' => array(
-                    esc_html__( 'WC Cart Total', 'super-forms' ),
-                    $cart_total
-                ),
-                'wc_cart_total_float' => array(
-                    esc_html__( 'WC Cart Total (float format)', 'super-forms' ),
-                    $cart_total_float
-                ),
-                'wc_cart_items' => array(
-                    esc_html__( 'WC Cart Items', 'super-forms' ),
-                    $cart_items
-                ),
-                'wc_cart_items_price' => array(
-                    esc_html__( 'WC Cart Items + Price', 'super-forms' ),
-                    $cart_items_price
-                ),
-                'product_regular_price' => array(
-                    esc_html__( 'Product Regular Price', 'super-forms' ),
-                    $product_regular_price
-                ),
-                'product_sale_price' => array(
-                    esc_html__( 'Product Sale Price', 'super-forms' ),
-                    $product_sale_price
-                ),
-                'product_price' => array(
-                    esc_html__( 'Product Price', 'super-forms' ),
-                    $product_price
-                )
-
-            );
-            $tags = array_merge( $tags, $wc_tags );
+    
+    
+            // @since 3.6.0 - tags to retrieve cart information
+            if ( class_exists( 'WooCommerce' ) ) {
+                global $woocommerce;
+                if($woocommerce->cart!=null){
+                    $items = $woocommerce->cart->get_cart();
+                    $cart_total = $woocommerce->cart->get_cart_total();
+                    $cart_total_float = $woocommerce->cart->total;
+                    $cart_items = '';
+                    $cart_items_price = '';
+                    foreach($items as $item => $values) { 
+                        $product =  wc_get_product( $values['data']->get_id() ); 
+                        $cart_items .= absint($values['quantity']) . 'x - ' . $product->get_title() . '<br />'; 
+                        $cart_items_price .= absint($values['quantity']) . 'x - ' . $product->get_title() . ' (' . wc_price(get_post_meta($values['product_id'], '_price', true)) . ')<br />'; 
+                    }
+                }else{
+                    $cart_total = 0;
+                    $cart_total_float = 0;
+                    $cart_items = '';
+                    $cart_items_price = '';
+                }
+                $wc_tags = array(
+                    'wc_cart_total' => array(
+                        esc_html__( 'WC Cart Total', 'super-forms' ),
+                        $cart_total
+                    ),
+                    'wc_cart_total_float' => array(
+                        esc_html__( 'WC Cart Total (float format)', 'super-forms' ),
+                        $cart_total_float
+                    ),
+                    'wc_cart_items' => array(
+                        esc_html__( 'WC Cart Items', 'super-forms' ),
+                        $cart_items
+                    ),
+                    'wc_cart_items_price' => array(
+                        esc_html__( 'WC Cart Items + Price', 'super-forms' ),
+                        $cart_items_price
+                    ),
+                    'product_regular_price' => array(
+                        esc_html__( 'Product Regular Price', 'super-forms' ),
+                        $product_regular_price
+                    ),
+                    'product_sale_price' => array(
+                        esc_html__( 'Product Sale Price', 'super-forms' ),
+                        $product_sale_price
+                    ),
+                    'product_price' => array(
+                        esc_html__( 'Product Price', 'super-forms' ),
+                        $product_price
+                    )
+    
+                );
+                $tags = array_merge( $tags, $wc_tags );
+            }
+            $tags = apply_filters( 'super_email_tags_filter', $tags );
+            SUPER_Forms()->session->set( 'super_tags_values', $tags );
         }
-
-
-        $tags = apply_filters( 'super_email_tags_filter', $tags );
         
         // Return the new value with tags replaced for data
         if( $value!=null ) {
