@@ -1978,7 +1978,8 @@
                 },
                 complete: function(){
                     $form.addClass('super-initialized');
-                    SUPER.init_button_colors();
+                    SUPER.init_common_fields();
+                    SUPER.init_replace_html_tags(undefined, $form[0]);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
