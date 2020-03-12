@@ -1066,7 +1066,9 @@ class SUPER_Common {
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
         if( ($value==='') && ($skip==true) ) return '';
-        
+        $current_author = null;
+        $current_user = wp_get_current_user();
+
         // @since 4.9.402 - check if switching from language, if so grab initial tag values from session
         if( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) {
             // Try to get data from session
@@ -1131,8 +1133,6 @@ class SUPER_Common {
             if(!isset($product_sale_price)) $product_sale_price = 0;
             if(!isset($product_price)) $product_price = 0;
             
-            $current_user = wp_get_current_user();
-    
             $user_roles = implode(',', $current_user->roles); // @since 3.2.0
     
             // @since 3.3.0 - save http_referrer into a session
@@ -1174,7 +1174,7 @@ class SUPER_Common {
             // @since 4.7.7     - Get last entry status bas on currently logged in user
             $user_last_entry_id = 0;
             $user_last_entry_status = '';
-            if($current_user->ID>0){
+            if( (isset($current_user)) && ($current_user->ID>0) ) {
                 global $wpdb;
                 $entry = $wpdb->get_results(
                     $wpdb->prepare("

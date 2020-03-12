@@ -2824,7 +2824,6 @@ class SUPER_Shortcodes {
         // @since 2.9.0 - keyword enabled
         if( !isset( $atts['enable_keywords'] ) ) $atts['enable_keywords'] = '';
         if( !isset( $atts['keyword_split_method'] ) ) $atts['keyword_split_method'] = 'both';
-        if( !isset( $atts['keyword_max'] ) ) $atts['keyword_max'] = 5;
 
         $result .= '<input class="super-shortcode-field';
         $result .= $distance_calculator_class;
@@ -2996,7 +2995,6 @@ class SUPER_Shortcodes {
                 if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
                 $result .= '<input class="super-keyword-filter" type="text"';
                 $result .= ' data-method="' . esc_attr($atts['keywords_retrieve_method']) . '"';
-                $result .= ' data-keyword-max="' . esc_attr($atts['keyword_max']) . '"';
                 $result .= ' data-split-method="' . esc_attr($atts['keyword_split_method']) . '"';
                 $result .= ' sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
                 if( !empty( $atts['placeholder'] ) ) {

@@ -694,19 +694,6 @@ $array['form_elements'] = array(
                         'keywords_retrieve_method_value' => SUPER_Shortcodes::sf_retrieve_method_value( $attributes['keywords_retrieve_method_value'], 'keywords_retrieve_method' ),
                         'keywords_retrieve_method_meta_keys' => SUPER_Shortcodes::sf_retrieve_method_meta_keys( $attributes['keywords_retrieve_method_meta_keys'], 'keywords_retrieve_method_value' ),
                         'keywords_items' => SUPER_Shortcodes::sf_retrieve_method_custom_items( $attributes['keywords_items'], 'keywords_retrieve_method', 'radio_items' ),
-
-                        'keyword_max' => array(
-                            'name' => esc_html__( 'Maximum allowed keywords', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a keyword limit for the user to enter', 'super-forms' ), 
-                            'type' => 'slider', 
-                            'default'=> ( !isset( $attributes['keyword_max'] ) ? 5 : $attributes['keyword_max'] ),
-                            'min' => 0,
-                            'max' => 20,
-                            'steps' => 1,
-                            'filter'=>true,
-                            'parent'=>'enable_keywords',
-                            'filter_value'=>'true'
-                        ),
                         'keyword_split_method' => array(
                             'name' => esc_html__( 'Keywords split method (default=both)', 'super-forms' ), 
                             'desc' => esc_html__( 'Select to split words by comma or space or both', 'super-forms' ), 
