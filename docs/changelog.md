@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 12, 2020 - Version 4.9.403
+
+- **Fix:** Max selection for `Keyword field` not working
+
 ## Mar 11, 2020 - Version 4.9.402
 
 - **Fix:** Predefined tags inside `Default value` not working with translated forms

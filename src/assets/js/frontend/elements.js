@@ -2237,18 +2237,33 @@
             SUPER.after_field_change_blur_hook(keywordField);
         },
         add: function(e, target){
-            var html = '',
+            var i,
+                html = '',
                 field = target.closest('.super-field'),
                 value = target.dataset.value, // first_choice
                 searchValue = target.dataset.searchValue, // First choice
                 wrapper = target.closest('.super-field-wrapper'),
                 keywordField = wrapper.querySelector('.super-shortcode-field'),
-                keywordFieldValue = keywordField.value.split(','),
                 tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
-                filterField = wrapper.querySelector('.super-keyword-filter');
+                tags = tagsContainer.querySelectorAll('.super-keyword-tag'),
+                filterField = wrapper.querySelector('.super-keyword-filter'),
+                maxlength = parseInt(keywordField.dataset.maxlength, 10),
+                existingTags = [];
 
+            // Check if limit is reached
+            if( maxlength!==0 && tags.length>=maxlength ) {
+                field.classList.add('super-filled');
+                field.classList.remove('super-string-found');
+                field.classList.add('super-focus');
+                app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
+                return false; 
+            }
+            // Loop over allready existing tags and add their value to an array
+            for(i=0; i < tags.length; i++){
+                existingTags.push(tags[i].dataset.value);
+            }
             // if this tag doesn't exists yet
-            if(keywordFieldValue.indexOf(value)===-1){
+            if(existingTags.indexOf(value)===-1){
                 html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
                 tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                 target.classList.add('super-active');
@@ -2281,7 +2296,6 @@
                 html = '',
                 tag, tags,
                 duplicates = {},
-                max = target.dataset.keywordMax,
                 method = target.dataset.method,
                 splitMethod = target.dataset.splitMethod,
                 itemsToShow = [],
@@ -2295,6 +2309,7 @@
                 field = target.closest('.super-field'),
                 tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
                 keywordField = wrapper.querySelector('.super-shortcode-field'),
+                max = parseInt(keywordField.dataset.maxlength, 10),
                 nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
 
             if(method=='free'){
@@ -2356,36 +2371,6 @@
                     }
                 }, 250);
             }
-
-
-        // $doc.on('keyup keydown', '.super-keyword-tags .super-keyword-filter',function(){
-        //     var $this = $(this),
-        //         $value = $this.val(),
-        //         $split_method = $this.data('split-method'),
-        //         $max_tags = $this.data('keyword-max'),
-        //         $tags,
-        //         $tags_html = '',
-        //         $counter = 0,
-        //         $duplicate_tags = {};
-
-        //     if($split_method=='both') $tags = $value.split(/[ ,]+/);
-        //     if($split_method=='comma') $tags = $value.split(/[,]+/);
-        //     if($split_method=='space') $tags = $value.split(/[ ]+/);
-        //     $.each($tags,function(index,value){
-        //         if(typeof $duplicate_tags[value]==='undefined'){
-        //             $counter++;
-        //             if($counter<=$max_tags){
-        //                 if($split_method!='comma') value = value.replace(/ /g,'');
-        //                 if( (value!=='') && (value.length>1) ) {
-        //                     $tags_html += '<span class="super-noselect">'+value+'</span>';
-        //                 }
-        //             }
-        //         }
-        //         $duplicate_tags[value] = value;
-        //     });
-        //     $this.parent().find('.super-entered-keywords').html($tags_html);
-        // });
-
         }
     }
 
