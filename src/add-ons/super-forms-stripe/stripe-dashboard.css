@@ -330,6 +330,7 @@ svg.super-stripe-loader {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    position: relative;
 }
 
 .super-stripe-column.super-stripe-amount {
@@ -870,4 +871,44 @@ svg.super-stripe-loader {
 
 .super-stripe-address>div>span {
     width: 100%;
+}
+
+.super-stripe-customer {
+    padding-left: 22px !important;
+    flex-wrap: wrap;
+}
+
+.super-stripe-wp-user,
+.super-stripe-stripe-customer {
+    float: left;
+    clear: both;
+    display: block;
+    position: relative;
+    padding: 3px 0px 3px 22px;
+}
+
+.super-stripe-wp-user:after,
+svg.super-stripe-customer {
+    position: absolute;
+    left: 0px;
+    top: 4px;
+    padding-left: 0 !important;
+}
+
+.super-stripe-wp-user:after {
+    content: "\f120";
+    font: normal 16px/1 dashicons;
+}
+
+svg.super-stripe-customer path:nth-child(1) {
+    fill: #5469D4;
+}
+
+svg.super-stripe-customer path:nth-child(2) {
+    fill: #9CBEF5;
+}
+
+.super-stripe-description svg {
+    fill: #6c8eef;
+    margin-right: 5px;
 }

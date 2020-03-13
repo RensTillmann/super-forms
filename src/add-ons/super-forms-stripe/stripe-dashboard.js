@@ -88,6 +88,12 @@
     // UI
     app.ui = {
         svg: {
+            invoice: {
+                html: '<svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M15 2v14l-2.5-2-2.25 2L8 14l-2.25 2-2.25-2L1 16V2a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2zM4 6a1 1 0 1 0 0 2h8a1 1 0 0 0 0-2zm3 3a1 1 0 1 0 0 2h5a1 1 0 0 0 0-2zM4 3a1 1 0 1 0 0 2h8a1 1 0 0 0 0-2z" fill-rule="evenodd"></path></svg>'
+            },
+            customer: {
+                html: '<svg class="super-stripe-customer" style="width: 16px;height: 16px;" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><g fill="none"><path d="M13.445 13.861C12.413 12.885 10.362 12.22 8 12.22s-4.413.665-5.445 1.641a8 8 0 1 1 10.89 0zM8 9.231a3.077 3.077 0 1 0 0-6.154 3.077 3.077 0 0 0 0 6.154z" fill="#4f566b"></path><path d="M13.944 13.354A7.98 7.98 0 0 1 8 16a7.98 7.98 0 0 1-5.944-2.646C2.76 12.043 5.154 11.077 8 11.077s5.24.966 5.944 2.277z" fill="#4f566b"></path></g></svg>'
+            },
             loader: {
                 html: '<svg class="super-stripe-loader" viewBox="0 0 24 24"><g transform="translate(1 1)" fill-rule="nonzero" fill="none"><circle cx="11" cy="11" r="11"></circle><path d="M10.998 22a.846.846 0 0 1 0-1.692 9.308 9.308 0 0 0 0-18.616 9.286 9.286 0 0 0-7.205 3.416.846.846 0 1 1-1.31-1.072A10.978 10.978 0 0 1 10.998 0c6.075 0 11 4.925 11 11s-4.925 11-11 11z" fill="currentColor"></path></g></svg>',
                 remove: function () {
@@ -708,7 +714,11 @@
         invoice: {
             // Download as PDF
             pdf: function (e, target, eventType, attr) {
-                target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
+                if(target.parentNode.classList.contains('super-stripe-description')){
+                    target.innerHTML = app.ui.svg.loader.html + target.innerHTML;
+                }else{
+                    target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
+                }
                 // "invoice_pdf": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X/pdf",
                 app.api.handler({
                     type: 'invoice.pdf',
@@ -921,16 +931,30 @@
                 // Description
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-description';
-                column.innerHTML = (payload.description ? payload.description : '');
+                // If has invoice link to invoice
+                if (payload.invoice) {
+                    column.innerHTML = '<a href="#" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>'+app.ui.svg.invoice.html+payload.description+'</a>';
+                }else{
+                    column.innerHTML = (payload.description ? payload.description : '');
+                }
                 newRow.appendChild(column);
 
                 // Customer
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-customer';
                 html = '';
+                // WordPress user
                 if(payload.wp_user_info){
-                    html += '<a target="_blank" href="' + payload.wp_user_info.data.edit_link + '">'+payload.wp_user_info.data.display_name+'</a>';
+                    html += '<a class="super-stripe-wp-user" target="_blank" href="' + payload.wp_user_info.data.edit_link + '">'+payload.wp_user_info.data.display_name+'</a>';
                 }
+                // Stripe customer
+                if (payload.customer) {
+                    html += '<a class="super-stripe-stripe-customer" target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer + '">';
+                    html += app.ui.svg.customer.html;
+                    html += payload.customer;
+                    html += '</a>';
+                }
+
                 //if(userID!==0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
                 //html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">WP User';
                 //html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">Stripe Customer';
@@ -1376,7 +1400,8 @@
             '.super-stripe-invoice-btn',
             '.super-stripe-action-btn',
             '.super-stripe-toast-close',
-            '.' + app.ui.contextMenu.className + ' > div'
+            '.' + app.ui.contextMenu.className + ' > div',
+            '.super-stripe-description > a'
         ],
         change: [
             '.super-stripe-field-wrapper select'
