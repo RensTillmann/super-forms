@@ -483,7 +483,7 @@
         // Init timepickers
         $('.super-timepicker:not(.ui-timepicker-input)').each(function(){
             // Only if timepicker is a function
-            if (typeof timepicker !== 'function') return false;
+            if (typeof $.fn.timepicker !== 'function') return false;
             var $this = $(this),
                 $is_rtl = $this.closest('.super-form').hasClass('super-rtl'),
                 $orientation = 'l',

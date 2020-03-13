@@ -1,5 +1,10 @@
 # Super Forms - Changelog
 
+## Mar 13, 2020 - Version 4.9.405
+
+- **Fix:** JavaScript error in back-end when updating timepicker element
+- **Fix:** Timepicker not popping up due to incorrectly typeof check
+
 ## Mar 12, 2020 - Version 4.9.403
 
 - **Fix:** Max selection for `Keyword field` not working

@@ -2499,9 +2499,9 @@ function SUPERreCaptcha(){
     SUPER.after_field_change_blur_hook = function($field, $form, $skip){
         if( typeof $field !== 'undefined' ) {
             if($field.value===''){
-                $field.closest('.super-shortcode').classList.remove('super-filled');
+                if($field.closest('.super-shortcode')) $field.closest('.super-shortcode').classList.remove('super-filled');
             }else{
-                $field.closest('.super-shortcode').classList.add('super-filled');
+                if($field.closest('.super-shortcode')) $field.closest('.super-shortcode').classList.add('super-filled');
             }
         }
         $form = SUPER.get_frontend_or_backend_form($field, $form);
