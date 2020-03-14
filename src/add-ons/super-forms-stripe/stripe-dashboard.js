@@ -403,7 +403,7 @@
             },
             open: function (e, target, eventType, attr) {
                 console.log(eventType, attr);
-                if (attr.type == 'actions') {
+                if (attr.type === 'actions') {
                     // Before we do anything, determine if this button was already clicked, and has active state
                     // If it has active state, we can simple close the context menu and do nothing
                     console.log(e, target, eventType, attr);
@@ -456,7 +456,7 @@
                         console.log('userID:', userID);
                         if(contactEntryID!==0) html += '<a target="_blank" href="admin.php?page=super_contact_entry&id=' + contactEntryID + '">Contact Entry</a>';
                         if(userID!==0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
-                        if(payload.customer) html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer.id + '">Stripe Customer</a>';
+                        if(payload.customer) html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer + '">Stripe Customer</a>';
                         html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">View payment details</a>';
                         if(formID!==0) html += '<a target="_blank" href="admin.php?page=super_create_form&id=' + formID + '">Form</a>';
                         contextMenu.innerHTML = html;
@@ -727,7 +727,11 @@
             },
             // View invoice online
             online: function (e, target, eventType, attr) {
-                target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
+                if(target.parentNode.classList.contains('super-stripe-description')){
+                    target.innerHTML = app.ui.svg.loader.html + target.innerHTML;
+                }else{
+                    target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
+                }
                 // "hosted_invoice_url": "https://pay.stripe.com/invoice/invst_LC4o7wAvPzS3pCSZqCQ7PqaA0X",
                 app.api.handler({
                     type: 'invoice.online',
@@ -933,7 +937,7 @@
                 column.className = columnClass + 'super-stripe-description';
                 // If has invoice link to invoice
                 if (payload.invoice) {
-                    column.innerHTML = '<a href="#" sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>'+app.ui.svg.invoice.html+payload.description+'</a>';
+                    column.innerHTML = '<a href="#" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>'+app.ui.svg.invoice.html+payload.description+'</a>';
                 }else{
                     column.innerHTML = (payload.description ? payload.description : '');
                 }
@@ -1229,7 +1233,6 @@
                 app.addClass(app.q('.super-stripe-customers'), 'super-initialized');
                 //lastChild.parentNode.insertBefore(newRow, lastChild.nextSibling);
             }
-
         },
         handler: function (data) {
             var i, xhttp = new XMLHttpRequest();
