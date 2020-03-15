@@ -498,12 +498,15 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                             }
                         }
                     }else{
-                        $cat_taxonomy = sanitize_text_field( $settings['frontend_posting_post_cat_taxonomy'] );
-                        if( isset( $data['cat_taxonomy'] ) ) $cat_taxonomy = sanitize_text_field( $data['cat_taxonomy']['value'] );
-                        $tax_input = sanitize_text_field( $settings['frontend_posting_tax_input'] );
-                        if( isset( $data['tax_input'] ) ) $tax_input = sanitize_text_field( $data['tax_input']['value'] );
-                        if( (!empty($cat_taxonomy)) && (!empty($tax_input)) ) {
-                            $final_categories[$cat_taxonomy] = $tax_input;
+                        // @since 1.5.0 - Backward compatibility with older versions
+                        if( !empty($settings['frontend_posting_post_cat_taxonomy']) ) {
+                            $cat_taxonomy = sanitize_text_field( $settings['frontend_posting_post_cat_taxonomy'] );
+                            if( isset( $data['cat_taxonomy'] ) ) $cat_taxonomy = sanitize_text_field( $data['cat_taxonomy']['value'] );
+                            $tax_input = sanitize_text_field( $settings['frontend_posting_tax_input'] );
+                            if( isset( $data['tax_input'] ) ) $tax_input = sanitize_text_field( $data['tax_input']['value'] );
+                            if( (!empty($cat_taxonomy)) && (!empty($tax_input)) ) {
+                                $final_categories[$cat_taxonomy] = $tax_input;
+                            }
                         }
                     }
                     // Collect categories from the field tax_input
