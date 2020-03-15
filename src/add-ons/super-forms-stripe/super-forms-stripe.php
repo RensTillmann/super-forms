@@ -393,9 +393,159 @@ if(!class_exists('SUPER_Stripe')) :
             add_filter( 'super_enqueue_scripts', array( $this, 'super_enqueue_scripts' ), 10, 1 );
             add_filter( 'super_enqueue_styles', array( $this, 'super_enqueue_styles' ), 10, 1 );
 
+            // Occurs whenever a pending charge is created.
+            // The Charge is pending (asynchronous payments only). 
+            // Nothing to do.
+            add_action( 'super_stripe_webhook_charge_pending', array( $this, 'charge_pending' ), 10, 1 );
             
+            // Occurs whenever a new charge is created and is successful.
+            // The Charge succeeded and the payment is complete.
+            // Finalize the order and send a confirmation to the customer over email.
+            add_action( 'super_stripe_webhook_charge_succeeded', array( $this, 'charge_succeeded' ), 10, 1 );
+            
+            
+            // ...Occurs when a new PaymentIntent is created.
+            // self::handlePaymentIntentCreated($paymentIntent);
+            add_action( 'super_stripe_webhook_payment_intent_created', array( $this, 'payment_intent_created' ), 10, 1 );
+            
+            // Occurs whenever a new customer is created.
+            // "id": "cus_GTvv2oy4MRV5Vh",
+            // "discount": null,
+            // "email": null,
+            add_action( 'super_stripe_webhook_customer_created', array( $this, 'customer_created' ), 10, 1 );
+
+            // Occurs whenever a new payment method is attached to a customer.
+            add_action( 'super_stripe_webhook_payment_method_attached', array( $this, 'payment_method_attached' ), 10, 1 );
             
         }
+        public function charge_succeeded($paymentIntent){
+            error_log( 'charge_succeeded()', 0);
+            $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
+            if( !is_array($metadata) ) {
+                $metadata = json_decode($metadata, true);
+            }
+            $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
+            if($form_id!==0){
+                $settings = SUPER_Common::get_form_settings($form_id);
+                // Update "New" transaction counter with 1
+                $count = get_option( 'super_stripe_txn_count', 0 );
+                update_option( 'super_stripe_txn_count', ($count+1) );
+                // Update contact entry status after succesfull payment
+                $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+                if( !empty($contact_entry_id) ) {
+                    if( !empty($settings['stripe_completed_entry_status']) ) {
+                        error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
+                        update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
+                    }
+                }
+                // Update post status after succesfull payment (only used for Front-end Posting add-on)
+                $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+                if( !empty($frontend_post_id) ) {
+                    if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
+                        error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
+                        wp_update_post( 
+                            array(
+                                'ID' => $frontend_post_id,
+                                'post_status' => $settings['stripe_completed_post_status']
+                            )
+                        );
+                    }
+                }
+                // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+                $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+                if( !empty($frontend_user_id) ) {
+                    if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
+                        if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+                            error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
+                            error_log( "Stripe stripe_completed_signup_status: " . $settings['stripe_completed_signup_status'], 0 );
+                            update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+                        }
+                    }
+                }
+            }
+            // // Check if a transaction exists, if not create one, and return the post_id
+            // // If it already exists, we return the post_id, this way we can do things if needed
+            // $txn_id = self::getTransactionId($paymentIntent);
+            // $post = get_page_by_title( $txn_id, OBJECT, 'super_stripe_txn' );
+            // if($post) {
+            //     error_log( "exists!", 0 );
+            //     error_log( "metadata!" . json_encode($paymentIntent), 0 );
+            //     return $post->ID;
+            // }else{
+            //     error_log( "does not exists!", 0 );
+            //     $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
+            //     if( !is_array($metadata) ) {
+            //         $metadata = json_decode($metadata, true);
+            //     }
+            //     $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
+            //     $settings = SUPER_Common::get_form_settings($form_id);
+            //     $user_id = (isset($metadata['user_id']) ? absint($metadata['user_id']) : 0 );
+            //     $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+            //     $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+            //     $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+            //     // Create transaction
+            //     $post = array(
+            //         'post_status' => 'publish',
+            //         'post_type' => 'super_stripe_txn',
+            //         'post_title' => $txn_id,
+            //         'post_parent' => absint($form_id)
+            //     );
+            //     $post_id = wp_insert_post($post);
+            //     update_post_meta( $post_id, '_super_user_id', $user_id );
+
+            //     // Update "New" transaction counter with 1
+            //     $count = get_option( 'super_stripe_txn_count', 0 );
+            //     update_option( 'super_stripe_txn_count', ($count+1) );
+            //     // Connect transaction to contact entry if one was created
+            //     if( !empty($contact_entry_id) ) {
+            //         //error_log( "contact_entry_id: ", 0 );
+            //         update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
+            //         // Update contact entry status after succesfull payment
+            //         if( !empty($settings['stripe_completed_entry_status']) ) {
+            //             //error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
+            //             update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
+            //         }
+            //     }
+            //     // Update post status after succesfull payment (only used for Front-end Posting add-on)
+            //     if( !empty($frontend_post_id) ) {
+            //         //error_log( "frontend_post_id: ", 0 );
+            //         if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
+            //             //error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
+            //             wp_update_post( 
+            //                 array(
+            //                     'ID' => $frontend_post_id,
+            //                     'post_status' => $settings['stripe_completed_post_status']
+            //                 )
+            //             );
+            //         }
+            //     }
+            //     // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+            //     if( !empty($frontend_user_id) ) {
+            //         error_log( "user_id: ", 0 );
+            //         if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
+            //             if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+            //                 error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
+            //                 error_log( "Stripe stripe_completed_signup_status: " . $settings['stripe_completed_signup_status'], 0 );
+    
+            //                 update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+            //             }
+            //         }
+            //     }
+            //     // Save all transaction data
+            //     add_post_meta( $post_id, '_super_txn_data', $paymentIntent );
+            // }
+            // return $post_id;
+        }
+        public function payment_intent_created($paymentIntent){
+            error_log( 'payment_intent_created()', 0);
+        }
+        public function customer_created($paymentIntent){
+            error_log( 'customer_created()', 0);
+        }
+        public function payment_method_attached($paymentIntent){
+            error_log( 'payment_method_attached()', 0);
+        }
+
         public static function super_enqueue_styles($styles){
             $styles['super-stripe-dashboard'] = array(
                 'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.css',
@@ -883,11 +1033,11 @@ if(!class_exists('SUPER_Stripe')) :
             if( $settings['stripe_method']=='subscription' ) {
                 echo json_encode( array( 
                     'stripe_method' => 'subscription',
-                    'payment_method' => $paymentMethod, // Only if paid via IBAN
+                    'payment_method' => $paymentMethod // Only if paid via IBAN
                     // 'client_secret' => $intent->client_secret, // only for single payments
-                    'billing_details' => array(
-                        'name' => 'Rens Tillmann2'
-                    )
+                    // 'billing_details' => array(
+                    //     'name' => 'Rens Tillmann2'
+                    // )
                 ) );
                 die();
             }
@@ -934,7 +1084,7 @@ if(!class_exists('SUPER_Stripe')) :
                 // The URL the customer should be redirected to after the authorization process.
                 if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
                 $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-                $intent = self::createPaymentIntent($paymentMethod, $settings['stripe_method'], $amount, $currency, $description, $metadata);
+                $intent = self::createPaymentIntent($paymentMethod, $data, $settings, $amount, $currency, $description, $metadata);
                 echo json_encode( 
                     array( 
                         'client_secret' => $intent->client_secret,
@@ -946,7 +1096,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         // Create PaymentIntent
-        public static function createPaymentIntent($paymentMethod, $stripeMethod, $amount, $currency, $description, $metadata){
+        public static function createPaymentIntent($paymentMethod, $data, $settings, $amount, $currency, $description, $metadata){
             // // SEPA Direct Debit Subscription
             // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-subscription'){
             // }
@@ -972,22 +1122,22 @@ if(!class_exists('SUPER_Stripe')) :
                     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
                     'currency' => ($paymentMethod==='ideal' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
                     'description' => $description,
-                    'payment_method_types' => ['card','ideal','sepa_debit'], 
-                    'receipt_email' => 'feeling4design@gmail.com', // Email address that the receipt for the resulting payment will be sent to.
+                    'payment_method_types' => [$paymentMethod], // e.g: ['card','ideal','sepa_debit'], 
+                    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
                     // Shipping information for this PaymentIntent.
                     'shipping' => array(
                         'address' => array(
-                            'line1' => 'Korenweg 25',
-                            'city' => 'Silvolde',
-                            'country' => 'the Netherlands',
-                            'line2' => '',
-                            'postal_code' => '7064BW',
-                            'state' => 'Gelderland'
+                            'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
+                            'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
+                            'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
+                            'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
+                            'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
+                            'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
                         ),
-                        'name' => 'Rens Tillmann',
-                        'carrier' => 'USPS',
-                        'phone' => '0634441193',
-                        'tracking_number' => 'XXX-XXX-XXXXXX'
+                        'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
+                        'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
+                        'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
+                        'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
                     ),
                     'metadata' => $metadata
                 );
@@ -1204,11 +1354,6 @@ if(!class_exists('SUPER_Stripe')) :
          *
          *  @since    1.0.0
          */
-        /**
-         *  Add menu items
-         *
-         *  @since    1.0.0
-         */
         public static function register_menu() {
             global $menu, $submenu;
             $styles = 'background-image:url(' . plugin_dir_url( __FILE__ ) . 'assets/images/stripe.png);width:22px;height:22px;display:inline-block;background-position:-3px -3px;background-repeat:no-repeat;margin:0px 0px -9px 0px;';
@@ -1219,33 +1364,11 @@ if(!class_exists('SUPER_Stripe')) :
             }else{
                 $count = '';
             }
-            add_submenu_page(
-                'super_forms', 
-                esc_html__( 'Stripe Transactions', 'super-forms' ),
-                '<span class="super-stripe-icon" style="' . $styles . '"></span>' . esc_html__( 'Transactions', 'super-forms' ) . $count,
-                'manage_options', 
-                'edit.php?post_type=super_stripe_txn'
-            );
-            // Subscriptions menu
-            $count = get_option( 'super_stripe_sub_count', 0 );
-            if( $count>0 ) {
-                $count = ' <span class="update-plugins"><span class="plugin-count">' . $count . '</span></span>';
-            }else{
-                $count = '';
-            }
-            add_submenu_page(
-                'super_forms', 
-                esc_html__( 'Stripe Subscriptions', 'super-forms' ),
-                '<span class="super-stripe-icon" style="' . $styles . '"></span>' . esc_html__( 'Subscriptions', 'super-forms' ) . $count,
-                'manage_options', 
-                'edit.php?post_type=super_stripe_sub'
-            );
-
             // Dashboard Page
             add_submenu_page(
                 'super_forms', 
-                esc_html__( 'Stripe Dashboard', 'super-forms' ), 
-                '<span class="super-stripe-icon" style="' . $styles . '"></span>' . esc_html__( 'Stripe Dashboard', 'super-forms' ) . $count,
+                esc_html__( 'Stripe', 'super-forms' ), 
+                '<span class="super-stripe-icon" style="' . $styles . '"></span>' . esc_html__( 'Stripe', 'super-forms' ) . $count,
                 'manage_options', 
                 'super_stripe_dashboard', 
                 'SUPER_Stripe::stripe_dashboard'
@@ -1382,7 +1505,7 @@ if(!class_exists('SUPER_Stripe')) :
                 foreach($paymentIntents->data as $k => $v){
                     // Format amounts
                     $currency_code = strtoupper($v['currency']);
-                    $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code] : $currency_code);
+                    $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code]['symbol'] : $currency_code);
                     if(!empty($paymentIntents->data[$k]->amount)){
                         $paymentIntents->data[$k]->amountFormatted = $symbol . number_format_i18n($v->amount/100, 2) . ' ' . $currency_code;
                     }
@@ -1395,6 +1518,10 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                     if(isset($paymentIntents->data[$k]->metadata)){
                         $userID = 0;
+                        if(isset($paymentIntents->data[$k]->metadata['frontend_post_id'])){
+                            $postID = absint($paymentIntents->data[$k]->metadata['frontend_post_id']);
+                            $paymentIntents->data[$k]->post_permalink = get_edit_post_link( $postID );
+                        }
                         if(isset($paymentIntents->data[$k]->metadata['user_id'])){
                             $userID = absint($paymentIntents->data[$k]->metadata['user_id']);
                         }
@@ -1967,192 +2094,118 @@ if(!class_exists('SUPER_Stripe')) :
                 //error_log( "event metadata test1:" . json_encode($event['data']['object']['metadata']), 0 );
                 $paymentIntent = $event['data']['object'];
 
-                $handleWebhook = array(
-                    'charge.failed',            // Occurs whenever a failed charge attempt occurs.
-                                                // The Charge has failed and the payment could not be completed.
-                                                // Cancel the order and optionally re-engage the customer in your payment flow.
-                    'charge.refunded',          // Occurs whenever a charge is refunded, including partial refunds.
-                    'charge.updated',           // Occurs whenever a charge description or metadata is updated.
-                    'charge.refund.updated',    // Occurs whenever a refund is updated, on selected payment methods.
-                    'charge.dispute.created',   // Occurs whenever a customer disputes a charge with their bank.
+                // $handleWebhook = array(
+                //     'charge.failed',            // Occurs whenever a failed charge attempt occurs.
+                //                                 // The Charge has failed and the payment could not be completed.
+                //                                 // Cancel the order and optionally re-engage the customer in your payment flow.
+                //     'charge.refunded',          // Occurs whenever a charge is refunded, including partial refunds.
+                //     'charge.updated',           // Occurs whenever a charge description or metadata is updated.
+                //     'charge.refund.updated',    // Occurs whenever a refund is updated, on selected payment methods.
+                //     'charge.dispute.created',   // Occurs whenever a customer disputes a charge with their bank.
 
-                    'payment_intent.canceled',                  // Occurs when a PaymentIntent is canceled.
-                    'payment_intent.payment_failed',            // Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
-                                                                // When payment is unsuccessful, you can find more details by inspecting the 
-                                                                // PaymentIntent’s `last_payment_error` property. You can notify the customer 
-                                                                // that their payment didn’t complete and encourage them to try again with a 
-                                                                // different payment method. Reuse the same PaymentIntent to continue tracking 
-                                                                // the customer’s purchase.
+                //     'payment_intent.canceled',                  // Occurs when a PaymentIntent is canceled.
+                //     'payment_intent.payment_failed',            // Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
+                //                                                 // When payment is unsuccessful, you can find more details by inspecting the 
+                //                                                 // PaymentIntent’s `last_payment_error` property. You can notify the customer 
+                //                                                 // that their payment didn’t complete and encourage them to try again with a 
+                //                                                 // different payment method. Reuse the same PaymentIntent to continue tracking 
+                //                                                 // the customer’s purchase.
 
                     
-                    'payment_intent.succeeded',                 // Occurs when a PaymentIntent has been successfully fulfilled.
-                    'payment_intent.amount_capturable_updated'  // Occurs when a PaymentIntent has funds to be captured
-                );
-                if( in_array($event['type'], $handleWebhook) ) {
-                    self::handleWebhook($paymentIntent);
-                    http_response_code(200);
-                    die();
-                }
+                //     'payment_intent.succeeded',                 // Occurs when a PaymentIntent has been successfully fulfilled.
+                //     'payment_intent.amount_capturable_updated'  // Occurs when a PaymentIntent has funds to be captured
+                // );
+                // if( in_array($event['type'], $handleWebhook) ) {
+                //     self::handleWebhook($paymentIntent);
+                //     http_response_code(200);
+                //     die();
+                // }
 
-                switch ($event['type']) {
-                    case 'charge.pending':
-                        // Occurs whenever a pending charge is created.
-                        // The Charge is pending (asynchronous payments only). 
-                        // Nothing to do.
-                        break;
-                    case 'charge.succeeded':
-                        // Occurs whenever a new charge is created and is successful.
-                        // The Charge succeeded and the payment is complete.
-                        // Finalize the order and send a confirmation to the customer over email.
-                        self::handleChargeSucceeded($paymentIntent);
-                        break;
-                    case 'payment_intent.created':
-                        // ...Occurs when a new PaymentIntent is created.
-                        self::handlePaymentIntentCreated($paymentIntent);
-                        break;
-                    case 'customer.created':
-                        // Occurs whenever a new customer is created.
-                        // "id": "cus_GTvv2oy4MRV5Vh",
-                        // "discount": null,
-                        // "email": null,
-                        break;
-                    case 'payment_method.attached':
-                        // Occurs whenever a new payment method is attached to a customer.
-                        break;
+                // Action hook to do specific things based on a given event
+                error_log( "Action triggered: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
+                do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event['type']), $paymentIntent );
+                
+                // Return 200 code
+                http_response_code(200);
+                die();
 
-                    // ... handle other event types
-                    // Othe Events:
-                    // balance.available
-                    // charge.captured
-                    // charge.dispute.created
-                    // charge.failed
-                    // charge.refunded
-                    // charge.succeeded
-                    // checkout.session.completed
-                    // customer.created
-                    // customer.deleted
-                    // customer.source.created
-                    // customer.source.updated
-                    // customer.subscription.created
-                    // customer.subscription.deleted
-                    // customer.subscription.updated
-                    // customer.updated
-                    // invoice.created
-                    // invoice.finalized
-                    // invoice.payment_failed
-                    // invoice.payment_succeeded
-                    // invoice.updated
-                    // payment_intent.amount_capturable_updated
-                    // payment_intent.canceled
-                    // payment_intent.created
-                    // payment_intent.payment_failed
-                    // payment_intent.succeeded
-                    // payment_method.attached
-                    // setup_intent.canceled
-                    // setup_intent.created
-                    // setup_intent.setup_failed
-                    // setup_intent.succeeded
+                // ... handle other event types
+                // Othe Events:
+                // balance.available
+                // charge.captured
+                // charge.dispute.created
+                // charge.failed
+                // charge.refunded
+                // charge.succeeded
+                // checkout.session.completed
+                // customer.created
+                // customer.deleted
+                // customer.source.created
+                // customer.source.updated
+                // customer.subscription.created
+                // customer.subscription.deleted
+                // customer.subscription.updated
+                // customer.updated
+                // invoice.created
+                // invoice.finalized
+                // invoice.payment_failed
+                // invoice.payment_succeeded
+                // invoice.updated
+                // payment_intent.amount_capturable_updated
+                // payment_intent.canceled
+                // payment_intent.created
+                // payment_intent.payment_failed
+                // payment_intent.succeeded
+                // payment_method.attached
+                // setup_intent.canceled
+                // setup_intent.created
+                // setup_intent.setup_failed
+                // setup_intent.succeeded
 
-                    default:
-                        // Unexpected event type
-                        http_response_code(400);
-                        exit();
-                }
+                // switch ($event['type']) {
+
+                //     // ... handle other event types
+                //     // Othe Events:
+                //     // balance.available
+                //     // charge.captured
+                //     // charge.dispute.created
+                //     // charge.failed
+                //     // charge.refunded
+                //     // charge.succeeded
+                //     // checkout.session.completed
+                //     // customer.created
+                //     // customer.deleted
+                //     // customer.source.created
+                //     // customer.source.updated
+                //     // customer.subscription.created
+                //     // customer.subscription.deleted
+                //     // customer.subscription.updated
+                //     // customer.updated
+                //     // invoice.created
+                //     // invoice.finalized
+                //     // invoice.payment_failed
+                //     // invoice.payment_succeeded
+                //     // invoice.updated
+                //     // payment_intent.amount_capturable_updated
+                //     // payment_intent.canceled
+                //     // payment_intent.created
+                //     // payment_intent.payment_failed
+                //     // payment_intent.succeeded
+                //     // payment_method.attached
+                //     // setup_intent.canceled
+                //     // setup_intent.created
+                //     // setup_intent.setup_failed
+                //     // setup_intent.succeeded
+
+                //     default:
+                //         // Unexpected event type
+                //         http_response_code(400);
+                //         exit();
+                // }
 
                 http_response_code(200);
                 die();
             }
-        }
-
-
-        /**
-         * Stripe Payment Intent Webhooks
-         * This is stripes way of letting us know what has happened on the API
-         *
-         * @since       1.0.0
-         */
-
-        public static function createTransactionIfNotExists($paymentIntent) {
-            // Check if a transaction exists, if not create one, and return the post_id
-            // If it already exists, we return the post_id, this way we can do things if needed
-            $txn_id = self::getTransactionId($paymentIntent);
-            $post = get_page_by_title( $txn_id, OBJECT, 'super_stripe_txn' );
-            if($post) {
-                //error_log( "exists!", 0 );
-                //error_log( "metadata!" . json_encode($paymentIntent), 0 );
-                return $post->ID;
-            }else{
-                //error_log( "does not exists!", 0 );
-                $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
-                $metadata = json_decode($metadata, true);
-                $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
-                $settings = SUPER_Common::get_form_settings($form_id);
-                $user_id = (isset($metadata['user_id']) ? absint($metadata['user_id']) : 0 );
-                $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
-                $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
-                $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
-                // Create transaction
-                $post = array(
-                    'post_status' => 'publish',
-                    'post_type' => 'super_stripe_txn',
-                    'post_title' => $txn_id,
-                    'post_parent' => absint($form_id)
-                );
-                $post_id = wp_insert_post($post);
-                update_post_meta( $post_id, '_super_user_id', $user_id );
-
-                // Update "New" transaction counter with 1
-                $count = get_option( 'super_stripe_txn_count', 0 );
-                update_option( 'super_stripe_txn_count', ($count+1) );
-                // Connect transaction to contact entry if one was created
-                if( !empty($contact_entry_id) ) {
-                    //error_log( "contact_entry_id: ", 0 );
-                    update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
-                    // Update contact entry status after succesfull payment
-                    if( !empty($settings['stripe_completed_entry_status']) ) {
-                        //error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
-                        update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-                    }
-                }
-                // Update post status after succesfull payment (only used for Front-end Posting add-on)
-                if( !empty($frontend_post_id) ) {
-                    //error_log( "frontend_post_id: ", 0 );
-                    if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-                        //error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
-                        wp_update_post( 
-                            array(
-                                'ID' => $frontend_post_id,
-                                'post_status' => $settings['stripe_completed_post_status']
-                            )
-                        );
-                    }
-                }
-                // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-                if( !empty($frontend_user_id) ) {
-                    //error_log( "frontend_user_id: ", 0 );
-                    if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
-                        if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                            //error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
-    
-                            update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-                        }
-                    }
-                }
-                // Save all transaction data
-                add_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-            }
-            return $post_id;
-        }
-
-        public static function handleChargeSucceeded($paymentIntent) {
-            self::createTransactionIfNotExists($paymentIntent);
-        }
-        public static function handleWebhook($paymentIntent) {
-            $post_id = self::createTransactionIfNotExists($paymentIntent);
-            update_post_meta( $post_id, '_super_txn_data', $paymentIntent );     
-        }
-        public static function handlePaymentIntentCreated($paymentIntent) {
-            self::createTransactionIfNotExists($paymentIntent);
         }
 
 
@@ -2728,7 +2781,6 @@ if(!class_exists('SUPER_Stripe')) :
                         'filter_value' => 'true',
                     ),
 
-
                     // Owner
                     'stripe_email' => array(
                         'name' => esc_html__( 'Owner’s email address', 'super-forms' ),
@@ -2802,6 +2854,26 @@ if(!class_exists('SUPER_Stripe')) :
                         'parent' => 'stripe_checkout_advanced',
                         'filter_value' => 'true',
                     ),
+
+                    // Carrier
+                    'stripe_carrier' => array(
+                        'name' => esc_html__( 'Carrier (optional)', 'super-forms' ),
+                        'label' => esc_html__( 'The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_carrier', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout_advanced',
+                        'filter_value' => 'true',
+                    ),
+                    // Tracking number
+                    'stripe_tracking_number' => array(
+                        'name' => esc_html__( 'Tracking number (optional)', 'super-forms' ),
+                        'label' => esc_html__( 'The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas.', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_tracking_number', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout_advanced',
+                        'filter_value' => 'true',
+                    ),
+
                 )
             );
             if (class_exists('SUPER_Frontend_Posting')) {

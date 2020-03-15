@@ -179,9 +179,9 @@
                                 SUPER.Stripe.StripesIdeal[index].confirmIdealPayment(result.client_secret, {
                                     payment_method: {
                                         ideal: SUPER.Stripe.ideal[index],
-                                        billing_details: {
-                                            name: 'Rens Tillmann'
-                                        }
+                                        //billing_details: {
+                                        //    name: 'Rens Tillmann'
+                                        //}
                                     },
                                     return_url: result.return_url // Required for iDeal payment method
                                 }).then(function (result) {
@@ -444,9 +444,9 @@
                                     $atts.type = result.payment_method;
                                     $atts.card = SUPER.Stripe.cards[index];
                                 }
-                                $atts.billing_details = {
-                                    name: 'Rens Tillmann'
-                                };
+                                //$atts.billing_details = {
+                                //    name: 'Rens Tillmann'
+                                //};
                                 SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function (result) {
                                     // It will return "result.paymentMethod.id" which is the payment ID e.g: pm_XXXXXXX
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
@@ -456,9 +456,9 @@
                                 SUPER.Stripe.StripesCc[index].confirmCardPayment(result.client_secret, {
                                     payment_method: {
                                         card: SUPER.Stripe.cards[index],
-                                        billing_details: {
-                                            name: 'Rens Tillmann'
-                                        }
+                                        //billing_details: {
+                                        //    name: 'Rens Tillmann'
+                                        //}
                                     }
                                 }).then(function (result) {
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);

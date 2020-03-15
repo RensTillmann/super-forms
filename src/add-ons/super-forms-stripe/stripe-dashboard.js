@@ -450,11 +450,16 @@
                             // Registered user
                             if(payload.metadata.frontend_user_id) userID = payload.metadata.frontend_user_id;
                         }
+
+
                         console.log(payload.metadata);
                         console.log('formID:', formID);
                         console.log('contactEntryID:', contactEntryID);
                         console.log('userID:', userID);
                         if(contactEntryID!==0) html += '<a target="_blank" href="admin.php?page=super_contact_entry&id=' + contactEntryID + '">Contact Entry</a>';
+                        if(payload.post_permalink){
+                            html += '<a target="_blank" href="' + payload.post_permalink + '">WordPress Post</a>';
+                        }
                         if(userID!==0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
                         if(payload.customer) html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer + '">Stripe Customer</a>';
                         html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">View payment details</a>';
@@ -855,19 +860,23 @@
                         }
                     }
                 }
-                if (payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
+                if (payload.status == 'requires_action' || payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
                     if (((payload['last_payment_error'])) && (($declineCodes[payload['last_payment_error']['decline_code']]))) {
                         $class = ' super-stripe-failed';
                         $label = 'Failed';
                         $title = ' title="' + $declineCodes[payload['last_payment_error']['decline_code']]['desc'] + '"';
                     } else {
-                        if (payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method') {
+                        if (payload.status == 'requires_action' || payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method') {
                             $class = ' super-stripe-incomplete';
                             $label = 'Incomplete';
-                            if(payload.status == 'requires_confirmation'){
-                                $title = ' title="The customer has not completed the payment."';
+                            if(payload.status == 'requires_action'){
+                                $title = ' title="The customer must complete an additional authentication step."';
                             }else{
-                                $title = ' title="The customer has not entered their payment method."';
+                                if(payload.status == 'requires_confirmation'){
+                                    $title = ' title="The customer has not completed the payment."';
+                                }else{
+                                    $title = ' title="The customer has not entered their payment method."';
+                                }
                             }
                         } else {
                             $class = ' super-stripe-uncaptured';
