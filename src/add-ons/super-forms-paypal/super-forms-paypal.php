@@ -2201,7 +2201,7 @@ if (!class_exists('SUPER_PayPal')):
 					'paypal_merchant_email' => array(
 						'name' => esc_html__( 'PayPal merchant email (to receive payments)', 'super-forms' ),
 						'desc' => esc_html__( 'Your PayPal ID or an email address associated with your PayPal account. Email addresses must be confirmed.', 'super-forms' ),
-						'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+						'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 						'default' => SUPER_Settings::get_value(0, 'paypal_merchant_email', $settings['settings'], '' ),
 						'type' => 'text',
 						'filter' => true,
@@ -2256,7 +2256,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_name' => array(
 							'name' => esc_html__( 'Item description (leave blank to let users enter a name)', 'super-forms' ),
 							'desc' => esc_html__( 'Description of item. If you omit this variable, buyers enter their own name during checkout.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_name', $settings['settings'], 'Flower (roses)' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2270,7 +2270,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_amount' => array(
 							'name' => esc_html__( 'Item price (leave blank to let user enter their own price)', 'super-forms' ),
 							'desc' => esc_html__( 'The price or amount of the product, service, or contribution, not including shipping, handling, or tax. If you omit this variable from Buy Now or Donate buttons, buyers enter their own amount at the time of payment.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed (only decimal format is allowed e.g: 16.95)', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}. (only decimal format is allowed e.g: 16.95)', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_amount', $settings['settings'], '5.00' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2287,7 +2287,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_quantity' => array(
 							'name' => esc_html__( 'Quantity (Number of items)', 'super-forms' ),
 							'desc' => esc_html__( 'Note: The value for quantity must be a positive integer. Null, zero, or negative numbers are not allowed.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_quantity', $settings['settings'], '1' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2301,7 +2301,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_weight' => array(
 							'name' => esc_html__( 'Weight of item (leave blank for none)', 'super-forms' ),
 							'desc' => esc_html__( 'If profile-based shipping rates are configured with a basis of weight, the sum of weight values is used to calculate the shipping charges for the payment. A valid value is a decimal number with two significant digits to the right of the decimal point.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_weight', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2314,7 +2314,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_number' => array(
 							'name' => esc_html__( 'Item number (to track product or service)', 'super-forms' ),
 							'desc' => esc_html__( 'Pass-through variable for you to track product or service purchased or the contribution made. The value you specify is passed back to you upon payment completion.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_number', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2327,7 +2327,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_discount_amount' => array(
 							'name' => esc_html__( 'Discount amount (leave blank for no discount)', 'super-forms' ),
 							'desc' => esc_html__( 'Discount amount associated with an item, which must be less than the selling price of the item.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_discount_amount', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2340,7 +2340,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_discount_rate' => array(
 							'name' => esc_html__( 'Discount rate (leave blank for no discount)', 'super-forms' ),
 							'desc' => esc_html__( 'Discount rate, as a percentage, associated with an item. Set to a value less than 100', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_discount_rate', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2353,7 +2353,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_discount_num' => array(
 							'name' => esc_html__( 'Discount number', 'super-forms' ),
 							'desc' => esc_html__( 'Number of additional quantities of the item to which the discount applies.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_discount_num', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2365,7 +2365,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_shipping' => array(
 							'name' => esc_html__( 'Shipping cost (applies to first item added to cart)', 'super-forms' ),
 							'desc' => esc_html__( 'The cost of shipping this item.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_shipping', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2378,7 +2378,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_item_shipping2' => array(
 							'name' => esc_html__( 'Shipping cost (applies to each additional item added to cart)', 'super-forms' ),
 							'desc' => esc_html__( 'The cost of shipping each additional unit of this item.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_item_shipping2', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2393,7 +2393,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_subscription_periods' => array(
 							'name' => esc_html__( 'Subscription periods', 'super-forms' ),
 							'desc' => esc_html__( 'Here you can setup the subscription price, time and periods', 'super-forms' ),
-							'label' => sprintf( esc_html__( 'You are allowed to use {tags}%1$sPut each period on a new line, seperate values by pipes, for example:%1$s%2$s7 day trial for free:%3$s 0|7|D%1$s%2$sAfter trial 3 weeks for 5 dollar:%3$s 5|3|W%1$s%2$sAfter that $49.99 for each year:%3$s 49.99|1|Y%1$s%2$sTime format options:%3$s D=days, W=weeks, M=months, Y=years', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each period on a new line, seperate values by pipes, for example:%1$s%2$s7 day trial for free:%3$s 0|7|D%1$s%2$sAfter trial 3 weeks for 5 dollar:%3$s 5|3|W%1$s%2$sAfter that $49.99 for each year:%3$s 49.99|1|Y%1$s%2$sTime format options:%3$s D=days, W=weeks, M=months, Y=years', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_subscription_periods', $settings['settings'], '' ),
 							'type' => 'textarea',
 							'placeholder' => "0|7|D\n5|3|W\n49.99|1|Y",
@@ -2412,7 +2412,7 @@ if (!class_exists('SUPER_PayPal')):
 							'name' => esc_html__( 'Items to be added to cart', 'super-forms' ),
 							'desc' => esc_html__( 'Here you can enter the items that need to be added to the cart after form submission', 'super-forms' ),
 							'label' => sprintf( 
-									esc_html__( 'You are allowed to use {tags}%1$s Put each item on a new line, seperate values by pipes%1$sLeave options blank that you do not wish to use, for example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with {tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
+									esc_html__( 'You are allowed to use {tags}.%1$s Put each item on a new line, seperate values by pipes%1$sLeave options blank that you do not wish to use, for example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with {tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
 									),
 									'<br />',
 			                    	'<strong>',
@@ -2432,7 +2432,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_tax_cart' => array(
 							'name' => esc_html__( 'Cart tax', 'super-forms' ),
 							'desc' => esc_html__( 'Cart-wide tax, overriding any individual item tax value', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_tax_cart', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2444,7 +2444,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_weight_cart' => array(
 							'name' => esc_html__( 'Cart weight', 'super-forms' ),
 							'desc' => esc_html__( 'This value overrides the weight values of individual items. If profile-based shipping rates are configured with a basis of weight, PayPal uses this value to calculate the shipping charges for the payment.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_weight_cart', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2457,7 +2457,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_discount_amount_cart' => array(
 							'name' => esc_html__( 'Cart discount amount', 'super-forms' ),
 							'desc' => esc_html__( 'Single discount amount charged cart-wide. It must be less than the selling price of all items combined in the cart.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_discount_amount_cart', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2470,7 +2470,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_discount_rate_cart' => array(
 							'name' => esc_html__( 'Cart discount rate', 'super-forms' ),
 							'desc' => esc_html__( 'Single Discount rate, as a percentage, to be charged cart-wide. Set to a value less than 100. The variable overrides any individual item discount rate', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_discount_rate_cart', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2482,7 +2482,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_handling_cart' => array(
 							'name' => esc_html__( 'Cart handling fee', 'super-forms' ),
 							'desc' => esc_html__( 'Single handling fee charged cart-wide.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_handling_cart', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2553,7 +2553,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_lc' => array(
 							'name' => esc_html__( 'Language for the billing information/log-in page', 'super-forms' ),
 							'desc' => esc_html__( 'Sets the language for the billing information/log-in page only. Default is US.', 'super-forms' ),
-							'label' => sprintf( esc_html__( 'You are allowed to use {tags} if needed%sFor valid values, see %sCountries and Regions Supported by PayPal%s.', 'super-forms' ), '<br />', '<a href="https://developer.paypal.com/docs/classic/api/country_codes/">', '</a>' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%sFor valid values, see %sCountries and Regions Supported by PayPal%s.', 'super-forms' ), '<br />', '<a href="https://developer.paypal.com/docs/classic/api/country_codes/">', '</a>' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_lc', $settings['settings'], 'US' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2563,7 +2563,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_charset' => array(
 							'name' => esc_html__( 'Character set and character encoding for the billing information/log-in page', 'super-forms' ),
 							'desc' => esc_html__( 'Sets the character set and character encoding for the billing information/log-in page on the PayPal website. In addition, this variable sets the same values for information that you send to PayPal in your HTML button code. Default is based on the language encoding settings in your account profile.', 'super-forms' ),
-							'label' => sprintf( esc_html__( 'You are allowed to use {tags} if needed%sFor valid values, see %sSetting the Character Set — charset%s.', 'super-forms' ), '<br />', '<a href="https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/formbasics/#setting-the-character-set--charset">', '</a>' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%sFor valid values, see %sSetting the Character Set — charset%s.', 'super-forms' ), '<br />', '<a href="https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/formbasics/#setting-the-character-set--charset">', '</a>' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_charset', $settings['settings'], 'UTF-8' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2573,7 +2573,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_handling' => array(
 							'name' => esc_html__( 'Handling charges', 'super-forms' ),
 							'desc' => esc_html__( 'This variable is not quantity-specific. The same handling cost applies, regardless of the number of items on the order.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_handling', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2606,7 +2606,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_invoice' => array(
 							'name' => esc_html__( 'Invoice number', 'super-forms' ),
 							'desc' => esc_html__( 'Use to identify your invoice number for this purchase.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_invoice', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2616,7 +2616,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_night_phone_a' => array(
 							'name' => esc_html__( 'The area code for U.S. phone numbers, or the country code for phone numbers outside the U.S.', 'super-forms' ),
 							'desc' => esc_html__( 'PayPal fills in the buyer\'s home phone number automatically.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_night_phone_a', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2626,7 +2626,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_night_phone_b' => array(
 							'name' => esc_html__( 'The three-digit prefix for U.S. phone numbers, or the entire phone number for phone numbers outside the U.S., excluding country code.', 'super-forms' ),
 							'desc' => esc_html__( 'PayPal fills in the buyer\'s home phone number automatically.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_night_phone_b', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2636,7 +2636,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_night_phone_c' => array(
 							'name' => esc_html__( 'The four-digit phone number for U.S. phone numbers.', 'super-forms' ),
 							'desc' => esc_html__( 'PayPal fills in the buyer\'s home phone number automatically.', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_night_phone_c', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2672,7 +2672,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_first_name' => array(
 							'name' => esc_html__( 'First name', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_first_name', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2681,7 +2681,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_last_name' => array(
 							'name' => esc_html__( 'Last name', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_last_name', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2690,7 +2690,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_email' => array(
 							'name' => esc_html__( 'Email address', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_email', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2699,7 +2699,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_address1' => array(
 							'name' => esc_html__( 'Street (1 of 2 fields)', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_address1', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2708,7 +2708,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_address2' => array(
 							'name' => esc_html__( 'Street (2 of 2 fields)', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_address2', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2717,7 +2717,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_city' => array(
 							'name' => esc_html__( 'City', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_city', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2726,7 +2726,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_state' => array(
 							'name' => esc_html__( 'U.S. state', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_state', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2735,7 +2735,7 @@ if (!class_exists('SUPER_PayPal')):
 						),
 						'paypal_zip' => array(
 							'name' => esc_html__( 'Postal code', 'super-forms' ),
-							'label' => esc_html__( 'You are allowed to use {tags} if needed', 'super-forms' ),
+							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_zip', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,
@@ -2745,7 +2745,7 @@ if (!class_exists('SUPER_PayPal')):
 						'paypal_country' => array(
 							'name' => esc_html__( 'Shipping and billing country', 'super-forms' ),
 							'desc' => esc_html__( 'Sets shipping and billing country.', 'super-forms' ),
-							'label' => sprintf( esc_html__( 'You are allowed to use {tags} if needed%sFor valid values, see %sCountry and Region Codes%s.', 'super-forms' ), '<br />', '<a target="_blank" href="https://developer.paypal.com/docs/classic/api/country_codes/">', '</a>' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%sFor valid values, see %sCountry and Region Codes%s.', 'super-forms' ), '<br />', '<a target="_blank" href="https://developer.paypal.com/docs/classic/api/country_codes/">', '</a>' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_country', $settings['settings'], '' ),
 							'type' => 'text',
 							'filter' => true,

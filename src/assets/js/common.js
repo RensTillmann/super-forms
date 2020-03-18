@@ -5217,7 +5217,9 @@ function SUPERreCaptcha(){
         }else{
             next.classList.add('super-focus');
         }
-        next.querySelector('.super-shortcode-field').focus();
+        if(next.querySelector('.super-shortcode-field')){
+            next.querySelector('.super-shortcode-field').focus();
+        }
         e.preventDefault();
         return false;
     };
