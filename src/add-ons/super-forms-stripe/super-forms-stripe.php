@@ -416,8 +416,44 @@ if(!class_exists('SUPER_Stripe')) :
 
             // Occurs whenever a new payment method is attached to a customer.
             add_action( 'super_stripe_webhook_payment_method_attached', array( $this, 'payment_method_attached' ), 10, 1 );
+         
+            // Occurs when a PaymentIntent has failed the attempt to create a source or a payment.
+            // When payment is unsuccessful, you can find more details by inspecting the 
+            // PaymentIntent’s `last_payment_error` property. You can notify the customer 
+            // that their payment didn’t complete and encourage them to try again with a 
+            // different payment method. Reuse the same PaymentIntent to continue tracking 
+            // the customer’s purchase.
+            add_action( 'super_stripe_webhook_payment_intent_payment_failed', array( $this, 'payment_intent_payment_failed' ), 10, 1 );
             
         }
+        public function payment_intent_payment_failed($paymentIntent){
+            error_log( 'payment_intent_payment_failed()', 0);
+            error_log( 'Delete content', 0);
+            $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
+            if( !is_array($metadata) ) {
+                $metadata = json_decode($metadata, true);
+            }
+            // Delete contact entry status after failed payment
+            $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+            error_log( '$contact_entry_id: ' . $contact_entry_id, 0);
+            if( !empty($contact_entry_id) ) {
+                wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
+            }
+            // Delete post after failed payment (only used for Front-end Posting add-on)
+            $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+            error_log( '$frontend_post_id: ' . $frontend_post_id, 0);
+            if( !empty($frontend_post_id) ) {
+                wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
+            }
+            // Delete user after failed payment (only used for Front-end Register & Login add-on)
+            $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+            error_log( '$frontend_user_id: ' . $frontend_user_id, 0);
+            if( !empty($frontend_user_id) ) {
+                require_once( ABSPATH . 'wp-admin/includes/user.php' );
+                wp_delete_user($frontend_user_id);
+            }
+        }
+
         public function charge_succeeded($paymentIntent){
             error_log( 'charge_succeeded()', 0);
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
@@ -912,14 +948,29 @@ if(!class_exists('SUPER_Stripe')) :
             self::setAppInfo();
             $data = $_POST['data'];
             $payment_method = $_POST['payment_method'];
+            $metadata = $_POST['metadata'];
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
             
+            // Check if plan ID is empty (is required)
+            if(empty($settings['stripe_plan_id'])){
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' )
+                );
+            }
+
             // Check if the user is logged in
             // If so, we will want to save the stripe customer ID for this wordpress user
             $user_id = get_current_user_id();
+            if(isset($metadata['frontend_user_id'])){
+                if(absint($metadata['frontend_user_id'])!==0){
+                    $user_id = $metadata['frontend_user_id'];
+                }
+            }
             $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
-            error_log( 'super_stripe_cus: ' . $super_stripe_cus, 0);
+            error_log( '$user_id: ' . $user_id, 0);
+            error_log( '$super_stripe_cus: ' . $super_stripe_cus, 0);
 
             try {
                 $create_new_customer = true;
@@ -934,6 +985,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // Check if customer was deleted
                     if(!empty($customer['deleted']) && $customer['deleted']==true){
                         // Customer was deleted, we should create a new
+                        error_log( 'Customer was deleted, we should create a new', 0);
                     }else{
                         // The customer exists, let's update the payment method for this customer
                         $payment_method = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
@@ -950,7 +1002,7 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                 }
                 if($create_new_customer){
-                    error_log( 'customer is empty create new one: ', 0);
+                    error_log( 'Customer is empty create new one: ', 0);
                     // Customer doesn't exists, create a new customer
                     $customer = \Stripe\Customer::create([
                         'payment_method' => $payment_method,
@@ -959,6 +1011,10 @@ if(!class_exists('SUPER_Stripe')) :
                             'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
                         ],
                     ]);
+                    // Save the stripe customer ID for this wordpress user
+                    error_log( '$user_id: ' . $user_id, 0);
+                    error_log( '$customer->id: ' . $customer->id, 0);
+                    update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
                 }
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 self::exceptionHandler($e);
@@ -975,40 +1031,91 @@ if(!class_exists('SUPER_Stripe')) :
                     ],
                     // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
                     'payment_behavior' => 'allow_incomplete',
-                    'expand' => ['latest_invoice.payment_intent']
+                    'expand' => ['latest_invoice.payment_intent'],
+                    'metadata' => $metadata
                 ]);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 self::exceptionHandler($e);
             }
 
-            // Check if the user is logged in
-            // If so, we will want to save the stripe customer ID for this wordpress user
-            $user_id = get_current_user_id();
-            update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+            error_log( '$subscription->latest_invoice->payment_intent->client_secret: ' . $subscription->latest_invoice->payment_intent->client_secret, 0);
+            error_log( '$subscription->status: ' . $subscription->status, 0);
+            error_log( '$subscription->latest_invoice->status: ' . $subscription->latest_invoice->status, 0);
+            error_log( '$subscription->latest_invoice->payment_intent->status: ' . $subscription->latest_invoice->payment_intent->status, 0);
+            error_log( '$subscription->latest_invoice->payment_intent->id: ' . $subscription->latest_invoice->payment_intent->id, 0);
+
+            // Update PaymentIntent with metadata
+            \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
+
+            // Depending on the outcome do things:
+            $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
+
+            //$subscription->latest_invoice->payment_intent->client_secret: pi_1GO9u6FKn7uROhgCs6My25oI_secret_RUxZBL1wNjna4WJIGNmFMkcSC
+
+            // $subscription->status: incomplete
+            // $subscription->latest_invoice->status: open
+            // $subscription->latest_invoice->payment_intent->status: requires_action
+
+            // Outcome 3: Payment fails
+            if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
+                // The charge attempt for the subscription failed, please try with a new payment method
+                error_log( 'payment_intent_payment_failed() ', 0);
+                self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = esc_html__( 'The charge attempt for the subscription failed, please try with a new payment method', 'super-forms' )
+                );
+            }
 
             echo json_encode( array( 
                 'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
                 'subscription_status' => $subscription->status,
                 'invoice_status' => $subscription->latest_invoice->status,
-                'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '')
+                'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : ''),
+                'metadata' => $metadata
             ) );
 
             // // Outcome 1: Payment succeeds
-            // if( ($subscription->status=='active') && ($subscription->latest_invoice->status=='paid') && ($subscription->latest_invoice->payment_intent->status=='succeeded') ) {
-
+            // if (($subscription->status == 'active') && ($subscription->latest_invoice->status == 'paid') && ($paymentintent_status == 'succeeded')) {
+            //     //console.log('Payment succeeds');
+            //     // The payment has succeeded. Display a success message.
+            //     //console.log('The payment has succeeded, show success message1.');
+            //     //$form.data('is-doing-things', ''); // Finish form submission
             // }
             // // Outcome 2: Trial starts
-            // if( ($subscription->status=='trialing') && ($subscription->latest_invoice->status=='paid') ) {
-
-            // }
-            // // Outcome 3: Payment fails
-            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_payment_method') ) {
-
+            // if (($subscription->status == 'trialing') && ($subscription->latest_invoice->status == 'paid')) {
+            //     //console.log('Trial starts');
+            //     //$form.data('is-doing-things', ''); // Finish form submission
             // }
 
             // // Outcome 4: Requires action
-            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_action') ) {
+            // if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_action')) {
+            //     Notify customer that further action is required
+            //     stripe.confirmCardPayment(result.client_secret).then(function (result) {
+            //         if (result.error) {
+            //             // Display error.msg in your UI.
+            //             SUPER.stripe_proceed(result, $form, $old_html);
+            //         } else {
+            //             // The payment has succeeded. Display a success message.
+            //             console.log('The payment has succeeded, show success message2.');
+            //             $form.data('is-doing-things', ''); // Finish form submission
+            //         }
+            //     });
+            // }
 
+
+
+            // // Outcome 1: Payment succeeds
+            // if( ($subscription->status=='active') && ($subscription->latest_invoice->status=='paid') && ($subscription->latest_invoice->payment_intent->status=='succeeded') ) {
+            // }
+            // // Outcome 2: Trial starts
+            // if( ($subscription->status=='trialing') && ($subscription->latest_invoice->status=='paid') ) {
+            // }
+            // // Outcome 3: Payment fails
+            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_payment_method') ) {
+            // }
+            // // Outcome 4: Requires action
+            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_action') ) {
             // }
 
             die();
@@ -1030,24 +1137,6 @@ if(!class_exists('SUPER_Stripe')) :
             // Get payment method [card, sepa_debit, ideal]
             $paymentMethod = sanitize_text_field($_POST['payment_method']);
 
-            if( $settings['stripe_method']=='subscription' ) {
-                echo json_encode( array( 
-                    'stripe_method' => 'subscription',
-                    'payment_method' => $paymentMethod // Only if paid via IBAN
-                    // 'client_secret' => $intent->client_secret, // only for single payments
-                    // 'billing_details' => array(
-                    //     'name' => 'Rens Tillmann2'
-                    // )
-                ) );
-                die();
-            }
-
-
-            // Get PaymentIntent data
-            $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-            $amount = SUPER_Common::tofloat($amount)*100;
-            $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
-            $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
             // Set meta data
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
@@ -1078,12 +1167,32 @@ if(!class_exists('SUPER_Stripe')) :
             // Allow devs to filter metadata if needed
             $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'paymentMethod'=>$paymentMethod ) );
 
+            // Subscription Payment:
+            if( $settings['stripe_method']=='subscription' ) {
+                // Return metadata for JS processing
+                echo json_encode( array( 
+                    'stripe_method' => 'subscription',
+                    'payment_method' => $paymentMethod, // Only if paid via IBAN
+                    'metadata' => $metadata
+                    // 'client_secret' => $intent->client_secret, // only for single payments
+                    // 'billing_details' => array(
+                    //     'name' => 'Rens Tillmann2'
+                    // )
+                ) );
+                die();
+            }
             // Single Payments:
-            // Create Payment Intent
             if( $settings['stripe_method']=='single' ) {
                 // The URL the customer should be redirected to after the authorization process.
                 if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
                 $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                
+                // Get PaymentIntent data
+                $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                $amount = SUPER_Common::tofloat($amount)*100;
+                $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
+                $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+                
                 $intent = self::createPaymentIntent($paymentMethod, $data, $settings, $amount, $currency, $description, $metadata);
                 echo json_encode( 
                     array( 
@@ -1144,6 +1253,8 @@ if(!class_exists('SUPER_Stripe')) :
                 if( $paymentMethod=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
                 }
+                var_dump('test1');
+                exit;
                 $intent = \Stripe\PaymentIntent::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 self::exceptionHandler($e);
@@ -1211,28 +1322,19 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Adjust filter/search for transactions and subscriptions
+         * Update transaction counter and enqueue Stripe element scripts
          *
          * @param  string $current_screen
          * 
          * @since       1.0.0
         */
         public function after_screen( $current_screen ) {
-            if( $current_screen->id=='edit-super_stripe_txn' ) {
+            if( $current_screen->id=='super-forms_page_super_stripe_dashboard' ) {
                 update_option( 'super_stripe_txn_count', 0 );
-                add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 2 );
             } 
             if( $current_screen->id=='super-forms_page_super_create_form' ) {
                 self::stripe_element_scripts();
             }
-        }
-        public function edit_post_link( $link, $post_id ) {
-            if( get_post_type()==='super_stripe_txn' ) {
-                $d = get_post_meta( get_the_ID(), '_super_txn_data', true );
-                $txn_id = self::getTransactionId($d);
-                return 'https://dashboard.stripe.com/payments/' . $txn_id;
-            }
-            return $link;
         }
 
 
@@ -2699,7 +2801,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // Subscription checkout settings
                     'stripe_plan_id' => array(
                         'name' => esc_html__( 'Subscription Plan ID (should look similar to: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
-                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ) . '. ' . sprintf( esc_html__( 'You can find your plan ID’s under %sBilling > Products > Pricing plans%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/subscriptions/products/">', '</a>' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_plan_id', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'stripe_method',
@@ -2707,7 +2809,7 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                     'stripe_billing_email' => array(
                         'name' => esc_html__( 'Billing E-mail address (required)', 'super-forms' ),
-                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_billing_email', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'stripe_method',
@@ -2718,7 +2820,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // Single checkout settings
                     'stripe_amount' => array(
                         'name' => esc_html__( 'Amount to charge', 'super-forms' ),
-                        'label' => esc_html__( 'You are allowed to use {tags}', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_amount', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'stripe_method',

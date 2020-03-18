@@ -186,7 +186,6 @@
                                     return_url: result.return_url // Required for iDeal payment method
                                 }).then(function (result) {
                                     if (result.error) {
-                                        debugger;
                                         SUPER.stripe_proceed(result, $form, $old_html);
                                     }
                                 });
@@ -293,12 +292,13 @@
 
     // Handle error
     SUPER.stripe_proceed = function (result, $form, $old_html, $data, stripe) {
+        console.log(result);
+        console.log($data);
         if (result.error) {
-            // Display error.message in your UI.
-            console.log(result.error.message);
+            // Display error.msg in your UI.
             $('.super-msg').remove();
             var $html = '<div class="super-msg super-error">';
-            $html += result.error.message;
+            $html += (typeof result.msg !== 'undefined' ? result.msg : result.error.message);
             $html += '<span class="close"></span>';
             $html += '</div>';
             $($html).prependTo($form);
@@ -311,6 +311,7 @@
             }
             $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
             $form.find('.super-form-button.super-loading').removeClass('super-loading');
+            return false;
         } else {
             if (typeof result.paymentMethod !== 'undefined') {
                 console.log(result);
@@ -322,6 +323,7 @@
                     data: {
                         action: 'super_stripe_create_subscription',
                         payment_method: result.paymentMethod.id,
+                        metadata: result.metadata,
                         data: $data
                     },
                     success: function (result) {
@@ -348,14 +350,13 @@
                             console.log('Payment fails');
                             console.log(result);
                             // result.error = {message: 'The charge attempt for the subscription failed, please try with a new payment method'};
-
                         }
                         // Outcome 4: Requires action
                         if ((result.subscription_status == 'incomplete') && (result.invoice_status == 'open') && (result.paymentintent_status == 'requires_action')) {
                             // Notify customer that further action is required
                             stripe.confirmCardPayment(result.client_secret).then(function (result) {
                                 if (result.error) {
-                                    // Display error.message in your UI.
+                                    // Display error.msg in your UI.
                                     SUPER.stripe_proceed(result, $form, $old_html);
                                 } else {
                                     // The payment has succeeded. Display a success message.
@@ -427,9 +428,8 @@
                             console.log(result);
                             // Check for errors
                             if (result.error) {
-                                // Display error.message in your UI.
+                                // Display error.msg in your UI.
                                 SUPER.stripe_proceed(result, $form, $old_html);
-                                return false;
                             }
                             // Check if this is a single payment or a subscription
                             if (result.stripe_method == 'subscription') {
@@ -444,11 +444,14 @@
                                     $atts.type = result.payment_method;
                                     $atts.card = SUPER.Stripe.cards[index];
                                 }
+                                var $metadata = result.metadata;
                                 //$atts.billing_details = {
                                 //    name: 'Rens Tillmann'
                                 //};
                                 SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function (result) {
                                     // It will return "result.paymentMethod.id" which is the payment ID e.g: pm_XXXXXXX
+                                    result.metadata = $metadata; // Must add metadata
+                                    console.log('test1');
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             } else {
@@ -461,6 +464,7 @@
                                         //}
                                     }
                                 }).then(function (result) {
+                                    console.log('test2');
                                     SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             }
