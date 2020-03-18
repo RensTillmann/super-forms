@@ -623,25 +623,25 @@ msgstr ""
 #: super-forms-paypal.php:2644 super-forms-paypal.php:2653
 #: super-forms-paypal.php:2662 super-forms-paypal.php:2671
 #: super-forms-paypal.php:2680 super-forms-paypal.php:2689
-msgid "You are allowed to use {tags} if needed"
+msgid "You are allowed to use {tags}."
 msgstr ""
 
 #: super-forms-paypal.php:2224
 msgid ""
-"You are allowed to use {tags} if needed (only decimal format is allowed e.g: "
+"You are allowed to use {tags}. (only decimal format is allowed e.g: "
 "16.95)"
 msgstr ""
 
 #: super-forms-paypal.php:2507
 msgid ""
-"You are allowed to use {tags} if needed<br />For valid values, see <a "
+"You are allowed to use {tags}.<br />For valid values, see <a "
 "href=\"https://developer.paypal.com/docs/classic/api/country_codes/\">"
 "Countries and Regions Supported by PayPal</a>."
 msgstr ""
 
 #: super-forms-paypal.php:2517
 msgid ""
-"You are allowed to use {tags} if needed<br />For valid values, see <a "
+"You are allowed to use {tags}.<br />For valid values, see <a "
 "href=\"https://developer.paypal.com/docs/classic/paypal-payments-"
 "standard/integration-guide/formbasics/#setting-the-character-set--charset\">"
 "Setting the Character Set — charset</a>."
@@ -649,7 +649,7 @@ msgstr ""
 
 #: super-forms-paypal.php:2699
 msgid ""
-"You are allowed to use {tags} if needed<br />For valid values, see <a "
+"You are allowed to use {tags}.<br />For valid values, see <a "
 "target=\"_blank\" href=\"https://developer.paypal."
 "com/docs/classic/api/country_codes/\">Country and Region Codes</a>."
 msgstr ""
@@ -657,7 +657,7 @@ msgstr ""
 #: super-forms-paypal.php:2366
 #, php-format
 msgid ""
-"You are allowed to use {tags}%1$s Put each item on a new line, seperate "
+"You are allowed to use {tags}.%1$s Put each item on a new line, seperate "
 "values by pipes%1$sLeave options blank that you do not wish to use, for "
 "example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:"
 "%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with "

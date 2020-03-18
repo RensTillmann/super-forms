@@ -911,7 +911,7 @@ class SUPER_Settings {
                 ),
                 'form_post_parameters' => array(
                     'name' => esc_html__( 'Enter custom parameter string', 'super-forms' ),
-                    'label' => '<strong style="color:red;">' . esc_html__( 'Leave blank to send all form data', 'super-forms' ) . '</strong> ' . sprintf( esc_html__( 'You are allowed to use {tags}%sPut each on a new line seperate parameter and value by pipes e.g:%sfirst_name|{first_name}', 'super-forms' ), '<br />', '<br />' ),
+                    'label' => '<strong style="color:red;">' . esc_html__( 'Leave blank to send all form data', 'super-forms' ) . '</strong> ' . sprintf( esc_html__( 'You are allowed to use {tags}.%sPut each on a new line seperate parameter and value by pipes e.g:%sfirst_name|{first_name}', 'super-forms' ), '<br />', '<br />' ),
                     'desc' => esc_html__( 'Instead of super forms sending all data vailable you can send a custom POST with custom parameters required', 'super-forms' ),
                     'placeholder' => "first_name|{first_name}\nlast_name|{last_name}",
                     'default' => self::get_value( $default, 'form_post_parameters', $settings, '' ),
