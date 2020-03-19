@@ -427,40 +427,63 @@ if(!class_exists('SUPER_Stripe')) :
             
         }
         public function payment_intent_payment_failed($paymentIntent){
-            error_log( 'payment_intent_payment_failed()', 0);
-            error_log( 'Delete content', 0);
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
             if( !is_array($metadata) ) {
                 $metadata = json_decode($metadata, true);
             }
             // Delete contact entry status after failed payment
             $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
-            error_log( '$contact_entry_id: ' . $contact_entry_id, 0);
             if( !empty($contact_entry_id) ) {
                 wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
             }
             // Delete post after failed payment (only used for Front-end Posting add-on)
             $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
-            error_log( '$frontend_post_id: ' . $frontend_post_id, 0);
             if( !empty($frontend_post_id) ) {
                 wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
             }
             // Delete user after failed payment (only used for Front-end Register & Login add-on)
             $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
-            error_log( '$frontend_user_id: ' . $frontend_user_id, 0);
             if( !empty($frontend_user_id) ) {
                 require_once( ABSPATH . 'wp-admin/includes/user.php' );
                 wp_delete_user($frontend_user_id);
             }
+            // Delete any E-mail reminders based on this form ID as it's parent
+            $email_reminders = SUPER_Forms()->session->get( 'super_forms_email_reminders' );
+            if( $email_reminders!=false ) {
+                if (is_array($email_reminders) && count($email_reminders) > 0) {
+                    // Delete all the Children of the Parent Page
+                    foreach($email_reminders as $reminder){
+                        wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
+                    }
+                }
+            }
+            SUPER_Forms()->session->set( 'super_forms_email_reminders', false );
         }
 
         public function charge_succeeded($paymentIntent){
             error_log( 'charge_succeeded()', 0);
+            error_log( '$paymentIntent: ' . json_encode($paymentIntent) );
+
+            // Get the metadata from the paymentIntent
+            if(isset($paymentIntent['object']) && isset($paymentIntent['payment_intent']) && $paymentIntent['object']=='charge'){
+                try {
+                    $paymentIntent = \Stripe\PaymentIntent::retrieve(
+                        $paymentIntent['payment_intent']
+                    );
+                    $paymentIntent = $paymentIntent->toArray();
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+            }
+
+            // Get metadata
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
             if( !is_array($metadata) ) {
                 $metadata = json_decode($metadata, true);
             }
             $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
+            error_log( '$form_id: ' . $form_id, 0 );
+            
             if($form_id!==0){
                 $settings = SUPER_Common::get_form_settings($form_id);
                 // Update "New" transaction counter with 1
@@ -468,6 +491,7 @@ if(!class_exists('SUPER_Stripe')) :
                 update_option( 'super_stripe_txn_count', ($count+1) );
                 // Update contact entry status after succesfull payment
                 $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+                error_log( '$contact_entry_id: ' . $contact_entry_id, 0 );
                 if( !empty($contact_entry_id) ) {
                     if( !empty($settings['stripe_completed_entry_status']) ) {
                         error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
@@ -476,6 +500,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 // Update post status after succesfull payment (only used for Front-end Posting add-on)
                 $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+                error_log( '$frontend_post_id: ' . $frontend_post_id, 0 );
                 if( !empty($frontend_post_id) ) {
                     if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
                         error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
@@ -489,6 +514,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
                 $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+                error_log( '$frontend_user_id: ' . $frontend_user_id, 0 );
                 if( !empty($frontend_user_id) ) {
                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
                         if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
@@ -1017,7 +1043,7 @@ if(!class_exists('SUPER_Stripe')) :
                     update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
                 }
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                self::exceptionHandler($e);
+                self::exceptionHandler($e, $metadata);
             }
 
             try {
@@ -1035,7 +1061,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'metadata' => $metadata
                 ]);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                self::exceptionHandler($e);
+                self::exceptionHandler($e, $metadata);
             }
 
             error_log( '$subscription->latest_invoice->payment_intent->client_secret: ' . $subscription->latest_invoice->payment_intent->client_secret, 0);
@@ -1257,7 +1283,7 @@ if(!class_exists('SUPER_Stripe')) :
                 exit;
                 $intent = \Stripe\PaymentIntent::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                self::exceptionHandler($e);
+                self::exceptionHandler($e, $metadata);
             }
             return $intent;
         }
@@ -1507,7 +1533,9 @@ if(!class_exists('SUPER_Stripe')) :
         public static function getInvoice($id) {
             return \Stripe\Invoice::retrieve($id);
         }
-        public static function exceptionHandler($e){
+        public function exceptionHandler($e, $metadata=array()){
+            error_log( 'payment_intent_payment_failed() exceptionHandler() ', 0);
+            self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
             echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
             die();
             // catch(\Stripe\Error\Card $e) {
@@ -1566,29 +1594,36 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function getPaymentIntents( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
             if($limit==1){
-                $paymentIntents->data[] = \Stripe\PaymentIntent::retrieve(
-                    $starting_after // in this case it holds the payment intent ID
-                );
+                try {
+                    $paymentIntents->data[] = \Stripe\PaymentIntent::retrieve(
+                        $starting_after // in this case it holds the payment intent ID
+                    );
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
             }else{
-                $paymentIntents = \Stripe\PaymentIntent::all([
-                    // optional
-                    // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
-                    'limit' => $limit,
-                    // optional
-                    // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
-                    'starting_after' => $starting_after,
-                    // optional associative array
-                    // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
-                    'created' => $created,
-                    // optional
-                    // Only return PaymentIntents for the customer specified by this customer ID.
-                    'customer' => $customer,
-                    // optional
-                    // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
-                    'ending_before' => $ending_before
-                ]);
+                try {
+                    $paymentIntents = \Stripe\PaymentIntent::all([
+                        // optional
+                        // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+                        'limit' => $limit,
+                        // optional
+                        // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
+                        'starting_after' => $starting_after,
+                        // optional associative array
+                        // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
+                        'created' => $created,
+                        // optional
+                        // Only return PaymentIntents for the customer specified by this customer ID.
+                        'customer' => $customer,
+                        // optional
+                        // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
+                        'ending_before' => $ending_before
+                    ]);
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
             }
-
 
             // Because Stripe doesn't provide us with the customer details
             // we don't have any other choice than looping over every single

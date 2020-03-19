@@ -447,13 +447,13 @@ if(!class_exists('SUPER_Email_Reminders')) :
             $settings = $atts['settings'];
             $data = $atts['data'];
             // Loop until we can't find reminder
+            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
+            $limit = absint($settings['email_reminder_amount']);
+            if($limit==0) $limit = 3;
             $x = 1;
-            $found = true;
-            while($found) {
-                if( (!empty($settings['email_reminder_'.$x])) && ($settings['email_reminder_'.$x]=='true') ) {
+            while( $x <= $limit ) {
+                if( (!empty($settings['email_reminder_' . $x])) && ($settings['email_reminder_' . $x]=='true') ) {
                     self::insert_reminder($x, $settings, $data);
-                }else{
-                    $found = false;
                 }
                 $x++;
             }
@@ -525,6 +525,11 @@ if(!class_exists('SUPER_Email_Reminders')) :
             // Save all submission data post meta for this reminder
             add_post_meta( $reminder_id, '_super_reminder_data', $data );
 
+            // Store the created reminders post ID into a session
+            $email_reminders = SUPER_Forms()->session->get( 'super_forms_email_reminders' );
+            if(!is_array($email_reminders)) $email_reminders = array();
+            $email_reminders[] = $reminder_id;
+            SUPER_Forms()->session->set( 'super_forms_email_reminders', $email_reminders );
         }
 
 

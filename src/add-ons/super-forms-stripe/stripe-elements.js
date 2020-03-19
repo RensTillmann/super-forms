@@ -171,6 +171,7 @@
                         },
                         success: function (result) {
                             result = JSON.parse(result);
+                            console.log(result);
                             if (result.method == 'subscription') {
                                 alert('Subscriptions can not be paid through iDeal, please choose a different payment method!');
                             } else {
@@ -245,6 +246,7 @@
                         },
                         success: function (result) {
                             result = JSON.parse(result);
+                            console.log(result);
                             if (result.method == 'subscription') {
                                 // Subscription checkout
                                 // In case of subscription we must provide it with billing details
