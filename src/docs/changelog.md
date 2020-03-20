@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 20, 2020 - Version 4.9.406
+
+- **Fix:** Slider CSS conflicting with possible other site elements, added `super` prefix
+
 ## Mar 13, 2020 - Version 4.9.405
 
 - **Fix:** JavaScript error in back-end when updating timepicker element
