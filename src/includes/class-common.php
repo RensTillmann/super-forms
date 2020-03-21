@@ -235,7 +235,7 @@ class SUPER_Common {
                 if(!empty($element['data']['radio_items'])){
                     $items = $element['data']['radio_items'];
                     foreach($items as $v){
-                        if($v['checked']==='1'){
+                        if($v['checked']==='1' || $v['checked']==='true'){
                             // Since radio buttons only can have one selected item return instantly
                             return $v['value'];
                         }
@@ -248,8 +248,7 @@ class SUPER_Common {
                     if(!empty($element['data']['checkbox_items'])){
                         $items = $element['data']['checkbox_items'];
                         foreach($items as $v){
-                            if($v['checked']==='1'){
-                                // Since radio buttons only can have one selected item return instantly
+                            if($v['checked']==='1' || $v['checked']==='true'){
                                 $values[] = $v['value'];
                             }
                         }
@@ -261,8 +260,7 @@ class SUPER_Common {
                     if(!empty($element['data']['dropdown_items'])){
                         $items = $element['data']['dropdown_items'];
                         foreach($items as $v){
-                            if($v['checked']==='1'){
-                                // Since radio buttons only can have one selected item return instantly
+                            if($v['checked']==='1' || $v['checked']==='true'){
                                 $values[] = $v['value'];
                             }
                         }

@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 21, 2020 - Version 4.9.407
+
+- **Fix:** Problem with dropdown default selected items not overiding placeholder value
+
 ## Mar 20, 2020 - Version 4.9.406
 
 - **Fix:** Slider CSS conflicting with possible other site elements, added `super` prefix
