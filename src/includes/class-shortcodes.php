@@ -154,6 +154,11 @@ class SUPER_Shortcodes {
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
         // Add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']);
+
+        // Required for dropdown field:
+        if( $tag=='dropdown' && !empty($atts['absolute_default']) && empty($atts['value']) ) {
+            $atts['value'] = $atts['absolute_default'];
+        }
         return $atts['value'];
     }
 
