@@ -258,6 +258,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
             (SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_super_reminder_settings' AND r.post_id = post_id) AS reminder_settings,
             (SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_super_reminder_data' AND r.post_id = post_id) AS reminder_data
             FROM $wpdb->postmeta AS r
+            INNER JOIN $wpdb->posts ON ID = post_id
             WHERE meta_key = '_super_reminder_timestamp'");
             $current_timestamp = strtotime(current_time('Y-m-d H:i'));
             foreach($reminders as $k => $v){

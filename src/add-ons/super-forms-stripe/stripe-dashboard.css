@@ -890,6 +890,7 @@ svg.super-stripe-loader {
     display: block;
     position: relative;
     padding: 3px 0px 3px 22px;
+    width: 100%;
 }
 
 .super-stripe-wp-user:after,

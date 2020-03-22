@@ -1747,7 +1747,7 @@ function SUPERreCaptcha(){
         });
     };
     // Form submission is finished
-    SUPER.form_submission_finished = function($form, $result, $html, $old_html, $duration){
+    SUPER.form_submission_finished = function(form, $result, $html, $old_html, $duration){
         if($result.redirect){
             window.location.href = $result.redirect;
         }else{
@@ -1757,34 +1757,33 @@ function SUPERreCaptcha(){
                 $html += '</div>';
                 // Remove any existing messages
                 $('.super-msg').remove();
-                $($html).prependTo($form);
+                $($html).prependTo($(form));
             }
 
             // @since 3.4.0 - keep loading state active
             if($result.loading!==true){
-
                 // @since 2.1.0
-                var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
+                var $proceed = SUPER.before_scrolling_to_message_hook(form, $(form).offset().top - 30);
                 if($proceed===true){
                     $('html, body').animate({
-                        scrollTop: $form.offset().top-200
+                        scrollTop: $(form).offset().top-200
                     }, 1000);
                 }
                 
-                $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
-                $form.find('.super-form-button.super-loading').removeClass('super-loading');
+                $(form).find('.super-form-button.super-loading .super-button-name').html($old_html);
+                $(form).find('.super-form-button.super-loading').removeClass('super-loading');
                 if($result.error===false){
 
                     // @since 2.0.0 - hide form or not
-                    if($form.data('hide')===true){
-                        $form.find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
+                    if($(form).data('hide')===true){
+                        $(form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
                         setTimeout(function () {
-                            $form.find('.super-field, .super-shortcode').remove();
+                            $(form).find('.super-field, .super-shortcode').remove();
                         }, $duration);
                     }else{
                         // @since 2.0.0 - clear form after submitting
-                        if($form.data('clear')===true){
-                            SUPER.init_clear_form($form[0]);
+                        if($(form).data('clear')===true){
+                            SUPER.init_clear_form(form);
                         }
                     }
                 }
@@ -1855,6 +1854,7 @@ function SUPERreCaptcha(){
                 SUPER.init_fileupload_fields();
                 $(form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
                 data = SUPER.prepare_form_data($(form));
+                debugger;
                 SUPER.before_submit_hook(e, form, data, old_html, function(){
                     setTimeout(function() {
                         SUPER.complete_submit( e, form, data, duration, old_html, status, status_update );
@@ -2129,6 +2129,13 @@ function SUPERreCaptcha(){
 
     // Validate the form
     SUPER.validate_form = function( form, submitButton, validateMultipart, e, doingSubmit ) {
+
+        // // Check if any of the stripe elements are filled out correctly
+        // // Pass this to the form data so we can do a check (if Stripe is enabled)
+        // super-stripe-ideal-element
+        // super-stripe-cc-element
+        // super-stripe-iban-element
+
         SUPER.before_validating_form_hook(undefined, form, doingSubmit);
 
         var i = 0, nodes,
@@ -2263,7 +2270,15 @@ function SUPERreCaptcha(){
                 }
             }
         }
-        if(error===false){  
+        if(error===false){
+
+            // Check if there are other none standard elements that have an active error
+            // Currently used by Stripe Add-on to check for invalid card numbers for instance
+            if(form.querySelectorAll('.super-error-active').length){
+                SUPER.scrollToError(form);
+                return true;
+            }
+
             // @since 2.0.0 - multipart validation
             if(validateMultipart===true) return true;
 
@@ -2287,6 +2302,7 @@ function SUPERreCaptcha(){
                 SUPER.upload_files( e, form, data, duration, oldHtml, status, statusUpdate );
             }else{
                 data = SUPER.prepare_form_data($(form));
+                debugger;
                 SUPER.before_submit_hook(e, form, data, oldHtml, function(){
                     SUPER.complete_submit( e, form, data, duration, oldHtml, status, statusUpdate );
                 });
@@ -2401,17 +2417,31 @@ function SUPERreCaptcha(){
         return params;
     };
     SUPER.before_submit_hook = function(event, form, data, oldHtml, callback){
-        var i, name, found = 0, functions = super_common_i18n.dynamic_functions.before_submit_hook;
+        debugger;
+        var proceed=true, i, name, duration = SUPER.get_duration(), functions = super_common_i18n.dynamic_functions.before_submit_hook;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
                 name = functions[i].name;
                 if(typeof SUPER[name] === 'undefined') continue;
-                found++;
-                SUPER[name](event, form, data, oldHtml, callback);
+                var result = SUPER[name](event, form, data, oldHtml, callback);
+                debugger;
+                result = JSON.parse(result);
+                // Check for errors, if there are any display them to the user 
+                if(result.error===true){
+                    proceed = false;
+                    var html = '<div class="super-msg super-error">';
+                    if(typeof result.fields !== 'undefined'){
+                        $.each(result.fields, function( index, value ) {
+                            $(value+'[name="'+index+'"]').parent().addClass('error');
+                        });
+                    }                               
+                    // Display error message
+                    SUPER.form_submission_finished(form, result, html, oldHtml, duration);
+                }
             }
         }
-        // Call callback function when no functions were defined by third party add-ons
-        if(found==0) callback();
+        // Submit form if we may proceed
+        if(proceed) callback();
     };
     SUPER.before_email_send_hook = function(event, form, data, oldHtml, callback){
         var i, name, found = 0, functions = super_common_i18n.dynamic_functions.before_email_send_hook;
