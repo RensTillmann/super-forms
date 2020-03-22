@@ -1,4 +1,17 @@
 /* eslint-disable no-undef */
+
+
+// Submit button is clicked
+// Before sending email we must check:
+// - if ALL stripe elements are empty
+// - if Stripe checkout is enabled and if it is conditionally set
+
+
+
+
+
+
+
 (function ($) { // Hide scope, no $ conflict
     "use strict";
 
@@ -47,6 +60,26 @@
             color: '#fa755a',
             iconColor: '#fa755a'
         }
+    };
+
+    // Validate before submitting form
+    SUPER.stripe_validate = function(event, form, data, oldHtml, callback){
+        debugger;
+        console.log(event, form, data, oldHtml, callback);
+        return '{"error":true,"msg":"A test error message, to cancel form submission"}';
+
+        // SUPER.stripe_ideal_create_payment_method = function ($form, $data, $old_html, $response) {
+        //     SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
+        //     SUPER.Stripe.forms.forEach(function (form, index) {
+        //         if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element'))) {
+        //             console.log('match ideal!');
+        //             // Check if element exists and if not empty
+        //             if (SUPER.Stripe.ideal[index] && SUPER.Stripe.ideal[index]._empty) {
+        //                 console.log('skip ideal element, because it is empty');
+        //                 return false;
+        //             }
+
+
     };
 
     // Initialize Stripe Elements
@@ -188,6 +221,7 @@
                                 }).then(function (result) {
                                     if (result.error) {
                                         SUPER.stripe_proceed(result, $form, $old_html);
+                                        return false;
                                     }
                                 });
 
@@ -334,6 +368,7 @@
                         // If an error occured
                         if (result.error) {
                             SUPER.stripe_proceed(result, $form, $old_html);
+                            return false;
                         }
                         // Outcome 1: Payment succeeds
                         if ((result.subscription_status == 'active') && (result.invoice_status == 'paid') && (result.paymentintent_status == 'succeeded')) {
@@ -360,6 +395,7 @@
                                 if (result.error) {
                                     // Display error.msg in your UI.
                                     SUPER.stripe_proceed(result, $form, $old_html);
+                                    return false;
                                 } else {
                                     // The payment has succeeded. Display a success message.
                                     console.log('The payment has succeeded, show success message2.');
@@ -432,6 +468,7 @@
                             if (result.error) {
                                 // Display error.msg in your UI.
                                 SUPER.stripe_proceed(result, $form, $old_html);
+                                return false;
                             }
                             // Check if this is a single payment or a subscription
                             if (result.stripe_method == 'subscription') {

@@ -360,7 +360,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             if ( $this->is_request( 'ajax' ) ) {
-                //add_action( 'super_before_sending_email_hook', array( $this, 'create_stripe_customer' ), 10, 1 );
+				add_action( 'super_before_email_success_msg_action', array( $this, 'stripe_conditional_checkout' ) );
             }
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -385,9 +385,7 @@ if(!class_exists('SUPER_Stripe')) :
             
 
             // Filters since 1.2.3
-            if ( ( $this->is_request( 'frontend' ) ) || ( $this->is_request( 'admin' ) ) ) {
-                add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
-            }
+            add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
 
             add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
             add_filter( 'super_enqueue_scripts', array( $this, 'super_enqueue_scripts' ), 10, 1 );
@@ -426,6 +424,55 @@ if(!class_exists('SUPER_Stripe')) :
             add_action( 'super_stripe_webhook_payment_intent_payment_failed', array( $this, 'payment_intent_payment_failed' ), 10, 1 );
             
         }
+
+
+		/**
+		 * Conditionally checkout
+		 *
+		 *  @since      1.0.0
+		 */
+		public static function stripe_conditional_checkout($atts) {
+			$settings = $atts['settings'];
+			if (isset($atts['data'])) {
+				$data = $atts['data'];
+			}else {
+				if ($settings['save_contact_entry'] == 'yes') {
+					$data = get_post_meta($atts['entry_id'], '_super_contact_entry_data', true);
+				}
+				else {
+					$data = $atts['post']['data'];
+				}
+			}
+			// Check if we do not want to checkout to Stripe conditionally
+			if( !empty($settings['conditionally_stripe_checkout']) ) {
+                $settings['stripe_checkout'] = '';
+				if( !empty($settings['conditionally_stripe_checkout_check']) ) {
+					$values = explode(',', $settings['conditionally_stripe_checkout_check']);
+					// let's replace tags with values
+					foreach( $values as $k => $v ) {
+						$values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
+					}
+					if(!isset($values[0])) $values[0] = '';
+					if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+					if(!isset($values[2])) $values[2] = '';
+					// if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
+					if( ($values[0]!='') || ($values[2]!='') ) {
+						// Check if values match eachother
+						if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
+							$settings['stripe_checkout'] = 'true';
+						}
+					}
+				}
+            }
+            // if( !empty($settings['stripe_checkout']) && $settings['stripe_checkout']=='true' ) {
+            //     SUPER_Common::output_message(
+            //         $error = true,
+            //         $msg = esc_html__( 'Please select your payment method!', 'super-forms' )
+            //     );
+            // }
+        }
+
+        // Whe payment intent failed
         public function payment_intent_payment_failed($paymentIntent){
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
             if( !is_array($metadata) ) {
@@ -460,6 +507,7 @@ if(!class_exists('SUPER_Stripe')) :
             SUPER_Forms()->session->set( 'super_forms_email_reminders', false );
         }
 
+        // When charge succeeded
         public function charge_succeeded($paymentIntent){
             error_log( 'charge_succeeded()', 0);
             error_log( '$paymentIntent: ' . json_encode($paymentIntent) );
@@ -2700,6 +2748,9 @@ if(!class_exists('SUPER_Stripe')) :
          *  @since      1.0.0
         */
         public static function add_dynamic_function( $functions ) {
+            $functions['before_submit_hook'][] = array(
+                'name' => 'stripe_validate'
+            );
             $functions['after_email_send_hook'][] = array(
                 'name' => 'stripe_cc_create_payment_method'
             );
@@ -2820,6 +2871,31 @@ if(!class_exists('SUPER_Stripe')) :
                             'true' => esc_html__( 'Enable Stripe Checkout', 'super-forms' ),
                         ),
                     ),
+
+					// @since 1.3.0 - Conditionally Stripe Checkout
+					'conditionally_stripe_checkout' => array(
+						'hidden_setting' => true,
+						'default' => SUPER_Settings::get_value(0, 'conditionally_stripe_checkout', $settings['settings'], '' ),
+						'type' => 'checkbox',
+						'filter'=>true,
+						'values' => array(
+							'true' => esc_html__( 'Conditionally checkout to Stripe', 'super-forms' ),
+						),
+						'parent' => 'stripe_checkout',
+						'filter_value' => 'true'
+					),
+					'conditionally_stripe_checkout_check' => array(
+						'hidden_setting' => true,
+						'type' => 'conditional_check',
+						'name' => esc_html__( 'Only checkout to Stripe when following condition is met', 'super-forms' ),
+						'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
+						'default' => SUPER_Settings::get_value(0, 'conditionally_stripe_checkout_check', $settings['settings'], '' ),
+						'placeholder' => "{fieldname},value",
+						'filter'=>true,
+						'parent' => 'conditionally_stripe_checkout',
+						'filter_value' => 'true'
+					),
+
                     'stripe_method' => array(
                         'name' => esc_html__( 'Stripe checkout method', 'super-forms' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_method', $settings['settings'], 'single' ),
