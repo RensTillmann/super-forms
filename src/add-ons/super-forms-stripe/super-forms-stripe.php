@@ -394,7 +394,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Occurs whenever a pending charge is created.
             // The Charge is pending (asynchronous payments only). 
             // Nothing to do.
-            add_action( 'super_stripe_webhook_charge_pending', array( $this, 'charge_pending' ), 10, 1 );
+            // add_action( 'super_stripe_webhook_charge_pending', array( $this, 'charge_pending' ), 10, 1 );
             
             // Occurs whenever a new charge is created and is successful.
             // The Charge succeeded and the payment is complete.
@@ -509,8 +509,6 @@ if(!class_exists('SUPER_Stripe')) :
 
         // When charge succeeded
         public function charge_succeeded($paymentIntent){
-            error_log( 'charge_succeeded()', 0);
-            error_log( '$paymentIntent: ' . json_encode($paymentIntent) );
 
             // Get the metadata from the paymentIntent
             if(isset($paymentIntent['object']) && isset($paymentIntent['payment_intent']) && $paymentIntent['object']=='charge'){
@@ -530,7 +528,6 @@ if(!class_exists('SUPER_Stripe')) :
                 $metadata = json_decode($metadata, true);
             }
             $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
-            error_log( '$form_id: ' . $form_id, 0 );
             
             if($form_id!==0){
                 $settings = SUPER_Common::get_form_settings($form_id);
@@ -539,19 +536,15 @@ if(!class_exists('SUPER_Stripe')) :
                 update_option( 'super_stripe_txn_count', ($count+1) );
                 // Update contact entry status after succesfull payment
                 $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
-                error_log( '$contact_entry_id: ' . $contact_entry_id, 0 );
                 if( !empty($contact_entry_id) ) {
                     if( !empty($settings['stripe_completed_entry_status']) ) {
-                        error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
                         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
                     }
                 }
                 // Update post status after succesfull payment (only used for Front-end Posting add-on)
                 $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
-                error_log( '$frontend_post_id: ' . $frontend_post_id, 0 );
                 if( !empty($frontend_post_id) ) {
                     if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-                        error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
                         wp_update_post( 
                             array(
                                 'ID' => $frontend_post_id,
@@ -562,89 +555,14 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
                 $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
-                error_log( '$frontend_user_id: ' . $frontend_user_id, 0 );
                 if( !empty($frontend_user_id) ) {
                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
                         if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-                            error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
-                            error_log( "Stripe stripe_completed_signup_status: " . $settings['stripe_completed_signup_status'], 0 );
                             update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
                         }
                     }
                 }
             }
-            // // Check if a transaction exists, if not create one, and return the post_id
-            // // If it already exists, we return the post_id, this way we can do things if needed
-            // $txn_id = self::getTransactionId($paymentIntent);
-            // $post = get_page_by_title( $txn_id, OBJECT, 'super_stripe_txn' );
-            // if($post) {
-            //     error_log( "exists!", 0 );
-            //     error_log( "metadata!" . json_encode($paymentIntent), 0 );
-            //     return $post->ID;
-            // }else{
-            //     error_log( "does not exists!", 0 );
-            //     $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
-            //     if( !is_array($metadata) ) {
-            //         $metadata = json_decode($metadata, true);
-            //     }
-            //     $form_id = (isset($metadata['form_id']) ? absint($metadata['form_id']) : 0 );
-            //     $settings = SUPER_Common::get_form_settings($form_id);
-            //     $user_id = (isset($metadata['user_id']) ? absint($metadata['user_id']) : 0 );
-            //     $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
-            //     $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
-            //     $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
-            //     // Create transaction
-            //     $post = array(
-            //         'post_status' => 'publish',
-            //         'post_type' => 'super_stripe_txn',
-            //         'post_title' => $txn_id,
-            //         'post_parent' => absint($form_id)
-            //     );
-            //     $post_id = wp_insert_post($post);
-            //     update_post_meta( $post_id, '_super_user_id', $user_id );
-
-            //     // Update "New" transaction counter with 1
-            //     $count = get_option( 'super_stripe_txn_count', 0 );
-            //     update_option( 'super_stripe_txn_count', ($count+1) );
-            //     // Connect transaction to contact entry if one was created
-            //     if( !empty($contact_entry_id) ) {
-            //         //error_log( "contact_entry_id: ", 0 );
-            //         update_post_meta( $contact_entry_id, '_super_stripe_txn_id', $post_id );
-            //         // Update contact entry status after succesfull payment
-            //         if( !empty($settings['stripe_completed_entry_status']) ) {
-            //             //error_log( "Stripe update entry status: " . $contact_entry_id, 0 );
-            //             update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
-            //         }
-            //     }
-            //     // Update post status after succesfull payment (only used for Front-end Posting add-on)
-            //     if( !empty($frontend_post_id) ) {
-            //         //error_log( "frontend_post_id: ", 0 );
-            //         if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
-            //             //error_log( "Stripe update frontend post: " . $frontend_post_id, 0 );
-            //             wp_update_post( 
-            //                 array(
-            //                     'ID' => $frontend_post_id,
-            //                     'post_status' => $settings['stripe_completed_post_status']
-            //                 )
-            //             );
-            //         }
-            //     }
-            //     // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
-            //     if( !empty($frontend_user_id) ) {
-            //         error_log( "user_id: ", 0 );
-            //         if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
-            //             if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
-            //                 error_log( "Stripe update_user_meta: " . $frontend_user_id, 0 );
-            //                 error_log( "Stripe stripe_completed_signup_status: " . $settings['stripe_completed_signup_status'], 0 );
-    
-            //                 update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
-            //             }
-            //         }
-            //     }
-            //     // Save all transaction data
-            //     add_post_meta( $post_id, '_super_txn_data', $paymentIntent );
-            // }
-            // return $post_id;
         }
         public function payment_intent_created($paymentIntent){
             error_log( 'payment_intent_created()', 0);
@@ -1022,7 +940,7 @@ if(!class_exists('SUPER_Stripe')) :
             self::setAppInfo();
             $data = $_POST['data'];
             $payment_method = $_POST['payment_method'];
-            $metadata = $_POST['metadata'];
+            $metadata = ( isset($_POST['metadata']) ? $_POST['metadata'] : array() );
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
             
@@ -1043,8 +961,6 @@ if(!class_exists('SUPER_Stripe')) :
                 }
             }
             $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
-            error_log( '$user_id: ' . $user_id, 0);
-            error_log( '$super_stripe_cus: ' . $super_stripe_cus, 0);
 
             try {
                 $create_new_customer = true;
@@ -1054,21 +970,18 @@ if(!class_exists('SUPER_Stripe')) :
                     $customer = \Stripe\Customer::retrieve($super_stripe_cus);
                 }
                 if( !empty($customer) ) {
-                    error_log( 'customer is not empty: ', 0);
-                    error_log( 'customer was delete yes/no? ' . $customer['deleted'], 0);
                     // Check if customer was deleted
                     if(!empty($customer['deleted']) && $customer['deleted']==true){
                         // Customer was deleted, we should create a new
-                        error_log( 'Customer was deleted, we should create a new', 0);
                     }else{
                         // The customer exists, let's update the payment method for this customer
-                        $payment_method = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
-                        $payment_method->attach(['customer' => $super_stripe_cus]);
+                        $paymentMethod = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
+                        $paymentMethod->attach(['customer' => $customer->id]);
                         // Once the payment method has been attached to your customer, 
                         // update the customers default payment method
-                        \Stripe\Customer::update($super_stripe_cus,[
+                        \Stripe\Customer::update($customer->id,[
                             'invoice_settings' => [
-                                'default_payment_method' => $payment_method,
+                                'default_payment_method' => $paymentMethod->id,
                             ],
                         ]);
                         // Make sure we do not create a new customer
@@ -1076,7 +989,6 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                 }
                 if($create_new_customer){
-                    error_log( 'Customer is empty create new one: ', 0);
                     // Customer doesn't exists, create a new customer
                     $customer = \Stripe\Customer::create([
                         'payment_method' => $payment_method,
@@ -1085,13 +997,27 @@ if(!class_exists('SUPER_Stripe')) :
                             'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
                         ],
                     ]);
+                    $paymentMethod->attach(['customer' => $customer->id]);
                     // Save the stripe customer ID for this wordpress user
-                    error_log( '$user_id: ' . $user_id, 0);
-                    error_log( '$customer->id: ' . $customer->id, 0);
                     update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
                 }
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                self::exceptionHandler($e, $metadata);
+                if($e->getCode()===0){
+                    // If no such stripe customer exists we do not output the error instead we create a new stripe customer
+                    // Customer doesn't exists, create a new customer
+                    $customer = \Stripe\Customer::create([
+                        'payment_method' => $payment_method,
+                        'email' => 'jenny.rosen@example2.com',
+                        'invoice_settings' => [
+                            'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
+                        ],
+                    ]);
+                    $paymentMethod->attach(['customer' => $customer->id]);
+                    // Save the stripe customer ID for this wordpress user
+                    update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+                }else{
+                    self::exceptionHandler($e, $metadata);
+                }
             }
 
             try {
@@ -1112,28 +1038,15 @@ if(!class_exists('SUPER_Stripe')) :
                 self::exceptionHandler($e, $metadata);
             }
 
-            error_log( '$subscription->latest_invoice->payment_intent->client_secret: ' . $subscription->latest_invoice->payment_intent->client_secret, 0);
-            error_log( '$subscription->status: ' . $subscription->status, 0);
-            error_log( '$subscription->latest_invoice->status: ' . $subscription->latest_invoice->status, 0);
-            error_log( '$subscription->latest_invoice->payment_intent->status: ' . $subscription->latest_invoice->payment_intent->status, 0);
-            error_log( '$subscription->latest_invoice->payment_intent->id: ' . $subscription->latest_invoice->payment_intent->id, 0);
-
             // Update PaymentIntent with metadata
             \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
 
             // Depending on the outcome do things:
             $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
 
-            //$subscription->latest_invoice->payment_intent->client_secret: pi_1GO9u6FKn7uROhgCs6My25oI_secret_RUxZBL1wNjna4WJIGNmFMkcSC
-
-            // $subscription->status: incomplete
-            // $subscription->latest_invoice->status: open
-            // $subscription->latest_invoice->payment_intent->status: requires_action
-
             // Outcome 3: Payment fails
             if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
                 // The charge attempt for the subscription failed, please try with a new payment method
-                error_log( 'payment_intent_payment_failed() ', 0);
                 self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
                 SUPER_Common::output_message(
                     $error = true,
@@ -1209,7 +1122,7 @@ if(!class_exists('SUPER_Stripe')) :
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
             // Get payment method [card, sepa_debit, ideal]
-            $paymentMethod = sanitize_text_field($_POST['payment_method']);
+            $payment_method = sanitize_text_field($_POST['payment_method']);
 
             // Set meta data
             // A set of key-value pairs that you can attach to a source object. 
@@ -1239,20 +1152,204 @@ if(!class_exists('SUPER_Stripe')) :
                 $metadata['contact_entry_id'] = $contact_entry_id;
             }
             // Allow devs to filter metadata if needed
-            $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'paymentMethod'=>$paymentMethod ) );
+            $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'payment_method'=>$payment_method ) );
 
             // Subscription Payment:
             if( $settings['stripe_method']=='subscription' ) {
-                // Return metadata for JS processing
-                echo json_encode( array( 
-                    'stripe_method' => 'subscription',
-                    'payment_method' => $paymentMethod, // Only if paid via IBAN
-                    'metadata' => $metadata
-                    // 'client_secret' => $intent->client_secret, // only for single payments
-                    // 'billing_details' => array(
-                    //     'name' => 'Rens Tillmann2'
-                    // )
-                ) );
+                if($payment_method=='sepa_debit'){
+                    error_log('SEPA Debit subscription', 0);
+                    // Create a Payment method for sepa_debit
+                    try {
+                        $paymentMethod = \Stripe\PaymentMethod::create([
+                            'type' => 'sepa_debit',
+                            'sepa_debit' => array(
+                                'iban' => 'DE89370400440532013000'
+                            ),
+                            'billing_details' => array(
+                                'name' => 'Rens Tillmann8', // required for SEPA Debit
+                                'email' => 'feeling4design@gmail.com', // required for SEPA Debit
+                                // 'phone' => '', // optional but may not be empty
+                                'address' => array( // optional associative array
+                                    'line1' => '', // optional
+                                    'line2' => '', // optional
+                                    'city' => '', // optional
+                                    // 'country' => '', // optional but may not be empty
+                                    'postal_code' => '', // optional
+                                    'state' => '' // optional // SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
+                                )
+                            )
+                        ]);
+                    } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                        self::exceptionHandler($e, $metadata);
+                    }
+
+                    error_log('paymentMethod ID:' . $paymentMethod->id, 0);
+                    // Check if plan ID is empty (is required)
+                    if(empty($settings['stripe_plan_id'])){
+                        SUPER_Common::output_message(
+                            $error = true,
+                            $msg = esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' )
+                        );
+                    }
+        
+                    // Check if the user is logged in
+                    // If so, we will want to save the stripe customer ID for this wordpress user
+                    $user_id = get_current_user_id();
+                    if(isset($metadata['frontend_user_id'])){
+                        if(absint($metadata['frontend_user_id'])!==0){
+                            $user_id = $metadata['frontend_user_id'];
+                        }
+                    }
+                    $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
+                    error_log('$super_stripe_cus: ' . $super_stripe_cus, 0);
+        
+                    try {
+                        $create_new_customer = true;
+                        // Check if user is logged in, if so check if this is an existing customer
+                        // If customer exists, we want to update the `default_payment_method` and `invoice_settings.default_payment_method`
+                        if( !empty($super_stripe_cus) ) {
+                            $customer = \Stripe\Customer::retrieve($super_stripe_cus);
+                        }
+                        if( !empty($customer) ) {
+                            // Check if customer was deleted
+                            if(!empty($customer['deleted']) && $customer['deleted']==true){
+                                // Customer was deleted, we should create a new
+                            }else{
+                                error_log('paymentMethod->attach() 1: ' . $super_stripe_cus, 0);
+                                // The customer exists, let's update the payment method for this customer
+                                $paymentMethod->attach(['customer' => $super_stripe_cus]);
+                                // Once the payment method has been attached to your customer, 
+                                // update the customers default payment method
+                                error_log('Customer::update() 1: ' . $super_stripe_cus, 0);
+                                \Stripe\Customer::update($super_stripe_cus,[
+                                    'invoice_settings' => [
+                                        'default_payment_method' => $paymentMethod->id,
+                                    ],
+                                ]);
+                                // Make sure we do not create a new customer
+                                $create_new_customer = false; 
+                            }
+                        }
+                        if($create_new_customer){
+                            // Customer doesn't exists, create a new customer
+                            error_log('Customer::create() 1: ' . $paymentMethod->id, 0);
+                            $customer = \Stripe\Customer::create([
+                                'payment_method' => $paymentMethod->id,
+                                'email' => 'jenny.rosen@example11.com',
+                                'invoice_settings' => [
+                                    'default_payment_method' => $paymentMethod->id // Creating subscriptions automatically charges customers because the default payment method is set.
+                                ],
+                            ]);
+                            $paymentMethod->attach(['customer' => $customer->id]);
+                            // Save the stripe customer ID for this wordpress user
+                            update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+                        }
+                    } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                        if($e->getCode()===0){
+                            // If no such stripe customer exists we do not output the error instead we create a new stripe customer
+                            // Customer doesn't exists, create a new customer
+                            error_log('Customer::create() 2: ' . $paymentMethod->id, 0);
+                            $customer = \Stripe\Customer::create([
+                                'payment_method' => $paymentMethod->id,
+                                'email' => 'jenny.rosen@example12.com',
+                                'invoice_settings' => [
+                                    'default_payment_method' => $paymentMethod->id // Creating subscriptions automatically charges customers because the default payment method is set.
+                                ],
+                            ]);
+                            error_log('paymentMethod->attach() 2: ' . $customer->id, 0);
+                            $paymentMethod->attach(['customer' => $customer->id]);
+                            // Save the stripe customer ID for this wordpress user
+                            update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+                        }else{
+                            self::exceptionHandler($e, $metadata);
+                        }
+                    }
+        
+                    try {
+                        // Attempt to create the subscriptions
+                        error_log('Subscription::create() 1: ' . $customer->id, 0);
+                        $subscription = \Stripe\Subscription::create([
+                            'customer' => $customer->id,
+                            'items' => [
+                                [
+                                    'plan' => $settings['stripe_plan_id'],
+                                ],
+                            ],
+                            // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
+                            'payment_behavior' => 'allow_incomplete',
+                            'expand' => ['latest_invoice.payment_intent'],
+                            'metadata' => $metadata
+                        ]);
+                        error_log('Subscription::create() 2: ' . $customer->id, 0);
+                    } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                        self::exceptionHandler($e, $metadata);
+                    }
+        
+                    // Update PaymentIntent with mepdate PaymentIntent with metadata
+                    \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
+        
+                    // Depending on the outcome do things:
+                    $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
+                    error_log('$subscription->status: ' . $subscription->status, 0);
+                    error_log('$subscription->latest_invoice->status: ' . $subscription->latest_invoice->status, 0);
+                    error_log('$paymentintent_status: ' . $paymentintent_status, 0);
+                    error_log('$subscription->latest_invoice->payment_intent->client_secret: ' . $subscription->latest_invoice->payment_intent->client_secret, 0);
+
+                    // $subscription->status: incomplete
+                    // $subscription->latest_invoice->status: open
+                    // $paymentintent_status: requires_confirmation
+
+
+                    // Outcome 3: Payment fails
+                    if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
+                        // The charge attempt for the subscription failed, please try with a new payment method
+                        self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
+                        SUPER_Common::output_message(
+                            $error = true,
+                            $msg = esc_html__( 'The charge attempt for the subscription failed, please try with a new payment method', 'super-forms' )
+                        );
+                    }
+                    echo json_encode( array( 
+                        'stripe_method' => 'subscription',
+                        'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
+                        'subscription_status' => $subscription->status,
+                        'invoice_status' => $subscription->latest_invoice->status,
+                        'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : ''),
+                        'metadata' => $metadata
+                    ) );
+        
+                    die();
+        
+                    // // Get PaymentIntent data
+                    // $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                    // $amount = SUPER_Common::tofloat($amount)*100;
+                    // $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'eur');
+                    // $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+                    // $intent = self::createPaymentIntent($payment_method, $paymentMethod, $data, $settings, $amount, $currency, $description, $metadata);
+                    // // Return metadata for JS processing
+                    // echo json_encode( array( 
+                    //     'stripe_method' => 'subscription',
+                    //     'payment_method' => $payment_method, // Only if paid via IBAN
+                    //     'metadata' => $metadata,
+                    //     'currency' => $currency,
+                    //     'client_secret' => $intent->client_secret,
+                    //     'billing_details' => array(
+                    //         'name' => 'Rens Tillmann1'
+                    //     )
+                    // ) );
+                }else{
+                    // Return metadata for JS processing
+                    echo json_encode( array( 
+                        'stripe_method' => 'subscription',
+                        'payment_method' => $payment_method, // Only if paid via IBAN
+                        'currency' => $currency,
+                        'metadata' => $metadata,
+                        // 'client_secret' => $intent->client_secret, // only for single payments
+                        'billing_details' => array(
+                            'name' => 'Rens Tillmann2'
+                        )
+                    ) );
+                }
                 die();
             }
             // Single Payments:
@@ -1266,10 +1363,13 @@ if(!class_exists('SUPER_Stripe')) :
                 $amount = SUPER_Common::tofloat($amount)*100;
                 $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
                 $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
-                
-                $intent = self::createPaymentIntent($paymentMethod, $data, $settings, $amount, $currency, $description, $metadata);
+                error_log('$payment_method 1: '. $payment_method, 0);
+
+                $intent = self::createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata);
                 echo json_encode( 
                     array( 
+                        'stripe_method' => 'single',
+                        'currency' => $currency,
                         'client_secret' => $intent->client_secret,
                         'return_url' => $stripe_return_url // Required for iDeal payment method
                     )
@@ -1279,33 +1379,34 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         // Create PaymentIntent
-        public static function createPaymentIntent($paymentMethod, $data, $settings, $amount, $currency, $description, $metadata){
+        public static function createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata){
             // // SEPA Direct Debit Subscription
-            // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-subscription'){
+            // if($payment_method.'-'.$stripeMethod == 'sepa_debit-subscription'){
             // }
             // // SEPA Direct Debit Single
-            // if($paymentMethod.'-'.$stripeMethod == 'sepa_debit-single'){
+            // if($payment_method.'-'.$stripeMethod == 'sepa_debit-single'){
             // }
             // // iDeal Subscription
-            // if($paymentMethod.'-'.$stripeMethod == 'ideal-subscription'){
+            // if($payment_method.'-'.$stripeMethod == 'ideal-subscription'){
             //     // Can't create subscription with iDeal as payment method, please choose different payment method
             // }
             // // iDeal Single
-            // if($paymentMethod.'-'.$stripeMethod == 'ideal-single'){
+            // if($payment_method.'-'.$stripeMethod == 'ideal-single'){
             // }
             // // Credit Card Subscription
-            // if($paymentMethod.'-'.$stripeMethod == 'card-subscription'){
+            // if($payment_method.'-'.$stripeMethod == 'card-subscription'){
             // }
             // // Credit Card Single
-            // if($paymentMethod.'-'.$stripeMethod == 'card-single'){
+            // if($payment_method.'-'.$stripeMethod == 'card-single'){
             // }
 
             try {
+                error_log('$payment_method 2: '. $payment_method, 0);
                 $data = array(
                     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                    'currency' => ($paymentMethod==='ideal' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+                    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
                     'description' => $description,
-                    'payment_method_types' => [$paymentMethod], // e.g: ['card','ideal','sepa_debit'], 
+                    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
                     'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
                     // Shipping information for this PaymentIntent.
                     'shipping' => array(
@@ -1324,11 +1425,9 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                     'metadata' => $metadata
                 );
-                if( $paymentMethod=='sepa_debit' ) {
+                if( $payment_method=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
                 }
-                var_dump('test1');
-                exit;
                 $intent = \Stripe\PaymentIntent::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 self::exceptionHandler($e, $metadata);
@@ -1378,6 +1477,8 @@ if(!class_exists('SUPER_Stripe')) :
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
                     'stripe_pk' => $global_settings['stripe_pk'],
+                    'choose_payment_method' => __( 'Please choose a payment method!', 'super-forms' ),
+                    'ideal_subscription_error' => __( 'Subscriptions can not be paid through iDeal, please choose a different payment method!', 'super-forms' ),
                     'styles' => array(
                         'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
@@ -1581,8 +1682,7 @@ if(!class_exists('SUPER_Stripe')) :
         public static function getInvoice($id) {
             return \Stripe\Invoice::retrieve($id);
         }
-        public function exceptionHandler($e, $metadata=array()){
-            error_log( 'payment_intent_payment_failed() exceptionHandler() ', 0);
+        public static function exceptionHandler($e, $metadata=array()){
             self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
             echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
             die();
@@ -1731,58 +1831,106 @@ if(!class_exists('SUPER_Stripe')) :
                 return $paymentIntents->data;
             }
         }
-        public static function getProducts($formatted=true, $limit=20, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
-            $products = \Stripe\Product::all([
-                // optional
-                // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
-                'limit' => $limit,
-                // optional
-                // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list.
-                'starting_after' => $starting_after,
-                // optional
-                // Only return products that are active or inactive (e.g., pass false to list all inactive products).
-                'active' => $active,
-                // optional associative array
-                // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
-                'created' => $created,
-                // optional
-                // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
-                'ending_before' => $ending_before,
-                // optional
-                // Only return products with the given IDs.
-                'ids' => $ids,
-                // optional
-                // Only return products that can be shipped (i.e., physical, not digital products).
-                'shippable' => $shippable,
-                // optional
-                // Only return products of this type.
-                'type' => $type,
-                // optional
-                // Only return products with the given url.
-                'url' => $url
-            ]);
-            return $products->data;
-        }
-        public static function getCustomers($formatted=true, $limit=20, $starting_after=null, $created=null, $email=null, $ending_before=null) {
-            $customers = \Stripe\Customer::all([
-                // optional
-                // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
-                'limit' => $limit,
-                // optional
-                // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list.
-                'starting_after' => $starting_after,
-                // optional associative array
-                // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
-                'created' => $created,
-                // optional
-                // A filter on the list based on the customer’s email field. The value must be a string.
-                'email' => $email,
-                // optional
-                // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
-                'ending_before' => $ending_before
-            ]);
+
+
+        public static function getCustomers( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            if($limit==1){
+                try {
+                    $customers->data[] = \Stripe\Customer::retrieve(
+                        $starting_after // in this case it holds the payment intent ID
+                    );
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+            }else{
+                try {
+                    $customers = \Stripe\Customer::all([
+                        // optional
+                        // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+                        'limit' => $limit,
+                        // optional
+                        // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list.
+                        'starting_after' => $starting_after,
+                        // optional associative array
+                        // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
+                        'created' => $created,
+                        // optional
+                        // A filter on the list based on the customer’s email field. The value must be a string.
+                        //'email' => $email,
+                        // optional
+                        // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
+                        'ending_before' => $ending_before
+                    ]);
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+            }
+            foreach($customers->data as $k => $v){
+                $customers->data[$k]->createdFormatted = date_i18n( 'j M Y, H:i', $customers->data[$k]->created );
+                $customers->data[$k]->raw = json_encode($customers->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                // Search for wordpress user that is connected to this Stripe customer based on customer ID
+                $args = array(
+                    'meta_query' => array(
+                        array(
+                            'key' => 'super_stripe_cus',
+                            'value' => $customers->data[$k]->id,
+                            'compare' => '='
+                        )
+                    )
+                );
+                $users = get_users($args); // Find all WP users with this meta_key == 'super_stripe_cus' AND 'meta_value' == $customers->data[$k]->id
+                $userID = 0;
+                if ($users) {
+                    foreach ($users as $user) {
+                        $userID = $user->ID;
+                    }
+                }
+                if($userID!==0){
+                    // Lookup WP user data
+                    $user_info = get_userdata($userID);
+                    if($user_info){
+                        $user_info->edit_link = get_edit_user_link($user_info->ID);
+                        $customers->data[$k]->wp_user_info = $user_info;
+                    }
+                }
+            }
             return $customers->data;
         }
+
+        
+        // public static function getProducts($formatted=true, $limit=20, $starting_after=null, $active=null, $created=null, $ending_before=null, $ids=null, $shippable=null, $type=null, $url=null) {
+        //     $products = \Stripe\Product::all([
+        //         // optional
+        //         // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
+        //         'limit' => $limit,
+        //         // optional
+        //         // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list.
+        //         'starting_after' => $starting_after,
+        //         // optional
+        //         // Only return products that are active or inactive (e.g., pass false to list all inactive products).
+        //         'active' => $active,
+        //         // optional associative array
+        //         // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
+        //         'created' => $created,
+        //         // optional
+        //         // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
+        //         'ending_before' => $ending_before,
+        //         // optional
+        //         // Only return products with the given IDs.
+        //         'ids' => $ids,
+        //         // optional
+        //         // Only return products that can be shipped (i.e., physical, not digital products).
+        //         'shippable' => $shippable,
+        //         // optional
+        //         // Only return products of this type.
+        //         'type' => $type,
+        //         // optional
+        //         // Only return products with the given url.
+        //         'url' => $url
+        //     ]);
+        //     return $products->data;
+        // }
+
 
 
         /**
@@ -1796,13 +1944,67 @@ if(!class_exists('SUPER_Stripe')) :
                 if( !empty($data['type']) ) {
                     self::setAppInfo();
                     $type = sanitize_text_field($data['type']);
-
+                    if( $type=='searchUsers' ) {
+                        // Search WordPress users
+                        $value = sanitize_text_field($data['value']);
+                        $id = sanitize_text_field($data['id']);
+                        // search usertable
+                        $wp_user_query = new WP_User_Query(
+                            array(
+                                'fields' => array(
+                                    'ID',
+                                    'user_login',
+                                    'display_name',
+                                    'user_email'
+                                ),
+                                'number' => 20, // Acts as the limit
+                                'search' => "*{$value}*",
+                                'search_columns' => array(
+                                    'ID',
+                                    'user_login',
+                                    'display_name',
+                                    'user_email',
+                                    'user_nicename'
+                                ),
+                            )
+                        );
+                        $users = $wp_user_query->get_results();
+                        // search usermeta
+                        $wp_user_query2 = new WP_User_Query(
+                            array(
+                                'fields' => array(
+                                    'ID',
+                                    'user_login',
+                                    'display_name',
+                                    'user_email'
+                                ),
+                                'number' => 20, // Acts as the limit
+                                'meta_query' => array(
+                                    'relation' => 'OR',
+                                    array(
+                                        'key' => 'first_name',
+                                        'value' => $value,
+                                        'compare' => 'LIKE'
+                                    ),
+                                    array(
+                                        'key' => 'last_name',
+                                        'value' => $value,
+                                        'compare' => 'LIKE'
+                                    )
+                                )
+                            )
+                        );
+                        $users2 = $wp_user_query2->get_results();
+                        $totalusers_dup = array_merge( $users, $users2 );
+                        $payload = array_unique($totalusers_dup, SORT_REGULAR);
+                    }
                     if( $type=='invoice.online' || 
                         $type=='invoice.pdf' || 
                         $type=='paymentIntents' || 
-                        $type=='refreshPaymentIntent' || 
-                        $type=='products' || 
-                        $type=='customers' ) {
+                        $type=='refreshPaymentIntent' ||
+                        $type=='customers'
+                        //$type=='products' || 
+                        ) {
 
                             $payload = array();
                             $id = '';
@@ -1820,12 +2022,13 @@ if(!class_exists('SUPER_Stripe')) :
                                 }
                                 $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
                             }
-                            if( $type=='products' ) {
-                                $payload = self::getProducts($formatted, $limit, $starting_after);
-                            }
                             if( $type=='customers' ) {
                                 $payload = self::getCustomers($formatted, $limit, $starting_after);
                             }
+                            // if( $type=='products' ) {
+                            //     $payload = self::getProducts($formatted, $limit, $starting_after);
+                            // }
+
                     }
                     if( $type=='refund.create' ) {
                         // ID of the PaymentIntent to refund.
@@ -2245,11 +2448,9 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             if ((isset($_GET['ipn'])) && ($_GET['ipn'] == 'super_stripe')) {
-                //error_log( "IPN Request Received", 0 );
                 self::setAppInfo();
 
                 $payload = file_get_contents('php://input');
-                //error_log( "payload:" . $payload, 0 );
                 $event = null;
                 try {
                     $event = json_decode($payload, true);
@@ -2275,8 +2476,6 @@ if(!class_exists('SUPER_Stripe')) :
                 // do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event->type), $obj );
 
                 // Handle the event
-                //error_log( "event type:" . json_encode($event), 0 );
-                //error_log( "event metadata test1:" . json_encode($event['data']['object']['metadata']), 0 );
                 $paymentIntent = $event['data']['object'];
 
                 // $handleWebhook = array(
@@ -2307,7 +2506,6 @@ if(!class_exists('SUPER_Stripe')) :
                 // }
 
                 // Action hook to do specific things based on a given event
-                error_log( "Action triggered: super_stripe_webhook_" . str_replace('.', '_', $event['type']), 0 );
                 do_action( 'super_stripe_webhook_' . str_replace('.', '_', $event['type']), $paymentIntent );
                 
                 // Return 200 code
