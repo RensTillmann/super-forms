@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Mar 25, 2020 - Version 4.9.408
+
+- **Fix:** Custom regex validation would still be applied even though validation was set to `None`
+
 ## Mar 21, 2020 - Version 4.9.407
 
 - **Fix:** Problem with dropdown default selected items not overiding placeholder value

@@ -1854,7 +1854,6 @@ function SUPERreCaptcha(){
                 SUPER.init_fileupload_fields();
                 $(form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
                 data = SUPER.prepare_form_data($(form));
-                debugger;
                 SUPER.before_submit_hook(e, form, data, old_html, function(){
                     setTimeout(function() {
                         SUPER.complete_submit( e, form, data, duration, old_html, status, status_update );
@@ -1920,8 +1919,8 @@ function SUPERreCaptcha(){
                 }
             }
         }
-        if( custom_regex ) {
-            regex = new RegExp(custom_regex);
+        regex = new RegExp(custom_regex);
+        if( custom_regex && validation=='custom' ) {
             if(!regex.test(el.value)) error = true;
         }
         if (validation == 'captcha') {
@@ -2302,7 +2301,6 @@ function SUPERreCaptcha(){
                 SUPER.upload_files( e, form, data, duration, oldHtml, status, statusUpdate );
             }else{
                 data = SUPER.prepare_form_data($(form));
-                debugger;
                 SUPER.before_submit_hook(e, form, data, oldHtml, function(){
                     SUPER.complete_submit( e, form, data, duration, oldHtml, status, statusUpdate );
                 });
@@ -2417,14 +2415,12 @@ function SUPERreCaptcha(){
         return params;
     };
     SUPER.before_submit_hook = function(event, form, data, oldHtml, callback){
-        debugger;
         var proceed=true, i, name, duration = SUPER.get_duration(), functions = super_common_i18n.dynamic_functions.before_submit_hook;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
                 name = functions[i].name;
                 if(typeof SUPER[name] === 'undefined') continue;
                 var result = SUPER[name](event, form, data, oldHtml, callback);
-                debugger;
                 result = JSON.parse(result);
                 // Check for errors, if there are any display them to the user 
                 if(result.error===true){
