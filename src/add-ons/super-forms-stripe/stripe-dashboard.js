@@ -93,14 +93,51 @@
             app.api.handler({
                 type: 'searchUsers',
                 target: target,
+                customer_id: target.closest('.super-stripe-row').id,
                 value: target.value,
                 id: attr.id
             });
         }
     };
+    // Connect WP user
+    app.connectUser = function(e, target, eventType, attr){
+        app.api.handler({
+            type: 'connectUser',
+            customer_id: attr.customer_id,
+            user_id: attr.user_id,
+            unconnect: (typeof attr.unconnect!=='undefined' ? attr.unconnect : false)
+        });
+    };
+    // Unconnect WP user
+    app.unconnectUser = function(e, target, eventType, attr){
+        attr.unconnect = true;
+        app.connectUser(e, target, eventType, attr);
+        e.preventDefault();
+        return false;
+    };
 
     // UI
     app.ui = {
+        templates: {
+            connectedUser: function(payload, html){
+                if(typeof html === 'undefined') html = '';
+                html = '<a class="super-stripe-wp-user" target="_blank" href="' + payload.edit_link + '">';
+                html += payload.display_name;
+                html += '<span sfevents=\'{"click":{"unconnectUser":{"customer_id":"'+payload.customer_id+'","user_id":"' + payload.ID + '"}}}\' class="super-stripe-action-btn super-stripe-unconnect">'+app.ui.svg.delete.html+'</span>';
+                html += '</a>';
+                return html;
+            },
+            userfilter: function(payload, html){
+                if(typeof html === 'undefined') html = '';
+                html += '<div class="super-stripe-search-users">';
+                html += '<div>';
+                html += '- not connected -';
+                html += '</div>';
+                html += '<input placeholder="Connect to WordPress user..." type="text" sfevents=\'{"click":{"ui.row.state":{"value":"filtering"}},"keyup":{"search.users":{"id":"'+payload.id+'"}}}\' />';
+                html += '</div>';
+                return html;
+            }
+        },
         row: {
             state: function(e, target, eventType, attr){
                 var i, nodes = app.qa('.super-stripe-row');
@@ -372,7 +409,7 @@
                 filterMenu.className = 'super-stripe-filtermenu';
                 var i, html = '';
                 for(i=0; i<payload.length; i++){
-                    html += '<div sfevents=\'{"click":"connectUser"}\'><strong>' + payload[i].display_name + '</strong> (' + payload[i].user_email + ')</div>';
+                    html += '<div sfevents=\'{"click":{"connectUser":{"customer_id":"'+data.customer_id+'","user_id":"' + payload[i].ID + '"}}}\'><strong>' + payload[i].display_name + '</strong> (' + payload[i].user_email + ')</div>';
                 }
                 filterMenu.innerHTML = html;
 
@@ -1052,7 +1089,6 @@
 
             customers: function (payload) {
                 // check if row already exists, if so then we need to update the row instead of adding a new one
-                if (app.q('#' + payload.id)) replace = app.q('#' + payload.id);
                 console.log(payload);
 
                 // eslint-disable-next-line no-undef
@@ -1100,16 +1136,11 @@
                 // WordPress user
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-user';
-                html = '';
+                debugger;
                 if (payload.wp_user_info) {
-                    html += '<a class="super-stripe-wp-user" target="_blank" href="' + payload.wp_user_info.data.edit_link + '">' + payload.wp_user_info.data.display_name + '</a>';
+                    html = app.ui.templates.connectedUser(payload.wp_user_info);
                 }else{
-                    html += '<div class="super-stripe-search-users">';
-                    html += '<div>';
-                    html += '- not connected -';
-                    html += '</div>';
-                    html += '<input placeholder="Connect to WordPress user..." type="text" sfevents=\'{"click":{"ui.row.state":{"value":"filtering"}},"keyup":{"search.users":{"id":"'+payload.id+'"}}}\' />';
-                    html += '</div>';
+                    html = app.ui.templates.userfilter(payload);
                 }
                 column.innerHTML = html;
                 newRow.appendChild(column);
@@ -1181,6 +1212,21 @@
                         }
                         if( data.type=='searchUsers' ) {
                             app.ui.filterMenu.open(data, payload);
+                            return true;
+                        }
+                        if( data.type=='connectUser' ) {
+                            var html;
+                            debugger;
+                            if(payload.length===0){
+                                // Close filter menu and reset
+                                app.ui.filterMenu.remove();
+                                html = app.ui.templates.userfilter(payload);
+                            }else{
+                                // Close filter menu and add wp user as connected user
+                                app.ui.filterMenu.remove();
+                                html = app.ui.templates.connectedUser(payload.wp_user_info);
+                            }
+                            app.q('#'+data.customer_id).querySelector('.super-stripe-column.super-stripe-user').innerHTML = html;
                             return true;
                         }
                         if (data.type == 'refund.create') {
@@ -1345,7 +1391,8 @@
             '.super-stripe-toast-close',
             '.' + app.ui.contextMenu.className + ' > div',
             '.super-stripe-description > a',
-            '.super-stripe-search-users input'
+            '.super-stripe-search-users input',
+            '.super-stripe-filtermenu > div'
         ],
         change: [
             '.super-stripe-field-wrapper select'
