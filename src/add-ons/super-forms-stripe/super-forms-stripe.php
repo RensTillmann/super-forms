@@ -1817,10 +1817,8 @@ if(!class_exists('SUPER_Stripe')) :
                             // Lookup WP user data
                             $user_info = get_userdata($userID);
                             if($user_info){
-                                $user_info->edit_link = get_edit_user_link($user_info->ID);
-                                $paymentIntents->data[$k]->wp_user_info = $user_info;
-                                //var_dump($paymentIntents->data[$k]->wp_user_info);
-                                //exit;
+                                $user_info->data->edit_link = get_edit_user_link($user_info->ID);
+                                $paymentIntents->data[$k]->wp_user_info = $user_info->data;
                             }
                         }
                     }
@@ -1889,8 +1887,9 @@ if(!class_exists('SUPER_Stripe')) :
                     // Lookup WP user data
                     $user_info = get_userdata($userID);
                     if($user_info){
-                        $user_info->edit_link = get_edit_user_link($user_info->ID);
-                        $customers->data[$k]->wp_user_info = $user_info;
+                        $user_info->data->edit_link = get_edit_user_link($user_info->ID);
+                        $user_info->data->customer_id = $customers->data[$k]->id;
+                        $customers->data[$k]->wp_user_info = $user_info->data;
                     }
                 }
             }
@@ -1997,6 +1996,29 @@ if(!class_exists('SUPER_Stripe')) :
                         $users2 = $wp_user_query2->get_results();
                         $totalusers_dup = array_merge( $users, $users2 );
                         $payload = array_unique($totalusers_dup, SORT_REGULAR);
+                    }
+                    if( $type=='connectUser' ) {
+                        $unconnect = filter_var($data['unconnect'], FILTER_VALIDATE_BOOLEAN);
+                        $customer_id = sanitize_text_field($data['customer_id']);
+                        $user_id = sanitize_text_field($data['user_id']);
+                        if($unconnect==true){
+                            delete_user_meta( $user_id, 'super_stripe_cus');
+                            $payload = array();
+                        }else{
+                            update_user_meta( $user_id, 'super_stripe_cus', $customer_id);
+                            $edit_link = '#';
+                            if($user_id!==0){
+                                $user_info = get_userdata($user_id);
+                                if($user_info){
+                                    $user_info->data->edit_link = get_edit_user_link($user_info->ID);
+                                    $user_info->data->customer_id = $customer_id;
+                                    $wp_user_info = $user_info->data;
+                                }
+                            }
+                            $payload = array(
+                                'wp_user_info' => $wp_user_info
+                            );
+                        }
                     }
                     if( $type=='invoice.online' || 
                         $type=='invoice.pdf' || 

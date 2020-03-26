@@ -251,7 +251,15 @@ svg.super-stripe-delete,
     transform-origin: 50% 50%;
     transition-timing-function: ease;
     transition-property: opacity, transform;
+}
+
+svg.super-stripe-loader,
+.super-stripe-modal.super-loading .super-stripe-action-btn svg {
     animation: SpinnerAnimationShowLoading 250ms normal ease, SpinnerAnimationRotationLoading 0.6s linear infinite;
+}
+
+.super-stripe-wp-user svg.super-stripe-delete {
+    position: initial;
 }
 
 svg.super-stripe-loader {
@@ -989,3 +997,19 @@ svg.super-stripe-customer path:nth-child(2) {
     flex-basis: 130px;
 }
 
+.super-stripe-unconnect {
+    display:none;
+    position:absolute;
+    right:-40px;
+    top:0px;
+    height:20px;
+    width:10px;
+  }
+  .super-stripe-column.super-stripe-user:hover .super-stripe-unconnect {
+    display:flex;
+  }
+  .super-stripe-customers .super-stripe-wp-user {
+    width:auto;
+  }
+  
+  
