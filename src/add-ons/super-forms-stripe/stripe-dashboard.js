@@ -87,29 +87,45 @@
 
     // Search WP users
     app.search = {
-        users: function(e, target, eventType, attr){
-            console.log(target.value);
-            console.log(attr.id);
-            app.api.handler({
-                type: 'searchUsers',
-                target: target,
-                customer_id: target.closest('.super-stripe-row').id,
-                value: target.value,
-                id: attr.id
-            });
+        timeout: null,
+        users: function (e, target, eventType, attr) {
+            if (app.search.timeout !== null) clearTimeout(app.search.timeout);
+            app.search.timeout = setTimeout(function () {
+                if (target.value === '') {
+                    // Close filter menu and reset
+                    app.ui.filterMenu.remove();
+                } else {
+                    app.ui.svg.loader.create(target.parentNode);
+                    // Get user ID and email address
+                    var customer_id = target.closest('.super-stripe-row').id,
+                        customer_email = target.closest('.super-stripe-row').querySelector('.super-stripe-email').innerText;
+                    app.api.handler({
+                        type: 'searchUsers',
+                        target: target,
+                        customer_id: customer_id,
+                        customer_email: customer_email,
+                        value: target.value
+                    });
+                }
+            }, 500);
         }
     };
     // Connect WP user
-    app.connectUser = function(e, target, eventType, attr){
+    app.connectUser = function (e, target, eventType, attr) {
+        if (typeof attr.unconnect === 'undefined') {
+            app.ui.svg.loader.create(target.parentNode);
+        }
         app.api.handler({
             type: 'connectUser',
             customer_id: attr.customer_id,
             user_id: attr.user_id,
-            unconnect: (typeof attr.unconnect!=='undefined' ? attr.unconnect : false)
+            unconnect: (typeof attr.unconnect !== 'undefined' ? attr.unconnect : false)
         });
     };
     // Unconnect WP user
-    app.unconnectUser = function(e, target, eventType, attr){
+    app.unconnectUser = function (e, target, eventType, attr) {
+        console.log('attr:', attr);
+        target.innerHTML = app.ui.svg.loader.html;
         attr.unconnect = true;
         app.connectUser(e, target, eventType, attr);
         e.preventDefault();
@@ -119,32 +135,32 @@
     // UI
     app.ui = {
         templates: {
-            connectedUser: function(payload, html){
-                if(typeof html === 'undefined') html = '';
+            connectedUser: function (payload, html) {
+                if (typeof html === 'undefined') html = '';
                 html = '<a class="super-stripe-wp-user" target="_blank" href="' + payload.edit_link + '">';
                 html += payload.display_name;
-                html += '<span sfevents=\'{"click":{"unconnectUser":{"customer_id":"'+payload.customer_id+'","user_id":"' + payload.ID + '"}}}\' class="super-stripe-action-btn super-stripe-unconnect">'+app.ui.svg.delete.html+'</span>';
+                html += '<span sfevents=\'{"click":{"unconnectUser":{"customer_id":"' + payload.customer_id + '","user_id":"' + payload.ID + '"}}}\' class="super-stripe-action-btn super-stripe-unconnect">' + app.ui.svg.delete.html + '</span>';
                 html += '</a>';
                 return html;
             },
-            userfilter: function(payload, html){
-                if(typeof html === 'undefined') html = '';
+            userfilter: function (payload, html) {
+                if (typeof html === 'undefined') html = '';
                 html += '<div class="super-stripe-search-users">';
                 html += '<div>';
                 html += '- not connected -';
                 html += '</div>';
-                html += '<input placeholder="Connect to WordPress user..." type="text" sfevents=\'{"click":{"ui.row.state":{"value":"filtering"}},"keyup":{"search.users":{"id":"'+payload.id+'"}}}\' />';
+                html += '<input placeholder="Connect to WordPress user..." type="text" sfevents=\'{"click":{"ui.row.state":{"value":"filtering"}},"keyup":{"search.users":{}}}\' />';
                 html += '</div>';
                 return html;
             }
         },
         row: {
-            state: function(e, target, eventType, attr){
+            state: function (e, target, eventType, attr) {
                 var i, nodes = app.qa('.super-stripe-row');
-                for(i=0; i < nodes.length; i++){
+                for (i = 0; i < nodes.length; i++) {
                     nodes[i].className = 'super-stripe-row';
                 }
-                app.addClass(target.closest('.super-stripe-row'), 'super-stripe-'+attr.value);
+                app.addClass(target.closest('.super-stripe-row'), 'super-stripe-' + attr.value);
             }
         },
         svg: {
@@ -159,6 +175,11 @@
                 remove: function () {
                     app.remove(app.qa('svg.super-stripe-loader'));
                     app.removeClass(app.qa('.super-stripe-load-more.super-loading'), 'super-loading');
+                },
+                create: function (parent) {
+                    var loader = document.createElement('div');
+                    loader.innerHTML = app.ui.svg.loader.html;
+                    parent.appendChild(loader.children[0]);
                 }
             },
             delete: {
@@ -393,23 +414,33 @@
             }
         },
         filterMenu: {
+            className: 'super-stripe-filtermenu',
             remove: function () {
-                app.remove(app.qa('.super-stripe-filtermenu'));
+                app.remove(app.qa('.' + app.ui.filterMenu.className));
             },
-            open: function(data, payload){
+            open: function (data, payload) {
                 console.log(data, payload);
                 console.log(data.target);
                 console.log(data.target.value);
-
+                data.target.parentNode.querySelector('.super-stripe-loader').remove();
                 // Remove existing menu
                 app.ui.filterMenu.remove();
 
                 // Create new menu
                 var filterMenu = document.createElement('div');
-                filterMenu.className = 'super-stripe-filtermenu';
+                filterMenu.className = app.ui.filterMenu.className;
                 var i, html = '';
-                for(i=0; i<payload.length; i++){
-                    html += '<div sfevents=\'{"click":{"connectUser":{"customer_id":"'+data.customer_id+'","user_id":"' + payload[i].ID + '"}}}\'><strong>' + payload[i].display_name + '</strong> (' + payload[i].user_email + ')</div>';
+                if (payload.suggestions.length !== 0) {
+                    html += '<span>Suggested connection:</span>';
+                }
+                for (i = 0; i < payload.suggestions.length; i++) {
+                    html += '<div sfevents=\'{"click":{"connectUser":{"customer_id":"' + data.customer_id + '","user_id":"' + payload.suggestions[i].ID + '"}}}\'><strong>' + payload.suggestions[i].display_name + '</strong> (' + payload.suggestions[i].user_email + ')</div>';
+                }
+                if (payload.users.length !== 0) {
+                    html += '<span>Results:</span>';
+                }
+                for (i = 0; i < payload.users.length; i++) {
+                    html += '<div sfevents=\'{"click":{"connectUser":{"customer_id":"' + data.customer_id + '","user_id":"' + payload.users[i].ID + '"}}}\'><strong>' + payload.users[i].display_name + '</strong> (' + payload.users[i].user_email + ')</div>';
                 }
                 filterMenu.innerHTML = html;
 
@@ -1123,28 +1154,34 @@
                 newRow.appendChild(column);
 
                 // Description
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-description';
+                column.innerHTML = (payload.name ? payload.name : '');
+                newRow.appendChild(column);
+
+                // Customer
                 html = '';
                 html += '<a class="super-stripe-stripe-customer" target="_blank" href="https://dashboard.stripe.com/customers/' + payload.id + '">';
                 html += app.ui.svg.customer.html;
                 html += payload.id;
                 html += '</a>';
                 column = document.createElement('div');
-                column.className = columnClass + 'super-stripe-description';
-                column.innerHTML = (payload.name ? payload.name : '') + html;
+                column.className = columnClass + 'super-stripe-customer';
+                column.innerHTML = html;
                 newRow.appendChild(column);
 
                 // WordPress user
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-user';
-                debugger;
                 if (payload.wp_user_info) {
                     html = app.ui.templates.connectedUser(payload.wp_user_info);
-                }else{
+                } else {
+                    console.log('test2');
                     html = app.ui.templates.userfilter(payload);
                 }
                 column.innerHTML = html;
                 newRow.appendChild(column);
-                
+
                 // Default source
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-default_source';
@@ -1157,9 +1194,9 @@
                 column.innerHTML = payload.createdFormatted;
                 newRow.appendChild(column);
 
-             
+
                 // Add the row to the parent (the list/table)
-                 parentNode.appendChild(newRow);
+                parentNode.appendChild(newRow);
             }
 
 
@@ -1204,29 +1241,33 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4) {
                     if (this.status === 200) { // Success:
-                        console.log(this.response);
+                        console.log('Type:', data.type);
+                        console.log('Response:', this.response);
                         try {
                             var payload = JSON.parse(this.response);
                         } catch (error) {
                             alert(error);
                         }
-                        if( data.type=='searchUsers' ) {
+                        if (data.type == 'searchUsers') {
+                            console.log(data);
                             app.ui.filterMenu.open(data, payload);
                             return true;
                         }
-                        if( data.type=='connectUser' ) {
+                        if (data.type == 'connectUser') {
+                            console.log(data);
+                            //target.innerHTML = app.ui.svg.loader.html;
                             var html;
-                            debugger;
-                            if(payload.length===0){
+                            if (payload.length === 0) {
                                 // Close filter menu and reset
                                 app.ui.filterMenu.remove();
+                                console.log('test1', data);
                                 html = app.ui.templates.userfilter(payload);
-                            }else{
+                            } else {
                                 // Close filter menu and add wp user as connected user
                                 app.ui.filterMenu.remove();
                                 html = app.ui.templates.connectedUser(payload.wp_user_info);
                             }
-                            app.q('#'+data.customer_id).querySelector('.super-stripe-column.super-stripe-user').innerHTML = html;
+                            app.q('#' + data.customer_id).querySelector('.super-stripe-column.super-stripe-user').innerHTML = html;
                             return true;
                         }
                         if (data.type == 'refund.create') {
@@ -1269,10 +1310,10 @@
                         for (i = 0; i < payload.length; i++) {
                             app.api.addRows[data.type](payload[i]);
                         }
-                        if(data.type==='paymentIntents'){
+                        if (data.type === 'paymentIntents') {
                             app.addClass(app.q('.super-stripe-transactions'), 'super-initialized');
                         }
-                        if(data.type==='customers'){
+                        if (data.type === 'customers') {
                             app.addClass(app.q('.super-stripe-customers'), 'super-initialized');
                         }
                     }
@@ -1305,7 +1346,7 @@
             type: 'customers',
             limit: 20
         });
-        
+
         // app.api.handler({
         //     type: 'products',
         //     limit: 20
@@ -1407,9 +1448,12 @@
         app.delegate(document, eventType, elements, function (e, target) {
             if (eventType == 'click') {
                 // Close Context Menu if clicked outside
-                if ((!app.inPath(e, app.ui.contextMenu.className)) && (!app.inPath(e, 'super-stripe-action-btn'))) {
+                if ((!app.inPath(e, app.ui.contextMenu.className)) &&
+                    (!app.inPath(e, app.ui.filterMenu.className)) &&
+                    (!app.inPath(e, 'super-stripe-action-btn'))) {
                     // Close context menu
                     app.ui.contextMenu.close();
+                    app.ui.filterMenu.remove();
                 }
                 if (!app.inPath(e, app.ui.modal.containerClassName)) {
                     // Close modal

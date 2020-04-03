@@ -209,16 +209,18 @@ class SUPER_Shortcodes {
                         $item .= '<span class="super-excerpt">' . esc_html($v['post_excerpt']) . '</span>';
                     }
                     // Show product price
-                    if($atts['display_price']=='true'){
-                        $price = get_post_meta( $post_id, '_regular_price', true );
-                        // Only if meta exists
-                        if(!empty($price)){
-                            $sale_price = get_post_meta( $post_id, '_sale_price', true );
-                            if(!empty($sale_price)){
-                                $item .= '<span class="super-regular-price super-sale">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
-                                $item .= '<span class="super-sale-price">' . wc_price(get_post_meta( $post_id, '_sale_price', true )) . '</span>';
-                            }else{
-                                $item .= '<span class="super-regular-price">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
+                    if( function_exists('wc_price') ) {
+                        if($atts['display_price']=='true'){
+                            $price = get_post_meta( $post_id, '_regular_price', true );
+                            // Only if meta exists
+                            if(!empty($price)){
+                                $sale_price = get_post_meta( $post_id, '_sale_price', true );
+                                if(!empty($sale_price)){
+                                    $item .= '<span class="super-regular-price super-sale">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
+                                    $item .= '<span class="super-sale-price">' . wc_price(get_post_meta( $post_id, '_sale_price', true )) . '</span>';
+                                }else{
+                                    $item .= '<span class="super-regular-price">' . wc_price(get_post_meta( $post_id, '_regular_price', true )) . '</span>';
+                                }
                             }
                         }
                     }
@@ -1877,7 +1879,7 @@ class SUPER_Shortcodes {
                 // If the only thing that we need to do is update the TABS in the back-end (builder page)
                 // Then send a json string back to the JS create-form.js
                 // This will then update the TABS html, and also remove or add missing TAB content
-                if($builder!==false){
+                if($builder!==false && is_array($builder)){
                     $from = $builder[0];
                     $to = $builder[1];
                     // From TABS to TABS layout (no change)
@@ -1961,7 +1963,7 @@ class SUPER_Shortcodes {
                 // If the only thing that we need to do is update the Accordion header in the back-end (builder page)
                 // Then send a json string back to the JS create-form.js
                 // This will then update the Accordion header items, 
-                if($builder!==false){
+                if($builder!==false && is_array($builder)){
                     $from = $builder[0];
                     $to = $builder[1];
                     $header_items = $atts['items'];

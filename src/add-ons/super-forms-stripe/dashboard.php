@@ -105,6 +105,7 @@
                 'actions' => esc_html__( 'Actions', 'super-forms' ),
                 'email' => esc_html__( 'Email', 'super-forms' ),
                 'description' => esc_html__( 'Description', 'super-forms' ),
+                'customer' => esc_html__( 'Customer', 'super-forms' ),
                 'user' => esc_html__( 'User', 'super-forms' ),
                 'default_source' => esc_html__( 'Default source', 'super-forms' ),
                 'date' => esc_html__( 'Created', 'super-forms' ),
