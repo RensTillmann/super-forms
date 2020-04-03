@@ -1,29 +1,17 @@
 # Super Forms - Changelog
 
-## Mar 21, 2020 - Version 4.9.407
+## Apr 03, 2020 - Version 4.9.410
 
+- **Fix:** `Print` action not working for Button element
+- **Fix:** Custom regex validation would still be applied even though validation was set to `None`
 - **Fix:** Problem with dropdown default selected items not overiding placeholder value
-
-## Mar 20, 2020 - Version 4.9.406
-
 - **Fix:** Slider CSS conflicting with possible other site elements, added `super` prefix
-
-## Mar 13, 2020 - Version 4.9.405
-
 - **Fix:** JavaScript error in back-end when updating timepicker element
 - **Fix:** Timepicker not popping up due to incorrectly typeof check
-
-## Mar 12, 2020 - Version 4.9.403
-
 - **Fix:** Max selection for `Keyword field` not working
-
-## Mar 11, 2020 - Version 4.9.402
-
 - **Fix:** Predefined tags inside `Default value` not working with translated forms
-
-## Mar 10, 2020 - Version 4.9.401
-
 - **Improved:** When using `Elementor` only enqueue all scripts/styles when in preview/editor mode
+- **Improved:** Show where the error is when using TABs or Accordion elements (just like with Multi-parts)
 
 ## Mar 09, 2020 - Version 4.9.400
 

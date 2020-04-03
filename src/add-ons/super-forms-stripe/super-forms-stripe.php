@@ -1946,9 +1946,31 @@ if(!class_exists('SUPER_Stripe')) :
                     if( $type=='searchUsers' ) {
                         // Search WordPress users
                         $value = sanitize_text_field($data['value']);
-                        $id = sanitize_text_field($data['id']);
+                        // We use this to give a "best matches/suggestions" user connection for this customer
+                        $customer_email = sanitize_email($data['customer_email']);
+                        // Try to search for suggestions
+                        $query = new WP_User_Query(
+                            array(
+                                'fields' => array(
+                                    'ID',
+                                    'user_login',
+                                    'display_name',
+                                    'user_email'
+                                ),
+                                'number' => 1, // Acts as the limit
+                                'search' => "*{$customer_email}*",
+                                'search_columns' => array(
+                                    'user_email'
+                                ),
+                            )
+                        );
+                        $suggestions = $query->get_results();
+                        $exclude = array();
+                        if(isset($suggestions[0])){
+                            $exclude = array($suggestions[0]->ID);
+                        }
                         // search usertable
-                        $wp_user_query = new WP_User_Query(
+                        $query = new WP_User_Query(
                             array(
                                 'fields' => array(
                                     'ID',
@@ -1957,6 +1979,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     'user_email'
                                 ),
                                 'number' => 20, // Acts as the limit
+                                'exclude' => $exclude, // Exclude suggested user
                                 'search' => "*{$value}*",
                                 'search_columns' => array(
                                     'ID',
@@ -1967,9 +1990,9 @@ if(!class_exists('SUPER_Stripe')) :
                                 ),
                             )
                         );
-                        $users = $wp_user_query->get_results();
+                        $users = $query->get_results();
                         // search usermeta
-                        $wp_user_query2 = new WP_User_Query(
+                        $query = new WP_User_Query(
                             array(
                                 'fields' => array(
                                     'ID',
@@ -1978,6 +2001,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     'user_email'
                                 ),
                                 'number' => 20, // Acts as the limit
+                                'exclude' => $exclude, // Exclude suggested user
                                 'meta_query' => array(
                                     'relation' => 'OR',
                                     array(
@@ -1993,9 +2017,13 @@ if(!class_exists('SUPER_Stripe')) :
                                 )
                             )
                         );
-                        $users2 = $wp_user_query2->get_results();
-                        $totalusers_dup = array_merge( $users, $users2 );
-                        $payload = array_unique($totalusers_dup, SORT_REGULAR);
+                        $users2 = $query->get_results();
+                        // Merge all users
+                        $users = array_merge( $users, $users2 );
+                        $payload = array(
+                            'suggestions' => $suggestions,
+                            'users' => array_unique($users, SORT_REGULAR)
+                        );
                     }
                     if( $type=='connectUser' ) {
                         $unconnect = filter_var($data['unconnect'], FILTER_VALIDATE_BOOLEAN);

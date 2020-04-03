@@ -2097,21 +2097,45 @@ function SUPERreCaptcha(){
         if(typeof validation !== 'undefined' && !allowEmpty && el.value==='') error = true;
         if(error){
             SUPER.handle_errors(el);
+            // Add error class to Multi-part
             index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
             if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
+            }
+            // Add error class to TABS
+            if(el.closest('.super-tabs-content')){
+                index = $(el.closest('.super-tabs-content')).index();
+                if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
+                    el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.add('super-error');
+                }
+            }
+            // Add error class to Accordion
+            if(el.closest('.super-accordion-item')){
+                el.closest('.super-accordion-item').classList.add('super-error');
             }
         }else{
             if(el.closest('.super-field')) el.closest('.super-field').classList.remove('super-error-active');
         }
         // Remove error class from Multi-part if no more errors where found
         if( el.closest('.super-multipart') && 
-            el.closest('.super-multipart').querySelector('.super-error-active') &&
-            el.closest('.super-multipart').querySelector('.super-error-active').length===0){
-            index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
-                el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
-            }
+            !el.closest('.super-multipart').querySelector('.super-error-active')){
+                index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+                if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+                    el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
+                }
+        }
+        // Remove error class from TABS
+        if( el.closest('.super-tabs-content') && 
+            !el.closest('.super-tabs-content').querySelector('.super-error-active')){
+                index = $(el.closest('.super-tabs-content')).index();
+                if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
+                    el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.remove('super-error');
+                }
+        }
+        // Remove error class from Accordion if no more errors where found
+        if( el.closest('.super-accordion-item') && 
+            !el.closest('.super-accordion-item').querySelector('.super-error-active')){
+                el.closest('.super-accordion-item').classList.remove('super-error');
         }
         return error;
     };
@@ -2269,6 +2293,13 @@ function SUPERreCaptcha(){
                 }
             }
         }
+
+        // Activate possible TABS and Accordions to display errors
+        var tabs = form.querySelectorAll('.super-tabs-tab.super-error');
+        if(tabs && tabs[0]) tabs[0].click();
+        var accordions = form.querySelectorAll('.super-accordion-item.super-error');
+        if(accordions && accordions[0]) accordions[0].querySelector('.super-accordion-header').click();
+
         if(error===false){
 
             // Check if there are other none standard elements that have an active error
@@ -2360,7 +2391,6 @@ function SUPERreCaptcha(){
             // @since 2.1.0
             proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
             if(proceed!==true) return false;
-
             $('html, body').animate({
                 scrollTop: $(form).find('.super-error-active').offset().top-200
             }, 1000);
@@ -3832,7 +3862,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.1.0 - print form data
-    SUPER.init_print_form = function($form, $submit_button){
+    SUPER.init_print_form = function($form, submitButton){
         var items,
             $data,
             $parent,
@@ -3844,10 +3874,10 @@ function SUPERreCaptcha(){
             $file_id,
             win = window.open('','printwindow'),
             $html = '',
-            $print_file = $submit_button.find('input[name="print_file"]');
-        if( (typeof $print_file.val() !== 'undefined') && ($print_file.val()!=='') && ($print_file.val()!='0') ) {
+            $print_file = submitButton.querySelector('input[name="print_file"]');
+        if( $print_file && $print_file.value!=='' && $print_file.value!='0' ) {
             // @since 3.9.0 - print custom HTML
-            $file_id = $print_file.val();
+            $file_id = $print_file.value;
             $data = SUPER.prepare_form_data($($form));
             $data = SUPER.after_form_data_collected_hook($data.data);
             $.ajax({
@@ -3860,9 +3890,14 @@ function SUPERreCaptcha(){
                 },
                 success: function (result) {
                     win.document.write(result);
-                    win.print();
-                    win.close();
-                    return false;          
+                    win.document.close();
+                    win.focus();
+                    // @since 2.3 - chrome browser bug
+                    setTimeout(function() {
+                        win.print();
+                        win.close();
+                    }, 250);
+                    return false;
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     console.log(xhr, ajaxOptions, thrownError);
@@ -3883,7 +3918,7 @@ function SUPERreCaptcha(){
             for (i = 0; i < nodes.length; i++) { 
                 el = nodes[i];
                 $items = '';
-                if( (el.name=='hidden_form_id') || (el.name=='id') ) return true;
+                if( (el.name=='hidden_form_id') || (el.name=='id') ) continue;
                 $parent = el.closest('.super-shortcode');
                 $html += '<tr>';
                 $html += '<th>';
@@ -3912,8 +3947,14 @@ function SUPERreCaptcha(){
             }
             $html += '</table>';
             win.document.write($html);
-            win.print();
-            win.close();
+            win.document.close();
+            win.focus();
+            // @since 2.3 - chrome browser bug
+            setTimeout(function() {
+                win.print();
+                win.close();
+            }, 250);
+            return false;
         }
     };
 

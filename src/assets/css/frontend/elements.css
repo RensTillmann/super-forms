@@ -5041,6 +5041,21 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   background-color: white;
   border-bottom: 0;
 }
+.super-shortcode.super-tabs .super-tabs-tab.super-error {
+  margin-top: 30px;
+  position: relative;
+}
+.super-shortcode.super-tabs .super-tabs-tab.super-error:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f071";
+  position: absolute;
+  font-size: 14px;
+  color: #f2322b;
+  left: 50%;
+  top: -22px;
+  margin-left: -8px;
+}
 .super-shortcode.super-tabs .super-tabs-tab:hover {
   color: #789;
   cursor: pointer;
@@ -5165,6 +5180,20 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-accordion-item {
   position: relative;
   margin-bottom: 1em;
+}
+.super-accordion-item.super-error {
+  margin-top: 30px;
+}
+.super-accordion-item.super-error:after {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f071";
+  position: absolute;
+  font-size: 14px;
+  color: #f2322b;
+  left: 50%;
+  top: -22px;
+  margin-left: -8px;
 }
 
 .super-accordion-header, .super-accordion-content {

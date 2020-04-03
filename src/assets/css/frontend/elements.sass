@@ -4066,7 +4066,7 @@ ul.super-multipart-steps .super-multipart-step
 .super-shortcode.super-tabs
   float: left
   width: 100%
-  .super-tabs-tab 
+  .super-tabs-tab
     display: inline-block
     padding: 15px 25px
     font-weight: 600
@@ -4075,6 +4075,18 @@ ul.super-multipart-steps .super-multipart-step
     border: 1px solid transparent
     background-color: white
     border-bottom: 0
+    &.super-error
+      margin-top: 30px
+      position: relative
+      &:before
+        +fontAwesome(900)
+        content: unicode("f071")
+        position: absolute
+        font-size: 14px
+        color: #f2322b
+        left: 50%
+        top: -22px
+        margin-left: -8px
     &:hover 
       color: #789
       cursor: pointer
@@ -4187,6 +4199,18 @@ ul.super-multipart-steps .super-multipart-step
 .super-accordion-item
   position: relative
   margin-bottom: 1em
+  &.super-error
+    margin-top: 30px
+    &:after
+      +fontAwesome(900)
+      content: unicode("f071")
+      position: absolute
+      font-size: 14px
+      color: #f2322b
+      left: 50%
+      top: -22px
+      margin-left: -8px
+
 .super-accordion-header, .super-accordion-content
   +backfaceVisibility(hidden)
   +transform(translateZ(0))

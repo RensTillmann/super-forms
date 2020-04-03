@@ -1810,7 +1810,8 @@
 .super-form-settings .super-field select,
 .super-form-settings .super-field input,
 .super-form-settings .super-field textarea,
-.super-form-settings .super-field .slider {
+.super-form-settings .super-field .slider,
+.super-element-settings .super-field .slider {
     width: 100%;
     font-size: 11px;
     padding: 0px 0px 0px 5px;
@@ -1837,11 +1838,7 @@
     float: left;
 }
 
-.super-element-settings .super-error {
-    border: 1px solid #ff7878;
-    background-color: #fff8f8;
-}
-
+.super-element-settings .super-field .slider,
 .super-form-settings .super-field .slider {
     padding: 0px 0px 0px 0px;
 }

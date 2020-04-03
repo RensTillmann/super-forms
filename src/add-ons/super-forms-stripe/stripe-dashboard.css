@@ -386,21 +386,24 @@ svg.super-stripe-loader {
 
 .super-stripe-search-users,
 .super-stripe-search-users input {
-    width:100%;
+    width: 100%;
 }
+
 .super-stripe-search-users input {
-    min-height:initial;
-    height:28px;
+    min-height: initial;
+    height: 28px;
 }
-.super-stripe-search-users > div,
-.super-stripe-filtering .super-stripe-search-users > input,
-.super-stripe-row:hover .super-stripe-search-users > input {
-   display: block; 
+
+.super-stripe-search-users>div,
+.super-stripe-filtering .super-stripe-search-users>input,
+.super-stripe-row:hover .super-stripe-search-users>input {
+    display: block;
 }
-.super-stripe-row:hover .super-stripe-search-users > div,
-.super-stripe-filtering .super-stripe-search-users > div,
-.super-stripe-search-users > input {
-   display: none; 
+
+.super-stripe-row:hover .super-stripe-search-users>div,
+.super-stripe-filtering .super-stripe-search-users>div,
+.super-stripe-search-users>input {
+    display: none;
 }
 
 
@@ -458,13 +461,25 @@ svg.super-stripe-loader {
     box-shadow: 0 0 0 1px rgba(136, 152, 170, .1), 0 15px 35px 0 rgba(49, 49, 93, .1), 0 5px 15px 0 rgba(0, 0, 0, .08);
     padding: 10px 0px 10px 0px;
 }
-.super-stripe-filtermenu > div {
+
+.super-stripe-filtermenu>span {
+    padding-left: 10px;
     padding: 3px 10px 3px 10px;
+    background-color: #eee;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    font-weight: 600;
 }
-.super-stripe-filtermenu > div:hover {
-    background-color:#0078ea;
-    cursor:default;
-    color:white;
+
+.super-stripe-filtermenu>div {
+    padding: 3px 10px 3px 20px;
+}
+
+.super-stripe-filtermenu>div:hover {
+    background-color: #0078ea;
+    cursor: default;
+    color: white;
 }
 
 .super-stripe-contextmenu:after {
@@ -663,6 +678,7 @@ svg.super-stripe-loader {
     box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(60, 66, 87, 0.16) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px !important;
     transition: background-color 240ms, box-shadow 240ms;
 }
+
 .super-stripe-dashboard input:focus,
 .super-stripe-modal-fields input:focus,
 .super-stripe-modal-fields textarea:focus,
@@ -984,32 +1000,48 @@ svg.super-stripe-customer path:nth-child(2) {
     justify-content: left;
     text-align: left;
 }
+
 .super-stripe-heading-status,
 .super-stripe-column.super-stripe-status {
     flex-basis: 100px;
 }
+
 .super-stripe-heading-method,
 .super-stripe-column.super-stripe-method {
     flex-basis: 180px;
 }
+
 .super-stripe-heading-date,
 .super-stripe-column.super-stripe-date {
     flex-basis: 130px;
 }
 
 .super-stripe-unconnect {
-    display:none;
-    position:absolute;
-    right:-40px;
-    top:0px;
-    height:20px;
-    width:10px;
-  }
-  .super-stripe-column.super-stripe-user:hover .super-stripe-unconnect {
-    display:flex;
-  }
-  .super-stripe-customers .super-stripe-wp-user {
-    width:auto;
-  }
-  
-  
+    display: none;
+    position: absolute;
+    right: -40px;
+    top: 0px;
+    height: 20px;
+    width: 10px;
+}
+
+.super-stripe-column.super-stripe-user:hover .super-stripe-unconnect {
+    display: flex;
+}
+
+.super-stripe-customers .super-stripe-wp-user {
+    width: auto;
+}
+
+.super-stripe-unconnect .super-stripe-loader {
+    top: 5px;
+}
+
+.super-stripe-search-users .super-stripe-loader {
+    left: 0px;
+    top: 13px;
+}
+
+.super-stripe-filtermenu .super-stripe-loader {
+    top: 15px;
+}

@@ -172,9 +172,9 @@
                             if ($parent.children('.super-error-msg').length === 0) {
                                 $('<div class="super-error-msg">' + event.error.message + '</div>').appendTo($parent);
                             }
-                            $parent.addClass('super-error-active');
+                            $parent.addClass('super-error-active');debugger;
                         } else {
-                            $parent.removeClass('super-error-active');
+                            $parent.removeClass('super-error-active');debugger;
                         }
                     });
                 }
