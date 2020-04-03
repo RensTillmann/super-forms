@@ -4137,8 +4137,16 @@ ul.super-multipart-steps .super-multipart-step
           padding: 20px 0 0
           min-height: 80px
 
-
 .super-layout-tabs
+  &.super-vertical
+    .super-tabs-tab
+      &.super-error
+        margin-top: 0px
+        &:before
+          top: initial
+          left: -20px
+          top: 50%
+          margin-top: -11px
   .super-tab-next, .super-tab-prev
     display: none
     cursor: pointer

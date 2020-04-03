@@ -5110,6 +5110,15 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   min-height: 80px;
 }
 
+.super-layout-tabs.super-vertical .super-tabs-tab.super-error {
+  margin-top: 0px;
+}
+.super-layout-tabs.super-vertical .super-tabs-tab.super-error:before {
+  top: initial;
+  left: -20px;
+  top: 50%;
+  margin-top: -11px;
+}
 .super-layout-tabs .super-tab-next, .super-layout-tabs .super-tab-prev {
   display: none;
   cursor: pointer;
