@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Apr 07, 2020 - Version 4.9.411
+
+- **Fix:** Conflict when using multiple datepickers and one of them had `Allow users to select work days` or `Allow users to select weekends` disabled causing dates for other datepickers to be affected
+
 ## Apr 03, 2020 - Version 4.9.410
 
 - **Fix:** `Print` action not working for Button element

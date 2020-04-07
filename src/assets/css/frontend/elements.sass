@@ -2230,7 +2230,7 @@ textarea
       border: 0
       width: 40px
       background: none
-      a
+      a,span
         color: #444444
         width: 40px
         height: 40px
@@ -2251,20 +2251,11 @@ textarea
           +borderRadius(50px)
           color: #185abc
           background-color: #d2e3fc
-      span.ui-state-default
-        text-align: center
-        width: 33px !important
-        text-decoration: none
-        line-height: 33px
-        height: 33px
-        border: solid 1px #cdcdcd
-        display: inline-block
-        color: #444444
-        margin: 2px
-        +boxSizing(border-box)
-        border: 0
-        height: 27px
-        line-height: 27px
+      &.ui-datepicker-unselectable.ui-state-disabled 
+        span
+          opacity: 0.5
+          background: none
+          cursor: not-allowed
 
 .ui-timepicker-wrapper.super-timepicker-dialog
   overflow-y: auto
