@@ -396,7 +396,7 @@ h1.super-thanks-title {
 .super-autosuggest-tags > div > span:hover:after {
   color: #246569;
 }
-.super-autosuggest-tags .super-shortcode-field {
+.super-autosuggest-tags .super-shortcode-field, .super-autosuggest-tags input[type=text], .super-autosuggest-tags input[type=number], .super-autosuggest-tags input[type=email], .super-autosuggest-tags input[type=tel], .super-autosuggest-tags input[type=url], .super-autosuggest-tags input[type=password], .super-autosuggest-tags input[type=search], .super-autosuggest-tags textarea {
   float: left;
   width: 50%;
   -webkit-border-radius: 0px !important;
@@ -423,7 +423,7 @@ h1.super-thanks-title {
   margin-right: 15px;
 }
 
-.super-field-size-medium .super-autosuggest-tags .super-shortcode-field {
+.super-field-size-medium .super-autosuggest-tags .super-shortcode-field, .super-field-size-medium .super-autosuggest-tags input[type=text], .super-field-size-medium .super-autosuggest-tags input[type=number], .super-field-size-medium .super-autosuggest-tags input[type=email], .super-field-size-medium .super-autosuggest-tags input[type=tel], .super-field-size-medium .super-autosuggest-tags input[type=url], .super-field-size-medium .super-autosuggest-tags input[type=password], .super-field-size-medium .super-autosuggest-tags input[type=search], .super-field-size-medium .super-autosuggest-tags textarea {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-medium .super-autosuggest-tags > div > span {
@@ -440,7 +440,7 @@ h1.super-thanks-title {
   margin: 6px 6px 6px 0px;
 }
 
-.super-field-size-large .super-autosuggest-tags .super-shortcode-field {
+.super-field-size-large .super-autosuggest-tags .super-shortcode-field, .super-field-size-large .super-autosuggest-tags input[type=text], .super-field-size-large .super-autosuggest-tags input[type=number], .super-field-size-large .super-autosuggest-tags input[type=email], .super-field-size-large .super-autosuggest-tags input[type=tel], .super-field-size-large .super-autosuggest-tags input[type=url], .super-field-size-large .super-autosuggest-tags input[type=password], .super-field-size-large .super-autosuggest-tags input[type=search], .super-field-size-large .super-autosuggest-tags textarea {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-large .super-autosuggest-tags > div > span {
@@ -457,7 +457,7 @@ h1.super-thanks-title {
   margin: 6px 10px 6px 0px;
 }
 
-.super-field-size-huge .super-autosuggest-tags .super-shortcode-field {
+.super-field-size-huge .super-autosuggest-tags .super-shortcode-field, .super-field-size-huge .super-autosuggest-tags input[type=text], .super-field-size-huge .super-autosuggest-tags input[type=number], .super-field-size-huge .super-autosuggest-tags input[type=email], .super-field-size-huge .super-autosuggest-tags input[type=tel], .super-field-size-huge .super-autosuggest-tags input[type=url], .super-field-size-huge .super-autosuggest-tags input[type=password], .super-field-size-huge .super-autosuggest-tags input[type=search], .super-field-size-huge .super-autosuggest-tags textarea {
   margin: 0px 0px 0px 0px;
 }
 .super-field-size-huge .super-autosuggest-tags > div > span {
@@ -547,7 +547,7 @@ h1.super-thanks-title {
   z-index: 2;
   height: 100%;
 }
-.super-field.super-text.super-keyword-tags input.super-shortcode-field {
+.super-field.super-text.super-keyword-tags input.super-shortcode-field, .super-field.super-text.super-keyword-tags input[type=text], .super-field.super-text.super-keyword-tags input[type=number], .super-field.super-text.super-keyword-tags input[type=email], .super-field.super-text.super-keyword-tags input[type=tel], .super-field.super-text.super-keyword-tags input[type=url], .super-field.super-text.super-keyword-tags input[type=password], .super-field.super-text.super-keyword-tags input[type=search], .super-field.super-text.super-keyword-tags textarea {
   width: 0px;
 }
 .super-field.super-text.super-keyword-tags.super-string-found .super-item, .super-field.super-text.super-keyword-tags.super-string-found .super-no-results {
@@ -1175,102 +1175,102 @@ h1.super-thanks-title {
 .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 50px;
 }
-.super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-right textarea {
   padding-right: 35px;
 }
 .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 50px;
 }
-.super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-right textarea, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-right textarea {
   padding-right: 35px;
 }
 
 .super-rtl.super-field-size-large .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 60px;
 }
-.super-rtl.super-field-size-large .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-large .super-icon-inside.super-icon-right textarea {
   padding-right: 45px;
 }
 .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 55px;
 }
-.super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-large.super-default-rounded .super-icon-inside.super-icon-right textarea, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-large.super-full-rounded .super-icon-inside.super-icon-right textarea {
   padding-right: 40px;
 }
 
 .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 70px;
 }
-.super-rtl.super-field-size-huge .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-right textarea {
   padding-right: 55px;
 }
 .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right .super-adaptive-placeholder {
   padding-right: 65px;
 }
-.super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-right textarea, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=text], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=number], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=email], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=tel], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=url], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=password], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right input[type=search], .super-rtl.super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-right textarea {
   padding-right: 50px;
 }
 
 .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right .super-adaptive-placeholder {
   padding-right: 75px;
 }
-.super-rtl.super-field-size-medium .super-icon-outside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=text], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=number], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=email], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=tel], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=url], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=password], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right input[type=search], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-right textarea {
   padding-right: 15px;
 }
 
 .super-rtl.super-field-size-large .super-icon-outside.super-icon-right .super-adaptive-placeholder {
   padding-right: 90px;
 }
-.super-rtl.super-field-size-large .super-icon-outside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=text], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=number], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=email], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=tel], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=url], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=password], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right input[type=search], .super-rtl.super-field-size-large .super-icon-outside.super-icon-right textarea {
   padding-right: 20px;
 }
 
 .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right .super-adaptive-placeholder {
   padding-right: 100px;
 }
-.super-rtl.super-field-size-huge .super-icon-outside.super-icon-right .super-shortcode-field {
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-right .super-shortcode-field, .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=text], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=number], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=email], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=tel], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=url], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=password], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right input[type=search], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-right textarea {
   padding-right: 20px;
 }
 
 .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left .super-adaptive-placeholder {
   padding-right: 60px;
 }
-.super-rtl.super-field-size-medium .super-icon-inside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-medium .super-icon-inside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=text], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=number], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=email], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=tel], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=url], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=password], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left input[type=search], .super-rtl.super-field-size-medium .super-icon-inside.super-icon-left textarea {
   padding-right: 15px;
 }
 
 .super-rtl.super-field-size-large .super-icon-inside.super-icon-left .super-adaptive-placeholder {
   padding-right: 70px;
 }
-.super-rtl.super-field-size-large .super-icon-inside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-large .super-icon-inside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=text], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=number], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=email], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=tel], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=url], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=password], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left input[type=search], .super-rtl.super-field-size-large .super-icon-inside.super-icon-left textarea {
   padding-right: 15px;
 }
 
 .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left .super-adaptive-placeholder {
   padding-right: 85px;
 }
-.super-rtl.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=text], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=number], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=email], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=tel], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=url], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=password], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left input[type=search], .super-rtl.super-field-size-huge .super-icon-inside.super-icon-left textarea {
   padding-right: 15px;
 }
 
 .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left .super-adaptive-placeholder {
   padding-right: 75px;
 }
-.super-rtl.super-field-size-medium .super-icon-outside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-medium .super-icon-outside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=text], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=number], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=email], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=tel], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=url], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=password], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left input[type=search], .super-rtl.super-field-size-medium .super-icon-outside.super-icon-left textarea {
   margin-left: 45px;
 }
 
 .super-rtl.super-field-size-large .super-icon-outside.super-icon-left .super-adaptive-placeholder {
   padding-right: 85px;
 }
-.super-rtl.super-field-size-large .super-icon-outside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-large .super-icon-outside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=text], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=number], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=email], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=tel], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=url], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=password], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left input[type=search], .super-rtl.super-field-size-large .super-icon-outside.super-icon-left textarea {
   margin-left: 55px;
 }
 
 .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left .super-adaptive-placeholder {
   padding-right: 95px;
 }
-.super-rtl.super-field-size-huge .super-icon-outside.super-icon-left .super-shortcode-field {
+.super-rtl.super-field-size-huge .super-icon-outside.super-icon-left .super-shortcode-field, .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=text], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=number], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=email], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=tel], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=url], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=password], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left input[type=search], .super-rtl.super-field-size-huge .super-icon-outside.super-icon-left textarea {
   margin-left: 65px;
 }
 .super-rtl.super-field-size-huge.super-full-rounded .super-icon-outside.super-icon-left .super-adaptive-placeholder {
@@ -1513,8 +1513,30 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   right: 0px;
 }
 
-.super-shortcode-field,
-.super-captcha .captcha {
+.super-form input,
+.super-form select,
+.super-form textarea,
+.super-preview-elements input,
+.super-preview-elements select,
+.super-preview-elements textarea,
+.super-create-form input,
+.super-create-form select,
+.super-create-form textarea {
+  outline: none;
+}
+.super-form input:focus,
+.super-form select:focus,
+.super-form textarea:focus,
+.super-preview-elements input:focus,
+.super-preview-elements select:focus,
+.super-preview-elements textarea:focus,
+.super-create-form input:focus,
+.super-create-form select:focus,
+.super-create-form textarea:focus {
+  outline: none;
+}
+
+.super-form .super-shortcode-field, .super-form input[type=text], .super-form input[type=number], .super-form input[type=email], .super-form input[type=tel], .super-form input[type=url], .super-form input[type=password], .super-form input[type=search], .super-form textarea, .super-form .super-captcha .captcha, .super-preview-elements .super-shortcode-field, .super-preview-elements input[type=text], .super-preview-elements input[type=number], .super-preview-elements input[type=email], .super-preview-elements input[type=tel], .super-preview-elements input[type=url], .super-preview-elements input[type=password], .super-preview-elements input[type=search], .super-preview-elements textarea, .super-preview-elements .super-captcha .captcha {
   width: 100%;
   margin: 0px;
   padding: 0px 15px;
@@ -1525,9 +1547,19 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -webkit-border-radius: 0px;
   -moz-border-radius: 0px;
   border-radius: 0px;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  outline: none !important;
 }
-
-.super-shortcode-field {
+.super-form input[type=text], .super-form input[type=number], .super-form input[type=email], .super-form input[type=tel], .super-form input[type=url], .super-form input[type=password], .super-form input[type=search], .super-form textarea, .super-preview-elements input[type=text], .super-preview-elements input[type=number], .super-preview-elements input[type=email], .super-preview-elements input[type=tel], .super-preview-elements input[type=url], .super-preview-elements input[type=password], .super-preview-elements input[type=search], .super-preview-elements textarea {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  -ms-box-shadow: none;
+  -o-box-shadow: none;
+  box-shadow: none;
+}
+.super-form .super-shortcode-field, .super-preview-elements .super-shortcode-field {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   -ms-box-shadow: none;
@@ -1536,7 +1568,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   float: left;
 }
 
-.super-keyword-tags .super-shortcode-field {
+.super-keyword-tags .super-shortcode-field, .super-keyword-tags input[type=text], .super-keyword-tags input[type=number], .super-keyword-tags input[type=email], .super-keyword-tags input[type=tel], .super-keyword-tags input[type=url], .super-keyword-tags input[type=password], .super-keyword-tags input[type=search], .super-keyword-tags textarea {
   opacity: 0;
 }
 
@@ -1564,7 +1596,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, #EAEAEA), color-stop(1, #EAEAEA)) !important;
 }
 
-.super-icon-inside.super-icon-left .super-shortcode-field, .super-icon-outside.super-icon-left {
+.super-icon-inside.super-icon-left .super-shortcode-field, .super-icon-inside.super-icon-left input[type=text], .super-icon-inside.super-icon-left input[type=number], .super-icon-inside.super-icon-left input[type=email], .super-icon-inside.super-icon-left input[type=tel], .super-icon-inside.super-icon-left input[type=url], .super-icon-inside.super-icon-left input[type=password], .super-icon-inside.super-icon-left input[type=search], .super-icon-inside.super-icon-left textarea {
+  padding-left: 40px;
+}
+
+.super-icon-outside.super-icon-left {
   padding-left: 40px;
 }
 
@@ -1804,7 +1840,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   display: block;
 }
 
-.super-field.super-quantity .super-shortcode-field {
+.super-field.super-quantity .super-shortcode-field, .super-field.super-quantity input[type=text], .super-field.super-quantity input[type=number], .super-field.super-quantity input[type=email], .super-field.super-quantity input[type=tel], .super-field.super-quantity input[type=url], .super-field.super-quantity input[type=password], .super-field.super-quantity input[type=search], .super-field.super-quantity textarea {
   text-align: center;
   padding: 7px 0px;
   border-right: 0;
@@ -2546,7 +2582,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month, .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
   font-size: 16px;
   line-height: 20px;
-  margin: 0px 0px 0px 5px;
+  margin: 0px 3px 0px 3px;
+  padding: 0px 5px;
   min-height: initial;
   background-color: white;
   border: 1px solid #cdcdcd;
@@ -2554,19 +2591,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -moz-border-radius: 0;
   border-radius: 0;
   height: 30px;
-  padding: 0px 5px;
   width: 125px;
-  margin: 0px 0px 0px 0px;
   display: flex;
   align-items: center;
   height: 100%;
-}
-.super-datepicker-dialog .ui-datepicker-header .ui-datepicker-month {
-  margin-left: 5px;
-}
-.super-datepicker-dialog.ui-datepicker-rtl .ui-datepicker-header .ui-datepicker-month {
-  margin-right: 5px;
-  margin-left: 0;
 }
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev, .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
   text-align: center;
@@ -2610,6 +2638,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   border-collapse: collapse;
   margin: 0px;
 }
+.super-datepicker-dialog .ui-datepicker-calendar thead {
+  margin-bottom: 5px;
+}
 .super-datepicker-dialog .ui-datepicker-calendar .ui-datepicker-week-col {
   background-color: #f1f3f4;
   text-align: center;
@@ -2621,21 +2652,38 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-datepicker-dialog .ui-datepicker-calendar tr {
   border: 0px;
+  background: none;
 }
-.super-datepicker-dialog .ui-datepicker-calendar th {
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) th, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) th {
   border: 0px;
-  padding: 10px 0px 0px 0px;
+  padding: 5px 0px 5px 0px;
   text-align: center;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td {
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td {
   padding: 0px;
   margin: 0px;
   text-align: center;
   border: 0;
   width: 40px;
   background: none;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline: 0;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a, .super-datepicker-dialog .ui-datepicker-calendar td span {
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td:hover, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td:hover {
+  background-color: #f1f3f4;
+}
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-disabled:hover, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-disabled:hover {
+  background: none;
+}
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td a, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td span, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td a, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td span {
   color: #444444;
   width: 40px;
   height: 40px;
@@ -2650,32 +2698,52 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -ms-user-select: none;
   user-select: none;
   outline: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  -ms-box-shadow: none;
+  -o-box-shadow: none;
+  box-shadow: none;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-highlight, .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-highlight {
-  background-color: #1a73e8;
-  color: white;
-  -webkit-border-radius: 50px;
-  -moz-border-radius: 50px;
-  border-radius: 50px;
-}
-.super-datepicker-dialog .ui-datepicker-calendar td a:hover, .super-datepicker-dialog .ui-datepicker-calendar td span:hover {
-  background-color: #f1f3f4;
-  color: #444444;
-  -webkit-border-radius: 50px;
-  -moz-border-radius: 50px;
-  border-radius: 50px;
-}
-.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active, .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-active {
-  -webkit-border-radius: 50px;
-  -moz-border-radius: 50px;
-  border-radius: 50px;
-  color: #185abc;
-  background-color: #d2e3fc;
-}
-.super-datepicker-dialog .ui-datepicker-calendar td.ui-datepicker-unselectable.ui-state-disabled span {
+.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-unselectable.ui-state-disabled span, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-unselectable.ui-state-disabled span {
   opacity: 0.5;
   background: none;
   cursor: not-allowed;
+}
+
+.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight.ui-datepicker-current-day, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight.ui-datepicker-current-day, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight {
+  color: #185abc;
+  background-color: #d2e3fc;
+}
+.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today {
+  color: white;
+  background-color: #1a73e8;
+}
+.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today:hover, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today:hover {
+  background-color: #1a73e8;
+}
+.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today.ui-state-disabled, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today.ui-state-disabled {
+  opacity: 0.5;
+}
+.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today a, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today span, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today a, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today span {
+  color: white;
+}
+
+.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-current-day, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-current-day, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight {
+  color: #185abc;
+  background-color: #d2e3fc;
+}
+.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today {
+  color: white;
+  background-color: #1a73e8;
+}
+.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today:hover, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today:hover {
+  background-color: #1a73e8;
+}
+.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today.ui-state-disabled, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today.ui-state-disabled {
+  opacity: 0.5;
+}
+.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today a, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today span, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today a, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today span {
+  color: white;
 }
 
 .ui-timepicker-wrapper.super-timepicker-dialog {
@@ -3444,61 +3512,52 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: none;
 }
 
-.super-shortcode-field {
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  border-radius: 0px;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  outline: none !important;
-}
-
-.super-form.super-full-rounded .super-shortcode-field, .super-form.super-full-rounded .super-icon-outside .super-icon, .super-form.super-full-rounded .super-fileupload-button, .super-form.super-full-rounded .super-autosuggest-tags {
+.super-full-rounded .super-shortcode-field, .super-full-rounded input[type=text], .super-full-rounded input[type=number], .super-full-rounded input[type=email], .super-full-rounded input[type=tel], .super-full-rounded input[type=url], .super-full-rounded input[type=password], .super-full-rounded input[type=search], .super-full-rounded textarea, .super-full-rounded .super-icon-outside .super-icon, .super-full-rounded .super-fileupload-button, .super-full-rounded .super-autosuggest-tags {
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
-.super-form.super-full-rounded .super-dropdown-ui {
+.super-full-rounded .super-dropdown-ui {
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
-.super-form.super-full-rounded .super-dropdown-ui .super-placeholder {
+.super-full-rounded .super-dropdown-ui .super-placeholder {
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
-.super-form.super-full-rounded .super-focus .super-dropdown-ui {
+.super-full-rounded .super-focus .super-dropdown-ui {
   -webkit-border-radius: 16px;
   -moz-border-radius: 16px;
   border-radius: 16px;
 }
-.super-form.super-full-rounded .super-focus .super-dropdown-ui .super-placeholder {
+.super-full-rounded .super-focus .super-dropdown-ui .super-placeholder {
   -webkit-border-radius: 16px;
   -moz-border-radius: 16px;
   border-radius: 16px;
 }
-.super-form.super-full-rounded > p {
+.super-full-rounded > p {
   -webkit-border-radius: 4px;
   -moz-border-radius: 4px;
   border-radius: 4px;
 }
-.super-form.super-full-rounded ul.super-multipart-steps .super-multipart-step {
+.super-full-rounded ul.super-multipart-steps .super-multipart-step {
   -webkit-border-radius: 100%;
   -moz-border-radius: 100%;
   border-radius: 100%;
 }
-.super-form.super-full-rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
+.super-full-rounded ul.super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
   -webkit-border-radius: 100%;
   -moz-border-radius: 100%;
   border-radius: 100%;
 }
-.super-form.super-full-rounded .super-multipart-progress-inner, .super-form.super-full-rounded .super-multipart-progress-bar {
+.super-full-rounded .super-multipart-progress-inner, .super-full-rounded .super-multipart-progress-bar {
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
 }
+
 .super-form .wp-editor-wrap .wp-editor-tools {
   float: left;
   width: 100%;
@@ -3589,13 +3648,13 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   text-align: right;
 }
 
-.super-rtl .super-field .super-label, .super-rtl .super-field .super-group-title, .super-rtl .super-field .super-description, .super-rtl .super-field .super-shortcode-field, .super-rtl .super-field .super-keyword-filter {
+.super-rtl .super-field .super-label, .super-rtl .super-field .super-group-title, .super-rtl .super-field .super-description, .super-rtl .super-field .super-shortcode-field, .super-rtl .super-field input[type=text], .super-rtl .super-field input[type=number], .super-rtl .super-field input[type=email], .super-rtl .super-field input[type=tel], .super-rtl .super-field input[type=url], .super-rtl .super-field input[type=password], .super-rtl .super-field input[type=search], .super-rtl .super-field textarea, .super-rtl .super-field .super-keyword-filter {
   text-align: right;
 }
 .super-rtl .super-html-content {
   text-align: right;
 }
-.super-rtl .super-field.super-quantity .super-shortcode-field {
+.super-rtl .super-field.super-quantity .super-shortcode-field, .super-rtl .super-field.super-quantity input[type=text], .super-rtl .super-field.super-quantity input[type=number], .super-rtl .super-field.super-quantity input[type=email], .super-rtl .super-field.super-quantity input[type=tel], .super-rtl .super-field.super-quantity input[type=url], .super-rtl .super-field.super-quantity input[type=password], .super-rtl .super-field.super-quantity input[type=search], .super-rtl .super-field.super-quantity textarea {
   text-align: center;
 }
 .super-rtl .super-quantity .super-minus-button, .super-rtl .super-quantity .super-field-wrapper, .super-rtl .super-quantity .super-plus-button {
@@ -3944,7 +4003,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium.super-full-rounded .super-icon-inside.super-icon-left .super-dropdown-ui li, .super-field-size-medium.super-default-rounded .super-icon-inside.super-icon-left .super-dropdown-ui li {
   padding-left: 45px;
 }
-.super-field-size-medium .super-shortcode-field,
+.super-field-size-medium .super-shortcode-field, .super-field-size-medium input[type=text], .super-field-size-medium input[type=number], .super-field-size-medium input[type=email], .super-field-size-medium input[type=tel], .super-field-size-medium input[type=url], .super-field-size-medium input[type=password], .super-field-size-medium input[type=search], .super-field-size-medium textarea,
 .super-field-size-medium .super-autosuggest-tags,
 .super-field-size-medium .super-keyword-filter,
 .super-field-size-medium .super-stripe-base {
@@ -4082,7 +4141,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   line-height: 33px;
 }
 
-.super-full-rounded.super-field-size-medium .super-shortcode-field {
+.super-full-rounded.super-field-size-medium .super-shortcode-field, .super-full-rounded.super-field-size-medium input[type=text], .super-full-rounded.super-field-size-medium input[type=number], .super-full-rounded.super-field-size-medium input[type=email], .super-full-rounded.super-field-size-medium input[type=tel], .super-full-rounded.super-field-size-medium input[type=url], .super-full-rounded.super-field-size-medium input[type=password], .super-full-rounded.super-field-size-medium input[type=search], .super-full-rounded.super-field-size-medium textarea {
   padding: 0px 20px;
 }
 .super-full-rounded.super-field-size-medium .super-fileupload-files {
@@ -4091,7 +4150,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-full-rounded.super-field-size-medium .super-fileupload-files > div {
   padding: 5px 0px 0px 0px;
 }
-.super-full-rounded.super-field-size-medium .super-field.super-quantity .super-shortcode-field {
+.super-full-rounded.super-field-size-medium .super-field.super-quantity .super-shortcode-field, .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=text], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=number], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=email], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=tel], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=url], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=password], .super-full-rounded.super-field-size-medium .super-field.super-quantity input[type=search], .super-full-rounded.super-field-size-medium .super-field.super-quantity textarea {
   padding: 0px;
 }
 
@@ -4154,8 +4213,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium .display-vertical .super-icon-left {
   padding: 0px 0px 0px 45px;
 }
-.super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left,
-.super-field-size-medium .super-field .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-medium .super-field.super-slider .super-icon-inside.super-icon-left {
+.super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=text], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=number], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=email], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=tel], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=url], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=password], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left input[type=search], .super-field-size-medium .super-field.display-horizontal .super-icon-inside.super-icon-left textarea,
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left .super-shortcode-field,
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=text],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=number],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=email],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=tel],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=url],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=password],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left input[type=search],
+.super-field-size-medium .super-field .super-icon-inside.super-icon-left textarea {
+  padding-left: 35px;
+}
+.super-field-size-medium .super-field.super-slider .super-icon-inside.super-icon-left {
   padding-left: 35px;
 }
 .super-field-size-medium .super-field.super-toggle .super-icon-inside.super-icon-left {
@@ -4183,7 +4253,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   font-size: 14px;
 }
 
-.super-field-size-large .super-shortcode-field,
+.super-field-size-large .super-shortcode-field, .super-field-size-large input[type=text], .super-field-size-large input[type=number], .super-field-size-large input[type=email], .super-field-size-large input[type=tel], .super-field-size-large input[type=url], .super-field-size-large input[type=password], .super-field-size-large input[type=search], .super-field-size-large textarea,
 .super-field-size-large .super-stripe-base {
   height: 43px;
 }
@@ -4324,7 +4394,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   line-height: 43px;
 }
 
-.super-full-rounded.super-field-size-large .super-shortcode-field {
+.super-full-rounded.super-field-size-large .super-shortcode-field, .super-full-rounded.super-field-size-large input[type=text], .super-full-rounded.super-field-size-large input[type=number], .super-full-rounded.super-field-size-large input[type=email], .super-full-rounded.super-field-size-large input[type=tel], .super-full-rounded.super-field-size-large input[type=url], .super-full-rounded.super-field-size-large input[type=password], .super-full-rounded.super-field-size-large input[type=search], .super-full-rounded.super-field-size-large textarea {
   padding: 0px 20px;
 }
 .super-full-rounded.super-field-size-large .super-fileupload-files {
@@ -4333,7 +4403,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-full-rounded.super-field-size-large .super-fileupload-files > div {
   padding: 5px 0px 0px 0px;
 }
-.super-full-rounded.super-field-size-large .super-field.super-quantity .super-shortcode-field {
+.super-full-rounded.super-field-size-large .super-field.super-quantity .super-shortcode-field, .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=text], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=number], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=email], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=tel], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=url], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=password], .super-full-rounded.super-field-size-large .super-field.super-quantity input[type=search], .super-full-rounded.super-field-size-large .super-field.super-quantity textarea {
   padding: 0px;
 }
 
@@ -4396,7 +4466,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-large .display-vertical .super-icon-left {
   padding: 0px 0px 0px 55px;
 }
-.super-field-size-large .super-field.display-horizontal .super-icon-inside.super-icon-left, .super-field-size-large .super-field .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-large .super-field.super-slider .super-icon-inside.super-icon-left {
+.super-field-size-large .super-field.display-horizontal .super-icon-inside.super-icon-left, .super-field-size-large .super-field.super-slider .super-icon-inside.super-icon-left {
+  padding-left: 45px;
+}
+.super-field-size-large .super-field .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=text], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=number], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=email], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=tel], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=url], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=password], .super-field-size-large .super-field .super-icon-inside.super-icon-left input[type=search], .super-field-size-large .super-field .super-icon-inside.super-icon-left textarea {
   padding-left: 45px;
 }
 .super-field-size-large .super-field.super-toggle .super-icon-inside.super-icon-left {
@@ -4430,7 +4503,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-huge.super-default-rounded .super-icon-inside.super-icon-left .super-dropdown-ui li, .super-field-size-huge.super-full-rounded .super-icon-inside.super-icon-left .super-dropdown-ui li {
   padding-left: 50px;
 }
-.super-field-size-huge .super-shortcode-field {
+.super-field-size-huge .super-shortcode-field, .super-field-size-huge input[type=text], .super-field-size-huge input[type=number], .super-field-size-huge input[type=email], .super-field-size-huge input[type=tel], .super-field-size-huge input[type=url], .super-field-size-huge input[type=password], .super-field-size-huge input[type=search], .super-field-size-huge textarea {
   height: 53px;
 }
 .super-field-size-huge .super-icon-outside .super-icon, .super-field-size-huge .super-icon-inside .super-icon {
@@ -4576,7 +4649,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   line-height: 53px;
 }
 
-.super-full-rounded.super-field-size-huge .super-shortcode-field {
+.super-full-rounded.super-field-size-huge .super-shortcode-field, .super-full-rounded.super-field-size-huge input[type=text], .super-full-rounded.super-field-size-huge input[type=number], .super-full-rounded.super-field-size-huge input[type=email], .super-full-rounded.super-field-size-huge input[type=tel], .super-full-rounded.super-field-size-huge input[type=url], .super-full-rounded.super-field-size-huge input[type=password], .super-full-rounded.super-field-size-huge input[type=search], .super-full-rounded.super-field-size-huge textarea {
   padding: 0px 25px;
 }
 .super-full-rounded.super-field-size-huge .super-dropdown-ui .super-item {
@@ -4588,7 +4661,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-full-rounded.super-field-size-huge .super-fileupload-files > div {
   padding: 5px 0px 0px 0px;
 }
-.super-full-rounded.super-field-size-huge .super-field.super-quantity .super-shortcode-field {
+.super-full-rounded.super-field-size-huge .super-field.super-quantity .super-shortcode-field, .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=text], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=number], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=email], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=tel], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=url], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=password], .super-full-rounded.super-field-size-huge .super-field.super-quantity input[type=search], .super-full-rounded.super-field-size-huge .super-field.super-quantity textarea {
   padding: 0px;
 }
 
@@ -4640,10 +4713,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   height: 51px;
   padding: 0px 0px 0px 15px;
 }
-.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field {
+.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-huge .super-icon-inside.super-icon-left input[type=text], .super-field-size-huge .super-icon-inside.super-icon-left input[type=number], .super-field-size-huge .super-icon-inside.super-icon-left input[type=email], .super-field-size-huge .super-icon-inside.super-icon-left input[type=tel], .super-field-size-huge .super-icon-inside.super-icon-left input[type=url], .super-field-size-huge .super-icon-inside.super-icon-left input[type=password], .super-field-size-huge .super-icon-inside.super-icon-left input[type=search], .super-field-size-huge .super-icon-inside.super-icon-left textarea {
   padding-left: 70px;
 }
-.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field .super-item {
+.super-field-size-huge .super-icon-inside.super-icon-left .super-shortcode-field .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=text] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=number] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=email] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=tel] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=url] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=password] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left input[type=search] .super-item, .super-field-size-huge .super-icon-inside.super-icon-left textarea .super-item {
   padding: 0px 0px 0px 50px;
 }
 .super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-icon-inside {
@@ -4656,7 +4729,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-huge .super-field.display-horizontal .super-icon-inside.super-icon-left {
   padding-left: 65px;
 }
-.super-field-size-huge .super-field .super-icon-inside.super-icon-left .super-shortcode-field {
+.super-field-size-huge .super-field .super-icon-inside.super-icon-left .super-shortcode-field, .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=text], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=number], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=email], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=tel], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=url], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=password], .super-field-size-huge .super-field .super-icon-inside.super-icon-left input[type=search], .super-field-size-huge .super-field .super-icon-inside.super-icon-left textarea {
   padding-left: 50px;
 }
 .super-field-size-huge .super-field.super-slider .super-icon-inside.super-icon-left {
@@ -4691,7 +4764,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: none;
 }
 
-.super-overlap .super-shortcode-field {
+.super-overlap .super-shortcode-field, .super-overlap input[type=text], .super-overlap input[type=number], .super-overlap input[type=email], .super-overlap input[type=tel], .super-overlap input[type=url], .super-overlap input[type=password], .super-overlap input[type=search], .super-overlap textarea {
   visibility: hidden;
 }
 
@@ -4780,15 +4853,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .super-window-first-responsiveness .super-shortcode-field:focus, .super-window-second-responsiveness .super-shortcode-field:focus {
+  .super-window-first-responsiveness .super-shortcode-field:focus, .super-window-first-responsiveness input[type=text]:focus, .super-window-first-responsiveness input[type=number]:focus, .super-window-first-responsiveness input[type=email]:focus, .super-window-first-responsiveness input[type=tel]:focus, .super-window-first-responsiveness input[type=url]:focus, .super-window-first-responsiveness input[type=password]:focus, .super-window-first-responsiveness input[type=search]:focus, .super-window-first-responsiveness textarea:focus {
     font-size: 16px;
   }
 
-  .super-window-first-responsiveness .super-shortcode-field, .super-window-first-responsiveness .super-item, .super-window-first-responsiveness .super-checkbox .super-item, .super-window-first-responsiveness .super-radio .super-item, .super-window-first-responsiveness .super-fileupload-button span {
+  .super-window-second-responsiveness .super-shortcode-field:focus, .super-window-second-responsiveness input[type=text]:focus, .super-window-second-responsiveness input[type=number]:focus, .super-window-second-responsiveness input[type=email]:focus, .super-window-second-responsiveness input[type=tel]:focus, .super-window-second-responsiveness input[type=url]:focus, .super-window-second-responsiveness input[type=password]:focus, .super-window-second-responsiveness input[type=search]:focus, .super-window-second-responsiveness textarea:focus {
     font-size: 16px;
   }
 
-  .super-window-second-responsiveness .super-shortcode-field, .super-window-second-responsiveness .super-item, .super-window-second-responsiveness .super-checkbox .super-item, .super-window-second-responsiveness .super-radio .super-item, .super-window-second-responsiveness .super-fileupload-button span {
+  .super-window-first-responsiveness .super-shortcode-field, .super-window-first-responsiveness input[type=text], .super-window-first-responsiveness input[type=number], .super-window-first-responsiveness input[type=email], .super-window-first-responsiveness input[type=tel], .super-window-first-responsiveness input[type=url], .super-window-first-responsiveness input[type=password], .super-window-first-responsiveness input[type=search], .super-window-first-responsiveness textarea, .super-window-first-responsiveness .super-item, .super-window-first-responsiveness .super-checkbox .super-item, .super-window-first-responsiveness .super-radio .super-item, .super-window-first-responsiveness .super-fileupload-button span {
+    font-size: 16px;
+  }
+
+  .super-window-second-responsiveness .super-shortcode-field, .super-window-second-responsiveness input[type=text], .super-window-second-responsiveness input[type=number], .super-window-second-responsiveness input[type=email], .super-window-second-responsiveness input[type=tel], .super-window-second-responsiveness input[type=url], .super-window-second-responsiveness input[type=password], .super-window-second-responsiveness input[type=search], .super-window-second-responsiveness textarea, .super-window-second-responsiveness .super-item, .super-window-second-responsiveness .super-checkbox .super-item, .super-window-second-responsiveness .super-radio .super-item, .super-window-second-responsiveness .super-fileupload-button span {
     font-size: 16px;
   }
 }

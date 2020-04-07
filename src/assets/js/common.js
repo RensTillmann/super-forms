@@ -2032,6 +2032,19 @@ function SUPERreCaptcha(){
                 if( parseFloat(el.value) > parseFloat(attr) ) error = true;
             }
         }
+
+        // Datepicker min dates
+        if(parent.classList.contains('super-date')){
+            attr = el.dataset.minpicks;
+            if (typeof attr !== 'undefined' && attr !== false) {
+                if( parseInt(attr,10)>0 ) {
+                    if(el.value==='') error = true;
+                    total = el.value.split(',').length;
+                    if( total < parseFloat(attr) ) error = true;
+                }
+            }
+        }
+
         // @since   1.0.6
         logic = conditionalValidation;
         if( typeof logic!=='undefined' && logic!='none' && logic!=='' ) {
@@ -2103,7 +2116,7 @@ function SUPERreCaptcha(){
                 el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
             }
             // Add error class to TABS
-            if(el.closest('.super-tabs-content')){
+            if(el.closest('.super-tabs')){
                 index = $(el.closest('.super-tabs-content')).index();
                 if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
                     el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.add('super-error');
@@ -2125,7 +2138,7 @@ function SUPERreCaptcha(){
                 }
         }
         // Remove error class from TABS
-        if( el.closest('.super-tabs-content') && 
+        if( el.closest('.super-tabs') && 
             !el.closest('.super-tabs-content').querySelector('.super-error-active')){
                 index = $(el.closest('.super-tabs-content')).index();
                 if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){

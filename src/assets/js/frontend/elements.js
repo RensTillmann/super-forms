@@ -234,6 +234,7 @@
                 weekends,
                 regex = /\{(.*?)\}/g,
                 range = el.dataset.range,
+                maxPicks =(el.dataset.maxpicks ? parseInt(el.dataset.maxpicks, 10) : 1),
                 firstDay = el.dataset.firstDay,
                 localization = el.dataset.localization,
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
@@ -305,7 +306,14 @@
                 el.dataset.mathAge = '0';
             }
 
-            $(el).datepicker({
+            var multiDatesClassName = '',
+                singleDatesClassName = '';
+            if(maxPicks>1){
+                multiDatesClassName = 'super-datepicker-multidates';
+            }else{
+                singleDatesClassName = 'super-datepicker-singledates';
+            }
+            var options = {
                 onClose: function( selectedDate ) {
                     SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
                 },
@@ -377,6 +385,8 @@
                 beforeShow: function(input, inst) {
                     widget = $(inst).datepicker('widget');
                     widget[0].classList.add('super-datepicker-dialog');
+                    if(multiDatesClassName!=='') widget[0].classList.add(multiDatesClassName);
+                    if(singleDatesClassName!=='') widget[0].classList.add(singleDatesClassName);
                     $('.super-datepicker[data-connected-min="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
                             connectedMinDays = $(this).data('connected-min-days');
@@ -418,7 +428,13 @@
                 yearSuffix: '',
                 showOtherMonths: showOtherMonths,
                 selectOtherMonths: selectOtherMonths
-            });
+            };
+            if(maxPicks>1){
+                options.maxPicks = maxPicks;
+                $(el).multiDatesPicker(options);
+            }else{
+                $(el).datepicker(options);
+            }
 
             // @since 4.9.3 - Datepicker localization (language and format)
             if(localization!==''){

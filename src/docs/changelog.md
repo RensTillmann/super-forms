@@ -1,7 +1,10 @@
 # Super Forms - Changelog
 
-## Apr 07, 2020 - Version 4.9.411
+## Apr 08, 2020 - Version 4.9.412
 
+- **Added:** Two new options for datepicker element to allow users to select multiple dates independently from eachother
+  - `Allow user to choose a maximum of X dates` _Defaults to 1, which allows a user to only pick 1 date)_
+  - `Require user to choose a minimum of X dates` _(Defaults to 0, which allows a user to pick no date at all)_
 - **Fix:** Conflict when using multiple datepickers and one of them had `Allow users to select work days` or `Allow users to select weekends` disabled causing dates for other datepickers to be affected
 
 ## Apr 03, 2020 - Version 4.9.410

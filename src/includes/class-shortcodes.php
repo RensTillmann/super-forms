@@ -3620,8 +3620,9 @@ class SUPER_Shortcodes {
         // @since 4.9.3 - datepicker localizations
         if(empty($atts['localization'])) $atts['localization'] = '';
         if(!empty($atts['localization'])){
-            wp_enqueue_script( 'jquery-ui-datepicker-' . $atts['localization'], SUPER_PLUGIN_FILE . 'assets/js/frontend/datepicker/i18n/datepicker-' . $atts['localization'] . '.js' );
+            wp_enqueue_script( 'jquery-ui-datepicker-' . $atts['localization'], SUPER_PLUGIN_FILE . 'assets/js/frontend/datepicker/i18n/datepicker-' . $atts['localization'] . '.js', array(), SUPER_VERSION );
         }
+        wp_enqueue_script( 'jquery-ui-multidatespicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/datepicker/jquery-ui.multidatespicker.js', array('jquery-ui-datepicker'), SUPER_VERSION );
 
         if( !isset( $atts['value'] ) ) $atts['value'] = '';
 
@@ -3755,7 +3756,13 @@ class SUPER_Shortcodes {
         if( !empty($atts['weekends']) ) {
             $result .= 'data-weekends="true"';
         }
-
+        // @since 4.9.5 - Allow user to choose multiple dates
+        if( !empty($atts['maxPicks']) ) {
+            $result .= 'data-maxPicks="' . esc_attr($atts['maxPicks']) . '"';
+        }
+        if( !empty($atts['minPicks']) ) {
+            $result .= 'data-minPicks="' . esc_attr($atts['minPicks']) . '"';
+        }
         // @since 3.6.0 - Exclude specific days
         if( isset($atts['excl_days']) && $atts['excl_days']!='' ) {
             $result .= 'data-excl-days="' . esc_attr($atts['excl_days']) . '"';

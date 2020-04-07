@@ -3,6 +3,8 @@
 
 $fontAwesome: 'Font Awesome 5 Free'
 $fontAwesomeBrands: 'Font Awesome 5 Brands'
+$formFields: 'input[type="text"],input[type="number"],input[type="email"],input[type="tel"],input[type="url"],input[type="password"],input[type="search"],textarea'
+$formFieldsFocus: 'input[type="text"]:focus,input[type="number"]:focus,input[type="email"]:focus,input[type="tel"]:focus,input[type="url"]:focus,input[type="password"]:focus,input[type="search"]:focus,textarea:focus'
 
 =fontAwesome($weight)
   font-family: $fontAwesome
@@ -359,7 +361,7 @@ h1.super-thanks-title
         line-height: 15px
       &:hover:after
         color: #246569
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     float: left
     width: 50%
     +borderRadius(0px!important)
@@ -384,7 +386,7 @@ h1.super-thanks-title
   margin-right: 15px
 
 .super-field-size-medium .super-autosuggest-tags
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
     padding: 1px 25px 1px 10px
@@ -398,7 +400,7 @@ h1.super-thanks-title
     margin: 6px 6px 6px 0px
 
 .super-field-size-large .super-autosuggest-tags
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
     padding: 6px 25px 6px 10px
@@ -412,7 +414,7 @@ h1.super-thanks-title
     margin: 6px 10px 6px 0px
 
 .super-field-size-huge .super-autosuggest-tags
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
     padding: 11px 30px 11px 15px
@@ -499,7 +501,7 @@ h1.super-thanks-title
     cursor: default
     z-index: 2
     height: 100%
-  input.super-shortcode-field
+  input.super-shortcode-field,#{$formFields}
     width: 0px
   &.super-string-found 
     .super-item, .super-no-results
@@ -998,13 +1000,13 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 50px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 35px
   &.super-default-rounded,&.super-full-rounded
     .super-icon-inside.super-icon-right
       .super-adaptive-placeholder
         padding-right: 50px
-      .super-shortcode-field
+      .super-shortcode-field,#{$formFields}
         padding-right: 35px
 
 // RTL - LARGE - ICONS INSIDE - ICONS RIGHT
@@ -1012,13 +1014,13 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 60px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 45px
   &.super-default-rounded,&.super-full-rounded
     .super-icon-inside.super-icon-right
       .super-adaptive-placeholder
         padding-right: 55px
-      .super-shortcode-field
+      .super-shortcode-field,#{$formFields}
         padding-right: 40px
 
 
@@ -1027,13 +1029,13 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 70px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 55px
   &.super-default-rounded,&.super-full-rounded
     .super-icon-inside.super-icon-right
       .super-adaptive-placeholder
         padding-right: 65px
-      .super-shortcode-field
+      .super-shortcode-field,#{$formFields}
         padding-right: 50px
 
 // RTL - MEDIUM - ICONS OUTSIDE - ICONS RIGHT
@@ -1041,7 +1043,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 75px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 15px
 
 // RTL - LARGE - ICONS OUTSIDE - ICONS RIGHT
@@ -1049,7 +1051,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 90px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 20px
 
 
@@ -1059,7 +1061,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-right
     .super-adaptive-placeholder
       padding-right: 100px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 20px
 
 
@@ -1068,7 +1070,7 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 60px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 15px
 
 
@@ -1077,7 +1079,7 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 70px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 15px
 
 
@@ -1086,7 +1088,7 @@ h1.super-thanks-title
   .super-icon-inside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 85px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       padding-right: 15px
 
 
@@ -1095,7 +1097,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 75px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       margin-left: 45px
 
 // RTL - LARGE - ICONS OUTSIDE - ICONS LEFT
@@ -1103,7 +1105,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 85px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       margin-left: 55px
 
 
@@ -1112,7 +1114,7 @@ h1.super-thanks-title
   .super-icon-outside.super-icon-left
     .super-adaptive-placeholder
       padding-right: 95px
-    .super-shortcode-field
+    .super-shortcode-field,#{$formFields}
       margin-left: 65px
   &.super-full-rounded
     .super-icon-outside.super-icon-left
@@ -1314,23 +1316,37 @@ textarea
   left: initial
   right: 0px
 
-.super-shortcode-field,
-.super-captcha .captcha
-  width: 100%
-  margin: 0px
-  padding: 0px 15px
-  font-size: 12px
-  height: 33px
-  min-height: 33px
-  line-height: normal
-  +borderRadius(0px)
+.super-form,
+.super-preview-elements,
+.super-create-form
+  input,
+  select,
+  textarea
+    outline: none
+    &:focus
+      outline: none
 
-.super-shortcode-field
-  +boxShadow(none)
-  float: left
+.super-form,.super-preview-elements
+  .super-shortcode-field,#{$formFields},.super-captcha .captcha
+    width: 100%
+    margin: 0px
+    padding: 0px 15px
+    font-size: 12px
+    height: 33px
+    min-height: 33px
+    line-height: normal
+    +borderRadius(0px)
+    +boxSizing(border-box)
+    outline: none!important
+  #{$formFields}
+    +boxShadow(none)
+  .super-shortcode-field
+    +boxShadow(none)
+    float: left
 
-.super-keyword-tags .super-shortcode-field
-  opacity: 0
+.super-keyword-tags
+  .super-shortcode-field,#{$formFields}
+    opacity: 0
 
 .super-transparent-fields
   input, .super-dropdown-ui,
@@ -1353,7 +1369,10 @@ textarea
   background-color: #EAEAEA
   border: 1px solid #CDCDCD
   background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0.25, #EAEAEA), color-stop(1, #EAEAEA)) !important
-.super-icon-inside.super-icon-left .super-shortcode-field, .super-icon-outside.super-icon-left
+.super-icon-inside.super-icon-left
+  .super-shortcode-field,#{$formFields}
+    padding-left: 40px
+.super-icon-outside.super-icon-left
   padding-left: 40px
 
 .super-rtl .super-icon-outside.super-icon-left
@@ -1551,12 +1570,13 @@ textarea
   &.super-active:after
     display: block
 
-.super-field.super-quantity .super-shortcode-field
-  text-align: center
-  padding: 7px 0px
-  border-right: 0
-  border-left: 0
-  float: left
+.super-field.super-quantity
+  .super-shortcode-field,#{$formFields}
+    text-align: center
+    padding: 7px 0px
+    border-right: 0
+    border-left: 0
+    float: left
 
 .super-quantity
   .super-minus-button i, .super-plus-button i
@@ -2163,23 +2183,17 @@ textarea
     .ui-datepicker-month, .ui-datepicker-year
       font-size: 16px
       line-height: 20px
-      margin: 0px 0px 0px 5px
+      margin: 0px 3px 0px 3px
+      padding: 0px 5px
       min-height: initial
       background-color: white
       border: 1px solid #cdcdcd
       +borderRadius(0)
       height: 30px
-      padding: 0px 5px
       width: 125px
-      margin: 0px 0px 0px 0px
       display: flex
       align-items: center
       height: 100%
-    .ui-datepicker-month
-      margin-left: 5px
-  &.ui-datepicker-rtl .ui-datepicker-header .ui-datepicker-month
-    margin-right: 5px
-    margin-left: 0
   .ui-datepicker-header
     .ui-datepicker-prev, .ui-datepicker-next
       text-align: center
@@ -2210,6 +2224,8 @@ textarea
     border: 0px
     border-collapse: collapse
     margin: 0px
+    thead
+      margin-bottom: 5px
     .ui-datepicker-week-col
       background-color: #f1f3f4
       text-align: center
@@ -2219,44 +2235,82 @@ textarea
       opacity: 0.5
     tr
       border: 0px
-    th
-      border: 0px
-      padding: 10px 0px 0px 0px
-      text-align: center
-    td
-      padding: 0px
-      margin: 0px
-      text-align: center
-      border: 0
-      width: 40px
       background: none
-      a,span
-        color: #444444
-        width: 40px
-        height: 40px
-        display: flex
-        justify-content: center
-        align-items: center
-        text-decoration: none
-        +userSelect(none)
-        &.ui-state-highlight
-          background-color: #1a73e8
-          color: white
-          +borderRadius(50px)
-        &:hover
-          background-color: #f1f3f4
-          color: #444444
-          +borderRadius(50px)
-        &.ui-state-active
-          +borderRadius(50px)
-          color: #185abc
-          background-color: #d2e3fc
-      &.ui-datepicker-unselectable.ui-state-disabled 
-        span
-          opacity: 0.5
+      &:nth-child(2n),
+      &:nth-child(1n)
+        th
+          border: 0px
+          padding: 5px 0px 5px 0px
+          text-align: center
+        td
+          padding: 0px
+          margin: 0px
+          text-align: center
+          border: 0
+          width: 40px
           background: none
-          cursor: not-allowed
+          +borderRadius(50px)
+          +userSelect(none)
+          &:hover
+            background-color: #f1f3f4
+          &.ui-state-disabled:hover
+            background: none
+          a,span
+            color: #444444
+            width: 40px
+            height: 40px
+            display: flex
+            justify-content: center
+            align-items: center
+            text-decoration: none
+            +userSelect(none)
+            +boxShadow(none)
+          &.ui-datepicker-unselectable.ui-state-disabled 
+            span
+              opacity: 0.5
+              background: none
+              cursor: not-allowed
 
+.super-datepicker-multidates
+  .ui-datepicker-calendar
+    tr
+      &:nth-child(2n),
+      &:nth-child(1n)
+        td
+          &.ui-state-highlight.ui-datepicker-current-day,
+          &.ui-state-highlight
+            color: #185abc
+            background-color: #d2e3fc
+          &.ui-datepicker-today
+            color: white
+            background-color: #1a73e8
+            &:hover
+              background-color: #1a73e8
+            &.ui-state-disabled
+              opacity: 0.5
+            a,span
+              color: white
+
+.super-datepicker-singledates
+  .ui-datepicker-calendar
+    tr
+      &:nth-child(2n),
+      &:nth-child(1n)
+        td
+          &.ui-datepicker-current-day,
+          &.ui-state-highlight
+            color: #185abc
+            background-color: #d2e3fc
+          &.ui-datepicker-today
+            color: white
+            background-color: #1a73e8
+            &:hover
+              background-color: #1a73e8
+            &.ui-state-disabled
+              opacity: 0.5
+            a,span
+              color: white
+          
 .ui-timepicker-wrapper.super-timepicker-dialog
   overflow-y: auto
   height: 150px
@@ -2793,32 +2847,29 @@ ul.super-multipart-steps .super-multipart-step
   .super-multipart-step-name, .super-multipart-step-description
     display: none
 
-.super-shortcode-field
-  +borderRadius(0px)
-  +boxSizing(border-box)
-  outline: none!important
 
-.super-form
-  &.super-full-rounded
-    .super-shortcode-field, .super-icon-outside .super-icon, .super-fileupload-button, .super-autosuggest-tags
+.super-full-rounded
+  .super-shortcode-field,#{$formFields}, .super-icon-outside .super-icon, .super-fileupload-button, .super-autosuggest-tags
+    +borderRadius(50px)
+  .super-dropdown-ui
+    .super-placeholder
       +borderRadius(50px)
+    +borderRadius(50px)
+  .super-focus
     .super-dropdown-ui
       .super-placeholder
-        +borderRadius(50px)
-      +borderRadius(50px)
-    .super-focus
-      .super-dropdown-ui
-        .super-placeholder
-          +borderRadius(16px)
         +borderRadius(16px)
-    > p
-      +borderRadius(4px)
-    ul.super-multipart-steps .super-multipart-step
-      .super-multipart-step-wrapper
-        +borderRadius(100%)
+      +borderRadius(16px)
+  > p
+    +borderRadius(4px)
+  ul.super-multipart-steps .super-multipart-step
+    .super-multipart-step-wrapper
       +borderRadius(100%)
-    .super-multipart-progress-inner, .super-multipart-progress-bar
-      +borderRadius(15px)
+    +borderRadius(100%)
+  .super-multipart-progress-inner, .super-multipart-progress-bar
+    +borderRadius(15px)
+
+.super-form
   .wp-editor-wrap .wp-editor-tools
     float: left
     width: 100%
@@ -2892,12 +2943,13 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-rtl
   .super-field
-    .super-label, .super-group-title, .super-description, .super-shortcode-field, .super-keyword-filter
+    .super-label, .super-group-title, .super-description, .super-shortcode-field,#{$formFields}, .super-keyword-filter
       text-align: right
   .super-html-content
     text-align: right
-  .super-field.super-quantity .super-shortcode-field
-    text-align: center
+  .super-field.super-quantity 
+    .super-shortcode-field,#{$formFields}
+      text-align: center
   .super-quantity
     .super-minus-button, .super-field-wrapper, .super-plus-button
       float: right
@@ -3159,7 +3211,7 @@ ul.super-multipart-steps .super-multipart-step
     margin-left: 0px
     li
       padding-left: 45px
-  .super-shortcode-field,
+  .super-shortcode-field,#{$formFields},
   .super-autosuggest-tags,
   .super-keyword-filter,
   .super-stripe-base
@@ -3279,14 +3331,15 @@ ul.super-multipart-steps .super-multipart-step
     line-height: 33px
 
 .super-full-rounded.super-field-size-medium
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     padding: 0px 20px
   .super-fileupload-files
     padding: 0px 0px 0px 15px
     > div
       padding: 5px 0px 0px 0px
-  .super-field.super-quantity .super-shortcode-field
-    padding: 0px
+  .super-field.super-quantity
+    .super-shortcode-field,#{$formFields}
+      padding: 0px
 
 .super-field-size-medium
   .super-icon-outside.super-icon-left, .super-slider .super-icon-left span.amount
@@ -3339,7 +3392,9 @@ ul.super-multipart-steps .super-multipart-step
     padding: 0px 0px 0px 45px
   .super-field
     &.display-horizontal .super-icon-inside.super-icon-left,
-    .super-icon-inside.super-icon-left .super-shortcode-field,
+    .super-icon-inside.super-icon-left 
+      .super-shortcode-field,#{$formFields}
+        padding-left: 35px
     &.super-slider .super-icon-inside.super-icon-left
       padding-left: 35px
     &.super-toggle .super-icon-inside.super-icon-left
@@ -3361,7 +3416,7 @@ ul.super-multipart-steps .super-multipart-step
       font-size: 14px
 
 .super-field-size-large
-  .super-shortcode-field,
+  .super-shortcode-field,#{$formFields},
   .super-stripe-base
     height: 43px
   .super-icon
@@ -3483,14 +3538,15 @@ ul.super-multipart-steps .super-multipart-step
     line-height: 43px
 
 .super-full-rounded.super-field-size-large
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     padding: 0px 20px
   .super-fileupload-files
     padding: 0px 0px 0px 15px
     > div
       padding: 5px 0px 0px 0px
-  .super-field.super-quantity .super-shortcode-field
-    padding: 0px
+  .super-field.super-quantity
+    .super-shortcode-field,#{$formFields}
+      padding: 0px
 
 .super-field-size-large
   .super-icon-outside.super-icon-left, .super-slider .super-icon-left span.amount
@@ -3542,8 +3598,12 @@ ul.super-multipart-steps .super-multipart-step
   .display-vertical .super-icon-left
     padding: 0px 0px 0px 55px
   .super-field
-    &.display-horizontal .super-icon-inside.super-icon-left, .super-icon-inside.super-icon-left .super-shortcode-field, &.super-slider .super-icon-inside.super-icon-left
+    &.display-horizontal .super-icon-inside.super-icon-left,
+    &.super-slider .super-icon-inside.super-icon-left
       padding-left: 45px
+    .super-icon-inside.super-icon-left
+      .super-shortcode-field,#{$formFields}
+        padding-left: 45px
     &.super-toggle .super-icon-inside.super-icon-left
       padding-left: 42px
     .super-icon-outside.super-icon-right, &.super-slider .super-icon-inside.super-icon-right
@@ -3567,7 +3627,7 @@ ul.super-multipart-steps .super-multipart-step
     margin-left: 0px
     li
       padding-left: 50px
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     height: 53px
   .super-icon-outside .super-icon, .super-icon-inside .super-icon
     width: 53px
@@ -3692,7 +3752,7 @@ ul.super-multipart-steps .super-multipart-step
     line-height: 53px
 
 .super-full-rounded.super-field-size-huge
-  .super-shortcode-field
+  .super-shortcode-field,#{$formFields}
     padding: 0px 25px
   .super-dropdown-ui .super-item
     padding: 0px 0px 0px 25px
@@ -3700,8 +3760,9 @@ ul.super-multipart-steps .super-multipart-step
     padding: 0px 0px 0px 15px
     > div
       padding: 5px 0px 0px 0px
-  .super-field.super-quantity .super-shortcode-field
-    padding: 0px
+  .super-field.super-quantity
+    .super-shortcode-field,#{$formFields}
+      padding: 0px
 
 .super-field-size-huge
   .super-icon-outside.super-icon-left, .super-slider .super-icon-left span.amount
@@ -3744,10 +3805,11 @@ ul.super-multipart-steps .super-multipart-step
     .super-item
       height: 51px
       padding: 0px 0px 0px 15px
-    &.super-icon-left .super-shortcode-field
-      padding-left: 70px
-      .super-item
-        padding: 0px 0px 0px 50px
+    &.super-icon-left 
+      .super-shortcode-field,#{$formFields}
+        padding-left: 70px
+        .super-item
+          padding: 0px 0px 0px 50px
   .super-field.super-dropdown.super-focus-dropdown .super-icon-inside
     height: 53px
     min-height: 53px
@@ -3756,8 +3818,9 @@ ul.super-multipart-steps .super-multipart-step
   .super-field
     &.display-horizontal .super-icon-inside.super-icon-left
       padding-left: 65px
-    .super-icon-inside.super-icon-left .super-shortcode-field
-      padding-left: 50px
+    .super-icon-inside.super-icon-left
+      .super-shortcode-field,#{$formFields}
+        padding-left: 50px
     &.super-slider .super-icon-inside.super-icon-left
       padding-left: 65px
     &.super-toggle .super-icon-inside.super-icon-left
@@ -3781,8 +3844,9 @@ ul.super-multipart-steps .super-multipart-step
 .super-icon-inside.super-icon-left.super-overlap .super-icon
   display: none
 
-.super-overlap .super-shortcode-field
-  visibility: hidden
+.super-overlap
+  .super-shortcode-field,#{$formFields}
+    visibility: hidden
 
 .super-field.super-text .super-overlap .super-dropdown-ui
   display: block
@@ -3866,13 +3930,17 @@ ul.super-multipart-steps .super-multipart-step
 
 
 @media screen and (-webkit-min-device-pixel-ratio: 0)
-  .super-window-first-responsiveness .super-shortcode-field:focus, .super-window-second-responsiveness .super-shortcode-field:focus
-    font-size: 16px
   .super-window-first-responsiveness
-    .super-shortcode-field, .super-item, .super-checkbox .super-item, .super-radio .super-item, .super-fileupload-button span
+    .super-shortcode-field:focus,#{$formFieldsFocus} 
       font-size: 16px
   .super-window-second-responsiveness
-    .super-shortcode-field, .super-item, .super-checkbox .super-item, .super-radio .super-item, .super-fileupload-button span
+    .super-shortcode-field:focus,#{$formFieldsFocus}
+      font-size: 16px
+  .super-window-first-responsiveness
+    .super-shortcode-field,#{$formFields}, .super-item, .super-checkbox .super-item, .super-radio .super-item, .super-fileupload-button span
+      font-size: 16px
+  .super-window-second-responsiveness
+    .super-shortcode-field,#{$formFields}, .super-item, .super-checkbox .super-item, .super-radio .super-item, .super-fileupload-button span
       font-size: 16px
 
 .super-first-responsiveness .super-field

@@ -2612,6 +2612,17 @@ $array['form_elements'] = array(
                             ),
                             'allow_empty' => true, // For backward compatibility with older forms
                         ),
+                        // @since 4.9.2 - allow user to pick multiple dates
+                        'maxPicks' => array(
+                            'name' => esc_html__( 'Allow user to choose a maximum of X dates', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'Defaults to 1, which allows a user to only pick 1 date.', 'super-forms' ), '<br />' ),
+                            'default'=> ( !isset( $attributes['maxPicks'] ) ? '1' : $attributes['maxPicks'] ),
+                        ),
+                        'minPicks' => array(
+                            'name' => esc_html__( 'Require user to choose a minimum of X dates', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'Defaults to 0, which allows a user to pick no date at all.', 'super-forms' ), '<br />' ),
+                            'default'=> ( !isset( $attributes['minPicks'] ) ? '0' : $attributes['minPicks'] ),
+                        ),
                         // @since 3.6.0 - excl specific days from calendar
                         'excl_days' => array(
                             'name' => esc_html__( 'Exclude specific days', 'super-forms' ),
