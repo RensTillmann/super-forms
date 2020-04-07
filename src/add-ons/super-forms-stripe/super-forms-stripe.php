@@ -473,7 +473,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
         // Whe payment intent failed
-        public function payment_intent_payment_failed($paymentIntent){
+        public static function payment_intent_payment_failed($paymentIntent){
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
             if( !is_array($metadata) ) {
                 $metadata = json_decode($metadata, true);
@@ -588,6 +588,7 @@ if(!class_exists('SUPER_Stripe')) :
             return $styles;
         }
         public static function super_enqueue_scripts($scripts){
+            $global_settings = SUPER_Common::get_global_settings();
             $scripts['super-stripe-dashboard'] = array(
                 'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.js',
                 'deps'    => array(),
@@ -598,6 +599,8 @@ if(!class_exists('SUPER_Stripe')) :
                 ),
                 'method'  => 'register', // Register because we need to localize it
                 'localize'=> array(
+                    'sandbox' => ( !empty($global_settings['stripe_mode']) ? 'true' : 'false' ),
+                    'dashboardUrl' => 'https://dashboard.stripe.com' . ( !empty($global_settings['stripe_mode']) ? '/test' : '' ),
                     'refundReasons' => array(
                         'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
                         'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
@@ -1752,20 +1755,10 @@ if(!class_exists('SUPER_Stripe')) :
             }else{
                 try {
                     $paymentIntents = \Stripe\PaymentIntent::all([
-                        // optional
-                        // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
                         'limit' => $limit,
-                        // optional
-                        // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list
                         'starting_after' => $starting_after,
-                        // optional associative array
-                        // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
                         'created' => $created,
-                        // optional
-                        // Only return PaymentIntents for the customer specified by this customer ID.
                         'customer' => $customer,
-                        // optional
-                        // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
                         'ending_before' => $ending_before
                     ]);
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
@@ -1843,20 +1836,9 @@ if(!class_exists('SUPER_Stripe')) :
             }else{
                 try {
                     $customers = \Stripe\Customer::all([
-                        // optional
-                        // A limit on the number of objects to be returned. Limit can range between 1 and 100, and the default is 10.
                         'limit' => $limit,
-                        // optional
-                        // A cursor for use in pagination. starting_after is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, ending with obj_foo, your subsequent call can include starting_after=obj_foo in order to fetch the next page of the list.
                         'starting_after' => $starting_after,
-                        // optional associative array
-                        // A filter on the list based on the object created field. The value can be a string with an integer Unix timestamp, or it can be a dictionary with the following options:
                         'created' => $created,
-                        // optional
-                        // A filter on the list based on the customer’s email field. The value must be a string.
-                        //'email' => $email,
-                        // optional
-                        // A cursor for use in pagination. ending_before is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with obj_bar, your subsequent call can include ending_before=obj_bar in order to fetch the previous page of the list.
                         'ending_before' => $ending_before
                     ]);
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
@@ -1894,6 +1876,71 @@ if(!class_exists('SUPER_Stripe')) :
                 }
             }
             return $customers->data;
+        }
+
+
+        public static function getSubscriptions( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            if($limit==1){
+                try {
+                    $subscriptions->data[] = \Stripe\Customer::retrieve(
+                        $starting_after // in this case it holds the payment intent ID
+                    );
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+            }else{
+                try {
+                    $subscriptions = \Stripe\Subscription::all([
+                        'limit' => $limit,
+                        'starting_after' => $starting_after,
+                        'status' => 'all'
+                    ]);
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+            }
+            foreach($subscriptions->data as $k => $v){
+                // Retrieve subscription pricing (items)
+                try {
+                    foreach($v->items->data as $kk => $vv){
+                        error_log('Product ID: ' . $vv->plan->product, 0);
+                        $product = \Stripe\Product::retrieve($vv->plan->product);
+                        $v->items->data[$kk]->productName = $product->name;
+                    }
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    self::exceptionHandler($e);
+                }
+                //$subscriptions->data[$k]->productName = $product->name;
+                $subscriptions->data[$k]->createdFormatted = date_i18n( 'j M Y, H:i', $subscriptions->data[$k]->created );
+                $subscriptions->data[$k]->raw = json_encode($subscriptions->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                // Search for wordpress user that is connected to this Stripe customer based on customer ID
+                $args = array(
+                    'meta_query' => array(
+                        array(
+                            'key' => 'super_stripe_cus',
+                            'value' => $subscriptions->data[$k]->customer,
+                            'compare' => '='
+                        )
+                    )
+                );
+                $users = get_users($args); // Find all WP users with this meta_key == 'super_stripe_cus' AND 'meta_value' == $subscriptions->data[$k]->customer
+                $userID = 0;
+                if ($users) {
+                    foreach ($users as $user) {
+                        $userID = $user->ID;
+                    }
+                }
+                if($userID!==0){
+                    // Lookup WP user data
+                    $user_info = get_userdata($userID);
+                    if($user_info){
+                        $user_info->data->edit_link = get_edit_user_link($user_info->ID);
+                        $user_info->data->customer_id = $subscriptions->data[$k]->customer;
+                        $subscriptions->data[$k]->wp_user_info = $user_info->data;
+                    }
+                }
+            }
+            return $subscriptions->data;
         }
 
         
@@ -1948,23 +1995,27 @@ if(!class_exists('SUPER_Stripe')) :
                         $value = sanitize_text_field($data['value']);
                         // We use this to give a "best matches/suggestions" user connection for this customer
                         $customer_email = sanitize_email($data['customer_email']);
-                        // Try to search for suggestions
-                        $query = new WP_User_Query(
-                            array(
-                                'fields' => array(
-                                    'ID',
-                                    'user_login',
-                                    'display_name',
-                                    'user_email'
-                                ),
-                                'number' => 1, // Acts as the limit
-                                'search' => "*{$customer_email}*",
-                                'search_columns' => array(
-                                    'user_email'
-                                ),
-                            )
-                        );
-                        $suggestions = $query->get_results();
+                        if(empty($customer_email)){
+                            $suggestions = array();
+                        }else{
+                            // Try to search for suggestions
+                            $query = new WP_User_Query(
+                                array(
+                                    'fields' => array(
+                                        'ID',
+                                        'user_login',
+                                        'display_name',
+                                        'user_email'
+                                    ),
+                                    'number' => 1, // Acts as the limit
+                                    'search' => "*{$customer_email}*",
+                                    'search_columns' => array(
+                                        'user_email'
+                                    ),
+                                )
+                            );
+                            $suggestions = $query->get_results();
+                        }
                         $exclude = array();
                         if(isset($suggestions[0])){
                             $exclude = array($suggestions[0]->ID);
@@ -2052,7 +2103,8 @@ if(!class_exists('SUPER_Stripe')) :
                         $type=='invoice.pdf' || 
                         $type=='paymentIntents' || 
                         $type=='refreshPaymentIntent' ||
-                        $type=='customers'
+                        $type=='customers' ||
+                        $type=='subscriptions'
                         //$type=='products' || 
                         ) {
 
@@ -2074,6 +2126,9 @@ if(!class_exists('SUPER_Stripe')) :
                             }
                             if( $type=='customers' ) {
                                 $payload = self::getCustomers($formatted, $limit, $starting_after);
+                            }
+                            if( $type=='subscriptions' ) {
+                                $payload = self::getSubscriptions($formatted, $limit, $starting_after);
                             }
                             // if( $type=='products' ) {
                             //     $payload = self::getProducts($formatted, $limit, $starting_after);

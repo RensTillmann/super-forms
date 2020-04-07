@@ -1029,7 +1029,8 @@ svg.super-stripe-customer path:nth-child(2) {
     display: flex;
 }
 
-.super-stripe-customers .super-stripe-wp-user {
+.super-stripe-customers .super-stripe-wp-user,
+.super-stripe-subscriptions .super-stripe-wp-user {
     width: auto;
 }
 
@@ -1044,4 +1045,27 @@ svg.super-stripe-customer path:nth-child(2) {
 
 .super-stripe-filtermenu .super-stripe-loader {
     top: 15px;
+}
+
+
+.super-stripe-heading.super-stripe-heading-customer,
+.super-stripe-column.super-stripe-customer {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 160px;
+}
+
+.super-stripe-subscriptions .super-stripe-heading.super-stripe-heading-status,
+.super-stripe-subscriptions .super-stripe-column.super-stripe-status,
+.super-stripe-subscriptions .super-stripe-heading.super-stripe-heading-billing,
+.super-stripe-subscriptions .super-stripe-column.super-stripe-billing,
+.super-stripe-subscriptions .super-stripe-heading.super-stripe-heading-pricing_qty,
+.super-stripe-subscriptions .super-stripe-column.super-stripe-pricing-qty {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 50px;
+}
+
+.super-stripe-subscriptions .super-stripe-pricing-plan {
+    display: block;
 }

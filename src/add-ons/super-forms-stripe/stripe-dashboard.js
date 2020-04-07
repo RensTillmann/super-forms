@@ -1,3 +1,4 @@
+/*global super_stripe_dashboard_i18n, OSREC, jQuery*/
 (function () {
     "use strict"; // Minimize mutable state :)
     // Define all the events for our elements
@@ -97,8 +98,8 @@
                 } else {
                     app.ui.svg.loader.create(target.parentNode);
                     // Get user ID and email address
-                    var customer_id = target.closest('.super-stripe-row').id,
-                        customer_email = target.closest('.super-stripe-row').querySelector('.super-stripe-email').innerText;
+                    var customer_id = target.closest('.super-stripe-user').dataset.id,
+                        customer_email = (target.closest('.super-stripe-row').querySelector('.super-stripe-email') ? target.closest('.super-stripe-row').querySelector('.super-stripe-email').innerText : '');
                     app.api.handler({
                         type: 'searchUsers',
                         target: target,
@@ -217,11 +218,10 @@
             show: function (payload) {
                 app.remove(app.qa('.super-stripe-toast-wrapper')); // First remove any existing toast
                 var toastWrapper = document.createElement('div'),
-                    // eslint-disable-next-line no-undef
                     toastText = OSREC.CurrencyFormatter.format(payload.amount / 100, {
                         currency: payload.currency
                     }) + ' Refunded',
-                    toastURL = 'https://dashboard.stripe.com/payments/' + payload.payment_intent,
+                    toastURL = '' + super_stripe_dashboard_i18n.dashboardUrl + '/payments/' + payload.payment_intent,
                     toastLinkText = 'View';
                 toastWrapper.className = 'super-stripe-toast-wrapper';
                 toastWrapper.innerHTML = '<div class="super-stripe-toast"><span>' + toastText + '</span><a target="_blank" href="' + toastURL + '">' + toastLinkText + '</a><div class="super-stripe-toast-close" sfevents=\'{"click":{"ui.toast.close":{}}}\'>' + app.ui.svg.delete.html + '</div></div>';
@@ -279,10 +279,8 @@
                 var html = '',
                     json = app.api.rawJSON,
                     currency = 'EUR', //json.currency.toUpperCase(),
-                    // eslint-disable-next-line no-undef
                     symbol = (typeof OSREC.CurrencyFormatter.symbols[currency] !== 'undefined' ? OSREC.CurrencyFormatter.symbols[currency] : currency + ''),
                     amount = json.amount / 100,
-                    // eslint-disable-next-line no-undef
                     amountPretty = OSREC.CurrencyFormatter.format(amount, {
                         pattern: '#,##0.00'
                     }),
@@ -392,7 +390,6 @@
                 modalWrapper.appendChild(modalContainer);
                 document.body.appendChild(modalWrapper);
                 if (app.q('.super-field-type-currency input')) {
-                    // eslint-disable-next-line no-undef
                     jQuery(app.q('.super-field-type-currency input')).maskMoney({
                         affixesStay: true,
                         allowNegative: true,
@@ -503,45 +500,69 @@
                         var payload = app.api.rawJSON;
                         var html = '';
                         html += '<span>ACTIONS</span>';
-                        // Edit
-                        html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">Edit</a>';
-                        // View Receipt
-                        var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
-                        if (payload.receipt_url) receiptUrl = payload.receipt_url;
-                        if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a>';
-                        // Download Invoice
-                        if (payload.invoice) {
-                            html += '<div sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</div>';
-                            html += '<div sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</div>';
-                        }
-                        html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"' + row.id + '"}}}\'>Refund payment...</div>';
-                        html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
-                        html += '<divider></divider>';
-                        html += '<span>CONNECTIONS</span>';
 
-                        var formID = 0,
-                            contactEntryID = 0,
-                            userID = 0;
-                        if (payload.metadata) {
-                            // Based on form
-                            if (payload.metadata.form_id) formID = payload.metadata.form_id;
-                            // Contact entry
-                            if (payload.metadata.contact_entry_id) contactEntryID = payload.metadata.contact_entry_id;
-                            // WordPress user
-                            if (payload.metadata.user_id) userID = payload.metadata.user_id;
-                            // Registered user
-                            if (payload.metadata.frontend_user_id) userID = payload.metadata.frontend_user_id;
+                        // PaymentIntents:
+                        if (attr.method === 'paymentIntents') {
+                            // Edit
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/payments/' + row.id + '">Edit</a>';
+                            // View Receipt
+                            var receiptUrl = (payload.charges && payload.charges.data && payload.charges.data[0] ? payload.charges.data[0].receipt_url : '');
+                            if (payload.receipt_url) receiptUrl = payload.receipt_url;
+                            if (receiptUrl) html += '<a target="_blank" href="' + (receiptUrl) + '">View Receipt</a>';
+                            // Download Invoice
+                            if (payload.invoice) {
+                                html += '<div sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>Online Invoice</div>';
+                                html += '<div sfevents=\'{"click":{"app.api.invoice.pdf":{"invoiceId":"' + payload.invoice + '"}}}\'>PDF Invoice</div>';
+                            }
+                            html += '<div sfevents=\'{"click":{"ui.modal.open":{"type":"refundPayment","id":"' + row.id + '"}}}\'>Refund payment...</div>';
+                            html += '<div sfevents=\'{"click":{"api.copyPaymentID":""}}\'>Copy payment ID</div>';
+                            html += '<divider></divider>';
+                            html += '<span>CONNECTIONS</span>';
+                            var formID = 0,
+                                contactEntryID = 0,
+                                userID = 0;
+                            if (payload.metadata) {
+                                // Based on form
+                                if (payload.metadata.form_id) formID = payload.metadata.form_id;
+                                // Contact entry
+                                if (payload.metadata.contact_entry_id) contactEntryID = payload.metadata.contact_entry_id;
+                                // WordPress user
+                                if (payload.metadata.user_id) userID = payload.metadata.user_id;
+                                // Registered user
+                                if (payload.metadata.frontend_user_id) userID = payload.metadata.frontend_user_id;
+                            }
+                            if (contactEntryID !== 0) html += '<a target="_blank" href="admin.php?page=super_contact_entry&id=' + contactEntryID + '">Contact Entry</a>';
+                            if (payload.post_permalink) {
+                                html += '<a target="_blank" href="' + payload.post_permalink + '">WordPress Post</a>';
+                            }
+                            if (userID !== 0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
+                            if (payload.customer) html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + payload.customer + '">Stripe Customer</a>';
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/payments/' + row.id + '">View payment details</a>';
+                            if (formID !== 0) html += '<a target="_blank" href="admin.php?page=super_create_form&id=' + formID + '">Form</a>';
                         }
-
-                        if (contactEntryID !== 0) html += '<a target="_blank" href="admin.php?page=super_contact_entry&id=' + contactEntryID + '">Contact Entry</a>';
-                        if (payload.post_permalink) {
-                            html += '<a target="_blank" href="' + payload.post_permalink + '">WordPress Post</a>';
+                        // PaymentIntents:
+                        if (attr.method === 'customers') {
+                            // Edit
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + row.id + '">Edit</a>';
                         }
-                        if (userID !== 0) html += '<a target="_blank" href="user-edit.php?user_id=' + userID + '">WordPress User</a>';
-                        if (payload.customer) html += '<a target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer + '">Stripe Customer</a>';
-                        html += '<a target="_blank" href="https://dashboard.stripe.com/payments/' + row.id + '">View payment details</a>';
-                        if (formID !== 0) html += '<a target="_blank" href="admin.php?page=super_create_form&id=' + formID + '">Form</a>';
+                        // PaymentIntents:
+                        if (attr.method === 'subscriptions') {
+                            // View subscription
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/subscriptions/' + row.id + '">View subscription</a>';
+                            // Update subscription
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/subscriptions/' + row.id + '/edit/">Update subscription</a>';
+                            // Cancel subscription
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/subscriptions/' + row.id + '">Cancel subscription</a>';
+                            html += '<divider></divider>';
+                            html += '<span>CONNECTIONS</span>';
+                            // View customer
+                            html += '<a target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + payload.customer + '">View customer</a>';
+                        }
                         contextMenu.innerHTML = html;
+
+                        // {type: "actions", method: "subscriptions"}
+                        // {type: "actions", method: "customers"}
+                        // {type: "actions", method: "paymentIntents"}
 
                         // Get the position relative to the viewport (i.e. the window)
                         var offset = target.getBoundingClientRect();
@@ -647,7 +668,6 @@
                 target.innerHTML += app.ui.svg.loader.html;
                 var amount = app.q('.super-stripe-modal input[name="amount"]').value;
                 var reason = app.q('.super-stripe-modal select[name="reason"]').value;
-                // eslint-disable-next-line no-undef
                 amount = parseFloat(OSREC.CurrencyFormatter.parse(amount));
                 var data = {
                     type: 'refund.create',
@@ -680,7 +700,6 @@
                     target = app.q('.super-stripe-modal input[name="amount"]');
                     sfevents = JSON.parse(target.attributes.sfevents.value);
                     attr = sfevents.keyup['api.refund.validate.amount'];
-                    // eslint-disable-next-line no-undef
                     amount = parseFloat(OSREC.CurrencyFormatter.parse(target.value));
                     if (amount <= 0) msg = 'Refund cannot be ' + parseFloat(attr.max).toFixed(2) + ' ' + attr.currency + '.';
                     if (amount > parseFloat(attr.max)) msg = 'Refund cannot be more than ' + parseFloat(attr.max).toFixed(2) + ' ' + attr.currency + '.';
@@ -780,14 +799,13 @@
                 var replace = false;
                 if (app.q('#' + payload.id)) replace = app.q('#' + payload.id);
 
-                // eslint-disable-next-line no-undef
                 var $declineCodes = super_stripe_dashboard_i18n.declineCodes;
                 var parentNode = app.q('.super-stripe-transactions .super-stripe-table-rows');
                 // Check if we can find the last ID, if not then just leave starting_after blank
                 var newRow = document.createElement('div');
                 newRow.className = 'super-stripe-row';
                 newRow.id = payload.id;
-                // column.innerHTML = '<a target="_blank" href="https://dashboard.stripe.com/payments/' + payload.id + '">' + payload.id + '</a>';
+                // column.innerHTML = '<a target="_blank" href="'+super_stripe_dashboard_i18n.dashboardUrl+'/payments/' + payload.id + '">' + payload.id + '</a>';
 
                 // Raw JSON data
                 var node = document.createElement('textarea');
@@ -800,7 +818,7 @@
                 var columnClass = 'super-stripe-column ';
                 column.className = columnClass + 'super-stripe-actions';
                 var html = '';
-                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
+                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions","method":"paymentIntents"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
                 column.innerHTML = html
@@ -810,7 +828,6 @@
                 html = '';
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-amount';
-                // eslint-disable-next-line no-undef
                 payload.amountFormatted = OSREC.CurrencyFormatter.format(payload.amount / 100, {
                     currency: payload.currency
                 });
@@ -829,7 +846,7 @@
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-status';
                 var $label = '',
-                    $labelColor = '#4f566b;',
+                    $labelColor = '#4f566b',
                     $title = '',
                     $class = '',
                     $pathFill = '#697386',
@@ -838,7 +855,7 @@
 
                 if (payload.status == 'warning_needs_response') {
                     $label = 'Needs response';
-                    $labelColor = '#983705;';
+                    $labelColor = '#983705';
                     $class = ' super-stripe-needs-response';
                     $path = 'M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm0-2.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM8 2a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0V3a1 1 0 0 0-1-1z';
                     $pathFill = '#bb5504';
@@ -914,8 +931,7 @@
                         } else {
                             if (payload.charges.data[0].amount_refunded) {
                                 $label = 'Partial refund';
-                                $labelColor = '#3d4eac;';
-                                // eslint-disable-next-line no-undef
+                                $labelColor = '#3d4eac';
                                 payload.charges.data[0].amount_refundedFormatted = OSREC.CurrencyFormatter.format(payload.charges.data[0].amount_refunded / 100, {
                                     currency: payload.currency
                                 });
@@ -926,7 +942,7 @@
                                 $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
                             } else {
                                 $label = 'Succeeded';
-                                $labelColor = '#3d4eac;';
+                                $labelColor = '#3d4eac';
                                 $title = '';
                                 $class = ' super-stripe-succeeded';
                                 $pathFill = '#5469d4';
@@ -965,7 +981,6 @@
                 column.className = columnClass + 'super-stripe-description';
                 // If has invoice link to invoice
                 if (payload.invoice) {
-                    // eslint-disable-next-line no-undef
                     column.innerHTML = '<a title="' + super_stripe_dashboard_i18n.view_online_invoice + '" href="#" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>' + app.ui.svg.invoice.html + payload.description + '</a>';
                 } else {
                     column.innerHTML = (payload.description ? payload.description : '');
@@ -982,7 +997,7 @@
                 }
                 // Stripe customer
                 if (payload.customer) {
-                    html += '<a class="super-stripe-stripe-customer" target="_blank" href="https://dashboard.stripe.com/customers/' + payload.customer + '">';
+                    html += '<a class="super-stripe-stripe-customer" target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + payload.customer + '">';
                     html += app.ui.svg.customer.html;
                     html += payload.customer;
                     html += '</a>';
@@ -1122,13 +1137,12 @@
                 // check if row already exists, if so then we need to update the row instead of adding a new one
                 console.log(payload);
 
-                // eslint-disable-next-line no-undef
                 var parentNode = app.q('.super-stripe-customers .super-stripe-table-rows');
                 // Check if we can find the last ID, if not then just leave starting_after blank
                 var newRow = document.createElement('div');
                 newRow.className = 'super-stripe-row';
                 newRow.id = payload.id;
-                // column.innerHTML = '<a target="_blank" href="https://dashboard.stripe.com/payments/' + payload.id + '">' + payload.id + '</a>';
+                // column.innerHTML = '<a target="_blank" href="'+super_stripe_dashboard_i18n.dashboardUrl+'/payments/' + payload.id + '">' + payload.id + '</a>';
 
                 // Raw JSON data
                 var node = document.createElement('textarea');
@@ -1141,7 +1155,7 @@
                 var columnClass = 'super-stripe-column ';
                 column.className = columnClass + 'super-stripe-actions';
                 var html = '';
-                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions"}}}\'>';
+                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions","method":"customers"}}}\'>';
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
                 html += '</div>';
                 column.innerHTML = html
@@ -1161,7 +1175,7 @@
 
                 // Customer
                 html = '';
-                html += '<a class="super-stripe-stripe-customer" target="_blank" href="https://dashboard.stripe.com/customers/' + payload.id + '">';
+                html += '<a class="super-stripe-stripe-customer" target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + payload.id + '">';
                 html += app.ui.svg.customer.html;
                 html += payload.id;
                 html += '</a>';
@@ -1173,6 +1187,7 @@
                 // WordPress user
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-user';
+                column.dataset.id = payload.id;
                 if (payload.wp_user_info) {
                     html = app.ui.templates.connectedUser(payload.wp_user_info);
                 } else {
@@ -1182,18 +1197,279 @@
                 column.innerHTML = html;
                 newRow.appendChild(column);
 
-                // Default source
-                column = document.createElement('div');
-                column.className = columnClass + 'super-stripe-default_source';
-                column.innerHTML = '-';
-                newRow.appendChild(column);
-
                 // Date
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-date';
                 column.innerHTML = payload.createdFormatted;
                 newRow.appendChild(column);
 
+
+                // Add the row to the parent (the list/table)
+                parentNode.appendChild(newRow);
+            },
+
+            subscriptions: function (payload) {
+                // check if row already exists, if so then we need to update the row instead of adding a new one
+                console.log(payload);
+
+                var parentNode = app.q('.super-stripe-subscriptions .super-stripe-table-rows');
+                // Check if we can find the last ID, if not then just leave starting_after blank
+                var newRow = document.createElement('div');
+                newRow.className = 'super-stripe-row';
+                newRow.id = payload.id;
+                // column.innerHTML = '<a target="_blank" href="'+super_stripe_dashboard_i18n.dashboardUrl+'/payments/' + payload.id + '">' + payload.id + '</a>';
+
+                // Raw JSON data
+                var node = document.createElement('textarea');
+                node.className = 'super-stripe-raw';
+                node.value = payload.raw;
+                newRow.appendChild(node);
+
+                // Actions
+                var column = document.createElement('div');
+                var columnClass = 'super-stripe-column ';
+                column.className = columnClass + 'super-stripe-actions';
+                var html = '';
+                html += '<div class="super-stripe-action-btn" sfevents=\'{"click":{"ui.contextMenu.open":{"type":"actions","method":"subscriptions"}}}\'>';
+                html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height: 12px; width: 12px;"><path d="M2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm6 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill-rule="evenodd"></path></svg>';
+                html += '</div>';
+                column.innerHTML = html
+                newRow.appendChild(column);
+
+                // Customer
+                html = '';
+                html += '<a class="super-stripe-stripe-customer" target="_blank" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/customers/' + payload.customer + '">';
+                html += app.ui.svg.customer.html;
+                html += payload.customer;
+                html += '</a>';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-customer';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // WordPress user
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-user';
+                column.dataset.id = payload.customer;
+                if (payload.wp_user_info) {
+                    html = app.ui.templates.connectedUser(payload.wp_user_info);
+                } else {
+                    console.log('test2');
+                    html = app.ui.templates.userfilter(payload);
+                }
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // Status
+                html = '';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-status';
+                var $label = '',
+                    $labelColor = '#3d4eac',
+                    $title = '',
+                    $class = '',
+                    $bgColor = '#d6ecff';
+
+                if (payload.status == 'incomplete') {
+                    $label = 'Incomplete';
+                    $title = ' title="Incomplete"';
+                    $class = ' super-stripe-incomplete';
+                }
+                if (payload.status == 'incomplete_expired') {
+                    $label = 'Incomplete Expired';
+                    $title = ' title="Incomplete Expired"';
+                    $class = ' super-stripe-incomplete-expired';
+                }
+                if (payload.status == 'trialing') {
+                    $label = 'Trialing';
+                    $title = ' title="Trialing"';
+                    $class = ' super-stripe-trialing';
+                }
+                if (payload.status == 'active') {
+                    $label = 'Active';
+                    $title = ' title="Active"';
+                    $class = ' super-stripe-active';
+                }
+                if (payload.status == 'past_due') {
+                    $label = 'Past due';
+                    $title = ' title="Past due"';
+                    $class = ' super-stripe-past-due';
+                }
+                if (payload.status == 'canceled') {
+                    $label = 'Canceled';
+                    $title = ' title="Canceled"';
+                    $class = ' super-stripe-canceled';
+                    $labelColor = '#4f566b',
+                        $bgColor = '#e3e8ee';
+                }
+                if (payload.status == 'unpaid') {
+                    $label = 'Unpaid';
+                    $title = ' title="Unpaid"';
+                    $class = ' super-stripe-unpaid';
+                }
+                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
+                html += $label;
+                html += '</span>';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // Billing
+                html = '';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-billing';
+                $labelColor = '#4f566b',
+                    $bgColor = '#e3e8ee';
+
+                if (payload.collection_method == 'charge_automatically') {
+                    $label = 'Auto';
+                    $title = ' title="Auto"';
+                    $class = ' super-stripe-auto';
+                }
+                if (payload.collection_method == 'send_invoice') {
+                    $label = 'Send';
+                    $title = ' title="Send"';
+                    $class = ' super-stripe-send';
+                }
+                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
+                html += $label;
+                html += '</span>';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // Pricing Plan
+                var i, item;
+                html = '';
+                for (i = 0; i < payload.items.data.length; i++) {
+                    item = payload.items.data[i];
+                    html += '<a title="View product" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/subscritpions/product/' + item.plan.product + '" target="_blank">' + item.productName + '</a>';
+                    html += ' • ';
+                    html += '<a title="View plan" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/plans/' + item.plan.id + '" target="_blank">' + item.plan.nickname + '</a>';
+                    html += '<div class="clear"></div>';
+                }
+                // items.data.quantity
+                // items.data.plan.interval
+                //                 amount
+                //                 currency
+                //                 interval_count
+
+
+                // "id": "si_GyEShXkbtJMyGV",
+                // "object": "subscription_item",
+                // "billing_thresholds": null,
+                // "created": 1585076473,
+                // "metadata": [],
+                // "plan": {
+                //     "id": "plan_GyEOetWFv2Hkr1",
+                //     "object": "plan",
+                //     "active": true,
+                //     "aggregate_usage": null,
+                //     "amount": 100,
+                //     "amount_decimal": "100",
+                //     "billing_scheme": "per_unit",
+                //     "created": 1585076219,
+                //     "currency": "eur",
+                //     "interval": "day",
+                //     "interval_count": 1,
+                //     "livemode": false,
+                //     "metadata": [],
+                //     "nickname": "License",
+                //     "product": "prod_GyEOQCmv5Mjg06",
+                //     "tiers": null,
+                //     "tiers_mode": null,
+                //     "transform_usage": null,
+                //     "trial_period_days": null,
+                //     "usage_type": "licensed"
+                // },
+                // "quantity": 1,
+                // "subscription": "sub_GyESkc8x10mstA",
+                // "tax_rates": []
+                //html = 'Super Forms • License';
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-pricing-plan';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // QTY
+                html = '';
+                for (i = 0; i < payload.items.data.length; i++) {
+                    item = payload.items.data[i];
+                    html += item.quantity + '<br />';
+                }
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-pricing-qty';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // Total
+                html = '€2.00 EUR / day';
+                html = '';
+                for (i = 0; i < payload.items.data.length; i++) {
+                    item = payload.items.data[i];
+                    html += OSREC.CurrencyFormatter.format((item.plan.amount*item.quantity) / 100, {
+                        currency: item.plan.currency
+                    }) + ' ' + item.plan.currency.toUpperCase();
+                    if (item.plan.interval_count > 1) {
+                        var pluralName = '';
+                        if (item.plan.interval === 'day') pluralName = 'days';
+                        if (item.plan.interval === 'week') pluralName = 'weeks';
+                        if (item.plan.interval === 'month') pluralName = 'months';
+                        html += ' every ' + item.plan.interval_count + ' ' + pluralName;
+                    } else {
+                        html += ' / ' + item.plan.interval;
+                    }
+                    html += '<br />';
+                }
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-pricing-total';
+                column.innerHTML = html;
+                newRow.appendChild(column);
+
+                // html += '<a class="super-stripe-stripe-pricing" target="_blank" href="'+super_stripe_dashboard_i18n.dashboardUrl+'/plans/' + payload.plan.id + '">';
+                // html += payload.plan.nickname;
+                // html += '</a>';
+                // column = document.createElement('div');
+                // column.className = columnClass + 'super-stripe-pricing';
+                // column.innerHTML = html;
+                // newRow.appendChild(column);
+
+                // "plan": {
+                //     "id": "plan_GyEOetWFv2Hkr1",
+                //     "object": "plan",
+                //     "active": true,
+                //     "aggregate_usage": null,
+                //     "amount": 100,
+                //     "amount_decimal": "100",
+                //     "billing_scheme": "per_unit",
+                //     "created": 1585076219,
+                //     "currency": "eur",
+                //     "interval": "day",
+                //     "interval_count": 1,
+                //     "livemode": false,
+                //     "metadata": [],
+                //     "nickname": "Daily",
+                //     "product": "prod_GyEOQCmv5Mjg06",
+                //     "tiers": null,
+                //     "tiers_mode": null,
+                //     "transform_usage": null,
+                //     "trial_period_days": null,
+                //     "usage_type": "licensed"
+                // },
+
+                // // Product
+                // html = '';
+                // // html += '<a class="super-stripe-stripe-product" target="_blank" href="'+super_stripe_dashboard_i18n.dashboardUrl+'/subscriptions/products/' + payload.plan.product + '">';
+                // // html += payload.productName;
+                // // html += '</a>';
+                // column = document.createElement('div');
+                // column.className = columnClass + 'super-stripe-product';
+                // column.innerHTML = html;
+                // newRow.appendChild(column);
+
+                // Date
+                column = document.createElement('div');
+                column.className = columnClass + 'super-stripe-date';
+                column.innerHTML = payload.createdFormatted;
+                newRow.appendChild(column);
 
                 // Add the row to the parent (the list/table)
                 parentNode.appendChild(newRow);
@@ -1255,6 +1531,7 @@
                         }
                         if (data.type == 'connectUser') {
                             console.log(data);
+                            console.log(payload);
                             //target.innerHTML = app.ui.svg.loader.html;
                             var html;
                             if (payload.length === 0) {
@@ -1267,7 +1544,11 @@
                                 app.ui.filterMenu.remove();
                                 html = app.ui.templates.connectedUser(payload.wp_user_info);
                             }
-                            app.q('#' + data.customer_id).querySelector('.super-stripe-column.super-stripe-user').innerHTML = html;
+                            var nodes = app.qa('.super-stripe-user[data-id="' + data.customer_id + '"]');
+                            for (i = 0; i < nodes.length; i++) {
+                                nodes[i].innerHTML = html;
+                            }
+                            // app.q('#' + data.customer_id).querySelector('.super-stripe-column.super-stripe-user').innerHTML = html;
                             return true;
                         }
                         if (data.type == 'refund.create') {
@@ -1316,6 +1597,10 @@
                         if (data.type === 'customers') {
                             app.addClass(app.q('.super-stripe-customers'), 'super-initialized');
                         }
+                        if (data.type === 'subscriptions') {
+                            app.addClass(app.q('.super-stripe-subscriptions'), 'super-initialized');
+                        }
+
                     }
                     // Complete:
                     app.ui.svg.loader.remove();
@@ -1346,7 +1631,10 @@
             type: 'customers',
             limit: 20
         });
-
+        app.api.handler({
+            type: 'subscriptions',
+            limit: 20
+        });
         // app.api.handler({
         //     type: 'products',
         //     limit: 20
