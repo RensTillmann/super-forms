@@ -32,13 +32,9 @@
 
 	// Refresh Signature (Refresh the appearance of the signature area.)
 	SUPER.refresh_signature = function(changedField){
-		console.log('test1');
 		if(typeof changedField !== 'undefined'){
-			console.log('test2');
 			if(changedField.closest('.super-signature')){
-				console.log('test3');
 				if( SUPER.has_hidden_parent(changedField)===false ) {
-					console.log('test4');
 					$(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
                 }
             }
