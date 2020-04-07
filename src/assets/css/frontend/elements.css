@@ -2635,7 +2635,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   width: 40px;
   background: none;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a {
+.super-datepicker-dialog .ui-datepicker-calendar td a, .super-datepicker-dialog .ui-datepicker-calendar td span {
   color: #444444;
   width: 40px;
   height: 40px;
@@ -2651,43 +2651,31 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   user-select: none;
   outline: 0;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-highlight {
+.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-highlight, .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-highlight {
   background-color: #1a73e8;
   color: white;
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a:hover {
+.super-datepicker-dialog .ui-datepicker-calendar td a:hover, .super-datepicker-dialog .ui-datepicker-calendar td span:hover {
   background-color: #f1f3f4;
   color: #444444;
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active {
+.super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active, .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-active {
   -webkit-border-radius: 50px;
   -moz-border-radius: 50px;
   border-radius: 50px;
   color: #185abc;
   background-color: #d2e3fc;
 }
-.super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
-  text-align: center;
-  width: 33px !important;
-  text-decoration: none;
-  line-height: 33px;
-  height: 33px;
-  border: solid 1px #cdcdcd;
-  display: inline-block;
-  color: #444444;
-  margin: 2px;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  border: 0;
-  height: 27px;
-  line-height: 27px;
+.super-datepicker-dialog .ui-datepicker-calendar td.ui-datepicker-unselectable.ui-state-disabled span {
+  opacity: 0.5;
+  background: none;
+  cursor: not-allowed;
 }
 
 .ui-timepicker-wrapper.super-timepicker-dialog {

@@ -230,8 +230,8 @@
                 isRTL = (el.closest('.super-form') ? el.closest('.super-form').classList.contains('super-rtl') : false),
                 min = el.dataset.minlength,
                 max = el.dataset.maxlength,
-                workDays = (el.dataset.workDays == 'true'),
-                weekends = (el.dataset.weekends == 'true'),
+                workDays,
+                weekends,
                 regex = /\{(.*?)\}/g,
                 range = el.dataset.range,
                 firstDay = el.dataset.firstDay,
@@ -310,8 +310,10 @@
                     SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
                 },
                 beforeShowDay: function(dt) {
-                    day = dt.getDay(),
-                    exclDays = this.dataset.exclDays,
+                    workDays = (this.dataset.workDays == 'true');
+                    weekends = (this.dataset.weekends == 'true');
+                    day = dt.getDay();
+                    exclDays = this.dataset.exclDays;
                     exclDates = (typeof this.dataset.exclDates !=='undefined' ? this.dataset.exclDates : undefined);
                     if(typeof exclDays !== 'undefined'){
                         days = exclDays.split(',');
