@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Apr 09, 2020 - Version 4.9.420
+
+- **Fix:** JavaScript error when using Accordion/TABs element
+
 ## Apr 08, 2020 - Version 4.9.412
 
 - **Added:** Two new options for datepicker element to allow users to select multiple dates independently from eachother

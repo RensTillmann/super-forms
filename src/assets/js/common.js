@@ -1706,7 +1706,7 @@ function SUPERreCaptcha(){
                     }
                     if(result.error===true){
                         // Display error message
-                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
                     }else{
                         // Trigger js hook and continue
                         SUPER.after_email_send_hook(form, data, old_html, result);
@@ -1722,7 +1722,7 @@ function SUPERreCaptcha(){
                                         console.log('done with things...', form.data('is-doing-things'));
                                         clearInterval(SUPER.submit_form_interval);
                                         // Form submission is finished
-                                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
                                     }
                                 }, 100);
                             }
@@ -1736,7 +1736,7 @@ function SUPERreCaptcha(){
                         }
 
                         // Form submission is finished
-                        SUPER.form_submission_finished(form, result, html, old_html, duration);
+                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
                     }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
@@ -2034,7 +2034,7 @@ function SUPERreCaptcha(){
         }
 
         // Datepicker min dates
-        if(parent.classList.contains('super-date')){
+        if(parent && parent.classList.contains('super-date')){
             attr = el.dataset.minpicks;
             if (typeof attr !== 'undefined' && attr !== false) {
                 if( parseInt(attr,10)>0 ) {
@@ -2138,7 +2138,7 @@ function SUPERreCaptcha(){
                 }
         }
         // Remove error class from TABS
-        if( el.closest('.super-tabs') && 
+        if( el.closest('.super-tabs-content') && 
             !el.closest('.super-tabs-content').querySelector('.super-error-active')){
                 index = $(el.closest('.super-tabs-content')).index();
                 if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
@@ -4076,6 +4076,8 @@ function SUPERreCaptcha(){
                 default_value = element.dataset.absoluteDefault;
             }
             field = element.closest('.super-field');
+            if(!field) continue; // Continue to next field
+
             // Checkbox and Radio buttons
             if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
                 innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-active');
