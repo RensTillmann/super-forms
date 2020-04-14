@@ -585,29 +585,153 @@ $array['html_elements'] = array(
                             'desc' => esc_html__( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['api_key'] ) ? '' : $attributes['api_key'] ),
                         ),
+                        // Address Marker location
                         'address' => array(
-                            'name' => esc_html__( 'Address (leave blank for none)', 'super-forms' ), 
+                            'name' => esc_html__( 'Map address (location)', 'super-forms' ), 
                             'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address'] ) ? '' : $attributes['address'] ),
                             'type' => 'text', 
                         ),
                         'address_marker' => array(
-                            'desc' => esc_html__( 'This will add a marker on the address location on the map', 'super-forms' ), 
+                            'desc' => esc_html__( 'This will add a marker for the address on the map', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address_marker'] ) ? '' : $attributes['address_marker'] ),
                             'type' => 'checkbox', 
                             'filter'=>true,
                             'values' => array(
-                                'true' => esc_html__( 'Add marker on address location', 'super-forms' ),
+                                'true' => esc_html__( 'Add marker on address (location)', 'super-forms' ),
                             )
+                        ),
+                        // Directions API (route)
+                        'origin' => array(
+                            'name' => esc_html__( 'Origin (specifies the start location from which to calculate directions)', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['origin'] ) ? '' : $attributes['origin'] ),
+                            'type' => 'text', 
+                        ),
+                        'destination' => array(
+                            'name' => esc_html__( 'Destination (specifies the end location to which to calculate directions)', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['destination'] ) ? '' : $attributes['destination'] ),
+                            'type' => 'text', 
+                        ),
+                        'populateDistance' => array(
+                            'name' => esc_html__( '(optional) Populate the following field with the total distance', 'super-forms' ), 
+                            'label' => esc_html__( 'The result will be expressed in meters. Enter the unique field name e.g: total_distance', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['populateDistance'] ) ? '' : $attributes['populateDistance'] ),
+                            'type' => 'text',
+                        ),
+                        'populateDuration' => array(
+                            'name' => esc_html__( '(optional) Populate the following field with the total Travel time (duration)', 'super-forms' ), 
+                            'label' => esc_html__( 'The result will be expressed in seconds. Enter the unique field name e.g: total_traveltime', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['populateDuration'] ) ? '' : $attributes['populateDuration'] ),
+                            'type' => 'text', 
+                        ),
+                        'directionsPanel' => array(
+                            'default'=> ( !isset( $attributes['directionsPanel'] ) ? '' : $attributes['directionsPanel'] ),
+                            'type' => 'checkbox', 
+                            'values' => array(
+                                'true' => esc_html__( 'Show directions panel (list directions next to the map)', 'super-forms' ),
+                            )
+                        ),
+                        'travelMode' => array(
+                            'name' => esc_html__( 'Travel mode (specifies what mode of transport to use when calculating directions)', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed, valid modes are: DRIVING, BICYCLING, TRANSIT, WALKING', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['travelMode'] ) ? 'DRIVING' : $attributes['travelMode'] ),
+                            'type' => 'text'
+                        ),
+                        'unitSystem' => array(
+                            'name' => esc_html__( 'Specifies what unit system to use when displaying results', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: METRIC or IMPERIAL', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['unitSystem'] ) ? 'METRIC' : $attributes['unitSystem'] ),
+                            'type' => 'text'
+                        ),
+
+                        // Waypoints
+                        'waypoints' => array(
+                            'name' => esc_html__( '(optional) Waypoints alter a route by routing it through the specified location(s)', 'super-forms' ), 
+                            'label' => esc_html__( "Use {tags} if needed. Put each waypoint on a new line. Formatted like so: {location}|{stopover}\nWhere 'location' is the Address or LatLng and 'stopover' is either 'true' or 'false', where 'true' indicates that the waypoint is a stop on the route, which has the effect of splitting the route into two routes. Example values:\nAddress 1, City, Country|false\nAddress 2, City2, Country|true\nAddress 3, City3, Country|false\nAddress 4, City4, Country|false\n", 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['waypoints'] ) ? '' : $attributes['waypoints'] ),
+                            'type' => 'textarea'
+                        ),
+                        'optimizeWaypoints' => array(
+                            'name' => esc_html__( '(optional) specifies that the route using the supplied waypoints may be optimized by rearranging the waypoints in a more efficient order', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['optimizeWaypoints'] ) ? '' : $attributes['optimizeWaypoints'] ),
+                            'type' => 'text'
+                        ),
+                        'provideRouteAlternatives' => array(
+                            'name' => esc_html__( '(optional) when set to true specifies that the Directions service may provide more than one route alternative in the response', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['provideRouteAlternatives'] ) ? '' : $attributes['provideRouteAlternatives'] ),
+                            'type' => 'text'
+                        ),
+                        'avoidFerries' => array(
+                            'name' => esc_html__( '(optional) when set to true indicates that the calculated route(s) should avoid ferries, if possible', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['avoidFerries'] ) ? '' : $attributes['avoidFerries'] ),
+                            'type' => 'text'
+                        ),
+                        'avoidHighways' => array(
+                            'name' => esc_html__( '(optional) when set to true indicates that the calculated route(s) should avoid major highways, if possible', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['avoidHighways'] ) ? '' : $attributes['avoidHighways'] ),
+                            'type' => 'text'
+                        ),
+                        'avoidTolls' => array(
+                            'name' => esc_html__( '(optional) when set to true indicates that the calculated route(s) should avoid toll roads, if possible', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['avoidTolls'] ) ? '' : $attributes['avoidTolls'] ),
+                            'type' => 'text'
+                        ),
+                        'region' => array(
+                            'name' => esc_html__( '(optional) specifies the region code, specified as a ccTLD ("top-level domain") two-character value', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Example values are: nl (for Netherlands), es (for Spain), de (for Germany), uk (for Great Britain)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['region'] ) ? '' : $attributes['region'] ),
+                            'type' => 'text'
+                        ),
+                        // drivingOptions (only when travelMode is DRIVING)
+                        'departureTime' => array(
+                            'name' => esc_html__( '(optional) Specifies the desired time of departure', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['departureTime'] ) ? '' : $attributes['departureTime'] ),
+                            'type' => 'text'
+                        ),
+                        'trafficModel' => array(
+                            'name' => esc_html__( '(optional) Specifies the assumptions to use when calculating time in traffic', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: bestguess, pessimistic or optimistic', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['trafficModel'] ) ? '' : $attributes['trafficModel'] ),
+                            'type' => 'text'
+                        ),
+                        // transitOptions (only when travelMode is TRANSIT)
+                        'arrivalTime' => array(
+                            'name' => esc_html__( '(optional) Specifies the desired time of arrival', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['arrivalTime'] ) ? '' : $attributes['arrivalTime'] ),
+                            'type' => 'text'
+                        ),
+                        'transitDepartureTime' => array(
+                            'name' => esc_html__( '(optional) Specifies the desired time of departure', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['transitDepartureTime'] ) ? '' : $attributes['transitDepartureTime'] ),
+                            'type' => 'text'
+                        ),
+                        'TransitMode' => array(
+                            'name' => esc_html__( '(optional) Specifies a preferred mode of transit', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,RAIL,SUBWAY,TRAIN,TRAM', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['TransitMode'] ) ? '' : $attributes['TransitMode'] ),
+                            'type' => 'text'
+                        ),
+                        'routingPreference' => array(
+                            'name' => esc_html__( '(optional) Specifies preferences for transit routes', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: FEWER_TRANSFERS or LESS_WALKING', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['routingPreference'] ) ? '' : $attributes['routingPreference'] ),
+                            'type' => 'text'
                         ),
                         'zoom' => array(
                             'name' => esc_html__( 'Map zoom', 'super-forms' ),
-                            'label' => esc_html__( 'Higher means more zooming in', 'super-forms' ),
-                            'default' => ( !isset( $attributes['zoom']) ? 5 : $attributes['zoom']),
-                            'type' => 'slider', 
-                            'min' => 1,
-                            'max' => 20,
-                            'steps' => 1,
+                            'label' => esc_html__( 'Use {tags} if needed. Must be a value between 1 and 20 (higher means more zooming in)', 'super-forms' ),
+                            'default' => ( !isset( $attributes['zoom']) ? '5' : $attributes['zoom']),
+                            'type' => 'text'
                         ),
                         // Polylines
                         'enable_polyline' => array(

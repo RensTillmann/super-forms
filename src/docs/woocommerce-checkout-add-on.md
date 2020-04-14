@@ -2,8 +2,7 @@
 
 **Download link:**
 
-https://codecanyon.net/item/super-forms-woocommerce-checkout/18013799
-
+<https://codecanyon.net/item/super-forms-woocommerce-checkout/18013799>
 
 **Documentation:**
 

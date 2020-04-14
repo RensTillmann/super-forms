@@ -2,12 +2,10 @@
 
 ?> **Please note:** this feature will only work for logged in users, or when a GET or POST request contains a key `contact_entry_id` with the entry ID.
 
-
 * [How does it work?](#how-does-it-work)
 * [How to enable this feature?](#how-to-enable-this-feature)
 
-
-### How does it work?
+## How does it work?
 
 In case a logged in user had previously submitted the same form or perhaps a different form you can retrieve the last contact entry of the user by enabling this feature.
 
@@ -21,8 +19,6 @@ When enabled and a contact entry was found, it will [autopopulate the form](auto
 
 _This method works cross forms by specifying the form ID of which to retrieve the last contact entry from. But please keep in mind that when using a GET or POST request the form ID you entered will become obsolete, and that the entry ID parsed in the GET or POST request will be leading. Even if the entry ID doesn't exists it will not fall back to the form ID method. In this case the form will simply not be populated with any data._
 
-
-### How to enable this feature?
+## How to enable this feature?
 
 To populate the form with either the submitted contact entry of a logged in user, or a contact entry retrieved by a ID via a GET or POST request as explained above, you can go to `Form Settings > Form Settings` and enable the option **Autopopulate form with last contact entry data**.
-

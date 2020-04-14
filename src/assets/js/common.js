@@ -1627,12 +1627,90 @@ function SUPERreCaptcha(){
         }
     };
 
+    // Send E-mail
+    SUPER.send_email = function(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version){
+        var html;
+        $.ajax({
+            url: super_common_i18n.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'super_send_email',
+                super_ajax_nonce: super_ajax_nonce,
+                data: data,
+                form_id: form_id,
+                entry_id: entry_id,
+                entry_status: status,
+                entry_status_update: status_update,
+                token: token,
+                version: version,
+                i18n: form.data('i18n') // @since 4.7.0 translation
+            },
+            success: function (result) {
+                result = JSON.parse(result);
+
+                // Check for errors, if there are any display them to the user 
+                if(result.error===true){
+                    html = '<div class="super-msg super-error">';
+                    if(typeof result.fields !== 'undefined'){
+                        $.each(result.fields, function( index, value ) {
+                            $(value+'[name="'+index+'"]').parent().addClass('error');
+                        });
+                    }                               
+                }else{
+                    html = '<div class="super-msg super-success"';
+                    // @since 3.4.0 - option to not display the message
+                    if(result.display===false){
+                        html += 'style="display:none;">';
+                    }
+                    html += '>';
+                }
+                if(result.error===true){
+                    // Display error message
+                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                }else{
+                    // Trigger js hook and continue
+                    SUPER.after_email_send_hook(form, data, old_html, result);
+                    // If a hook is redirecting we should avoid doing other things
+                    if(form.data('is-redirecting')){
+                        // However if a hook is doing things in the back-end, we must check until finished
+                        if(form.data('is-doing-things')){
+                            clearInterval(SUPER.submit_form_interval);
+                            SUPER.submit_form_interval = setInterval(function(){
+                                if(form.data('is-doing-things')){
+                                    console.log('still doing things...', form.data('is-doing-things'));
+                                }else{
+                                    console.log('done with things...', form.data('is-doing-things'));
+                                    clearInterval(SUPER.submit_form_interval);
+                                    // Form submission is finished
+                                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                                }
+                            }, 100);
+                        }
+                        return false; // Stop here, we are redirecting the form (used by Stripe)
+                    }
+
+                    // @since 2.2.0 - custom form POST method
+                    if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
+                        form.find('form').submit(); // When doing custom POST, the form will redirect itself
+                        return false;
+                    }
+
+                    // Form submission is finished
+                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Failed to process data, please try again');
+            }
+        });
+    };
+
     // Send form submission through ajax request
     SUPER.create_ajax_request = function( event, form, data, duration, old_html, status, status_update, token ){
         form = $(form);
 
-        var html,
-            form_id,
+        var form_id,
             entry_id,
             json_data,
             version,
@@ -1670,80 +1748,101 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_send_email',
-                    super_ajax_nonce: super_ajax_nonce,
-                    data: data,
-                    form_id: form_id,
-                    entry_id: entry_id,
-                    entry_status: status,
-                    entry_status_update: status_update,
-                    token: token,
-                    version: version,
-                    i18n: form.data('i18n') // @since 4.7.0 translation
-                },
-                success: function (result) {
-                    result = JSON.parse(result);
 
-                    // Check for errors, if there are any display them to the user 
-                    if(result.error===true){
-                        html = '<div class="super-msg super-error">';
-                        if(typeof result.fields !== 'undefined'){
-                            $.each(result.fields, function( index, value ) {
-                                $(value+'[name="'+index+'"]').parent().addClass('error');
-                            });
-                        }                               
-                    }else{
-                        html = '<div class="super-msg super-success"';
-                        // @since 3.4.0 - option to not display the message
-                        if(result.display===false){
-                            html += 'style="display:none;">';
-                        }
-                        html += '>';
-                    }
-                    if(result.error===true){
-                        // Display error message
-                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
-                    }else{
-                        // Trigger js hook and continue
-                        SUPER.after_email_send_hook(form, data, old_html, result);
-                        // If a hook is redirecting we should avoid doing other things
-                        if(form.data('is-redirecting')){
-                            // However if a hook is doing things in the back-end, we must check until finished
-                            if(form.data('is-doing-things')){
-                                clearInterval(SUPER.submit_form_interval);
-                                SUPER.submit_form_interval = setInterval(function(){
-                                    if(form.data('is-doing-things')){
-                                        console.log('still doing things...', form.data('is-doing-things'));
-                                    }else{
-                                        console.log('done with things...', form.data('is-doing-things'));
-                                        clearInterval(SUPER.submit_form_interval);
-                                        // Form submission is finished
-                                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
-                                    }
-                                }, 100);
-                            }
-                            return false; // Stop here, we are redirecting the form (used by Stripe)
-                        }
+            // Attach Form as PDF
+            var attachAsPDF = true;
 
-                        // @since 2.2.0 - custom form POST method
-                        if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
-                            form.find('form').submit(); // When doing custom POST, the form will redirect itself
-                            return false;
-                        }
+            if(attachAsPDF){
+                // // For quick debugging purposes only:
+                // var pdf = new jsPDF();
+                // // Starting at page 1
+                // pdf = SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
+                //     // Finally we download the PDF file
+                //     pdf.save("download-page-3.pdf");
+                // }); 
 
-                        // Form submission is finished
-                        SUPER.form_submission_finished(form[0], result, html, old_html, duration);
-                    }
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    console.log(xhr, ajaxOptions, thrownError);
-                    alert('Failed to process data, please try again');
-                }
-            });
+                var pdf = new jsPDF();
+                // Starting at page 1
+                SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
+                    // Finally we download the PDF file
+                    var datauristring = pdf.output('datauristring', {
+                        filename: 'TESTING.pdf'
+                    });
+                    data.datauristring = {
+                        name: 'pdf_file',
+                        value: datauristring,
+                        type: 'datauristring'
+                    };
+                    SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                });
+            }else{
+                SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+            }
+
+            // var pdf = new jsPDF();
+            // // Starting at page 1
+            // pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
+            //     // Finally we download the PDF file
+            //     pdf.save("download-page-1.pdf");
+            // }); 
+
+            // // Default export is a4 paper, portrait, using milimeters for units
+            // var pdf = new jsPDF();
+            // pdf.text('Hello world4!', 10, 10)
+            // var datauristring = pdf.output('datauristring', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // data.datauristring = {
+            //     name: 'pdf_file',
+            //     value: datauristring,
+            //     type: 'datauristring'
+            // };
+            
+            // var arraybuffer = pdf.output('arraybuffer', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // data.arraybuffer = arraybuffer;
+            // var bloburi = pdf.output('bloburi', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // data.bloburi = bloburi;
+
+            // var datauri = pdf.output('datauri', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // data.datauri = datauri;       
+            //data.bloburi = bloburi;       
+            //data.datauristring = datauristring;       
+            //data.datauri = datauri;       
+
+            // var dataurlnewwindow = pdf.output('dataurlnewwindow', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // console.log(dataurlnewwindow);
+
+            // var pdfobjectnewwindow = pdf.output('pdfobjectnewwindow', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // console.log(pdfobjectnewwindow);
+
+            // var pdfjsnewwindow = pdf.output('pdfjsnewwindow', {
+            //     filename: 'TESTING.pdf'
+            // });
+            // console.log(pdfjsnewwindow);
+
+            // A string identifying one of the possible output types. Possible values are 
+            // 'arraybuffer', 
+            // 'blob', 
+            // 'bloburi'/'bloburl', 
+            // 'datauristring'/'dataurlstring', 
+            // 'datauri'/'dataurl',
+            //  'dataurlnewwindow', 
+            //  'pdfobjectnewwindow', 
+            //  'pdfjsnewwindow'.
+
+            //var formData = new FormData();
+            //formData.append("TESTING.pdf", blob);
+
         });
     };
     // Form submission is finished
@@ -3192,33 +3291,208 @@ function SUPERreCaptcha(){
         if($field.name) return $field.name;
     };
 
+    // PDF Generation
+    SUPER.generate_pdf = function(target, pdf, currentPage, callback){
+        var $form = target.closest('.super-form');
+        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+
+        // Make form scrollable based on a4 height
+        $form.style.maxHeight = "1100px";
+        $form.style.overflowY = "scroll";
+        $form.style.overflow = "-moz-hidden-unscrollable";
+        $form.style.overflow = "hidden";
+        
+        // Scroll to the "fake" page
+        $form.scrollTop = 1100 * (currentPage-1);
+
+        // Might need to shrink the form height
+        // Because the last page shouldn't contain any duplicate info from the previous page
+        var schrinkBy = ($form.scrollHeight - (1100 * (currentPage)));
+        var schrinked = 1100 - -schrinkBy;
+        if(schrinkBy < 0 && currentPage>1 ){
+            // We should shrink the form
+            $form.style.maxHeight = schrinked + 'px';
+            $form.scrollTop = 1100 * (currentPage-1);
+        }
+
+        // Must hide scrollbar
+        document.documentElement.classList.add("super-hide-scrollbar");
+        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable; overflow: hidden;}',
+        head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+        head.appendChild(style);
+        style.type = 'text/css';
+        if (style.styleSheet){
+            // This is required for IE8 and below.
+            style.styleSheet.cssText = css;
+        } else {
+            style.appendChild(document.createTextNode(css));
+        }
+
+        // Must scroll to top of window, or it will not work properly!
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        
+        // First disable the UI on the map for nicer print of the map
+        // And make map fullwidth and directions fullwidth
+        for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+            SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+                disableDefaultUI: true
+                // zoomControl: false,
+                // mapTypeControl: false,
+                // scaleControl: false,
+                // streetViewControl: false,
+                // rotateControl: false,
+                // fullscreenControl: false
+            });
+            var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            for(var x=0; x < children.length; x++){
+                children[x].style.width = '100%';
+                if(children[x].classList.contains('super-google-map-directions')){
+                    children[x].style.overflowY = 'initial';
+                    children[x].style.height = 'auto';
+                }
+            }
+        }
+        
+        // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+        function adjustHeight(el, minHeight) {
+            // compute the height difference which is caused by border and outline
+            var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+            var diff = outerHeight - el.clientHeight;
+            // set the height to 0 in case of it has to be shrinked
+            el.style.height = 0;
+            // set the correct height
+            // el.scrollHeight is the full height of the content, not just the visible part
+            el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+        }
+        // we use the "data-adaptheight" attribute as a marker
+        // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
+        var textAreas = $form.querySelectorAll('.super-textarea .super-shortcode-field');
+        // iterate through all the textareas on the page
+        textAreas.forEach(function(el) {
+            // we need box-sizing: border-box, if the textarea has padding
+            el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+            // we don't need any scrollbars, do we? :)
+            el.style.overflowY = 'hidden';
+            // the minimum height initiated through the "rows" attribute
+            var minHeight = el.scrollHeight;
+            el.addEventListener('input', function() {
+                adjustHeight(el, minHeight);
+            });
+            // we have to readjust when window size changes (e.g. orientation change)
+            window.addEventListener('resize', function() {
+                adjustHeight(el, minHeight);
+            });
+            // we adjust height to the initial content
+            adjustHeight(el, minHeight);
+        });
+
+        // Because disabling the UI takes some time, add a timeout
+        setTimeout(function(){
+            // Now allow printing
+            html2canvas($form, {
+                useCORS: true, 
+                allowTaint: false, 
+                scale: 1
+                //async: true,
+                //backgroundColor: null,
+                //scrollX: 0,
+                //scrollY: -window.scrollY,
+            }).then(canvas => {                
+                // only jpeg is supported by jsPDF
+                var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                // Add this image as 1 single page
+                pdf.addImage(imgData, 'JPEG', 0, 0);
+                // If there are more pages to be processed, go ahead
+                if($form.scrollHeight > (1100 * currentPage)){
+                    currentPage++;
+                    pdf.addPage();
+                    SUPER.generate_pdf(target, pdf, currentPage, callback);
+                }else{
+                    // Show scrollbar again
+                    document.documentElement.classList.remove("super-hide-scrollbar");
+                    // Reset scrolling styles
+                    $form.style.maxHeight = "";
+                    $form.style.overflowY = "";
+                    $form.style.overflow = "";
+                    // Re-enable the UI for Maps and resize to original width
+                    for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+                        SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+                            disableDefaultUI: false
+                        });
+                        var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                        for(var x=0; x < children.length; x++){
+                            children[x].style.width = '';
+                            if(children[x].classList.contains('super-google-map-directions')){
+                                children[x].style.overflowY = 'scroll';
+                                children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+                            }
+                        }
+                    }
+                    
+                    // No more pages to generate (submit form / send email)
+                    callback(pdf);
+                }
+            });
+        }, 200 );
+    }
+    SUPER.google_maps_api.allMaps = [];
     // @since 3.5.0 - function for intializing google maps elements
     SUPER.google_maps_api.initMaps = function($field, $form){
         $form = SUPER.get_frontend_or_backend_form($field, $form);
+        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+        if(typeof SUPER.google_maps_api.allMaps[$form_id] === 'undefined'){
+            SUPER.google_maps_api.allMaps[$form_id] = [];
+        }
+
         var $maps;
         if(!$field){
-            $maps = $form.querySelectorAll('.super-google-map');
+            $maps = $form.querySelectorAll('.super-google-map:not(.super-map-rendered)');
         }else{
-            $maps = $form.querySelectorAll('.super-google-map[data-fields*="{'+SUPER.get_field_name($field)+'}"]');
+            $maps = $form.querySelectorAll('.super-google-map:not(.super-map-rendered)[data-fields*="{'+SUPER.get_field_name($field)+'}"]');
         }
 
         // Loop through maps
         Object.keys($maps).forEach(function(key) {
-            var $data = JSON.parse($maps[key].querySelector('textarea').value),
-                
-                $form_id = $form.querySelector('input[name="hidden_form_id"]').value,
-                $zoom = parseFloat($data.zoom),
-                $address = $data.address,
-                $address_marker = $data.address_marker,
+            $maps[key].classList.add('super-map-rendered');
+            var html,
+                $data = JSON.parse($maps[key].querySelector('textarea').value),
+                $regular_expression = /\{(.*?)\}/g;
+
+                // Address Marker location
+            var $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.address),
+                // Directions API (route)
+                $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.origin),
+                $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.destination),
+                $directionsPanel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.directionsPanel),
+                $populateDistance = $data.populateDistance,
+                $populateDuration = $data.populateDuration,
+                $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.travelMode),
+                $unitSystem = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.unitSystem),
+                // Waypoints
+                $waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
+                $optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
+                $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
+                $avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
+                $avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
+                $avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
+                $region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
+                // drivingOptions (only when travelMode is DRIVING)
+                $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
+                $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
+                // transitOptions (only when travelMode is TRANSIT)
+                $arrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
+                $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
+                $TransitMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.TransitMode),
+                $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                $zoom = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.zoom);
+                if($zoom==='') $zoom = 5; // Default to 5
+                $zoom = parseInt($zoom, 10);
+                var $address_marker = $data.address_marker,
                 $polyline_stroke_weight = $data.polyline_stroke_weight,
                 $polyline_stroke_color = $data.polyline_stroke_color,
                 $polyline_stroke_opacity = $data.polyline_stroke_opacity,
                 $polyline_geodesic = $data.polyline_geodesic,
-                $map = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
-                    zoom: $zoom
-                    //mapTypeId: \'terrain\'
-                }),
-                $center_based_on_address = true,
                 $polylines,
                 $path = [],
                 $coordinates,
@@ -3229,9 +3503,14 @@ function SUPERreCaptcha(){
                 $lat_max = '',
                 $lng_min = '',
                 $lng_max = '',
-                $regular_expression = /\{(.*?)\}/g,
                 Path,
                 geocoder;
+
+            SUPER.google_maps_api.allMaps[$form_id][key] = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
+                center: {lat: 0, lng: 0},
+                zoom: $zoom
+                //mapTypeId: \'terrain\'
+            });
 
             // Draw Polylines
             if( $data.enable_polyline=='true' ) {
@@ -3257,7 +3536,7 @@ function SUPERreCaptcha(){
                     if( $lat!==0 && $lng!==0 ) {
                         new google.maps.Marker({
                             position: {lat: $lat, lng: $lng},
-                            map: $map
+                            map: SUPER.google_maps_api.allMaps[$form_id][key]
                         });
                     }
                     $path.push({lat: $lat, lng: $lng});
@@ -3273,17 +3552,16 @@ function SUPERreCaptcha(){
                     if($lng_max<$lng) $lng_max = $lng;
                 });
                 if( $lat_min===0 || $lat_max===0 || $lng_min===0 || $lng_max===0 ) {
-                    $map.setCenter(new google.maps.LatLng(
+                    SUPER.google_maps_api.allMaps[$form_id][key].setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));                    
                 }else{
-                    $center_based_on_address = false;
-                    $map.setCenter(new google.maps.LatLng(
+                    SUPER.google_maps_api.allMaps[$form_id][key].setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));
-                    $map.fitBounds(new google.maps.LatLngBounds(
+                    SUPER.google_maps_api.allMaps[$form_id][key].fitBounds(new google.maps.LatLngBounds(
                         new google.maps.LatLng($lat_min, $lng_min), // bottom left
                         new google.maps.LatLng($lat_max, $lng_max) //top right
                     ));
@@ -3294,36 +3572,213 @@ function SUPERreCaptcha(){
                         strokeOpacity: $polyline_stroke_opacity,
                         strokeWeight: $polyline_stroke_weight
                     });
-                    Path.setMap($map);
+                    Path.setMap(SUPER.google_maps_api.allMaps[$form_id][key]);
                 }
             }
 
-            // Center map if needed
-            if( ($address!=='') && ($center_based_on_address===true) ) {
+            // If directions panel is enabled
+            var target, panel=null;
+            target = $form.querySelector('.super-google-map-'+$form_id);
+            if($directionsPanel=='true'){
+                if(target.parentNode.querySelector('.super-google-map-directions')){
+                    target.parentNode.querySelector('.super-google-map-directions').remove();
+                }
+                if( ($origin==='') || ($destination==='') ) {
+                    target.parentNode.classList.remove('super-has-panel');
+                }else{
+                    target.parentNode.classList.add('super-has-panel');
+                    // Only create if not exists
+                    if(!target.parentNode.querySelector('.super-google-map-directions')){
+                        panel = document.createElement('div');
+                        panel.classList.add('super-google-map-directions');
+                        panel.style.height = target.parentNode.offsetHeight+'px';
+                        panel.style.overflowY = "scroll";
+                        target.parentNode.appendChild(panel);
+                        var printBtn = document.createElement('div');
+                        printBtn.classList.add('super-google-map-print');
+                        printBtn.innerHTML = 'Print';
+                        target.parentNode.appendChild(printBtn);
+                        printBtn.addEventListener('click', function(){
+                            var pdf = new jsPDF();
+                            // Starting at page 1
+                            pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
+                                // Finally we download the PDF file
+                                pdf.save("download-page-1.pdf");
+                            }); 
+                        });
+                    }
+                }
+            }
+
+            // Set Directions (route)
+            if( ($origin!=='') && ($destination!=='') ) {
+                var directionsService = new google.maps.DirectionsService();
+                var directionsRenderer = new google.maps.DirectionsRenderer({
+                    draggable: true,
+                    map: SUPER.google_maps_api.allMaps[$form_id][key],
+                    panel: ($directionsPanel=='true' ? document.querySelector('.super-google-map-'+$form_id).parentNode.querySelector('.super-google-map-directions') : null)
+                    // panel: document.getElementById('right-panel')
+                });
+                //directionsRenderer.setMap($map);
+                var request = {
+                    origin: $origin,
+                    destination: $destination,
+                    travelMode: $travelMode,
+                    unitSystem: google.maps.UnitSystem[$unitSystem],
+                    waypoints: [{location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true}],
+                    optimizeWaypoints: true,
+                    region: 'US'
+                };
+                directionsService.route(request, function (result, status) {
+                    if (status == 'OK') {
+                        directionsRenderer.setDirections(result);
+                        if($directionsPanel=='true'){
+                            var totalDist = 0;
+                            var totalTime = 0;
+                            var myroute = result.routes[0];
+                            for (var i = 0; i < myroute.legs.length; i++) {
+                                totalDist += myroute.legs[i].distance.value; // indicates the distance in meters even when unitSystem is set to "IMPERIAL"
+                                totalTime += myroute.legs[i].duration.value; // indicates the duration in seconds
+                            }
+                            // var distance;
+                            // var unit = 'km';
+                            // if($unitSystem=='IMPERIAL') {
+                            //     // Convert meters to miles
+                            //     distance = (totalDist / 1609).toFixed(1);
+                            //     unit = 'mile';
+                            // }else{
+                            //     distance = (totalDist / 1000).toFixed(1);
+                            // }
+                            // var timeUnit;
+                            // if((totalTime / 60).toFixed(2) >= 60){
+                            //     timeUnit = "hours";
+                            //     if((totalTime / 60).toFixed(2) == 60){
+                            //         timeUnit = "hour";
+                            //     }
+                            // }else{
+                            //     timeUnit = "minutes";
+                            //     if((totalTime / 60).toFixed(2) == 1){
+                            //         timeUnit = "minute";
+                            //     }
+                            // }
+                            // var time = ((totalTime / 60).toFixed(2) < 60 ? (totalTime / 60).toFixed(0) : (totalTime / 60 / 60).toFixed(1));
+                            // html = "<strong>Distance:</strong> " + distance + " "+unit+"<br /><strong>Duration:</strong> " + time + " " + timeUnit + "<br />" + html;
+                            // panel.innerHTML = html;
+
+                            // Populate fields with values if defined
+                            var field; 
+                            if($populateDistance!==''){
+                                // Check if field exists in this form
+                                if(SUPER.field_exists($form, $populateDistance)){
+                                    field = SUPER.field($form, $populateDistance);
+                                    field.value = totalDist; // indicates the distance in meters
+                                    SUPER.after_field_change_blur_hook(field);
+                                }
+                            }
+                            if($populateDuration!==''){
+                                // Check if field exists in this form
+                                if(SUPER.field_exists($form, $populateDuration)){
+                                    field = SUPER.field($form, $populateDuration);
+                                    field.value = totalTime; // indicates the duration in seconds
+                                    SUPER.after_field_change_blur_hook(field);
+                                }
+                            }
+                        }
+                    }else{
+                        // Display error message
+                        result = {
+                            msg: 'Route was not successful for the following reason: ' + status,
+                            loading: true
+                        }
+                        html = '<div class="super-msg super-error">';
+                        SUPER.form_submission_finished($form[0], result, html);
+                    }
+                });
+                return true;
+            }
+
+            // Add Address Marker
+            if( ($address!=='') ) {
                 geocoder = new google.maps.Geocoder();
-                // Replace with tag if needed
-                $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $address);
-                
-                // Check if address is not empty
-                if($address!==''){
-                    geocoder.geocode( { 'address': $address}, function(results, status) {
+                if( $address!=='' ) {
+                    geocoder.geocode( { 'address': $address}, function(result, status) {
                         if (status == 'OK') {
                             // Center map based on given address
-                            $map.setCenter(results[0].geometry.location);
+                            SUPER.google_maps_api.allMaps[$form_id][key].setCenter(result[0].geometry.location);
                             // Add marker on address location
                             if( $address_marker=='true' ) {
                                 new google.maps.Marker({
-                                    map: $map,
-                                    position: results[0].geometry.location
+                                    map: SUPER.google_maps_api.allMaps[$form_id][key],
+                                    position: result[0].geometry.location
                                 });
                             }
                         } else {
-                            console.log('Geocode was not successful for the following reason: ' + status);
+                            // Display error message
+                            result = {
+                                msg: 'Geocode was not successful for the following reason: ' + status,
+                                loading: true
+                            }
+                            var html = '<div class="super-msg super-error">';
+                            SUPER.form_submission_finished($form[0], result, html);
                         }
                     });
                 }
+                return true;
             }
 
+
+            // // Center map if needed
+            // if( ($origin!=='') && ($center_based_on_address===true) ) {
+            //     geocoder = new google.maps.Geocoder();
+            //     // Replace with tag if needed
+            //     $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $origin);
+
+                
+            //     // Check if address is not empty
+            //     if($origin!==''){
+            //         geocoder.geocode( { 'address': $origin}, function(results, status) {
+            //             if (status == 'OK') {
+            //                 // Center map based on given address
+            //                 $map.setCenter(results[0].geometry.location);
+            //                 // Add marker on address location
+            //                 if( $address_marker=='true' ) {
+            //                     new google.maps.Marker({
+            //                         map: $map,
+            //                         position: results[0].geometry.location
+            //                     });
+            //                 }
+            //             } else {
+            //                 console.log('Geocode was not successful for the following reason: ' + status);
+            //             }
+            //         });
+
+            //         if($destination!=='') {
+            //             $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $destination);
+            //             $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $travelMode);
+            //             var directionsService = new google.maps.DirectionsService();
+            //             var directionsRenderer = new google.maps.DirectionsRenderer();
+            //             directionsRenderer.setMap($map);
+            //             var request = {
+            //                 origin: $origin,
+            //                 destination: $destination,
+            //                 travelMode: $travelMode
+            //             };
+            //             directionsService.route(request, function (result, status) {
+            //                 if (status == 'OK') {
+            //                     directionsRenderer.setDirections(result);
+            //                 }else{
+            //                     // Display error message
+            //                     result = {
+            //                         msg: 'Route was not successful for the following reason: ' + status,
+            //                         loading: true
+            //                     }
+            //                     var html = '<div class="super-msg super-error">';
+            //                     SUPER.form_submission_finished($form[0], result, html);
+            //                 }
+            //             });
+            //         }
+            //     }
+            // }
         });
     };
 

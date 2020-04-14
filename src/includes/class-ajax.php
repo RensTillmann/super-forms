@@ -2000,7 +2000,6 @@ class SUPER_Ajax {
         // Return extra data via ajax response
         $response_data = array();
 
-
         // Get form settings
         $form_id = absint( $_POST['form_id'] );
         $response_data['form_id'] = $form_id;
@@ -2253,6 +2252,58 @@ class SUPER_Ajax {
             }
         }
 
+        // @since 4.9.5
+        $data = apply_filters( 'super_after_processing_files_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
+
+        // Try to generate PDF file
+        try {
+            $imgData = str_replace( ' ', '+', $data['datauristring']['value'] );
+            $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
+            $imgData = base64_decode( $imgData );
+            // Path where the image is going to be saved
+            $wp_upload_dir = wp_upload_dir();
+            $filePath = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
+            $filePath = SUPER_Common::generate_random_folder( $filePath ) . '/test123.pdf'; // . basename( $source );
+            // Write $imgData into the image file
+            $file = fopen( $filePath, 'w' );
+            fwrite( $file, $imgData );
+            fclose( $file );
+            // Insert PDF as an attachment, this way it will be stored into the WP database so that it can be retrieved at a later time
+            $filetype = wp_check_filetype( basename( $filePath ), null );
+            $attachment = array(
+                'post_mime_type' => $filetype['type'],
+                'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filePath ) ),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            $attach_id = wp_insert_attachment( $attachment, $filePath );
+            require_once( ABSPATH . 'wp-admin/includes/image.php' );
+            $attach_data = wp_generate_attachment_metadata( $attach_id, $filePath );
+            wp_update_attachment_metadata( $attach_id,  $attach_data );
+            $data['datauristring'] = array(
+                'label' => 'Generated PDF',
+                'type' => 'files',
+                'exclude' => 0,
+                'files' => array(
+                    array(
+                        'name' => 'generatedpdf',
+                        'value' => wp_get_attachment_url( $attach_id ),
+                        'attachment' => $attach_id,
+                        'url' => wp_get_attachment_url( $attach_id ),
+                        'thumburl' => '',
+                        'label' => 'Generated PDF',
+                        'exclude' => 0,
+                    )
+                )
+            );
+        } catch (Exception $e) {
+            // Print error message
+            SUPER_Common::output_message( 
+                $error = true, 
+                $e->getMessage()
+            );
+        }
+
         // @since 2.8.0 - save generated code(s) into options table instaed of postmeta table per contact entry
         foreach( $data as $k => $v ) {
             if( (isset($v['code'])) && ($v['code']=='true') ) {
@@ -2387,6 +2438,7 @@ class SUPER_Ajax {
                 }
             }
         }
+
         // @since 2.2.0 - update contact entry data by ID
         if($entry_id!=0){
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
