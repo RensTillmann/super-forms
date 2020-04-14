@@ -976,8 +976,15 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        $number = rand( 100000000, 999999999 );
-        $new_folder = $folder . '/' . $number;
+        $length = 100;
+        $key = '';
+        $keys = array_merge(range(0, 9), range('a', 'z'));
+        for ($i = 0; $i < $length; $i++) {
+            $key .= $keys[array_rand($keys)];
+        }
+        $new_folder = $folder . '/' . $key;
+        //$number = rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 );
+        //$new_folder = $folder . '/' . $number;
         if( file_exists( $new_folder ) ) {
             self::generate_random_folder( $folder );
         }else{

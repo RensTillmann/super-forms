@@ -22,7 +22,7 @@
   - [Validation](validation.md)
   - [Conditional Validation](conditional-validation.md)
 
-- Features 
+- Features
   - [Translation System](build-in-translation-system.md)
   - [Tags system](tags-system.md)
   - [Conditional Logic](conditional-logic.md)
@@ -82,6 +82,3 @@
 - [Changelog](changelog.md)
 
 - [Help & Support](support.md)
-
-
-

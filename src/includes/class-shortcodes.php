@@ -1603,11 +1603,15 @@ class SUPER_Shortcodes {
                 }
             }
 
-            if( (isset($atts['minnumber'])) && ($atts['minnumber']>0) ) {
-                $result .= ' data-minnumber="' . esc_attr($atts['minnumber']) . '"';
-            }
-            if( (isset($atts['maxnumber'])) && ($atts['maxnumber']>0) ) {
-                $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
+            if( !isset($atts['maxnumber'])) $atts['maxnumber'] = 0;
+            if( !isset($atts['minnumber'])) $atts['minnumber'] = 0;
+            if($atts['maxnumber']!=0 || $atts['minnumber']!=0){
+                if( isset($atts['minnumber']) ) {
+                    $result .= ' data-minnumber="' . esc_attr($atts['minnumber']) . '"';
+                }
+                if( (isset($atts['maxnumber'])) && ($atts['maxnumber'] > $atts['minnumber']) ) {
+                    $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
+                }
             }
         }
 
@@ -4308,7 +4312,8 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static function google_map( $tag, $atts ) {
-
+        wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+        wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );   
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -4330,7 +4335,32 @@ class SUPER_Shortcodes {
 
         // Add field attributes if {tags} are being used
         $field_names = array();
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['address']);
+        // Directions API (route)
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['origin']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['destination']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['directionsPanel']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['travelMode']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['unitSystem']);
+        // Waypoints
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['waypoints']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['optimizeWaypoints']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['provideRouteAlternatives']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidFerries']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidHighways']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidTolls']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['region']);
+        // drivingOptions (only when travelMode is DRIVING)
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
+        // transitOptions (only when travelMode is TRANSIT)
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['TransitMode']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['zoom']);
 
+        // Olylines
         if( !empty($atts['enable_polyline']) ) {
             $polylines = explode("\n", $atts['polylines']);
             foreach( $polylines as $k => $v ) {
@@ -4353,10 +4383,6 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
-        // @since 3.7.0 - add address {tags} to the data-fields attribute
-        preg_match_all('/{\K[^}]*(?=})/m', $atts['address'], $matches);
-        $field_names = array_unique(array_merge($field_names, $matches[0]), SORT_REGULAR);
 
         $map_id = 'super-google-map-' . self::$current_form_id;
 

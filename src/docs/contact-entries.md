@@ -11,8 +11,7 @@
 * [Custom Contact Entry title](#custom-contact-entry-title)
 * [Contact Entry Updating](#contact-entry-updating)
 
-
-### What are contact entries?
+## What are contact entries?
 
 A so called **Contact Entry** is basically the form submission. Whenever a user fills out the form and submits the form, optionally a **Contact Entry** is created within under `Super Forms` > `Contact Entries`.
 
@@ -22,8 +21,7 @@ Each field has the option to make sure it will NOT be saved in the **Contact Ent
 
 ?> **Developer notice:** Contact Entries are a custom post type named: `super_contact_entry`
 
-
-### Saving contact entries
+## Saving contact entries
 
 By default a **Contact Entry** will be created after a form was submitted.
 
@@ -31,8 +29,7 @@ You can optionally disable this via `Form Settings > Form Settings` under the op
 
 !> **Please note:** some of the features require that a contact entry is saved in order to work properly, if this is the case you will always be notified about this.
 
-
-### Viewing contact entries
+## Viewing contact entries
 
 When you wish to view the data that was submitted by a user, you can find it under `Super Forms > Contact Entries`.
 
@@ -44,16 +41,15 @@ Each contact entry will contain all the values entered by the user of the form, 
 
 A contact entry will also contain the following information:
 
-- Entry title _(you are able to define custom title structures if nessasary)_
-- Leade information _(this will contain all the form data submitted by the user)_
-- Date of submission e.g: August 2, 2018 @ 6:40 pm
-- IP-address of the user who submitted the form
-- Username of the user who submitted the form _(only if a user was logged in at the time)_
-- Entry status _(you can update a status manually, and you can define custom statusses if required)_
-- Based on Form _(the form name and link to the form via which this contact entry was created based of)_
+* Entry title _(you are able to define custom title structures if nessasary)_
+* Leade information _(this will contain all the form data submitted by the user)_
+* Date of submission e.g: August 2, 2018 @ 6:40 pm
+* IP-address of the user who submitted the form
+* Username of the user who submitted the form _(only if a user was logged in at the time)_
+* Entry status _(you can update a status manually, and you can define custom statusses if required)_
+* Based on Form _(the form name and link to the form via which this contact entry was created based of)_
 
-
-### Exporting contact entries to CSV
+## Exporting contact entries to CSV
 
 On the `Super Forms > Contact Entries` page you can choose to export selected Contact Entries to a CSV file.
 
@@ -65,18 +61,17 @@ Optionally you can adjust the column names for use in the CSV file.
 
 After that you can click `Export` and the CSV file will be downloaded to your computer.
 
-
-### Columns for contact entries
+## Columns for contact entries
 
 By default when you go to the **Contact Entries** list in the back-end under `Super Forms > Contact Entries` there will be the following columns that will display the information of each entry:
 
-- Title _(can not be altered)_
-- Status _(can not be altered)_
-- Based on Form _(can not be altered)_
-- E-mail
-- Phonenumber
-- Message
-- Date _(can not be altered)_
+* Title _(can not be altered)_
+* Status _(can not be altered)_
+* Based on Form _(can not be altered)_
+* E-mail
+* Phonenumber
+* Message
+* Date _(can not be altered)_
 
 In some cases you might wish to alter these tables to something else that suits your needs a little better.
 
@@ -90,8 +85,7 @@ On each line you will define a column by seperating the field name and the colum
     address|Address
     birth_date|Birth Date
 
-
-### Contact Entry Statusses
+## Contact Entry Statusses
 
 As you can change the columns, you can also change the statusses that are available for use for your contact entries.
 
@@ -112,8 +106,7 @@ Example statusses are:
     declined|Declined|#E40000|#FFFFFF
     refunded|Refunded|#000000|#FFFFFF
 
-
-### GDPR Consent (conditionally save entry)
+## GDPR Consent (conditionally save entry)
 
 ?> **Please note:** this feature requires the use of {tags} reade the [Tags system](tags-system) section for more info.
 
@@ -141,8 +134,7 @@ With above condition in place the contact entry will only be saved if the user g
 
 Otherwise the contact entry will not be saved and thus no data will be stored in the database.
 
-
-### Custom Contact Entry title
+## Custom Contact Entry title
 
 In some cases you might wish to save a custom entry title.
 
@@ -160,10 +152,9 @@ In our example we will not append the entry ID, and only use the tag `{email}` t
 
 Of course the E-mail field must be named `email` in order for this to work properly.
 
+## Contact Entry Updating
 
-### Contact Entry Updating
-
-!> **Please note:** updating contact entries will only work when either the form contains a so called [Search field](#) that searches entries based on their title, or when either a **GET** or **POST** request contains a key called `contact_entry_id` with the **Contact Entry ID** that requires updating, or if the option **Retrieve form data from users last submission** is enabled.
+!> **Please note:** updating contact entries will only work when either the form contains a so called **Search field** that searches entries based on their title, or when either a **GET** or **POST** request contains a key called `contact_entry_id` with the **Contact Entry ID** that requires updating, or if the option **Retrieve form data from users last submission** is enabled.
 
 In some cases you might need to let the user be able to update a previous created contact entry.
 
@@ -173,27 +164,25 @@ Optionally you can also select which entry status it should get after the user u
 
 There are a couple of ways to allow a user to update a previously created contact entry:
 
-- [Search method](#search-method)
-- [Retrieve data from users last submission](#retrieve-data-from-users-last-submission)
-- [GET or POST method](#get-or-post-method)
+* [Search method](#search-method)
+* [Retrieve data from users last submission](#retrieve-data-from-users-last-submission)
+* [GET or POST method](#get-or-post-method)
 
+### Search method
 
-#### Search method
-
-This method requires the form to have a [search field](search-field) which will simply search for a contact entry based on the contact entry title.
+This method requires the form to have a **Search field** which will simply search for a contact entry based on the contact entry title.
 
 What you could do is have form save a custom entry title (as explained above) and generate a [Unique random number](unique-random-number) and save this as the contact entry title.
 
 The user who would submit this form would now have a unique number that he/she could use in the future to update this specific contact entry.
 
-In order to do this, either the same form or a seconf form would contain a search field in which the user will enter the unique number, which will then search the database for this specific contact entry.
+In order to do this, either the same form or a seconf form would contain a **Search field** in which the user will enter the unique number, which will then search the database for this specific contact entry.
 
 When a match was found, it will populate the form with the entry data, and the user would be able to make edits where necessary.
 
 As soon as the user submits the form, no longer will a new contact entry be created, but instead the existing contact entry will be updated.
 
-
-#### Retrieve dat from users last submission
+### Retrieve dat from users last submission
 
 ?> This method will only work for logged in users
 
@@ -203,8 +192,7 @@ If any was found, it will automatically populate the form with the contact entry
 
 And if **Enable contact entry updating** is enabled it will update this last contact entry instead of creating a new one.
 
-
-#### GET or POST method
+### GET or POST method
 
 This method would be most likely for developers to allow them to create a system that can list entries, and give this list a so called **Edit** button.
 

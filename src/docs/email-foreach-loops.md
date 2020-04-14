@@ -3,11 +3,9 @@
 * [What is an email foreach loop?](#what-is-an-email-foreach-loop)
 * [How to create my own foreach loops?](#how-to-create-my-own-foreach-loops)
 
-
 ?> **NOTE:** This feature also works with HTML elements since v4.6.0+
 
-
-### What is an email foreach loop?
+## What is an email foreach loop?
 
 With the Super Forms build in `foreach loops` for your emails you will have more flexibility the way your emails will be generated based on user input.
 
@@ -15,15 +13,15 @@ The foreach loop will be used in combination with elements inside a so called [D
 
 If you are familiar with any programming language you can construct your own loops with ease for your emails.
 
+## How to create my own if statements?
 
+An example foreach loop would look like this:
 
-### How to create my own if statements?
-
-An example foreach loop would look like this: 
-
-	foreach(first_name): 
-		Person #<%counter%>: <%first_name%> <%last_name%><br />
-	endforeach;
+```php
+foreach(first_name):
+ Person #<%counter%>: <%first_name%> <%last_name%><br />
+endforeach;
+```
 
 Depending on how many dynamic columns have been generated a new extra line is printend inside the email.
 
@@ -35,7 +33,8 @@ The `<%first_name%>` in this example will be replaced with the entered value in 
 
 The example output would look something like this:
 
-	Person #1: Mike Tyson
-	Person #2: Bill Gates
-	Person #3: Mark Zuckerberg
-
+```html
+Person #1: Mike Tyson
+Person #2: Bill Gates
+Person #3: Mark Zuckerberg
+```

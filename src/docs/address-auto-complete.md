@@ -8,7 +8,8 @@ In order to enable the **Address Auto Complete** function you will have to edit 
 
 Now make sure you enable the feature by checking **Enable address auto complete**.
 
-Now enter your **Google API key** and make sure you have enabled these libraries in your [API manager](https://console.developers.google.com/): 
+Now enter your **Google API key** and make sure you have enabled these libraries in your [API manager](https://console.developers.google.com/):
+
 - Google Maps JavaScript API
 - Google Places API Web Service
 

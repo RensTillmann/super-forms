@@ -1,6 +1,6 @@
 # Updating the plugin
 
-### Automatic updates
+## Automatic updates
 
 Super Forms can be **updated automatically** via your WordPress dashboard without to delete the plugin and reupload it.
 Whenever a new update is available WordPress will automatically show you a message in your dashboard that you can update the plugin.
@@ -12,7 +12,7 @@ Here you can click on `Check again`.
 WordPress will now check every plugins repository for new versions.
 If a newer version was found it will display the new version and you will be able to **update the plugin**.
 
-### Manual updates
+## Manual updates
 
 ?> **NOTE:** Deleting the plugin will not delete any of your forms, contact entries or saved settings
 

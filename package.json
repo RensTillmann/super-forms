@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "help": "^3.0.2",
+    "html2canvas": "^1.0.0-rc.5",
     "sass": "^1.23.0"
   }
 }

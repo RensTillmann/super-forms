@@ -519,6 +519,7 @@
 	// allows MDP not to hide everytime a date is picked
 	$.multiDatesPicker._hideDatepicker = $.datepicker._hideDatepicker;
 	$.datepicker._hideDatepicker = function () {
+		if(!this._curInst) return;
 		var target = this._curInst.input[0];
 		var mdp = target.multiDatesPicker;
 		if (!mdp || (this._curInst.inline === false && !mdp.changed)) {

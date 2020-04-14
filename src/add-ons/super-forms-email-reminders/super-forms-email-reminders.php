@@ -577,7 +577,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
                     'email_reminder_'.$x.'_base_date' => array(
                         'hidden_setting' => true,
                         'name'=> esc_html__( 'Send reminder based on the following date:', 'super-forms' ),
-                        'label'=> esc_html__( 'Must be English formatted date. When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
+                        'label'=> esc_html__( 'Must be English formatted date e.g: "25-03-2020". When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
                         'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_base_date', $settings['settings'], '' ),
                         'filter'=>true,
                         'parent'=>'email_reminder_'.$x,

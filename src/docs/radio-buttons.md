@@ -1,5 +1,5 @@
 # Radio buttons
 
-### Features & Options
+## Features & Options
 
 This element shares the same options as the [Checkbox](checkbox) element.

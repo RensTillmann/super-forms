@@ -2,14 +2,13 @@
 
 !> **Please note:** You will require a Tracking ID from your Google Analytics account to make this work. If you have't one yet you can get yours from [Google Analytics](https://developers.google.com/analytics/devguides/collection/analyticsjs/)
 
-### About
+## About
 
 If you are using Google Analtyics to track web traffic, you might also wish to track form submissions. This guid will provide you with the steps required to set it up correctly.
 
 ?> **Please note:** the JavaScript code snippet used is based on the latest version of the Google Analytics library. If you use the [Legacy library (ga.js)](https://developers.google.com/analytics/devguides/collection/gajs/) you will need to change the code accordingly to the offical Google Documentation.
 
-
-### Configuration
+## Configuration
 
 Tracking form submissions with your **Google Analytics** account is very easy with Super Forms.
 
@@ -21,43 +20,43 @@ Enable the option **Track form submissions with Google Analytics**.
 
 Add the following code snippet and replace **UA-XXXXXX-X** with your Tracking ID.
 
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-	 
-	ga('create', 'UA-XXXXXX-X', 'auto');
-	ga('send', 'pageview');
+```js
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName[o](0);a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+ga('create', 'UA-XXXXXX-X', 'auto');
+ga('send', 'pageview');
+```
 
-### Event Tracking
+## Event Tracking
 
 The last step is to add an **Tracking Event** that will be send to Analytics.
 
-**Tracking a specific form only:**<br />
+**Tracking a specific form only:**
+
 The only thing you have to do is prepend the form ID before `send` with a collon `:` like so:
 
 `3519:send|event|Contact Form|submit`
 
 This event will only be triggered for the form with ID `3519`.
 
+**Tracking all forms:**
 
-**Tracking all forms:**<br />
 In order to setup a global tracking event you can simply add the following line:
 
 `send|event|Contact Form|submit`
 
 Replace **Contact Form** with a more suitable name if needed. This will be visible in your Analytics dashboard.
 
+**Tracking event with a Label and Value:**
 
-**Tracking event with a Label and Value:**<br />
 In some cases you might need or want to give some additional information, for instance if you are running multiple campagns in a specific time period. You can append the Label and Value like this:
 
 `send|event|Campaign Form|submit|Fall Campaign|43`
 
-
-### Testing & Debugging
-
+## Testing & Debugging
 
 If you have setup everything correctly you should be able to see some activity in your Analytics Dashboard when a form has been submitted.
 
