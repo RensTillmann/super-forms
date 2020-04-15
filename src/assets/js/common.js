@@ -1709,26 +1709,44 @@ function SUPERreCaptcha(){
 
     SUPER.before_generating_pdf = function(form, margins, scrollAmount, callback){
 
+        //form.style.overflow = "-moz-hidden-unscrollable";
+        //form.style.width = "500px";
         // Must scroll to top of window, or it will not work properly!
         //document.body.scrollTop = document.documentElement.scrollTop = 0;
 
         // Must hide scrollbar
-        // document.documentElement.classList.add("super-hide-scrollbar");
-        // var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable; overflow: hidden;}',
-        // head = document.head || document.getElementsByTagName('head')[0],
-        // style = document.createElement('style');
-        // head.appendChild(style);
-        // style.type = 'text/css';
-        // if (style.styleSheet){
-        //     // This is required for IE8 and below.
-        //     style.styleSheet.cssText = css;
-        // } else {
-        //     style.appendChild(document.createTextNode(css));
-        // }
+        document.documentElement.classList.add("super-hide-scrollbar");
+        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}',
+        head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+        style.id = 'super-hide-scrollbar';
+        head.appendChild(style);
+        style.type = 'text/css';
+        if (style.styleSheet){
+            // This is required for IE8 and below.
+            style.styleSheet.cssText = css;
+        } else {
+            style.appendChild(document.createTextNode(css));
+        }
 
+        var formId = form.querySelector('input[name="hidden_form_id"]').value;
+        
         // Create loader overlay
         var loadingOverlay = document.createElement('div');
-        loadingOverlay.innerHTML = 'Processing data...';
+        loadingOverlay.innerHTML = `<div class="verifying-payment">
+    <div class="wrapper">
+        <svg width="84px" height="84px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
+            <circle class="border" cx="42" cy="42" r="40" stroke-linecap="round" stroke-width="4" stroke="#000" fill="none"></circle>
+        </svg>
+        <div class="caption verifying">
+            <div class="title">
+                <svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink"></svg>
+                <span>Processing form data...</span>
+            </div>
+        </div>
+    </div>
+</div>`;
+
         loadingOverlay.classList.add('super-loading-overlay');
         loadingOverlay.style.position = 'absolute';
         loadingOverlay.style.zIndex = 99999999;
@@ -1736,14 +1754,299 @@ function SUPERreCaptcha(){
         loadingOverlay.style.height = '100%';
         loadingOverlay.style.top = '0px';
         loadingOverlay.style.left = '0px';
-        loadingOverlay.style.backgroundColor = "orange";
         form.appendChild(loadingOverlay);       
 
+        // Add Animation Script
+        var js = `
+        (function() { // Hide scope, no $ conflict
+            var status = 'consumed',
+                node = document.querySelector('.verifying-payment');
+        
+            // Handle Animation
+            function handle_animation(status){
+                // canceled == payment was canceled
+                // pending == payment method can take up to a few days to be processed
+                // chargeable == waiting for bank to process payment
+                // failed == canceled by user or due to other reason
+                // consumed == completed
+        
+                // If status is chargeable
+                if(status=='chargeable'){
+                    setTimeout(function(){
+                        node.classList.add('verifying');
+                    },50);
+                    // Check for payment status for a specific set of time, otherwise timeout
+                    // If status didn't return 'failed' show message to the user that the payment might be processed at a later time
+                    setTimeout(function(){
+                        // Handle result.error or result.source
+                        // path_animation('error', node, result);
+                        path_animation('chargeable', node, result);
+                    },5000);
+                }else{
+                    // Other statuses
+                    path_animation(status, node);
+                }
+            }
+            handle_animation(status);
+        
+            // Set path attributes
+            function create_path( $d, $stroke, $strokeDasharray, $strokeDashoffset, $transitionDelay, $transitionDuration, $transitionProperty, $class ) {
+                var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.style.opacity = '0';
+                path.style.strokeDasharray = $strokeDasharray;
+                path.style.strokeDashoffset = $strokeDashoffset;
+                path.style.transitionDelay = $transitionDelay;
+                path.style.transitionDuration = $transitionDuration;
+                if($transitionProperty!=='undefined'){
+                    path.style.transitionProperty = 'stroke-dashoffset';
+                }
+                path.setAttribute('stroke-linecap', 'round');
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('d', $d);
+                path.setAttribute('stroke-width', '4');
+                path.setAttribute('stroke', $stroke);
+                path.setAttribute('fill', 'none');
+                path.classList.add('checkmark');
+                path.classList.add($class);
+                return path;
+            }
+            function update_checkmark(node, selector, opacity, strokeDashoffset){
+                node.querySelector(selector).style.opacity = opacity;
+                node.querySelector(selector).style.strokeDashoffset = strokeDashoffset;
+            }
+            function path_animation($type, node, result){
+                if($type=='chargeable'){
+                    var path = create_path('M 27,42 L 40,55', '#000', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
+                    node.querySelector('.caption .title svg').appendChild(path);
+                    path = create_path('M 60,30 L 40,55', '#000', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
+                    node.querySelector('.caption .title svg').appendChild(path);
+                    setTimeout(function(){
+                        update_checkmark(node, '.checkmark.p1', '1', '40');
+                        update_checkmark(node, '.checkmark.p2', '1', '120');
+                    },50);
+        
+                    var clone = node.querySelector('.caption').cloneNode(true);
+                    clone.classList.add('completing');
+                    clone.style.opacity = '0';
+                    clone.style.transform = 'translateY(80px) scale(1)';
+                    update_checkmark(clone, '.checkmark.p1', '0', '60');
+                    update_checkmark(clone, '.checkmark.p2', '0', '86');
+                    clone.querySelector('.caption .title span').innerHTML = 'Chargeable';
+                    node.querySelector('.wrapper').appendChild(clone);
+                    setTimeout(function(){
+                        node.querySelector('.completing').style.opacity = '1';
+                    },550);
+                    setTimeout(function(){
+                        if(result.source.status=='consumed'){
+                            update_checkmark(node, '.completing .checkmark.p1', '1', '40');
+                            update_checkmark(node, '.completing .checkmark.p2', '1', '120');
+                        }
+                        handle_animation(result.source.status);
+                    },5000);
+                }
+                if($type=='consumed'){
+                    setTimeout(function(){
+                        node.classList.add('verifying');
+                    },50);
+                    setTimeout(function(){
+                        var path = create_path('M 27,42 L 40,55', '#83ca6b', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 60,30 L 40,55', '#83ca6b', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
+                        node.querySelector('svg').appendChild(path);
+                        // Add caption
+                        var caption = document.createElement('div');
+                        caption.className = 'caption failed';
+                        caption.innerHTML = 'Consumed';
+                        node.querySelector('.wrapper').appendChild(caption);
+                        setTimeout(function(){
+                            node.querySelectorAll('.caption').forEach(function(el) {
+                                el.style.opacity = '0';
+                            });
+                            node.querySelector('.caption.failed').style.opacity = '1';
+                            //node.querySelector('svg').style.marginBottom = '130px';
+                            node.querySelector('.border').style.stroke = '#83ca6b';
+                            node.querySelector('.border').style.strokeDashoffset = '0';
+                            update_checkmark(node, '.checkmark.p1', '1', '40');
+                            update_checkmark(node, '.checkmark.p2', '1', '120');
+                            node.classList.remove('verifying');
+                            node.classList.add('completed');
+                        },1000);
+                    },5000);
+                }
+                if($type=='pending'){
+                    setTimeout(function(){
+                        node.classList.add('verifying');
+                    },50);
+                    setTimeout(function(){
+                        var path = create_path('M 42,15 L 42,45', '#ff9600', '60', '90', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 58,55 L 42,45', '#ff9600', '60', '100', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+                        node.querySelector('svg').appendChild(path);
+                        // Add caption
+                        var caption = document.createElement('div');
+                        caption.className = 'caption failed';
+                        caption.innerHTML = 'Pending';
+                        node.querySelector('.wrapper').appendChild(caption);
+                        setTimeout(function(){
+                            //node.querySelector('svg').style.marginBottom = '130px';
+                            node.querySelector('.border').style.stroke = '#ffe3bb';
+                            node.querySelector('.border').style.strokeDashoffset = '0';
+                            update_checkmark(node, '.checkmark.p1', '1', '120');
+                            update_checkmark(node, '.checkmark.p2', '1', '120');
+                            node.classList.remove('verifying');
+                            node.classList.add('completed');
+                        },1000);
+                    },5000);
+                }
+                if($type=='canceled'){
+                    setTimeout(function(){
+                        node.classList.add('verifying');
+                    },50);
+                    setTimeout(function(){
+                        var path = create_path('M 30,30 L 55,55', '#616161', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 55,30 L 30,55', '#616161', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+                        node.querySelector('svg').appendChild(path);
+                        // Add caption
+                        var caption = document.createElement('div');
+                        caption.className = 'caption failed';
+                        caption.innerHTML = 'Canceled';
+                        node.querySelector('.wrapper').appendChild(caption);
+                        setTimeout(function(){
+                            node.querySelector('.border').style.stroke = '#e8e8e8';
+                            node.querySelector('.border').style.strokeDashoffset = '0';
+                            update_checkmark(node, '.checkmark.p1', '1', '120');
+                            update_checkmark(node, '.checkmark.p2', '1', '120');
+                            node.classList.remove('verifying');
+                            node.classList.add('completed');
+                        },1000);
+                    },5000);
+                }
+                if($type=='failed'){
+                    setTimeout(function(){
+                        node.classList.add('verifying');
+                    },50);
+                    setTimeout(function(){
+                        var path = create_path('M 30,30 L 55,55', '#ff6868', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 55,30 L 30,55', '#ff6868', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
+                        node.querySelector('svg').appendChild(path);
+                        // Add caption
+                        var caption = document.createElement('div');
+                        caption.className = 'caption failed';
+                        caption.innerHTML = 'Failed';
+                        node.querySelector('.wrapper').appendChild(caption);
+                        setTimeout(function(){
+                            //node.querySelector('svg').style.marginBottom = '130px';
+                            node.querySelector('.border').style.stroke = '#ffdcdc';
+                            node.querySelector('.border').style.strokeDashoffset = '0';
+                            update_checkmark(node, '.checkmark.p1', '1', '120');
+                            update_checkmark(node, '.checkmark.p2', '1', '120');
+                            node.classList.remove('verifying');
+                            node.classList.add('completed');
+                        },1000);
+                    },5000);
+                }
+                if($type=='error'){
+                    setTimeout(function(){
+                        var path = create_path('M 10,80 L 40,30', '#ff6868', '90', '120', '0.2s', '0.2s', undefined, 'p1');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 10,80 L 70,80', '#ff6868', '90', '90', '0.4s', '0.2s', undefined, 'p2');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 40,30 L 70,80', '#ff6868', '90', '120', '0.6s', '0.2s', undefined, 'p3');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 40,48 L 40,63', '#ff6868', '90', '165', '0.4s', '0.2s', undefined, 'p4');
+                        node.querySelector('svg').appendChild(path);
+                        path = create_path('M 40,70 L 40,70', '#ff6868', '90', '0', '0.4s', '0.2s', undefined, 'p5');
+                        node.querySelector('svg').appendChild(path);
+                        // Add caption
+                        var caption = document.createElement('div');
+                        caption.className = 'caption failed';
+                        caption.innerHTML = '<div class="title">Error: '+result.error.code+'</div><div class="description">'+result.error.message+'</div>';
+                        node.querySelector('.wrapper').appendChild(caption);
+                        setTimeout(function(){
+                            //node.querySelector('svg').style.marginBottom = '120px';
+                            node.querySelector('.border').style.opacity = '0';
+                            update_checkmark(node, '.checkmark.p1', '1', '180');
+                            update_checkmark(node, '.checkmark.p2', '1', '30');
+                            update_checkmark(node, '.checkmark.p3', '1', '180');
+                            update_checkmark(node, '.checkmark.p4', '1', '180');
+                            update_checkmark(node, '.checkmark.p5', '1', '0');
+                            node.classList.remove('verifying');
+                            node.classList.add('completed');
+                        },1000);
+                    },5000);
+                }
+            }
+        })();`,
+        newScript = document.createElement("script");
+        //newScript.type = 'text/javascript';
+        newScript.id = 'super-pdf-animation';
+        var inlineScript = document.createTextNode(js);
+        newScript.appendChild(inlineScript); 
+        head.appendChild(newScript);
+
+
+        // Hide all "Button" elements
+        nodes = form.querySelectorAll('.super-form-button');
+        for(var i=0; i < nodes.length; i++){
+            nodes[i].style.display = 'none';
+        }
+
+        // First disable the UI on the map for nicer print of the map
+        // And make map fullwidth and directions fullwidth
+        for(var i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+            SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                disableDefaultUI: true
+            });
+            var children = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            for(var x=0; x < children.length; x++){
+                children[x].style.width = '100%';
+                if(children[x].classList.contains('super-google-map-directions')){
+                    children[x].style.overflowY = 'initial';
+                    children[x].style.height = 'auto';
+                }
+            }
+        }
+        
+        // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+        function adjustHeight(el, minHeight) {
+            // compute the height difference which is caused by border and outline
+            var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+            var diff = outerHeight - el.clientHeight;
+            // set the height to 0 in case of it has to be shrinked
+            el.style.height = 0;
+            // set the correct height
+            // el.scrollHeight is the full height of the content, not just the visible part
+            el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+        }
+        // we use the "data-adaptheight" attribute as a marker
+        // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
+        var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
+        // iterate through all the textareas on the page
+        textAreas.forEach(function(el) {
+            // we need box-sizing: border-box, if the textarea has padding
+            el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+            // we don't need any scrollbars, do we? :)
+            el.style.overflowY = 'hidden';
+            // the minimum height initiated through the "rows" attribute
+            var minHeight = el.scrollHeight;
+            el.addEventListener('input', function() {
+                adjustHeight(el, minHeight);
+            });
+            // we have to readjust when window size changes (e.g. orientation change)
+            window.addEventListener('resize', function() {
+                adjustHeight(el, minHeight);
+            });
+            // we adjust height to the initial content
+            adjustHeight(el, minHeight);
+        });
+
         // Make form scrollable, this way we can generate PDF page properly
-        form.style.width = (793-(margins.left*3.55))+'px';
-        form.style.height = (1122-(margins.top*3.55))+'px';
-        form.style.maxHeight = (1122-(margins.top*3.55))+'px';
-        form.style.overflowY = "scroll";
+        //form.style.width = (793-(margins.left*3.55))+'px';
+        form.style.height = scrollAmount+'px';
+        form.style.maxHeight = scrollAmount+'px';
+        //form.style.overflowY = "scroll";
         form.style.overflow = "hidden";
         //form.scrollIntoView();
         // Don't display signature clear icon
@@ -1753,76 +2056,6 @@ function SUPERreCaptcha(){
         }
         SUPER.init_super_responsive_form_fields();
         callback(form, margins, scrollAmount, loadingOverlay);
-
-        //form.style.overflow = "-moz-hidden-unscrollable";
-        //form.style.width = "500px";
-
-
-        // // Create a element where the form will be cloned into
-        // // This element will have the proper width and height for a PDF page "a4"
-        // // It will be scrollable so we can properly generate each page for the PDF
-        // var fakePage = document.createElement('div');
-        // fakePage.style.width = '500px';
-        // fakePage.style.height = '1100px';
-        // var clonedForm = form.cloneNode(true);
-        // // Must reset the signatures
-        // var i, newCanvasses = [], nodes = form.querySelectorAll('.super-signature canvas');
-        // for(i = 0; i < nodes.length; i++){
-        //     var newCanvas = document.createElement('canvas');
-        //     var context = newCanvas.getContext('2d');
-        //     newCanvas.width = nodes[i].width;
-        //     newCanvas.height = nodes[i].height;
-        //     context.drawImage(nodes[i], 0, 0);
-        //     newCanvasses[i] = newCanvas;
-        // }
-        // nodes = clonedForm.querySelectorAll('.super-signature canvas');
-        // for(i = 0; i < nodes.length; i++){
-        //     nodes[i].parentNode.appendChild(newCanvasses[i]);
-        //     nodes[i].remove();
-        // }
-        // fakePage.appendChild(clonedForm);
-        // document.body.appendChild(fakePage);
-        // SUPER.init_common_fields();
-
-        // //SUPER.init_super_responsive_form_fields();
-        
-        // return false;
-        // callback(form);
-
-        // // Don't display signature clear icon
-        // var nodes = $form.querySelectorAll('.super-signature-clear');
-        // for(var i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = "none";
-        // }
-        // SUPER.init_super_responsive_form_fields();
-
-
-        // var pageMargins = {
-        //     left: 18.897638,
-        //     top: 18.897638
-        // };
-
-        // var $form = target.closest('.super-form');
-        // var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
-
-        // // Make form scrollable based on a4 height
-        // var scrollAmountPerPage = 1122-(pageMargins.top*3.55);
-        // $form.style.width = (793-(pageMargins.left*3.55))+'px';
-        // $form.style.maxHeight = (1122-(pageMargins.top*3.55))+'px';
-        // //$form.style.maxHeight = "1100px";
-        // $form.style.overflowY = "scroll";
-        // $form.style.overflow = "-moz-hidden-unscrollable";
-        // //$form.style.overflow = "hidden";
-
-
-        // // Don't display signature clear icon
-        // var nodes = $form.querySelectorAll('.super-signature-clear');
-        // for(var i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = "none";
-        // }
-        // SUPER.init_super_responsive_form_fields();
-
-
     };
 
     // Send form submission through ajax request
@@ -1874,10 +2107,10 @@ function SUPERreCaptcha(){
             }
             if(attachAsPDF){
                 // Make form scrollable based on a4 height
-                var margins = {left: 18.897638, top: 18.897638},
+                var margins = {left: 25, top: 25},
+                    //margins = {left: 18.897638, top: 18.897638},
                     scrollAmount = 1122-(margins.top*3.55);
                 SUPER.before_generating_pdf(form[0], margins, scrollAmount, function(form, margins, scrollAmount, loadingOverlay){
-                    
                     // Page margins and print area
                     // Media                Page size           Print area              Margins
                     //                                                                  Top         Bottom      Sides
@@ -1934,6 +2167,10 @@ function SUPERreCaptcha(){
                         pdf.save("test.pdf");
                         // Show scrollbar again
                         document.documentElement.classList.remove("super-hide-scrollbar");
+                        if(document.querySelector('#super-hide-scrollbar')){
+                            document.querySelector('#super-hide-scrollbar').remove();
+                        }
+
                         // // Reset scrolling styles
                         // $form.style.maxHeight = "";
                         // $form.style.overflowY = "";
@@ -3497,161 +3734,110 @@ function SUPERreCaptcha(){
 
     // PDF Generation
     SUPER.generate_pdf = function(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback){
-        // var margins = {
-        //     left: 18.897638,
-        //     top: 18.897638
-        // };
-        // var $form = target.closest('.super-form');
-        // var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
-
-        // // Make form scrollable based on a4 height
-        // var scrollAmountPerPage = 1122-(margins.top*3.55);
-        // $form.style.width = (793-(margins.left*3.55))+'px';
-        // $form.style.maxHeight = (1122-(margins.top*3.55))+'px';
-        // //$form.style.maxHeight = "1100px";
-        // $form.style.overflowY = "scroll";
-        // $form.style.overflow = "-moz-hidden-unscrollable";
-        // //$form.style.overflow = "hidden";
-        // // Don't display signature clear icon
-        // var nodes = $form.querySelectorAll('.super-signature-clear');
-        // for(var i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = "none";
-        // }
-        // SUPER.init_super_responsive_form_fields();
-
-        // var loadingOverlay = document.createElement('div');
-        // loadingOverlay.innerHTML = 'Processing form data...';
-        // loadingOverlay.classList.add('super-loading-overlay');
-        // loadingOverlay.style.position = 'fixed';
-        // loadingOverlay.style.zIndex = 99999999;
-        // loadingOverlay.style.width = $form.offsetWidth+'px';
-        // loadingOverlay.style.height = $form.offsetHeight+'px';
-        // loadingOverlay.style.top = $form.getBoundingClientRect().top + window.scrollY+'px';
-        // loadingOverlay.style.left = $form.getBoundingClientRect().left + window.scrollX+'px';
-        // loadingOverlay.style.border = '1px solid red';
-        // loadingOverlay.style.backgroundColor = "red";
-        // document.body.appendChild(loadingOverlay);
-        //$form.getBoundingClientRect().top + window.scrollY;
-
-        // Make form little bit smaller in width based on the page margins
-        // if(margins.left>0){
-        //     $form.style.width = "calc(100% - "+parseFloat(margins.left*2).toFixed(0)+"px)";
-        // }
+        
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
         // 297 == 1122px
         // Media                Page size           Print area              Margins
         // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
         
-        var $form = target.closest('.super-form');
-        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+        var form = target.closest('.super-form');
         // Scroll to the "fake" page
-        $form.scrollTop = scrollAmount * (currentPage-1);
-        // Move the loading overlay together with the scroll
-        loadingOverlay.style.top = scrollAmount * (currentPage-1)+'px';
+        form.childNodes[0].style.marginTop = "-"+(scrollAmount * (currentPage-1))+'px';
+        // @ important, do not shrink but instead add some margin to the last page, so that it fit's on a single page 100%
+        // otherwise there are problems with longly stretched images in the PDF
+
 
         // Might need to shrink the form height
         // Because the last page shouldn't contain any duplicate info from the previous page
-        var schrinkBy = ($form.scrollHeight - (scrollAmount * (currentPage)));
-        var schrinked = scrollAmount - -schrinkBy;
-        if(schrinkBy < 0 && currentPage>1 ){
-            // We should shrink the form
-            $form.style.maxHeight = schrinked + 'px';
-            $form.scrollTop = scrollAmount * (currentPage-1);
-        }
-
-        // First disable the UI on the map for nicer print of the map
-        // And make map fullwidth and directions fullwidth
-        for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
-            SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
-                disableDefaultUI: true
-                // zoomControl: false,
-                // mapTypeControl: false,
-                // scaleControl: false,
-                // streetViewControl: false,
-                // rotateControl: false,
-                // fullscreenControl: false
-            });
-            var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-            for(var x=0; x < children.length; x++){
-                children[x].style.width = '100%';
-                if(children[x].classList.contains('super-google-map-directions')){
-                    children[x].style.overflowY = 'initial';
-                    children[x].style.height = 'auto';
-                }
-            }
-        }
-        
-        // Convert height of textarea to fit content (otherwie it would be cut of during printing)
-        function adjustHeight(el, minHeight) {
-            // compute the height difference which is caused by border and outline
-            var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-            var diff = outerHeight - el.clientHeight;
-            // set the height to 0 in case of it has to be shrinked
-            el.style.height = 0;
-            // set the correct height
-            // el.scrollHeight is the full height of the content, not just the visible part
-            el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
-        }
-        // we use the "data-adaptheight" attribute as a marker
-        // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
-        var textAreas = $form.querySelectorAll('.super-textarea .super-shortcode-field');
-        // iterate through all the textareas on the page
-        textAreas.forEach(function(el) {
-            // we need box-sizing: border-box, if the textarea has padding
-            el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
-            // we don't need any scrollbars, do we? :)
-            el.style.overflowY = 'hidden';
-            // the minimum height initiated through the "rows" attribute
-            var minHeight = el.scrollHeight;
-            el.addEventListener('input', function() {
-                adjustHeight(el, minHeight);
-            });
-            // we have to readjust when window size changes (e.g. orientation change)
-            window.addEventListener('resize', function() {
-                adjustHeight(el, minHeight);
-            });
-            // we adjust height to the initial content
-            adjustHeight(el, minHeight);
-        });
+        // var schrinkBy = form.childNodes[0].clientHeight - (scrollAmount * (currentPage));
+        // var schrinked = scrollAmount - -schrinkBy;
+        // if(schrinkBy < 0 && currentPage>1 ){
+        //     // We should shrink the form
+        //     form.style.maxHeight = schrinked + 'px';
+        //     form.childNodes[0].style.marginTop = "-"+(scrollAmount * (currentPage-1))+'px';
+        // }
 
         // Because disabling the UI takes some time, add a timeout
         setTimeout(function(){
             // Now allow printing
-            html2canvas($form, {
+            html2canvas(form, {
+                logging: false,
                 useCORS: true, 
                 allowTaint: false, 
-                scale: 1,
+                scale: 3,
                 scrollX: 0, // Important, do not remove
                 scrollY: -window.scrollY, // Important, do not remove
                 ignoreElements: (node) => {
                     return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
                 }
-                //async: true,
-                //backgroundColor: null,
-                //scrollX: 0,
-                //scrollY: -window.scrollY,
             }).then(canvas => {                
 
                 // only jpeg is supported by jsPDF
+                console.log((793-(margins.left*3.55)));
+                console.log(scrollAmount);
+                console.log(form.clientHeight);
+                console.log(form.style.maxHeight);
+
+                console.log(631);
+                console.log(631-(margins.top*2));
+                console.log(form.clientHeight);
+                console.log(form.clientHeight-(margins.top*2));
+
+                var maxImageHeight = form.clientHeight;
+                console.log(maxImageHeight);
+                if(form.clientHeight > (margins.top*2)){
+                    var maxImageHeight = form.clientHeight-(margins.top*2);
+                }
+                //725.9133851
+                //1054.9133851
+
+                // Normally: 983
+                // Normally: 983
+                console.log('Normally:', (631-(margins.top*2)));
+                console.log('maxImageHeight:', maxImageHeight);
+                // If exceed limit:
+                if(maxImageHeight > (631-(margins.top*2))) {
+                    maxImageHeight = (631-(margins.top*2));
+                }
+                console.log('Exceeds, updated maxImageHeight to:', maxImageHeight);
+
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+                var width = pdf.internal.pageSize.getWidth();
+                var height = pdf.internal.pageSize.getHeight();
+                console.log('PDF width:', width);
+                console.log('PDF height:', height);
+
                 // Add this image as 1 single page
                 pdf.addImage(
                     imgData,            // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
                     'JPEG',             // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
                                         // e.g. 'JPEG', 'PNG', 'WEBP'
                     margins.left,   // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                    margins.top     // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                    margins.top,    // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                    width-(margins.left*2),
+                    height-(margins.top*2)
+                    //400,
+                    //400,
+                    //446-(margins.left*2), // Remove margins
+                    //maxImageHeight, // 631-(margins.top*2), // Remove margins
+                    //(793-(margins.left*3.55))
+                    //scrollAmount/2
+                    //currentPage,
+                    //'FAST'
+                    // form.style.width = (793-(margins.left*3.55))+'px';
+                    // form.style.height = scrollAmount+'px';
                 );
                 
                 // If there are more pages to be processed, go ahead
-                if($form.scrollHeight > (scrollAmount * currentPage)){
+                if(form.childNodes[0].clientHeight > (scrollAmount * currentPage)){
                     currentPage++;
                     pdf.addPage();
                     SUPER.generate_pdf(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback);
                 }else{                   
                     // No more pages to generate (submit form / send email)
-                    callback(pdf, $form, $form_id);
+                    callback(pdf, form);
                 }
             });
         }, 200 );
