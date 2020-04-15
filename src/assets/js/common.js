@@ -1706,6 +1706,13 @@ function SUPERreCaptcha(){
         });
     };
 
+
+    SUPER.before_generating_pdf = function(form, callback){
+        // Must scroll to top of window, or it will not work properly!
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
+        callback(form);
+    };
+
     // Send form submission through ajax request
     SUPER.create_ajax_request = function( event, form, data, duration, old_html, status, status_update, token ){
         form = $(form);
@@ -1748,32 +1755,114 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
-
-            // Attach Form as PDF
-            var attachAsPDF = true;
-
+            var attachAsPDF = false;
+            if(data.hidden_form_id.value === '56180'){
+                // Attach Form as PDF
+                attachAsPDF = true;
+            }
             if(attachAsPDF){
-                // // For quick debugging purposes only:
-                // var pdf = new jsPDF();
-                // // Starting at page 1
-                // pdf = SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
-                //     // Finally we download the PDF file
-                //     pdf.save("download-page-3.pdf");
-                // }); 
+                SUPER.before_generating_pdf(form, function(form){
+                    
+                    // Page margins and print area
+                    // Media                Page size           Print area              Margins
+                    //                                                                  Top         Bottom      Sides
+                    // A/Letter (U.S.)      8.5 x 11 in.        8.2 x 10.6 in.          .22 in.     .18 in      .15 in
+                    // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
+                    // Legal Short (U.S.)   8.5 x 14 in.        8.2 x 11.7 in           1.15 in.    1.15 in.    .15 in.
+                    // Legal (U.S.)         8.5 x 14 in.        8.2 x 11.7 in. (Color)  1.15 in     2.25 in.    .15 in.
+                    //                                          8.2 x 13.5 in. (Black)  .23 in      .23 in.     .15 in.
 
-                var pdf = new jsPDF();
-                // Starting at page 1
-                SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
-                    // Finally we download the PDF file
-                    var datauristring = pdf.output('datauristring', {
-                        filename: 'TESTING.pdf'
-                    });
-                    data.datauristring = {
-                        name: 'pdf_file',
-                        value: datauristring,
-                        type: 'datauristring'
-                    };
-                    SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                    // Page formats
+                    // Format       Size in Millimeters     Size in Inches
+                    // A0           841 x 1189              33.1 x 46.8
+                    // A1           594 x 841               23.4 x 33.1
+                    // A2           420 x 594               16.5 x 23.4
+                    // A3           297 x 420               11.7 x 16.5
+                    // A4           210 x 297               8.3 x 11.7
+                    // A5           148 x 210               5.8 x 8.3
+                    // A6           105 x 148               4.1 x 5.8
+                    // A7           74 x 105                2.9 x 4.1
+                    // A8           52 x 74                 2.0 x 2.9
+                    // A9           37 x 52	                1.5 x 2.0
+                    // A10          26 x 37                 1.0 x 1.5
+
+                    var orientation = 'p';
+                    var format = 'a4';
+                    var unit = 'px';
+                    // For quick debugging purposes only:
+                    var pdf = new jsPDF({
+                        orientation: orientation,           // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
+                        format: format,               // The format of the first page.  Default is "a4"
+                        putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
+                        compress: false,            // Compress the generated PDF.
+                        precision: 16,              // Precision of the element-positions.
+                        userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
+                        floatPrecision: 16,         // or "smart", default is 16
+                        unit: unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+                    });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
+                                                        // Can be:
+                                                        // a0 - a10
+                                                        // b0 - b10
+                                                        // c0 - c10
+                                                        // dl
+                                                        // letter
+                                                        // government-letter
+                                                        // legal
+                                                        // junior-legal
+                                                        // ledger
+                                                        // tabloid
+                                                        // credit-card
+
+                    // Starting at page 1
+                    pdf = SUPER.generate_pdf(form[0], pdf, 1, function(pdf, $form, $form_id){
+                        // Finally we download the PDF file
+                        pdf.save("test.pdf");
+                        // Show scrollbar again
+                        document.documentElement.classList.remove("super-hide-scrollbar");
+                        // Reset scrolling styles
+                        $form.style.maxHeight = "";
+                        $form.style.overflowY = "";
+                        $form.style.overflow = "";
+                        // Display signature clear icon
+                        var nodes = $form.querySelectorAll('.super-signature-clear');
+                        for(var i=0; i < nodes.length; i++){
+                            nodes[i].style.display = "";
+                        }
+
+                        // 334px
+                        // 347px 13px
+
+
+                        // Re-enable the UI for Maps and resize to original width
+                        for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+                            SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+                                disableDefaultUI: false
+                            });
+                            var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                            for(var x=0; x < children.length; x++){
+                                children[x].style.width = '';
+                                if(children[x].classList.contains('super-google-map-directions')){
+                                    children[x].style.overflowY = 'scroll';
+                                    children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+                                }
+                            }
+                        }
+                    }); 
+
+                    // var pdf = new jsPDF();
+                    // // Starting at page 1
+                    // SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
+                    //     // Finally we download the PDF file
+                    //     var datauristring = pdf.output('datauristring', {
+                    //         filename: 'TESTING.pdf'
+                    //     });
+                    //     data.datauristring = {
+                    //         name: 'pdf_file',
+                    //         value: datauristring,
+                    //         type: 'datauristring'
+                    //     };
+                    //     SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                    // });
                 });
             }else{
                 SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
@@ -3293,26 +3382,66 @@ function SUPERreCaptcha(){
 
     // PDF Generation
     SUPER.generate_pdf = function(target, pdf, currentPage, callback){
+        var pageMargins = {
+            left: 18.897638,
+            top: 18.897638
+        };
         var $form = target.closest('.super-form');
         var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
 
         // Make form scrollable based on a4 height
-        $form.style.maxHeight = "1100px";
+        var scrollAmountPerPage = 1122-(pageMargins.top*3.55);
+        $form.style.width = (793-(pageMargins.left*3.55))+'px';
+        $form.style.maxHeight = (1122-(pageMargins.top*3.55))+'px';
+        //$form.style.maxHeight = "1100px";
         $form.style.overflowY = "scroll";
         $form.style.overflow = "-moz-hidden-unscrollable";
-        $form.style.overflow = "hidden";
+        //$form.style.overflow = "hidden";
+        // Don't display signature clear icon
+        var nodes = $form.querySelectorAll('.super-signature-clear');
+        for(var i=0; i < nodes.length; i++){
+            nodes[i].style.display = "none";
+        }
+        SUPER.init_super_responsive_form_fields();
+
+        var loadingOverlay = document.createElement('div');
+        loadingOverlay.innerHTML = 'Processing form data...';
+        loadingOverlay.classList.add('super-loading-overlay');
+        loadingOverlay.style.position = 'fixed';
+        loadingOverlay.style.zIndex = 99999999;
+        loadingOverlay.style.width = $form.offsetWidth+'px';
+        loadingOverlay.style.height = $form.offsetHeight+'px';
+        loadingOverlay.style.top = $form.getBoundingClientRect().top + window.scrollY+'px';
+        loadingOverlay.style.left = $form.getBoundingClientRect().left + window.scrollX+'px';
+        loadingOverlay.style.border = '1px solid red';
+        loadingOverlay.style.backgroundColor = "red";
+        document.body.appendChild(loadingOverlay);
+        //$form.getBoundingClientRect().top + window.scrollY;
+
+
+
+
+        // Make form little bit smaller in width based on the page margins
+        // if(pageMargins.left>0){
+        //     $form.style.width = "calc(100% - "+parseFloat(pageMargins.left*2).toFixed(0)+"px)";
+        // }
+        // Set form width and height according to a4 paper size minus the margins
+        // 210 == 793px
+        // 297 == 1122px
+        // Media                Page size           Print area              Margins
+        // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
         
         // Scroll to the "fake" page
-        $form.scrollTop = 1100 * (currentPage-1);
+        $form.scrollTop = scrollAmountPerPage * (currentPage-1);
 
         // Might need to shrink the form height
         // Because the last page shouldn't contain any duplicate info from the previous page
-        var schrinkBy = ($form.scrollHeight - (1100 * (currentPage)));
-        var schrinked = 1100 - -schrinkBy;
+        var schrinkBy = ($form.scrollHeight - (scrollAmountPerPage * (currentPage)));
+        var schrinked = scrollAmountPerPage - -schrinkBy;
         if(schrinkBy < 0 && currentPage>1 ){
             // We should shrink the form
             $form.style.maxHeight = schrinked + 'px';
-            $form.scrollTop = 1100 * (currentPage-1);
+            $form.scrollTop = scrollAmountPerPage * (currentPage-1);
         }
 
         // Must hide scrollbar
@@ -3328,9 +3457,6 @@ function SUPERreCaptcha(){
         } else {
             style.appendChild(document.createTextNode(css));
         }
-
-        // Must scroll to top of window, or it will not work properly!
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
         
         // First disable the UI on the map for nicer print of the map
         // And make map fullwidth and directions fullwidth
@@ -3399,39 +3525,26 @@ function SUPERreCaptcha(){
                 //scrollX: 0,
                 //scrollY: -window.scrollY,
             }).then(canvas => {                
+
                 // only jpeg is supported by jsPDF
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
                 // Add this image as 1 single page
-                pdf.addImage(imgData, 'JPEG', 0, 0);
+                pdf.addImage(
+                    imgData,            // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
+                    'JPEG',             // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
+                                        // e.g. 'JPEG', 'PNG', 'WEBP'
+                    pageMargins.left,   // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                    pageMargins.top     // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                );
+                
                 // If there are more pages to be processed, go ahead
-                if($form.scrollHeight > (1100 * currentPage)){
+                if($form.scrollHeight > (scrollAmountPerPage * currentPage)){
                     currentPage++;
                     pdf.addPage();
                     SUPER.generate_pdf(target, pdf, currentPage, callback);
-                }else{
-                    // Show scrollbar again
-                    document.documentElement.classList.remove("super-hide-scrollbar");
-                    // Reset scrolling styles
-                    $form.style.maxHeight = "";
-                    $form.style.overflowY = "";
-                    $form.style.overflow = "";
-                    // Re-enable the UI for Maps and resize to original width
-                    for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
-                        SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
-                            disableDefaultUI: false
-                        });
-                        var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-                        for(var x=0; x < children.length; x++){
-                            children[x].style.width = '';
-                            if(children[x].classList.contains('super-google-map-directions')){
-                                children[x].style.overflowY = 'scroll';
-                                children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
-                            }
-                        }
-                    }
-                    
+                }else{                   
                     // No more pages to generate (submit form / send email)
-                    callback(pdf);
+                    callback(pdf, $form, $form_id);
                 }
             });
         }, 200 );
@@ -3440,7 +3553,7 @@ function SUPERreCaptcha(){
     // @since 3.5.0 - function for intializing google maps elements
     SUPER.google_maps_api.initMaps = function($field, $form){
         $form = SUPER.get_frontend_or_backend_form($field, $form);
-        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+        var $form_id = ($form.querySelector('input[name="hidden_form_id"]') ? $form.querySelector('input[name="hidden_form_id"]').value : 'xxxx');
         if(typeof SUPER.google_maps_api.allMaps[$form_id] === 'undefined'){
             SUPER.google_maps_api.allMaps[$form_id] = [];
         }
@@ -3599,12 +3712,25 @@ function SUPERreCaptcha(){
                         printBtn.innerHTML = 'Print';
                         target.parentNode.appendChild(printBtn);
                         printBtn.addEventListener('click', function(){
-                            var pdf = new jsPDF();
-                            // Starting at page 1
-                            pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
-                                // Finally we download the PDF file
-                                pdf.save("download-page-1.pdf");
-                            }); 
+                            // var orientation = 'p';
+                            // var format = 'a4';
+                            // var unit = 'px';
+                            // // For quick debugging purposes only:
+                            // var pdf = new jsPDF({
+                            //     orientation: orientation,           // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
+                            //     format: format,               // The format of the first page.  Default is "a4"
+                            //     putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
+                            //     compress: false,            // Compress the generated PDF.
+                            //     precision: 16,              // Precision of the element-positions.
+                            //     userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
+                            //     floatPrecision: 16,         // or "smart", default is 16
+                            //     unit: unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+                            // });
+                            // // Starting at page 1
+                            // pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
+                            //     // Finally we download the PDF file
+                            //     pdf.save("download-page-1.pdf");
+                            // }); 
                         });
                     }
                 }
@@ -5463,6 +5589,7 @@ function SUPERreCaptcha(){
 
     // Handle the responsiveness of the form
     SUPER.init_super_responsive_form_fields = function(){
+        console.log('resizing/responsiveness');
         var $classes = [
             'super-first-responsiveness',
             'super-second-responsiveness',
@@ -5564,6 +5691,22 @@ function SUPERreCaptcha(){
                     }
                 }
             }
+
+            // Check for slider fields, reposition "Dragger" element based on "Track" width
+            // If the dragger position exceeds the track width adjust it to be 
+            // selector.simpleSlider("setValue", value);
+            // Sets the value of the slider.
+            // selector.simpleSlider("setRatio", ratio);
+            var nodes = $this[0].querySelectorAll('.super-slider');
+            for(var i=0; i < nodes.length; i++){
+                var $field = $(nodes[i].querySelector('.super-shortcode-field'));
+                if(!$field) continue;
+                // Must trigger a change:
+                var originalValue = $field.val();
+                $field.simpleSlider('setValue', 0);
+                $field.simpleSlider('setValue', originalValue);
+            }
+
         });
 
         // @since 1.3

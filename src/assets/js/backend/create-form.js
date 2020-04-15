@@ -1962,7 +1962,8 @@
                 parent = this.closest('.super-checkbox'),
                 field = parent.parentNode.querySelector('.element-field'),
                 nodes = parent.querySelectorAll('input[type="checkbox"]');
-
+            if(!field) return;
+            
             for( i=0; i < nodes.length; i++ ) {
                 if (nodes[i].checked) {
                     if (counter === 0) {
