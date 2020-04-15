@@ -1741,10 +1741,10 @@ function SUPERreCaptcha(){
 
         // Make form scrollable, this way we can generate PDF page properly
         form.style.width = (793-(margins.left*3.55))+'px';
+        form.style.height = (1122-(margins.top*3.55))+'px';
         form.style.maxHeight = (1122-(margins.top*3.55))+'px';
         form.style.overflowY = "scroll";
         form.style.overflow = "hidden";
-        form.style.height = "500px";
         //form.scrollIntoView();
         // Don't display signature clear icon
         var nodes = form.querySelectorAll('.super-signature-clear');
