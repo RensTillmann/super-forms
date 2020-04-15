@@ -1707,10 +1707,122 @@ function SUPERreCaptcha(){
     };
 
 
-    SUPER.before_generating_pdf = function(form, callback){
+    SUPER.before_generating_pdf = function(form, margins, scrollAmount, callback){
+
         // Must scroll to top of window, or it will not work properly!
-        document.body.scrollTop = document.documentElement.scrollTop = 0;
-        callback(form);
+        //document.body.scrollTop = document.documentElement.scrollTop = 0;
+
+        // Must hide scrollbar
+        // document.documentElement.classList.add("super-hide-scrollbar");
+        // var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable; overflow: hidden;}',
+        // head = document.head || document.getElementsByTagName('head')[0],
+        // style = document.createElement('style');
+        // head.appendChild(style);
+        // style.type = 'text/css';
+        // if (style.styleSheet){
+        //     // This is required for IE8 and below.
+        //     style.styleSheet.cssText = css;
+        // } else {
+        //     style.appendChild(document.createTextNode(css));
+        // }
+
+        // Create loader overlay
+        var loadingOverlay = document.createElement('div');
+        loadingOverlay.innerHTML = 'Processing data...';
+        loadingOverlay.classList.add('super-loading-overlay');
+        loadingOverlay.style.position = 'absolute';
+        loadingOverlay.style.zIndex = 99999999;
+        loadingOverlay.style.width = '100%';
+        loadingOverlay.style.height = '100%';
+        loadingOverlay.style.top = '0px';
+        loadingOverlay.style.left = '0px';
+        loadingOverlay.style.backgroundColor = "orange";
+        form.appendChild(loadingOverlay);       
+
+        // Make form scrollable, this way we can generate PDF page properly
+        form.style.width = (793-(margins.left*3.55))+'px';
+        form.style.maxHeight = (1122-(margins.top*3.55))+'px';
+        form.style.overflowY = "scroll";
+        form.style.overflow = "hidden";
+        form.style.height = "500px";
+        //form.scrollIntoView();
+        // Don't display signature clear icon
+        var nodes = form.querySelectorAll('.super-signature-clear');
+        for(var i=0; i < nodes.length; i++){
+            nodes[i].style.display = "none";
+        }
+        SUPER.init_super_responsive_form_fields();
+        callback(form, margins, scrollAmount, loadingOverlay);
+
+        //form.style.overflow = "-moz-hidden-unscrollable";
+        //form.style.width = "500px";
+
+
+        // // Create a element where the form will be cloned into
+        // // This element will have the proper width and height for a PDF page "a4"
+        // // It will be scrollable so we can properly generate each page for the PDF
+        // var fakePage = document.createElement('div');
+        // fakePage.style.width = '500px';
+        // fakePage.style.height = '1100px';
+        // var clonedForm = form.cloneNode(true);
+        // // Must reset the signatures
+        // var i, newCanvasses = [], nodes = form.querySelectorAll('.super-signature canvas');
+        // for(i = 0; i < nodes.length; i++){
+        //     var newCanvas = document.createElement('canvas');
+        //     var context = newCanvas.getContext('2d');
+        //     newCanvas.width = nodes[i].width;
+        //     newCanvas.height = nodes[i].height;
+        //     context.drawImage(nodes[i], 0, 0);
+        //     newCanvasses[i] = newCanvas;
+        // }
+        // nodes = clonedForm.querySelectorAll('.super-signature canvas');
+        // for(i = 0; i < nodes.length; i++){
+        //     nodes[i].parentNode.appendChild(newCanvasses[i]);
+        //     nodes[i].remove();
+        // }
+        // fakePage.appendChild(clonedForm);
+        // document.body.appendChild(fakePage);
+        // SUPER.init_common_fields();
+
+        // //SUPER.init_super_responsive_form_fields();
+        
+        // return false;
+        // callback(form);
+
+        // // Don't display signature clear icon
+        // var nodes = $form.querySelectorAll('.super-signature-clear');
+        // for(var i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = "none";
+        // }
+        // SUPER.init_super_responsive_form_fields();
+
+
+        // var pageMargins = {
+        //     left: 18.897638,
+        //     top: 18.897638
+        // };
+
+        // var $form = target.closest('.super-form');
+        // var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+
+        // // Make form scrollable based on a4 height
+        // var scrollAmountPerPage = 1122-(pageMargins.top*3.55);
+        // $form.style.width = (793-(pageMargins.left*3.55))+'px';
+        // $form.style.maxHeight = (1122-(pageMargins.top*3.55))+'px';
+        // //$form.style.maxHeight = "1100px";
+        // $form.style.overflowY = "scroll";
+        // $form.style.overflow = "-moz-hidden-unscrollable";
+        // //$form.style.overflow = "hidden";
+
+
+        // // Don't display signature clear icon
+        // var nodes = $form.querySelectorAll('.super-signature-clear');
+        // for(var i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = "none";
+        // }
+        // SUPER.init_super_responsive_form_fields();
+
+
     };
 
     // Send form submission through ajax request
@@ -1761,7 +1873,10 @@ function SUPERreCaptcha(){
                 attachAsPDF = true;
             }
             if(attachAsPDF){
-                SUPER.before_generating_pdf(form, function(form){
+                // Make form scrollable based on a4 height
+                var margins = {left: 18.897638, top: 18.897638},
+                    scrollAmount = 1122-(margins.top*3.55);
+                SUPER.before_generating_pdf(form[0], margins, scrollAmount, function(form, margins, scrollAmount, loadingOverlay){
                     
                     // Page margins and print area
                     // Media                Page size           Print area              Margins
@@ -1814,39 +1929,39 @@ function SUPERreCaptcha(){
                                                         // credit-card
 
                     // Starting at page 1
-                    pdf = SUPER.generate_pdf(form[0], pdf, 1, function(pdf, $form, $form_id){
+                    pdf = SUPER.generate_pdf(form, pdf, 1, margins, scrollAmount, loadingOverlay, function(pdf, $form, $form_id){
                         // Finally we download the PDF file
                         pdf.save("test.pdf");
                         // Show scrollbar again
                         document.documentElement.classList.remove("super-hide-scrollbar");
-                        // Reset scrolling styles
-                        $form.style.maxHeight = "";
-                        $form.style.overflowY = "";
-                        $form.style.overflow = "";
-                        // Display signature clear icon
-                        var nodes = $form.querySelectorAll('.super-signature-clear');
-                        for(var i=0; i < nodes.length; i++){
-                            nodes[i].style.display = "";
-                        }
+                        // // Reset scrolling styles
+                        // $form.style.maxHeight = "";
+                        // $form.style.overflowY = "";
+                        // $form.style.overflow = "";
+                        // // Display signature clear icon
+                        // var nodes = $form.querySelectorAll('.super-signature-clear');
+                        // for(var i=0; i < nodes.length; i++){
+                        //     nodes[i].style.display = "";
+                        // }
 
-                        // 334px
-                        // 347px 13px
+                        // // 334px
+                        // // 347px 13px
 
 
-                        // Re-enable the UI for Maps and resize to original width
-                        for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
-                            SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
-                                disableDefaultUI: false
-                            });
-                            var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-                            for(var x=0; x < children.length; x++){
-                                children[x].style.width = '';
-                                if(children[x].classList.contains('super-google-map-directions')){
-                                    children[x].style.overflowY = 'scroll';
-                                    children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
-                                }
-                            }
-                        }
+                        // // Re-enable the UI for Maps and resize to original width
+                        // for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+                        //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+                        //         disableDefaultUI: false
+                        //     });
+                        //     var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                        //     for(var x=0; x < children.length; x++){
+                        //         children[x].style.width = '';
+                        //         if(children[x].classList.contains('super-google-map-directions')){
+                        //             children[x].style.overflowY = 'scroll';
+                        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+                        //         }
+                        //     }
+                        // }
                     }); 
 
                     // var pdf = new jsPDF();
@@ -3381,49 +3496,46 @@ function SUPERreCaptcha(){
     };
 
     // PDF Generation
-    SUPER.generate_pdf = function(target, pdf, currentPage, callback){
-        var pageMargins = {
-            left: 18.897638,
-            top: 18.897638
-        };
-        var $form = target.closest('.super-form');
-        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+    SUPER.generate_pdf = function(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback){
+        // var margins = {
+        //     left: 18.897638,
+        //     top: 18.897638
+        // };
+        // var $form = target.closest('.super-form');
+        // var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
 
-        // Make form scrollable based on a4 height
-        var scrollAmountPerPage = 1122-(pageMargins.top*3.55);
-        $form.style.width = (793-(pageMargins.left*3.55))+'px';
-        $form.style.maxHeight = (1122-(pageMargins.top*3.55))+'px';
-        //$form.style.maxHeight = "1100px";
-        $form.style.overflowY = "scroll";
-        $form.style.overflow = "-moz-hidden-unscrollable";
-        //$form.style.overflow = "hidden";
-        // Don't display signature clear icon
-        var nodes = $form.querySelectorAll('.super-signature-clear');
-        for(var i=0; i < nodes.length; i++){
-            nodes[i].style.display = "none";
-        }
-        SUPER.init_super_responsive_form_fields();
+        // // Make form scrollable based on a4 height
+        // var scrollAmountPerPage = 1122-(margins.top*3.55);
+        // $form.style.width = (793-(margins.left*3.55))+'px';
+        // $form.style.maxHeight = (1122-(margins.top*3.55))+'px';
+        // //$form.style.maxHeight = "1100px";
+        // $form.style.overflowY = "scroll";
+        // $form.style.overflow = "-moz-hidden-unscrollable";
+        // //$form.style.overflow = "hidden";
+        // // Don't display signature clear icon
+        // var nodes = $form.querySelectorAll('.super-signature-clear');
+        // for(var i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = "none";
+        // }
+        // SUPER.init_super_responsive_form_fields();
 
-        var loadingOverlay = document.createElement('div');
-        loadingOverlay.innerHTML = 'Processing form data...';
-        loadingOverlay.classList.add('super-loading-overlay');
-        loadingOverlay.style.position = 'fixed';
-        loadingOverlay.style.zIndex = 99999999;
-        loadingOverlay.style.width = $form.offsetWidth+'px';
-        loadingOverlay.style.height = $form.offsetHeight+'px';
-        loadingOverlay.style.top = $form.getBoundingClientRect().top + window.scrollY+'px';
-        loadingOverlay.style.left = $form.getBoundingClientRect().left + window.scrollX+'px';
-        loadingOverlay.style.border = '1px solid red';
-        loadingOverlay.style.backgroundColor = "red";
-        document.body.appendChild(loadingOverlay);
+        // var loadingOverlay = document.createElement('div');
+        // loadingOverlay.innerHTML = 'Processing form data...';
+        // loadingOverlay.classList.add('super-loading-overlay');
+        // loadingOverlay.style.position = 'fixed';
+        // loadingOverlay.style.zIndex = 99999999;
+        // loadingOverlay.style.width = $form.offsetWidth+'px';
+        // loadingOverlay.style.height = $form.offsetHeight+'px';
+        // loadingOverlay.style.top = $form.getBoundingClientRect().top + window.scrollY+'px';
+        // loadingOverlay.style.left = $form.getBoundingClientRect().left + window.scrollX+'px';
+        // loadingOverlay.style.border = '1px solid red';
+        // loadingOverlay.style.backgroundColor = "red";
+        // document.body.appendChild(loadingOverlay);
         //$form.getBoundingClientRect().top + window.scrollY;
 
-
-
-
         // Make form little bit smaller in width based on the page margins
-        // if(pageMargins.left>0){
-        //     $form.style.width = "calc(100% - "+parseFloat(pageMargins.left*2).toFixed(0)+"px)";
+        // if(margins.left>0){
+        //     $form.style.width = "calc(100% - "+parseFloat(margins.left*2).toFixed(0)+"px)";
         // }
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
@@ -3431,33 +3543,23 @@ function SUPERreCaptcha(){
         // Media                Page size           Print area              Margins
         // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
         
+        var $form = target.closest('.super-form');
+        var $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
         // Scroll to the "fake" page
-        $form.scrollTop = scrollAmountPerPage * (currentPage-1);
+        $form.scrollTop = scrollAmount * (currentPage-1);
+        // Move the loading overlay together with the scroll
+        loadingOverlay.style.top = scrollAmount * (currentPage-1)+'px';
 
         // Might need to shrink the form height
         // Because the last page shouldn't contain any duplicate info from the previous page
-        var schrinkBy = ($form.scrollHeight - (scrollAmountPerPage * (currentPage)));
-        var schrinked = scrollAmountPerPage - -schrinkBy;
+        var schrinkBy = ($form.scrollHeight - (scrollAmount * (currentPage)));
+        var schrinked = scrollAmount - -schrinkBy;
         if(schrinkBy < 0 && currentPage>1 ){
             // We should shrink the form
             $form.style.maxHeight = schrinked + 'px';
-            $form.scrollTop = scrollAmountPerPage * (currentPage-1);
+            $form.scrollTop = scrollAmount * (currentPage-1);
         }
 
-        // Must hide scrollbar
-        document.documentElement.classList.add("super-hide-scrollbar");
-        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable; overflow: hidden;}',
-        head = document.head || document.getElementsByTagName('head')[0],
-        style = document.createElement('style');
-        head.appendChild(style);
-        style.type = 'text/css';
-        if (style.styleSheet){
-            // This is required for IE8 and below.
-            style.styleSheet.cssText = css;
-        } else {
-            style.appendChild(document.createTextNode(css));
-        }
-        
         // First disable the UI on the map for nicer print of the map
         // And make map fullwidth and directions fullwidth
         for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
@@ -3519,7 +3621,12 @@ function SUPERreCaptcha(){
             html2canvas($form, {
                 useCORS: true, 
                 allowTaint: false, 
-                scale: 1
+                scale: 1,
+                scrollX: 0, // Important, do not remove
+                scrollY: -window.scrollY, // Important, do not remove
+                ignoreElements: (node) => {
+                    return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
+                }
                 //async: true,
                 //backgroundColor: null,
                 //scrollX: 0,
@@ -3533,15 +3640,15 @@ function SUPERreCaptcha(){
                     imgData,            // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
                     'JPEG',             // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
                                         // e.g. 'JPEG', 'PNG', 'WEBP'
-                    pageMargins.left,   // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                    pageMargins.top     // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                    margins.left,   // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                    margins.top     // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
                 );
                 
                 // If there are more pages to be processed, go ahead
-                if($form.scrollHeight > (scrollAmountPerPage * currentPage)){
+                if($form.scrollHeight > (scrollAmount * currentPage)){
                     currentPage++;
                     pdf.addPage();
-                    SUPER.generate_pdf(target, pdf, currentPage, callback);
+                    SUPER.generate_pdf(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback);
                 }else{                   
                     // No more pages to generate (submit form / send email)
                     callback(pdf, $form, $form_id);

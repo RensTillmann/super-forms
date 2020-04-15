@@ -1608,9 +1608,15 @@ class SUPER_Shortcodes {
             if($atts['maxnumber']!=0 || $atts['minnumber']!=0){
                 if( isset($atts['minnumber']) ) {
                     $result .= ' data-minnumber="' . esc_attr($atts['minnumber']) . '"';
+                    if($atts['type'] == 'number') {
+                        $result .= ' min="' . esc_attr($atts['minnumber']) . '"';
+                    }
                 }
                 if( (isset($atts['maxnumber'])) && ($atts['maxnumber'] > $atts['minnumber']) ) {
                     $result .= ' data-maxnumber="' . esc_attr($atts['maxnumber']) . '"';
+                    if($atts['type'] == 'number') {
+                        $result .= ' max="' . esc_attr($atts['maxnumber']) . '"';
+                    }
                 }
             }
         }
