@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Apr 15, 2020 - Version 4.9.421
+
+- **Fix:** When using field typ `number` on a `Text` field make sure the `Max/Min number` settings are correctly added as min/max attributes
+
 ## Apr 09, 2020 - Version 4.9.420
 
 - **Fix:** JavaScript error when using Accordion/TABs element
