@@ -1707,7 +1707,7 @@ function SUPERreCaptcha(){
     };
 
 
-    SUPER.before_generating_pdf = function(form, margins, scrollAmount, callback){
+    SUPER.before_generate_pdf = function(form, margins, scrollAmount, callback){
 
         //form.style.overflow = "-moz-hidden-unscrollable";
         //form.style.width = "500px";
@@ -1733,265 +1733,41 @@ function SUPERreCaptcha(){
         
         // Create loader overlay
         var loadingOverlay = document.createElement('div');
-        loadingOverlay.innerHTML = `<div class="verifying-payment">
-    <div class="wrapper">
-        <svg width="84px" height="84px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink">
-            <circle class="border" cx="42" cy="42" r="40" stroke-linecap="round" stroke-width="4" stroke="#000" fill="none"></circle>
-        </svg>
-        <div class="caption verifying">
-            <div class="title">
-                <svg width="34px" height="34px" viewBox="0 0 84 84" version="1.1" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink"></svg>
-                <span>Processing form data...</span>
-            </div>
-        </div>
-    </div>
-</div>`;
-
+        var html = '';
+        html += '<div class="super-loading-wrapper">';
+            html += '<div class="super-loading-text">';
+                html += '<div class="super-custom-el1"></div>';
+                html += '<div class="super-inner-text">';
+                    html += '<span>Processing form data</span><span>...</span>';
+                html += '</div>';
+                html += '<div class="super-progress">';
+                    html += '<div class="super-progress-bar"></div>';
+                html += '</div>';
+                html += '<div class="super-custom-el2"></div>';
+            html += '</div>';
+        html += '</div>';
+        loadingOverlay.innerHTML = html;
         loadingOverlay.classList.add('super-loading-overlay');
-        loadingOverlay.style.position = 'absolute';
-        loadingOverlay.style.zIndex = 99999999;
-        loadingOverlay.style.width = '100%';
-        loadingOverlay.style.height = '100%';
-        loadingOverlay.style.top = '0px';
-        loadingOverlay.style.left = '0px';
-        form.appendChild(loadingOverlay);       
+        document.body.appendChild(loadingOverlay);
+        var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
 
-        // Add Animation Script
-        var js = `
-        (function() { // Hide scope, no $ conflict
-            var status = 'consumed',
-                node = document.querySelector('.verifying-payment');
-        
-            // Handle Animation
-            function handle_animation(status){
-                // canceled == payment was canceled
-                // pending == payment method can take up to a few days to be processed
-                // chargeable == waiting for bank to process payment
-                // failed == canceled by user or due to other reason
-                // consumed == completed
-        
-                // If status is chargeable
-                if(status=='chargeable'){
-                    setTimeout(function(){
-                        node.classList.add('verifying');
-                    },50);
-                    // Check for payment status for a specific set of time, otherwise timeout
-                    // If status didn't return 'failed' show message to the user that the payment might be processed at a later time
-                    setTimeout(function(){
-                        // Handle result.error or result.source
-                        // path_animation('error', node, result);
-                        path_animation('chargeable', node, result);
-                    },5000);
-                }else{
-                    // Other statuses
-                    path_animation(status, node);
-                }
-            }
-            handle_animation(status);
-        
-            // Set path attributes
-            function create_path( $d, $stroke, $strokeDasharray, $strokeDashoffset, $transitionDelay, $transitionDuration, $transitionProperty, $class ) {
-                var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.style.opacity = '0';
-                path.style.strokeDasharray = $strokeDasharray;
-                path.style.strokeDashoffset = $strokeDashoffset;
-                path.style.transitionDelay = $transitionDelay;
-                path.style.transitionDuration = $transitionDuration;
-                if($transitionProperty!=='undefined'){
-                    path.style.transitionProperty = 'stroke-dashoffset';
-                }
-                path.setAttribute('stroke-linecap', 'round');
-                path.setAttribute('stroke-linejoin', 'round');
-                path.setAttribute('d', $d);
-                path.setAttribute('stroke-width', '4');
-                path.setAttribute('stroke', $stroke);
-                path.setAttribute('fill', 'none');
-                path.classList.add('checkmark');
-                path.classList.add($class);
-                return path;
-            }
-            function update_checkmark(node, selector, opacity, strokeDashoffset){
-                node.querySelector(selector).style.opacity = opacity;
-                node.querySelector(selector).style.strokeDashoffset = strokeDashoffset;
-            }
-            function path_animation($type, node, result){
-                if($type=='chargeable'){
-                    var path = create_path('M 27,42 L 40,55', '#000', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
-                    node.querySelector('.caption .title svg').appendChild(path);
-                    path = create_path('M 60,30 L 40,55', '#000', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
-                    node.querySelector('.caption .title svg').appendChild(path);
-                    setTimeout(function(){
-                        update_checkmark(node, '.checkmark.p1', '1', '40');
-                        update_checkmark(node, '.checkmark.p2', '1', '120');
-                    },50);
-        
-                    var clone = node.querySelector('.caption').cloneNode(true);
-                    clone.classList.add('completing');
-                    clone.style.opacity = '0';
-                    clone.style.transform = 'translateY(80px) scale(1)';
-                    update_checkmark(clone, '.checkmark.p1', '0', '60');
-                    update_checkmark(clone, '.checkmark.p2', '0', '86');
-                    clone.querySelector('.caption .title span').innerHTML = 'Chargeable';
-                    node.querySelector('.wrapper').appendChild(clone);
-                    setTimeout(function(){
-                        node.querySelector('.completing').style.opacity = '1';
-                    },550);
-                    setTimeout(function(){
-                        if(result.source.status=='consumed'){
-                            update_checkmark(node, '.completing .checkmark.p1', '1', '40');
-                            update_checkmark(node, '.completing .checkmark.p2', '1', '120');
-                        }
-                        handle_animation(result.source.status);
-                    },5000);
-                }
-                if($type=='consumed'){
-                    setTimeout(function(){
-                        node.classList.add('verifying');
-                    },50);
-                    setTimeout(function(){
-                        var path = create_path('M 27,42 L 40,55', '#83ca6b', '60', '60', '0.4s', '0.2s', 'stroke-dashoffset', 'p1');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 60,30 L 40,55', '#83ca6b', '60', '86', '0.55s', '0.2s', 'stroke-dashoffset', 'p2');
-                        node.querySelector('svg').appendChild(path);
-                        // Add caption
-                        var caption = document.createElement('div');
-                        caption.className = 'caption failed';
-                        caption.innerHTML = 'Consumed';
-                        node.querySelector('.wrapper').appendChild(caption);
-                        setTimeout(function(){
-                            node.querySelectorAll('.caption').forEach(function(el) {
-                                el.style.opacity = '0';
-                            });
-                            node.querySelector('.caption.failed').style.opacity = '1';
-                            //node.querySelector('svg').style.marginBottom = '130px';
-                            node.querySelector('.border').style.stroke = '#83ca6b';
-                            node.querySelector('.border').style.strokeDashoffset = '0';
-                            update_checkmark(node, '.checkmark.p1', '1', '40');
-                            update_checkmark(node, '.checkmark.p2', '1', '120');
-                            node.classList.remove('verifying');
-                            node.classList.add('completed');
-                        },1000);
-                    },5000);
-                }
-                if($type=='pending'){
-                    setTimeout(function(){
-                        node.classList.add('verifying');
-                    },50);
-                    setTimeout(function(){
-                        var path = create_path('M 42,15 L 42,45', '#ff9600', '60', '90', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 58,55 L 42,45', '#ff9600', '60', '100', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
-                        node.querySelector('svg').appendChild(path);
-                        // Add caption
-                        var caption = document.createElement('div');
-                        caption.className = 'caption failed';
-                        caption.innerHTML = 'Pending';
-                        node.querySelector('.wrapper').appendChild(caption);
-                        setTimeout(function(){
-                            //node.querySelector('svg').style.marginBottom = '130px';
-                            node.querySelector('.border').style.stroke = '#ffe3bb';
-                            node.querySelector('.border').style.strokeDashoffset = '0';
-                            update_checkmark(node, '.checkmark.p1', '1', '120');
-                            update_checkmark(node, '.checkmark.p2', '1', '120');
-                            node.classList.remove('verifying');
-                            node.classList.add('completed');
-                        },1000);
-                    },5000);
-                }
-                if($type=='canceled'){
-                    setTimeout(function(){
-                        node.classList.add('verifying');
-                    },50);
-                    setTimeout(function(){
-                        var path = create_path('M 30,30 L 55,55', '#616161', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 55,30 L 30,55', '#616161', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
-                        node.querySelector('svg').appendChild(path);
-                        // Add caption
-                        var caption = document.createElement('div');
-                        caption.className = 'caption failed';
-                        caption.innerHTML = 'Canceled';
-                        node.querySelector('.wrapper').appendChild(caption);
-                        setTimeout(function(){
-                            node.querySelector('.border').style.stroke = '#e8e8e8';
-                            node.querySelector('.border').style.strokeDashoffset = '0';
-                            update_checkmark(node, '.checkmark.p1', '1', '120');
-                            update_checkmark(node, '.checkmark.p2', '1', '120');
-                            node.classList.remove('verifying');
-                            node.classList.add('completed');
-                        },1000);
-                    },5000);
-                }
-                if($type=='failed'){
-                    setTimeout(function(){
-                        node.classList.add('verifying');
-                    },50);
-                    setTimeout(function(){
-                        var path = create_path('M 30,30 L 55,55', '#ff6868', '60', '84', '0.4s', '0.4s', 'stroke-dashoffset', 'p1');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 55,30 L 30,55', '#ff6868', '60', '84', '0.8s', '0.4s', 'stroke-dashoffset', 'p2');
-                        node.querySelector('svg').appendChild(path);
-                        // Add caption
-                        var caption = document.createElement('div');
-                        caption.className = 'caption failed';
-                        caption.innerHTML = 'Failed';
-                        node.querySelector('.wrapper').appendChild(caption);
-                        setTimeout(function(){
-                            //node.querySelector('svg').style.marginBottom = '130px';
-                            node.querySelector('.border').style.stroke = '#ffdcdc';
-                            node.querySelector('.border').style.strokeDashoffset = '0';
-                            update_checkmark(node, '.checkmark.p1', '1', '120');
-                            update_checkmark(node, '.checkmark.p2', '1', '120');
-                            node.classList.remove('verifying');
-                            node.classList.add('completed');
-                        },1000);
-                    },5000);
-                }
-                if($type=='error'){
-                    setTimeout(function(){
-                        var path = create_path('M 10,80 L 40,30', '#ff6868', '90', '120', '0.2s', '0.2s', undefined, 'p1');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 10,80 L 70,80', '#ff6868', '90', '90', '0.4s', '0.2s', undefined, 'p2');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 40,30 L 70,80', '#ff6868', '90', '120', '0.6s', '0.2s', undefined, 'p3');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 40,48 L 40,63', '#ff6868', '90', '165', '0.4s', '0.2s', undefined, 'p4');
-                        node.querySelector('svg').appendChild(path);
-                        path = create_path('M 40,70 L 40,70', '#ff6868', '90', '0', '0.4s', '0.2s', undefined, 'p5');
-                        node.querySelector('svg').appendChild(path);
-                        // Add caption
-                        var caption = document.createElement('div');
-                        caption.className = 'caption failed';
-                        caption.innerHTML = '<div class="title">Error: '+result.error.code+'</div><div class="description">'+result.error.message+'</div>';
-                        node.querySelector('.wrapper').appendChild(caption);
-                        setTimeout(function(){
-                            //node.querySelector('svg').style.marginBottom = '120px';
-                            node.querySelector('.border').style.opacity = '0';
-                            update_checkmark(node, '.checkmark.p1', '1', '180');
-                            update_checkmark(node, '.checkmark.p2', '1', '30');
-                            update_checkmark(node, '.checkmark.p3', '1', '180');
-                            update_checkmark(node, '.checkmark.p4', '1', '180');
-                            update_checkmark(node, '.checkmark.p5', '1', '0');
-                            node.classList.remove('verifying');
-                            node.classList.add('completed');
-                        },1000);
-                    },5000);
-                }
-            }
-        })();`,
-        newScript = document.createElement("script");
-        //newScript.type = 'text/javascript';
-        newScript.id = 'super-pdf-animation';
-        var inlineScript = document.createTextNode(js);
-        newScript.appendChild(inlineScript); 
-        head.appendChild(newScript);
+        // Firstly clone the form, so we can display a "fake" form
+        var clone = form.cloneNode(true);
+        form.parentNode.insertBefore(clone, form.nextSibling);
 
+        // Now give z-index of -9999 to the original form so we can't see it anymore
+        form.style.zIndex = "-99999";
+        // Adjust form width, so that it fits nicely on a PDF page
+        form.style.position = "fixed";
+        form.style.left = "0px";
+        form.style.top = "0px";
 
         // Hide all "Button" elements
         nodes = form.querySelectorAll('.super-form-button');
         for(var i=0; i < nodes.length; i++){
             nodes[i].style.display = 'none';
         }
+        //progressBar.style.width = "5%";
 
         // First disable the UI on the map for nicer print of the map
         // And make map fullwidth and directions fullwidth
@@ -2008,6 +1784,7 @@ function SUPERreCaptcha(){
                 }
             }
         }
+        //progressBar.style.width = "10%";
         
         // Convert height of textarea to fit content (otherwie it would be cut of during printing)
         function adjustHeight(el, minHeight) {
@@ -2041,21 +1818,32 @@ function SUPERreCaptcha(){
             // we adjust height to the initial content
             adjustHeight(el, minHeight);
         });
+        //progressBar.style.width = "20%";
 
-        // Make form scrollable, this way we can generate PDF page properly
-        //form.style.width = (793-(margins.left*3.55))+'px';
-        form.style.height = scrollAmount+'px';
-        form.style.maxHeight = scrollAmount+'px';
-        //form.style.overflowY = "scroll";
-        form.style.overflow = "hidden";
-        //form.scrollIntoView();
         // Don't display signature clear icon
         var nodes = form.querySelectorAll('.super-signature-clear');
         for(var i=0; i < nodes.length; i++){
             nodes[i].style.display = "none";
         }
+
+        // Adjust form width, so that it fits nicely on a PDF page
+        form.style.width = (793-(margins.left*3.55))+'px';
         SUPER.init_super_responsive_form_fields();
-        callback(form, margins, scrollAmount, loadingOverlay);
+
+        // Grab the total form height, this is required to know how many pages will be generated for the PDF file
+        // This way we can also show the progression to the end user
+        var totalPages = Math.ceil(form.clientHeight/scrollAmount);
+        console.log(form.clientHeight/scrollAmount);
+        console.log(Math.ceil(form.clientHeight/scrollAmount));
+        console.log(totalPages);
+
+        // Make form scrollable, this way we can generate PDF page properly
+        form.style.height = scrollAmount+'px';
+        form.style.maxHeight = scrollAmount+'px';
+        form.style.overflow = "hidden";
+
+        //progressBar.style.width = "40%";
+        callback(form, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
     };
 
     // Send form submission through ajax request
@@ -2110,7 +1898,8 @@ function SUPERreCaptcha(){
                 var margins = {left: 25, top: 25},
                     //margins = {left: 18.897638, top: 18.897638},
                     scrollAmount = 1122-(margins.top*3.55);
-                SUPER.before_generating_pdf(form[0], margins, scrollAmount, function(form, margins, scrollAmount, loadingOverlay){
+                SUPER.before_generate_pdf(form[0], margins, scrollAmount, function(form, margins, scrollAmount, loadingOverlay, totalPages, progressBar){
+
                     // Page margins and print area
                     // Media                Page size           Print area              Margins
                     //                                                                  Top         Bottom      Sides
@@ -2162,7 +1951,7 @@ function SUPERreCaptcha(){
                                                         // credit-card
 
                     // Starting at page 1
-                    pdf = SUPER.generate_pdf(form, pdf, 1, margins, scrollAmount, loadingOverlay, function(pdf, $form, $form_id){
+                    pdf = SUPER.generate_pdf(form, pdf, 1, margins, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, $form, $form_id){
                         // Finally we download the PDF file
                         pdf.save("test.pdf");
                         // Show scrollbar again
@@ -3733,8 +3522,8 @@ function SUPERreCaptcha(){
     };
 
     // PDF Generation
-    SUPER.generate_pdf = function(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback){
-        
+    SUPER.generate_pdf = function(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
+
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
         // 297 == 1122px
@@ -3760,6 +3549,7 @@ function SUPERreCaptcha(){
 
         // Because disabling the UI takes some time, add a timeout
         setTimeout(function(){
+        
             // Now allow printing
             html2canvas(form, {
                 logging: false,
@@ -3771,7 +3561,17 @@ function SUPERreCaptcha(){
                 ignoreElements: (node) => {
                     return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
                 }
-            }).then(canvas => {                
+            }).then(canvas => {    
+                console.log('totalPages:', totalPages);
+                console.log('scrollAmount:', scrollAmount);
+                console.log('clientHeight:', form.clientHeight);
+                console.log('Total pages1:?', (totalPages / scrollAmount));
+                console.log('Total pages2:?', (form.clientHeight / scrollAmount));
+                console.log('Total pages3:?', Math.ceil(totalPages/scrollAmount));
+                //var totalPages = Math.ceil(totalPages/scrollAmount)
+                var percentage = (100/(totalPages+1))*currentPage;
+                console.log('percentage:', percentage);
+                progressBar.style.width = percentage+"%";
 
                 // only jpeg is supported by jsPDF
                 console.log((793-(margins.left*3.55)));
@@ -3834,7 +3634,7 @@ function SUPERreCaptcha(){
                 if(form.childNodes[0].clientHeight > (scrollAmount * currentPage)){
                     currentPage++;
                     pdf.addPage();
-                    SUPER.generate_pdf(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, callback);
+                    SUPER.generate_pdf(target, pdf, currentPage, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
                 }else{                   
                     // No more pages to generate (submit form / send email)
                     callback(pdf, form);
