@@ -184,7 +184,11 @@ function SUPERreCaptcha(){
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
         if(method==='session'){
             try {
-                sessionStorage.setItem(key, data);
+                if(data===false){
+                    sessionStorage.removeItem(key);
+                }else{
+                    sessionStorage.setItem(key, data);
+                }
             }
             catch (e) {
                 // Empty data when localstorage is full
@@ -200,7 +204,11 @@ function SUPERreCaptcha(){
                 SUPER.set_session_data(key, data, method);
             }
         }else{
-            localStorage.setItem(key, data);
+            if(data===false){
+                localStorage.removeItem(key);
+            }else{
+                localStorage.setItem(key, data);
+            }
         }
         // We should update the code in the "Code" tab so that we can edit Raw Form Code via here
         if(updateRawCode) document.querySelector('.super-tab-content.super-tab-code > textarea').value = data;

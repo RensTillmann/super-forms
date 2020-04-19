@@ -141,7 +141,7 @@ if(!class_exists('SUPER_Password_Protect')) :
             }
             
             if ( $this->is_request( 'admin' ) ) {
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
             }

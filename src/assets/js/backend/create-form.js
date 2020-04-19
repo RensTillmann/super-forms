@@ -159,6 +159,7 @@
 
     // Regenerate Element Final Output (inner)
     SUPER.regenerate_element_inner = function ($target, $history) {
+        SUPER.set_session_data('_super_builder_has_unsaved_changes', 'true');
         var $elements,
             $old_code;
         if (typeof $history === 'undefined') $history = true;
@@ -701,6 +702,7 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
+                SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
                 var response = this.responseText;
                 $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
                 $('.super-create-form input[name="form_id"]').val(response);
@@ -905,9 +907,76 @@
 
     jQuery(document).ready(function ($) {
 
+        $('body.wp-admin').addClass('folded');
+
         var $doc = $(document),
             $super_hints,
-            $super_hints_steps;
+            $super_hints_steps,
+            $node,
+            $activePanel = SUPER.get_session_data('_super_builder_last_active_panel'),
+            $activeFormSettingsTab = SUPER.get_session_data('_super_builder_last_active_form_settings_tab'),
+            $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab');
+
+        // Check if there is an active panel
+        if($activePanel){
+            $node = $('.super-elements .super-element h3:eq('+$activePanel+')');
+            if($node.length){
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $node.parent().addClass('super-active');
+                $('.super-elements').addClass('super-active');
+            }
+        }else{
+            // Defaults to layout panel
+            $('.super-layout-elements').addClass('super-active');
+        }
+        // Check if there is an active form settings TAB
+        if($activeFormSettingsTab){
+            $node = $('.super-form-settings .super-elements-container .tab-content:eq(' + $activeFormSettingsTab + ')');
+            if($node.length){
+                $('.super-form-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                $node.addClass('super-active');
+                $('.super-form-settings-tabs > select > option[selected]').prop({selected: false});
+                $('.super-form-settings-tabs > select > option:eq(' + $activeFormSettingsTab + ')').prop({selected: true});
+            }
+        }
+        // Check if there is an active element settings TAB
+        if($activeElementSettingsTab){
+            $node = $('.super-element-settings .super-elements-container .tab-content:eq(' + $activeElementSettingsTab + ')');
+            if($node.length){
+                $('.super-element-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                $node.addClass('super-active');
+                $('.super-element-settings-tabs > select > option[selected]').prop({selected: false});
+                $('.super-element-settings-tabs > select > option:eq(' + $activeElementSettingsTab + ')').prop({selected: true});
+            }
+        }
+
+        // TAB setting change by user
+        $doc.on('click', '.super-elements .super-element h3', function () {
+            if($(this).parent().hasClass('super-active')){
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $('.super-elements.super-active').removeClass('super-active');
+            }else{
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $(this).parent().addClass('super-active');
+                $('.super-elements').addClass('super-active');
+            }
+            // Remember which TAB was active for the last time
+            SUPER.set_session_data('_super_builder_last_active_panel', $(this).parent().index());
+            return false;
+        });
+
+        // Form settings TAB change by the user
+        $doc.on('change', '.super-form-settings-tabs > select, .super-element-settings-tabs > select', function () {
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('super-active');
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
+            // Remember which TAB was active for the last time
+            if(this.closest('.super-form-settings-tabs')){
+                SUPER.set_session_data('_super_builder_last_active_form_settings_tab', $(this).val());
+            }
+            if(this.closest('.super-element-settings-tabs')){
+                SUPER.set_session_data('_super_builder_last_active_element_settings_tab', $(this).val());
+            }
+        });
 
         // @since 4.6.0 - transfer elements with other forms
         setInterval(function () {
@@ -1399,7 +1468,6 @@
         SUPER.init_drop_here_placeholder();
         SUPER.init_dragable_elements();
         SUPER.init_image_browser();
-        $('.super-layout-elements').addClass('super-active');
         SUPER.init_resize_element_labels();
 
         // @since 2.9.0 - Form setup wizard
@@ -1633,11 +1701,6 @@
             $this.children('.fa').removeClass('fa-chevron-up').addClass('fa-chevron-down');
             $this.removeClass('super-active');
             $this.children('ul').slideUp(300);
-        });
-
-        $doc.on('change', '.super-form-settings-tabs > select, .super-element-settings-tabs > select', function () {
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('super-active');
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
         });
 
         $doc.on('click', '.super-multi-items .super-add', function () {
@@ -2030,22 +2093,10 @@
             }
         });
 
-        $doc.on('click', '.super-elements .super-element h3', function () {
-            if($(this).parent().hasClass('super-active')){
-                $('.super-elements .super-element.super-active').removeClass('super-active');
-                $('.super-elements.super-active').removeClass('super-active');
-            }else{
-                $('.super-elements .super-element.super-active').removeClass('super-active');
-                $(this).parent().addClass('super-active');
-                $('.super-elements').addClass('super-active');
-            }
-            return false;
-        });
-
         $doc.on('click', '.super-create-form .super-actions .super-clear', function () {
             var $clear = confirm(super_create_form_i18n.confirm_clear_form);
             if ($clear === true) {
-                SUPER.set_session_data('_super_elements', '');
+                SUPER.set_session_data('_super_elements', false);
                 $('.super-preview-elements').html('');
                 $('.super-element.super-element-settings .super-elements-container').html('<p>' + super_create_form_i18n.not_editing_an_element + '</p>');
             }
@@ -2100,6 +2151,17 @@
                     if (this.status == 200) {
                         $target.html(this.responseText);
                         init_form_settings_container_heights();
+                        // Open up last element settings tab
+                        $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab')
+                        if($activeElementSettingsTab){
+                            $node = $('.super-element-settings .super-elements-container .tab-content:eq(' + $activeElementSettingsTab + ')');
+                            if($node.length){
+                                $('.super-element-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                                $node.addClass('super-active');
+                                $('.super-element-settings-tabs > select > option[selected]').prop({selected: false});
+                                $('.super-element-settings-tabs > select > option:eq(' + $activeElementSettingsTab + ')').prop({selected: true});
+                            }
+                        }
                     }
                     // Complete:
                     SUPER.init_previously_created_fields();
@@ -2414,6 +2476,7 @@
         }
 
         SUPER.regenerate_element_inner($('.super-preview-elements'), false);
+        SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
 
         // @since 4.0.0 - hints/introduction
         var $skip = $('input[name="super_skip_tutorial"]').val();
@@ -3265,8 +3328,17 @@
         });
 
     });
-    $(document).ready(function($){
-        $('body.wp-admin').addClass('folded');
+
+    window.addEventListener('beforeunload', function (e) {
+        e = e || window.event;
+        var unsaved = SUPER.get_session_data('_super_builder_has_unsaved_changes');
+        if(unsaved==='true'){
+            var $msg = 'Changes you made may not be saved.';
+            e.returnValue = $msg;
+            return $msg;
+        }
     });
-    
+
 })(jQuery);
+
+

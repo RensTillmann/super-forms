@@ -138,7 +138,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_create_form_tabs', array( $this, 'add_tab' ), 10, 1 );
                 add_action( 'super_create_form_front_end_listing_tab', array( $this, 'add_tab_content' ) );
-                // add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                // add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
                 add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );

@@ -347,7 +347,7 @@ if(!class_exists('SUPER_Stripe')) :
                 add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 
                 add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
 

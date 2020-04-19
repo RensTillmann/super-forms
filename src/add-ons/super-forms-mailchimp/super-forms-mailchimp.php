@@ -158,7 +158,7 @@ if(!class_exists('SUPER_Mailchimp')) :
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_mailchimp_element' ), 10, 2 );
             
             if ( $this->is_request( 'admin' ) ) {
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_mailchimp_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_mailchimp_settings' ), 10, 2 );
                 add_filter( 'super_enqueue_styles', array( $this, 'add_stylesheet' ), 10, 1 );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );   
                 add_action( 'init', array( $this, 'update_plugin' ) );
