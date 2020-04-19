@@ -6628,4 +6628,81 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     padding-right: 80px;
   }
 }
+
+.super-loading-overlay {
+  position: absolute;
+  z-index: 99999999;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.super-loading-overlay .super-loading-wrapper {
+  position: absolute;
+  z-index: 99999999;
+  width: 300px;
+  height: 400px;
+  top: 50%;
+  left: 50%;
+  margin-left: -150px;
+  margin-top: -200px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  color: black;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: column-reverse;
+          flex-direction: column-reverse;
+  background-color: white;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.5);
+  -ms-box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.5);
+  -o-box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 0px 8px 1px rgba(0, 0, 0, 0.5);
+}
+
+.super-loading-overlay .super-loading-wrapper:after {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1ce";
+  color: #c5c5c5;
+  font-size: 34px;
+  -webkit-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+
+.super-loading-overlay .super-loading-wrapper .super-progress {
+  width: 100%;
+  height: 5px;
+  background-color: #eee;
+  margin-top: 5px;
+}
+
+.super-loading-overlay .super-loading-wrapper .super-progress .super-progress-bar {
+  -webkit-transition: width 0.5s ease-out 0s;
+  transition: width 0.5s ease-out 0s;
+  width: 0%;
+  content: '';
+  display: block;
+  height: 5px;
+  background-color: #4EB1B6;
+}
 /*# sourceMappingURL=elements.css.map */
