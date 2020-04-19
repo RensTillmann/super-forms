@@ -46,36 +46,7 @@
             //Load fields
             if( isset( $v['fields'] ) ) {
                 foreach( $v['fields'] as $fk => $fv ) {
-                    $style = '';
-                    $filter = '';
-                    if( isset( $fv['filter'] ) ) $filter = ' super-filter';
-                    $parent = '';
-                    $hidden = '';
-                    if( isset( $fv['parent'] ) ) {
-                        $parent = 'data-parent="' . $fv['parent'] . '"';
-                        $hidden = ' super-hidden';
-                    }
-                    if( isset( $fv['hidden_setting'] ) ) {
-                        $style = ' style="display:none;"';
-                    }
-                    $filter_value = '';
-                    if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
-                    echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $style.'>';
-                        echo '<div class="super-field-info">';
-                            if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
-                                echo '&nbsp;';
-                            }else{
-                                if( isset( $fv['name'] ) ) {
-                                    echo '<h2>' . $fv['name'] . '</h2>';
-                                }
-                                if( isset( $fv['desc'] ) ) {
-                                    echo '<div class="field-description">' . $fv['desc'] . '</div>';
-                                }
-                            }
-                        echo '</div>';
-                        if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
-                        echo call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv );
-                    echo '</div>';
+                    echo call_user_func( array( 'SUPER_Field_Types', 'loop_over_fields' ), $fk, $fv );
                 }
             }
             echo '</div>';

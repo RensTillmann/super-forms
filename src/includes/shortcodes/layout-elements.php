@@ -1,7 +1,7 @@
 <?php
 $array['layout_elements'] = array(
     'title' => esc_html__( 'Layout Elements', 'super-forms' ),   
-    'class' => 'super-layout-elements super-active',
+    'class' => 'super-layout-elements',
     'info' => esc_html__( 'Use it as a starting point, but you can customize the columns', 'super-forms' ),
     'shortcodes' => array(
         'column_one_full' => array(

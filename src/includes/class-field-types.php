@@ -19,7 +19,55 @@ if( !class_exists( 'SUPER_Field_Types' ) ) :
  * SUPER_Field_Types
  */
 class SUPER_Field_Types {
-        
+    
+    // Loop over fields
+    public static function loop_over_fields($fk, $fv){
+        $styles = '';
+        $filter = '';
+        if( isset( $fv['filter'] ) ) $filter = ' super-filter';
+        $parent = '';
+        $hidden = '';
+        if( isset( $fv['parent'] ) ) {
+            $parent = 'data-parent="' . $fv['parent'] . '"';
+            $hidden = ' super-hidden';
+        }
+        if( isset( $fv['hidden_setting'] ) ) {
+            $styles = 'display:none;';
+        }
+        if(!empty($fv['_inline_styles'])){
+            $styles .= $fv['_inline_styles'];
+        }
+        if(!empty($styles))  $styles = ' style="' . $styles . '"';
+
+        $filter_value = '';
+        if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
+        echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $styles . '>';
+            echo '<div class="super-field-info">';
+                if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
+                    echo '&nbsp;';
+                }else{
+                    if( isset( $fv['name'] ) ) {
+                        echo '<h2>' . $fv['name'] . '</h2>';
+                    }
+                    if( isset( $fv['desc'] ) ) {
+                        echo '<div class="field-description">' . $fv['desc'] . '</div>';
+                    }
+                }
+            echo '</div>';
+            echo '<div class="super-field-fields">';
+                if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+                echo call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv );
+                // Loop over children (if this setting has any)
+                if(!empty($fv['children'])){
+                    foreach( $fv['children'] as $ck => $cv ) {
+                        echo self::loop_over_fields($ck, $cv);
+                    }
+                }
+            echo '</div>';
+
+        echo '</div>';
+    }
+
     // @since 4.8.0 - Tab/Accordion Element
     // Tab/Accordion Items
     public static function tab_items( $id, $field, $data ) {
@@ -380,12 +428,14 @@ class SUPER_Field_Types {
     //Checkbox field
     public static function checkbox( $id, $field ) {
         $return = '';
-        $return .= '<div class="super-checkbox">';
-        foreach( $field['values'] as $k => $v ) {
-            $return .= '<label><input type="checkbox" value="' . $k . '" ' . ($field['default']==$k ? 'checked="checked"' : '') . '>' . $v . '</label>';
-        }
+        $return .= '<div class="input">';
+            $return .= '<div class="super-checkbox">';
+            foreach( $field['values'] as $k => $v ) {
+                $return .= '<label><input type="checkbox" value="' . $k . '" ' . ($field['default']==$k ? 'checked="checked"' : '') . '>' . $v . '</label>';
+            }
+            $return .= '</div>';
+            $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         $return .= '</div>';
-        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
         return $return;
     }
 
@@ -747,6 +797,26 @@ class SUPER_Field_Types {
         return $return;
     }
     
+    // SMTP Test
+    //Input field    
+    public static function smtp_test() {
+        $return = '<div class="super-smtp-test">';
+            $return .= '<div class="super-smtp-test-row">';
+                $return .= '<input type="text" name="smpt_test_to" value="'.get_option('admin_email').'" />';
+            $return .= '</div>';
+            $return .= '<div class="super-smtp-test-row">';
+                $return .= '<label>';
+                    $return .= '<input type="checkbox" checked="checked" name="smpt_test_html" />';
+                    $return .= '<span>' . esc_html( 'Send in HTML or plain text format.', 'super-forms' ) . '</span>';
+                $return .= '</label>';
+            $return .= '</div>';
+            $return .= '<span class="button super-button super-send-smtp-test"><i class="fas fa-envelope"></i> ' . esc_html( 'Send Test Email', 'super-forms' ) . '</span>';
+        $return .= '</div>';
+        return $return;
+    }
+
+
+
     //Icon list
     public static function icon($id, $field){
         

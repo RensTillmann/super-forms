@@ -83,7 +83,7 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-
+            'smtp_test'               => false, // @since 4.9.5
 
         );
 
@@ -2598,7 +2598,36 @@ class SUPER_Ajax {
                 }                    
             }
         }
-        
+
+        // @since 4.9.5 - override setting with global email settings
+        // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
+        // meaning we should ignore any settings from the form itself and use the global setting instead
+        $global_settings = SUPER_Common::get_global_settings();
+        $overrideSettings = array(
+            // Set global 'To' header, can override 'header_to' and 'confirm_to' settings
+            'global_email_to_admin' => 'header_to',
+            'global_email_to_confirm' => 'confirm_to',
+            // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
+            'global_email_from' => array('header_from', 'confirm_from'),
+            // Set global 'From name' header, can override 'header_from_name' and 'confirm_from_name' settings
+            'global_email_from_name' => array('header_from_name', 'confirm_from_name'),
+            // Set global 'Reply to' header, can override 'header_reply' and 'confirm_reply' settings
+            'global_email_reply' => array('header_reply', 'confirm_reply'),
+            // Set global 'Reply name' header, can override 'header_reply_name' and 'confirm_reply_name' settings
+            'global_email_reply_name' => array('header_reply_name', 'confirm_reply_name'),
+        );
+        foreach($overrideSettings as $k => $v){
+            if(!empty($global_settings[$k . '_force'])){
+                if(is_array($v)){
+                    foreach($v as $vv){
+                        $settings[$vv] = $global_settings[$k];
+                    }
+                }else{
+                    $settings[$v] = $global_settings[$k];
+                }
+            }
+        }
+
         if( $settings['send']=='yes' ) {
             if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
             if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
@@ -2997,6 +3026,32 @@ class SUPER_Ajax {
         }
     }
 
+    /** 
+     *  Send an test email through SMTP
+     *
+     *  @param  array  $settings
+     *
+     *  @since      1.0.0
+    */
+    public static function smtp_test() {
+        var_dump('test smtp_test()');
+        die();
+        // $settings = SUPER_Common::get_form_settings($form_id);
+        // $from = 'no-reply@f4d.nl';
+        // $to = sanitize_email($_POST['email']);
+        // $from_name = 'f4d.nl';
+        // $subject = 'Subject';
+        // $email_body = 'Email body';
+
+        // // Send the email
+        // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
+
+        // // Return error message
+        // if( !empty( $mail->ErrorInfo ) ) {
+        //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+        //     SUPER_Common::output_message( $error=true, $msg );
+        // }
+    }
 }
 endif;
 SUPER_Ajax::init();

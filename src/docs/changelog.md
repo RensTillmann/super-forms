@@ -1,5 +1,12 @@
 # Super Forms - Changelog
 
+## Apr 19, 2020 - Version 4.9.430
+
+- **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
+- **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
+- **Improved:** Super Forms now remembers the last TAB you where editing a field in. If this TAB exsists for the next field you edit it will open in this specific TAB. This way you can faster edit many of the same settings that are below the same settings TAB. Upon page reload it will still remember. The same goes for the form settings TABS and the last openend panel
+- **Improved:** Better readability for font size on larger resolution monitors
+
 ## Apr 15, 2020 - Version 4.9.421
 
 - **Fix:** When using field typ `number` on a `Text` field make sure the `Max/Min number` settings are correctly added as min/max attributes
