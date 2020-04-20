@@ -472,7 +472,13 @@ class SUPER_Pages {
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
                                                                 if($fk>0) echo '<br />';
-                                                                echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a>';
+                                                                if(!empty($url)){
+                                                                    echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">';
+                                                                }
+                                                                echo esc_html( $fv['value'] );
+                                                                if(!empty($url)){
+                                                                    echo '</a>';
+                                                                }
                                                             }
                                                             echo '</span></td></tr>';
                                                         }else{

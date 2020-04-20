@@ -2145,8 +2145,6 @@ class SUPER_Ajax {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
                             
-
-
                             // // Check that the nonce is valid, and the user can edit this post.
                             // if ( 
                             //     isset( $_POST['my_image_upload_nonce'], $_POST['post_id'] ) 
@@ -2174,7 +2172,6 @@ class SUPER_Ajax {
 
                             //     // The security check failed, maybe show the user an error.
                             // }
-
 
                             // Before we proceed check if the file already exists, if so, do nothing
                             // Exclude files that are being uploaded for the first time
@@ -2532,7 +2529,13 @@ class SUPER_Ajax {
                                     $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
                                 }
                             }
-                            $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                            // In case the file was deleted we do not want to add a hyperlink that links to the file
+                            if( !empty($settings['file_upload_submission_delete']) ) {
+                                $files_value .= $value['value'] . '<br /><br />';
+                            }else{
+                                $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                            }
+                            // Exclude file from email completely
                             if( $v['exclude']!=2 ) {
                                 if( $v['exclude']==1 ) {
                                     $attachments[$value['value']] = $value['url'];
@@ -2639,6 +2642,10 @@ class SUPER_Ajax {
             if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
             if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
             
+            // @since 4.9.5 - RTL email setting
+            if(!isset($settings['email_rtl'])) $settings['email_rtl'] = '';
+            if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+
             $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
@@ -2693,7 +2700,7 @@ class SUPER_Ajax {
 
             // @since 2.0
             $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
-            
+
             // Send the email
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
 
@@ -2718,6 +2725,10 @@ class SUPER_Ajax {
             // @since 3.1.0 - optionally automatically add line breaks
             if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
             if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
+
+            // @since 4.9.5 - RTL email setting
+            if(!isset($settings['confirm_rtl'])) $settings['confirm_rtl'] = '';
+            if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
             
             $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );

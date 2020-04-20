@@ -115,7 +115,6 @@
 
     // init connected datepickers
     SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
-
         if(selectedDate===''){
             $this.parentNode.classList.remove('super-filled');
         }else{
