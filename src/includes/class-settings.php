@@ -305,6 +305,20 @@ class SUPER_Settings {
                     'parent'=>'send',
                     'filter_value'=>'yes',
                 ),
+                // @since 4.9.5 - RTL E-mails
+                'email_rtl' => array(
+                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'email_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes'
+                ),
+
                 'header_cc' => array(
                     'name' => esc_html__( 'CC:', 'super-forms' ),
                     'desc' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
@@ -501,6 +515,20 @@ class SUPER_Settings {
                     'parent'=>'confirm',
                     'filter_value'=>'yes'
                 ),
+                // @since 4.9.5 - RTL E-mails
+                'confirm_rtl' => array(
+                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes'
+                ),
+
                 'confirm_header_cc' => array(
                     'name' => esc_html__( 'CC:', 'super-forms' ),
                     'desc' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),

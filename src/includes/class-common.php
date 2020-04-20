@@ -1792,8 +1792,8 @@ class SUPER_Common {
         if( $global_settings['smtp_enabled']=='disabled' ) {
             $wpmail_attachments = array();
             foreach( $attachments as $k => $v ) {
-                $v = str_replace(content_url(), '', $v);
-                $wpmail_attachments[] = WP_CONTENT_DIR . $v;
+                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $v);
+                $wpmail_attachments[] = WP_CONTENT_DIR . $path;
             }
 
             SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
