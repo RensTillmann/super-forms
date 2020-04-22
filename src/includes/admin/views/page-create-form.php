@@ -261,6 +261,7 @@
                     foreach($tabs as $k => $v){
                         echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
                         echo esc_html($v);
+                        if(!is_array($translations)) $translations = array();
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . current($translations)['flag'] . '" />';
                         }

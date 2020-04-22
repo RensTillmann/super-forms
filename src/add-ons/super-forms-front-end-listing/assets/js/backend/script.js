@@ -90,83 +90,78 @@
     SUPER.frontEndListing = {};
 
     SUPER.add_listings = function(data){
-        if(typeof data !== 'string'){
-            data = JSON.stringify(data);
-        }
-        data = JSON.parse(data);
-        data.settings._listings = {};
+        data.formSettings = JSON.parse(data.formSettings);
+        data.formSettings._listings = {};
         // Loop through all the listings
         var list = document.querySelectorAll('.front-end-listing-list > li');
         for (var key = 0; key < list.length; key++) {
-            data.settings._listings[key] = {};
-            data.settings._listings[key].name = list[key].querySelector('input[name="name"]').value;
-            data.settings._listings[key].display_based_on = list[key].querySelector('[data-name="display_based_on"]').querySelector('.super-active').dataset.value;
-            if(data.settings._listings[key].display_based_on=='specific_forms'){
-                data.settings._listings[key].form_ids = list[key].querySelector('input[name="form_ids"]').value;
+            data.formSettings._listings[key] = {};
+            data.formSettings._listings[key].name = list[key].querySelector('input[name="name"]').value;
+            data.formSettings._listings[key].display_based_on = list[key].querySelector('[data-name="display_based_on"]').querySelector('.super-active').dataset.value;
+            if(data.formSettings._listings[key].display_based_on=='specific_forms'){
+                data.formSettings._listings[key].form_ids = list[key].querySelector('input[name="form_ids"]').value;
             }
-            data.settings._listings[key].date_range = false;
+            data.formSettings._listings[key].date_range = false;
             if(list[key].querySelector('[data-name="date_range"]').classList.contains('super-active')){
-                data.settings._listings[key].date_range = {
+                data.formSettings._listings[key].date_range = {
                     from: list[key].querySelector('[data-name="date_range"] input[name="from"]').value,
                     till: list[key].querySelector('[data-name="date_range"] input[name="till"]').value
                 };
             }
-            data.settings._listings[key].show_title = false;
+            data.formSettings._listings[key].show_title = false;
             if(list[key].querySelector('[data-name="show_title"]').classList.contains('super-active')){
-                data.settings._listings[key].show_title = {
+                data.formSettings._listings[key].show_title = {
                     name: list[key].querySelector('[data-name="show_title"] input[name="name"]').value,
                     placeholder: list[key].querySelector('[data-name="show_title"] input[name="placeholder"]').value,
                     position: list[key].querySelector('[data-name="show_title"] input[name="position"]').value,
                     width: list[key].querySelector('[data-name="show_title"] input[name="width"]').value
                 };
             }
-            data.settings._listings[key].show_status = false;
+            data.formSettings._listings[key].show_status = false;
             if(list[key].querySelector('[data-name="show_status"]').classList.contains('super-active')){
-                data.settings._listings[key].show_status = {
+                data.formSettings._listings[key].show_status = {
                     name: list[key].querySelector('[data-name="show_status"] input[name="name"]').value,
                     placeholder: list[key].querySelector('[data-name="show_status"] input[name="placeholder"]').value,
                     position: list[key].querySelector('[data-name="show_status"] input[name="position"]').value,
                     width: list[key].querySelector('[data-name="show_status"] input[name="width"]').value
                 };
             }
-            data.settings._listings[key].show_date = false;
+            data.formSettings._listings[key].show_date = false;
             if(list[key].querySelector('[data-name="show_date"]').classList.contains('super-active')){
-                data.settings._listings[key].show_date = {
+                data.formSettings._listings[key].show_date = {
                     name: list[key].querySelector('[data-name="show_date"] input[name="name"]').value,
                     placeholder: list[key].querySelector('[data-name="show_date"] input[name="placeholder"]').value,
                     position: list[key].querySelector('[data-name="show_date"] input[name="position"]').value,
                     width: list[key].querySelector('[data-name="show_date"] input[name="width"]').value
                 };
             }
-
             // Add custom columns
-            data.settings._listings[key].custom_columns = false;
+            data.formSettings._listings[key].custom_columns = false;
             if(list[key].querySelector('[data-name="custom_columns"]').classList.contains('super-active')){
-                data.settings._listings[key].custom_columns = true;
-                data.settings._listings[key].columns = {};
+                data.formSettings._listings[key].custom_columns = true;
+                data.formSettings._listings[key].columns = {};
                 var columns = document.querySelectorAll('.front-end-listing-list div[data-name="custom_columns"] li');
                 for (var ckey = 0; ckey < columns.length; ckey++) {
-                    data.settings._listings[key].columns[ckey] = {};
-                    data.settings._listings[key].columns[ckey].name = columns[ckey].querySelector('input[name="name"]').value;
-                    data.settings._listings[key].columns[ckey].field_name = columns[ckey].querySelector('input[name="field_name"]').value;
-                    data.settings._listings[key].columns[ckey].width = columns[ckey].querySelector('input[name="width"]').value;
-                    data.settings._listings[key].columns[ckey].filter = columns[ckey].querySelector('select[name="filter"]').value;
-                    data.settings._listings[key].columns[ckey].filter_items = columns[ckey].querySelector('textarea[name="filter_items"]').value;
+                    data.formSettings._listings[key].columns[ckey] = {};
+                    data.formSettings._listings[key].columns[ckey].name = columns[ckey].querySelector('input[name="name"]').value;
+                    data.formSettings._listings[key].columns[ckey].field_name = columns[ckey].querySelector('input[name="field_name"]').value;
+                    data.formSettings._listings[key].columns[ckey].width = columns[ckey].querySelector('input[name="width"]').value;
+                    data.formSettings._listings[key].columns[ckey].filter = columns[ckey].querySelector('select[name="filter"]').value;
+                    data.formSettings._listings[key].columns[ckey].filter_items = columns[ckey].querySelector('textarea[name="filter_items"]').value;
                 }
             }
-
-            data.settings._listings[key].edit_any = false;
+            data.formSettings._listings[key].edit_any = false;
             if(list[key].querySelector('[data-name="edit_any"]').classList.contains('super-active')){
-                data.settings._listings[key].edit_any = {
+                data.formSettings._listings[key].edit_any = {
                     user_roles: list[key].querySelector('input[name="user_roles"]').value,
                     user_ids: list[key].querySelector('input[name="user_ids"]').value,
                     method: (list[key].querySelector('[data-name="method"]').querySelector('.super-active') ? list[key].querySelector('[data-name="method"]').querySelector('.super-active').dataset.value : '')
                 };
             }
-
-            data.settings._listings[key].pagination = list[key].querySelector('[data-name="pagination"]').querySelector('.super-active').dataset.value;
-            data.settings._listings[key].limit = list[key].querySelector('select[name="limit"]').value;
+            data.formSettings._listings[key].pagination = list[key].querySelector('[data-name="pagination"]').querySelector('.super-active').dataset.value;
+            data.formSettings._listings[key].limit = list[key].querySelector('select[name="limit"]').value;
         }
+        data.formSettings = JSON.stringify(data.formSettings);
         return data;
     };
 
@@ -286,8 +281,8 @@
     //         return false;
     //     }
     //     // We will grab the so called "dummy" html, which is the first item in our list
-    //     var $dummy = $('.translations-list > li').first(),
-    //         $last = $('.translations-list > li').last(),
+    //     var $dummy = $('.super-translations-list > li').first(),
+    //         $last = $('.super-translations-list > li').last(),
     //         $clone = $dummy.clone();
     //     // First reset the tooltips for our buttons
     //     $clone.find('.tooltipstered').removeClass('tooltipstered');

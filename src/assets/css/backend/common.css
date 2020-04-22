@@ -147,7 +147,10 @@
 .sfui-notice.sfui-yellow:before {
     content: '\f05a';
 }
-
+.super-tab-code textarea.sfui-red {
+    background-color: #ffd6d6;
+    color: #4a0b0b;
+}
 
 /*--------------------
     Buttons
