@@ -5226,10 +5226,12 @@ function SUPERreCaptcha(){
             nextField = nextCustomField;
         }
         
-        customTabIndex = nextField.dataset.superCustomTabIndex;
-        if(typeof customTabIndex !== 'undefined') {
-            if(nextTabIndex < parseFloat(customTabIndex)){
-                nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+        if(nextField.dataset.superCustomTabIndex){
+            customTabIndex = nextField.dataset.superCustomTabIndex;
+            if(typeof customTabIndex !== 'undefined') {
+                if(nextTabIndex < parseFloat(customTabIndex)){
+                    nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+                }
             }
         }
         if(SUPER.has_hidden_parent(nextField)){

@@ -1,6 +1,6 @@
 /* globals SUPER */
 "use strict";
-(function($) { // Hide scope, no $ conflict
+(function() { // Hide scope, no $ conflict
 
     /**
      * Get all DOM element up the tree that contain a class, ID, or data attribute

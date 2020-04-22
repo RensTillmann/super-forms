@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## Apr 20, 2020 - Version 4.9.430
+## Apr 22, 2020 - Version 4.9.431
 
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
 - **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format

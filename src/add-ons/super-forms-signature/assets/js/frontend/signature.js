@@ -63,7 +63,6 @@
 				var json = $(canvasWrapper).signature('toJSON');
 				var lines = JSON.parse(json).lines;
 				if(lines.length===0) {
-					//debugger;
 					json = $(canvasWrapper).signature('toDataURL');
 					$(canvasWrapper).signature('draw', json);
 					if(canvasWrapper.parentNode.querySelector('.super-shortcode-field').value!==''){
@@ -78,7 +77,6 @@
 				var canvas = nodes[i].querySelector('canvas');
 				var canvasWidth = canvas.offsetWidth;
 				var ratio = (canvasWidth/canvasWrapperWidth)*100;
-				console.log(canvasWrapperWidth, canvasWidth, ratio);
 				canvas.width = canvasWrapperWidth;
 				canvas.height = canvasWrapperHeight;
 
@@ -89,12 +87,10 @@
 						if(!newLines[x][y]) newLines[x][y] = [];
 						if(canvasWrapperWidth < canvasWidth){
 							ratio = canvasWidth/canvasWrapperWidth;
-							console.log(ratio);
 							newLines[x][y][0] = lines[x][y][0]/ratio;
 							newLines[x][y][1] = lines[x][y][1]/ratio;
 						}else{
 							ratio = canvasWrapperWidth/canvasWidth;
-							console.log(ratio);
 							newLines[x][y][0] = lines[x][y][0]*ratio;
 							newLines[x][y][1] = lines[x][y][1]*ratio;
 						}
@@ -107,14 +103,12 @@
 				}
 				// Check if the signature exceeds height limits
 				if(canvasWrapperHeight < minHeight){
-					console.log('exceeds limit, use default json');
+					// console.log('exceeds limit, use default json');
 				}else{
 					json = {"lines":newLines};
 					json = JSON.stringify(json);
 				}
 				$(canvasWrapper).signature('draw', json);
-				console.log(lines);
-				console.log(newLines);
 
 				// var wrapper = nodes[i].closest('.super-field-wrapper');	
 				// var wrapperWidth = wrapper.offsetWidth;
