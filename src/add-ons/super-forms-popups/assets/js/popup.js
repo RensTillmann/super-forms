@@ -14,14 +14,14 @@
 	};
 
 	// Scroll to top of popup content after appending message
-	SUPER.init_before_scrolling_to_message_popup = function($proceed, $form){
-        if($form.parents('.super-popup-content:eq(0)').length){
-            $form.parents('.super-popup-content:eq(0)').animate({
+	SUPER.init_before_scrolling_to_message_popup = function(proceed, form){
+        if($(form).parents('.super-popup-content:eq(0)').length){
+            $(form).parents('.super-popup-content:eq(0)').animate({
 				scrollTop: 0
             }, 1000);
-            $proceed = false;
+            proceed = false;
         }
-		return $proceed;
+		return proceed;
 	};
 
 	// Show popup in builder preview mode

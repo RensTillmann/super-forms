@@ -952,7 +952,7 @@
                 parent,
                 column,
                 form,
-                first,
+                last,
                 found,
                 limit,
                 unique_field_names = {},
@@ -1011,8 +1011,8 @@
             // If custom padding is being used set $column to be the padding wrapper `div`
             column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form(el, form);
-            first = column.querySelector('.super-duplicate-column-fields');
-            found = column.querySelectorAll('.super-duplicate-column-fields').length;
+            last = column.querySelector('.super-duplicate-column-fields:last-child');
+            found = column.querySelectorAll('.super-duplicate-column-fields:last-child').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
                 return false;
@@ -1022,7 +1022,7 @@
             field_names = {};
             field_labels = {};
             counter = 0;
-            nodes = first.querySelectorAll('.super-shortcode-field[name]');
+            nodes = last.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
                 if(field.classList.contains('super-fileupload')){
@@ -1036,7 +1036,7 @@
             }
 
             counter = column.querySelectorAll('.super-duplicate-column-fields').length;
-            clone = first.cloneNode(true);
+            clone = last.cloneNode(true);
             column.appendChild(clone);
 
             // @since 3.3.0 - hook after appending new column
@@ -1062,14 +1062,15 @@
             nodes = clone.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
+                parent = field.closest('.super-field');
                 if(field.classList.contains('super-fileupload')){
                      field.classList.remove('super-rendered');
                      field = field.parentNode.querySelector('.super-active-files');
                 }
                 // Keep valid TAB index
-                if( (typeof field.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
+                if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
                     last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
-                    field.dataset.superTabIndex = last_tab_index;
+                    parent.dataset.superTabIndex = last_tab_index;
                 }
                 added_fields[field.name] = field;
                 field.name = field_names[field_counter]+'_'+(counter+1);
