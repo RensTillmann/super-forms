@@ -136,14 +136,15 @@ class SUPER_Settings {
 
         $backend_contact_entry_status = self::get_entry_statuses( null, true );
 
+
         /** 
          *  Admin email settings
          *
          *  @since      2.8.0
         */
         $array['admin_email_settings'] = array(        
-            'name' => esc_html__( 'Email settings (admin emails)', 'super-forms' ),
-            'label' => esc_html__( 'Email settings (admin emails)', 'super-forms' ),
+            'name' => esc_html__( 'Admin E-mail', 'super-forms' ),
+            'label' => esc_html__( 'Admin E-mail', 'super-forms' ),
             'fields' => array(
                 'send' => array(
                     'name' => esc_html__( 'Send admin email', 'super-forms' ),
@@ -204,7 +205,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
-                        'true' => esc_html__( 'Set a custom reply to header', 'super-forms' ),
+                        'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
                     ),
                     'filter'=>true,
                     'parent'=>'send',
@@ -304,6 +305,20 @@ class SUPER_Settings {
                     'parent'=>'send',
                     'filter_value'=>'yes',
                 ),
+                // @since 4.9.5 - RTL E-mails
+                'email_rtl' => array(
+                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'email_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes'
+                ),
+
                 'header_cc' => array(
                     'name' => esc_html__( 'CC:', 'super-forms' ),
                     'desc' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
@@ -342,8 +357,8 @@ class SUPER_Settings {
          *  @since      2.8.0
         */
         $array['confirmation_email_settings'] = array(        
-            'name' => esc_html__( 'Email settings (confirmation emails)', 'super-forms' ),
-            'label' => esc_html__( 'Email settings (confirmation emails)', 'super-forms' ),
+            'name' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
+            'label' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
             'fields' => array(
                 'confirm' => array(
                     'name' => esc_html__( 'Send confirmation email', 'super-forms' ),
@@ -401,7 +416,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'confirm_header_reply_enabled', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
-                        'true' => esc_html__( 'Set a custom reply to header', 'super-forms' ),
+                        'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
                     ),
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -500,6 +515,20 @@ class SUPER_Settings {
                     'parent'=>'confirm',
                     'filter_value'=>'yes'
                 ),
+                // @since 4.9.5 - RTL E-mails
+                'confirm_rtl' => array(
+                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_rtl', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes'
+                ),
+
                 'confirm_header_cc' => array(
                     'name' => esc_html__( 'CC:', 'super-forms' ),
                     'desc' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
@@ -530,6 +559,296 @@ class SUPER_Settings {
             ),
         );
         $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings ) );
+
+        /** 
+         *	Global Overriding
+         *
+         *	@since		4.9.5
+        */
+        $array['global_overriding'] = array(        
+            'hidden' => true,
+            'name' => esc_html__( 'Global Overriding', 'super-forms' ),
+            'label' => esc_html__( 'Global Overriding', 'super-forms' ),
+            'html' => array(
+                '<p class="super-global-email-config-notice" style="background-color: #ff3535;color: #ffffff;font-size: 14px;line-height: 16px;margin-bottom: 30px;border-radius: 5px;padding: 15px 25px 15px 25px;">',
+                '<strong style="font-size:16px;">' . esc_html__( 'Important notice:', 'super-forms' ) . '</strong> ',
+                esc_html__( 'Here you can override specific settings for all your forms (including previously created forms). Only use it if you have a setting that needs to be used on all forms. To actually apply the setting to all forms you must enable the checkbox \'Force: ...\' that corresponds with the setting. If you later decide to uncheck the checkbox, the old form values will be used again. Meaning if you use the below settings it will not actually override any of your form settings, but simply ignore them.', 'super-forms' ),
+                '</p>',
+            ),
+            'fields' => array(
+
+                // @since 4.9.5 - configure global email settings (can be used to override all form settings)
+                // Set global 'To' header, can override 'header_to' and 'confirm_to' settings
+                'global_email_to_admin' => array(
+                    'name' => esc_html__( 'Send to (Admin E-mails)', 'super-forms' ),
+                    'desc' => esc_html__( 'The email address where emails are sent to', 'super-forms' ),
+                    'default' => self::get_value( $default, 'global_email_to_admin', $settings, '{option_admin_email}' ),
+                    'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
+                    'children' => array(
+                        'global_email_to_admin_force' => array(
+                            'default' => self::get_value( $default, 'global_email_to_admin_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Admin E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        )
+                    )
+                ),
+                'global_email_to_confirm' => array(
+                    'name' => esc_html__( 'Send to (Confirmation E-mails)', 'super-forms' ),
+                    'desc' => esc_html__( 'The email address where emails are sent to', 'super-forms' ),
+                    'default' => self::get_value( $default, 'global_email_to_confirm', $settings, '{email}' ),
+                    'placeholder' => esc_html__( '{email}', 'super-forms' ),
+                    'children' => array(
+                        'global_email_to_confirm_force' => array(
+                            'default' => self::get_value( $default, 'global_email_to_confirm_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Confirmation E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            ),
+                        ),
+                    )
+                ),
+                
+                // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
+                'global_email_from' => array(
+                    'name' => esc_html__( 'From email', 'super-forms' ),
+                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<br />' ),
+                    'default' => self::get_value( $default, 'global_email_from', $settings, '{option_admin_email}' ),
+                    'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
+                    'children' => array(
+                        'global_email_from_admin_force' => array(
+                            'default' => self::get_value( $default, 'global_email_from_admin_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Admin E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            ),
+                        ),
+                        'global_email_from_confirm_force' => array(
+                            'default' => self::get_value( $default, 'global_email_from_confirm_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Confirmation E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        ),
+                    )
+                ),
+
+                // Set global 'From name' header, can override 'header_from_name' and 'confirm_from_name' settings
+                'global_email_from_name' => array(
+                    'name' => esc_html__( 'From name', 'super-forms' ),
+                    'desc' => esc_html__( 'The name which emails are sent from.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'global_email_from_name', $settings, '{option_blogname}' ),
+                    'placeholder' => esc_html__( 'Enter a name', 'super-forms' ),
+                    'children' => array(
+                        'global_email_from_name_admin_force' => array(
+                            'default' => self::get_value( $default, 'global_email_from_name_admin_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Admin E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        ),
+                        'global_email_from_name_confirm_force' => array(
+                            'default' => self::get_value( $default, 'global_email_from_name_confirm_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Confirmation E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        )
+                    )
+                ),
+
+                // Set global 'Reply to' header, can override 'header_reply' and 'confirm_reply' settings
+                'global_email_reply' => array(
+                    'name' => esc_html__( '(optional) Reply to email', 'super-forms' ),
+                    'desc' => esc_html__( 'The email address where user will reply to (leave blank to use \'From email\' setting).', 'super-forms' ),
+                    'default' => self::get_value( $default, 'global_email_reply', $settings, '' ),
+                    'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
+                    'children' => array(
+                        'global_email_reply_admin_force' => array(
+                            'default' => self::get_value( $default, 'global_email_reply_admin_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Admin E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        ),
+                        'global_email_reply_confirm_force' => array(
+                            'default' => self::get_value( $default, 'global_email_reply_confirm_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Confirmation E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        )
+                    )
+                ),
+
+                // Set global 'Reply name' header, can override 'header_reply_name' and 'confirm_reply_name' settings
+                'global_email_reply_name' => array(
+                    'name' => esc_html__( '(optional) Reply to name', 'super-forms' ),
+                    'desc' => esc_html__( 'The name where user will reply to (leave blank to use \'From name\' setting).', 'super-forms' ),
+                    'default' => self::get_value( $default, 'global_email_reply_name', $settings, '' ),
+                    'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
+                    'children' => array(
+                        'global_email_reply_name_admin_force' => array(
+                            'default' => self::get_value( $default, 'global_email_reply_name_admin_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Admin E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        ),
+                        'global_email_reply_name_confirm_force' => array(
+                            'default' => self::get_value( $default, 'global_email_reply_name_confirm_force', $settings, '' ),
+                            'type' => 'checkbox',
+                            'values' => array(
+                                'true' => esc_html__( 'Force: use the above setting for all Confirmation E-mails (the setting defined on individual forms will be ignored)', 'super-forms' ),
+                            )
+                        )
+                    )
+                )
+            )
+        );
+
+
+        /** 
+         *	SMTP Server Configuration
+         *
+         *	@since		1.0.0
+        */
+        $array['smtp_server'] = array(        
+            'hidden' => true,
+            'name' => esc_html__( 'SMTP Server', 'super-forms' ),
+            'label' => esc_html__( 'SMTP Server', 'super-forms' ),
+            'fields' => array(
+                // SMTP Settings
+                'smtp_enabled' => array(
+                    'name' => esc_html__( 'Set mailer to use SMTP', 'super-forms' ),
+                    'desc' => esc_html__( 'Use the default wp_mail() or use SMTP to send emails', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_enabled', $settings, 'disabled' ),
+                    'filter' => true,
+                    'type' => 'select',
+                    'values' => array(
+                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
+                        'enabled' => esc_html__( 'Enabled', 'super-forms' )
+                    )
+                ),
+                'smtp_host' => array(
+                    'name' => esc_html__( 'Specify main and backup SMTP servers', 'super-forms' ),
+                    'desc' => esc_html__( 'Example: smtp1.example.com;smtp2.example.com', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_host', $settings, 'smtp1.example.com;smtp2.example.com' ),
+                    'placeholder' => esc_html__( 'Your SMTP server', 'super-forms' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_auth' => array(
+                    'name' => esc_html__( 'Enable SMTP authentication', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'disabled' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
+                        'enabled' => esc_html__( 'Enabled', 'super-forms' )
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_username' => array(
+                    'name' => esc_html__( 'SMTP username', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_username', $settings, '' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_password' => array(
+                    'name' => esc_html__( 'SMTP password', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
+                    'type' => 'password',
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),                                
+                'smtp_secure' => array(
+                    'name' => esc_html__( 'Enable TLS or SSL encryption', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_secure', $settings, '' ),
+                    'type' => 'select',
+                    'values' => array(
+                        '' => esc_html__( 'Disabled', 'super-forms' ),
+                        'ssl' => esc_html__( 'SSL', 'super-forms' ),
+                        'tls' => esc_html__( 'TLS', 'super-forms' )
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_port' => array(
+                    'name' => esc_html__( 'TCP port to connect to', 'super-forms' ),
+                    'desc' => sprintf( esc_html__( 'SMTP – port 25 or 2525 or 587%sSecure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super-forms' ), '<br />' ),
+                    'default' => self::get_value( $default, 'smtp_port', $settings, '465' ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                    'width' => 100, 
+                ),
+                'smtp_timeout' => array(
+                    'name' => esc_html__( 'Timeout (seconds)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_timeout', $settings, 30 ),
+                    'width' => 100, 
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_keep_alive' => array(
+                    'name' => esc_html__( 'Keep connection open after each message', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_keep_alive', $settings, 'disabled' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
+                        'enabled' => esc_html__( 'Enabled', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_debug' => array(
+                    'name' => esc_html__( 'SMTP debug output mode', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_debug', $settings, 0 ),
+                    'type' => 'select',
+                    'values' => array(
+                        0 => esc_html__( '0 - No output', 'super-forms' ),
+                        1 => esc_html__( '1 - Commands', 'super-forms' ),
+                        2 => esc_html__( '2 - Data and commands', 'super-forms' ),
+                        3 => esc_html__( '3 - As 2 plus connection status', 'super-forms' ),
+                        4 => esc_html__( '4 - Low-level data output', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled',
+                ),
+                'smtp_debug_output_mode' => array(
+                    'name' => esc_html__( 'How to handle debug output', 'super-forms' ),
+                    'default' => self::get_value( $default, 'smtp_debug_output_mode', $settings, 'echo' ),
+                    'type' => 'select',
+                    'values' => array(
+                        'echo' => esc_html__( 'ECHO - Output plain-text as-is, appropriate for CLI', 'super-forms' ),
+                        'html' => esc_html__( 'HTML - Output escaped, line breaks converted to `<br>`, appropriate for browser output', 'super-forms' ),
+                        'error_log' => esc_html__( 'ERROR_LOG - Output to error log as configured in php.ini', 'super-forms' ),
+                    ),
+                    'filter' => true,
+                    'parent' => 'smtp_debug',
+                    'filter_value' => '1,2,3,4',
+                ),
+                'smtp_send_test_email' => array(
+                    'name' => esc_html__( 'E-mail Test', 'super-forms' ),
+                    'desc' => esc_html__( 'Send a Test Email', 'super-forms' ),
+                    'type' => 'smtp_test',
+                    'filter' => true,
+                    'parent' => 'smtp_enabled',
+                    'filter_value' => 'enabled'
+                )
+            )
+        );
+        $array = apply_filters( 'super_settings_after_global_overriding_filter', $array, array( 'settings'=>$settings ) );
+
 
         /** 
          *	Email Headers
@@ -2316,140 +2635,9 @@ class SUPER_Settings {
             ),
         );
         $array = apply_filters( 'super_settings_after_custom_js_filter', $array, array( 'settings'=>$settings ) );
-
-        
-        /** 
-         *	SMTP Server
-         *
-         *	@since		1.0.0
-        */
-        $array['smtp_server'] = array(        
-            'hidden' => true,
-            'name' => esc_html__( 'SMTP Server', 'super-forms' ),
-            'label' => esc_html__( 'SMTP Configuration', 'super-forms' ),
-            'fields' => array(        
-                'smtp_enabled' => array(
-                    'name' => esc_html__( 'Set mailer to use SMTP', 'super-forms' ),
-                    'desc' => esc_html__( 'Use the default wp_mail() or use SMTP to send emails', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_enabled', $settings, 'disabled' ),
-                    'filter' => true,
-                    'type' => 'select',
-                    'values' => array(
-                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
-                        'enabled' => esc_html__( 'Enabled', 'super-forms' )
-                    )
-                ),
-                'smtp_host' => array(
-                    'name' => esc_html__( 'Specify main and backup SMTP servers', 'super-forms' ),
-                    'desc' => esc_html__( 'Example: smtp1.example.com;smtp2.example.com', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_host', $settings, 'smtp1.example.com;smtp2.example.com' ),
-                    'placeholder' => esc_html__( 'Your SMTP server', 'super-forms' ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_auth' => array(
-                    'name' => esc_html__( 'Enable SMTP authentication', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_auth', $settings, 'disabled' ),
-                    'type' => 'select',
-                    'values' => array(
-                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
-                        'enabled' => esc_html__( 'Enabled', 'super-forms' )
-                    ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_username' => array(
-                    'name' => esc_html__( 'SMTP username', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_username', $settings, '' ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_password' => array(
-                    'name' => esc_html__( 'SMTP password', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_password', $settings, '' ),
-                    'type' => 'password',
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),                                
-                'smtp_secure' => array(
-                    'name' => esc_html__( 'Enable TLS or SSL encryption', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_secure', $settings, '' ),
-                    'type' => 'select',
-                    'values' => array(
-                        '' => esc_html__( 'Disabled', 'super-forms' ),
-                        'ssl' => esc_html__( 'SSL', 'super-forms' ),
-                        'tls' => esc_html__( 'TLS', 'super-forms' )
-                    ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_port' => array(
-                    'name' => esc_html__( 'TCP port to connect to', 'super-forms' ),
-                    'desc' => esc_html__( 'SMTP – port 25 or 2525 or 587<br />Secure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_port', $settings, '465' ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                    'width' => 100, 
-                ),
-                'smtp_timeout' => array(
-                    'name' => esc_html__( 'Timeout (seconds)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_timeout', $settings, 30 ),
-                    'width' => 100, 
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_keep_alive' => array(
-                    'name' => esc_html__( 'Keep connection open after each message', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_keep_alive', $settings, 'disabled' ),
-                    'type' => 'select',
-                    'values' => array(
-                        'disabled' => esc_html__( 'Disabled', 'super-forms' ),
-                        'enabled' => esc_html__( 'Enabled', 'super-forms' ),
-                    ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_debug' => array(
-                    'name' => esc_html__( 'SMTP debug output mode', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_debug', $settings, 0 ),
-                    'type' => 'select',
-                    'values' => array(
-                        0 => esc_html__( '0 - No output', 'super-forms' ),
-                        1 => esc_html__( '1 - Commands', 'super-forms' ),
-                        2 => esc_html__( '2 - Data and commands', 'super-forms' ),
-                        3 => esc_html__( '3 - As 2 plus connection status', 'super-forms' ),
-                        4 => esc_html__( '4 - Low-level data output', 'super-forms' ),
-                    ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
-                ),
-                'smtp_debug_output_mode' => array(
-                    'name' => esc_html__( 'How to handle debug output', 'super-forms' ),
-                    'default' => self::get_value( $default, 'smtp_debug_output_mode', $settings, 'echo' ),
-                    'type' => 'select',
-                    'values' => array(
-                        'echo' => esc_html__( 'ECHO - Output plain-text as-is, appropriate for CLI', 'super-forms' ),
-                        'html' => esc_html__( 'HTML - Output escaped, line breaks converted to `<br>`, appropriate for browser output', 'super-forms' ),
-                        'error_log' => esc_html__( 'ERROR_LOG - Output to error log as configured in php.ini', 'super-forms' ),
-                    ),
-                    'filter' => true,
-                    'parent' => 'smtp_debug',
-                    'filter_value' => '1,2,3,4',
-                ),
-
-            )
-        );
+        // Old deprecated hook (keep for possible backward compatibility)
         $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );
-                
+
         
         /** 
          *	Restore Default Settings

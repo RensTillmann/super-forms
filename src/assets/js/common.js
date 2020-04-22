@@ -124,6 +124,7 @@ function SUPERreCaptcha(){
         return form.querySelectorAll(selector);
     };
     SUPER.fieldsByName = function(form, name){
+        if(name==='') return null; // Skip empty names due to "translation mode"
         return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     
@@ -175,16 +176,16 @@ function SUPERreCaptcha(){
         return key+'_'+getUrlParam('id', 0);
     };
     SUPER.set_session_data = function(key, data, method, raw){
-        var updateRawCode = false;
         if(typeof method === 'undefined') method = 'session';
         if(typeof raw === 'undefined') raw = false;
-        if( key=='_super_elements' && !raw ) {
-            updateRawCode = true;
-        }
         if(key!=='_super_transfer_element_html') key = SUPER.get_session_pointer(key);
         if(method==='session'){
             try {
-                sessionStorage.setItem(key, data);
+                if(data===false){
+                    sessionStorage.removeItem(key);
+                }else{
+                    sessionStorage.setItem(key, data);
+                }
             }
             catch (e) {
                 // Empty data when localstorage is full
@@ -200,10 +201,12 @@ function SUPERreCaptcha(){
                 SUPER.set_session_data(key, data, method);
             }
         }else{
-            localStorage.setItem(key, data);
+            if(data===false){
+                localStorage.removeItem(key);
+            }else{
+                localStorage.setItem(key, data);
+            }
         }
-        // We should update the code in the "Code" tab so that we can edit Raw Form Code via here
-        if(updateRawCode) document.querySelector('.super-tab-content.super-tab-code > textarea').value = data;
     };
     SUPER.get_session_data = function(key, method){
         if(typeof method === 'undefined') method = 'session';
@@ -5914,10 +5917,12 @@ function SUPERreCaptcha(){
             nextField = nextCustomField;
         }
         
-        customTabIndex = nextField.dataset.superCustomTabIndex;
-        if(typeof customTabIndex !== 'undefined') {
-            if(nextTabIndex < parseFloat(customTabIndex)){
-                nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+        if(nextField.dataset.superCustomTabIndex){
+            customTabIndex = nextField.dataset.superCustomTabIndex;
+            if(typeof customTabIndex !== 'undefined') {
+                if(nextTabIndex < parseFloat(customTabIndex)){
+                    nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+                }
             }
         }
         if(SUPER.has_hidden_parent(nextField)){

@@ -3969,7 +3969,10 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 
 .super-rtl .super-field .super-dropdown-arrow {
   left: 10px;
-  right: inherit;
+  right: initial;
+}
+.super-rtl .super-field .super-icon-inside.super-icon-right .super-dropdown-arrow {
+  right: initial;
 }
 
 .super-rtl .super-field.super-grouped.super-grouped-start {

@@ -58,6 +58,12 @@
     border-left: 8px solid #ffffff;
 }
 
+.super-raw-code-form-elements,
+.super-raw-code-form-settings,
+.super-raw-code-translation-settings {
+  float:left;
+  width:100%;
+}
 
 #wpbody-content>.updated,
 #wpbody-content>.error,
@@ -160,17 +166,17 @@
 
 .super-create-form .super-first-time-setup.super-active,
 .super-create-form .super-first-time-setup-bg.super-active {
-    display: block;
+    display: flex;
 }
 
 .super-wizard-settings,
 .super-wizard-preview {
-    width: 480px;
-    float: left;
     background-color: #fbfbfb;
-    height: 100%;
     padding: 10px 25px 0px 25px;
     border-bottom: 1px solid #dadada;
+    overflow-y: auto;
+    width: 50%;
+    flex-grow: 1;
 }
 
 .super-wizard-backup-history {
@@ -263,19 +269,18 @@
 }
 
 .super-wizard-settings>.super-tabs {
-    float: left;
-    width: 100%;
-    margin: 0;
+    display: flex;
 }
 
 .super-wizard-settings>.super-tabs li {
     border: 1px solid #d4d4d4;
     background-color: #efefef;
-    float: left;
-    padding: 5px 12px 5px 12px;
+    padding: 5px 0px 5px 0px;
     margin: 0px 0px 0px -1px;
     font-size: 11px;
     cursor: pointer;
+    flex-grow: 1;
+    text-align: center;
 }
 
 .super-wizard-settings>.super-tabs li.super-active {
@@ -296,47 +301,45 @@
 }
 
 .super-wizard-settings>.super-tab-content>li>div {
-    float: left;
-    width: 100%;
     border-bottom: 1px solid #e6e6e6;
     padding: 0px 0px 5px 0px;
     margin-bottom: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: right;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>span {
-    display: block;
-    float: left;
-    width: 120px;
-    height: 26px;
-    line-height: 26px;
     font-size: 12px;
+    line-height: normal;
+    width: 30%;
+    flex-grow: 1;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>input,
 .super-wizard-settings>.super-tab-content>li>div>textarea {
-    display: block;
-    float: right;
-    width: 305px;
     height: 24px;
     font-size: 12px;
+    width: 70% !important;
+    flex-grow: 1;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>textarea {
     height: auto;
+    min-height: 75px;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>p {
-    float: right;
-    width: 100%;
     font-size: 12px;
     margin: 0px 0px 10px 0px;
-    width: 305px;
+    flex-basis: 70%;
+    margin-left: auto;
+    order: 2;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>ul {
-    float: right;
-    width: 305px;
-    margin: 5px 0px 5px 0px;
+    width: 70%;
+    flex-grow: 1;
 }
 
 .super-wizard-settings>.super-tab-content>li>div>ul>li {
@@ -390,7 +393,6 @@
 .super-wizard-settings>.super-tab-content>li>div>ul.super-theme-hide-icons-wizard>li {
     border: 1px solid #cacaca;
     cursor: pointer;
-    margin: 6px 10px 0px 0px;
     position: relative;
 }
 
@@ -422,10 +424,7 @@
 
 .super-wizard-preview {
     border-left: 3px dashed #dadada;
-    padding-left: 25px;
-    overflow-y: auto;
     background: none;
-    width: 480px;
 }
 
 .super-first-time-setup .super-button.super-skip-wizard {
@@ -484,7 +483,7 @@
 .super-header .form-name {
     float: left;
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     background-color: #49B4B6;
     border: 0px;
     padding: 0px 10px 0px 10px;
@@ -494,11 +493,11 @@
     margin: 0px 5px 0px 0px;
     position: relative;
     z-index: 5;
-    width: 140px;
+    width: 200px;
 }
 
 .super-header .super-get-form-shortcodes {
-    padding: 0px 10px 0px 10px;
+    padding: 0px 5px 0px 5px;
     height: 30px;
     background-color: white;
     font-family: Courier New;
@@ -1029,7 +1028,7 @@
     color: #AEAEAE;
     padding: 0px;
     font-size: 11px;
-    line-height: 11px;
+    line-height: normal;
 }
 
 .super-translation-mode .super-preview-elements .super-element .super-element-header .super-title {
@@ -1106,7 +1105,7 @@
     cursor: pointer;
     padding: 6px 6px 5px 6px;
     font-size: 12px;
-    line-height: 12px;
+    line-height: normal;
 }
 
 .super-element-actions .super-transfer-drop {
@@ -1169,6 +1168,10 @@
 
 .super-preview-elements .super-element.super-minimized>.super-element-inner>.ui-sortable-placeholder {
     display: block;
+}
+
+.super-minimized .super-minimize>i:before {
+    content: '\f0fe';
 }
 
 .super-live-preview {
@@ -1816,7 +1819,7 @@
     font-size: 11px;
     padding: 0px 0px 0px 5px;
     height: 20px;
-    line-height: 20px;
+    line-height: normal;
     max-width: 100%;
     min-height: 20px;
     border-radius: 0px;
@@ -1856,7 +1859,7 @@
 .super-element-settings .super-field textarea,
 .super-form-settings .super-field textarea {
     height: auto;
-    line-height: 12px;
+    line-height: normal;
     font-size: 11px;
     padding: 3px 3px 3px 3px;
 }
@@ -2320,17 +2323,17 @@
     font-weight: 600;
 }
 
-.translations-list {
+.super-translations-list {
     float: left;
     width: 100%;
     margin: 0;
 }
 
-.translations-list>li:first-child {
+.super-translations-list>li:first-child {
     display: none;
 }
 
-.translations-list li {
+.super-translations-list li {
     float: left;
     width: 100%;
     margin-top: 0px;
@@ -2339,8 +2342,8 @@
     border-top: 1px solid #efefef;
 }
 
-.translations-list .super-edit,
-.translations-list .super-delete {
+.super-translations-list .super-edit,
+.super-translations-list .super-delete {
     float: left;
     margin-top: 4px;
     height: 32px;
@@ -2352,18 +2355,22 @@
     text-align: center;
     cursor: pointer;
 }
+.super-translations-list .super-default-language .super-edit,
+.super-translations-list .super-default-language .super-delete {
+    margin-top:41px;
+}
 
-.translations-list .super-edit:hover {
+.super-translations-list .super-edit:hover {
     background-color: #565656;
 }
 
-.translations-list li.super-default-language {
+.super-translations-list li.super-default-language {
     border-top: 0px;
 }
 
-.translations-list .super-edit:before,
-.translations-list .super-edit:after,
-.translations-list .super-delete:before {
+.super-translations-list .super-edit:before,
+.super-translations-list .super-edit:after,
+.super-translations-list .super-delete:before {
     content: '\f1ab';
     font-weight: 900;
     line-height: 32px;
@@ -2374,30 +2381,30 @@
     margin-left: 15px;
 }
 
-.translations-list .super-edit:after {
+.super-translations-list .super-edit:after {
     content: '\f304';
     font-size: 16px;
     margin-left: 10px;
 }
 
-.translations-list .super-delete {
+.super-translations-list .super-delete {
     height: 32px;
     width: 33px;
     background-color: #f5234b;
     margin-left: 15px;
 }
 
-.translations-list .super-delete:hover {
+.super-translations-list .super-delete:hover {
     background-color: #de153b;
 }
 
-.translations-list .super-delete:before {
+.super-translations-list .super-delete:before {
     content: '\f1f8';
     font-size: 16px;
     margin-left: 10px;
 }
 
-.translations-list .super-get-form-shortcodes,
+.super-translations-list .super-get-form-shortcodes,
 .super-default-language .super-get-form-shortcodes {
     float: left;
     margin: 7px 20px 0px 0px;

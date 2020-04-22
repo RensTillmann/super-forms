@@ -58,14 +58,31 @@ class SUPER_Pages {
      */
     public static function code_tab($atts) {
         extract($atts);
-        echo '<p class="sfui-notice sfui-yellow">';
-        echo esc_html__( 'Only edit the below code if you know what you are doing! You can also copy this code and insert it into other forms to quickly export and import forms.', 'super-forms' );
-        echo '</p>';
-        echo '<textarea></textarea>';
-        echo '<span class="super-update-raw-code sfui-btn sfui-green">';
-        echo '<i class="fas fa-save"></i>';
-        echo esc_html__( 'Update Form Code', 'super-forms' );
-        echo '</span>';
+        echo '<div class="super-raw-code-form-elements">';
+            echo '<p class="sfui-notice sfui-yellow">';
+                echo sprintf( esc_html__( '%sForm elements:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-form-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sForm settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-translation-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sTranslation settings:%s (this only includes the translation settings, not the actual strings, this is stored in the "Form elements" code)', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+            echo '<span class="super-update-raw-code sfui-btn sfui-green">';
+                echo '<i class="fas fa-save"></i>';
+                echo esc_html__( 'Update all', 'super-forms' );
+            echo '</span>';
+        echo '</div>';
+
     }
 
     public static function translations_tab($atts) {
@@ -81,7 +98,7 @@ class SUPER_Pages {
             <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
                 <?php echo esc_html__('Add Language Switch', 'super-forms' ) . ' <span>(' . esc_html__( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
             </div>
-            <ul class="translations-list">
+            <ul class="super-translations-list">
                 <li>
                     <div class="super-group">
                         <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
@@ -472,7 +489,13 @@ class SUPER_Pages {
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
                                                                 if($fk>0) echo '<br />';
-                                                                echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">' . esc_html( $fv['value'] ) . '</a>';
+                                                                if(!empty($url)){
+                                                                    echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">';
+                                                                }
+                                                                echo esc_html( $fv['value'] );
+                                                                if(!empty($url)){
+                                                                    echo '</a>';
+                                                                }
                                                             }
                                                             echo '</span></td></tr>';
                                                         }else{

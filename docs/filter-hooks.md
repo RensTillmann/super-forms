@@ -23,7 +23,7 @@
 | `super_settings_after_theme_colors_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_theme_colors_filter) |
 | `super_settings_after_backend_settings_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_backend_settings_filter) |
 | `super_settings_after_custom_css_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_custom_css_filter) |
-| `super_settings_after_smtp_server_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_smtp_server_filter) |
+| `super_settings_after_custom_js_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_custom_js_filter) |
 | `super_settings_after_restore_default_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_restore_default_filter) |
 | `super_settings_after_system_status_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_system_status_filter) |
 | `super_settings_after_export_import_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_export_import_filter) |
@@ -42,3 +42,4 @@
 | `super_enqueue_styles` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_styles) |
 | `super_enqueue_scripts` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_scripts) |
 | `super_after_contact_entry_data_filter` | [includes/class-pages.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_after_contact_entry_data_filter) |
+| **Deprecated** `super_settings_after_smtp_server_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_smtp_server_filter) |

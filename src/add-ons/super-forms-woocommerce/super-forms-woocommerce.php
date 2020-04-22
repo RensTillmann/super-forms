@@ -156,7 +156,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
             
             if ( $this->is_request( 'admin' ) ) {
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'checkout_field_display_admin_order_meta' ), 10, 1 );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
                 add_action( 'init', array( $this, 'update_plugin' ) );

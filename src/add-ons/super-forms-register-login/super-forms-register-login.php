@@ -176,7 +176,7 @@ if(!class_exists('SUPER_Register_Login')) :
             
             if ( $this->is_request( 'admin' ) ) {
                 
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_filter( 'super_email_tags_filter', array( $this, 'add_email_tags' ), 10, 1 );
 
                 add_action( 'show_user_profile', array( $this, 'add_customer_meta_fields' ) );
