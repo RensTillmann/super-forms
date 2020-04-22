@@ -3,8 +3,10 @@
 ## Apr 20, 2020 - Version 4.9.430
 
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
+- **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format
 - **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
 - **Added:** Option to enable RTL (Right to left) layout for E-mails
+- **Fix:** Issue inside `Translation mode` where the form would say that there are 2 duplicate field names (which was due to the field names being empty)
 - **Improved:** Super Forms now remembers the last TAB you where editing a field in. If this TAB exsists for the next field you edit it will open in this specific TAB. This way you can faster edit many of the same settings that are below the same settings TAB. Upon page reload it will still remember. The same goes for the form settings TABS and the last openend panel
 - **Improved:** Better readability for font size on larger resolution monitors
 - **Improved:** When `Delete files from server after form submissions` is enabled we should not add hyperlink on the filename inside the E-mail and Contact Entry

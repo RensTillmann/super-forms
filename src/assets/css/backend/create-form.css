@@ -58,6 +58,12 @@
     border-left: 8px solid #ffffff;
 }
 
+.super-raw-code-form-elements,
+.super-raw-code-form-settings,
+.super-raw-code-translation-settings {
+  float:left;
+  width:100%;
+}
 
 #wpbody-content>.updated,
 #wpbody-content>.error,
@@ -2317,17 +2323,17 @@
     font-weight: 600;
 }
 
-.translations-list {
+.super-translations-list {
     float: left;
     width: 100%;
     margin: 0;
 }
 
-.translations-list>li:first-child {
+.super-translations-list>li:first-child {
     display: none;
 }
 
-.translations-list li {
+.super-translations-list li {
     float: left;
     width: 100%;
     margin-top: 0px;
@@ -2336,8 +2342,8 @@
     border-top: 1px solid #efefef;
 }
 
-.translations-list .super-edit,
-.translations-list .super-delete {
+.super-translations-list .super-edit,
+.super-translations-list .super-delete {
     float: left;
     margin-top: 4px;
     height: 32px;
@@ -2349,18 +2355,22 @@
     text-align: center;
     cursor: pointer;
 }
+.super-translations-list .super-default-language .super-edit,
+.super-translations-list .super-default-language .super-delete {
+    margin-top:41px;
+}
 
-.translations-list .super-edit:hover {
+.super-translations-list .super-edit:hover {
     background-color: #565656;
 }
 
-.translations-list li.super-default-language {
+.super-translations-list li.super-default-language {
     border-top: 0px;
 }
 
-.translations-list .super-edit:before,
-.translations-list .super-edit:after,
-.translations-list .super-delete:before {
+.super-translations-list .super-edit:before,
+.super-translations-list .super-edit:after,
+.super-translations-list .super-delete:before {
     content: '\f1ab';
     font-weight: 900;
     line-height: 32px;
@@ -2371,30 +2381,30 @@
     margin-left: 15px;
 }
 
-.translations-list .super-edit:after {
+.super-translations-list .super-edit:after {
     content: '\f304';
     font-size: 16px;
     margin-left: 10px;
 }
 
-.translations-list .super-delete {
+.super-translations-list .super-delete {
     height: 32px;
     width: 33px;
     background-color: #f5234b;
     margin-left: 15px;
 }
 
-.translations-list .super-delete:hover {
+.super-translations-list .super-delete:hover {
     background-color: #de153b;
 }
 
-.translations-list .super-delete:before {
+.super-translations-list .super-delete:before {
     content: '\f1f8';
     font-size: 16px;
     margin-left: 10px;
 }
 
-.translations-list .super-get-form-shortcodes,
+.super-translations-list .super-get-form-shortcodes,
 .super-default-language .super-get-form-shortcodes {
     float: left;
     margin: 7px 20px 0px 0px;
