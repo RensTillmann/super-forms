@@ -47,11 +47,11 @@
                     <li>
                         <div>
                             <span><?php echo esc_html__( 'Send email to', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_header_to" value="<?php echo get_option('admin_email'); ?>" />
+                            <input type="text" name="wizard_header_to" value="{option_admin_email}" />
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'From email', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_header_from" value="<?php echo get_option('admin_email'); ?>" />
+                            <input type="text" name="wizard_header_from" value="{option_admin_email}" />
                             <p>
                                 (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
                                 <?php
@@ -66,7 +66,7 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'From name', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_header_from_name" value="<?php echo get_option('blogname'); ?>" />
+                            <input type="text" name="wizard_header_from_name" value="{option_blogname}" />
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Subject', 'super-forms' ); ?>:</span>
@@ -85,7 +85,7 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'From email', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_confirm_from" value="<?php echo get_option('admin_email'); ?>" />
+                            <input type="text" name="wizard_confirm_from" value="{option_admin_email}" />
                             <p>
                                 (if you encounter issues with receiving emails, try to use info@<strong style="color:red;"><?php echo str_replace('www.', '', $_SERVER["SERVER_NAME"]); ?></strong>)
                                 <?php if($mail_error) echo $mail_error_msg; ?>
@@ -93,11 +93,11 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'From name', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_confirm_from_name" value="<?php echo get_option('blogname'); ?>" />
+                            <input type="text" name="wizard_confirm_from_name" value="{option_blogname}" />
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Subject', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_confirm_subject" value="<?php echo get_option('blogname'); ?>" />
+                            <input type="text" name="wizard_confirm_subject" value="<?php echo esc_html__( 'Thank you for contacting us!', 'super-forms' ); ?>" />
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Body header', 'super-forms' ); ?>:</span>
@@ -261,6 +261,7 @@
                     foreach($tabs as $k => $v){
                         echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
                         echo esc_html($v);
+                        if(!is_array($translations)) $translations = array();
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . current($translations)['flag'] . '" />';
                         }
@@ -327,7 +328,8 @@
                         $counter = 0;
                         foreach( $form_settings as $key => $value ) { 
                             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
-                                echo '<div class="tab-content '.($counter==0 ? 'super-active' : '') . '">';
+                                $counter++;
+                                echo '<div class="tab-content '.($counter==1 ? 'super-active' : '') . '">';
                                 if( isset( $value['html'] ) ) {
                                     foreach( $value['html'] as $v ) {
                                         echo $v;
@@ -359,7 +361,6 @@
                                 }
                                 echo '</div>';
                             }
-                            $counter++;
                         }
                         ?>
                     </div>

@@ -158,7 +158,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
 
             if ( $this->is_request( 'admin' ) ) {
                 // Filters since 1.0.0
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 // Actions since 1.0.0
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );

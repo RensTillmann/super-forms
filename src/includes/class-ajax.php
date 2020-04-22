@@ -83,7 +83,7 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-
+            'smtp_test'               => false, // @since 4.9.5
 
         );
 
@@ -1162,8 +1162,9 @@ class SUPER_Ajax {
         $file_id = absint( $_POST['file_id'] );
 
         // What do we need to import?
-        $import_settings = $_POST['settings']; // Form settings
         $import_elements = $_POST['elements']; // Form elements
+        $import_settings = $_POST['settings']; // Form settings
+        $import_translations = $_POST['translations']; // Translation settings
 
         $file = wp_get_attachment_url($file_id);
         if( $file ) {
@@ -1183,35 +1184,38 @@ class SUPER_Ajax {
             $contents = maybe_unserialize( $contents );
             $title = (isset($contents['title']) ? $contents['title'] : $contents['post_title']);
 
+            // Only set elements from import file if user choose to do so
+            $formElements = array();
+            if($import_elements=='true') {
+                if(isset($contents['elements'])) $formElements = $contents['elements'];
+            }
             // Only set settings from import file if user choose to do so
-            $form_settings = array();
+            $formSettings = array();
             if($import_settings=='true') {
-                $form_settings = $contents['settings'];
+                if(isset($contents['settings']))  $formSettings = $contents['settings'];
+            } 
+            // Only set translation settings from import file if user choose to do so
+            $translationSettings = array();
+            if($import_translations=='true') {
+                if(isset($contents['translations'])) $translationSettings = $contents['translations'];
             } 
 
-            // Only set elements from import file if user choose to do so
-            $form_elements = array();
-            $translations = array();
-            if($import_elements=='true') {
-                $form_elements = $contents['elements'];
-                if(isset($contents['translations'])) $translations = $contents['translations'];
-            }
-
             if( $form_id==0 ) {
-                $form_id = self::save_form( $form_id, $form_elements, $translations, $form_settings, $title );
+                // Create a new form
+                $form_id = self::save_form( $form_id, $formElements, $translationSettings, $formSettings, $title );
             }else{
-                
-                // Only import/update settings if user wanted to
-                if($import_settings=='true') {
-                    update_post_meta( $form_id, '_super_form_settings', $form_settings );
-                }
                 // Only import/update elements if user wanted to
                 if($import_elements=='true') {
-                    update_post_meta( $form_id, '_super_elements', $form_elements );
-                    // @since 4.7.0 - translations
-                    update_post_meta( $form_id, '_super_translations', $translations );
+                    update_post_meta( $form_id, '_super_elements', $formElements );
                 }
-
+                // Only import/update settings if user wanted to
+                if($import_settings=='true') {
+                    update_post_meta( $form_id, '_super_form_settings', $formSettings );
+                }
+                // Only import/update translation settings if user wanted to
+                if($import_translations=='true') {
+                    update_post_meta( $form_id, '_super_translations', $translationSettings );
+                }
             }
             echo $form_id;
         }else{
@@ -1519,62 +1523,41 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $elements=array(), $translations=array(), $form_settings=null, $title=null ) {
+    public static function save_form( $id=null, $formElements=null, $translationSettings=null, $formSettings=null, $title=null ) {
         if(empty($id)){
             if(isset($_POST['form_id'])) $id = $_POST['form_id'];
+            $_POST['formElements'] = wp_unslash($_POST['formElements']);
+            $formElements = json_decode($_POST['formElements'], true);
+            $_POST['formSettings'] = wp_unslash($_POST['formSettings']);
+            $formSettings = json_decode($_POST['formSettings'], true);
+            $_POST['translationSettings'] = wp_unslash($_POST['translationSettings']);
+            $translationSettings = json_decode($_POST['translationSettings'], true);
         }
         $id = absint( $id );
-        if( isset( $_POST['shortcode'] ) ) {
-            $elements = json_decode($_POST['shortcode'], true);
-            if( $elements==null ) {
-                $_POST['shortcode'] = wp_unslash($_POST['shortcode']);
-                $elements = json_decode($_POST['shortcode'], true);
-                if( $elements==null ) {
-                    $elements = json_decode($_POST['shortcode'], true);
-                }
-            }
-            // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
-            $elements = wp_slash($elements);
-        }
 
-        if( $form_settings==null ) {
-            if(!is_array($_POST['settings'])){
-                if(!empty($_POST['settings'])){
-                    $_POST['settings'] = (array) $_POST['settings'];
-                }else{
-                    $_POST['settings'] = array();
-                }
-            }
-            $form_settings = $_POST['settings'];
-        }
-
-        if( isset( $_POST['translations'] ) ){
-            $translations = $_POST['translations'];
-        }
 
         // @since 4.7.0 - translations
         // We must delete/clear any translations that no longer exist
-        $elements = self::clear_i18n($elements, $translations);
-
+        $formElements = self::clear_i18n($formElements, $translationSettings);
 
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
         // Loop trhough all form settings, and look for duplicates based on global settings
-        if(!empty($form_settings)){
-            foreach( $form_settings as $k => $v ) {
+        if(!empty($formSettings)){
+            foreach( $formSettings as $k => $v ) {
                 // Check if the setting exists on global level
                 if( isset( $global_settings[$k] ) ) {
                     // Only unset key if value is exactly the same as global setting value
                     if( $global_settings[$k] == $v ) {
-                        unset( $form_settings[$k] );
+                        unset( $formSettings[$k] );
                     }
                 }
             }
         }
 
         // @since 4.7.0 - translation language switcher
-        if(isset($_POST['i18n_switch'])) $form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
+        if(isset($_POST['i18n_switch'])) $formSettings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
 
         if( $title==null) {
             $title = esc_html__( 'Form Name', 'super-forms' );
@@ -1591,14 +1574,14 @@ class SUPER_Ajax {
             $id = wp_insert_post( $form ); 
 
             // @since 4.7.0 - translation
-            add_post_meta( $id, '_super_form_settings', $form_settings );
-            add_post_meta( $id, '_super_elements', $elements );
+            add_post_meta( $id, '_super_form_settings', $formSettings );
+            add_post_meta( $id, '_super_elements', $formElements );
 
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
 
             // @since 4.7.0 - translations
-            add_post_meta( $id, '_super_translations', $translations );
+            add_post_meta( $id, '_super_translations', $translationSettings );
 
         }else{
             $form = array(
@@ -1611,22 +1594,22 @@ class SUPER_Ajax {
                 // Merge with existing form settings
                 $settings = SUPER_Common::get_form_settings($id);
                 // Add language to the form settings
-                $settings['i18n'][$_POST['i18n']] = $form_settings;
-                $form_settings = $settings;
+                $settings['i18n'][$_POST['i18n']] = $formSettings;
+                $formSettings = $settings;
             }else{
                 $settings = SUPER_Common::get_form_settings($id);
                 if(!empty($settings['i18n'])){
-                    $form_settings['i18n'] = $settings['i18n'];
+                    $formSettings['i18n'] = $settings['i18n'];
                 }
             }
-            update_post_meta( $id, '_super_form_settings', $form_settings );
-            update_post_meta( $id, '_super_elements', $elements );
+            update_post_meta( $id, '_super_form_settings', $formSettings );
+            update_post_meta( $id, '_super_elements', $formElements );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
 
             // @since 4.7.0 - translations
-            update_post_meta( $id, '_super_translations', $translations );
+            update_post_meta( $id, '_super_translations', $translationSettings );
 
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
@@ -1636,11 +1619,11 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $backup_id = wp_insert_post( $form ); 
-            add_post_meta( $backup_id, '_super_form_settings', $form_settings );
-            add_post_meta( $backup_id, '_super_elements', $elements );
+            add_post_meta( $backup_id, '_super_form_settings', $formSettings );
+            add_post_meta( $backup_id, '_super_elements', $formElements );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
             // @since 4.7.0 - translations
-            add_post_meta( $backup_id, '_super_translations', $translations );
+            add_post_meta( $backup_id, '_super_translations', $translationSettings );
         }
         echo $id;
         die();
@@ -2144,8 +2127,6 @@ class SUPER_Ajax {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
                             
-
-
                             // // Check that the nonce is valid, and the user can edit this post.
                             // if ( 
                             //     isset( $_POST['my_image_upload_nonce'], $_POST['post_id'] ) 
@@ -2173,7 +2154,6 @@ class SUPER_Ajax {
 
                             //     // The security check failed, maybe show the user an error.
                             // }
-
 
                             // Before we proceed check if the file already exists, if so, do nothing
                             // Exclude files that are being uploaded for the first time
@@ -2586,7 +2566,13 @@ class SUPER_Ajax {
                                     $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
                                 }
                             }
-                            $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                            // In case the file was deleted we do not want to add a hyperlink that links to the file
+                            if( !empty($settings['file_upload_submission_delete']) ) {
+                                $files_value .= $value['value'] . '<br /><br />';
+                            }else{
+                                $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                            }
+                            // Exclude file from email completely
                             if( $v['exclude']!=2 ) {
                                 if( $v['exclude']==1 ) {
                                     $attachments[$value['value']] = $value['url'];
@@ -2652,7 +2638,36 @@ class SUPER_Ajax {
                 }                    
             }
         }
-        
+
+        // @since 4.9.5 - override setting with global email settings
+        // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
+        // meaning we should ignore any settings from the form itself and use the global setting instead
+        $global_settings = SUPER_Common::get_global_settings();
+        $overrideSettings = array(
+            // Set global 'To' header, can override 'header_to' and 'confirm_to' settings
+            'global_email_to_admin' => 'header_to',
+            'global_email_to_confirm' => 'confirm_to',
+            // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
+            'global_email_from' => array('header_from', 'confirm_from'),
+            // Set global 'From name' header, can override 'header_from_name' and 'confirm_from_name' settings
+            'global_email_from_name' => array('header_from_name', 'confirm_from_name'),
+            // Set global 'Reply to' header, can override 'header_reply' and 'confirm_reply' settings
+            'global_email_reply' => array('header_reply', 'confirm_reply'),
+            // Set global 'Reply name' header, can override 'header_reply_name' and 'confirm_reply_name' settings
+            'global_email_reply_name' => array('header_reply_name', 'confirm_reply_name'),
+        );
+        foreach($overrideSettings as $k => $v){
+            if(!empty($global_settings[$k . '_force'])){
+                if(is_array($v)){
+                    foreach($v as $vv){
+                        $settings[$vv] = $global_settings[$k];
+                    }
+                }else{
+                    $settings[$v] = $global_settings[$k];
+                }
+            }
+        }
+
         if( $settings['send']=='yes' ) {
             if(!empty($settings['email_body_open'])) $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
             if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
@@ -2664,6 +2679,10 @@ class SUPER_Ajax {
             if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
             if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
             
+            // @since 4.9.5 - RTL email setting
+            if(!isset($settings['email_rtl'])) $settings['email_rtl'] = '';
+            if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+
             $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
@@ -2718,7 +2737,7 @@ class SUPER_Ajax {
 
             // @since 2.0
             $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
-            
+
             // Send the email
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
 
@@ -2743,6 +2762,10 @@ class SUPER_Ajax {
             // @since 3.1.0 - optionally automatically add line breaks
             if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
             if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
+
+            // @since 4.9.5 - RTL email setting
+            if(!isset($settings['confirm_rtl'])) $settings['confirm_rtl'] = '';
+            if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
             
             $email_body = do_shortcode($email_body);
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
@@ -3051,6 +3074,32 @@ class SUPER_Ajax {
         }
     }
 
+    /** 
+     *  Send an test email through SMTP
+     *
+     *  @param  array  $settings
+     *
+     *  @since      1.0.0
+    */
+    public static function smtp_test() {
+        var_dump('test smtp_test()');
+        die();
+        // $settings = SUPER_Common::get_form_settings($form_id);
+        // $from = 'no-reply@f4d.nl';
+        // $to = sanitize_email($_POST['email']);
+        // $from_name = 'f4d.nl';
+        // $subject = 'Subject';
+        // $email_body = 'Email body';
+
+        // // Send the email
+        // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
+
+        // // Return error message
+        // if( !empty( $mail->ErrorInfo ) ) {
+        //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+        //     SUPER_Common::output_message( $error=true, $msg );
+        // }
+    }
 }
 endif;
 SUPER_Ajax::init();

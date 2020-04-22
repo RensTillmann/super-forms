@@ -2,6 +2,101 @@
 "use strict";
 (function ($) { // Hide scope, no $ conflict
 
+    function isEmpty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop)) {
+                return false;
+            }
+        }
+        return JSON.stringify(obj) === JSON.stringify({});
+    }
+
+    SUPER.update_form_elements = function(string){
+        console.log('test1');
+        console.log(SUPER.get_form_elements(string));
+        document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
+    };
+    SUPER.update_form_settings = function(string){
+        document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string);
+    };
+    SUPER.update_translation_settings = function(string){
+        document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(string);
+    };
+    SUPER.get_form_elements = function(string){
+        var $elements = SUPER.regenerate_element_inner.get_elements();
+        if(string===true) {
+            if(!isEmpty($elements)) return JSON.stringify($elements, undefined, 4);
+            return '';
+        }
+        return $elements;
+    };
+    SUPER.get_form_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $settings = {};
+        $('.super-create-form .super-form-settings .element-field').each(function () {
+            var $this = $(this);
+            var $hidden = false;
+
+            // select parent based on .filter class
+            var $parent = $this.parents('.super-field.super-filter');
+            $parent.each(function () {
+                if ($(this).css('display') == 'none') {
+                    $hidden = true;
+                }
+            });
+
+            // now select based on only .super-field class
+            $parent = $this.parents('.super-field');
+            if ($hidden === false) {
+                var $name = $this.attr('name');
+                var $value = $this.val();
+                $settings[$name] = $value;
+            }
+        });
+        if(string===true) {
+            if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
+            return '';
+        }
+        return $settings;
+    };
+    SUPER.get_translation_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $translations = {};
+        $('.super-translations-list > li:not(:first)').each(function () {
+            // Validate
+            var $row = $(this),
+                $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
+                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active'),
+                $rtl = $row.find('.super-rtl').hasClass('super-active');
+            $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
+            if (!$language.length || !$flag.length) {
+                if (!$language.length)
+                    $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
+                if (!$flag.length)
+                    $row.find('.super-dropdown[data-name="flag"]').addClass('super-error');
+                return false;
+            }
+            var $i18n = $language.attr('data-value');
+            if (typeof $translations[$i18n] !== 'undefined') {
+                $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
+                return false;
+            }
+            // Add language to object
+            $language = $language.html();
+            $flag = $flag.attr('data-value');
+            $translations[$i18n] = {
+                language: $language,
+                flag: $flag,
+                rtl: $rtl
+            };
+        });
+        if(string===true) {
+            if(!isEmpty($translations)) return JSON.stringify($translations, undefined, 4);
+            return '';
+        }
+        return $translations;
+    };
+
     SUPER.backend_setting_changed = function (field, value = undefined) {
         var replace,
             regex,
@@ -158,26 +253,19 @@
     };
 
     // Regenerate Element Final Output (inner)
-    SUPER.regenerate_element_inner = function ($target, $history) {
-        var $elements,
-            $old_code;
+    SUPER.regenerate_element_inner = function ($history) {
         if (typeof $history === 'undefined') $history = true;
-        if ($target == 2) {
-            $elements = SUPER.get_session_data('_super_elements');
-        } else {
-            $old_code = SUPER.get_session_data('_super_elements');
-            $elements = SUPER.regenerate_element_inner.get_elements($target);
-        }
-        SUPER.set_session_data('_super_elements', JSON.stringify($elements));
-        if ($target == 2) {
-            SUPER.save_form($('.super-actions .super-save'), 2);
-        } else {
-            if ($history) {
-                SUPER.trigger_redo_undo($elements, $old_code);
-            }
-        }
+        var $elements, $old_code;
+        SUPER.set_session_data('_super_builder_has_unsaved_changes', 'true');
+        $old_code = document.querySelector('.super-raw-code-form-elements > textarea').value;
+        $elements = SUPER.get_form_elements(true);
+        SUPER.update_form_settings(true);
+        SUPER.update_translation_settings(true);
+        document.querySelector('.super-raw-code-form-elements > textarea').value = $elements;
+        if ($history) SUPER.trigger_redo_undo($elements, $old_code);
     };
     SUPER.regenerate_element_inner.get_elements = function ($target) {
+        if(typeof $target === 'undefined') $target = $('.super-preview-elements');
         var $elements = [];
         $target.children('.super-element').each(function () {
             var $this = $(this);
@@ -299,7 +387,7 @@
                     }
                 }
                 SUPER.init_drop_here_placeholder();
-                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                SUPER.regenerate_element_inner();
             }
         });
         var $target = $('.super-preview-elements .super-element.super-column > .super-element-inner.super-dropable, .super-preview-elements .super-element.super-multipart > .super-element-inner.super-dropable, .super-preview-elements .super-element.super-tabs .super-element-inner.super-dropable');
@@ -320,7 +408,7 @@
                     }
                 }
                 SUPER.init_drop_here_placeholder();
-                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                SUPER.regenerate_element_inner();
             }
         });
     };
@@ -579,7 +667,7 @@
                                 var $element = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
                                 SUPER.check_for_unique_field_name($element);
-                                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                                SUPER.regenerate_element_inner();
                                 SUPER.init_common_fields();
                                 SUPER.init_drop_here_placeholder();
                             }
@@ -613,6 +701,7 @@
             cssEaseDuration: 0,
         });
     };
+
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
         var i,ii,
             form = document.querySelector('.super-preview-elements'),
@@ -631,7 +720,7 @@
         }
 
         // @since 4.0.0 - see if we need to skip this validation when user choose to disable validation check on unique field names
-        if (!allowDuplicateNames) {
+        if (allowDuplicateNames===false) {
             for (i = 0; i < fields.length; ++i) {
                 duplicateFields = SUPER.fieldsByName(document.querySelector('.super-preview-elements'), fields[i].name)
                 if (duplicateFields && duplicateFields.length > 1) {
@@ -648,48 +737,12 @@
         }
 
         // We should skip this function in case we are updating the form code manually
-        if(!updatingRawFormCode) SUPER.regenerate_element_inner($('.super-preview-elements'), false);
-
+        if(updatingRawFormCode===false) {
+            SUPER.regenerate_element_inner(false);
+        }
+        
         $this.html('<i class="fas fa-save"></i>Saving...');
 
-        var $settings = {};
-        $('.super-create-form .super-form-settings .element-field').each(function () {
-            var $this = $(this);
-            var $name = $this.attr('name');
-            var $value = $this.val();
-            $settings[$name] = $value;
-        });
-
-        // @since 4.7.0 - save translations for this form
-        var $translations = {};
-        $('.translations-list > li:not(:first)').each(function () {
-            // Validate
-            var $row = $(this),
-                $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
-                $flag = $row.find('.super-dropdown[data-name="flag"] .super-active'),
-                $rtl = $row.find('.super-rtl').hasClass('super-active');
-            $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
-            if (!$language.length || !$flag.length) {
-                if (!$language.length)
-                    $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
-                if (!$flag.length)
-                    $row.find('.super-dropdown[data-name="flag"]').addClass('super-error');
-                return false;
-            }
-            var $i18n = $language.attr('data-value');
-            if (typeof $translations[$i18n] !== 'undefined') {
-                $row.find('.super-dropdown[data-name="language"]').addClass('super-error');
-                return false;
-            }
-            // Add language to object
-            $language = $language.html();
-            $flag = $flag.attr('data-value');
-            $translations[$i18n] = {
-                language: $language,
-                flag: $flag,
-                rtl: $rtl
-            };
-        });
         if (typeof $initial_i18n === 'undefined') {
             if (!$('.super-create-form').hasClass('super-translation-mode')) {
                 $initial_i18n = '';
@@ -700,30 +753,44 @@
 
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var response = this.responseText;
-                $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
-                $('.super-create-form input[name="form_id"]').val(response);
-                $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
-                if ($method == 3) { // When switching from language
-                    callback($button);
-                } else {
-                    if ($method == 1) {
-                        var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
-                        callback();
-                        SUPER.preview_form($this);
+            if (this.readyState == 4) {
+                // Success:
+                if (this.status == 200) {
+                    SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
+                    var response = this.responseText;
+                    $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
+                    $('.super-create-form input[name="form_id"]').val(response);
+                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
+                    if ($method == 3) { // When switching from language
+                        if (typeof callback === "function") { 
+                            callback($button); // safe to trigger callback
+                            return false;
+                        }
                     } else {
-                        var href = window.location.href;
-                        var page = href.substr(href.lastIndexOf('/') + 1);
-                        var str2 = "admin.php?page=super_create_form&id";
-                        if (page.indexOf(str2) == -1) {
-                            window.location.href = "admin.php?page=super_create_form&id=" + response;
+                        if ($method == 1) {
+                            var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
+                            if (typeof callback === "function") { 
+                                callback(); // safe to trigger callback
+                            }
+                            SUPER.preview_form($this);
+                            return false;
                         } else {
-                            if ($method == 2) {
-                                location.reload();
+                            var href = window.location.href;
+                            var page = href.substr(href.lastIndexOf('/') + 1);
+                            var str2 = "admin.php?page=super_create_form&id";
+                            if (page.indexOf(str2) == -1) {
+                                window.location.href = "admin.php?page=super_create_form&id=" + response;
+                            } else {
+                                if ($method == 2) {
+                                    location.reload();
+                                }
                             }
                         }
                     }
+                }
+                // Complete:
+                if (typeof callback === "function") { 
+                    callback(); // safe to trigger callback
                 }
             }
         };
@@ -733,13 +800,14 @@
         };
         xhttp.open("POST", ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+
         var params = {
             action: 'super_save_form',
             form_id: $('.super-create-form input[name="form_id"]').val(),
             title: $('.super-create-form input[name="title"]').val(),
-            shortcode: SUPER.get_session_data('_super_elements'),
-            settings: $settings,
-            translations: $translations, // @since 4.7.0 translation
+            formElements: document.querySelector('.super-raw-code-form-elements textarea').value,
+            formSettings: document.querySelector('.super-raw-code-form-settings textarea').value,
+            translationSettings: document.querySelector('.super-raw-code-translation-settings textarea').value, // @since 4.7.0 translation
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
         };
@@ -845,17 +913,13 @@
         $('.super-wizard-preview img').attr('src', $img_preview_url);
     };
 
-    // @since 3.1.0 - trigger undo/redo after _super_elements was changed
-    SUPER.insertAfter = function (referenceNode, newNode) {
-        referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
-    };
-
-
     SUPER.trigger_redo_undo = function ($new_code, $old_code) {
-        $old_code = (typeof !$old_code || $old_code === '' ? '' : JSON.parse($old_code));
+        // First convert string to json
+        $new_code = JSON.parse($new_code);
+        $old_code = JSON.parse($old_code);
+
         // Before saving the form data, add it to form history for our Undo and Redo functionality
         var $history = SUPER.get_session_data('_super_form_history');
-
         if ($history) {
             $history = JSON.parse($history);
             $history.push($new_code);
@@ -884,7 +948,7 @@
         // Update form history
         SUPER.set_session_data('_super_form_history', JSON.stringify($history));
         // Update form data
-        SUPER.set_session_data('_super_elements', JSON.stringify($new_code));
+        document.querySelector('.super-raw-code-form-elements > textarea').value = JSON.stringify($new_code, undefined, 4);
     };
 
     // @since 3.7.0 - function for random name generation when duplicate action button is clicked
@@ -905,9 +969,80 @@
 
     jQuery(document).ready(function ($) {
 
+        $('body.wp-admin').addClass('folded');
+
         var $doc = $(document),
             $super_hints,
-            $super_hints_steps;
+            $super_hints_steps,
+            $node,
+            $activePanel = SUPER.get_session_data('_super_builder_last_active_panel'),
+            $activeFormSettingsTab = SUPER.get_session_data('_super_builder_last_active_form_settings_tab'),
+            $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab');
+
+
+        document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+        document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
+
+        // Check if there is an active panel
+        if($activePanel){
+            $node = $('.super-elements .super-element h3:eq('+$activePanel+')');
+            if($node.length){
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $node.parent().addClass('super-active');
+                $('.super-elements').addClass('super-active');
+            }
+        }else{
+            // Defaults to layout panel
+            $('.super-layout-elements').addClass('super-active');
+        }
+        // Check if there is an active form settings TAB
+        if($activeFormSettingsTab){
+            $node = $('.super-form-settings .super-elements-container .tab-content:eq(' + $activeFormSettingsTab + ')');
+            if($node.length){
+                $('.super-form-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                $node.addClass('super-active');
+                $('.super-form-settings-tabs > select > option[selected]').prop({selected: false});
+                $('.super-form-settings-tabs > select > option:eq(' + $activeFormSettingsTab + ')').prop({selected: true});
+            }
+        }
+        // Check if there is an active element settings TAB
+        if($activeElementSettingsTab){
+            $node = $('.super-element-settings .super-elements-container .tab-content:eq(' + $activeElementSettingsTab + ')');
+            if($node.length){
+                $('.super-element-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                $node.addClass('super-active');
+                $('.super-element-settings-tabs > select > option[selected]').prop({selected: false});
+                $('.super-element-settings-tabs > select > option:eq(' + $activeElementSettingsTab + ')').prop({selected: true});
+            }
+        }
+
+        // TAB setting change by user
+        $doc.on('click', '.super-elements .super-element h3', function () {
+            if($(this).parent().hasClass('super-active')){
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $('.super-elements.super-active').removeClass('super-active');
+            }else{
+                $('.super-elements .super-element.super-active').removeClass('super-active');
+                $(this).parent().addClass('super-active');
+                $('.super-elements').addClass('super-active');
+            }
+            // Remember which TAB was active for the last time
+            SUPER.set_session_data('_super_builder_last_active_panel', $(this).parent().index());
+            return false;
+        });
+
+        // Form settings TAB change by the user
+        $doc.on('change', '.super-form-settings-tabs > select, .super-element-settings-tabs > select', function () {
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('super-active');
+            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
+            // Remember which TAB was active for the last time
+            if(this.closest('.super-form-settings-tabs')){
+                SUPER.set_session_data('_super_builder_last_active_form_settings_tab', $(this).val());
+            }
+            if(this.closest('.super-element-settings-tabs')){
+                SUPER.set_session_data('_super_builder_last_active_element_settings_tab', $(this).val());
+            }
+        });
 
         // @since 4.6.0 - transfer elements with other forms
         setInterval(function () {
@@ -922,30 +1057,82 @@
         // @since 4.9.0 - update form code manually
         $doc.on('click', '.super-update-raw-code', function () {
             var html,
-                notice = document.querySelector('.super-tab-content.super-tab-code .sfui-notice'),
-                formCode = this.parentNode.querySelector('textarea').value;
+                n1 = document.querySelector('.super-raw-code-form-elements .sfui-notice'),
+                n2 = document.querySelector('.super-raw-code-form-settings .sfui-notice'),
+                n3 = document.querySelector('.super-raw-code-translation-settings .sfui-notice'),
+                formElements = document.querySelector('.super-raw-code-form-elements textarea').value,
+                formSettings = document.querySelector('.super-raw-code-form-settings textarea').value,
+                translationSettings = document.querySelector('.super-raw-code-translation-settings textarea').value;
+
+            // Handle non-exception-throwing cases:
+            // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+            // but... JSON.parse(null) returns null, and typeof null === "object", 
+            // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+
             try {
-                var o = JSON.parse(formCode);
-                // Handle non-exception-throwing cases:
-                // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-                // but... JSON.parse(null) returns null, and typeof null === "object", 
-                // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-                if (o && typeof o === "object") {
-                    SUPER.set_session_data('_super_elements', formCode, undefined, true);
-                    SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, undefined, true);
-                    notice.innerHTML = super_create_form_i18n.edit_json_notice;
-                    notice.classList.remove('sfui-red');
-                    notice.classList.add('sfui-yellow');
-                }
+                (formElements!=='' ? JSON.parse(formElements) : {});
             }
             catch (e) {
                 html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
                 html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
                 html += super_create_form_i18n.try_jsonlint;
-                notice.innerHTML = html;
-                notice.classList.remove('sfui-yellow');
-                notice.classList.add('sfui-red');
+                n1.innerHTML = html;
+                n1.classList.remove('sfui-yellow');
+                n1.classList.add('sfui-red');
+                document.querySelector('.super-raw-code-form-elements textarea').classList.add('sfui-red');
+                n1.scrollIntoView();
+                return false;
             }
+            n1.innerHTML = super_create_form_i18n.edit_json_notice_n1;          
+            n1.classList.remove('sfui-red');
+            n1.classList.add('sfui-yellow');
+            document.querySelector('.super-raw-code-form-elements textarea').classList.remove('sfui-red');
+
+            try {
+                (formSettings!=='' ? JSON.parse(formSettings) : {});
+            }
+            catch (e) {
+                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
+                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
+                html += super_create_form_i18n.try_jsonlint;
+                n2.innerHTML = html;
+                n2.classList.remove('sfui-yellow');
+                n2.classList.add('sfui-red');
+                document.querySelector('.super-raw-code-form-settings textarea').classList.add('sfui-red');
+                n2.scrollIntoView();
+                return false;
+            }
+            n2.innerHTML = super_create_form_i18n.edit_json_notice_n2;
+            n2.classList.remove('sfui-red');
+            n2.classList.add('sfui-yellow');
+            document.querySelector('.super-raw-code-form-settings textarea').classList.remove('sfui-red');
+
+            try {
+                (translationSettings!=='' ? JSON.parse(translationSettings) : {});
+            }
+            catch (e) {
+                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
+                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
+                html += super_create_form_i18n.try_jsonlint;
+                n3.innerHTML = html;
+                n3.classList.remove('sfui-yellow');
+                n3.classList.add('sfui-red');
+                document.querySelector('.super-raw-code-translation-settings textarea').classList.add('sfui-red');
+                n3.scrollIntoView();
+                return false;
+            }
+            n3.innerHTML = super_create_form_i18n.edit_json_notice_n3;
+            n3.classList.remove('sfui-red');
+            n3.classList.add('sfui-yellow');
+            document.querySelector('.super-raw-code-translation-settings textarea').classList.remove('sfui-red');
+
+            // Add loading state to button
+            var button = this;
+            var oldHtml = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-save"></i>'+super_create_form_i18n.save_loading;
+            SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, function(){
+                button.innerHTML = oldHtml;
+            }, true);
         });
 
         // @since 4.0.0 - update conditional checks values
@@ -999,6 +1186,11 @@
                 $tab = $this.attr('data-tab');
             $parent.children('span').removeClass('super-active');
             $this.addClass('super-active');
+            // If code tab, update translation code
+            if($this.hasClass('super-tab-code')){
+                document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+                document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
+            }
             $('.super-tabs-content').css('display', '');
             $('.super-preview.switch').removeClass('super-active');
             $('.super-live-preview').css('display', 'none');
@@ -1073,7 +1265,7 @@
             });
         });
         // enable RTL layout
-        $doc.on('click', '.translations-list .super-rtl', function () {
+        $doc.on('click', '.super-translations-list .super-rtl', function () {
             $(this).toggleClass('super-active');
         });
         // enable language switch
@@ -1095,8 +1287,8 @@
                 return false;
             }
             // We will grab the so called "dummy" html, which is the first item in our list
-            var $dummy = $('.translations-list > li').first(),
-                $last = $('.translations-list > li').last(),
+            var $dummy = $('.super-translations-list > li').first(),
+                $last = $('.super-translations-list > li').last(),
                 $clone = $dummy.clone();
             // First reset the tooltips for our buttons
             $clone.find('.tooltipstered').removeClass('tooltipstered');
@@ -1107,7 +1299,7 @@
             SUPER.init_tooltips();
         });
         // edit translation
-        $doc.on('click', '.translations-list .super-edit', function () {
+        $doc.on('click', '.super-translations-list .super-edit', function () {
             var $row = $(this).parent(),
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
                 $language_title = $language.html(),
@@ -1205,7 +1397,7 @@
             });
         });
         // delete translation
-        $doc.on('click', '.translations-list .super-delete', function () {
+        $doc.on('click', '.super-translations-list .super-delete', function () {
             var $delete = confirm(super_create_form_i18n.confirm_deletion);
             if ($delete === true) {
                 // Before removing language check if currently in translation mode for this language
@@ -1333,7 +1525,7 @@
             });
             SUPER.init_resize_element_labels();
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
 
         // @since 4.6.0 - improved undo/redo buttons
@@ -1399,7 +1591,6 @@
         SUPER.init_drop_here_placeholder();
         SUPER.init_dragable_elements();
         SUPER.init_image_browser();
-        $('.super-layout-elements').addClass('super-active');
         SUPER.init_resize_element_labels();
 
         // @since 2.9.0 - Form setup wizard
@@ -1445,9 +1636,15 @@
                 $value = $value.replace(/[--]+/g, "-");
                 $value = $value.replace(/[__]+/g, "_");
                 $(this).val($value);
-
                 // @since 3.7.0 - change unique field name on the fly
-                $('.super-element.editing .super-title > input').val($value);
+                var $old_name = $editing.find('.super-shortcode-field').attr('name');
+                $editing.find('.super-shortcode-field').attr('name', $value);
+                $editing.find('.super-title > input').val($value);
+                var $element_data_field = $editing.children('textarea[name="element-data"]');
+                var $element_data = $element_data_field.val();
+                $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $value + '"');
+                $element_data_field.val($element_data);
+                SUPER.regenerate_element_inner();
             }
         });
 
@@ -1468,7 +1665,7 @@
             }
             $data = JSON.stringify($data);
             $parent.children('textarea[name="element-data"]').val($data);
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
 
         $doc.on('click', '.super-element-actions .super-duplicate', function () {
@@ -1496,7 +1693,7 @@
             $new.slideUp(0);
             $new.slideDown(300);
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
 
         // @since 4.6.0 - transfer this element to either a different location in the current form or to a completely different form (works cross-site)
@@ -1514,7 +1711,7 @@
             var $parent = $(this).parents('.super-element:eq(0)');
             $($html).insertAfter($parent);
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
             localStorage.removeItem('_super_transfer_element_html');
             $('.super-preview-elements').removeClass('super-transfering');
         });
@@ -1523,14 +1720,14 @@
                 var $html = SUPER.get_session_data('_super_transfer_element_html', 'local');
                 $($html).appendTo($(this));
                 SUPER.init_drag_and_drop();
-                SUPER.regenerate_element_inner($('.super-preview-elements'));
+                SUPER.regenerate_element_inner();
                 localStorage.removeItem('_super_transfer_element_html');
                 $('.super-preview-elements').removeClass('super-transfering');
             }
         });
 
         // @since 3.7.0 - change unique field name on the fly
-        $doc.on('change', '.super-element-header .super-title > input', function () {
+        $doc.on('keyup change', '.super-element-header .super-title > input', function () {
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
             var $old_name = $parent.find('.super-shortcode-field').attr('name');
@@ -1551,7 +1748,7 @@
             if ($parent.hasClass('editing')) {
                 $('.super-elements-container .super-field .element-field[name="name"]').val($new_field_name);
             }
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
 
         $doc.on('click', '.super-element-actions .super-minimize', function () {
@@ -1565,12 +1762,12 @@
             }
             SUPER.init_resize_element_labels();
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
         $doc.on('click', '.super-element-actions .super-delete', function () {
             $(this).parents('.super-element:eq(0)').remove();
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
             cancel_update();
         });
         $doc.on('click', '.super-element > .super-element-header > .super-resize > span', function () {
@@ -1614,7 +1811,7 @@
                 $parent.children('.super-element-header').find('.super-resize > .current').html($prev);
             }
             SUPER.init_drag_and_drop();
-            SUPER.regenerate_element_inner($('.super-preview-elements'));
+            SUPER.regenerate_element_inner();
         });
         $doc.on('click', '.super-switch-forms', function () {
             var $this = $(this);
@@ -1633,11 +1830,6 @@
             $this.children('.fa').removeClass('fa-chevron-up').addClass('fa-chevron-down');
             $this.removeClass('super-active');
             $this.children('ul').slideUp(300);
-        });
-
-        $doc.on('change', '.super-form-settings-tabs > select, .super-element-settings-tabs > select', function () {
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content').removeClass('super-active');
-            $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
         });
 
         $doc.on('click', '.super-multi-items .super-add', function () {
@@ -1822,7 +2014,6 @@
         };
 
         $doc.on('click', '.super-element-settings .super-update-element', function () {
-
             // Update element data (json code)
             // This json code holds all the settings for this specific element
             var $button = $(this);
@@ -1902,7 +2093,7 @@
                         $element.attr('class', 'super-element drop-here ' + $sizes[$fields.size] + ' editing');
                         $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);
                     }
-                    SUPER.regenerate_element_inner($('.super-preview-elements'));
+                    SUPER.regenerate_element_inner();
                     SUPER.init_common_fields();
                     $button.removeClass('super-loading');
                 }
@@ -2031,22 +2222,10 @@
             }
         });
 
-        $doc.on('click', '.super-elements .super-element h3', function () {
-            if($(this).parent().hasClass('super-active')){
-                $('.super-elements .super-element.super-active').removeClass('super-active');
-                $('.super-elements.super-active').removeClass('super-active');
-            }else{
-                $('.super-elements .super-element.super-active').removeClass('super-active');
-                $(this).parent().addClass('super-active');
-                $('.super-elements').addClass('super-active');
-            }
-            return false;
-        });
-
         $doc.on('click', '.super-create-form .super-actions .super-clear', function () {
             var $clear = confirm(super_create_form_i18n.confirm_clear_form);
             if ($clear === true) {
-                SUPER.set_session_data('_super_elements', '');
+                document.querySelector('.super-raw-code-form-elements > textarea').value = '';
                 $('.super-preview-elements').html('');
                 $('.super-element.super-element-settings .super-elements-container').html('<p>' + super_create_form_i18n.not_editing_an_element + '</p>');
             }
@@ -2101,6 +2280,17 @@
                     if (this.status == 200) {
                         $target.html(this.responseText);
                         init_form_settings_container_heights();
+                        // Open up last element settings tab
+                        $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab')
+                        if($activeElementSettingsTab){
+                            $node = $('.super-element-settings .super-elements-container .tab-content:eq(' + $activeElementSettingsTab + ')');
+                            if($node.length){
+                                $('.super-element-settings .super-elements-container .tab-content.super-active').removeClass('super-active');
+                                $node.addClass('super-active');
+                                $('.super-element-settings-tabs > select > option[selected]').prop({selected: false});
+                                $('.super-element-settings-tabs > select > option:eq(' + $activeElementSettingsTab + ')').prop({selected: true});
+                            }
+                        }
                     }
                     // Complete:
                     SUPER.init_previously_created_fields();
@@ -2133,6 +2323,10 @@
         });
 
         $doc.on('click', '.super-create-form .super-actions .super-save', function () {
+            if($('.super-tab-code.super-active').length){
+                alert(super_create_form_i18n.alert_save_not_allowed);
+                return false;
+            }
             var $this = $(this);
             SUPER.save_form($this);
         });
@@ -2254,38 +2448,15 @@
         $doc.on('click', '.super-export-import-single-form .super-export', function () {
             var $button = $(this);
             $button.addClass('super-loading');
-
-            var $settings = {};
-            $('.super-create-form .super-form-settings .element-field').each(function () {
-                var $this = $(this);
-                var $hidden = false;
-
-                // select parent based on .filter class
-                var $parent = $this.parents('.super-field.super-filter');
-                $parent.each(function () {
-                    if ($(this).css('display') == 'none') {
-                        $hidden = true;
-                    }
-                });
-
-                // now select based on only .super-field class
-                $parent = $this.parents('.super-field');
-                if ($hidden === false) {
-                    var $name = $this.attr('name');
-                    var $value = $this.val();
-                    $settings[$name] = $value;
-                }
-            });
-            $settings = JSON.stringify($settings);
-
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
                 data: {
                     action: 'super_export_single_form',
                     form_id: $('.super-create-form input[name="form_id"]').val(),
-                    elements: SUPER.get_session_data('_super_elements'),
-                    settings: $settings
+                    formElements: document.querySelector('.super-raw-code-form-elements > textarea').value,
+                    formSettings: SUPER.get_form_settings(),
+                    translationSettings: SUPER.get_translation_settings()
                 },
                 success: function (data) {
                     var file_path = data;
@@ -2414,7 +2585,8 @@
             }
         }
 
-        SUPER.regenerate_element_inner($('.super-preview-elements'), false);
+        SUPER.regenerate_element_inner(false);
+        SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
 
         // @since 4.0.0 - hints/introduction
         var $skip = $('input[name="super_skip_tutorial"]').val();
@@ -3266,8 +3438,17 @@
         });
 
     });
-    $(document).ready(function($){
-        $('body.wp-admin').addClass('folded');
+
+    window.addEventListener('beforeunload', function (e) {
+        e = e || window.event;
+        var unsaved = SUPER.get_session_data('_super_builder_has_unsaved_changes');
+        if(unsaved==='true'){
+            var $msg = 'Changes you made may not be saved.';
+            e.returnValue = $msg;
+            return $msg;
+        }
     });
-    
+
 })(jQuery);
+
+

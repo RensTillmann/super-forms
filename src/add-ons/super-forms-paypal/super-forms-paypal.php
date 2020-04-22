@@ -175,7 +175,7 @@ if (!class_exists('SUPER_PayPal')):
 
 			if ($this->is_request('admin')) {
 
-				add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+				add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
 				add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
 				add_filter( 'manage_super_paypal_txn_posts_columns', array( $this, 'super_paypal_txn_columns' ), 999999 );
 				add_filter( 'manage_super_paypal_sub_posts_columns', array( $this, 'super_paypal_sub_columns' ), 999999 );

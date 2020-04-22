@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.420
+ * Version:     4.9.431
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.420';
+        public $version = '4.9.431';
         public $slug = 'super-forms';
 
 
@@ -1786,11 +1786,15 @@ if(!class_exists('SUPER_Forms')) :
                             'confirm_load_form' => esc_html__( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
                             'alert_select_form' => esc_html__( 'You did not select a form!', 'super-forms' ),
                             'alert_save' => esc_html__( 'Before you can preview it, you need to save your form!', 'super-forms' ),
+                            'alert_save_not_allowed' => esc_html__( 'You are not allowed to save the form while the "Code" tab is opened!', 'super-forms' ),
                             'alert_duplicate_field_names' => esc_html__( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => esc_html__( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
                             'alert_empty_field_name' => esc_html__( 'Unique field name may not be empty!', 'super-forms' ),
                             'deleting' => esc_html__( 'Deleting...', 'super-forms' ),
-                            'edit_json_notice' => esc_html__( 'Only edit the below code if you know what you are doing! You can also copy this code and insert it into other forms to quickly export and import forms.', 'super-forms' ),
+                            'edit_json_notice_n1' => sprintf( esc_html__( '%sForm elements:%s', 'super-forms' ), '<strong>', '</strong>' ),
+                            'edit_json_notice_n2' => sprintf( esc_html__( '%sForm settings:%s', 'super-forms' ), '<strong>', '</strong>' ),
+                            'edit_json_notice_n3' => sprintf( esc_html__( '%sTranslation settings:%s (this only includes the translation settings, not the actual strings, this is stored in the "Form elements" code)', 'super-forms' ), '<strong>', '</strong>' ),
+                            'save_loading' => esc_html__( 'Loading...', 'super-forms' ),
                             'invalid_json' => esc_html__( 'Invalid JSON, please correct the error(s) and try again!', 'super-forms' ),
                             'try_jsonlint' => sprintf( esc_html__( 'Use %shttps://jsonlint.com/%s in case you are unable to find the error.', 'super-forms' ), '<a target="_blank" href="https://jsonlint.com/">', '</a>' )
                         ),

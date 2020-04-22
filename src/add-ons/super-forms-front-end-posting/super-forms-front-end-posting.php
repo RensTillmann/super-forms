@@ -140,7 +140,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
-                add_filter( 'super_settings_after_smtp_server_filter', array( $this, 'add_settings' ), 10, 2 );
+                add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_text_field_settings' ), 10, 2 );
                 
                 // Actions since 1.1.0
