@@ -1177,8 +1177,6 @@ h1.super-thanks-title {
 .super-field-size-huge .super-adaptive-positioning:before {
   font-size: 12px !important;
   line-height: 16px;
-  -webkit-transform: translate(0px, -22px);
-  transform: translate(0px, -22px);
 }
 
 /* Full rounded theme */
@@ -3971,6 +3969,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   left: 10px;
   right: initial;
 }
+
 .super-rtl .super-field .super-icon-inside.super-icon-right .super-dropdown-arrow {
   right: initial;
 }
@@ -6197,22 +6196,19 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-medium .super-filled .super-adaptive-placeholder:before,
 .super-field-size-medium .super-adaptive-positioning:before {
-  -webkit-transform: translate(0px, -15px);
-  transform: translate(0px, -15px);
+  margin-top: -32px;
 }
 
 .super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-large .super-filled .super-adaptive-placeholder:before,
 .super-field-size-large .super-adaptive-positioning:before {
-  -webkit-transform: translate(0px, -20px);
-  transform: translate(0px, -20px);
+  margin-top: -37px;
 }
 
 .super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
 .super-field-size-huge .super-filled .super-adaptive-placeholder:before,
 .super-field-size-huge .super-adaptive-positioning:before {
-  -webkit-transform: translate(0px, -25px);
-  transform: translate(0px, -25px);
+  margin-top: -42px;
 }
 
 .super-field-size-medium .super-adaptive-positioning:before {

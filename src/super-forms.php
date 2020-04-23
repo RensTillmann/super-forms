@@ -964,6 +964,10 @@ if(!class_exists('SUPER_Forms')) :
             wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
             wp_enqueue_script( $handle );
 
+            // For printing
+            wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+            wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
+
             // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
             // This is also used on the Elementor editor pages
             if( $ajax==true ) {
@@ -1000,6 +1004,9 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+                // For printing
+                wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+                wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
             }
 
             // @since 1.2.8 -   super_after_enqueue_element_scripts_action
