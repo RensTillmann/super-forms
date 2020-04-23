@@ -1671,6 +1671,18 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(form[0], result, html, old_html, duration);
                 }else{
+                    // Clear form progression (if enabled)
+                    if( form[0].classList.contains('super-save-progress') ) {
+                        $.ajax({
+                            url: super_common_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_save_form_progress',
+                                data: '',
+                                form_id: form_id
+                            }
+                        });
+                    }
                     // Trigger js hook and continue
                     SUPER.after_email_send_hook(form, data, old_html, result);
                     // If a hook is redirecting we should avoid doing other things
@@ -1775,89 +1787,90 @@ function SUPERreCaptcha(){
         //pageWidth, pageHeight
 
 
-        SUPER.init_super_responsive_form_fields(form);
+        // SUPER.init_super_responsive_form_fields(form);
 
-        // Don't display signature clear icon
-        var nodes = form.querySelectorAll('.super-signature-clear');
-        for(var i=0; i < nodes.length; i++){
-            nodes[i].style.display = "none";
-        }
+        // // Don't display signature clear icon
+        // var nodes = form.querySelectorAll('.super-signature-clear');
+        // for(var i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = "none";
+        // }
 
-        // Hide all "Button" elements
-        nodes = form.querySelectorAll('.super-form-button');
-        for(var i=0; i < nodes.length; i++){
-            nodes[i].style.display = 'none';
-        }
+        // // Hide all "Button" elements
+        // nodes = form.querySelectorAll('.super-form-button');
+        // for(var i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = 'none';
+        // }
 
-        //progressBar.style.width = "5%";
+        // //progressBar.style.width = "5%";
 
-        // First disable the UI on the map for nicer print of the map
-        // And make map fullwidth and directions fullwidth
-        for(var i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-            SUPER.google_maps_api.allMaps[formId][i].setOptions({
-                disableDefaultUI: true
-            });
-            var children = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-            for(var x=0; x < children.length; x++){
-                children[x].style.width = '100%';
-                if(children[x].classList.contains('super-google-map-directions')){
-                    children[x].style.overflowY = 'initial';
-                    children[x].style.height = 'auto';
-                }
-            }
-        }
-        //progressBar.style.width = "10%";
+        // // First disable the UI on the map for nicer print of the map
+        // // And make map fullwidth and directions fullwidth
+        // for(var i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+        //     SUPER.google_maps_api.allMaps[formId][i].setOptions({
+        //         disableDefaultUI: true
+        //     });
+        //     var children = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+        //     for(var x=0; x < children.length; x++){
+        //         children[x].style.width = '100%';
+        //         if(children[x].classList.contains('super-google-map-directions')){
+        //             children[x].style.overflowY = 'initial';
+        //             children[x].style.height = 'auto';
+        //         }
+        //     }
+        // }
+        // //progressBar.style.width = "10%";
         
-        // Convert height of textarea to fit content (otherwie it would be cut of during printing)
-        function adjustHeight(el, minHeight) {
-            // compute the height difference which is caused by border and outline
-            var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-            var diff = outerHeight - el.clientHeight;
-            // set the height to 0 in case of it has to be shrinked
-            el.style.height = 0;
-            // set the correct height
-            // el.scrollHeight is the full height of the content, not just the visible part
-            el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
-        }
-        // we use the "data-adaptheight" attribute as a marker
-        // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
-        var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
-        // iterate through all the textareas on the page
-        textAreas.forEach(function(el) {
-            // we need box-sizing: border-box, if the textarea has padding
-            el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
-            // we don't need any scrollbars, do we? :)
-            el.style.overflowY = 'hidden';
-            // the minimum height initiated through the "rows" attribute
-            var minHeight = el.scrollHeight;
-            el.addEventListener('input', function() {
-                adjustHeight(el, minHeight);
-            });
-            // we have to readjust when window size changes (e.g. orientation change)
-            window.addEventListener('resize', function() {
-                adjustHeight(el, minHeight);
-            });
-            // we adjust height to the initial content
-            adjustHeight(el, minHeight);
-        });
-        //progressBar.style.width = "20%";
+        // // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+        // function adjustHeight(el, minHeight) {
+        //     // compute the height difference which is caused by border and outline
+        //     var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+        //     var diff = outerHeight - el.clientHeight;
+        //     // set the height to 0 in case of it has to be shrinked
+        //     el.style.height = 0;
+        //     // set the correct height
+        //     // el.scrollHeight is the full height of the content, not just the visible part
+        //     el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+        // }
+        // // we use the "data-adaptheight" attribute as a marker
+        // // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
+        // var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
+        // // iterate through all the textareas on the page
+        // textAreas.forEach(function(el) {
+        //     // we need box-sizing: border-box, if the textarea has padding
+        //     el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+        //     // we don't need any scrollbars, do we? :)
+        //     el.style.overflowY = 'hidden';
+        //     // the minimum height initiated through the "rows" attribute
+        //     var minHeight = el.scrollHeight;
+        //     el.addEventListener('input', function() {
+        //         adjustHeight(el, minHeight);
+        //     });
+        //     // we have to readjust when window size changes (e.g. orientation change)
+        //     window.addEventListener('resize', function() {
+        //         adjustHeight(el, minHeight);
+        //     });
+        //     // we adjust height to the initial content
+        //     adjustHeight(el, minHeight);
+        // });
+        // //progressBar.style.width = "20%";
 
-        // Grab the total form height, this is required to know how many pages will be generated for the PDF file
-        // This way we can also show the progression to the end user
-        scrollAmount = (pageHeight*2);
-        var totalPages = Math.ceil(form.clientHeight/scrollAmount);
-        console.log(form.clientHeight/scrollAmount);
-        console.log(Math.ceil(form.clientHeight/scrollAmount));
-        console.log(totalPages);
+        // // Grab the total form height, this is required to know how many pages will be generated for the PDF file
+        // // This way we can also show the progression to the end user
+        // scrollAmount = (pageHeight*2);
+        // var totalPages = Math.ceil(form.clientHeight/scrollAmount);
+        // console.log(form.clientHeight/scrollAmount);
+        // console.log(Math.ceil(form.clientHeight/scrollAmount));
+        // console.log(totalPages);
 
-        // Make form scrollable, this way we can generate PDF page properly
-        form.style.height = scrollAmount+'px';
-        form.style.maxHeight = scrollAmount+'px';
-        form.style.overflow = "hidden";
-        //progressBar.style.width = "40%";
+        // // Make form scrollable, this way we can generate PDF page properly
+        // form.style.height = scrollAmount+'px';
+        // form.style.maxHeight = scrollAmount+'px';
+        // form.style.overflow = "hidden";
+        // progressBar.style.width = "80%";
+        // setTimeout(function(){
+        //     callback(form, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
+        // },100);
 
-
-        callback(form, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
     };
 
     // Send form submission through ajax request
@@ -2917,7 +2930,9 @@ function SUPERreCaptcha(){
     SUPER.after_field_change_blur_hook = function($field, $form, $skip){
         if( typeof $field !== 'undefined' ) {
             if($field.value===''){
-                if($field.closest('.super-shortcode')) $field.closest('.super-shortcode').classList.remove('super-filled');
+                if($field.closest('.super-shortcode')) {
+                    $field.closest('.super-shortcode').classList.remove('super-filled');
+                }
             }else{
                 if($field.closest('.super-shortcode')) $field.closest('.super-shortcode').classList.add('super-filled');
             }
@@ -3141,6 +3156,11 @@ function SUPERreCaptcha(){
                     }
                     var $super_field = $this.parents('.super-field:eq(0)');
 
+                    if($super_field.hasClass('super-signature')){
+                        $data[$this.attr('name')].signatureLines = $super_field.find('.super-signature-lines').val();
+                        //$data[$this.attr('name')].value = $super_field.find('.super-signature-canvas').signature('toJSON');
+                    }
+                    
                     if($super_field.hasClass('super-date')){
                         $data[$this.attr('name')].timestamp = $this[0].dataset.mathDiff;
                     }
@@ -4887,7 +4907,6 @@ function SUPERreCaptcha(){
                 continue;
             }
 
-
             // Countries field
             if(field.classList.contains('super-countries')){
                 placeholder = element.placeholder;
@@ -5412,6 +5431,19 @@ function SUPERreCaptcha(){
         // @since 1.3   - input mask
         $('.super-shortcode-field[data-mask]').each(function(){
             $(this).mask($(this).data('mask'));
+        });
+
+        // Populate signature element with possible saved form progress
+        $('.super-form').each(function(){
+            if($(this).hasClass('super-save-progress')){
+                $(this).find('.super-signature').each(function(){
+                    var value = $(this).find('.super-signature-lines').val();
+                    if(value!==''){
+                        value = value.replace('\\"lines\\"', '"lines"');
+                        $(this).find('.super-signature-canvas').signature('enable').signature('draw', value);
+                    }
+                });
+            }
         });
 
         // Multi-part

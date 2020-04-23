@@ -349,8 +349,11 @@ class SUPER_Ajax {
     */
     public static function save_form_progress() {
         if(!empty($_POST['form_id'])){
-            $data = $_POST['data'];
             $form_id = absint($_POST['form_id']);
+            $data = false; // Clear date by default
+            if(!empty($_POST['data'])){
+                $data = $_POST['data'];
+            }
             SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
         }
         die();

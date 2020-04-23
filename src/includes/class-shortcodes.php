@@ -4583,7 +4583,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array() ) {
+    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
@@ -4614,7 +4614,7 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(json_encode($data), true);
         $inner = json_decode(json_encode($inner), true);
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
+        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
     }
 
     
@@ -5516,10 +5516,12 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.2.0 - if entry data was not found based on user last entry, proceed and check if we need to get form progress for this form
+        $formProgress = false;
         if( ($entry_data==null) && ( (isset($settings['save_form_progress'])) && ($settings['save_form_progress']=='true') ) ) {
             $form_progress = SUPER_Forms()->session->get( 'super_form_progress_' . $form_id );
             if($form_progress!=false){
                 $entry_data = $form_progress;
+                $formProgress = true;
             }
         }
 
@@ -5759,7 +5761,7 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
             }
         }
         
