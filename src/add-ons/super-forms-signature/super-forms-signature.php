@@ -357,8 +357,7 @@ if(!class_exists('SUPER_Signature')) :
          *
          *  @since      1.0.0
         */
-        public static function signature( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-         
+        public static function signature( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress ) {
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
                 $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
@@ -366,6 +365,7 @@ if(!class_exists('SUPER_Signature')) :
                 $defaults = array(
                     'name' => 'subtotal',
                     'thickness' => 2,
+                    'disallowEdit' => 'true',
                     'bg_size' => 150,
                     'width' => 0,
                     'height' => 100,
@@ -397,12 +397,6 @@ if(!class_exists('SUPER_Signature')) :
 
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts );
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-	        if( ( !isset( $atts['value'] ) ) || ( $atts['value']=='' ) ) {
-	            $atts['value'] = '';
-	        }else{
-	            $atts['value'] = SUPER_Common::email_tags( $atts['value'] );
-	        }
-            $styles = '';
             
             if( !isset( $atts['background_img'] ) ) $atts['background_img'] = 0;
             $attachment_id = absint($atts['background_img']);
@@ -411,16 +405,33 @@ if(!class_exists('SUPER_Signature')) :
             }else{
                 $url = wp_get_attachment_url( $attachment_id );
             }
-	        $styles .= 'height:' . $atts['height'] . 'px;';
+            $styles = '';
+            $styles .= 'height:' . $atts['height'] . 'px;';
 	        $styles .= 'background-image:url(\'' . esc_url($url) . '\');';
 	        $styles .= 'background-size:' . $atts['bg_size'] . 'px;';
 	        $result .= '<div class="super-signature-canvas" style="' . $styles . '"></div>';
-	        $result .= '<span class="super-signature-clear"></span>';
+            $result .= '<span class="super-signature-clear"></span>';
 	        $result .= '<textarea style="display:none;" class="super-shortcode-field"';
-	        $result .= ' name="' . $atts['name'] . '"';
-	        $result .= ' data-thickness="' . $atts['thickness'] . '"';
-	        $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
-	        $result .= ' />' . $atts['value'] . '</textarea>';
+	        $result .= ' name="' . esc_attr($atts['name']) . '"';
+	        $result .= ' data-thickness="' . esc_attr($atts['thickness']) . '"';
+            $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            // Get the value for from entry data
+            $entry_data_value = SUPER_Shortcodes::get_entry_data_value( $tag, '', $atts['name'], $entry_data );
+            if(!isset($atts['value'])) $atts['value'] = '';
+            if(!empty($entry_data_value)){
+                $atts['value'] = $entry_data_value;
+            }
+            if($formProgress===false && $atts['disallowEdit']==='true' && $atts['value']!==''){
+                $result .= ' data-disallowEdit="' . esc_attr($atts['disallowEdit']) . '"';
+            }
+            $result .= ' />' . $atts['value'] . '</textarea>';
+            $result .= '<textarea style="display:none;" class="super-signature-lines">';
+            if(isset($entry_data[$atts['name']])){
+                if(!empty($entry_data[$atts['name']]['signatureLines'])){
+                    $result .= wp_unslash($entry_data[$atts['name']]['signatureLines']);
+                }
+            }
+            $result .= '</textarea>';
 	        $result .= '</div>';
 	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
 	        $result .= '</div>';
@@ -468,7 +479,15 @@ if(!class_exists('SUPER_Signature')) :
 	                        'label' => $label,
 	                        'description'=>$description,
 	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=1, $max=20, $steps=1, $name=esc_html__( 'Line Thickness', 'super-forms' ), $desc=esc_html__( 'The thickness of the signature when drawing', 'super-forms' ) ),
-	                        'background_img' => array(
+                            'disallowEdit' => array(
+                                'default'=> (!isset($attributes['disallowEdit']) ? 'true' : $attributes['disallowEdit']),
+                                'type'=>'checkbox', 
+                                'values'=>array(
+                                    'true' => esc_html__( 'Disallow users to change existing signature when form was populated with data', 'super-forms' ), 
+                                ),
+                                'allow_empty' => true // For backward compatibility with older forms
+                            ),
+                            'background_img' => array(
 				                'name' => esc_html__( 'Custom sign here image', 'super-forms' ),
 				                'desc' => esc_html__( 'Background image to show the user they can draw a signature', 'super-forms' ),
 				                'default' => SUPER_Settings::get_value( 1, 'background_img', null, '' ),
