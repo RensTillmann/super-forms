@@ -45,13 +45,14 @@
 	// After responsiveness changed, resize the canvas of the signature
 	SUPER.refresh_signatures_timeout = null;
 
-	SUPER.refresh_signatures = function(){
+	SUPER.refresh_signatures = function(classes, form){
+		if(typeof form === 'undefined') form = document;
 		if (SUPER.refresh_signatures_timeout !== null) {
 			clearTimeout(SUPER.refresh_signatures_timeout);
 		}
 		SUPER.refresh_signatures_timeout = setTimeout(function () {
 			var i,x,y, 
-				nodes = document.querySelectorAll('.super-signature-canvas'),
+				nodes = form.querySelectorAll('.super-signature-canvas'),
 				minWidth = 0,
 				minHeight = 0,
 				width = 0,
@@ -63,6 +64,7 @@
 				var json = $(canvasWrapper).signature('toJSON');
 				var lines = JSON.parse(json).lines;
 				if(lines.length===0) {
+					//debugger;
 					json = $(canvasWrapper).signature('toDataURL');
 					$(canvasWrapper).signature('draw', json);
 					if(canvasWrapper.parentNode.querySelector('.super-shortcode-field').value!==''){
@@ -77,6 +79,7 @@
 				var canvas = nodes[i].querySelector('canvas');
 				var canvasWidth = canvas.offsetWidth;
 				var ratio = (canvasWidth/canvasWrapperWidth)*100;
+				console.log(canvasWrapperWidth, canvasWidth, ratio);
 				canvas.width = canvasWrapperWidth;
 				canvas.height = canvasWrapperHeight;
 
@@ -87,10 +90,12 @@
 						if(!newLines[x][y]) newLines[x][y] = [];
 						if(canvasWrapperWidth < canvasWidth){
 							ratio = canvasWidth/canvasWrapperWidth;
+							console.log(ratio);
 							newLines[x][y][0] = lines[x][y][0]/ratio;
 							newLines[x][y][1] = lines[x][y][1]/ratio;
 						}else{
 							ratio = canvasWrapperWidth/canvasWidth;
+							console.log(ratio);
 							newLines[x][y][0] = lines[x][y][0]*ratio;
 							newLines[x][y][1] = lines[x][y][1]*ratio;
 						}
@@ -103,12 +108,14 @@
 				}
 				// Check if the signature exceeds height limits
 				if(canvasWrapperHeight < minHeight){
-					// console.log('exceeds limit, use default json');
+					console.log('exceeds limit, use default json');
 				}else{
 					json = {"lines":newLines};
 					json = JSON.stringify(json);
 				}
 				$(canvasWrapper).signature('draw', json);
+				console.log(lines);
+				console.log(newLines);
 
 				// var wrapper = nodes[i].closest('.super-field-wrapper');	
 				// var wrapperWidth = wrapper.offsetWidth;

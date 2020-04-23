@@ -4318,8 +4318,10 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static function google_map( $tag, $atts ) {
+        // In order to print google map load the libraries:
         wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
-        wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );   
+        wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );          
+        
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
