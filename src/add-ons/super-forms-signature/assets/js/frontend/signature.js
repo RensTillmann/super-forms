@@ -36,86 +36,181 @@
 
 	// Refresh Signature (Refresh the appearance of the signature area.)
 	SUPER.refresh_signature = function(changedField){
-		if(typeof changedField !== 'undefined'){
-			if(changedField.closest('.super-signature')){
-				if( SUPER.has_hidden_parent(changedField)===false ) {
-					$(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
-                }
-            }
-        }
+		// if(typeof changedField !== 'undefined'){
+		// 	if(changedField.closest('.super-signature')){
+		// 		if( SUPER.has_hidden_parent(changedField)===false ) {
+		// 			$(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
+        //         }
+        //     }
+        // }
 	};
 
-	
 	// After responsiveness changed, resize the canvas of the signature
-	SUPER.refresh_signatures_timeout = null;
-
 	SUPER.refresh_signatures = function(classes, form){
 		if(typeof form === 'undefined') form = document;
-		if (SUPER.refresh_signatures_timeout !== null) {
-			clearTimeout(SUPER.refresh_signatures_timeout);
-		}
-		SUPER.refresh_signatures_timeout = setTimeout(function () {
-			var i,x,y, 
-				nodes = form.querySelectorAll('.super-signature-canvas'),
-				minWidth = 0,
-				minHeight = 0,
-				width = 0,
-				height = 0;
+		var i,x,y, 
+			nodes = form.querySelectorAll('.super-signature-canvas'),
+			minWidth = 0,
+			minHeight = 0,
+			width = 0,
+			height = 0;
 
-			for( i = 0; i < nodes.length; i++ ) {
-				// Make drawing smaller by 50% (just as an example)
-				var canvasWrapper = nodes[i];
-				$(canvasWrapper).signature('enable');
-				var json = $(canvasWrapper).signature('toJSON');
-				var lines = JSON.parse(json).lines;
-				var canvasWrapperWidth = canvasWrapper.offsetWidth;
-				var canvasWrapperHeight = canvasWrapper.offsetHeight;
-				var canvas = nodes[i].querySelector('canvas');
-				var canvasWidth = canvas.offsetWidth;
-				var ratio = (canvasWidth/canvasWrapperWidth)*100;
-				canvas.width = canvasWrapperWidth;
-				canvas.height = canvasWrapperHeight;
+		for( i = 0; i < nodes.length; i++ ) {
+			// Make drawing smaller by 50% (just as an example)
+			var canvasWrapper = nodes[i];
+			$(canvasWrapper).signature('enable');
+			var json = $(canvasWrapper).signature('toJSON');
+			var lines = JSON.parse(json).lines;
+			var canvasWrapperWidth = canvasWrapper.clientWidth;
+			var canvasWrapperHeight = canvasWrapper.clientHeight;
+			var canvas = nodes[i].querySelector('canvas');
+			var canvasWidth = canvas.offsetWidth;
+			var ratio = (canvasWidth/canvasWrapperWidth)*100;
+			canvas.width = canvasWrapperWidth;
+			canvas.height = canvasWrapperHeight;
+			var newLines = [];
 
-				var newLines = [];
+			var maxX = 0;
+			var maxY = 0;
+			for(x=0; x < lines.length; x++){
+				for(y=0; y < lines[x].length; y++){
+					if(maxX < lines[x][y][0]) maxX = lines[x][y][0];
+					if(maxY < lines[x][y][1]) maxY = lines[x][y][1];
+				}
+			}
+			var ratioX = maxX / canvasWrapper.clientWidth;
+			var ratioY = maxY / canvasWrapper.clientHeight;
+			var finalRatio = ratioX;
+			if(ratioX < ratioY) finalRatio = ratioY;
+			if(finalRatio<1) finalRatio = 1;
+			if(finalRatio>1){
+				// Resize
 				for(x=0; x < lines.length; x++){
 					for(y=0; y < lines[x].length; y++){
 						if(!newLines[x]) newLines[x] = [];
 						if(!newLines[x][y]) newLines[x][y] = [];
-						if(canvasWrapperWidth < canvasWidth){
-							ratio = canvasWidth/canvasWrapperWidth;
-							newLines[x][y][0] = lines[x][y][0]/ratio;
-							newLines[x][y][1] = lines[x][y][1]/ratio;
-						}else{
-							ratio = canvasWrapperWidth/canvasWidth;
-							newLines[x][y][0] = lines[x][y][0]*ratio;
-							newLines[x][y][1] = lines[x][y][1]*ratio;
-						}
-						// Check if signature becomes bigger than the canvas wrapper
-						width = newLines[x][y][0];
-						height = newLines[x][y][1];
-						if(minWidth < width) minWidth = width+2; // plus 2 for some margin
-						if(minHeight < height) minHeight = height+2; // plus 2 for some margin
+						newLines[x][y][0] = lines[x][y][0]/finalRatio;
+						newLines[x][y][1] = lines[x][y][1]/finalRatio;
 					}
 				}
-				// Check if the signature exceeds height limits
-				if(canvasWrapperHeight >= minHeight){
-					json = {"lines":newLines};
-					json = JSON.stringify(json);
-				}
-				var jsonLength = JSON.parse(json).lines.length;
-				var thickness = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness;
-				var disallowedit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowedit;
-				$(canvasWrapper).signature({thickness: thickness});
-				$(canvasWrapper).signature('draw', json);
-				if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
-					$(canvasWrapper).signature('disable');
-					// Remove clear button
-					if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
-						canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
-					}
+				json = {"lines":newLines};
+				json = JSON.stringify(json);
+			}else{
+				// Do not resize, keep original
+			}
+			var jsonLength = JSON.parse(json).lines.length;
+			var disallowedit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowedit;
+			//var thickness = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness;
+			//$(canvasWrapper).signature({thickness: thickness});
+			$(canvasWrapper).signature('draw', json);
+			if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
+				$(canvasWrapper).signature('disable');
+				// Remove clear button
+				if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+					canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
 				}
 			}
-		}, 500);
+			// for(x=0; x < lines.length; x++){
+			// 	for(y=0; y < lines[x].length; y++){
+			// 		if(!newLines[x]) newLines[x] = [];
+			// 		if(!newLines[x][y]) newLines[x][y] = [];
+			// 		if(canvasWrapperWidth < canvasWidth){
+			// 			ratio = canvasWidth/canvasWrapperWidth;
+			// 			newLines[x][y][0] = lines[x][y][0]/ratio;
+			// 			newLines[x][y][1] = lines[x][y][1]/ratio;
+			// 		}else{
+			// 			ratio = canvasWrapperWidth/canvasWidth;
+			// 			newLines[x][y][0] = lines[x][y][0]*ratio;
+			// 			newLines[x][y][1] = lines[x][y][1]*ratio;
+			// 		}
+			// 		// Check if signature becomes bigger than the canvas wrapper
+			// 		width = newLines[x][y][0];
+			// 		height = newLines[x][y][1];
+			// 		if(minWidth < width) minWidth = width+2; // plus 2 for some margin
+			// 		if(minHeight < height) minHeight = height+2; // plus 2 for some margin
+			// 	}
+			// }
+			// // Check if the signature exceeds height limits
+			// if(canvasWrapperHeight >= minHeight){
+			// 	json = {"lines":newLines};
+			// 	json = JSON.stringify(json);
+			// }
+
+		}
+
+
+		// if(typeof form === 'undefined') form = document;
+		// var i,x,y, 
+		// 	nodes = form.querySelectorAll('.super-signature-canvas'),
+		// 	minWidth = 0,
+		// 	minHeight = 0,
+		// 	width = 0,
+		// 	height = 0,
+		// 	$el,
+		// 	json,
+		// 	lines,
+		// 	canvas,
+		// 	canvasWidth,
+		// 	ratio,
+		// 	newLines,
+		// 	jsonLength,
+		// 	thickness,
+		// 	disallowedit,
+		// 	clearBtn,
+		// 	field;
+
+		// for( i = 0; i < nodes.length; i++ ) {
+		// 	// Make drawing smaller by 50% (just as an example)
+		// 	field = nodes[i].parentNode.querySelector('.super-shortcode-field');
+		// 	$el = $(nodes[i]);
+		// 	$el.signature('enable');
+		// 	json = $el.signature('toJSON');
+		// 	lines = JSON.parse(json).lines;
+		// 	canvas = nodes[i].querySelector('canvas');
+		// 	canvasWidth = canvas.offsetWidth;
+		// 	ratio = (canvasWidth/nodes[i].clientWidth)*100;
+		// 	canvas.width = nodes[i].clientWidth;
+		// 	canvas.height = nodes[i].clientHeight;
+		// 	newLines = [];
+		// 	for(x=0; x < lines.length; x++){
+		// 		for(y=0; y < lines[x].length; y++){
+		// 			if(!newLines[x]) newLines[x] = [];
+		// 			if(!newLines[x][y]) newLines[x][y] = [];
+		// 			if(nodes[i].clientWidth < canvasWidth){
+		// 				ratio = canvasWidth/nodes[i].clientWidth;
+		// 				newLines[x][y][0] = lines[x][y][0]/ratio;
+		// 				newLines[x][y][1] = lines[x][y][1]/ratio;
+		// 			}else{
+		// 				ratio = nodes[i].clientWidth/canvasWidth;
+		// 				newLines[x][y][0] = lines[x][y][0]*ratio;
+		// 				newLines[x][y][1] = lines[x][y][1]*ratio;
+		// 			}
+		// 			// Check if signature becomes bigger than the canvas wrapper
+		// 			width = newLines[x][y][0];
+		// 			height = newLines[x][y][1];
+		// 			if(minWidth < width) minWidth = width; // plus 2 for some margin
+		// 			if(minHeight < height) minHeight = height; // plus 2 for some margin
+		// 		}
+		// 	}
+		// 	// Check if the signature exceeds height limits
+		// 	if(nodes[i].clientHeight >= minHeight){
+		// 		json = {"lines":newLines};
+		// 		json = JSON.stringify(json);
+		// 	}
+		// 	jsonLength = JSON.parse(json).lines.length;
+		// 	thickness = field.dataset.thickness;
+		// 	disallowedit = field.dataset.disallowedit;
+		// 	$el.signature({thickness: thickness});
+		// 	$el.signature('draw', json);
+		// 	if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
+		// 		$el.signature('disable');
+		// 		// Remove clear button
+		// 		clearBtn = nodes[i].parentNode.querySelector('.super-signature-clear');
+		// 		if(clearBtn) clearBtn.remove();
+		// 	}
+		// }
+
+
 	};
 	
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned

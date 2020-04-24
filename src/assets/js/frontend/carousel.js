@@ -332,8 +332,7 @@ var CarouselJS = {
             marginRight = parseFloat(style.marginRight) || 0;
         if(node.classList.contains('carouseljs-wrapper')){
             var paddingLeft = parseFloat(style.paddingLeft) || 0,
-                paddingRight = parseFloat(style.paddingRight) || 0,
-                padding = paddingLeft+paddingRight;
+                paddingRight = parseFloat(style.paddingRight) || 0;
             return node.offsetWidth+(marginLeft+marginRight)-(paddingLeft+paddingRight);
         } 
         return node.offsetWidth+(marginLeft+marginRight);

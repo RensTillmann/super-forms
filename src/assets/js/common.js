@@ -1786,91 +1786,91 @@ function SUPERreCaptcha(){
         form.style.width = (pageWidth*2)+'px'; //(793-(margins.left*3.55))+'px';
         //pageWidth, pageHeight
 
+        SUPER.init_super_responsive_form_fields(form, function(){
+            // Remove transition from Toggle element
+            var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
+            for(var i=0; i < nodes.length; i++){
+                nodes[i].style.transition = 'initial';
+            }
+            // Don't display signature clear icon
+            nodes = form.querySelectorAll('.super-signature-clear');
+            for(i=0; i < nodes.length; i++){
+                nodes[i].style.display = "none";
+            }
+            // Hide all "Button" elements
+            nodes = form.querySelectorAll('.super-form-button');
+            for(i=0; i < nodes.length; i++){
+                nodes[i].style.display = 'none';
+            }
 
-        // SUPER.init_super_responsive_form_fields(form);
+            //progressBar.style.width = "5%";
 
-        // // Don't display signature clear icon
-        // var nodes = form.querySelectorAll('.super-signature-clear');
-        // for(var i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = "none";
-        // }
+            // First disable the UI on the map for nicer print of the map
+            // And make map fullwidth and directions fullwidth
+            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+                SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                    disableDefaultUI: true
+                });
+                nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                for(var x=0; x < nodes.length; x++){
+                    nodes[x].style.width = '100%';
+                    if(nodes[x].classList.contains('super-google-map-directions')){
+                        nodes[x].style.overflowY = 'initial';
+                        nodes[x].style.height = 'auto';
+                    }
+                }
+            }
+            //progressBar.style.width = "10%";
+            
+            // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+            function adjustHeight(el, minHeight) {
+                // compute the height difference which is caused by border and outline
+                var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+                var diff = outerHeight - el.clientHeight;
+                // set the height to 0 in case of it has to be shrinked
+                el.style.height = 0;
+                // set the correct height
+                // el.scrollHeight is the full height of the content, not just the visible part
+                el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+            }
+            // we use the "data-adaptheight" attribute as a marker
+            // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
+            var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
+            // iterate through all the textareas on the page
+            textAreas.forEach(function(el) {
+                // we need box-sizing: border-box, if the textarea has padding
+                el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+                // we don't need any scrollbars, do we? :)
+                el.style.overflowY = 'hidden';
+                // the minimum height initiated through the "rows" attribute
+                var minHeight = el.scrollHeight;
+                el.addEventListener('input', function() {
+                    adjustHeight(el, minHeight);
+                });
+                // we have to readjust when window size changes (e.g. orientation change)
+                window.addEventListener('resize', function() {
+                    adjustHeight(el, minHeight);
+                });
+                // we adjust height to the initial content
+                adjustHeight(el, minHeight);
+            });
+            //progressBar.style.width = "20%";
 
-        // // Hide all "Button" elements
-        // nodes = form.querySelectorAll('.super-form-button');
-        // for(var i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = 'none';
-        // }
+            // Grab the total form height, this is required to know how many pages will be generated for the PDF file
+            // This way we can also show the progression to the end user
+            scrollAmount = (pageHeight*2);
+            var totalPages = Math.ceil(form.clientHeight/scrollAmount);
+            console.log(form.clientHeight/scrollAmount);
+            console.log(Math.ceil(form.clientHeight/scrollAmount));
+            console.log(totalPages);
 
-        // //progressBar.style.width = "5%";
-
-        // // First disable the UI on the map for nicer print of the map
-        // // And make map fullwidth and directions fullwidth
-        // for(var i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-        //     SUPER.google_maps_api.allMaps[formId][i].setOptions({
-        //         disableDefaultUI: true
-        //     });
-        //     var children = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-        //     for(var x=0; x < children.length; x++){
-        //         children[x].style.width = '100%';
-        //         if(children[x].classList.contains('super-google-map-directions')){
-        //             children[x].style.overflowY = 'initial';
-        //             children[x].style.height = 'auto';
-        //         }
-        //     }
-        // }
-        // //progressBar.style.width = "10%";
-        
-        // // Convert height of textarea to fit content (otherwie it would be cut of during printing)
-        // function adjustHeight(el, minHeight) {
-        //     // compute the height difference which is caused by border and outline
-        //     var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-        //     var diff = outerHeight - el.clientHeight;
-        //     // set the height to 0 in case of it has to be shrinked
-        //     el.style.height = 0;
-        //     // set the correct height
-        //     // el.scrollHeight is the full height of the content, not just the visible part
-        //     el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
-        // }
-        // // we use the "data-adaptheight" attribute as a marker
-        // // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
-        // var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
-        // // iterate through all the textareas on the page
-        // textAreas.forEach(function(el) {
-        //     // we need box-sizing: border-box, if the textarea has padding
-        //     el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
-        //     // we don't need any scrollbars, do we? :)
-        //     el.style.overflowY = 'hidden';
-        //     // the minimum height initiated through the "rows" attribute
-        //     var minHeight = el.scrollHeight;
-        //     el.addEventListener('input', function() {
-        //         adjustHeight(el, minHeight);
-        //     });
-        //     // we have to readjust when window size changes (e.g. orientation change)
-        //     window.addEventListener('resize', function() {
-        //         adjustHeight(el, minHeight);
-        //     });
-        //     // we adjust height to the initial content
-        //     adjustHeight(el, minHeight);
-        // });
-        // //progressBar.style.width = "20%";
-
-        // // Grab the total form height, this is required to know how many pages will be generated for the PDF file
-        // // This way we can also show the progression to the end user
-        // scrollAmount = (pageHeight*2);
-        // var totalPages = Math.ceil(form.clientHeight/scrollAmount);
-        // console.log(form.clientHeight/scrollAmount);
-        // console.log(Math.ceil(form.clientHeight/scrollAmount));
-        // console.log(totalPages);
-
-        // // Make form scrollable, this way we can generate PDF page properly
-        // form.style.height = scrollAmount+'px';
-        // form.style.maxHeight = scrollAmount+'px';
-        // form.style.overflow = "hidden";
-        // progressBar.style.width = "80%";
-        // setTimeout(function(){
-        //     callback(form, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
-        // },100);
-
+            // Make form scrollable, this way we can generate PDF page properly
+            form.style.height = scrollAmount+'px';
+            form.style.maxHeight = scrollAmount+'px';
+            form.style.overflow = "hidden";
+            //progressBar.style.width = "80%";
+            callback(form, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
+        });
     };
 
     // Send form submission through ajax request
@@ -1981,34 +1981,31 @@ function SUPERreCaptcha(){
                     scrollAmount = 1122-(margins.top);
 
 
-                SUPER.before_generate_pdf(form[0], pageWidth, pageHeight, margins, scrollAmount, function(form, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar){
+                SUPER.before_generate_pdf(form[0], pageWidth, pageHeight, margins, scrollAmount, function(form, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar){
 
                     // Starting at page 1
-                    pdf = SUPER.generate_pdf(form, pdf, 1, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, $form, $form_id){
-                        // Finally we download the PDF file
-                        pdf.save("test.pdf");
+                    pdf = SUPER.generate_pdf(form, pdf, 1, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, form, clone){
                         // Show scrollbar again
                         document.documentElement.classList.remove("super-hide-scrollbar");
-                        if(document.querySelector('#super-hide-scrollbar')){
-                            document.querySelector('#super-hide-scrollbar').remove();
+                        var inlineStyle = document.querySelector('#super-hide-scrollbar');
+                        if(inlineStyle) inlineStyle.remove();
+                        // Re-enable transition from Toggle element
+                        var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
+                        for(var i=0; i < nodes.length; i++){
+                            nodes[i].style.transition = '';
                         }
-
-                        // // Reset scrolling styles
-                        // $form.style.maxHeight = "";
-                        // $form.style.overflowY = "";
-                        // $form.style.overflow = "";
-                        // // Display signature clear icon
-                        // var nodes = $form.querySelectorAll('.super-signature-clear');
-                        // for(var i=0; i < nodes.length; i++){
-                        //     nodes[i].style.display = "";
-                        // }
-
-                        // // 334px
-                        // // 347px 13px
-
-
+                        // Display signature clear icon again
+                        nodes = form.querySelectorAll('.super-signature-clear');
+                        for(i=0; i < nodes.length; i++){
+                            nodes[i].style.display = '';
+                        }
+                        // Hide all "Button" elements
+                        nodes = form.querySelectorAll('.super-form-button');
+                        for(i=0; i < nodes.length; i++){
+                            nodes[i].style.display = '';
+                        }
                         // // Re-enable the UI for Maps and resize to original width
-                        // for(var i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+                        // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
                         //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
                         //         disableDefaultUI: false
                         //     });
@@ -2021,22 +2018,34 @@ function SUPERreCaptcha(){
                         //         }
                         //     }
                         // }
-                    }); 
+                        // Restore form position and remove the cloned form
+                        clone.remove();
+                        form.style.position = '';
+                        form.style.zIndex = '';
+                        form.style.left = '';
+                        form.style.top = '';
+                        form.style.width = '';
+                        form.style.height = '';
+                        form.style.maxHeight = '';
+                        form.style.overflow = '';
+                        // Remove loader overlay
+                        var loadingOverlay = document.querySelector('.super-loading-overlay');
+                        if(loadingOverlay) loadingOverlay.remove();
 
-                    // var pdf = new jsPDF();
-                    // // Starting at page 1
-                    // SUPER.generate_pdf(form[0], pdf, 1, function(pdf){
-                    //     // Finally we download the PDF file
-                    //     var datauristring = pdf.output('datauristring', {
-                    //         filename: 'TESTING.pdf'
-                    //     });
-                    //     data.datauristring = {
-                    //         name: 'pdf_file',
-                    //         value: datauristring,
-                    //         type: 'datauristring'
-                    //     };
-                    //     SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
-                    // });
+                        // Finally we download the PDF file
+                        //pdf.save("test123.pdf");
+                        
+                        // Finally we download the PDF file
+                        var datauristring = pdf.output('datauristring', {
+                            filename: 'TESTING123.pdf'
+                        });
+                        data.datauristring = {
+                            name: 'pdf_file',
+                            value: datauristring,
+                            type: 'datauristring'
+                        };
+                        SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                    }); 
                 });
             }else{
                 SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
@@ -3562,7 +3571,7 @@ function SUPERreCaptcha(){
     };
 
     // PDF Generation
-    SUPER.generate_pdf = function(target, pdf, currentPage, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
+    SUPER.generate_pdf = function(target, pdf, currentPage, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
 
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
@@ -3643,7 +3652,7 @@ function SUPERreCaptcha(){
                 console.log('Exceeds, updated maxImageHeight to:', maxImageHeight);
 
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
-
+                console.log(imgData);
                 console.log('PDF width2:', pageWidth);
                 console.log('PDF height2:', pageHeight);
 
@@ -3672,10 +3681,10 @@ function SUPERreCaptcha(){
                 if(form.childNodes[0].clientHeight > (scrollAmount * currentPage)){
                     currentPage++;
                     pdf.addPage();
-                    SUPER.generate_pdf(target, pdf, currentPage, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
+                    SUPER.generate_pdf(target, pdf, currentPage, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
                 }else{                   
                     // No more pages to generate (submit form / send email)
-                    callback(pdf, form);
+                    callback(pdf, form, clone);
                 }
             });
         }, 200 );
@@ -5731,104 +5740,99 @@ function SUPERreCaptcha(){
     };
 
     // Handle the responsiveness of the form
-    SUPER.init_super_responsive_form_fields = function(form){
-        console.log('resizing/responsiveness');
-        var $classes = [
-            'super-first-responsiveness',
-            'super-second-responsiveness',
-            'super-third-responsiveness',
-            'super-fourth-responsiveness',
-            'super-last-responsiveness'
-        ];
-        var $window_classes = [
-            'super-window-first-responsiveness',
-            'super-window-second-responsiveness',
-            'super-window-third-responsiveness',
-            'super-window-fourth-responsiveness',
-            'super-window-last-responsiveness'
-        ];
+    SUPER.responsive_form_fields_timeout = null;
+    SUPER.init_super_responsive_form_fields = function(form, callback){
+		if (SUPER.responsive_form_fields_timeout !== null) {
+			clearTimeout(SUPER.responsive_form_fields_timeout);
+		}
+		SUPER.responsive_form_fields_timeout = setTimeout(function () {
+            console.log('resizing/responsiveness');
+            var $classes = [
+                'super-first-responsiveness',
+                'super-second-responsiveness',
+                'super-third-responsiveness',
+                'super-fourth-responsiveness',
+                'super-last-responsiveness'
+            ];
+            var $window_classes = [
+                'super-window-first-responsiveness',
+                'super-window-second-responsiveness',
+                'super-window-third-responsiveness',
+                'super-window-fourth-responsiveness',
+                'super-window-last-responsiveness'
+            ];
 
-        var $new_class = '';
-        var $new_window_class = '';
-        var $window_width = $(window).outerWidth(true);
+            var $new_class = '';
+            var $new_window_class = '';
+            var $window_width = $(window).outerWidth(true);
 
-        var forms;
-        if(typeof form === 'undefined') {
-            forms = $('.super-form');
-        }else{
-            forms = $(form);
-        }
-        forms.each(function(){
+            var forms;
+            if(typeof form === 'undefined') {
+                forms = $('.super-form');
+            }else{
+                forms = $(form);
+            }
+            forms.each(function(){
 
-            var $this = $(this);
-            var $width = $(this).outerWidth(true);
+                var $this = $(this);
+                var $width = $(this).outerWidth(true);
 
-            if($width > 0 && $width < 530){
-                SUPER.remove_super_form_classes($this,$classes);
-                $this.addClass($classes[0]);
-                $new_class = $classes[0];
-            }
-            if($width >= 530 && $width < 760){
-                SUPER.remove_super_form_classes($this,$classes);
-                $this.addClass($classes[1]);
-                $new_class = $classes[1];
-            }
-            if($width >= 760 && $width < 1200){
-                SUPER.remove_super_form_classes($this,$classes);
-                $this.addClass($classes[2]);
-                $new_class = $classes[2];
-            }
-            if($width >= 1200 && $width < 1400){
-                SUPER.remove_super_form_classes($this,$classes);
-                $this.addClass($classes[3]);
-                $new_class = $classes[3];
-            }
-            if($width >= 1400){
-                SUPER.remove_super_form_classes($this,$classes);
-                $this.addClass($classes[4]);
-                $new_class = $classes[4];
-            }
+                if($width > 0 && $width < 530){
+                    SUPER.remove_super_form_classes($this,$classes);
+                    $this.addClass($classes[0]);
+                    $new_class = $classes[0];
+                }
+                if($width >= 530 && $width < 760){
+                    SUPER.remove_super_form_classes($this,$classes);
+                    $this.addClass($classes[1]);
+                    $new_class = $classes[1];
+                }
+                if($width >= 760 && $width < 1200){
+                    SUPER.remove_super_form_classes($this,$classes);
+                    $this.addClass($classes[2]);
+                    $new_class = $classes[2];
+                }
+                if($width >= 1200 && $width < 1400){
+                    SUPER.remove_super_form_classes($this,$classes);
+                    $this.addClass($classes[3]);
+                    $new_class = $classes[3];
+                }
+                if($width >= 1400){
+                    SUPER.remove_super_form_classes($this,$classes);
+                    $this.addClass($classes[4]);
+                    $new_class = $classes[4];
+                }
 
-            // @since 1.9 - add the window width responsiveness classes
-            if($window_width > 0 && $window_width < 530){
-                SUPER.remove_super_form_classes($this,$window_classes);
-                $this.addClass($window_classes[0]);
-                $new_window_class = $window_classes[0];
-            }
-            if($window_width >= 530 && $window_width < 760){
-                SUPER.remove_super_form_classes($this,$window_classes);
-                $this.addClass($window_classes[1]);
-                $new_window_class = $window_classes[1];
-            }
-            if($window_width >= 760 && $window_width < 1200){
-                SUPER.remove_super_form_classes($this,$window_classes);
-                $this.addClass($window_classes[2]);
-                $new_window_class = $window_classes[2];
-            }
-            if($window_width >= 1200 && $window_width < 1400){
-                SUPER.remove_super_form_classes($this,$window_classes);
-                $this.addClass($window_classes[3]);
-                $new_window_class = $window_classes[3];
-            }
-            if($window_width >= 1400){
-                SUPER.remove_super_form_classes($this,$window_classes);
-                $this.addClass($window_classes[4]);
-                $new_window_class = $window_classes[4];
-            }
+                // @since 1.9 - add the window width responsiveness classes
+                if($window_width > 0 && $window_width < 530){
+                    SUPER.remove_super_form_classes($this,$window_classes);
+                    $this.addClass($window_classes[0]);
+                    $new_window_class = $window_classes[0];
+                }
+                if($window_width >= 530 && $window_width < 760){
+                    SUPER.remove_super_form_classes($this,$window_classes);
+                    $this.addClass($window_classes[1]);
+                    $new_window_class = $window_classes[1];
+                }
+                if($window_width >= 760 && $window_width < 1200){
+                    SUPER.remove_super_form_classes($this,$window_classes);
+                    $this.addClass($window_classes[2]);
+                    $new_window_class = $window_classes[2];
+                }
+                if($window_width >= 1200 && $window_width < 1400){
+                    SUPER.remove_super_form_classes($this,$window_classes);
+                    $this.addClass($window_classes[3]);
+                    $new_window_class = $window_classes[3];
+                }
+                if($window_width >= 1400){
+                    SUPER.remove_super_form_classes($this,$window_classes);
+                    $this.addClass($window_classes[4]);
+                    $new_window_class = $window_classes[4];
+                }
 
-            // @since 3.2.0 - check if RTL support is enabled, if so we must revert column order on mobile devices
-            if( $this.hasClass('super-rtl') ) {
-                if( (!$this.hasClass('super-rtl-reversed')) && ($new_class=='super-first-responsiveness') ) {
-                    $this.find('.super-grid').each(function(){
-                        var $grid = $(this);
-                        var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
-                        $grid.append($columns.get().reverse());
-                        $grid.children('div.super-column:last-child').removeClass('first-column');
-                        $grid.children('div.super-column:eq(0)').addClass('first-column');
-                    });
-                    $this.addClass('super-rtl-reversed');
-                }else{
-                    if( ($this.hasClass('super-rtl-reversed')) && ($new_class!='super-first-responsiveness') ) {
+                // @since 3.2.0 - check if RTL support is enabled, if so we must revert column order on mobile devices
+                if( $this.hasClass('super-rtl') ) {
+                    if( (!$this.hasClass('super-rtl-reversed')) && ($new_class=='super-first-responsiveness') ) {
                         $this.find('.super-grid').each(function(){
                             var $grid = $(this);
                             var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
@@ -5836,39 +5840,53 @@ function SUPERreCaptcha(){
                             $grid.children('div.super-column:last-child').removeClass('first-column');
                             $grid.children('div.super-column:eq(0)').addClass('first-column');
                         });
-                        $this.removeClass('super-rtl-reversed');
+                        $this.addClass('super-rtl-reversed');
+                    }else{
+                        if( ($this.hasClass('super-rtl-reversed')) && ($new_class!='super-first-responsiveness') ) {
+                            $this.find('.super-grid').each(function(){
+                                var $grid = $(this);
+                                var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
+                                $grid.append($columns.get().reverse());
+                                $grid.children('div.super-column:last-child').removeClass('first-column');
+                                $grid.children('div.super-column:eq(0)').addClass('first-column');
+                            });
+                            $this.removeClass('super-rtl-reversed');
+                        }
                     }
                 }
-            }
 
-            // Check for slider fields, reposition "Dragger" element based on "Track" width
-            // If the dragger position exceeds the track width adjust it to be 
-            // selector.simpleSlider("setValue", value);
-            // Sets the value of the slider.
-            // selector.simpleSlider("setRatio", ratio);
-            var nodes = $this[0].querySelectorAll('.super-slider');
-            for(var i=0; i < nodes.length; i++){
-                var $field = $(nodes[i].querySelector('.super-shortcode-field'));
-                if(!$field) continue;
-                // Must trigger a change:
-                var originalValue = $field.val();
-                if(typeof $field.data("slider-object") === 'undefined'){
-                    // Must re-generate slider field, because this is a cloned form
-                    if(nodes[i].querySelector('.slider')){
-                        nodes[i].querySelector('.slider').remove();
+                // Check for slider fields, reposition "Dragger" element based on "Track" width
+                // If the dragger position exceeds the track width adjust it to be 
+                // selector.simpleSlider("setValue", value);
+                // Sets the value of the slider.
+                // selector.simpleSlider("setRatio", ratio);
+                var nodes = $this[0].querySelectorAll('.super-slider');
+                for(var i=0; i < nodes.length; i++){
+                    var $field = $(nodes[i].querySelector('.super-shortcode-field'));
+                    if(!$field) continue;
+                    // Must trigger a change:
+                    var originalValue = $field.val();
+                    if(typeof $field.data("slider-object") === 'undefined'){
+                        // Must re-generate slider field, because this is a cloned form
+                        if(nodes[i].querySelector('.slider')){
+                            nodes[i].querySelector('.slider').remove();
+                        }
+                        SUPER.init_slider_field();
+                    }else{
+                        $field.simpleSlider('setValue', 0);
+                        $field.simpleSlider('setValue', originalValue);
                     }
-                    SUPER.init_slider_field();
-                }else{
-                    $field.simpleSlider('setValue', 0);
-                    $field.simpleSlider('setValue', originalValue);
                 }
+
+            });
+
+            // @since 1.3
+            SUPER.after_responsive_form_hook($classes, form, $new_class, $window_classes, $new_window_class );
+
+            if(typeof callback === 'function'){
+                callback();
             }
-
-        });
-
-        // @since 1.3
-        SUPER.after_responsive_form_hook($classes, form, $new_class, $window_classes, $new_window_class, );
-
+        }, 500);
     };
 
     // Update field visibility
