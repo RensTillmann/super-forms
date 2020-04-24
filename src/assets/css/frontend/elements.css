@@ -6629,7 +6629,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 
 .super-loading-overlay {
-  position: absolute;
+  position: fixed;
   z-index: 99999999;
   width: 100%;
   height: 100%;
