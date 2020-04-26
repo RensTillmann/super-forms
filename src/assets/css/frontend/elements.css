@@ -5825,6 +5825,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-accordion-item {
   position: relative;
   margin-bottom: 1em;
+  float: left;
+  width: 100%;
 }
 
 .super-accordion-item.super-error {
@@ -5848,8 +5850,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   backface-visibility: hidden;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
-  -webkit-transition: all 0.2s;
-  transition: all 0.2s;
 }
 
 .super-accordion-header {
@@ -5947,17 +5947,16 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   border-style: solid;
   border-width: 0;
   font-size: 0.8rem;
-  max-height: 0;
-  overflow: hidden;
   background-color: #fff;
+  float: left;
+  width: 100%;
+  visibility: hidden;
+  height: 0.005rem;
+  overflow: hidden;
 }
 
 .super-accordion-content .super-padding {
   padding: 10px;
-}
-
-.super-accordion-content > * {
-  display: none;
 }
 
 .super-accordion-item.super-active > .super-accordion-header, .super-accordion-item.super-active > .super-accordion-content {
@@ -5968,13 +5967,15 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   max-height: 99999999px;
 }
 
-.super-accordion-item.super-active > .super-accordion-content > * {
-  display: block;
-}
-
 .super-accordion-item.super-active > .super-accordion-header:before {
   -webkit-transform: rotate(90deg) !important;
   transform: rotate(90deg) !important;
+}
+
+.super-accordion-item.super-active .super-accordion-content {
+  overflow: initial;
+  visibility: visible;
+  height: auto;
 }
 
 .display-grid .super-field-wrapper {
