@@ -850,6 +850,7 @@
                 // Open current one
                 $this.addClass('super-active');
             }
+            SUPER.init_super_responsive_form_fields($parent[0]);
         });
 
         // @since 3.1.0 - auto transform to uppercase

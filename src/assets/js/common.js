@@ -1730,11 +1730,27 @@ function SUPERreCaptcha(){
         //document.body.scrollTop = document.documentElement.scrollTop = 0;
 
         // Must hide scrollbar
-        document.documentElement.classList.add("super-hide-scrollbar");
-        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}',
-        head = document.head || document.getElementsByTagName('head')[0],
+        document.documentElement.classList.add('super-hide-scrollbar');
+        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
+        form.classList.add('super-generating-pdf');
+        // Must hide elements
+        css += '.super-generating-pdf *,';
+        css += '.super-generating-pdf *:after,';
+        css += '.super-generating-pdf .super-accordion-header:after,';
+        css += '.super-generating-pdf .super-accordion-header:before { transition: initial!important; }';
+        css += '.super-generating-pdf .super-accordion-header:before,';
+        css += '.super-generating-pdf .super-accordion-header:after,';
+        css += '.super-generating-pdf .super-form-button,';
+        css += '.super-generating-pdf .super-multipart-progress,';
+        css += '.super-generating-pdf .super-multipart-steps,';
+        css += '.super-generating-pdf .super-prev-multipart,';
+        css += '.super-generating-pdf .super-next-multipart,';
+        css += '.super-generating-pdf .super-tabs-menu,';
+        css += '.super-generating-pdf .super-signature-clear { display: none!important; }';
+        css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
+        var head = document.head || document.getElementsByTagName('head')[0],
         style = document.createElement('style');
-        style.id = 'super-hide-scrollbar';
+        style.id = 'super-generating-pdf';
         head.appendChild(style);
         style.type = 'text/css';
         if (style.styleSheet){
@@ -1770,6 +1786,18 @@ function SUPERreCaptcha(){
         var clone = form.cloneNode(true);
         form.parentNode.insertBefore(clone, form.nextSibling);
 
+        // Make all mutli-parts visible
+        // Make all TABs visible
+        // Make all accordions visible
+        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        for(var i=0; i < nodes.length; i++){
+            if(nodes[i].classList.contains('super-active')){
+                nodes[i].classList.add('super-active-origin');         
+            }else{
+                nodes[i].classList.add('super-active');
+            }
+        }
+
         // Get current form width before making position fixed
         var formWidth = form.clientWidth;
         alert(formWidth);
@@ -1788,20 +1816,10 @@ function SUPERreCaptcha(){
 
         SUPER.init_super_responsive_form_fields(form, function(){
             // Remove transition from Toggle element
-            var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
-            for(var i=0; i < nodes.length; i++){
-                nodes[i].style.transition = 'initial';
-            }
-            // Don't display signature clear icon
-            nodes = form.querySelectorAll('.super-signature-clear');
-            for(i=0; i < nodes.length; i++){
-                nodes[i].style.display = "none";
-            }
-            // Hide all "Button" elements
-            nodes = form.querySelectorAll('.super-form-button');
-            for(i=0; i < nodes.length; i++){
-                nodes[i].style.display = 'none';
-            }
+            // var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
+            // for(var i=0; i < nodes.length; i++){
+            //     nodes[i].style.transition = 'initial';
+            // }
 
             //progressBar.style.width = "5%";
 
@@ -1871,6 +1889,7 @@ function SUPERreCaptcha(){
             //progressBar.style.width = "80%";
             callback(form, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
         });
+
     };
 
     // Send form submission through ajax request
@@ -1986,24 +2005,21 @@ function SUPERreCaptcha(){
                     // Starting at page 1
                     pdf = SUPER.generate_pdf(form, pdf, 1, clone, pageWidth, pageHeight, margins, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, form, clone){
                         // Show scrollbar again
-                        document.documentElement.classList.remove("super-hide-scrollbar");
-                        var inlineStyle = document.querySelector('#super-hide-scrollbar');
+                        document.documentElement.classList.remove('super-hide-scrollbar');
+                        var inlineStyle = document.querySelector('#super-generating-pdf');
                         if(inlineStyle) inlineStyle.remove();
-                        // Re-enable transition from Toggle element
-                        var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
+                        // Make all mutli-parts invisible again (except for the last active multi-part)
+                        // Make all TABs invisible
+                        // Make all accordions invisible
+                        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
                         for(var i=0; i < nodes.length; i++){
-                            nodes[i].style.transition = '';
+                            if(!nodes[i].classList.contains('super-active-origin')){
+                                nodes[i].classList.remove('super-active');
+                            }else{
+                                nodes[i].classList.remove('super-active-origin');
+                            }
                         }
-                        // Display signature clear icon again
-                        nodes = form.querySelectorAll('.super-signature-clear');
-                        for(i=0; i < nodes.length; i++){
-                            nodes[i].style.display = '';
-                        }
-                        // Hide all "Button" elements
-                        nodes = form.querySelectorAll('.super-form-button');
-                        for(i=0; i < nodes.length; i++){
-                            nodes[i].style.display = '';
-                        }
+
                         // // Re-enable the UI for Maps and resize to original width
                         // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
                         //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
@@ -2033,18 +2049,18 @@ function SUPERreCaptcha(){
                         if(loadingOverlay) loadingOverlay.remove();
 
                         // Finally we download the PDF file
-                        //pdf.save("test123.pdf");
+                        pdf.save("test123.pdf");
                         
-                        // Finally we download the PDF file
-                        var datauristring = pdf.output('datauristring', {
-                            filename: 'TESTING123.pdf'
-                        });
-                        data.datauristring = {
-                            name: 'pdf_file',
-                            value: datauristring,
-                            type: 'datauristring'
-                        };
-                        SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                        // // Finally we download the PDF file
+                        // var datauristring = pdf.output('datauristring', {
+                        //     filename: 'TESTING123.pdf'
+                        // });
+                        // data.datauristring = {
+                        //     name: 'pdf_file',
+                        //     value: datauristring,
+                        //     type: 'datauristring'
+                        // };
+                        // SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
                     }); 
                 });
             }else{
@@ -3598,15 +3614,21 @@ function SUPERreCaptcha(){
 
         // Because disabling the UI takes some time, add a timeout
         setTimeout(function(){
-        
+            
+            // console.log(-window.scrollY);
+            // console.log(window.scrollY);
+            // console.log(document.body.scrollTop);
+            // console.log(document.documentElement.scrollTop);
+            // document.body.scrollTop = document.documentElement.scrollTop = 0;
+
             // Now allow printing
             html2canvas(form, {
                 logging: false,
-                useCORS: true, 
+                useCORS: true,
                 allowTaint: false, 
                 scale: 3,
                 scrollX: 0, // Important, do not remove
-                scrollY: -window.scrollY, // Important, do not remove
+                scrollY: 0, // -window.scrollY, // Important, do not remove
                 ignoreElements: (node) => {
                     return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
                 }

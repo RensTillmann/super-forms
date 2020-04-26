@@ -4281,6 +4281,8 @@ ul.super-multipart-steps .super-multipart-step
 .super-accordion-item
   position: relative
   margin-bottom: 1em
+  float: left
+  width: 100%
   &.super-error
     margin-top: 30px
     &:after
@@ -4296,7 +4298,6 @@ ul.super-multipart-steps .super-multipart-step
 .super-accordion-header, .super-accordion-content
   +backfaceVisibility(hidden)
   +transform(translateZ(0))
-  transition: all 0.2s
 .super-accordion-header
   border-style: solid
   border-width: 0
@@ -4348,22 +4349,24 @@ ul.super-multipart-steps .super-multipart-step
   border-style: solid
   border-width: 0
   font-size: 0.8rem
-  max-height: 0
-  overflow: hidden
   background-color: #fff
+  float: left
+  width: 100%
+  visibility: hidden
+  height: 0.005rem
+  overflow: hidden
   .super-padding
     padding: 10px
-.super-accordion-content > *
-  display: none
 .super-accordion-item.super-active
   > .super-accordion-header, > .super-accordion-content
     +boxShadow2(3px 3px 6px #ddd, -3px 3px 6px #ddd)
     max-height: 99999999px
-  > .super-accordion-content > *
-    display: block
   > .super-accordion-header:before
     +transform(rotate(90deg) !important)
-
+  .super-accordion-content
+    overflow: initial
+    visibility: visible
+    height: auto
 .display-grid
   .super-field-wrapper
     flex-flow: row wrap

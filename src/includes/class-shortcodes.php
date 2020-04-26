@@ -1837,7 +1837,7 @@ class SUPER_Shortcodes {
         }
         return $styles;
     }
-    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic, $dynamic_field_names, $inner_field_names ) {
+    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
         $group = 'layout_elements';
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, $group, $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -1945,7 +1945,7 @@ class SUPER_Shortcodes {
                                         $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                     }else{
                                         $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
-                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
+                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                 }
                             }
@@ -2053,7 +2053,7 @@ class SUPER_Shortcodes {
                                             $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                         }else{
                                             $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
-                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
+                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                         }
                                     }
                                 }
@@ -2082,7 +2082,7 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
       
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2144,14 +2144,14 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
             }
         }
         unset($GLOBALS['super_grid_system']);
         $result .= '</div>';
         return $result;
     }
-    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array() ) {
+    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress ) {
 
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2366,7 +2366,7 @@ class SUPER_Shortcodes {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
                                         $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv);
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names );
+                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -2394,7 +2394,7 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data );
+                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -2430,7 +2430,7 @@ class SUPER_Shortcodes {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
                     $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names);
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names );
+                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                 }
                 if( $atts['duplicate']=='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
