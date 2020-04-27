@@ -11,6 +11,33 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
 
+    SUPER.ui = {
+        // Update form settings
+        updateSettings: function(e, el, setting){
+            var i,
+                tab = el.closest('.super-tab-content'),
+                nodes = tab.querySelectorAll('[name]'),
+                formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
+                data = {},
+                value = '';
+
+            for(i=0; i < nodes.length; i++){
+                value = nodes[i].value;
+                if(nodes[i].type==='checkbox'){
+                    value = nodes[i].checked;
+                }
+                if(nodes[i].type==='radio'){
+                    value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
+                }
+                data[nodes[i].name] = value;
+            }
+            formSettings[setting] = data;
+            console.log(formSettings);
+            console.log(document.querySelector('.super-raw-code-form-settings textarea').value);
+            document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
+            console.log(document.querySelector('.super-raw-code-form-settings textarea').value);
+        }
+    };
     SUPER.update_form_elements = function(string){
         console.log('test1');
         console.log(SUPER.get_form_elements(string));
@@ -53,6 +80,25 @@
                 $settings[$name] = $value;
             }
         });
+
+
+        var i,
+            tab = document.querySelector('.super-tab-content.super-tab-pdf_settings'),
+            nodes = tab.querySelectorAll('[name]'),
+            data = {},
+            value = '';
+        for(i=0; i < nodes.length; i++){
+            value = nodes[i].value;
+            if(nodes[i].type==='checkbox'){
+                value = nodes[i].checked;
+            }
+            if(nodes[i].type==='radio'){
+                value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
+            }
+            data[nodes[i].name] = value;
+        }
+        $settings['_pdf'] = data;
+        console.log($settings);
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
@@ -978,7 +1024,6 @@
             $activePanel = SUPER.get_session_data('_super_builder_last_active_panel'),
             $activeFormSettingsTab = SUPER.get_session_data('_super_builder_last_active_form_settings_tab'),
             $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab');
-
 
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);

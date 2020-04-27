@@ -1367,6 +1367,11 @@ class SUPER_Shortcodes {
             $result .= ' data-super-custom-tab-index="' . absint($atts['custom_tab_index']) . '"';   
         }
 
+        // PDF exclusion/inclusion
+        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
+            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
+        }
+
         $result .= '>';
         if( !empty($atts['label']) ) {
             $bottom_margin = false;
@@ -1851,7 +1856,12 @@ class SUPER_Shortcodes {
         $identifier = str_replace('.', '', microtime(true)).rand(1000000,9999999);
         $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
 
-        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '">';
+        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '"';
+        // PDF exclusion/inclusion
+        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
+            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
+        }
+        $result .= '>';
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
                 // Generate Tab layout
@@ -2132,6 +2142,10 @@ class SUPER_Shortcodes {
             $result .= ' data-step-description="' . esc_attr($atts['step_description']) . '"';
         }
 
+        // PDF exclusion/inclusion
+        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
+            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
+        }
         $result .= '>';
 
         if( !empty( $inner ) ) {
@@ -2298,6 +2312,10 @@ class SUPER_Shortcodes {
             if($atts['duplicate_dynamically']=='true') {
                 $result .= ' data-duplicate-dynamically="' . $atts['duplicate_dynamically'] . '"';
             }
+        }
+        // PDF exclusion/inclusion
+        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
+            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
         }
         $result .= '>';
         
@@ -5547,7 +5565,12 @@ class SUPER_Shortcodes {
             if(!empty($i18n)){
                 $result .= ' data-i18n="' . $i18n . '"';
             }
-
+            if(!empty($settings['_pdf']) && $settings['_pdf']['generate']=='true'){
+                foreach($settings['_pdf'] as $pdfk => $pdfv){
+                    if($pdfk=='customFormat' && $pdfv==='') continue;
+                    $result .= ' data-pdf-' . $pdfk . '="' . esc_attr($pdfv) . '"';
+                }
+            }
             $result .= '>';
 
             // @since 4.7.0 - improved method to center form and to give max width to the form
