@@ -61,8 +61,8 @@
 .super-raw-code-form-elements,
 .super-raw-code-form-settings,
 .super-raw-code-translation-settings {
-  float:left;
-  width:100%;
+    float: left;
+    width: 100%;
 }
 
 #wpbody-content>.updated,
@@ -2355,9 +2355,10 @@
     text-align: center;
     cursor: pointer;
 }
+
 .super-translations-list .super-default-language .super-edit,
 .super-translations-list .super-default-language .super-delete {
-    margin-top:41px;
+    margin-top: 41px;
 }
 
 .super-translations-list .super-edit:hover {
@@ -2655,4 +2656,42 @@
     float: left;
     width: 100%;
     min-height: 250px;
+}
+
+
+.sfui-setting {
+    display: flex;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #d0d0d0;
+    align-items: center;
+}
+
+.sfui-setting label {
+    line-height: normal;
+    display: flex;
+    padding-right: 20px;
+}
+.sfui-setting input[type="checkbox"] {
+    margin-right: 5px;
+}
+.sfui-setting input[type="radio"] {
+    margin-right: 5px;
+}
+.sfui-setting input[type="text"],
+.sfui-setting select {
+    margin: 0px 10px 0px 10px;
+}
+
+.sfui-setting input[type="number"] {
+    margin: 0px 10px 0px 10px;
+    width: 50px;
+    text-align: center;
+}
+
+.sfui-setting .sfui-title {
+    font-weight: 600;
+    font-size: 14px;
+    padding: 0px 10px 5px 0px;
 }

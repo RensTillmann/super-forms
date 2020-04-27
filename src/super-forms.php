@@ -344,6 +344,9 @@ if(!class_exists('SUPER_Forms')) :
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
 
+                add_filter( 'super_create_form_tabs', array( $this, 'add_pdf_tab' ), 10, 1 );
+                add_action( 'super_create_form_pdf_settings_tab', array( $this, 'add_pdf_tab_content' ) );
+
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -370,7 +373,211 @@ if(!class_exists('SUPER_Forms')) :
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
 
+            // Add PDF element settings/options
+            // Currently used to include/exclude from PDF
+            add_filter('super_shortcodes_end_filter', array( $this, 'pdf_element_settings' ), 10, 2 );
 
+        }
+        public static function add_pdf_tab($tabs){
+            $tabs['pdf_settings'] = esc_html( 'PDF', 'super-forms' );
+            return $tabs;
+        }
+        public static function add_pdf_tab_content($atts){
+            $pdf = array();
+            if(isset($atts['settings']) && isset($atts['settings']['_pdf'])){
+                $pdf = $atts['settings']['_pdf'];
+            }
+            if(!is_array($pdf)) $pdf = array();
+            $defaults = array(
+                'generate' => '',
+                'adminEmail' => '',
+                'confirmationEmail' => '',
+                'orientation' => 'portrait',
+                'format' => 'a4',
+                'unit' => 'mm',
+                'customFormat' => '',
+                'marginTop' => '5', // 5 mm default for a4
+                'marginLeft' => '5' // 5 mm default for a4
+            );
+            $pdf = wp_parse_args( $pdf, $defaults );
+
+            // Enable Form to PDF generation
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="checkbox" name="generate" value="true"' . ($pdf['generate']=='true' ? ' checked="checked"' : '') . ' />';
+                    echo '<span>' . esc_html( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            
+            // Attach to admin E-mail
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // Attach to confirmation E-mail
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // Direct download link
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // Page orientation:
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html( 'Page orientation', 'super-forms' );
+                echo '</div>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="radio" name="orientation" value="portrait"' . ($pdf['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span>' . esc_html( 'Portrait', 'super-forms' ) . '</span>';
+                echo '</label>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                    echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html( 'Landscape', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // Unit 
+            // Possible values are "pt" (points), "mm", "cm", "in" or "px".
+            $units = array('mm', 'pt', 'cm', 'in', 'px');
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html( 'Unit', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<select name="unit">';
+                        foreach($units as $v){
+                            echo '<option value="' . $v . '"'.($v==$pdf['unit'] ? ' selected="selected"' : '') .'>' . ($v=='mm' ? $v . ' (' . esc_html( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+                        }
+                    echo '</select>';
+                echo '</label>';
+            echo '</div>';
+
+            // Page format:
+            $formats = array();
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'a'.$i;
+            }
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'b'.$i;
+            }
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'c'.$i;
+            }
+            $formats = array_merge($formats, array('dl', 'letter', 'government-letter', 'legal', 'junior-legal', 'ledger', 'tabloid', 'credit-card'));
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html( 'Page format', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<select name="format">';
+                        foreach($formats as $v){
+                            echo '<option value="' . $v . '"'.($v==$pdf['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+                        }
+                    echo '</select>';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html( 'Custom page format in units defined above e.g:', 'super-forms' ) . ' 210,297</span>';
+                    echo '<input type="text" name="customFormat" value="' . $pdf['customFormat'] . '" />';
+                    echo '<span>(' . esc_html( 'optional, leave blank for none', 'super-forms' ) . ')</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // Page margins
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html( 'Page margins (in units declared above)', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<span>' . esc_html( 'Top & Bottom margins:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="marginTop" value="' . $pdf['marginTop'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html( 'Left & Right margins:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="marginLeft" value="' . $pdf['marginLeft'] . '" />';
+                echo '</label>';
+            echo '</div>';
+
+            // orientation	string	<optional>
+            // portrait	
+            // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
+            
+            // unit	string	<optional>
+            // mm	
+            // Measurement unit (base unit) to be used when coordinates are specified.
+            // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
+            
+            // format	string/Array	<optional>
+            // a4	
+            // The format of the first page. Can be:
+            
+            // a0 - a10
+            // b0 - b10
+            // c0 - c10
+            // dl
+            // letter
+            // government-letter
+            // legal
+            // junior-legal
+            // ledger
+            // tabloid
+            // credit-card
+            
+            // Default is "a4". If you want to use your own format just pass instead of one of the above predefined formats the size as an number-array, e.g. [595.28, 841.89]
+            // putOnlyUsedFonts	boolean	<optional>
+            // false	
+            // Only put fonts into the PDF, which were used.
+            
+            // compress	boolean	<optional>
+            // false	
+            // Compress the generated PDF.
+            
+            // precision	number	<optional>
+            // 16	
+            // Precision of the element-positions.
+            
+            // userUnit	number	<optional>
+            // 1.0	
+            // Not to be confused with the base unit. Please inform yourself before you use it.
+            
+            // floatPrecision	number | "smart"	<optional>
+            // 16
+
+        }
+        public function pdf_element_settings($array, $attr){
+            foreach($array as $group => $v){
+                $shortcodes = $array[$group]['shortcodes'];
+                foreach($shortcodes as $tag => $settings){
+                    if( (isset($settings['callback'])) && (isset($array[$group]['shortcodes'][$tag])) && (isset($array[$group]['shortcodes'][$tag]['atts'])) ) {
+                        $array[$group]['shortcodes'][$tag]['atts']['pdf_settings'] = array(
+                            'name' => esc_html( 'PDF Settings', 'super-forms' ),
+                            'fields' => array(
+                                'pdfExclusion' => array(
+                                    'name' => esc_html__( 'PDF exclusion/inclusion settings', 'super-forms' ), 
+                                    'label' => esc_html__( 'With this setting you can exclude the element from being printed on the PDF file. You can also choose to include it only in the PDF file, this way the element will not be visible to the user (but any form fields will still be submitted as any other fields).', 'super-forms' ),
+                                    'default' => ( !isset( $attr['pdfExclusion'] ) ? 'none' : $attr['pdfExclusion'] ),
+                                    'type' => 'select',
+                                    'values' => array(
+                                        'none' => esc_html__( 'Show on Form and in PDF file (default)', 'super-forms' ), 
+                                        'exclude' => esc_html__( 'Only show on Form', 'super-forms' ), 
+                                        'include' => esc_html__( 'Only show in PDF file', 'super-forms' ), 
+                                    )
+                                )
+                            )
+                        );
+                    }
+                }
+            }
+            return $array;
         }
         public function api_post_activation() {
             self::api_post('activation');
