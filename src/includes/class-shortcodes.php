@@ -1366,12 +1366,7 @@ class SUPER_Shortcodes {
         if( (isset($atts['custom_tab_index'])) && ($atts['custom_tab_index']>=0) ) {
             $result .= ' data-super-custom-tab-index="' . absint($atts['custom_tab_index']) . '"';   
         }
-
-        // PDF exclusion/inclusion
-        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
-            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
-        }
-
+        $result .= self::pdf_attributes($atts);
         $result .= '>';
         if( !empty($atts['label']) ) {
             $bottom_margin = false;
@@ -1386,6 +1381,22 @@ class SUPER_Shortcodes {
 
         // Display errors that need to be positioned below the field
         $result .= self::field_error_msg( $tag, $atts, 'top' );
+        return $result;
+    }
+
+    public static function pdf_attributes( $atts ) {
+        $result = '';
+        // PDF exclusion/inclusion
+        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
+            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
+        }
+        // PDF header/footer
+        if( (isset($atts['pdfHeader'])) && ($atts['pdfHeader']=='true') ) {
+            $result .= ' data-pdfHeader="' . esc_attr($atts['pdfHeader']) . '"';   
+        }
+        if( (isset($atts['pdfFooter'])) && ($atts['pdfFooter']=='true') ) {
+            $result .= ' data-pdfFooter="' . esc_attr($atts['pdfFooter']) . '"';   
+        }
         return $result;
     }
     public static function conditional_attributes( $atts ) {        
@@ -1857,10 +1868,7 @@ class SUPER_Shortcodes {
         $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
 
         $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '"';
-        // PDF exclusion/inclusion
-        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
-            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
-        }
+        $result .= self::pdf_attributes($atts);
         $result .= '>';
             // For each layout we need to generate a custom set of html
             if($layout=='tabs'){
@@ -2142,10 +2150,7 @@ class SUPER_Shortcodes {
             $result .= ' data-step-description="' . esc_attr($atts['step_description']) . '"';
         }
 
-        // PDF exclusion/inclusion
-        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
-            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
-        }
+        $result .= self::pdf_attributes($atts);
         $result .= '>';
 
         if( !empty( $inner ) ) {
@@ -2313,10 +2318,7 @@ class SUPER_Shortcodes {
                 $result .= ' data-duplicate-dynamically="' . $atts['duplicate_dynamically'] . '"';
             }
         }
-        // PDF exclusion/inclusion
-        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
-            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
-        }
+        $result .= self::pdf_attributes($atts);
         $result .= '>';
         
         // @since   1.3   - column custom padding

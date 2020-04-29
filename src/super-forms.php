@@ -569,8 +569,33 @@ if(!class_exists('SUPER_Forms')) :
                                     'values' => array(
                                         'none' => esc_html__( 'Show on Form and in PDF file (default)', 'super-forms' ), 
                                         'exclude' => esc_html__( 'Only show on Form', 'super-forms' ), 
-                                        'include' => esc_html__( 'Only show in PDF file', 'super-forms' ), 
-                                    )
+                                        'include' => esc_html__( 'Only show in PDF file', 'super-forms' ),
+                                    ),
+                                    'filter' => true
+                                ),
+                                'pdfHeader' => array(
+                                    'name' => esc_html__( '(optional) Use as page header (you should only define one element to be the header)', 'super-forms' ), 
+                                    'label' => esc_html__( 'When enabled the contents of this column will act as the header on each of the pages. The following special tags are available to use:', 'super-forms' ) . ' {pdf_page}, {pdf_total_pages}',
+                                    'default' => ( !isset( $attr['pdfHeader'] ) ? '' : $attr['pdfHeader'] ),
+                                    'type' => 'checkbox',
+                                    'values' => array(
+                                        'true' => esc_html__( 'Use as page header', 'super-forms' ), 
+                                    ),
+                                    'filter' => true,
+                                    'parent' => 'pdfExclusion',
+                                    'filter_value' => 'none,include'
+                                ),
+                                'pdfFooter' => array(
+                                    'name' => esc_html__( '(optional) Use as page footer (you should only define one element to be the footer)', 'super-forms' ), 
+                                    'label' => esc_html__( 'When enabled the contents of this column will act as the footer on each of the pages. The following special tags are available to use:', 'super-forms' ) . ' {pdf_page}, {pdf_total_pages}',
+                                    'default' => ( !isset( $attr['pdfHeader'] ) ? '' : $attr['pdfHeader'] ),
+                                    'type' => 'checkbox',
+                                    'values' => array(
+                                        'true' => esc_html__( 'Use as page footer', 'super-forms' ), 
+                                    ),
+                                    'filter' => true,
+                                    'parent' => 'pdfExclusion',
+                                    'filter_value' => 'none,include'
                                 )
                             )
                         );
