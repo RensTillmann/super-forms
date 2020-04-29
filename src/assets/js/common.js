@@ -1724,6 +1724,7 @@ function SUPERreCaptcha(){
 
     SUPER.before_generate_pdf = function(form, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, callback){
 
+        debugger;
         //form.style.overflow = "-moz-hidden-unscrollable";
         //form.style.width = "500px";
         // Must scroll to top of window, or it will not work properly!
@@ -1748,6 +1749,8 @@ function SUPERreCaptcha(){
         css += '.super-generating-pdf .super-tabs-menu,';
         css += '.super-generating-pdf .super-signature-clear { display: none!important; }';
         css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
         var head = document.head || document.getElementsByTagName('head')[0],
         style = document.createElement('style');
         style.id = 'super-generating-pdf';
@@ -1786,17 +1789,30 @@ function SUPERreCaptcha(){
         var clone = form.cloneNode(true);
         form.parentNode.insertBefore(clone, form.nextSibling);
 
-        // Make all mutli-parts visible
-        // Make all TABs visible
-        // Make all accordions visible
-        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
-        for(var i=0; i < nodes.length; i++){
-            if(nodes[i].classList.contains('super-active')){
-                nodes[i].classList.add('super-active-origin');         
-            }else{
-                nodes[i].classList.add('super-active');
-            }
-        }
+        // PDF page container
+        var pdfPageContainer = document.createElement('div');
+        html = '<div class="super-pdf-header">';
+            // Put any header(s) here
+        html += '</div>';
+        html += '<div class="super-pdf-body">';
+            // Put form here
+        html += '</div>';
+        html += '<div class="super-pdf-footer">';
+            // Put any footer(s) here
+        html += '</div>';
+        pdfPageContainer.innerHTML = html;
+        pdfPageContainer.classList.add('super-pdf-page-container');
+        document.body.appendChild(pdfPageContainer);
+        pdfPageContainer.style.width = (pageWidthInPixels*2)+'px';
+        pdfPageContainer.style.zIndex = "999999999";
+        pdfPageContainer.style.position = "fixed";
+        pdfPageContainer.style.left = "0px";
+        pdfPageContainer.style.top = "0px";
+        pdfPageContainer.style.height = (pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.maxHeight = (pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.overflow = "hidden";
+        pdfPageContainer.querySelector('.super-pdf-body').appendChild(form);
+
         // Check for any specific PDF exclusions
         nodes = form.querySelectorAll('.super-shortcode[data-pdfexclusion="exclude"]');
         for(i=0; i < nodes.length; i++){
@@ -1808,21 +1824,63 @@ function SUPERreCaptcha(){
             nodes[i].style.display = 'block';
         }
 
-        // Get current form width before making position fixed
-        var formWidth = form.clientWidth;
-        //alert(formWidth);
-        // Now give z-index of -9999 to the original form so we can't see it anymore
-        //form.style.zIndex = "-99999";
-        form.style.zIndex = "999999999";
-        // Adjust form width, so that it fits nicely on a PDF page
-        form.style.position = "fixed";
-        form.style.left = "0px";
-        form.style.top = "0px";
+        // Put header(s) before form
+        nodes = form.querySelectorAll('.super-shortcode[data-pdfheader="true"]');
+        for(i=0; i < nodes.length; i++){
+            // var header = nodes[i].cloneNode(true);
+            // header.classList.add('pdf-generated-header');
+            // form.insertBefore(header, form.querySelector('form'));
+            var header = nodes[i].cloneNode(true);
+            header.classList.add('pdf-generated-header');
+            pdfPageContainer.querySelector('.super-pdf-header').appendChild(header);
+        }
+
+        // Put footer(s) after form
+        nodes = form.querySelectorAll('.super-shortcode[data-pdffooter="true"]');
+        for(i=0; i < nodes.length; i++){
+            // var footer = nodes[i].cloneNode(true);
+            // footer.classList.add('pdf-generated-footer');
+            // form.insertBefore(footer, form.querySelector('form'));
+            var footer = nodes[i].cloneNode(true);
+            footer.classList.add('pdf-generated-footer');
+            pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footer);
+        }
+
+        // Resize PDF body height based on header/footer heights
+        var headerFooterHeight = 0;
+        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
+        var scrollAmount = (pageHeightInPixels*2)-headerFooterHeight;
+        pdfPageContainer.querySelector('.super-pdf-body').style.height = scrollAmount+'px';
+        pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = scrollAmount+'px';
+
+        // Make all mutli-parts visible
+        // Make all TABs visible
+        // Make all accordions visible
+        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        for(var i=0; i < nodes.length; i++){
+            if(nodes[i].classList.contains('super-active')){
+                nodes[i].classList.add('super-active-origin');         
+            }else{
+                nodes[i].classList.add('super-active');
+            }
+        }
+
+        // // Get current form width before making position fixed
+        // var formWidth = form.clientWidth;
+        // //alert(formWidth);
+        // // Now give z-index of -9999 to the original form so we can't see it anymore
+        // //form.style.zIndex = "-99999";
+        // form.style.zIndex = "999999999";
+        // // Adjust form width, so that it fits nicely on a PDF page
+        // form.style.position = "fixed";
+        // form.style.left = "0px";
+        // form.style.top = "0px";
 
         // Set fix width based on current width
         //form.style.width = formWidth+'px'; //(793-(margins.left*3.55))+'px';
 
-        form.style.width = (pageWidthInPixels*2)+'px'; //(793-(margins.left*3.55))+'px';
+        // form.style.width = (pageWidthInPixels*2)+'px'; //(793-(margins.left*3.55))+'px';
         //pageWidth, pageHeight
 
         SUPER.init_super_responsive_form_fields(form, function(){
@@ -1887,17 +1945,19 @@ function SUPERreCaptcha(){
 
             // Grab the total form height, this is required to know how many pages will be generated for the PDF file
             // This way we can also show the progression to the end user
-            scrollAmount = (pageHeightInPixels*2);
+            //scrollAmount = (pageHeightInPixels*2);
             var totalPages = Math.ceil(form.clientHeight/scrollAmount);
-            console.log(form.clientHeight/scrollAmount);
-            console.log(Math.ceil(form.clientHeight/scrollAmount));
-            console.log(totalPages);
+            //console.log(form.clientHeight/scrollAmount);
+            //console.log(Math.ceil(form.clientHeight/scrollAmount));
+            //console.log(totalPages);
 
             // Make form scrollable, this way we can generate PDF page properly
-            form.style.height = scrollAmount+'px';
-            form.style.maxHeight = scrollAmount+'px';
-            form.style.overflow = "hidden";
+            //form.style.height = scrollAmount+'px';
+            //form.style.maxHeight = scrollAmount+'px';
+            //form.style.overflow = "hidden";
             //progressBar.style.width = "80%";
+            //return false;
+            debugger;
             callback(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
         });
 
@@ -3645,6 +3705,8 @@ function SUPERreCaptcha(){
     // PDF Generation
     SUPER.generate_pdf = function(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
 
+        debugger;
+        
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
         // 297 == 1122px
@@ -3678,7 +3740,7 @@ function SUPERreCaptcha(){
             // document.body.scrollTop = document.documentElement.scrollTop = 0;
 
             // Now allow printing
-            html2canvas(form, {
+            html2canvas(document.querySelector('.super-pdf-page-container'), {
                 logging: false,
                 useCORS: true,
                 allowTaint: false, 
@@ -3689,6 +3751,7 @@ function SUPERreCaptcha(){
                     return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
                 }
             }).then(canvas => {    
+                debugger;
                 console.log('totalPages:', totalPages);
                 console.log('scrollAmount:', scrollAmount);
                 console.log('clientHeight:', form.clientHeight);
@@ -3735,6 +3798,7 @@ function SUPERreCaptcha(){
                 console.log('PDF height2:', pageHeight);
 
                 // Add this image as 1 single page
+                debugger;
                 pdf.addImage(
                     imgData,            // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
                     'JPEG',             // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
