@@ -1386,16 +1386,9 @@ class SUPER_Shortcodes {
 
     public static function pdf_attributes( $atts ) {
         $result = '';
-        // PDF exclusion/inclusion
-        if( (isset($atts['pdfExclusion'])) && ($atts['pdfExclusion']>=0) ) {
-            if($atts['pdfExclusion']!=='none') $result .= ' data-pdfExclusion="' . esc_attr($atts['pdfExclusion']) . '"';   
-        }
-        // PDF header/footer
-        if( (isset($atts['pdfHeader'])) && ($atts['pdfHeader']=='true') ) {
-            $result .= ' data-pdfHeader="' . esc_attr($atts['pdfHeader']) . '"';   
-        }
-        if( (isset($atts['pdfFooter'])) && ($atts['pdfFooter']=='true') ) {
-            $result .= ' data-pdfFooter="' . esc_attr($atts['pdfFooter']) . '"';   
+        // PDF option
+        if( (isset($atts['pdfOption'])) && ($atts['pdfOption']>=0) ) {
+            if($atts['pdfOption']!=='none') $result .= ' data-pdfOption="' . esc_attr($atts['pdfOption']) . '"';   
         }
         return $result;
     }
@@ -5422,7 +5415,7 @@ class SUPER_Shortcodes {
         }
 
         SUPER_Forms()->enqueue_element_styles();
-        SUPER_Forms()->enqueue_element_scripts($settings);
+        SUPER_Forms()->enqueue_element_scripts($settings, false, $form_id);
 
         $styles = '';
 
@@ -5567,12 +5560,16 @@ class SUPER_Shortcodes {
             if(!empty($i18n)){
                 $result .= ' data-i18n="' . $i18n . '"';
             }
-            if(!empty($settings['_pdf']) && $settings['_pdf']['generate']=='true'){
-                foreach($settings['_pdf'] as $pdfk => $pdfv){
-                    if($pdfk=='customFormat' && $pdfv==='') continue;
-                    $result .= ' data-pdf-' . $pdfk . '="' . esc_attr($pdfv) . '"';
-                }
-            }
+            // if(!empty($settings['_pdf']) && $settings['_pdf']['generate']=='true'){
+            //     $result .= ' data-pdf="' . esc_attr(json_encode($settings['_pdf'])) . '"';
+            //     // foreach($settings['_pdf'] as $pdfk => $pdfv){
+            //     //     if($pdfk=='customFormat' && $pdfv==='') continue;
+            //     //     if(is_array($pdfv)){
+            //     //     }else{
+            //     //         $result .= ' data-pdf-' . $pdfk . '="' . esc_attr($pdfv) . '"';
+            //     //     }
+            //     // }
+            // }
             $result .= '>';
 
             // @since 4.7.0 - improved method to center form and to give max width to the form

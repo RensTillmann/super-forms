@@ -2659,13 +2659,22 @@
 }
 
 
+.sfui-notice {
+    margin: 0px 0px 20px 0px;
+    padding:10px 20px;
+}
+.sfui-info {
+    background-color: #ffde51;
+}
+
 .sfui-setting {
     display: flex;
     margin-bottom: 10px;
     padding-bottom: 10px;
     flex-wrap: wrap;
     border-bottom: 1px solid #d0d0d0;
-    align-items: center;
+    align-items: start;
+    width: 100%;
 }
 
 .sfui-setting label {
@@ -2694,4 +2703,7 @@
     font-weight: 600;
     font-size: 14px;
     padding: 0px 10px 5px 0px;
+}
+.sfui-setting .sfui-title i {
+    font-weight: initial;
 }
