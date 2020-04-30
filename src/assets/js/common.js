@@ -1722,9 +1722,8 @@ function SUPERreCaptcha(){
     };
 
 
-    SUPER.before_generate_pdf = function(form, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, callback){
+    SUPER.before_generate_pdf = function(form, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, callback){
 
-        debugger;
         //form.style.overflow = "-moz-hidden-unscrollable";
         //form.style.width = "500px";
         // Must scroll to top of window, or it will not work properly!
@@ -1751,6 +1750,15 @@ function SUPERreCaptcha(){
         css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
+        // Header margins
+        css += '.super-pdf-header { padding: '+settings.margins.header.top+settings.unit+' '+settings.margins.header.right+settings.unit+' '+settings.margins.header.bottom+settings.unit+' '+settings.margins.header.left+settings.unit+'; }';
+        css += '.super-pdf-header .super-form, .super-pdf-header .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
+        // Body margins
+        css += '.super-pdf-body { padding: '+settings.margins.body.top+settings.unit+' '+settings.margins.body.right+settings.unit+' '+settings.margins.body.bottom+settings.unit+' '+settings.margins.body.left+settings.unit+'; }';
+        // Footer margins
+        css += '.super-pdf-footer { padding: '+settings.margins.footer.top+settings.unit+' '+settings.margins.footer.right+settings.unit+' '+settings.margins.footer.bottom+settings.unit+' '+settings.margins.footer.left+settings.unit+'; }';
+        css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
+
         var head = document.head || document.getElementsByTagName('head')[0],
         style = document.createElement('style');
         style.id = 'super-generating-pdf';
@@ -1787,6 +1795,8 @@ function SUPERreCaptcha(){
 
         // Firstly clone the form, so we can display a "fake" form
         var clone = form.cloneNode(true);
+        var headerClone = form.cloneNode(true);
+        var footerClone = form.cloneNode(true);
         form.parentNode.insertBefore(clone, form.nextSibling);
 
         // PDF page container
@@ -1811,46 +1821,62 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.height = (pageHeightInPixels*2)+'px';
         pdfPageContainer.style.maxHeight = (pageHeightInPixels*2)+'px';
         pdfPageContainer.style.overflow = "hidden";
+        pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
         pdfPageContainer.querySelector('.super-pdf-body').appendChild(form);
+        pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footerClone);
 
-        // Check for any specific PDF exclusions
-        nodes = form.querySelectorAll('.super-shortcode[data-pdfexclusion="exclude"]');
-        for(i=0; i < nodes.length; i++){
-            nodes[i].style.display = 'none';
-        }
-        // Check for any specific PDF inclusions
-        nodes = form.querySelectorAll('.super-shortcode[data-pdfexclusion="include"]');
-        for(i=0; i < nodes.length; i++){
-            nodes[i].style.display = 'block';
-        }
+        // // Check for any specific PDF exclusions
+        // nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="exclude"]');
+        // for(i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = 'none';
+        // }
+        // // Check for any specific PDF inclusions
+        // nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="include"],.super-shortcode[data-pdfoption="header"],.super-shortcode[data-pdfoption="footer"]');
+        // for(i=0; i < nodes.length; i++){
+        //     nodes[i].style.display = 'block';
+        // }
 
-        // Put header(s) before form
-        nodes = form.querySelectorAll('.super-shortcode[data-pdfheader="true"]');
-        for(i=0; i < nodes.length; i++){
-            // var header = nodes[i].cloneNode(true);
-            // header.classList.add('pdf-generated-header');
-            // form.insertBefore(header, form.querySelector('form'));
-            var header = nodes[i].cloneNode(true);
-            header.classList.add('pdf-generated-header');
-            pdfPageContainer.querySelector('.super-pdf-header').appendChild(header);
+        // Put header before form
+        headerClone.querySelector('form').innerHTML = '';
+        var header = form.querySelector('.super-shortcode[data-pdfoption="header"]');
+        if(header.classList.contains('super-column')){
+            header = header.closest('.super-grid').cloneNode(true);
+        }else{
+            header = header.cloneNode(true);
         }
+        header.classList.add('pdf-generated-header');
+        headerClone.querySelector('form').appendChild(header);
 
-        // Put footer(s) after form
-        nodes = form.querySelectorAll('.super-shortcode[data-pdffooter="true"]');
-        for(i=0; i < nodes.length; i++){
-            // var footer = nodes[i].cloneNode(true);
-            // footer.classList.add('pdf-generated-footer');
-            // form.insertBefore(footer, form.querySelector('form'));
-            var footer = nodes[i].cloneNode(true);
-            footer.classList.add('pdf-generated-footer');
-            pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footer);
+        // Put footer after form
+        footerClone.querySelector('form').innerHTML = '';
+        var footer = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
+        if(footer.classList.contains('super-column')){
+            footer = footer.closest('.super-grid').cloneNode(true);
+        }else{
+            footer = footer.cloneNode(true);
         }
+        footer.classList.add('pdf-generated-footer');
+        footerClone.querySelector('form').appendChild(footer);
+
+        // nodes = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
+        // footerClone.querySelector('form').innerHTML = '';
+        // var footer;
+        // for(i=0; i < nodes.length; i++){
+        //     // Check if is column element, if so we must grab grid instead of column itself 
+        //     if(nodes[i].classList.contains('super-column')){
+        //         footer = nodes[i].closest('.super-grid').cloneNode(true);
+        //     }else{
+        //         footer = nodes[i].cloneNode(true);
+        //     }
+        //     footer.classList.add('pdf-generated-footer');
+        //     footerClone.querySelector('form').appendChild(footer);
+        // }
 
         // Resize PDF body height based on header/footer heights
         var headerFooterHeight = 0;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-        var scrollAmount = (pageHeightInPixels*2)-headerFooterHeight;
+        scrollAmount = (pageHeightInPixels*2)-headerFooterHeight;
         pdfPageContainer.querySelector('.super-pdf-body').style.height = scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = scrollAmount+'px';
 
@@ -1957,8 +1983,7 @@ function SUPERreCaptcha(){
             //form.style.overflow = "hidden";
             //progressBar.style.width = "80%";
             //return false;
-            debugger;
-            callback(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar);
+            callback(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar);
         });
 
     };
@@ -2005,7 +2030,11 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
-            if(form.data('pdf-generate')){
+            if( typeof super_common_i18n[form_id] !== 'undefined' &&
+                typeof super_common_i18n[form_id]._pdf !== 'undefined' &&
+                super_common_i18n[form_id]._pdf.generate === true ) 
+            {
+                var settings = super_common_i18n[form_id]._pdf;
                 
                 // Page margins and print area
                 // Media                Page size           Print area              Margins
@@ -2030,11 +2059,10 @@ function SUPERreCaptcha(){
                 // A9           37 x 52	                1.5 x 2.0
                 // A10          26 x 37                 1.0 x 1.5
 
-                var orientation = form.data('pdf-orientation');
-                var format = form.data('pdf-format');
+                var orientation = settings.orientation;
+                var format = settings.format;
                 // Check if custom format is defined
-                debugger;
-                var customFormat = form.data('pdf-customformat');
+                var customFormat = settings.customformat;
                 if(typeof customFormat !== 'undefined' && customFormat!==''){
                     customFormat = customFormat.split(',');
                     if(typeof customFormat[1] !== 'undefined'){
@@ -2046,7 +2074,6 @@ function SUPERreCaptcha(){
                     }
                 }
 
-                var unit = form.data('pdf-unit');
                 // For quick debugging purposes only:
                 var pdf = new jsPDF({
                     orientation: orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
@@ -2056,7 +2083,7 @@ function SUPERreCaptcha(){
                     precision: 16,              // Precision of the element-positions.
                     userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
                     floatPrecision: 16,         // or "smart", default is 16
-                    unit: unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+                    unit: settings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
                 });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
                                                     // Can be:
                                                     // a0 - a10
@@ -2073,8 +2100,8 @@ function SUPERreCaptcha(){
 
                 var pageWidth = pdf.internal.pageSize.getWidth();
                 var pageHeight = pdf.internal.pageSize.getHeight();
-                console.log('PDF width:', pageWidth+' '+unit);
-                console.log('PDF height:', pageHeight+' '+unit);
+                console.log('PDF width:', pageWidth+' '+settings.unit);
+                console.log('PDF height:', pageHeight+' '+settings.unit);
 
                 // PDF width: 595.28 pt
                 // PDF height: 841.89 pt
@@ -2097,22 +2124,20 @@ function SUPERreCaptcha(){
                 // in to px  = X / 0.0185185185010975
 
                 var k = 1;
-                if(unit=='pt') k = 1.333333333333333;
-                if(unit=='mm') k = 0.4703703703703702;
-                if(unit=='cm') k = 0.04703703703703702;
-                if(unit=='in') k = 0.0185185185010975;
+                if(settings.unit=='pt') k = 1.333333333333333;
+                if(settings.unit=='mm') k = 0.4703703703703702;
+                if(settings.unit=='cm') k = 0.04703703703703702;
+                if(settings.unit=='in') k = 0.0185185185010975;
 
                 var pageWidthInPixels = pageWidth / k;
                 var pageHeightInPixels = pageHeight / k;
                 // Make form scrollable based on a4 height
-                var margins = {left: form.data('pdf-marginleft'), top: form.data('pdf-margintop')},
-                    //margins = {left: 18.897638, top: 18.897638},
-                    scrollAmount = 1122-(margins.top);
+                var scrollAmount = 0;
 
-                SUPER.before_generate_pdf(form[0], pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, function(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar){
+                SUPER.before_generate_pdf(form[0], pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, function(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar){
 
                     // Starting at page 1
-                    pdf = SUPER.generate_pdf(form, pdf, 1, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, form, clone){
+                    pdf = SUPER.generate_pdf(form, pdf, 1, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, form, clone){
                         // Show scrollbar again
                         document.documentElement.classList.remove('super-hide-scrollbar');
                         var inlineStyle = document.querySelector('#super-generating-pdf');
@@ -2130,7 +2155,7 @@ function SUPERreCaptcha(){
                         }
                         // Check for any specific PDF exclusions
                         // Check for any specific PDF inclusions
-                        nodes = form.querySelectorAll('.super-shortcode[data-pdfexclusion="exclude"],.super-shortcode[data-pdfexclusion="include"]');
+                        nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="exclude"],.super-shortcode[data-pdfoption="include"]');
                         for(i=0; i < nodes.length; i++){
                             nodes[i].style.display = '';
                         }
@@ -2165,18 +2190,20 @@ function SUPERreCaptcha(){
                         if(loadingOverlay) loadingOverlay.remove();
 
                         // Finally we download the PDF file
-                        pdf.save("test123.pdf");
-                        
-                        // // Finally we download the PDF file
-                        // var datauristring = pdf.output('datauristring', {
-                        //     filename: 'TESTING123.pdf'
-                        // });
-                        // data.datauristring = {
-                        //     name: 'pdf_file',
-                        //     value: datauristring,
-                        //     type: 'datauristring'
-                        // };
-                        // SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                        if(settings.debug===true){
+                            pdf.save(settings.filename);
+                        }else{
+                            // Finally we download the PDF file
+                            var datauristring = pdf.output('datauristring', {
+                                filename: settings.filename
+                            });
+                            data.datauristring = {
+                                name: 'pdf_file',
+                                value: datauristring,
+                                type: 'datauristring'
+                            };
+                            SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                        }
                     }); 
                 });
             }else{
@@ -3703,10 +3730,8 @@ function SUPERreCaptcha(){
     };
 
     // PDF Generation
-    SUPER.generate_pdf = function(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
+    SUPER.generate_pdf = function(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
 
-        debugger;
-        
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
         // 297 == 1122px
@@ -3751,79 +3776,24 @@ function SUPERreCaptcha(){
                     return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
                 }
             }).then(canvas => {    
-                debugger;
-                console.log('totalPages:', totalPages);
-                console.log('scrollAmount:', scrollAmount);
-                console.log('clientHeight:', form.clientHeight);
-                console.log('Total pages1:?', (totalPages / scrollAmount));
-                console.log('Total pages2:?', (form.clientHeight / scrollAmount));
-                console.log('Total pages3:?', Math.ceil(totalPages/scrollAmount));
-                //var totalPages = Math.ceil(totalPages/scrollAmount)
                 var percentage = (100/(totalPages+1))*currentPage;
-                console.log('percentage:', percentage);
-                progressBar.style.width = percentage+"%";
-
-                // only jpeg is supported by jsPDF
-                console.log((793-(margins.left)));
-                console.log(scrollAmount);
-                console.log(form.clientHeight);
-                console.log(form.style.maxHeight);
-
-                console.log(631);
-                console.log(631-(margins.top));
-                console.log(form.clientHeight);
-                console.log(form.clientHeight-(margins.top));
-
-                var maxImageHeight = form.clientHeight;
-                console.log(maxImageHeight);
-                if(form.clientHeight > (margins.top)){
-                    var maxImageHeight = form.clientHeight-(margins.top);
-                }
-                //725.9133851
-                //1054.9133851
-
-                // Normally: 983
-                // Normally: 983
-                console.log('Normally:', (631-(margins.top)));
-                console.log('maxImageHeight:', maxImageHeight);
-                // If exceed limit:
-                if(maxImageHeight > (631-(margins.top))) {
-                    maxImageHeight = (631-(margins.top));
-                }
-                console.log('Exceeds, updated maxImageHeight to:', maxImageHeight);
-
+                progressBar.style.width = percentage+"%";  
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
-                console.log(imgData);
-                console.log('PDF width2:', pageWidth);
-                console.log('PDF height2:', pageHeight);
-
                 // Add this image as 1 single page
-                debugger;
                 pdf.addImage(
-                    imgData,            // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
-                    'JPEG',             // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
-                                        // e.g. 'JPEG', 'PNG', 'WEBP'
-                    margins.left,   // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                    margins.top,    // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-                    pageWidth-(margins.left*2),
-                    pageHeight-(margins.top*2)
-                    //400,
-                    //400,
-                    //446-(margins.left*2), // Remove margins
-                    //maxImageHeight, // 631-(margins.top*2), // Remove margins
-                    //(793-(margins.left*3.55))
-                    //scrollAmount/2
-                    //currentPage,
-                    //'FAST'
-                    // form.style.width = (793-(margins.left*3.55))+'px';
-                    // form.style.height = scrollAmount+'px';
+                    imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
+                    'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
+                                // e.g. 'JPEG', 'PNG', 'WEBP'
+                    0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                    0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                    pageWidth,
+                    pageHeight
                 );
-                
                 // If there are more pages to be processed, go ahead
                 if(form.querySelector('form').clientHeight > (scrollAmount * currentPage)){
                     currentPage++;
                     pdf.addPage();
-                    SUPER.generate_pdf(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, margins, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
+                    SUPER.generate_pdf(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
                 }else{                   
                     // No more pages to generate (submit form / send email)
                     callback(pdf, form, clone);

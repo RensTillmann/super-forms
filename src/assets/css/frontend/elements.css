@@ -3,8 +3,26 @@
   z-index: 2999999999 !important;
 }
 
-.super-shortcode[data-pdfexclusion="include"] {
-  display: none;
+.super-shortcode[data-pdfoption="include"],
+.super-shortcode[data-pdfoption="header"],
+.super-shortcode[data-pdfoption="footer"] {
+  display: none !important;
+}
+
+.super-pdf-header .super-shortcode[data-pdfoption="header"] {
+  display: block !important;
+}
+
+.super-pdf-body .super-shortcode[data-pdfoption="include"] {
+  display: block !important;
+}
+
+.super-pdf-body .super-shortcode[data-pdfoption="exclude"] {
+  display: none !important;
+}
+
+.super-pdf-footer .super-shortcode[data-pdfoption="footer"] {
+  display: block !important;
 }
 
 .super-initialized .super-multipart-progress *,

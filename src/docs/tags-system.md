@@ -242,3 +242,8 @@ Now you might ask where should I actually place this tag? You can choose to use 
 **Tag to retrieve timestamp from datepicker value:**
 
 * `{datepickerfieldname;timestamp}`
+
+**Tag to retrieve the current/total PDF pages (PDF Add-on):**
+
+* `{pdf_page}`
+* `{pdf_total_pages}`
