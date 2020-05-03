@@ -63,6 +63,7 @@
 .super-raw-code-translation-settings {
     float: left;
     width: 100%;
+    margin-bottom: 40px;
 }
 
 #wpbody-content>.updated,
@@ -2661,10 +2662,26 @@
 
 .sfui-notice {
     margin: 0px 0px 20px 0px;
-    padding:10px 20px;
+    padding: 10px 15px;
+    width: 100%;
+    float: left;
+}
+.sfui-setting .sfui-notice {
+    margin: 10px 0px 0px 0px;
 }
 .sfui-info {
-    background-color: #ffde51;
+    background-color: #ffe694;
+    color: #7d6924;
+    font-weight: 600;
+}
+.sfui-success {
+    background-color: #d4ffc6;
+    color: #538643;
+    font-weight: 600;
+}
+.sfui-desc {
+    background-color: #dfeeff;
+    color: #383838;
 }
 
 .sfui-setting {

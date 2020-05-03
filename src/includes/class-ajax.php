@@ -83,7 +83,10 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-            'smtp_test'               => false, // @since 4.9.5
+            'smtp_test'                     => false, // @since 4.9.5
+
+            'subscribe_addon'               => false,
+
 
         );
 
@@ -1841,6 +1844,48 @@ class SUPER_Ajax {
         
     }
     
+    public static function subscribe_addon() {
+        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            $hostname = getHostByName(getHostName()); // PHP >= 5.3.0
+        }else{
+            $hostname = getHostByName(php_uname('n')); // PHP < 5.3.0
+        }
+        $user_id = get_current_user_id();
+        $user_email = '';
+        if($user_id!==0){
+            $user = get_user_by( 'ID', $user_id );
+            if($user!==false){
+                $user_email = $user->user_email;
+            }
+        }
+        $response = wp_remote_post(
+            'https://f4d.nl/super-forms/',
+            array(
+                'method' => 'POST',
+                'timeout' => 45,
+                'body' => array(
+                    'action' => 'super_subscribe_addon',
+                    'addon' => $_POST['addon'],
+                    'url' => $_POST['url'],
+                    'site_url' => site_url(),
+                    'user_email' => $user_email,
+                    'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+                    'hostname' => $hostname // hostname
+                )
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            $error_message = $response->get_error_message();
+            SUPER_Common::output_message(
+                $error = true,
+                $msg = $error_message
+            );
+        }else{
+            error_log('Response: ' . $response['body'], 0);
+            echo $response['body'];
+        }
+        die();
+    }
     
     /** 
      *  Retrieve the HTML for the element that is being dropped inside a dropable element

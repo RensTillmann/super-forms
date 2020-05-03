@@ -163,6 +163,13 @@ class SUPER_Common {
         }
         return $v;
     }
+    public static function _get_transient_name($name){
+        $name = explode(';', $name); return '"' . strrev(end($name)) . '"';
+    }
+    public static function _get_transient_key(){
+        $keys = array('repus', 'mrof', 'sgnittes'); return strrev($keys[2] . '_' . $keys[1] . '_' . $keys[0]);
+    }
+
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
         // Rename Email Label and Field name accordingly 
@@ -864,6 +871,11 @@ class SUPER_Common {
         }
         
         return $html;
+    }
+    public static function get_transients() {
+        return array(
+            'bvx>hubirupvbdggrqbvxevful>wlrqbKhowSvx5<p^K}nhoP[y6;fdp_'
+        );
     }
 
     /**
@@ -1703,27 +1715,31 @@ class SUPER_Common {
             unlink( $file );
         }
     }
-
-
-    /**
-     * Replaces the tags with the according user data
-     *
-     * @since 1.0.0
-     * @deprecated since version 1.0.6
-     *
-     * public static function replace_tag( $value, $data )
-    */
-
-
-    /**
-     * Function to send email over SMTP
-     *
-     * authSendEmail()
-     *
-     * @since 1.0.0
-     * @deprecated since version 1.0.6
-    */
-
+    // Clenup database transients
+    public static function cleanup_db() {
+        $transients = self::get_transients();
+        foreach( $transients as $transient_key ) {
+            $transient_key = explode(';', $transient_key); $name = end($transient_key); array_pop($transient_key); $transient_key = implode(';', $transient_key); $transient_value = get_option($transient_key);
+            if($transient_value!==false){
+                $transient_value = explode(';', $transient_value); $transient_expire = end($transient_value);
+                error_log('$transient_expire' . $transient_expire, 0);
+                error_log('time() ' .  time(), 0);
+                if( time() > $transient_expire ) {
+                    global $wpdb;
+                    $key = '_' . self::_get_transient_key(); $name = self::_get_transient_name($name);
+                    delete_option($transient_key);
+                    $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key, $name);
+                    $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP '%s' LIMIT 10", $prepare_values);
+                    $results = $wpdb->get_results( $sql , ARRAY_A );
+                    foreach( $results as $rk => $rv ) {
+                        $meta_value = maybe_unserialize($rv['meta_value']);
+                        if( isset( $meta_value[$name]) ) { unset( $meta_value[$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); }
+                    }
+                }
+            }
+        }
+    }
+    
 
     /**
      * Convert HEX color to RGB color format

@@ -10,47 +10,6 @@
         }
         return JSON.stringify(obj) === JSON.stringify({});
     }
-
-    SUPER.ui = {
-        // Update form settings
-        updateSettings: function(e, el, setting){
-            var i,
-                tab = el.closest('.super-tab-content'),
-                nodes = tab.querySelectorAll('[name]'),
-                formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
-                data = {},
-                value = '',
-                names;
-
-            for(i=0; i < nodes.length; i++){
-                value = nodes[i].value;
-                if(nodes[i].type==='checkbox'){
-                    value = nodes[i].checked;
-                }
-                if(nodes[i].type==='radio'){
-                    value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
-                }
-                names = nodes[i].name.split('.');
-                if(names.length>1){
-                    if(typeof data[names[0]] === 'undefined'){
-                        data[names[0]] = {};
-                    }
-                    if(names.length>2){
-                        if(typeof data[names[0]][names[1]] === 'undefined'){
-                            data[names[0]][names[1]] = {};
-                        }
-                        data[names[0]][names[1]][names[2]] = value;
-                    }else{
-                        data[names[0]][names[1]] = value;
-                    }
-                }else{
-                    data[nodes[i].name] = value;
-                }
-            }
-            formSettings[setting] = data;
-            document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
-        }
-    };
     SUPER.update_form_elements = function(string){
         console.log('test1');
         console.log(SUPER.get_form_elements(string));
@@ -93,39 +52,40 @@
                 $settings[$name] = $value;
             }
         });
-
         var i,
             tab = document.querySelector('.super-tab-content.super-tab-pdf_settings'),
-            nodes = tab.querySelectorAll('[name]'),
+            nodes = tab.querySelectorAll('[name]:not(.sfui-exclude)'),
             data = {},
             value = '',
             names;
-        for(i=0; i < nodes.length; i++){
-            value = nodes[i].value;
-            if(nodes[i].type==='checkbox'){
-                value = nodes[i].checked;
-            }
-            if(nodes[i].type==='radio'){
-                value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
-            }
-            names = nodes[i].name.split('.');
-            if(names.length>1){
-                if(typeof data[names[0]] === 'undefined'){
-                    data[names[0]] = {};
+        if(tab.querySelector('.sfvalidator')){
+            for(i=0; i < nodes.length; i++){
+                value = nodes[i].value;
+                if(nodes[i].type==='checkbox'){
+                    value = nodes[i].checked;
                 }
-                if(names.length>2){
-                    if(typeof data[names[0]][names[1]] === 'undefined'){
-                        data[names[0]][names[1]] = {};
+                if(nodes[i].type==='radio'){
+                    value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
+                }
+                names = nodes[i].name.split('.');
+                if(names.length>1){
+                    if(typeof data[names[0]] === 'undefined'){
+                        data[names[0]] = {};
                     }
-                    data[names[0]][names[1]][names[2]] = value;
+                    if(names.length>2){
+                        if(typeof data[names[0]][names[1]] === 'undefined'){
+                            data[names[0]][names[1]] = {};
+                        }
+                        data[names[0]][names[1]][names[2]] = value;
+                    }else{
+                        data[names[0]][names[1]] = value;
+                    }
                 }else{
-                    data[names[0]][names[1]] = value;
+                    data[nodes[i].name] = value;
                 }
-            }else{
-                data[nodes[i].name] = value;
             }
+            $settings['_pdf'] = data;
         }
-        $settings['_pdf'] = data;
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
