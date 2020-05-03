@@ -81,12 +81,20 @@ class SUPER_Menu {
             'manage_options', 
             'edit.php?post_type=super_suport'
         );
+        // add_submenu_page( 
+        //     'super_forms', 
+        //     esc_html__( 'Add-ons', 'super-forms' ), 
+        //     esc_html__( 'Add-ons', 'super-forms' ), 
+        //     'manage_options', 
+        //     'edit.php?post_type=super_addons'
+        // );
         add_submenu_page( 
             'super_forms', 
             esc_html__( 'Add-ons', 'super-forms' ), 
             esc_html__( 'Add-ons', 'super-forms' ), 
             'manage_options', 
-            'edit.php?post_type=super_addons'
+            'super_addons',
+            'SUPER_Pages::addons'
         );
         add_submenu_page( 
             'super_forms', 
@@ -130,7 +138,7 @@ class SUPER_Menu {
         if( isset($submenu['super_forms']) ) {
             $submenu['super_forms'][5][2] = 'https://renstillmann.github.io/super-forms/#/';
             $submenu['super_forms'][6][2] = 'http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866/support';
-            $submenu['super_forms'][7][2] = 'https://renstillmann.github.io/super-forms/#/add-ons';
+            //$submenu['super_forms'][7][2] = 'https://renstillmann.github.io/super-forms/#/add-ons';
             $submenu['super_forms'][8][2] = 'https://renstillmann.github.io/super-forms/#/faq';
             $submenu['super_forms'][9][2] = 'https://renstillmann.github.io/super-forms/#/changelog';
         }

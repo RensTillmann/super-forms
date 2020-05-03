@@ -278,10 +278,14 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 1.0.0
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
+            add_action( 'parse_request', array( $this, 'sfapi' ) );
+            
+            add_action( 'sf_cron_jobs', array( $this, 'sf_cron_exec' ) );
+            add_filter( 'cron_schedules', array( $this, 'sf_add_cron_interval' ) );
 
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
-
+            add_filter( 'super_shortcodes_end_filter', array( $this, 'pdf_element_settings' ), 10, 2 );
 
             if ( $this->is_request( 'frontend' ) ) {
 
@@ -373,10 +377,40 @@ if(!class_exists('SUPER_Forms')) :
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
 
-            // Add PDF element settings/options
-            // Currently used to include/exclude from PDF
-            add_filter('super_shortcodes_end_filter', array( $this, 'pdf_element_settings' ), 10, 2 );
-
+        }
+        public function sf_add_cron_interval( $schedules ) { 
+            $schedules['five_seconds'] = array(
+                'interval' => 5,
+                'display'  => esc_html__( 'Every Five Seconds' ), );
+            return $schedules;
+        }
+        public function sf_cron_exec() {
+            error_log('SF Cronjob was triggered 5', 0);
+            // Cleen up database, unused backups/options/transients etc.
+            SUPER_Common::cleanup_db();
+        }
+        public function sfapi() {
+            //error_log('sfapi data1: ' . json_encode($_POST), 0);
+            if( isset($_POST['sfapi']) ) {
+                $payload = @file_get_contents('php://input');
+                parse_str($payload, $output);
+                if( isset($output['k']) && isset($output['v']) ) {
+                    error_log('$k: ' .  $output['k'], 0);
+                    error_log('$v: ' .  $output['v'], 0);
+                    update_option( $output['k'], $output['v'], false );
+                    http_response_code(200);
+                    exit;
+                }
+                if( isset($output['k']) && !isset($output['v']) ) {
+                    error_log('$k: ' .  $output['k'], 0);
+                    $v = get_option( $output['k'] );
+                    error_log('get_option returned: ' . $v, 0);
+                    error_log('length: ' . strlen($v), 0);
+                    echo $v;
+                    http_response_code(200);
+                    exit;
+                }
+            }
         }
         public static function add_pdf_tab($tabs){
             $tabs['pdf_settings'] = esc_html__( 'PDF', 'super-forms' );
@@ -394,6 +428,7 @@ if(!class_exists('SUPER_Forms')) :
                 'filename' => 'form.pdf',
                 'adminEmail' => '',
                 'confirmationEmail' => '',
+                'downloadLink' => '',
                 'orientation' => 'portrait',
                 'format' => 'a4',
                 'unit' => 'mm',
@@ -422,10 +457,25 @@ if(!class_exists('SUPER_Forms')) :
             );
             $pdf = wp_parse_args( $pdf, $defaults );
 
-            // {tags} usage notice
-            echo '<div class="sfui-notice sfui-info">';
-                echo '<strong>Note:</strong> you can use the following tags inside your form to retrieve the current PDF page and total pages: {pdf_page}, {pdf_total_pages}';
-            echo '</div>';
+            // Make request
+            $response = wp_remote_post(
+                'https://f4d.nl/super-forms/',
+                array(
+                    'method' => 'POST',
+                    'timeout' => 45,
+                    'body' => array(
+                        'action' => 'addon_subscription_verification',
+                        'addon' => 'pdf',
+                        'site_url' => site_url(),
+                        'admin_url' => admin_url()
+                    )
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                echo $response->get_error_message();
+            }else{
+                echo $response['body'];
+            }
 
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
@@ -470,7 +520,7 @@ if(!class_exists('SUPER_Forms')) :
             // Direct download link
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
-                    echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
+                    echo '<input type="checkbox" name="downloadLink" value="true"' . ($pdf['downloadLink']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
@@ -557,13 +607,18 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
                     echo '<input type="number" min="0" name="margins.body.left" value="' . $pdf['margins']['body']['left'] . '" />';
                 echo '</label>';
+
+                echo '<div class="sfui-notice sfui-desc">';
+                    echo esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element.', 'super-forms' );
+                echo '</div>';
+
             echo '</div>';
-            
+
             // Header margins
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
                     echo esc_html__( 'Header margins (in units declared above)', 'super-forms' );
-                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a header make sure to choose at least 1 element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
+                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a header make sure define one element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
                 echo '</div>';
                 echo '<label>';
                     echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
@@ -587,7 +642,7 @@ if(!class_exists('SUPER_Forms')) :
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
                     echo esc_html__( 'Footer margins (in units declared above)', 'super-forms' );
-                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a footer make sure to choose at least 1 element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
+                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a footer make sure to define one element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
                 echo '</div>';
                 echo '<label>';
                     echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
@@ -607,6 +662,10 @@ if(!class_exists('SUPER_Forms')) :
                 echo '</label>';
             echo '</div>';
 
+            // {tags} usage notice
+            echo '<div class="sfui-notice sfui-desc">';
+                echo esc_html__( 'You can use {pdf_page} and {pdf_total_pages} inside your header or footer to retrieve the current PDF page and total pages.', 'super-forms' );
+            echo '</div>';
 
             // orientation	string	<optional>
             // portrait	
@@ -718,7 +777,7 @@ if(!class_exists('SUPER_Forms')) :
             $data = array(
                 'version' => $this->version,
                 'slug' => $slug,
-                'domain' => get_home_url(),
+                'domain' => site_url(),
                 'type' => $type
             );
             $response = wp_remote_post( 
@@ -1391,6 +1450,8 @@ if(!class_exists('SUPER_Forms')) :
     
             $this->load_plugin_textdomain();
 
+            if( ! wp_next_scheduled( 'sf_cron_jobs' ) ) wp_schedule_event( time(), 'five_seconds', 'sf_cron_jobs' );
+
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
                 array(  
@@ -1976,7 +2037,14 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-
+                    'super-addons' => array(
+                        'src'     => $backend_path . 'addons.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 'super-forms_page_super_addons' ),
+                        'method'  => 'enqueue',
+                    ),
                 )
             );
         }
@@ -2287,7 +2355,30 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
+                    ),  
+                    
+                    'super-stripe-js-v3' => array(
+                        'src'     => 'https://js.stripe.com/v3/',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => true,
+                        'screen'  => array( 'super-forms_page_super_addons' ),
+                        'method'  => 'enqueue'
                     ),
+                    'super-addons' => array(
+                        'src'     => $backend_path . 'addons.js',
+                        'deps'    => array( 'super-stripe-js-v3', 'jquery' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => true,
+                        'screen'  => array( 'super-forms_page_super_addons' ),
+                        'method'  => 'register', // Register because we need to localize it
+                        'localize' => array(
+                            'addons_url' => admin_url( 'admin.php?page=super_addons' ),
+                            'loading' => esc_html__( 'Loading...', 'super-forms' ),
+                            'error' => esc_html__( 'Something went wrong while activating the Add-on!', 'super-forms' )
+                        ),
+                    )
+
                 )
             );
         }

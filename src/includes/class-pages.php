@@ -22,6 +22,65 @@ class SUPER_Pages {
 
 
     /**
+     * Handles the output for the Add-ons page in admin
+     */
+    public static function addons() {
+        // Include the file that handles the view
+        // include_once(SUPER_PLUGIN_DIR.'/includes/admin/views/page-addons.php' );
+        // Make request
+        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            $hostname = getHostByName(getHostName()); // PHP >= 5.3.0
+        }else{
+            $hostname = getHostByName(php_uname('n')); // PHP < 5.3.0
+        }
+        $user_id = get_current_user_id();
+        $user_email = '';
+        if($user_id!==0){
+            $user = get_user_by( 'ID', $user_id );
+            if($user!==false){
+                $user_email = $user->user_email;
+            }
+        }
+        // $response = wp_remote_post(
+        //     'https://f4d.nl/super-forms/',
+        //     array(
+        //         'method' => 'POST',
+        //         'timeout' => 45,
+        //         'body' => array(
+        //             'action' => 'super_subscribe_addon',
+        //             'addon' => $_POST['addon'],
+        //             'url' => $_POST['url'],
+        //             'site_url' => site_url(),
+        //             'user_email' => $user_email,
+        //             'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+        //             'hostname' => $hostname // hostname
+
+        $response = wp_remote_post(
+            // 'https://f4d.nl/super-forms/',
+            // 'api.super-forms.com/addons/list',
+            'http://api.super-forms.com/addons/list',
+            array(
+                'method' => 'GET',
+                'timeout' => 45,
+                'body' => array(
+                    'site_url' => site_url(),
+                    'addons_url' => admin_url( 'admin.php?page=super_addons' ),
+                    'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'user_email' => $user_email,
+                    'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+                    'hostname' => $hostname // hostname
+                )
+            )
+        );
+        if ( is_wp_error( $response ) ) {
+            echo $response->get_error_message();
+        }else{
+            echo $response['body'];
+        }
+    }
+
+
+    /**
      * Handles the output for the settings page in admin
      */
     public static function settings() {
@@ -77,7 +136,7 @@ class SUPER_Pages {
             echo sprintf( esc_html__( '%sTranslation settings:%s (this only includes the translation settings, not the actual strings, this is stored in the "Form elements" code)', 'super-forms' ), '<strong>', '</strong>' );
             echo '</p>';
             echo '<textarea></textarea>';
-            echo '<span class="super-update-raw-code sfui-btn sfui-green">';
+            echo '<span class="super-update-raw-code sfui-btn sfui-icon sfui-green">';
                 echo '<i class="fas fa-save"></i>';
                 echo esc_html__( 'Update all', 'super-forms' );
             echo '</span>';
