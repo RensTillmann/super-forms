@@ -4520,8 +4520,21 @@ class SUPER_Shortcodes {
                 $result .= '<div class="super-button-name" data-action="' . esc_attr($action) . '" data-status="' . esc_attr($atts['entry_status']) . '" data-status-update="' .esc_attr($atts['entry_status_update']) . '" data-normal="' . esc_attr($name) . '" data-loading="' . esc_attr($loading) . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
-                        $icon_html = '<i class="fas fa-' . esc_attr($icon) . '"></i>';
+                        $icon_tag = explode(' ', $icon);
+                        if(isset($icon_tag[1])){
+                            $icon_type = $icon_tag[0];
+                            $icon_tag = str_replace('fa-', '', $icon_tag[1]);
+                        }else{
+                            $default = explode(';', $icon);
+                            $icon_tag = $default[0];
+                            $icon_type = 'fas';
+                            if(isset($default[1])){
+                                $icon_type = $default[1]; // use the existing type
+                            }
+                        }
+                        $icon_html = '<i class="' . $icon_type . ' fa-'.SUPER_Common::fontawesome_bwc($icon_tag).'"></i>';
                     }
+
                     if( $icon_option=='left' ) $result .= $icon_html;
                     $result .= $name;
                     if( $icon_option=='right' ) $result .= $icon_html;
