@@ -1840,6 +1840,8 @@ $array['form_elements'] = array(
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
+
+                        'error' => $error
                     ),
                 ),
                 'advanced' => array(

@@ -723,6 +723,8 @@ class SUPER_Ajax {
 
             $entries[$k] = $data;
         }
+        // Filter to alter for instance the "entry_date" format from 19:00 to 06:00 Pm
+        $entries = apply_filters( 'super_export_selected_entries_filter', $entries );
 
         foreach( $entries as $k => $v ) {
             foreach( $columns as $ck => $cv ) {
@@ -751,6 +753,7 @@ class SUPER_Ajax {
                 }
             }
         }
+
         $file_location = '/uploads/php/files/super-contact-entries.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
