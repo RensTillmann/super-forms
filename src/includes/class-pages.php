@@ -63,12 +63,13 @@ class SUPER_Pages {
                 'method' => 'GET',
                 'timeout' => 45,
                 'body' => array(
-                    'site_url' => site_url(),
-                    'addons_url' => admin_url( 'admin.php?page=super_addons' ),
-                    'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-                    'user_email' => $user_email,
-                    'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-                    'hostname' => $hostname // hostname
+                    'action' => 'super_subscribe_addon',
+                    'siteUrl' => site_url(),
+                    'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
+                    'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'userEmail' => $user_email,
+                    'serverAddr' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+                    'hostName' => $hostname // hostname
                 )
             )
         );
