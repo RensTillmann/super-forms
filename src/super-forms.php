@@ -212,6 +212,8 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function includes(){
 
+            include_once( 'includes/class-rest-api.php' );
+
             // @since 3.2.0 - first load session manager
             include_once( 'includes/class-super-session.php' );
 
@@ -376,8 +378,8 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'upgrader_process_complete', array( $this, 'api_post_update' ), 10, 2);
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
-
         }
+
         public function sf_add_cron_interval( $schedules ) { 
             $schedules['five_seconds'] = array(
                 'interval' => 5,
@@ -388,29 +390,6 @@ if(!class_exists('SUPER_Forms')) :
             error_log('SF Cronjob was triggered 5', 0);
             // Cleen up database, unused backups/options/transients etc.
             SUPER_Common::cleanup_db();
-        }
-        public function sfapi() {
-            //error_log('sfapi data1: ' . json_encode($_POST), 0);
-            if( isset($_POST['sfapi']) ) {
-                $payload = @file_get_contents('php://input');
-                parse_str($payload, $output);
-                if( isset($output['k']) && isset($output['v']) ) {
-                    error_log('$k: ' .  $output['k'], 0);
-                    error_log('$v: ' .  $output['v'], 0);
-                    update_option( $output['k'], $output['v'], false );
-                    http_response_code(200);
-                    exit;
-                }
-                if( isset($output['k']) && !isset($output['v']) ) {
-                    error_log('$k: ' .  $output['k'], 0);
-                    $v = get_option( $output['k'] );
-                    error_log('get_option returned: ' . $v, 0);
-                    error_log('length: ' . strlen($v), 0);
-                    echo $v;
-                    http_response_code(200);
-                    exit;
-                }
-            }
         }
         public static function add_pdf_tab($tabs){
             $tabs['pdf_settings'] = esc_html__( 'PDF', 'super-forms' );
