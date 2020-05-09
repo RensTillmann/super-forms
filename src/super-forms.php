@@ -43,8 +43,9 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $version = '4.9.433';
         public $slug = 'super-forms';
-
-
+        public $apiUrl = 'https://api.super-forms.com/';
+        public $apiVersion = 'v1';
+        
         /**
          * @var array
          *
@@ -163,6 +164,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // super-forms/super-forms.php
             $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
             $this->define( 'SUPER_VERSION', $this->version );
+            $this->define( 'SUPER_API_ENDPOINT', $this->apiUrl . $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
 
         }
@@ -211,8 +213,6 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public function includes(){
-
-            include_once( 'includes/class-rest-api.php' );
 
             // @since 3.2.0 - first load session manager
             include_once( 'includes/class-super-session.php' );
@@ -280,7 +280,7 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 1.0.0
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
-            add_action( 'parse_request', array( $this, 'sfapi' ) );
+			add_action( 'parse_request', array( $this, 'sfapi'));
             
             add_action( 'sf_cron_jobs', array( $this, 'sf_cron_exec' ) );
             add_filter( 'cron_schedules', array( $this, 'sf_add_cron_interval' ) );
@@ -438,15 +438,21 @@ if(!class_exists('SUPER_Forms')) :
 
             // Make request
             $response = wp_remote_post(
-                'https://f4d.nl/super-forms/',
+                SUPER_API_ENDPOINT . '/subscription/verify',
                 array(
                     'method' => 'POST',
                     'timeout' => 45,
                     'body' => array(
-                        'action' => 'addon_subscription_verification',
                         'addon' => 'pdf',
-                        'site_url' => site_url(),
-                        'admin_url' => admin_url()
+                        'siteUrl' => site_url(),
+                        'adminUrl' => admin_url()
+                        // 'action' => 'super_subscribe_addon',
+                        // 'siteUrl' => site_url(),
+                        // 'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
+                        // 'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
+                        // 'userEmail' => $user_email,
+                        // 'serverAddr' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+                        // 'hostName' => $hostname // hostname
                     )
                 )
             );
@@ -645,52 +651,6 @@ if(!class_exists('SUPER_Forms')) :
             echo '<div class="sfui-notice sfui-desc">';
                 echo esc_html__( 'You can use {pdf_page} and {pdf_total_pages} inside your header or footer to retrieve the current PDF page and total pages.', 'super-forms' );
             echo '</div>';
-
-            // orientation	string	<optional>
-            // portrait	
-            // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
-            
-            // unit	string	<optional>
-            // mm	
-            // Measurement unit (base unit) to be used when coordinates are specified.
-            // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
-            
-            // format	string/Array	<optional>
-            // a4	
-            // The format of the first page. Can be:
-            
-            // a0 - a10
-            // b0 - b10
-            // c0 - c10
-            // dl
-            // letter
-            // government-letter
-            // legal
-            // junior-legal
-            // ledger
-            // tabloid
-            // credit-card
-            
-            // Default is "a4". If you want to use your own format just pass instead of one of the above predefined formats the size as an number-array, e.g. [595.28, 841.89]
-            // putOnlyUsedFonts	boolean	<optional>
-            // false	
-            // Only put fonts into the PDF, which were used.
-            
-            // compress	boolean	<optional>
-            // false	
-            // Compress the generated PDF.
-            
-            // precision	number	<optional>
-            // 16	
-            // Precision of the element-positions.
-            
-            // userUnit	number	<optional>
-            // 1.0	
-            // Not to be confused with the base unit. Please inform yourself before you use it.
-            
-            // floatPrecision	number | "smart"	<optional>
-            // 16
-
         }
         public function pdf_element_settings($array, $attr){
             foreach($array as $group => $v){
@@ -1416,7 +1376,103 @@ if(!class_exists('SUPER_Forms')) :
                         
         }
 
-        
+        public function sfapi(){
+            if(isset($_GET['sfapi'])){
+                error_log('test sfapi()', 0);
+                if($_GET['sfapi']=='v1'){
+                    error_log('test sfapi() v1', 0);
+                    try {
+                        $p = file_get_contents('php://input');
+                        error_log('payload: ' . $p, 0);
+                        $p = json_decode($p, true);
+                        if( empty($p['m']) && (empty($p['k']) && empty($p['v'])) ) {
+                            throw new Exception("Invalid payload");
+                        }
+                        error_log('payload: ' . $p, 0);
+                        if( !empty($p['k']) && !empty($p['v']) ) {
+                            error_log('$k: ' .  $p['k'], 0);
+                            error_log('$v: ' .  $p['v'], 0);
+                            update_option( $p['k'], $p['v'], false );
+                            http_response_code(201);
+                        }
+                        if( !empty($p['k']) && empty($p['v']) ) {
+                            error_log('$k: ' .  $p['k'], 0);
+                            $v = get_option( $p['k'] );
+                            echo $v;
+                            error_log('get_option returned: ' . $v, 0);
+                            error_log('length: ' . strlen($v), 0);
+                            http_response_code(200);
+                        }
+                    } catch (Exception $e) {
+                        echo $e->getMessage();
+                        http_response_code(400);
+                        exit;
+                    }
+                }
+                exit;
+            }
+
+            // header('Content-Type: text/html');
+            // header('Cache-Control: no-cache');
+            // header('Pragma: no-cache');
+            // $request_body = json_decode(file_get_contents('php://input'), true);
+            // if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='true') ) {
+            //     if( !empty($request_body['action']) ) {
+            //         define( 'DOING_AJAX', true );
+            //         if( $request_body['action']==='delete_entry' ) {
+            //             define( 'SHORTINIT', false );
+            //             var_dump($request_body['wp_root'] . 'wp-load.php');
+            //             require_once($request_body['wp_root'] . 'wp-load.php');
+            //             if( $request_body['action']=='delete_entry' ) {
+            //                 var_dump('delete entry');
+            //                 var_dump($request_body['entry_id']);
+            //                 // Move entry to trash
+            //                 wp_delete_post( absint($request_body['entry_id']) );
+            //             }
+            //             die();
+            //         }
+
+            // if(isset($_GET['sfapi'])){
+            //     echo 'test1';
+            //     exit;
+            // }
+            // error_log('Ok!', 0);
+            // $payload = $request->get_json_params();
+            // error_log('get_json_params(): ' . json_encode($payload), 0);
+            // if( isset($payload['k']) && isset($payload['v']) ) {
+            //     error_log('$k: ' .  $payload['k'], 0);
+            //     error_log('$v: ' .  $payload['v'], 0);
+            //     update_option( $payload['k'], $payload['v'], false );
+            //     // if ( empty( $posts ) ) {
+            //     //     return new WP_Error( 'no_author', 'Invalid author', array( 'status' => 404 ) );
+            //     // }
+            //     //return $posts[0]->post_title;
+            //     $data = array( 'status' => 'success' );
+            //     // Create the response object
+            //     $response = new WP_REST_Response( $data );
+            //     // Add a custom status code
+            //     $response->set_status( 201 ); // 201 = Created
+            //     // Add a custom header
+            //     //$response->header( 'Location', 'http://example.com/' );
+            //     return $response;
+            // }
+            // if( isset($payload['k']) && !isset($payload['v']) ) {
+            //     error_log('$k: ' .  $payload['k'], 0);
+            //     $v = get_option( $payload['k'] );
+            //     error_log('get_option returned: ' . $v, 0);
+            //     error_log('length: ' . strlen($v), 0);
+            //     $data = array( 'status' => 'success', 'meta_value' => $v );
+            //     // Create the response object
+            //     $response = new WP_REST_Response( $data );
+            //     // Add a custom status code
+            //     $response->set_status( 200 ); // 200 = OK
+            //     // Add a custom header
+            //     //$response->header( 'Location', 'http://example.com/' );
+            //     return $response;
+            // }
+
+
+        }
         /**
          * Init Super Forms when WordPress Initialises.
          *
