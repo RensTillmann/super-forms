@@ -56,9 +56,7 @@ class SUPER_Pages {
         //             'hostname' => $hostname // hostname
 
         $response = wp_remote_post(
-            // 'https://f4d.nl/super-forms/',
-            // 'api.super-forms.com/addons/list',
-            'http://api.super-forms.com/addons/list',
+            SUPER_API_ENDPOINT . '/addons/list',
             array(
                 'method' => 'GET',
                 'timeout' => 45,
