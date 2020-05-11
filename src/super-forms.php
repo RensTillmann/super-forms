@@ -165,6 +165,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
             $this->define( 'SUPER_VERSION', $this->version );
             $this->define( 'SUPER_API_ENDPOINT', $this->apiUrl . $this->apiVersion );
+            $this->define( 'SUPER_API_VERSION', $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
 
         }
@@ -1378,30 +1379,29 @@ if(!class_exists('SUPER_Forms')) :
 
         public function sfapi(){
             if(isset($_GET['sfapi'])){
-                error_log('test sfapi()', 0);
                 if($_GET['sfapi']=='v1'){
-                    error_log('test sfapi() v1', 0);
+                    $p = file_get_contents('php://input');
                     try {
-                        $p = file_get_contents('php://input');
-                        error_log('payload: ' . $p, 0);
                         $p = json_decode($p, true);
-                        if( empty($p['m']) && (empty($p['k']) && empty($p['v'])) ) {
+                        if( empty($_GET['m']) ) {
                             throw new Exception("Invalid payload");
                         }
-                        error_log('payload: ' . $p, 0);
-                        if( !empty($p['k']) && !empty($p['v']) ) {
-                            error_log('$k: ' .  $p['k'], 0);
-                            error_log('$v: ' .  $p['v'], 0);
-                            update_option( $p['k'], $p['v'], false );
-                            http_response_code(201);
+                        if( empty($p['k']) && empty($p['v']) ) {
+                            throw new Exception("Invalid payload");
                         }
-                        if( !empty($p['k']) && empty($p['v']) ) {
-                            error_log('$k: ' .  $p['k'], 0);
-                            $v = get_option( $p['k'] );
-                            echo $v;
-                            error_log('get_option returned: ' . $v, 0);
-                            error_log('length: ' . strlen($v), 0);
+                        if($_GET['m']=='t'){
                             http_response_code(200);
+                        }
+                        if($_GET['m']=='a'){
+                            if( !empty($p['k']) && !empty($p['v']) ) {
+                                update_option( $p['k'], $p['v'], false );
+                                echo get_option( $p['k'] );
+                                http_response_code(201);
+                            }
+                            if( !empty($p['k']) && empty($p['v']) ) {
+                                echo get_option( $p['k'] );
+                                http_response_code(200);
+                            }
                         }
                     } catch (Exception $e) {
                         echo $e->getMessage();

@@ -1849,7 +1849,7 @@ class SUPER_Ajax {
     
     public static function subscribe_addon() {
         $response = wp_remote_post(
-            $_POST['apiUrl'],
+            $_POST['apiEndpoint'] . '/addons/subscribe',
             array(
                 'method' => 'POST',
                 'timeout' => 45,
