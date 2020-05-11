@@ -61,6 +61,8 @@ class SUPER_Pages {
                 'method' => 'GET',
                 'timeout' => 45,
                 'body' => array(
+                    'apiEndpoint' => SUPER_API_ENDPOINT,
+                    'apiVersion' => SUPER_API_VERSION,
                     'action' => 'super_subscribe_addon',
                     'siteUrl' => site_url(),
                     'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
