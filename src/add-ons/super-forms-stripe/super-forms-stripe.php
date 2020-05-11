@@ -558,7 +558,23 @@ if(!class_exists('SUPER_Stripe')) :
                 if( !empty($frontend_user_id) ) {
                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
                         if( ($frontend_user_id!=0) && (!empty($settings['stripe_completed_signup_status'])) ) {
+                            // Update login status
                             update_user_meta( $frontend_user_id, 'super_user_login_status', $settings['stripe_completed_signup_status'] );
+                            // Update user role
+                            $user_role = '';
+                            if( !empty($settings['stripe_completed_user_role']) ) {
+                                $user_role = $settings['stripe_completed_user_role'];
+                            }
+                            if( !empty($user_role) ) {
+                                $userdata = array(
+                                    'ID' => $frontend_user_id,
+                                    'role' => $user_role
+                                );
+                                $result = wp_update_user( $userdata );
+                                if( is_wp_error( $result ) ) {
+                                    throw new Exception($return->get_error_message());
+                                }
+                            }
                         }
                     }
                 }
@@ -3395,7 +3411,7 @@ if(!class_exists('SUPER_Stripe')) :
             if (class_exists('SUPER_Frontend_Posting')) {
                 $array['stripe_checkout']['fields']['stripe_completed_post_status'] = array(
                     'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
-                    'desc' => esc_html__( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Front-end posting', 'super-forms' ),
                     'default' => SUPER_Settings::get_value(0, 'stripe_completed_post_status', $settings['settings'], 'publish' ),
                     'type' => 'select',
                     'values' => array(
@@ -3413,9 +3429,16 @@ if(!class_exists('SUPER_Stripe')) :
                 );
             }
             if (class_exists('SUPER_Register_Login')) {
+                global $wp_roles;
+                $all_roles = $wp_roles->roles;
+                $editable_roles = apply_filters( 'editable_roles', $all_roles );
+                $roles = array();
+                foreach( $editable_roles as $k => $v ) {
+                    $roles[$k] = $v['name'];
+                }
                 $array['stripe_checkout']['fields']['stripe_completed_signup_status'] = array(
                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-                    'desc' => esc_html__( 'Only used for Register & Login add-on (active, pending, blocked)', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
                     'default' => SUPER_Settings::get_value(0, 'stripe_completed_signup_status', $settings['settings'], 'active' ),
                     'type' => 'select',
                     'values' => array(
@@ -3427,6 +3450,16 @@ if(!class_exists('SUPER_Stripe')) :
                     'parent' => 'stripe_checkout',
                     'filter_value' => 'true',
                 );
+				$array['stripe_checkout']['fields']['stripe_completed_user_role'] = array(
+					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'default' => SUPER_Settings::get_value(0, 'stripe_completed_user_role', $settings['settings'], 'active' ),
+					'type' => 'select',
+					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
+					'filter' => true,
+					'parent' => 'stripe_checkout',
+					'filter_value' => 'true',
+				);
             }
             return $array;
         }

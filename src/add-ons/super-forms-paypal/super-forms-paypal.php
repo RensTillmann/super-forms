@@ -738,10 +738,10 @@ if (!class_exists('SUPER_PayPal')):
 			    case 'pp_payer_email':
 			    	$tooltip = '';
 			    	if($txn_data['payer_status']=='verified'){
-			    		$tooltip = '<i title="' . esc_attr__( 'Customer has a verified PayPal account', 'super-forms' ) . '" class="fas fa-check-circle super-paypal-txn-verified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr__( 'Customer has a verified PayPal account', 'super-forms' ) . '" class="super-paypal-txn-verified" aria-hidden="true">✅</i>';
 			    	}
 			    	if($txn_data['payer_status']=='unverified'){
-			    		$tooltip = '<i title="' . esc_attr__( 'Customer has an unverified PayPal account', 'super-forms' ) . '" class="fas fa-exclamation-circle super-paypal-txn-unverified" aria-hidden="true"></i>';
+			    		$tooltip = '<i title="' . esc_attr__( 'Customer has an unverified PayPal account', 'super-forms' ) . '" class="super-paypal-txn-unverified" aria-hidden="true">❌</i>';
 			    	}
 			    	echo '<span class="pp-name-email">';
 			    	echo $tooltip;
@@ -1644,9 +1644,257 @@ if (!class_exists('SUPER_PayPal')):
 					if( !empty($settings['register_login_action']) ) {
 						if( $settings['register_login_action']=='register' ) {
 							$user_id = absint($custom[5]);
-							if( ($user_id!=0) && (!empty($settings['paypal_completed_signup_status'])) ) {
-								update_user_meta( $user_id, 'super_user_login_status', $settings['paypal_completed_signup_status'] );
+							if( $user_id!=0 ) {
+								// Update login status
+								if( !empty($settings['paypal_completed_signup_status']) ) {
+									update_user_meta( $user_id, 'super_user_login_status', $settings['paypal_completed_signup_status'] );
+								}
+								// Update user role
+								$user_role = '';
+								if( !empty($settings['paypal_completed_user_role']) ) {
+									$user_role = $settings['paypal_completed_user_role'];
+								}
+								if( !empty($user_role) ) {
+									$userdata = array(
+										'ID' => $user_id,
+										'role' => $user_role
+									);
+									$result = wp_update_user( $userdata );
+									if( is_wp_error( $result ) ) {
+										throw new Exception($return->get_error_message());
+									}
+								}
 							}
+						}
+					}
+
+					// Send E-mail when payment was completed/successful
+					// Can only work if entry was created
+					if( !empty($contact_entry_id) && !empty($settings['paypal_completed_email']) ) {
+						$data = get_post_meta($contact_entry_id, '_super_contact_entry_data', true);
+						$global_settings = get_option( 'super_settings' );
+						if( $settings!=false ) {
+							// @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
+							foreach( $settings as $k => $v ) {
+								if( isset( $global_settings[$k] ) ) {
+									if( $global_settings[$k] == $v ) {
+										unset( $settings[$k] );
+									}
+								}
+							}
+						}else{
+							$settings = array();
+						}
+						$settings = array_merge($global_settings, $settings);
+
+						if(!isset($settings['paypal_completed_exclude_empty'])) $settings['paypal_completed_exclude_empty'] = '';
+
+						$confirm_loop = '';
+						$confirm_attachments = array();
+						$string_attachments = array();
+						if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
+							foreach( $data as $k => $v ) {
+								// Skip dynamic data
+								if($k=='_super_dynamic_data') continue;
+								$confirm_row = $settings['paypal_completed_email_loop'];
+								if( !isset( $v['exclude'] ) ) {
+									$v['exclude'] = 0;
+								}
+								if( $v['exclude']==2 ) {
+									continue;
+								}
+				
+								/** 
+								 *  Filter to control the email loop when something special needs to happen
+								 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+								 *
+								 *  @param  string  $row
+								 *  @param  array   $data
+								 *
+								 *  @since      1.0.9
+								*/
+								$confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+								$continue = false;
+								if( isset( $confirm_result['status'] ) ) {
+									if( $confirm_result['status']=='continue' ) {
+										if( isset( $confirm_result['string_attachments'] ) ) {
+											$string_attachments = $confirm_result['string_attachments'];
+										}
+										$confirm_loop .= $confirm_result['row'];
+										$continue = true;
+									}
+								}
+								if($continue) continue;
+				
+								if( isset($v['type']) && $v['type']=='files' ) {
+									$files_value = '';
+									if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
+										$v['value'] = '';
+										if( !empty( $v['label'] ) ) {
+											// Replace %d with empty string if exists
+											$v['label'] = str_replace('%d', '', $v['label']);
+											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+										}else{
+											$row = str_replace( '{loop_label}', '', $row );
+											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+										}
+										$files_value .= esc_html__( 'User did not upload any files', 'super-forms' );
+									}else{
+										$v['value'] = '-';
+										foreach( $v['files'] as $key => $value ) {
+											if( $key==0 ) {
+												if( !empty( $v['label'] ) ) {
+													$v['label'] = str_replace('%d', '', $v['label']);
+													$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+													$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+												}else{
+													$row = str_replace( '{loop_label}', '', $row );
+													$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+												}
+											}
+											// In case the file was deleted we do not want to add a hyperlink that links to the file
+											if( !empty($settings['file_upload_submission_delete']) ) {
+												$files_value .= $value['value'] . '<br /><br />';
+											}else{
+												$files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+											}
+											// Exclude file from email completely
+											if( $v['exclude']!=2 ) {
+												if( $v['exclude']!=1 ) {
+													$confirm_attachments[$value['value']] = $value['url'];
+												}
+											}
+										}
+									}
+									$row = str_replace( '{loop_value}', $files_value, $row );
+									$confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
+								}else{
+									if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
+										$row = '';
+										$confirm_row = '';
+									}else{
+				
+										if( !empty( $v['label'] ) ) {
+											$v['label'] = str_replace('%d', '', $v['label']);
+											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+										}else{
+											$row = str_replace( '{loop_label}', '', $row );
+											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+										}
+										// @since 1.2.7
+										if( isset( $v['admin_value'] ) ) {
+											// @since 3.9.0 - replace comma's with HTML
+											if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
+											
+											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
+										}
+										if( isset( $v['paypal_completed_value'] ) ) {
+											// @since 3.9.0 - replace comma's with HTML
+											if( !empty($v['replace_commas']) ) $v['paypal_completed_value'] = str_replace( ',', $v['replace_commas'], $v['paypal_completed_value'] );
+											
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['paypal_completed_value'] ), $confirm_row );
+										}
+										if( isset( $v['value'] ) ) {
+											// @since 3.9.0 - replace comma's with HTML
+											if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+											
+											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
+										}
+									}
+								}
+								// @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
+								if( $v['exclude']!=1 ) {
+									if( $settings['paypal_completed_exclude_empty']=='true' && empty($v['value']) ) {
+									}else{
+										$confirm_loop .= $confirm_row;
+									}
+								} 
+							}
+						}
+
+						// @since 2.8.0 - additional header support for confirmation emails
+						if( !isset($settings['paypal_completed_header_additional']) ) $settings['paypal_completed_header_additional'] = '';
+						$settings['header_additional'] = $settings['paypal_completed_header_additional'];
+						
+						if(!empty($settings['paypal_completed_body_open'])) $settings['paypal_completed_body_open'] = $settings['paypal_completed_body_open'] . '<br /><br />';
+						if(!empty($settings['paypal_completed_body'])) $settings['paypal_completed_body'] = $settings['paypal_completed_body'] . '<br /><br />';
+						$email_body = $settings['paypal_completed_body_open'] . $settings['paypal_completed_body'] . $settings['paypal_completed_body_close'];
+						$email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
+						$email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+
+						// @since 3.1.0 - optionally automatically add line breaks
+						if(!isset($settings['paypal_completed_body_nl2br'])) $settings['paypal_completed_body_nl2br'] = 'true';
+						if($settings['paypal_completed_body_nl2br']=='true') $email_body = nl2br( $email_body );
+
+						// @since 4.9.5 - RTL email setting
+						if(!isset($settings['paypal_completed_rtl'])) $settings['paypal_completed_rtl'] = '';
+						if($settings['paypal_completed_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+						
+						$email_body = do_shortcode($email_body);
+						$email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+						if( !isset( $settings['paypal_completed_from_type'] ) ) $settings['paypal_completed_from_type'] = 'default';
+						if( $settings['paypal_completed_from_type']=='default' ) {
+							$settings['paypal_completed_from_name'] = get_option( 'blogname' );
+							$settings['paypal_completed_from'] = get_option( 'admin_email' );
+						}
+						if( !isset( $settings['paypal_completed_from_name'] ) ) $settings['paypal_completed_from_name'] = get_option( 'blogname' );
+						if( !isset( $settings['paypal_completed_from'] ) ) $settings['paypal_completed_from'] = get_option( 'admin_email' );
+						$to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['paypal_completed_to'], $data, $settings ) );
+						$from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['paypal_completed_from'], $data, $settings ) );
+						$from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['paypal_completed_from_name'], $data, $settings ) );          
+						$subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['paypal_completed_subject'], $data, $settings ) );
+
+						// @since 2.8.0 - cc and bcc support for confirmation emails
+						$cc = '';
+						if( !empty($settings['paypal_completed_header_cc']) ) {
+							$cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['paypal_completed_header_cc'], $data, $settings ) );
+						}
+						$bcc = '';
+						if( !empty($settings['paypal_completed_header_bcc']) ) {
+							$bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['paypal_completed_header_bcc'], $data, $settings ) );
+						}
+
+						// @since 2.8.0 - custom reply to headers
+						if( !isset($settings['paypal_completed_header_reply_enabled']) ) $settings['paypal_completed_header_reply_enabled'] = false;
+						$reply = '';
+						$reply_name = '';
+						if( $settings['paypal_completed_header_reply_enabled']==false ) {
+							$custom_reply = false;
+						}else{
+							$custom_reply = true;
+							if( !isset($settings['paypal_completed_header_reply']) ) $settings['paypal_completed_header_reply'] = '';
+							if( !isset($settings['paypal_completed_header_reply_name']) ) $settings['paypal_completed_header_reply_name'] = '';
+							$reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['paypal_completed_header_reply'], $data, $settings ) );
+							$reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['paypal_completed_header_reply_name'], $data, $settings ) );
+						}
+
+						// @since 3.3.2 - default confirm email attachments
+						if( !empty($settings['paypal_completed_attachments']) ) {
+							$email_attachments = explode( ',', $settings['paypal_completed_attachments'] );
+							foreach($email_attachments as $k => $v){
+								$file = get_attached_file($v);
+								if( $file ) {
+									$url = wp_get_attachment_url($v);
+									$filename = basename ( $file );
+									$confirm_attachments[$filename] = $url;
+								}
+							}
+						}
+
+						// @since 2.0
+						$confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
+
+						// Send the email
+						$mail = SUPER_Common::email($to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments);
+
+						// Return error message
+						if( !empty( $mail->ErrorInfo ) ) {
+							$msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+							SUPER_Common::output_message( $error=true, $msg );
 						}
 					}
 
@@ -2753,8 +3001,6 @@ if (!class_exists('SUPER_PayPal')):
 							'filter_value' => 'true',
 						),
 
-
-
 					'paypal_completed_entry_status' => array(
 						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
 						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
@@ -2774,12 +3020,61 @@ if (!class_exists('SUPER_PayPal')):
 						'parent' => 'paypal_advanced_settings',
 						'filter_value' => 'true',
 					),
+
+                    // option to send email after payment completed
+                    'paypal_completed_email' => array(
+                        'name' => esc_html__( 'Send email after payment completed', 'super-forms' ),
+                        'label' => esc_html__( 'Note: this will only work if you save a contact entry', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'paypal_completed_email', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Send email after payment completed', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'paypal_checkout',
+                        'filter_value' => 'true',
+                    ),
+
 				)
 			);
+
+            // option to send email after payment completed
+            $fields = $array['confirmation_email_settings']['fields'];
+            $new_fields = array();
+            foreach($fields as $k => $v){
+                if($k=='confirm'){
+                    unset($fields[$k]);
+                    continue;
+                }
+                if( !empty($v['parent']) ) {
+                    if($v['parent']=='confirm'){
+                        $v['parent'] = 'paypal_completed_email';
+                        $v['filter_value'] = 'true';
+                    }else{
+                        $v['parent'] = str_replace('confirm', 'paypal_completed', $v['parent']);
+                    }
+                }
+                unset($fields[$k]);
+                $k = str_replace('confirm', 'paypal_completed', $k);
+                $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
+                $new_fields[$k] = $v;
+            }
+            $array['paypal_checkout']['fields'] = array_merge($array['paypal_checkout']['fields'], $new_fields);
+            $array['paypal_checkout']['fields']['paypal_completed_attachments'] = array(
+                'name' => esc_html__( 'Attachments for paypal completed emails:', 'super-forms' ),
+                'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
+                'default' => SUPER_Settings::get_value( 0, 'paypal_completed_attachments', $settings['settings'], '' ),
+                'type' => 'file',
+                'multiple' => 'true',
+                'filter' => true,
+                'parent' => 'paypal_completed_email',
+                'filter_value' => 'true',
+            );
+
 			if (class_exists('SUPER_Frontend_Posting')) {
 				$array['paypal_checkout']['fields']['paypal_completed_post_status'] = array(
 					'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
-					'desc' => esc_html__( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Front-end posting', 'super-forms' ),
 					'default' => SUPER_Settings::get_value(0, 'paypal_completed_post_status', $settings['settings'], 'publish' ),
 					'type' => 'select',
 					'values' => array(
@@ -2797,9 +3092,16 @@ if (!class_exists('SUPER_PayPal')):
 				);
 			}
 			if (class_exists('SUPER_Register_Login')) {
+				global $wp_roles;
+				$all_roles = $wp_roles->roles;
+				$editable_roles = apply_filters( 'editable_roles', $all_roles );
+				$roles = array();
+				foreach( $editable_roles as $k => $v ) {
+					$roles[$k] = $v['name'];
+				}
 				$array['paypal_checkout']['fields']['paypal_completed_signup_status'] = array(
 					'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-					'desc' => esc_html__( 'Only used for Register & Login add-on (active, pending, blocked)', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
 					'default' => SUPER_Settings::get_value(0, 'paypal_completed_signup_status', $settings['settings'], 'active' ),
 					'type' => 'select',
 					'values' => array(
@@ -2807,6 +3109,16 @@ if (!class_exists('SUPER_PayPal')):
 						'pending' => esc_html__( 'Pending', 'super-forms' ),
 						'blocked' => esc_html__( 'Blocked', 'super-forms' ),
 					),
+					'filter' => true,
+					'parent' => 'paypal_checkout',
+					'filter_value' => 'true',
+				);
+				$array['paypal_checkout']['fields']['paypal_completed_user_role'] = array(
+					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'default' => SUPER_Settings::get_value(0, 'paypal_completed_user_role', $settings['settings'], 'active' ),
+					'type' => 'select',
+					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
 					'filter' => true,
 					'parent' => 'paypal_checkout',
 					'filter_value' => 'true',

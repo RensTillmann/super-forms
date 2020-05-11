@@ -1,7 +1,14 @@
 # Super Forms - Changelog
 
-## May 05, 2020 - Version 4.9.433
+## May 12, 2020 - Version 4.9.435
 
+- **New:** Option to hide file uploads from Media Library via `Super Forms > Settings > File Upload Settings`
+- **New:** `PayPal Add-on`: option to send custom email after payment completed
+- **New:** `PayPal Add-on` & `Front-end Register & Login Add-on`: option to update the registered user role after payment completed
+- **New:** `Front-end Register & Login Add-on`: option to change user role for action `Update existing user`
+- **New:** `WooCommerce Checkout Add-on` & `Front-end Register & Login Add-on`: option to update the registered user role after payment completed
+- **New:** `WooCommerce Checkout Add-on`: option to populate checkout fields more easily with native setting, matching the field names e.g `billing_first_name` will still work and will be the `leading` value if it exists. Otherwise you can define values like so in the settings: `billing_first_name|{yourfieldnamehere}`. You can define both `billing_` and `shipping_` fields, both will work.
+- **Fix:** Form/User Locker would stil display a message even when disabled
 - **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or seperate date and time and put them in a seperate column
 - **Fix:** Brand icons not working on `Button` element
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_

@@ -613,21 +613,17 @@ if(!class_exists('SUPER_Register_Login')) :
             global $wp_roles;
             $all_roles = $wp_roles->roles;
             $editable_roles = apply_filters( 'editable_roles', $all_roles );
-            $roles = array(
-                '' => esc_html__( 'All user roles', 'super-forms' )
-            );
+            $roles = array();
             foreach( $editable_roles as $k => $v ) {
                 $roles[$k] = $v['name'];
             }
-            $reg_roles = $roles;
-            unset($reg_roles['']);
             $array['register_login'] = array(        
                 'name' => esc_html__( 'Register & Login', 'super-forms' ),
                 'label' => esc_html__( 'Register & Login Settings', 'super-forms' ),
                 'fields' => array(
                     'register_login_action' => array(
                         'name' => esc_html__( 'Actions', 'super-forms' ),
-                        'desc' => esc_html__( 'Select what this form should do (register or login)?', 'super-forms' ),
+                        'label' => esc_html__( 'Select what the form should do (register, login, update or reset a password)', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_login_action', $settings['settings'], 'none' ),
                         'filter' => true,
                         'type' => 'select',
@@ -668,7 +664,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                     // @since 1.2.6 - skip registration if user_login or user_email are not found
                     'register_login_action_skip_register' => array(
-                        'desc' => esc_html__( 'Skip registration if user_login or user_email are not found or conditionally hidden', 'super-forms' ),
+                        'label' => esc_html__( 'This option is only usefull whenever you conditionally hide the user_login or user_email field', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_login_action_skip_register', $settings['settings'], '' ),
                         'type' => 'checkbox',
                         'values' => array(
@@ -697,8 +693,8 @@ if(!class_exists('SUPER_Register_Login')) :
                         'default' => SUPER_Settings::get_value( 0, 'register_user_role', $settings['settings'], '' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
-                        'filter_value' => 'register',
-                        'values' => $reg_roles,
+                        'filter_value' => 'register,update',
+                        'values' => array_merge($roles, array('_super_keep_existing_role' => esc_html__( 'Keep existing role (only use this when updating existing user)', 'super-forms' ))),
                     ),
                     'register_user_signup_status' => array(
                         'name' => esc_html__( 'User login status after registration', 'super-forms' ),
@@ -983,7 +979,6 @@ if(!class_exists('SUPER_Register_Login')) :
          *  @since      1.3.0
         */
         public static function before_email_success_msg( $atts ) {
-
             $settings = $atts['settings'];
             $data = $atts['data'];
 
@@ -995,7 +990,9 @@ if(!class_exists('SUPER_Register_Login')) :
                     SUPER_Forms()->session->set( 'super_update_user_meta', false );
 
                     // Loop through all default user data that WordPress provides us with out of the box
-                    $userdata = array(
+                    $other_userdata = array(
+                        // 'role',      // We do not want this to be changed from the form itself because it poses a security risk!
+                                        // if you really want to change this, do it via a hook after the user was updated ;)
                         'user_login',
                         'user_email',
                         'user_pass',
@@ -1009,12 +1006,12 @@ if(!class_exists('SUPER_Register_Login')) :
                         'last_name',
                         'description',
                         'rich_editing',
-                        'role', // This is in case we have a custom dropdown with the name "role" which allows users to select their own account type/role
                         'jabber',
                         'aim',
                         'yim'
                     );
-                    foreach( $userdata as $k ) {
+                    $userdata = array();
+                    foreach( $other_userdata as $k ) {
                         if( isset( $data[$k]['value'] ) ) {
                             $value = $data[$k]['value'];
                             if( $k=='user_login' ) $value = sanitize_user($value);
@@ -1022,14 +1019,30 @@ if(!class_exists('SUPER_Register_Login')) :
                             $userdata[$k] = $value;
                         }
                     }
-                    
+
+                    // Option to optionally change/update the user role or to keep the existing role
+                    if(!empty($settings['register_user_role'])){
+                        // Only change role if we want to
+                        if( $settings['register_user_role']!=='_super_keep_existing_role' ) {
+                            // Change the user role to something different
+                            $userdata['role'] = $settings['register_user_role'];
+                        }
+                    }
+
                     // @since 1.6.1 - option to enable or disable toolbar
                     if(!empty($settings['register_login_show_toolbar'])) {
                         $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
                     }
 
                     $userdata['ID'] = $user_id;
-                    wp_update_user( $userdata );
+                    $result = wp_update_user( $userdata );
+                    if( is_wp_error( $result ) ) {
+                        SUPER_Common::output_message(
+                            $error = true,
+                            $msg = $return->get_error_message(),
+                            $redirect = null
+                        );
+                    }
 
                     // Save custom user meta
                     $meta_data = array();
