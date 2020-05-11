@@ -1088,7 +1088,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     ),
                     'frontend_posting_status' => array(
                         'name' => esc_html__( 'Status', 'super-forms' ),
-                        'desc' => esc_html__( 'Select what the status should be (publish, future, draft, pending, private, trash, auto-draft)?', 'super-forms' ),
+                        'desc' => esc_html__( 'Select what the status should be', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'frontend_posting_status', $settings, 'publish' ),
                         'type' => 'select',
                         'values' => array(

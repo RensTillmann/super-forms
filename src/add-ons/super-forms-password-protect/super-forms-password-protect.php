@@ -464,14 +464,10 @@ if(!class_exists('SUPER_Password_Protect')) :
             global $wp_roles;
             $all_roles = $wp_roles->roles;
             $editable_roles = apply_filters( 'editable_roles', $all_roles );
-            $roles = array(
-                '' => esc_html__( 'All user roles', 'super-forms' )
-            );
+            $roles = array();
             foreach( $editable_roles as $k => $v ) {
                 $roles[$k] = $v['name'];
             }
-            $reg_roles = $roles;
-            unset($reg_roles['']);
             $array['password_protect'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'Password Protect', 'super-forms' ),
@@ -523,7 +519,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                         'filter' => true,
                         'parent' => 'password_protect_roles',
                         'filter_value' => 'true',
-                        'values' => $reg_roles,
+                        'values' => $roles,
                     ),
                     'password_protect_hide' => array(
                         'desc' => esc_html__( 'Hide the form from locked out users', 'super-forms' ), 

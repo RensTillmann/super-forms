@@ -55,5 +55,7 @@
 .pp-name-email > i {
     position:absolute;
     left:0px;
-    top:5px;
+    top: 2px;
+    font-style: initial;
+    font-size: 14px;
 }

@@ -2535,12 +2535,21 @@ class SUPER_Settings {
                     'type' => 'select', 
                     'values' => $loaded_image_libraries
                 ),
+                'file_upload_hide_from_media_library' => array(
+                    'name' => esc_html__('Hide files from Media Library that were uploaded via forms', 'super-forms' ),
+                    // allow empty / allow_empty
+                    'default' => self::get_value( $default, 'file_upload_hide_from_media_library', $settings, 'true', true ),
+                    'values' => array(
+                        'true' => esc_html__('Do not show file uploads in the Media Library', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
                 'file_upload_submission_delete' => array(
                     'name' => esc_html__('Delete files from server after form submissions', 'super-forms' ),
                     'desc' => esc_html__('When enabled files are automatically deleted after form submissions.', 'super-forms' ),
                     'default' => self::get_value( $default, 'file_upload_submission_delete', $settings, '' ),
                     'values' => array(
-                        'true' => esc_html__('Enable (delete files from server after the form was submitted)', 'super-forms' )
+                        'true' => esc_html__('Delete files from server after the form was submitted', 'super-forms' )
                     ),
                     'type' => 'checkbox'
                 ),
@@ -2548,10 +2557,12 @@ class SUPER_Settings {
                     'name' => esc_html__('After deleting a Contact Entry delete all it\'s associated files', 'super-forms' ),
                     'default' => self::get_value( $default, 'file_upload_entry_delete', $settings, '' ),
                     'values' => array(
-                        'true' => esc_html__('Enable (delete associated files after deleting a Contact Entry)', 'super-forms' )
+                        'true' => esc_html__('Delete associated files after deleting a Contact Entry', 'super-forms' )
                     ),
                     'type' => 'checkbox'
                 ),
+
+
                 // 'file_upload_location' => array(
                 //     'name' => esc_html__('Select where the file should be uploaded to', 'super-forms' ),
                 //     'desc' => esc_html__('You have the ability to upload files to the wp-content directory (private) or to the WordPress Media Library (public). It is recommended to use the private method in case you are dealing with sensitive information.', 'super-forms' ),
@@ -2559,23 +2570,28 @@ class SUPER_Settings {
                 //     'values' => array(
                 //         'wp_content' => esc_html__('wp-content directory (recommended)', 'super-forms' ),
                 //         'media_library' => esc_html__('Media Library (publicly visible)', 'super-forms' ),
-                //         'custom' => esc_html__('Upload to a custom path', 'super-forms' )
+                //         'custom' => esc_html__('Upload to custom filesystem path', 'super-forms' )
                 //         'disabled' => esc_html__('Temporarily disable file uploads', 'super-forms' )
                 //     ),
                 //     'type' => 'select', 
                 //     'filter' => true
                 // ),
-                // 'file_upload_custom_dir' => array(
-                //     'name' => esc_html__('Enter path', 'super-forms' ),
-                //     'default' => self::get_value( $default, 'file_upload_custom_dir', $settings, '' ),
-                //     'values' => array(
-                //         'true' => esc_html__('Enable', 'super-forms' )
-                //     ),
-                //     'type' => 'checkbox',
+                // 'file_upload_dir' => array(
+                //     'name' => esc_html__('Enter your directory name', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_dir', $settings, '' ),
                 //     'filter' => true,
                 //     'parent' => 'file_upload_location',
                 //     'filter_value' => 'custom'
                 // ),
+                // 'file_upload_path' => array(
+                //     'name' => esc_html__('Enter path', 'super-forms' ),
+                //     'default' => self::get_value( $default, 'file_upload_path', $settings, '' ),
+                //     'filter' => true,
+                //     'parent' => 'file_upload_location',
+                //     'filter_value' => 'custom'
+                // ),
+
+
                 // 'file_upload_google_drive' => array(
                 //     'name' => esc_html__('Upload files to Google Drive', 'super-forms' ),
                 //     'default' => self::get_value( $default, 'file_upload_google_drive', $settings, '' ),
@@ -2592,6 +2608,185 @@ class SUPER_Settings {
                 //     ),
                 //     'type' => 'checkbox'
                 // ),
+
+
+
+
+
+
+
+
+
+
+
+
+                // foreach( $v['files'] as $key => $value ) {
+                            
+                //     // // Check that the nonce is valid, and the user can edit this post.
+                //     // if ( 
+                //     //     isset( $_POST['my_image_upload_nonce'], $_POST['post_id'] ) 
+                //     //     && wp_verify_nonce( $_POST['my_image_upload_nonce'], 'my_image_upload' )
+                //     //     && current_user_can( 'edit_post', $_POST['post_id'] )
+                //     // ) {
+                //     //     // The nonce was valid and the user has the capabilities, it is safe to continue.
+
+                //     //     // These files need to be included as dependencies when on the front end.
+                //     //     require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                //     //     require_once( ABSPATH . 'wp-admin/includes/file.php' );
+                //     //     require_once( ABSPATH . 'wp-admin/includes/media.php' );
+                        
+                //     //     // Let WordPress handle the upload.
+                //     //     // Remember, 'my_image_upload' is the name of our file input in our form above.
+                //     //     $attachment_id = media_handle_upload( 'my_image_upload', $_POST['post_id'] );
+                        
+                //     //     if ( is_wp_error( $attachment_id ) ) {
+                //     //         // There was an error uploading the image.
+                //     //     } else {
+                //     //         // The image was uploaded successfully!
+                //     //     }
+
+                //     // } else {
+
+                //     //     // The security check failed, maybe show the user an error.
+                //     // }
+
+                //     // Before we proceed check if the file already exists, if so, do nothing
+                //     // Exclude files that are being uploaded for the first time
+                //     // They will be in the "uploads/php" directory
+                //     $file = $value['url'];
+                //     if(!strpos($file, 'uploads/php/files')) {
+                //         $file_headers = @get_headers($file);
+                //         if($file_headers && $file_headers[0] != '404') {
+                //             continue;
+                //         }
+                //     }
+
+                //     // If the file does not exists let's process it
+                //     $file = basename( $value['url'] );
+                //     $folder = basename( dirname( $value['url'] ) );
+                    
+                //     // @since 3.1 - skip if one of the values are empty
+                //     if( ($file=='') || ($folder=='') ) continue;
+
+                //     $path = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
+                    
+                //     // @since 1.3
+                //     // Make sure to skip this file if it's source location is invalid
+                //     if (strpos($path, 'uploads/php/files') !== false) {
+
+                //         $source = urldecode( $path );
+                //         $wp_upload_dir = wp_upload_dir();
+
+                //         // Store in custom directory, or in a secure folder
+                //         // The user can define this in `Super Forms > Settings > File Upload Settings`
+
+                //         // Default directory:
+                //         $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
+                //         $unique_folder = SUPER_Common::generate_random_folder($folder);
+                //         $newfile = $unique_folder . '/' . basename( $source );
+
+
+
+
+
+
+                //         if( !$entry_id ) return;
+                //         //wp_delete_attachment( $attachment_id, true );
+                //         $attachments = get_posts( array(
+                //             'post_type' => 'attachment',
+                //             'posts_per_page' => -1,
+                //             'post_parent' => $entry_id
+                //         ) );
+                //         if ( $attachments ) {
+                //             foreach ( $attachments as $attachment ) {
+                //                 $uploads = wp_get_upload_dir();
+                //                 $file_meta = wp_get_attachment_metadata( $attachment->ID );
+                //                 if( $file_meta && isset($file_meta['sizes']) ){
+                //                     foreach ($file_meta['sizes'] as $key => $meta) {
+                //                         @unlink( trailingslashit( $uploads['path'] ) . $meta['file'] );
+                //                     }
+                //                 }
+                //                 $delete = get_attached_file( $attachment->ID );
+                //                 @unlink( $delete );
+                //                 wp_delete_attachment( $attachment->ID, true );
+                //             }
+                //         }
+
+                        
+                        
+
+
+
+
+
+
+                //         // error_log('$newfile: ' . $newfile, 0);
+                //         // // Secure file directory
+                //         // $filedir = apply_filters('super_forms_secure_dir_filter', SUPER_PLUGIN_SECURE_DIR);
+                //         // error_log('$filedir: ' . $filedir, 0);
+                //         // $newfile = $filedir . basename( $source );
+                //         // error_log('$newfile2: ' . $newfile, 0);
+                //         // // Create directory if not yet exists
+                //         // if (!file_exists($filedir)) {
+                //         //     error_log('filedir1', 0);
+                //         //     mkdir($filedir, 0744, true);
+                //         // }
+                //         // if (!file_exists($filedir)) {
+                //         //     error_log('filedir2', 0);
+                //         //     mkdir($filedir, 0744, true);
+                //         // }else{
+                //         //     error_log('exists!', 0);
+                //         // }
+
+                //         if ( !copy( $source, $newfile ) ) {
+                //             $dir = str_replace( basename( $source ), '', $source );
+                //             SUPER_Common::delete_dir( $dir );
+                //             SUPER_Common::delete_dir( $unique_folder );
+                //             SUPER_Common::output_message(
+                //                 $error = true,
+                //                 $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
+                //                 $redirect = $redirect
+                //             );
+                //             die();
+                //         }else{
+                //             $dir = str_replace( basename( $source ), '', $source );
+                //             if( !empty( $dir ) ) {
+                //                 $delete_dirs[] = $dir;
+                //             }
+                //             $filename = $newfile;
+                //             $filetype = wp_check_filetype( basename( $filename ), null );
+                //             $wp_upload_dir = wp_upload_dir();
+                //             $attachment = array(
+                //                 'post_mime_type' => $filetype['type'],
+                //                 'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                //                 'post_content'   => '',
+                //                 'post_status'    => 'inherit'
+                //             );
+                //             $attach_id = wp_insert_attachment( $attachment, $filename );
+
+                //             require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                //             $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                //             wp_update_attachment_metadata( $attach_id,  $attach_data );
+                            
+                //             $data[$k]['files'][$key]['attachment'] = $attach_id;
+                //             $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+                //         }
+                //     }
+                // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             ),
         );
         $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings ) );

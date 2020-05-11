@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.433
+ * Version:     4.9.435
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.433';
+        public $version = '4.9.435';
         public $slug = 'super-forms';
 
 
@@ -370,7 +370,48 @@ if(!class_exists('SUPER_Forms')) :
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
 
+            // Hide file uploads from Media Library
+            add_action( 'pre_get_posts', array( $this, 'hide_uploads_from_media_library_list_view' ) );
+            add_filter( 'ajax_query_attachments_args', array( $this, 'hide_uploads_from_media_grid_and_overlay_view' ) );
+        }
+        // Hide file uploads in list view (Media Library)
+        public function hide_uploads_from_media_library_list_view($query) {
+            if ( ! is_admin() )  return;
+            if ( ! $query->is_main_query() ) return;
+            $screen = get_current_screen();
+            if ( !$screen || $screen->id !== 'upload' ||  $screen->post_type !== 'attachment' ) {
+                return;
+            }
+            $global_settings = SUPER_Common::get_global_settings();
+            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $global_settings = array_merge( $defaults, $global_settings );
+            if(!empty($global_settings['file_upload_hide_from_media_library'])){
+                $query->set( 'meta_query', array(
+                    array(
+                        'key' => '_wp_attached_file',
+                        'value' => 'superforms', 
+                        'compare' => 'NOT LIKE'
+                    )
+                ) );
+            }
 
+        }
+        // Hide file uploads in grid view (Media Library) and from overlay view (popup)
+        public function hide_uploads_from_media_grid_and_overlay_view( $args ) {
+            if ( ! is_admin() )  return;
+            $global_settings = SUPER_Common::get_global_settings();
+            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $global_settings = array_merge( $defaults, $global_settings );
+            if(!empty($global_settings['file_upload_hide_from_media_library'])){
+                $args['meta_query'] = array(
+                    array(
+                        'key' => '_wp_attached_file',
+                        'value' => 'superforms', 
+                        'compare' => 'NOT LIKE'
+                    )
+                );
+            }
+            return $args;
         }
         public function api_post_activation() {
             self::api_post('activation');

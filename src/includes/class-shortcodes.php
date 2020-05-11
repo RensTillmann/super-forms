@@ -5617,17 +5617,22 @@ class SUPER_Shortcodes {
                 }
             }
             if( $display_msg ) {
-                $result .= '<div class="super-msg super-error">';
-                if($settings['form_locker_msg_title']!='') {
-                    $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
-                }
-                $result .= nl2br($settings['form_locker_msg_desc']);
-                $result .= '<span class="close"></span>';
-                $result .= '</div>';
-                if($settings['form_locker_hide']=='true') {
-                    $result .= '</form>';
+                if(!empty($settings['form_locker_msg'])) {
+                    $result .= '<div class="super-msg super-error">';
+                    if($settings['form_locker_msg_title']!='') {
+                        $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+                    }
+                    $result .= nl2br($settings['form_locker_msg_desc']);
+                    $result .= '<span class="close"></span>';
                     $result .= '</div>';
-                    return $result;
+                    if($settings['form_locker_hide']=='true') {
+                        $result .= '</form>';
+                        $result .= '</div>';
+                        return $result;
+                    }
+                }else{
+                    // Do not display anything
+                    return '';
                 }
             }
         }
@@ -5685,17 +5690,22 @@ class SUPER_Shortcodes {
                     }
                 }
                 if( $display_msg ) {
-                    $result .= '<div class="super-msg super-error">';
-                    if(!empty($settings['user_form_locker_msg_title'])) {
-                        $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
-                    }
-                    $result .= nl2br($settings['user_form_locker_msg_desc']);
-                    $result .= '<span class="close"></span>';
-                    $result .= '</div>';
-                    if(!empty($settings['user_form_locker_hide'])) {
-                        $result .= '</form>';
+                    if(!empty($settings['user_form_locker_msg'])) {
+                        $result .= '<div class="super-msg super-error">';
+                        if(!empty($settings['user_form_locker_msg_title'])) {
+                            $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                        }
+                        $result .= nl2br($settings['user_form_locker_msg_desc']);
+                        $result .= '<span class="close"></span>';
                         $result .= '</div>';
-                        return $result;
+                        if(!empty($settings['user_form_locker_hide'])) {
+                            $result .= '</form>';
+                            $result .= '</div>';
+                            return $result;
+                        }
+                    }else{
+                        // Do not display anything
+                        return '';
                     }
                 }
             }

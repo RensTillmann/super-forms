@@ -485,7 +485,7 @@ class SUPER_Pages {
                                                                     echo '<td><span class="super-contact-entry-data-value">';
                                                                 }
                                                                 $url = $fv['url'];
-                                                                if( isset( $fv['attachment'] ) ) {
+                                                                if( !empty( $fv['attachment'] ) ) {
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
                                                                 if($fk>0) echo '<br />';
