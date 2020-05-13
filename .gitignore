@@ -2,6 +2,7 @@ node_modules
 dist
 build/tmp
 dist/uploads/php/files/*.*
+.map
 sales-pages
 usd20190002.txt
 usd20190003.txt
