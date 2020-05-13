@@ -1,7 +1,27 @@
 # Super Forms - Changelog
 
-## Apr 22, 2020 - Version 4.9.431
+## May 13, 2020 - Version 4.9.435
 
+- **New:** `Secure file uploads` setting under `Super Forms > Settings > File Upload Settings`
+  - option to define a custom directory name relative to the site root e.g:
+    `wp-content/uploads/superforms` _the default upload directory for file uploads_
+    `my-custom-public-folder` _custom file upload directory (but still publicly accessible)_
+    `../my-custom-private-folder` _secure file uploads_
+    `../../my-custom-private-folder` _secure file uploads when WP is installed in a subdirectory_
+  - option to define a `custom file upload directory`, this also allows for secure file uploads outside of the site root directory
+  - optionally choose to organize uploaded files in a mont/year based structure
+  - option to hide file uploads from the Media Library
+    - when enabled in combination with a none root upload directory the files can still be set to be hidden from the Media Library
+    - when you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
+- **New:** Option to hide file uploads from Media Library via `Super Forms > Settings > File Upload Settings`
+- **New:** `PayPal Add-on`: option to send custom email after payment completed
+- **New:** `PayPal Add-on` & `Register & Login Add-on`: option to update the registered user role after payment completed
+- **New:** `Register & Login Add-on`: option to change user role for action `Update existing user`
+- **New:** `WooCommerce Checkout Add-on` & `Register & Login Add-on`: option to update the registered user role after payment completed
+- **New:** `WooCommerce Checkout Add-on`: option to populate checkout fields more easily with native setting, matching the field names e.g `billing_first_name` will still work and will be the `leading` value if it exists. Otherwise you can define values like so in the settings: `billing_first_name|{yourfieldnamehere}`. You can define both `billing_` and `shipping_` fields, both will work.
+- **Fix:** Form/User Locker would stil display a message even when disabled
+- **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or seperate date and time and put them in a seperate column
+- **Fix:** Brand icons not working on `Button` element
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
 - **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format
 - **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
