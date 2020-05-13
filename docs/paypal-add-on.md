@@ -178,7 +178,6 @@ You want to create a subscription with 1 trial period for 3 days and after trial
 
 [subscription-periods-usecase2]: _media/paypal/subscription-periods-usecase2.png "Example with 1 trial period"
 ![alt text][subscription-periods-usecase2]
-<img src="_media/paypal/subscription-periods-usecase2.png" />
 
 **Example with 2 trial periods:**
 
