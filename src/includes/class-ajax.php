@@ -83,7 +83,7 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-            'smtp_test'               => false, // @since 4.9.5
+            //'smtp_test'                     => false, // @since 4.9.5
 
         );
 
@@ -1986,7 +1986,6 @@ class SUPER_Ajax {
         // Return extra data via ajax response
         $response_data = array();
 
-
         // Get form settings
         $form_id = absint( $_POST['form_id'] );
         $response_data['form_id'] = $form_id;
@@ -2115,7 +2114,6 @@ class SUPER_Ajax {
         }
 
 
-
         /** 
          *  Make sure to also save the file into the WP Media Library
          *  In case a user deletes Super Forms these files are not instantly deleted without warning
@@ -2151,28 +2149,48 @@ class SUPER_Ajax {
                             // Get source file
                             $sourcePath = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
                             $sourcePath = urldecode( $sourcePath );
-
                             // Determine location to store the file
                             $wp_upload_dir = wp_upload_dir();
 
-                            // Store in custom directory, or in a secure folder
-                            // The user can define this in `Super Forms > Settings > File Upload Settings`
+                            // By default upload files to Media Library
+                            $uploadToMediaLibrary = true;
 
-                            // Default directory (/wp-content/uploads/super-forms):
-                            $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
-                            $unique_folder = SUPER_Common::generate_random_folder($folder);
-                            $newfile = $unique_folder . '/' . basename( $sourcePath );
-                            $dir = str_replace( basename( $sourcePath ), '', $sourcePath );
+                            // Default to super forms directory
+                            $uploadPath = SUPER_FORMS_UPLOAD_DIR;
+                            if(!empty($settings['file_upload_dir'])){
+                                // User defined directory
+                                $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                                // Check if trying to go up the root, if so do not create attachment
+                                // (which means we do not store file into the Media Library)
+                                $goUpInRoot = explode("../", $settings['file_upload_dir']);
+                                if(count($goUpInRoot)-1 != 0){
+                                    $uploadToMediaLibrary = false;
+                                }
+                            }
+                            $fileLocation = '';
+                            if( !isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders']) ) {
+                                $fileLocation .= trailingslashit(wp_normalize_path($wp_upload_dir["subdir"]));
+                                $folder = trailingslashit(wp_normalize_path($uploadPath . $wp_upload_dir["subdir"]));
+                            }else{
+                                $folder = trailingslashit(wp_normalize_path($uploadPath));
+                            }
+
+                            // Create directory if not yet exists and generate random directory
+                            $folderResult = SUPER_Common::generate_random_folder($folder);
+
+                            $folderPath = $folderResult['folderPath'];
+                            $folderName = $folderResult['folderName'];
+                            $fileLocation = trailingslashit(wp_normalize_path($fileLocation)) . $folderName;
+                            $fileName = basename( $sourcePath );
+                            $fileLocation = trailingslashit($fileLocation) . $fileName;
+
+                            $newfile = $folderPath . '/' . $fileName;
+                            $dir = str_replace( $fileName, '', $sourcePath );
                             if ( !copy( $sourcePath, $newfile ) ) {
-                                $errors = error_get_last();
-                                SUPER_Common::delete_dir( $dir );
-                                SUPER_Common::delete_dir( $unique_folder );
-                                SUPER_Common::output_message(
-                                    $error = true,
-                                    $msg = '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $errors['message'],
-                                    $redirect = $redirect
-                                );
-                                die();
+                                $error = error_get_last();
+                                SUPER_Common::delete_dir( dirname($sourcePath) );
+                                SUPER_Common::delete_dir( $folderPath );
+                                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
                             }else{
                                 if( !empty( $dir ) ) $delete_dirs[] = $dir;
                                 $filetype = wp_check_filetype( basename( $newfile ), null );
@@ -2182,177 +2200,22 @@ class SUPER_Ajax {
                                     'post_content'   => '',
                                     'post_status'    => 'inherit'
                                 );
-                                $attach_id = wp_insert_attachment( $attachment, $newfile );
-                                require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                                $attach_data = wp_generate_attachment_metadata( $attach_id, $newfile );
-                                wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                $data[$k]['files'][$key]['attachment'] = $attach_id;
-                                $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
-                                
-                                // Add to Media library?
-                                // $addToMediaLibrary = false;
-                                // if($addToMediaLibrary){
-                                //     // Do not make the file visilbe in Media Library
-                                //     // This can be done by not attaching it to a post
-                                //     $url = site_url();
-                                //     $url = rtrim($url, '/') . '/';
-                                //     $url = str_replace(wp_normalize_path( ABSPATH ), $url, wp_normalize_path( $newfile ));
-                                //     $url = esc_url_raw( $url );
-                                //     $data[$k]['files'][$key]['attachment'] = 0;
-                                //     $data[$k]['files'][$key]['url'] = $url;
-                                // }else{
-
-                                //}
-                                ///$data[$k]['files'][$key]['attachment'] = 0;
-                                //$data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
-                                //$attach_id = wp_insert_attachment( $attachment, $newfile );
-                                //error_log('$attach_id: ' . $attach_id, 0);
-                                // require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                                // $attach_data = wp_generate_attachment_metadata( $attach_id, $newfile );
-                                // error_log('$attach_data: ' . json_encode($attach_data), 0);
-                                // wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                //$data[$k]['files'][$key]['attachment'] = $attach_id;
-                                //$data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+                                // Only insert attachment if we are in root directory
+                                if($uploadToMediaLibrary){
+                                    $attachment_id = wp_insert_attachment( $attachment, $newfile );
+                                    add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
+                                    require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                                    $attach_data = wp_generate_attachment_metadata( $attachment_id, $newfile );
+                                    wp_update_attachment_metadata( $attachment_id,  $attach_data );
+                                    $data[$k]['files'][$key]['attachment'] = $attachment_id;
+                                    $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attachment_id );
+                                }else{
+                                    // If secure upload, update URL:
+                                    $fileUrl = trailingslashit(get_home_url()) . 'sfgtfi' . $fileLocation;
+                                    $data[$k]['files'][$key]['url'] = $fileUrl;
+                                    $data[$k]['files'][$key]['path'] = $folderPath;
+                                }
                             }
-
-                            // if( !$entry_id ) return;
-                            // //wp_delete_attachment( $attachment_id, true );
-                            // $attachments = get_posts( array(
-                            //     'post_type' => 'attachment',
-                            //     'posts_per_page' => -1,
-                            //     'post_parent' => $entry_id
-                            // ) );
-                            // if ( $attachments ) {
-                            //     foreach ( $attachments as $attachment ) {
-                            //         $uploads = wp_get_upload_dir();
-                            //         $file_meta = wp_get_attachment_metadata( $attachment->ID );
-                            //         if( $file_meta && isset($file_meta['sizes']) ){
-                            //             foreach ($file_meta['sizes'] as $key => $meta) {
-                            //                 @unlink( trailingslashit( $uploads['path'] ) . $meta['file'] );
-                            //             }
-                            //         }
-                            //         $delete = get_attached_file( $attachment->ID );
-                            //         @unlink( $delete );
-                            //         wp_delete_attachment( $attachment->ID, true );
-                            //     }
-                            // }
-
-                            // error_log('$newfile: ' . $newfile, 0);
-                            // // Secure file directory
-                            // $filedir = apply_filters('super_forms_secure_dir_filter', SUPER_PLUGIN_SECURE_DIR);
-                            // error_log('$filedir: ' . $filedir, 0);
-                            // $newfile = $filedir . basename( $sourcePath );
-                            // error_log('$newfile2: ' . $newfile, 0);
-                            // // Create directory if not yet exists
-                            // if (!file_exists($filedir)) {
-                            //     error_log('filedir1', 0);
-                            //     mkdir($filedir, 0744, true);
-                            // }
-                            // if (!file_exists($filedir)) {
-                            //     error_log('filedir2', 0);
-                            //     mkdir($filedir, 0744, true);
-                            // }else{
-                            //     error_log('exists!', 0);
-                            // }
-
-                            // if ( !copy( $sourcePath, $newfile ) ) {
-                            //     $dir = str_replace( basename( $sourcePath ), '', $sourcePath );
-                            //     SUPER_Common::delete_dir( $dir );
-                            //     SUPER_Common::delete_dir( $unique_folder );
-                            //     SUPER_Common::output_message(
-                            //         $error = true,
-                            //         $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$sourcePath.'" to: "'.$newfile.'"',
-                            //         $redirect = $redirect
-                            //     );
-                            //     die();
-                            // }else{
-                            //     $dir = str_replace( basename( $sourcePath ), '', $sourcePath );
-                            //     if( !empty( $dir ) ) {
-                            //         $delete_dirs[] = $dir;
-                            //     }
-                            //     $filename = $newfile;
-                            //     $filetype = wp_check_filetype( basename( $filename ), null );
-                            //     $wp_upload_dir = wp_upload_dir();
-                            //     $attachment = array(
-                            //         'post_mime_type' => $filetype['type'],
-                            //         'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-                            //         'post_content'   => '',
-                            //         'post_status'    => 'inherit'
-                            //     );
-                            //     $attach_id = wp_insert_attachment( $attachment, $filename );
-
-                            //     require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                            //     $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-                            //     wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                
-                            //     $data[$k]['files'][$key]['attachment'] = $attach_id;
-                            //     $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
-                            // }
-                        
-
-                        // // Before we proceed check if the file already exists, if so, do nothing
-                        // // Exclude files that are being uploaded for the first time
-                        // // They will be in the "uploads/php" directory
-                        // $file = $value['url'];
-                        // if(!strpos($file, 'uploads/php/files')) {
-                        //     $file_headers = @get_headers($file);
-                        //     if($file_headers && $file_headers[0] != '404') {
-                        //         continue;
-                        //     }
-                        // }
-
-                        // // If the file does not exists let's process it
-                        // $file = basename( $value['url'] );
-                        // $folder = basename( dirname( $value['url'] ) );
-                        
-                        // // @since 3.1 - skip if one of the values are empty
-                        // if( ($file=='') || ($folder=='') ) continue;
-
-                        // $path = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
-                        
-                        // // @since 1.3
-                        // // Make sure to skip this file if it's source location is invalid
-                        // if (strpos($path, 'uploads/php/files') !== false) {
-
-                        //     $sourcePath = urldecode( $path );
-                        //     $wp_upload_dir = wp_upload_dir();
-                        //     $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
-                        //     $unique_folder = SUPER_Common::generate_random_folder($folder);
-                        //     $newfile = $unique_folder . '/' . basename( $sourcePath );
-                        //     if ( !copy( $sourcePath, $newfile ) ) {
-                        //         $dir = str_replace( basename( $sourcePath ), '', $sourcePath );
-                        //         SUPER_Common::delete_dir( $dir );
-                        //         SUPER_Common::delete_dir( $unique_folder );
-                        //         SUPER_Common::output_message(
-                        //             $error = true,
-                        //             $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$sourcePath.'" to: "'.$newfile.'"',
-                        //             $redirect = $redirect
-                        //         );
-                        //         die();
-                        //     }else{
-                        //         $dir = str_replace( basename( $sourcePath ), '', $sourcePath );
-                        //         if( !empty( $dir ) ) {
-                        //             $delete_dirs[] = $dir;
-                        //         }
-                        //         $filename = $newfile;
-                        //         $filetype = wp_check_filetype( basename( $filename ), null );
-                        //         $wp_upload_dir = wp_upload_dir();
-                        //         $attachment = array(
-                        //             'post_mime_type' => $filetype['type'],
-                        //             'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-                        //             'post_content'   => '',
-                        //             'post_status'    => 'inherit'
-                        //         );
-                        //         $attach_id = wp_insert_attachment( $attachment, $filename );
-
-                        //         require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                        //         $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-                        //         wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                
-                        //         $data[$k]['files'][$key]['attachment'] = $attach_id;
-                        //         $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
-                        //     }
-                        // }
                         }
                     }
                 }else{
@@ -2458,7 +2321,7 @@ class SUPER_Ajax {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach($v['files'] as $file){
                             $attachment = array(
-                                'ID' => absint($file['attachment']),
+                                'ID' => (!empty($file['attachment']) ? absint($file['attachment']) : 0),
                                 'post_parent' => $contact_entry_id
                             );
                             wp_update_post( $attachment );
@@ -3086,14 +2949,20 @@ class SUPER_Ajax {
             );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
-            // If the option to delete files after form submission is enabled remove all files from the server
+            // If the option to delete files after form submission is enabled remove all uploaded files from the server
             if( !empty($settings['file_upload_submission_delete']) ) {
                 // Loop through all data with field typ 'files' and look for any uploaded attachments
                 foreach( $data as $k => $v ) {
                     if( $v['type']=='files' ) {
                         if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                             foreach($v['files'] as $file){
-                                wp_delete_attachment( absint($file['attachment']), true );
+                                if(!empty($file['attachment'])){
+                                    wp_delete_attachment( absint($file['attachment']), true );
+                                }else{
+                                    if(!empty($file['path'])){
+                                        SUPER_Common::delete_dir( $file['path'] );
+                                    }
+                                }
                             }
                         }
                     }
@@ -3154,32 +3023,32 @@ class SUPER_Ajax {
         }
     }
 
-    /** 
-     *  Send an test email through SMTP
-     *
-     *  @param  array  $settings
-     *
-     *  @since      1.0.0
-    */
-    public static function smtp_test() {
-        var_dump('test smtp_test()');
-        die();
-        // $settings = SUPER_Common::get_form_settings($form_id);
-        // $from = 'no-reply@f4d.nl';
-        // $to = sanitize_email($_POST['email']);
-        // $from_name = 'f4d.nl';
-        // $subject = 'Subject';
-        // $email_body = 'Email body';
+    // /** 
+    //  *  Send an test email through SMTP
+    //  *
+    //  *  @param  array  $settings
+    //  *
+    //  *  @since      1.0.0
+    // */
+    // public static function smtp_test() {
+    //     var_dump('test smtp_test()');
+    //     die();
+    //     // $settings = SUPER_Common::get_form_settings($form_id);
+    //     // $from = 'no-reply@f4d.nl';
+    //     // $to = sanitize_email($_POST['email']);
+    //     // $from_name = 'f4d.nl';
+    //     // $subject = 'Subject';
+    //     // $email_body = 'Email body';
 
-        // // Send the email
-        // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
+    //     // // Send the email
+    //     // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
 
-        // // Return error message
-        // if( !empty( $mail->ErrorInfo ) ) {
-        //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-        //     SUPER_Common::output_message( $error=true, $msg );
-        // }
-    }
+    //     // // Return error message
+    //     // if( !empty( $mail->ErrorInfo ) ) {
+    //     //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+    //     //     SUPER_Common::output_message( $error=true, $msg );
+    //     // }
+    // }
 }
 endif;
 SUPER_Ajax::init();

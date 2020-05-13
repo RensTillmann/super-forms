@@ -455,7 +455,7 @@ if (!class_exists('SUPER_PayPal')):
 		}
 
 		/**
-		 * Save User ID into session after creating user Front-end Register & Login add-on
+		 * Save User ID into session after creating user Register & Login add-on
 		 * This way we can add it to the paypal custom data and use it later to update the user status after payment is completed
 		 *
 		 *  @since      1.0.0
@@ -1640,7 +1640,7 @@ if (!class_exists('SUPER_PayPal')):
 							)
 						);
 					}
-					// Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+					// Update user status after succesfull payment (only used for Register & Login add-on)
 					if( !empty($settings['register_login_action']) ) {
 						if( $settings['register_login_action']=='register' ) {
 							$user_id = absint($custom[5]);
@@ -2010,7 +2010,7 @@ if (!class_exists('SUPER_PayPal')):
 					$atts['entry_id'],
 					get_current_user_id(),
 					absint($post_id), // Used only if Front-end Posting add-on is installed and enabled to update the post status after successfull payment.
-					absint($user_id) // Used only if Front-end Register & Login add-on is installed and enabled to update the user status after successfull payment.
+					absint($user_id) // Used only if Register & Login add-on is installed and enabled to update the user status after successfull payment.
 				);
 				$home_url = get_home_url() . "/";
 				if (strstr($home_url, '?')) {

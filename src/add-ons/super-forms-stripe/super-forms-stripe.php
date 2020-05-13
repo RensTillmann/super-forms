@@ -488,7 +488,7 @@ if(!class_exists('SUPER_Stripe')) :
             if( !empty($frontend_post_id) ) {
                 wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
             }
-            // Delete user after failed payment (only used for Front-end Register & Login add-on)
+            // Delete user after failed payment (only used for Register & Login add-on)
             $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
             if( !empty($frontend_user_id) ) {
                 require_once( ABSPATH . 'wp-admin/includes/user.php' );
@@ -553,7 +553,7 @@ if(!class_exists('SUPER_Stripe')) :
                         );
                     }
                 }
-                // Update user status after succesfull payment (only used for Front-end Register & Login add-on)
+                // Update user status after succesfull payment (only used for Register & Login add-on)
                 $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
                 if( !empty($frontend_user_id) ) {
                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
@@ -1545,7 +1545,7 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         /**
-         * Save User ID into session after creating user Front-end Register & Login add-on
+         * Save User ID into session after creating user Register & Login add-on
          * This way we can add it to the Stripe metadata and use it later to update the user status after payment is completed
          * array( 'user_id'=>$user_id, 'atts'=>$atts )
          *
