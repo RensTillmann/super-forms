@@ -8,6 +8,38 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
   <style>
+	.sidebar li {
+	margin: 0;
+	}
+	.sidebar > ul {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 15px;
+	}
+	.sidebar > ul > li > ul {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 15px;
+	}
+	.sidebar > ul > li > ul {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 15px;
+	}
+	.sidebar > ul > li > ul > li {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 15px;
+	}
+	.sidebar > ul > li > ul > li.active {
+	background-color:#F5F6F7;
+	}
+
+	.sidebar > ul > li > ul > li.active ul li {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	}
+	.sidebar > ul > li.active>a {
+		border-right: 5px solid;
+	}
+
+
   section.cover.has-mask .mask {
   	opacity: 0.2;
   }

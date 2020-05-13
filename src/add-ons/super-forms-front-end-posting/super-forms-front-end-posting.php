@@ -673,9 +673,18 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                     $files = array();
                                     $_file_paths = array();
                                     foreach( $data['downloadable_files']['files'] as $v ) {
-                                        $name = get_the_title( $v['attachment'] );
-                                        $url = $v['url'];
-                                        $array = array( 'name'=>$name, 'file' => $url );
+                                        if(!empty($v['attachment'])) {
+                                            $name = get_the_title( $v['attachment'] );
+                                            $url = $v['url'];
+                                        }else{
+                                            if(empty($v['path'])) continue;
+                                            $name = $v['value'];
+                                            $url = $v['path'];
+                                        }
+                                        $array = array( 
+                                            'name' => $name, 
+                                            'file' => $url
+                                        );
                                         $url = md5( $url );
                                         $_file_paths[$url] = $array;
                                     }
@@ -798,7 +807,9 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                         if( isset( $data['image_gallery'] ) ) {
                             $files = array();
                             foreach( $data['image_gallery']['files'] as $v ) {
-                                $files[] = $v['attachment'];
+                                if( !empty($v['attachment']) ) {
+                                    $files[] = $v['attachment'];
+                                }
                             }
                             $files = implode( ',', $files );
 
@@ -870,13 +881,19 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                 if( count($data[$field[0]]['files']>1) ) {
                                     foreach( $data[$field[0]]['files'] as $fk => $fv ) {
                                         if($meta_data[$field[1]]==''){
-                                            $meta_data[$field[1]] = $fv['attachment'];
+                                            $meta_data[$field[1]] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }else{
-                                            $meta_data[$field[1]] .= ',' . $fv['attachment'];
+                                            $meta_data[$field[1]] .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }
                                     }
                                 }elseif( count($data[$field[0]]['files'])==1) {
-                                    $meta_data[$field[1]] = absint($data[$field[0]]['files'][0]['attachment']);
+                                    $cur = $data[$field[0]]['files'][0];
+                                    if(!empty($cur['attachment'])){
+                                        $fValue = absint($cur['attachment']);
+                                    }else{
+                                        $fValue = (!empty($cur['path']) ? $cur['path'] : 0);
+                                    }
+                                    $meta_data[$field[1]] = $fValue;
                                 }else{
                                     $meta_data[$field[1]] = '';
                                 }
@@ -975,7 +992,9 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     // Set the featured image if a file upload field with the name featured_image was found
                     if( !empty( $data['featured_image'] ) ) {
                         if( !empty( $data['featured_image']['files'] ) ) {
-                            set_post_thumbnail( $post_id, $data['featured_image']['files'][0]['attachment'] );
+                            if(!empty($data['featured_image']['files'][0]['attachment'])){
+                                set_post_thumbnail( $post_id, $data['featured_image']['files'][0]['attachment'] );
+                            }
                         }
                     }
                 }
@@ -1003,13 +1022,18 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 if( count($data[$name]['files']>1) ) {
                     foreach( $data[$name]['files'] as $fk => $fv ) {
                         if($value==''){
-                            $value = $fv['attachment'];
+                            $value = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                         }else{
-                            $value .= ',' . $fv['attachment'];
+                            $value .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                         }
                     }
                 }elseif( count($data[$name]['files'])==1) {
-                    $value = absint($data[$name]['files'][0]['attachment']);
+                    $cur = $data[$name]['files'][0];
+                    if(!empty($cur['attachment'])){
+                        $value = absint($cur['attachment']);
+                    }else{
+                        $value = (!empty($cur['path']) ? $cur['path'] : 0);
+                    }
                 }else{
                     $value = '';
                 }

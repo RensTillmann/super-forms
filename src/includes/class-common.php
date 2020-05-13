@@ -976,17 +976,18 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        $number = rand( 100000000, 999999999 );
-        $new_folder = $folder . '/' . $number;
-        if( file_exists( $new_folder ) ) {
+        $folderName = rand( 100000000, 999999999 );
+        $folderPath = trailingslashit($folder) . $folderName;
+        if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if( !file_exists( $new_folder ) ) {
-                mkdir( $new_folder, 0755, true );
-                return $new_folder;
-            }else{
-                return $new_folder;
+            if( !file_exists( $folderPath ) ) {
+                if ( !mkdir($folderPath, 0755, true) ) {
+                    $error = error_get_last();
+                    SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                }
             }
+            return array('folderPath' => $folderPath, 'folderName' => $folderName);
         }
     }
 

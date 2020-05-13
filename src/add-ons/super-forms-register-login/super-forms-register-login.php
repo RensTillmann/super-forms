@@ -1087,13 +1087,19 @@ if(!class_exists('SUPER_Register_Login')) :
                                 if( count($data[$field[0]]['files']>1) ) {
                                     foreach( $data[$field[0]]['files'] as $fk => $fv ) {
                                         if($meta_data[$field[1]]==''){
-                                            $meta_data[$field[1]] = $fv['attachment'];
+                                            $meta_data[$field[1]] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }else{
-                                            $meta_data[$field[1]] .= ',' . $fv['attachment'];
+                                            $meta_data[$field[1]] .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }
                                     }
                                 }elseif( count($data[$field[0]]['files'])==1) {
-                                    $meta_data[$field[1]] = absint($data[$field[0]]['files'][0]['attachment']);
+                                    $cur = $data[$field[0]]['files'][0];
+                                    if(!empty($cur['attachment'])){
+                                        $fValue = absint($cur['attachment']);
+                                    }else{
+                                        $fValue = (!empty($cur['path']) ? $cur['path'] : 0);
+                                    }
+                                    $meta_data[$field[1]] = $fValue;
                                 }else{
                                     $meta_data[$field[1]] = '';
                                 }
