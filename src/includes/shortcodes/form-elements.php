@@ -3123,7 +3123,9 @@ $array['form_elements'] = array(
                         'email' => esc_html__( 'Password', 'super-forms' ) . ':',
                         'placeholder' => esc_html__( 'Enter a strong password', 'super-forms' ),
                         'placeholderFilled' => esc_html__( 'Password', 'super-forms' ),
-                        'icon' => 'lock'
+                        'icon' => 'lock',
+                        'exclude' => '2', // Exclude from all emails
+                        'exclude_entry' => 'true' // Do not save field in Contact Entry
                     )
                 )
             ),
