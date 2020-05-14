@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.436
+ * Version:     4.9.450
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.436';
+        public $version = '4.9.450';
         public $slug = 'super-forms';
 
 
@@ -423,9 +423,39 @@ if(!class_exists('SUPER_Forms')) :
         }
         public function parse_request( &$wp ) {
             if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
-                if ( ! is_user_logged_in() ) {
+                // Get settings
+                $settings = SUPER_Common::get_form_settings(0);
+                // Check if user must be logged in to download the file
+                $auth = true;
+                if(!empty($settings['file_upload_auth'])){
+                    if ( !is_user_logged_in() ) {
+                        $auth = false;
+                    }else{
+                        // Also check for roles (if defined)
+                        if(!empty($settings['file_upload_auth_roles'])){
+                            global $current_user;
+                            $allowed_roles = explode(',', $settings['file_upload_auth_roles']);
+                            $allowed_roles = array_map('trim', $allowed_roles);
+                            $allowed_roles = array_filter($allowed_roles);
+                            // Only check if there are any roles, otherwise allow all logged in users
+                            if(count($allowed_roles)>0){
+                                $allowed = false;
+                                foreach( $current_user->roles as $v ) {
+                                    if( in_array( $v, $allowed_roles ) ) {
+                                        $allowed = true;
+                                        break;
+                                    }
+                                }
+                                // Not allowed
+                                if($allowed===false) $auth = false; 
+                            }
+                        }
+                    }
+                }
+                if($auth===false){
                     auth_redirect();
                 }
+
                 // File location e.g: 2020/05/29329832/file.jpg
                 $fileLocation = $wp->query_vars['sfgtfi'];
                 // Upload directory e.g: wp-content/uploads/superforms

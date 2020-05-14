@@ -1,5 +1,6 @@
 .super-settings {
     margin: 20px 0px 0px 0px;
+    word-break: break-word;
 }
 
 .super-settings .super-donation {

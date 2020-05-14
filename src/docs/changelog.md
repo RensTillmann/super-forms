@@ -11,6 +11,8 @@
   - optionally choose to organize uploaded files in a month/year based structure e.g: `2020/05`
   - option to hide file uploads from the `Media Library` even if the file was uploaded to a directory inside wp-content directory
     - Note that if you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
+  - only allow logged in users to download secure/private files
+  - only allow specific roles to download secure/private files
 - **New:** Option to remove hyperlinks (URLs) of file uploads in the email list
 - **New:** Option to remove the uploaded files in the email list `{loop_fields}` (this will still send it as an attachment though)
 - **New:** Option to hide file uploads from Media Library via `Super Forms > Settings > File Upload Settings`
