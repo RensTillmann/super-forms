@@ -1637,7 +1637,7 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5     - custom regex validation
     public static function custom_regex( $regex ) {
-        if( !empty($regex) )return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
+        if( !empty($regex) ) return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
     }
 
     public static function loop_conditions( $atts, $tag ) {

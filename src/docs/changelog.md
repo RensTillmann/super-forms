@@ -1,53 +1,41 @@
 # Super Forms - Changelog
 
-## May 13, 2020 - Version 4.9.435
+## May 13, 2020 - Version 4.9.450
 
 - **New:** `Secure file uploads` setting under `Super Forms > Settings > File Upload Settings`
   - option to define a custom directory name relative to the site root e.g:
     `wp-content/uploads/superforms` _the default upload directory for file uploads_
-    `my-custom-public-folder` _custom file upload directory (but still publicly accessible)_
+    `my-custom-public-folder` _custom file upload directory outside wp-content directory (which is still publically accessible but will not store in Media Library)_
     `../my-custom-private-folder` _secure file uploads_
     `../../my-custom-private-folder` _secure file uploads when WP is installed in a subdirectory_
-  - option to define a `custom file upload directory`, this also allows for secure file uploads outside of the site root directory
-  - optionally choose to organize uploaded files in a mont/year based structure
-  - option to hide file uploads from the Media Library
-    - when enabled in combination with a none root upload directory the files can still be set to be hidden from the Media Library
-    - when you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
+  - optionally choose to organize uploaded files in a month/year based structure e.g: `2020/05`
+  - option to hide file uploads from the `Media Library` even if the file was uploaded to a directory inside wp-content directory
+    - Note that if you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
+- **New:** Option to remove hyperlinks (URLs) of file uploads in the email list
+- **New:** Option to remove the uploaded files in the email list `{loop_fields}` (this will still send it as an attachment though)
 - **New:** Option to hide file uploads from Media Library via `Super Forms > Settings > File Upload Settings`
 - **New:** `PayPal Add-on`: option to send custom email after payment completed
 - **New:** `PayPal Add-on` & `Register & Login Add-on`: option to update the registered user role after payment completed
 - **New:** `Register & Login Add-on`: option to change user role for action `Update existing user`
 - **New:** `WooCommerce Checkout Add-on` & `Register & Login Add-on`: option to update the registered user role after payment completed
 - **New:** `WooCommerce Checkout Add-on`: option to populate checkout fields more easily with native setting, matching the field names e.g `billing_first_name` will still work and will be the `leading` value if it exists. Otherwise you can define values like so in the settings: `billing_first_name|{yourfieldnamehere}`. You can define both `billing_` and `shipping_` fields, both will work.
-- **Fix:** Form/User Locker would stil display a message even when disabled
+- **New:** Added `Custom regex` validation option for `Textarea` element
 - **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or seperate date and time and put them in a seperate column
-- **Fix:** Brand icons not working on `Button` element
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
 - **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format
 - **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
 - **Added:** Option to enable RTL (Right to left) layout for E-mails
+- **Fix:** Issue with regex backslash and with custom CSS backslashes
+- **Fix:** Form/User Locker would stil display a message even when disabled
+- **Fix:** Brand icons not working on `Button` element
 - **Fix:** Issue inside `Translation mode` where the form would say that there are 2 duplicate field names (which was due to the field names being empty)
-- **Improved:** Super Forms now remembers the last TAB you where editing a field in. If this TAB exsists for the next field you edit it will open in this specific TAB. This way you can faster edit many of the same settings that are below the same settings TAB. Upon page reload it will still remember. The same goes for the form settings TABS and the last openend panel
-- **Improved:** Better readability for font size on larger resolution monitors
-- **Improved:** When `Delete files from server after form submissions` is enabled we should not add hyperlink on the filename inside the E-mail and Contact Entry
-
-## Apr 15, 2020 - Version 4.9.421
-
+and Contact Entry
 - **Fix:** When using field typ `number` on a `Text` field make sure the `Max/Min number` settings are correctly added as min/max attributes
-
-## Apr 09, 2020 - Version 4.9.420
-
 - **Fix:** JavaScript error when using Accordion/TABs element
-
-## Apr 08, 2020 - Version 4.9.412
-
 - **Added:** Two new options for datepicker element to allow users to select multiple dates independently from eachother
   - `Allow user to choose a maximum of X dates` _Defaults to 1, which allows a user to only pick 1 date)_
   - `Require user to choose a minimum of X dates` _(Defaults to 0, which allows a user to pick no date at all)_
 - **Fix:** Conflict when using multiple datepickers and one of them had `Allow users to select work days` or `Allow users to select weekends` disabled causing dates for other datepickers to be affected
-
-## Apr 03, 2020 - Version 4.9.410
-
 - **Fix:** `Print` action not working for Button element
 - **Fix:** Custom regex validation would still be applied even though validation was set to `None`
 - **Fix:** Problem with dropdown default selected items not overiding placeholder value
@@ -56,6 +44,9 @@
 - **Fix:** Timepicker not popping up due to incorrectly typeof check
 - **Fix:** Max selection for `Keyword field` not working
 - **Fix:** Predefined tags inside `Default value` not working with translated forms
+- **Improved:** Super Forms now remembers the last TAB you where editing a field in. If this TAB exsists for the next field you edit it will open in this specific TAB. This way you can faster edit many of the same settings that are below the same settings TAB. Upon page reload it will still remember. The same goes for the form settings TABS and the last openend panel
+- **Improved:** Better readability for font size on larger resolution monitors
+- **Improved:** When `Delete files from server after form submissions` is enabled we should not add hyperlink on the filename inside the E-mail
 - **Improved:** When using `Elementor` only enqueue all scripts/styles when in preview/editor mode
 - **Improved:** Show where the error is when using TABs or Accordion elements (just like with Multi-parts)
 

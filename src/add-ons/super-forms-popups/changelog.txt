@@ -1,3 +1,6 @@
+May 13, 2020 - Version 1.5.4
+- Update: hooks from main plugin
+
 Apr 22, 2020 - Version 1.5.3
 - Fix: JavaScript error
 
