@@ -100,7 +100,7 @@ If you are still unable to receive E-mails after the above steps, check if any o
 
 If after all the above steps you think everything is correctly setup, you can [Contact support](support).
 
-### Why are emails going into spam folder/inbox?
+#### Why are emails going into spam folder/inbox?
 
 It is important to note that emails are not marked as spam by Super Forms. Instead they are marked as spam by interent spam protection measures.
 Because spam protection rules are constantly getting stricter, a form that previously worked can sometimes stop working out of the blue, even when nothing was changed on your website.
