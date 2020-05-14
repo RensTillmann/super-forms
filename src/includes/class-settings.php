@@ -735,6 +735,14 @@ class SUPER_Settings {
             $loaded_image_libraries[2] = 'ImageMagick Binary [imagick] (Extension not installed)';
         }
 
+        // Get available roles
+        global $wp_roles;
+        $all_roles = $wp_roles->roles;
+        $editable_roles = apply_filters( 'editable_roles', $all_roles );
+        $roles = array();
+        foreach( $editable_roles as $k => $v ) {
+            $roles[$k] = $k;
+        }
         $array['file_upload_settings'] = array(        
             'hidden' => true,
             'name' => esc_html__( 'File Upload Settings', 'super-forms' ),
@@ -799,6 +807,30 @@ class SUPER_Settings {
                         'true' => esc_html__('Yes, store files in a year/month folder structure', 'super-forms' )
                     ),
                     'type' => 'checkbox'
+                ),
+                'file_upload_auth' => array(
+                    'name' => esc_html__('Only allow logged in users to download secure/private files:', 'super-forms' ),
+                    'desc' => esc_html__('This setting only works when files are stored in a secure directory outside the wp-content directory. When enabled, this will prevent any none authorized download of files. Users must be logged in before they can download the files.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_auth', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Only allow logged in users to download secure/private files', 'super-forms' )
+                    ),
+                    'type' => 'checkbox',
+                    'filter' => true,
+                ),                
+                'file_upload_auth_roles' => array(
+                    'name' => esc_html__('Only allow the following user roles to download secure/private files:', 'super-forms' ),
+                    'desc' => esc_html__('This setting only works when files are stored in a secure directory outside the wp-content directory. Leave blank to allow any logged in user to download the files.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_auth_roles', $settings, '' ),
+                    'info' => sprintf( 
+                        esc_html__( 
+                            '%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s', 
+                            'super-forms' 
+                        ), '<br />', '<strong>', '</strong>', implode(', ', $roles)
+                    ),
+                    'filter' => true,
+                    'parent' => 'file_upload_auth',
+                    'filter_value' => 'true',
                 ),
                 'file_upload_dir' => array(
                     'name' => esc_html__('Select where files should be uploaded to', 'super-forms' ),
