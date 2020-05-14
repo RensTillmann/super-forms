@@ -1,3 +1,6 @@
+May 13, 2020 - Version 2.1.4
+- Update: hooks from main plugin
+
 Feb 19, 2020 - Version 2.1.3
 - Improved: load script/styles on ajax load via super forms hook (used in for instance Elementor builder interface)
 

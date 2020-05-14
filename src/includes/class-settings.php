@@ -757,6 +757,24 @@ class SUPER_Settings {
                     ),
                     'type' => 'checkbox'
                 ),
+                'file_upload_remove_hyperlink_in_emails' => array(
+                    'name' => esc_html__('Remove hyperlink in emails', 'super-forms' ),
+                    'desc' => esc_html__('When enabled users will only be able to download the file as an attachment and there will be no reference to the file location. Please note that some email clients have a limit in attachment size that you can send. If you send large attachments it might be a good idea to leave this option unchecked.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_remove_hyperlink_in_emails', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Remove URL (hyperlink) from files in emails', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_remove_from_email_loop' => array(
+                    'name' => esc_html__('Remove files from {loop_fields} in emails', 'super-forms' ),
+                    'desc' => esc_html__('When enabled the files will no longer be listed inside the email when using the {loop_fields} tag. The files can only be downloaded as an attachment. Just keep in mind that when you are working with large files the attachment might be missing due to the email client limitations.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_remove_from_email_loop', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Remove files from {loop_fields} tag', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
                 'file_upload_submission_delete' => array(
                     'name' => esc_html__('Delete files from server after form submissions', 'super-forms' ),
                     'desc' => esc_html__('When enabled files are automatically deleted after form submissions.', 'super-forms' ),
@@ -792,12 +810,12 @@ class SUPER_Settings {
                             %2$s' . ABSPATH . '%3$s%1$s
                             Your wp-content directory relative to the root:%1$s
                             %2$s' . str_replace(ABSPATH, "", WP_CONTENT_DIR) . '%3$s%1$s
-                            The default upload directory relative to the root:%1$s
+                            %4$sThe%5$s %6$sdefault upload directory%7$s %4$srelative to the root:%5$s%1$s
                             %2$s' . SUPER_FORMS_UPLOAD_DIR . '%3$s%1$s
-                            %6$sExample for custom public directory:%7$s%1$s
+                            %4$sExample for custom%5$s %6$spublic directory:%7$s%1$s
                             Site visitors will be able to access/download files directly via URL\'s%1$s
                             %2$smy-custom-public-folder%3$s%1$s
-                            %6$sExample for custom private directory:%7$s%1$s
+                            %4$sExample for custom%5$s %6$sprivate directory:%7$s%1$s
                             Files will be stored securely outside of the site root directory.%1$s
                             Site visitors won\'t be able to access/download files via URL\'s%1$s
                             Only use this option if you have sensitive file uploads. If you do not, then it might be best to just use the "Hide files from Media Library" setting.%1$s

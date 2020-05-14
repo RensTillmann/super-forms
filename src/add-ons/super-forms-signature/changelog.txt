@@ -1,3 +1,7 @@
+May 13, 2020 - Version 1.6.0
+- Improved: Responsiveness to retain/resize signature better
+- Update: hooks from main plugin
+
 Feb 19, 2020 - Version 1.5.1
 - Improved: load script/styles on ajax load via super forms hook (used in for instance Elementor builder interface)
 

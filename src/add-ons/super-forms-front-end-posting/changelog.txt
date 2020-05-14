@@ -1,3 +1,6 @@
+May 13, 2020 - Version 1.5.1
+- Update: hooks from main plugin
+
 Jan 23, 2020 - Version 1.5.0
 - Added: Option to save multiple taxonomies and categories when creating a post
 

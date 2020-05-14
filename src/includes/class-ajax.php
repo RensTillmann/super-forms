@@ -1538,7 +1538,8 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
 
-
+        $formElements = wp_slash($formElements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
+        $formSettings = wp_slash($formSettings); // This is required to keep Custom CSS {content: '\x123';} working
         // @since 4.7.0 - translations
         // We must delete/clear any translations that no longer exist
         $formElements = self::clear_i18n($formElements, $translationSettings);
@@ -1558,7 +1559,6 @@ class SUPER_Ajax {
                 }
             }
         }
-
         // @since 4.7.0 - translation language switcher
         if(isset($_POST['i18n_switch'])) $formSettings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
 
@@ -2152,20 +2152,11 @@ class SUPER_Ajax {
                             // Determine location to store the file
                             $wp_upload_dir = wp_upload_dir();
 
-                            // By default upload files to Media Library
-                            $uploadToMediaLibrary = true;
-
                             // Default to super forms directory
                             $uploadPath = SUPER_FORMS_UPLOAD_DIR;
                             if(!empty($settings['file_upload_dir'])){
                                 // User defined directory
                                 $uploadPath = ABSPATH . $settings['file_upload_dir'];
-                                // Check if trying to go up the root, if so do not create attachment
-                                // (which means we do not store file into the Media Library)
-                                $goUpInRoot = explode("../", $settings['file_upload_dir']);
-                                if(count($goUpInRoot)-1 != 0){
-                                    $uploadToMediaLibrary = false;
-                                }
                             }
                             $fileLocation = '';
                             if( !isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders']) ) {
@@ -2184,7 +2175,14 @@ class SUPER_Ajax {
                             $fileName = basename( $sourcePath );
                             $fileLocation = trailingslashit($fileLocation) . $fileName;
 
+                            // By default upload files to Media Library
+                            $uploadToMediaLibrary = true;
+                            // Check if the file is being uploaded to the wordpress content directory
+                            // If not we won't add it to the media library
                             $newfile = $folderPath . '/' . $fileName;
+                            if(strpos($newfile, WP_CONTENT_DIR)===false){
+                                $uploadToMediaLibrary = false;
+                            }
                             $dir = str_replace( $fileName, '', $sourcePath );
                             if ( !copy( $sourcePath, $newfile ) ) {
                                 $error = error_get_last();
@@ -2499,29 +2497,47 @@ class SUPER_Ajax {
                     }else{
                         $v['value'] = '-';
                         foreach( $v['files'] as $key => $value ) {
-                            if( $key==0 ) {
-                                if( !empty( $v['label'] ) ) {
-                                    $v['label'] = str_replace('%d', '', $v['label']);
-                                    $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                                    $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                                }else{
-                                    $row = str_replace( '{loop_label}', '', $row );
-                                    $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
-                                }
-                            }
-                            // In case the file was deleted we do not want to add a hyperlink that links to the file
-                            if( !empty($settings['file_upload_submission_delete']) ) {
-                                $files_value .= $value['value'] . '<br /><br />';
+                            // Check if user explicitely wants to remove files from {loop_fields} in emails
+                            if(!empty($settings['file_upload_remove_from_email_loop'])) {
+                                // Remove this row completely
+                                $row = ''; 
+                                $confirm_row = '';
                             }else{
-                                $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                if( $key==0 ) {
+                                    if( !empty( $v['label'] ) ) {
+                                        $v['label'] = str_replace('%d', '', $v['label']);
+                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+                                    }else{
+                                        $row = str_replace( '{loop_label}', '', $row );
+                                        $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                                    }
+                                }
+                                // In case the file was deleted we do not want to add a hyperlink that links to the file
+                                // In case the user explicitely choose to remove the hyperlink
+                                if( !empty($settings['file_upload_submission_delete']) || 
+                                    !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
+                                    $files_value .= $value['value'] . '<br /><br />';
+                                }else{
+                                    $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                }
                             }
                             // Exclude file from email completely
                             if( $v['exclude']!=2 ) {
-                                if( $v['exclude']==1 ) {
-                                    $attachments[$value['value']] = $value['url'];
+                                // Get either URL or Secure file path
+                                if(!empty($value['attachment'])){
+                                    $fileValue = $value['url'];
                                 }else{
-                                    $attachments[$value['value']] = $value['url'];
-                                    $confirm_attachments[$value['value']] = $value['url'];
+                                    // See if this was a secure file upload
+                                    if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
+                                }
+                                if( $v['exclude']==1 ) {
+                                    // Only exclude from confirmation email
+                                    $attachments[$value['value']] = $fileValue;
+                                }else{
+                                    // Do not exclude
+                                    $attachments[$value['value']] = $fileValue;
+                                    $confirm_attachments[$value['value']] = $fileValue;
                                 }
                             }
                         }

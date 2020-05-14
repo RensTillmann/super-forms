@@ -103,120 +103,12 @@
 				}
 				// Check if the signature exceeds height limits
 				if(canvasWrapperHeight < minHeight){
-					// console.log('exceeds limit, use default json');
+					// Exceeds limit, use default json
 				}else{
 					json = {"lines":newLines};
 					json = JSON.stringify(json);
 				}
 				$(canvasWrapper).signature('draw', json);
-
-				// var wrapper = nodes[i].closest('.super-field-wrapper');	
-				// var wrapperWidth = wrapper.offsetWidth;
-				// var wrapperHeight = wrapper.offsetHeight;
-				// var canvasWrapper = nodes[i];
-				// canvasWrapper.style.minWidth = '';
-				// canvasWrapper.style.minHeight = '';
-				// var canvasWrapperWidth = canvasWrapper.offsetWidth;
-				// var canvasWrapperHeight = canvasWrapper.offsetHeight;
-				// console.log(wrapperWidth, canvasWrapperWidth);
-				// var canvas = nodes[i].querySelector('canvas');
-				// var json = $(canvasWrapper).signature('toJSON')
-				// //console.log(json);
-				// // Fill the entire canvas with black.
-				// //var json = '{"lines":[[[22,2.73],[22,3.73],[20,3.73],[19,3.73],[19,5.73],[17,5.73],[17,6.73],[16,6.73],[14,8.73],[13,9.73],[11,9.73],[11,11.73],[10,11.73],[10,12.73],[8,12.73],[8,14.73],[7,14.73],[7,15.73]],[[38,2.73],[38,3.73],[37,3.73],[37,5.73],[35,5.73],[35,6.73],[34,6.73],[34,8.73],[32,8.73],[32,9.73],[31,9.73],[31,11.73],[29,11.73],[29,12.73],[28,12.73],[28,14.73],[26,14.73],[26,15.73],[25,15.73],[23,15.73],[23,17.73],[22,17.73],[22,18.73],[20,18.73],[20,20.73],[19,20.73],[19,21.73],[17,21.73],[16,21.73],[16,23.73]]]}';
-				// // Before resizing, check if current drawing exceeds the offset of the wrapper
-				// // If this is the case we should not make it smaller than the drawing itself
-				// var lines = JSON.parse(json).lines;
-				// for(x=0; x < lines.length; x++){
-				// 	for(y=0; y < lines[x].length; y++){
-				// 		//console.log(lines[x][y]);
-				// 		width = lines[x][y][0];
-				// 		height = lines[x][y][1];
-				// 		if(minWidth < width) minWidth = width+2; // plus 2 for some margin
-				// 		if(minHeight < height) minHeight = height+2; // plus 2 for some margin
-				// 	}
-				// }
-				// if(canvasWrapperWidth < minWidth){
-				// 	//console.log(canvasWrapperWidth, canvasWrapperHeight);
-				// 	//console.log(minWidth, minHeight);
-				// 	canvasWrapper.style.minWidth = minWidth+'px';
-				// }
-				// if(canvasWrapperHeight < minHeight){
-				// 	//console.log(canvasWrapperWidth, canvasWrapperHeight);
-				// 	//console.log(minWidth, minHeight);
-				// 	canvasWrapper.style.minHeight = minHeight+'px';
-				// }
-				// var ctx = canvas.getContext("2d");
-				// ctx.canvas.width = canvasWrapperWidth;
-				// ctx.canvas.height = canvasWrapperHeight;
-				// // Set the canvas's resolution and size (not CSS).
-				// canvas.width = canvasWrapperWidth;
-				// canvas.height = canvasWrapperHeight;
-				// $(canvasWrapper).signature('draw', json);
-				
-				// console.log(wrapperWidth, canvasWrapperWidth);
-
-							// if(canvasWrapperWidth < minWidth){
-							// 	console.log('scaling :)');
-							// 	ctx.scale(.5, .5);
-							// }
-
-
-								// ctx.fillStyle = "#eee";
-								// ctx.fillRect(0, 0, wrapperWidth, wrapperHeight);
-								// ctx.fillStyle = "#ff0000";
-								// ctx.fillRect(wrapperWidth/2-10, wrapperHeight/2-10, 20, 20);
-								
-								// // create a pixel buffer for one transparent pixel
-								// var imageData = ctx.getImageData(0, 0, 1, 1);
-								// var pixel32 = new Uint32Array(imageData.data.buffer);
-								// pixel32[0] = 0;
-								// ctx.putImageData(imageData, wrapperWidth/2, wrapperHeight/2);
-							
-							// Scale down the canvas preserving the transparent pixel's relative location.
-							// var width = canvas.width / 2;
-							// var height = canvas.height / 2;
-							// var xScale = .5;
-							// var yScale = .5;
-							// var initialWidth = canvas.width;
-							// var initialHeight = canvas.height;
-							// // Get the true overlay's current image data.
-							// imageData = ctx.getImageData(0, 0, initialWidth, initialHeight);
-							// // Create an in-memory canvas at the new resolution.
-							// var newCanvas = $("<canvas>").attr("width", initialWidth).attr("height", initialHeight)[0];
-							// // Draw the true overlay's image data into the in-memory canvas.
-							// newCanvas.getContext("2d").putImageData(imageData, 0, 0);
-							// // Update the size/resolution of the true overlay.
-							// ctx.canvas.width = width;
-							// ctx.canvas.height = height;
-							// // Scale the true overlay's context.
-							// //ctx.scale(xScale, yScale);
-							// // Draw the in-memory canvas onto the true overlay.
-							// ctx.drawImage(newCanvas, 0, 0);	
-							
-							// console.log(nodes[i]);
-							// console.log(nodes[i].querySelector('canvas'));
-							// var wrapper = nodes[i];
-							// var wrapperWidth = wrapper.offsetWidth;
-							// var wrapperHeight = wrapper.offsetHeight;
-							// var canvas = nodes[i].querySelector('canvas');
-							// var initialWidth = canvas.width;
-							// var initialHeight = canvas.height;
-							// console.log(wrapperWidth, wrapperHeight);
-							// console.log(initialWidth, initialHeight);
-
-							// var ctx = canvas.getContext("2d");
-							// var imageData = ctx.getImageData(0, 0, initialWidth, initialHeight);
-							// var newCanvas = $("<canvas>").attr("width", initialWidth).attr("height", initialHeight)[0];
-							// newCanvas.getContext("2d").putImageData(imageData, 0, 0);
-							// // Update the size/resolution of the true overlay.
-							// ctx.canvas.width = wrapperWidth;
-							// ctx.canvas.height = wrapperHeight;
-							// //ctx.drawImage(newCanvas, 0, 0);
-							// ctx.drawImage(newCanvas, 0, 0, initialWidth, initialHeight);
-							// // Set the canvas's resolution and size (not CSS).
-							// //canvas.width = 100;
-							// //canvas.height = 100;
 			}
 		}, 500);
 	};

@@ -1786,19 +1786,29 @@ class SUPER_Common {
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
 
+        // Get attachment paths
+        $attachmentPaths = array();
+        foreach( $attachments as $urlOrPath ) {
+            // Normalize the path so we do not have double forward slashes
+            $filePath = wp_normalize_path($urlOrPath);
+            if(strpos($filePath, '//')!==false){
+                // This is uploaded to the wp content directory
+                $filePath = str_replace('https://', 'http://', $filePath );
+                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $filePath);
+                $filePath = WP_CONTENT_DIR . $path;
+            }else{
+                // Do nothing
+                // This is uploaded to a custom dir outside the wp content directory
+                // meaning we already have the absolute path
+            }
+            $attachmentPaths[] = $filePath;
+        }
+
         $global_settings = SUPER_Common::get_global_settings();
         if( !isset( $global_settings['smtp_enabled'] ) ) {
             $global_settings['smtp_enabled'] = 'disabled';
         }
         if( $global_settings['smtp_enabled']=='disabled' ) {
-            $wpmail_attachments = array();
-            foreach( $attachments as $k => $v ) {
-                $v = str_replace('https://', 'http://', $v );
-                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $v);
-                $filesystemPath = WP_CONTENT_DIR . $path;
-                $wpmail_attachments[] = $filesystemPath;
-            }
-
             SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
 
             $headers = array();
@@ -1841,7 +1851,7 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            $result = wp_mail( $to, $subject, $body, $headers, $wpmail_attachments );
+            $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
             $error = '';
             if($result==false){
                 $error = 'Email could not be send through wp_mail()';
@@ -1937,9 +1947,8 @@ class SUPER_Common {
             }
 
             // Add attachment(s)
-            foreach( $attachments as $k => $v ) {
-                $v = str_replace(content_url(), '', $v);
-                $mail->addAttachment( WP_CONTENT_DIR . $v );
+            foreach( $attachmentPaths as $path ) {
+                $mail->addAttachment( $path );
             }
 
             // Add string attachment(s)

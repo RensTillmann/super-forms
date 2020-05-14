@@ -463,16 +463,14 @@ $array['form_elements'] = array(
                             'parent'=>'type',
                             'filter_value'=>'number'
                         ),
+                        'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        
-                        'tooltip' => $tooltip,
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),
@@ -927,7 +925,8 @@ $array['form_elements'] = array(
                             'i18n' => true
                         ),
                         'tooltip' => $tooltip,
-                        'validation' => $validation_empty,
+                        'validation' => $validation_empty_plus_regex,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,  
@@ -1935,14 +1934,12 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),
@@ -2079,14 +2076,12 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),
@@ -2237,13 +2232,12 @@ $array['form_elements'] = array(
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),
@@ -3078,13 +3072,12 @@ $array['form_elements'] = array(
                         'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),
@@ -3153,13 +3146,12 @@ $array['form_elements'] = array(
                         'placeholderFilled' => SUPER_Shortcodes::placeholderFilled( $attributes, '' ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
+                        'custom_regex' => $custom_regex,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        'custom_regex' => $custom_regex,
                         'conditional_validation' => $conditional_validation,
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
-
                         'error' => $error,
                     ),
                 ),

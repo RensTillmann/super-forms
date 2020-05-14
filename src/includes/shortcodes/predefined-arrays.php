@@ -58,6 +58,7 @@ $special_validations = array(
 $custom_regex = array(
     'default'=> (!isset($attributes['custom_regex']) ? '' : $attributes['custom_regex']),
     'name'=>esc_html__( 'Custom Regex', 'super-forms' ), 
+    'label'=>sprintf( esc_html__( 'Click here to find %1$sexample regular expressions%2$s, or create your own easily on %3$sregex101.com%4$s', 'super-forms' ), '<a target="_blank" href="https://regex101.com/library?orderBy=MOST_POINTS">', '</a>', '<a target="_blank" href="https://regex101.com/">', '</a>'), 
     'desc'=>esc_html__( 'Use your own custom regex to validate this field', 'super-forms' ),
     'filter'=>true,
     'parent'=>'validation',
@@ -74,6 +75,19 @@ $validation_empty = array(
     ),
     'filter'=>true
 );
+$validation_empty_plus_regex = array(
+    'name'=>esc_html__( 'Validation', 'super-forms' ), 
+    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
+    'type'=>'select', 
+    'values'=>array(
+        'none' => esc_html__( 'None', 'super-forms' ), 
+        'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' ),
+        'custom' => esc_html__( 'Custom Regex', 'super-forms' ),
+    ),
+    'filter'=>true
+);
+
 $validation_not_empty = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 
     'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
