@@ -225,11 +225,15 @@
             <div class="super-preview"> 
                 <?php
                 if( $form_id==0 ) {
-                    $admin_url = get_admin_url() . 'admin.php?page=super_demos';
                     echo '<div class="super-demos-notice">';
+                    echo '<h2>' . sprintf( esc_html__( '%1$sNew:%2$s Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
+                    echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . get_admin_url() . 'upload.php' . '">', '</a>') . '</p>';
+                    echo '<p><a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#file-upload-settings" class="button button-primary button-large">' . esc_html__( 'Change File Upload Settings', 'super-forms' ) . '</a></p>';
+                    echo '<hr />';
                     echo '<h2>Creating a new form?</h2>';
-                    echo '<p>Take the time to check out one of the many ready to use forms in the <a target="_blank" href="' . $admin_url . '">Demos</a>!</p>';
-                    echo ' <a target="_blank" href="' . $admin_url . '" class="button button-primary button-large">Bring me to the Demos!</a>';
+                    $admin_url = get_admin_url() . 'admin.php?page=super_demos';
+                    echo '<p>' . sprintf( esc_html__( 'Take the time to check out one of the many ready to use forms in the %1$sDemos%2$s!', 'super-forms'), '<a target="_blank" href="' . $admin_url . '">', '</a>' ) . '</p>';
+                    echo ' <a target="_blank" href="' . $admin_url . '" class="button button-primary button-large">' . esc_html__( 'Bring me to the Demos!', 'super-forms' ) . '</a>';
                     echo '</div>';
                 }
 
