@@ -1210,10 +1210,30 @@ class SUPER_Settings {
                     )
                 ),
 
+                // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
+                'retrieve_last_entry_data' => array(
+                    'name' => esc_html__( 'Retrieve form data from users last submission', 'super-forms' ),
+                    'label' => esc_html__( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Autopopulate form with last contact entry data', 'super-forms' ),
+                    ),
+                    'filter'=>true
+                ),
+                'retrieve_last_entry_form' => array(
+                    'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
+                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
+                    'desc' => esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
+                    'filter'=>true,
+                    'parent' => 'retrieve_last_entry_data',
+                    'filter_value' => 'true'
+                ),
                 // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
                 'update_contact_entry' => array(
                     'name' => esc_html__( 'Enable contact entry updating', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'This only works if:%s- Your form contains a search field that searches contact entries based on their title;%s- When $_GET or $_POST contains a key [contact_entry_id] with the entry ID;%s- When you have a Hidden field named "hidden_contact_entry_id" with the tag {user_last_entry_id} set as it\'s Default value;', 'super-forms' ), '<br />', '<br />', '<br />' ),
+                    'label' => sprintf( esc_html__( 'This only works if either one of the following is used/enabled:%1$s- You enabled "Retrieve form data from users last submission"%1$s- Your form contains a search field that searches contact entries based on their title;%1$s- When $_GET or $_POST contains a key [contact_entry_id] with the entry ID;%1$s- When you have a Hidden field named "hidden_contact_entry_id" with the tag {user_last_entry_id} set as it\'s Default value;', 'super-forms' ), '<br />' ),
                     'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -1246,26 +1266,7 @@ class SUPER_Settings {
                     'filter_value' => 'true'
                 ),
 
-                // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
-                'retrieve_last_entry_data' => array(
-                    'name' => esc_html__( 'Retrieve form data from users last submission', 'super-forms' ),
-                    'label' => esc_html__( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Autopopulate form with last contact entry data', 'super-forms' ),
-                    ),
-                    'filter'=>true
-                ),
-                'retrieve_last_entry_form' => array(
-                    'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
-                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
-                    'desc' => esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
-                    'filter'=>true,
-                    'parent' => 'retrieve_last_entry_data',
-                    'filter_value' => 'true'
-                ),
+
                 'form_show_thanks_msg' => array(
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',
