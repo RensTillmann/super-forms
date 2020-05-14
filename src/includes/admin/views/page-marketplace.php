@@ -69,7 +69,7 @@
             'id' => '14468280',
         ),
         'register_login' => array(
-            'title' => 'Front-end Register & Login Add-on',
+            'title' => 'Register & Login Add-on',
             'url' => 'https://codecanyon.net/item/frontend-register-login/14403267',
             'id' => '14403267',
         ),

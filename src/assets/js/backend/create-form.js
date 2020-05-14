@@ -11,8 +11,6 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
     SUPER.update_form_elements = function(string){
-        console.log('test1');
-        console.log(SUPER.get_form_elements(string));
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
     SUPER.update_form_settings = function(string){

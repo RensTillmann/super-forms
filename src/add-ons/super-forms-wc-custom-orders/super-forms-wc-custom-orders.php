@@ -708,41 +708,47 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
                 // Save order ID to contact entry meta data, so we can link from contact entry page to the order
                 update_post_meta( $atts['entry_id'], '_super_contact_entry_wc_order_id', $order->get_id() );
 
-                // Save custom order meta
-                $meta_data = array();
-                $custom_meta = explode( "\n", $settings['wc_custom_orders_meta'] );
-                foreach( $custom_meta as $k ) {
-                    if(empty($k)) continue;
-                    $field = explode( "|", $k );
-                    if( isset( $data[$field[1]]['value'] ) ) {
-                        $meta_data[$field[0]] = $data[$field[1]]['value'];
-                    }else{
-                        if( (!empty($data[$field[1]])) && ( ($data[$field[1]]['type']=='files') && (isset($data[$field[1]]['files'])) ) ) {
-                            if( count($data[$field[1]]['files']>1) ) {
-                                foreach( $data[$field[1]]['files'] as $fk => $fv ) {
-                                    if($meta_data[$field[0]]==''){
-                                        $meta_data[$field[0]] = $fv['attachment'];
-                                    }else{
-                                        $meta_data[$field[0]] .= ',' . $fv['attachment'];
-                                    }
-                                }
-                            }elseif( count($data[$field[1]]['files'])==1) {
-                                $meta_data[$field[0]] = absint($data[$field[1]]['files'][0]['attachment']);
-                            }else{
-                                $meta_data[$field[0]] = '';
-                            }
-                            continue;
+                    // Save custom order meta
+                    $meta_data = array();
+                    $custom_meta = explode( "\n", $settings['wc_custom_orders_meta'] );
+                    foreach( $custom_meta as $k ) {
+                        if(empty($k)) continue;
+                        $field = explode( "|", $k );
+                        if( isset( $data[$field[1]]['value'] ) ) {
+                            $meta_data[$field[0]] = $data[$field[1]]['value'];
                         }else{
-                            $string = SUPER_Common::email_tags( $field[1], $data, $settings );
-                            $unserialize = unserialize($string);
-                            if ($unserialize !== false) {
-                                $meta_data[$field[0]] = $unserialize;
+                            if( (!empty($data[$field[1]])) && ( ($data[$field[1]]['type']=='files') && (isset($data[$field[1]]['files'])) ) ) {
+                                if( count($data[$field[1]]['files']>1) ) {
+                                    foreach( $data[$field[1]]['files'] as $fk => $fv ) {
+                                        if($meta_data[$field[0]]==''){
+                                            $meta_data[$field[0]] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                                        }else{
+                                            $meta_data[$field[0]] .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                                        }
+                                    }
+                                }elseif( count($data[$field[1]]['files'])==1) {
+                                    $cur = $data[$field[1]]['files'][0];
+                                    if(!empty($cur['attachment'])){
+                                        $fValue = absint($cur['attachment']);
+                                    }else{
+                                        $fValue = (!empty($cur['path']) ? $cur['path'] : 0);
+                                    }
+                                    $meta_data[$field[0]] = $fValue;
+                                }else{
+                                    $meta_data[$field[0]] = '';
+                                }
+                                continue;
                             }else{
-                                $meta_data[$field[0]] = $string;
+                                $string = SUPER_Common::email_tags( $field[1], $data, $settings );
+                                $unserialize = unserialize($string);
+                                if ($unserialize !== false) {
+                                    $meta_data[$field[0]] = $unserialize;
+                                }else{
+                                    $meta_data[$field[0]] = $string;
+                                }
                             }
                         }
                     }
-                }
                 foreach( $meta_data as $k => $v ) {
                     if (function_exists('get_field_object')) {
                         global $wpdb;

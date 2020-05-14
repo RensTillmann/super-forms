@@ -708,6 +708,170 @@ class SUPER_Settings {
             )
         );
 
+        /** 
+         *  File Upload Settings
+         *
+         *  @since      1.0.0
+        */
+
+        // Set to 0 to use the GD library to scale and orient images,
+        // set to 1 to use imagick (if installed, falls back to GD),
+        // set to 2 to use the ImageMagick convert binary directly:
+
+        // GD library
+        $loaded_image_libraries = array();
+        if (function_exists('imagecreatetruecolor')) {
+            $loaded_image_libraries[0] = 'Graphics Draw [GD]';
+        }else{
+            $loaded_image_libraries[0] = 'Graphics Draw [GD] (NOT INSTALLED)';
+        }
+
+        // ImageMagick
+        if( extension_loaded('imagick') || class_exists("Imagick") ) {
+            $loaded_image_libraries[1] = 'ImageMagick [imagick]';
+            $loaded_image_libraries[2] = 'ImageMagick [imagick] (binary)';
+        }else{
+            $loaded_image_libraries[1] = 'ImageMagick [imagick] (Extension not installed)';
+            $loaded_image_libraries[2] = 'ImageMagick Binary [imagick] (Extension not installed)';
+        }
+
+        // Get available roles
+        global $wp_roles;
+        $all_roles = $wp_roles->roles;
+        $editable_roles = apply_filters( 'editable_roles', $all_roles );
+        $roles = array();
+        foreach( $editable_roles as $k => $v ) {
+            $roles[$k] = $k;
+        }
+        $array['file_upload_settings'] = array(        
+            'hidden' => true,
+            'name' => esc_html__( 'File Upload Settings', 'super-forms' ),
+            'label' => esc_html__('Here you can change the way files are being processed and uploaded', 'super-forms' ),
+            'fields' => array(
+                'file_upload_image_library' => array(
+                    'name' => esc_html__('Image Library', 'super-forms' ),
+                    'desc' => esc_html__('Choose which image library should be used to scale and orient images', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_image_library', $settings, '1' ),
+                    'type' => 'select', 
+                    'values' => $loaded_image_libraries
+                ),
+                'file_upload_hide_from_media_library' => array(
+                    'name' => esc_html__('Hide files from Media Library that were uploaded via forms', 'super-forms' ),
+                    'desc' => esc_html__('Please note that when you are storing your files in a secure/private directory outside the root the files will automatically not be added to the Media Library.', 'super-forms' ),
+                    // allow empty / allow_empty
+                    'default' => self::get_value( $default, 'file_upload_hide_from_media_library', $settings, 'true', true ),
+                    'values' => array(
+                        'true' => esc_html__('Do not show file uploads in the Media Library', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_remove_hyperlink_in_emails' => array(
+                    'name' => esc_html__('Remove hyperlink in emails', 'super-forms' ),
+                    'desc' => esc_html__('When enabled users will only be able to download the file as an attachment and there will be no reference to the file location. Please note that some email clients have a limit in attachment size that you can send. If you send large attachments it might be a good idea to leave this option unchecked.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_remove_hyperlink_in_emails', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Remove URL (hyperlink) from files in emails', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_remove_from_email_loop' => array(
+                    'name' => esc_html__('Remove files from {loop_fields} in emails', 'super-forms' ),
+                    'desc' => esc_html__('When enabled the files will no longer be listed inside the email when using the {loop_fields} tag. The files can only be downloaded as an attachment. Just keep in mind that when you are working with large files the attachment might be missing due to the email client limitations.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_remove_from_email_loop', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Remove files from {loop_fields} tag', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_submission_delete' => array(
+                    'name' => esc_html__('Delete files from server after form submissions', 'super-forms' ),
+                    'desc' => esc_html__('When enabled files are automatically deleted after form submissions.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_submission_delete', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Delete files from server after the form was submitted', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_entry_delete' => array(
+                    'name' => esc_html__('After deleting a Contact Entry delete all it\'s associated files', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_entry_delete', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Delete associated files after deleting a Contact Entry', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_use_year_month_folders' => array(
+                    'name' => esc_html__('Organize uploads into a month/year based folders e.g:', 'super-forms' ) . ' ' . date('Y') . '/' . date('m'),
+                    'default' => self::get_value( $default, 'file_upload_use_year_month_folders', $settings, 'true' ),
+                    'values' => array(
+                        'true' => esc_html__('Yes, store files in a year/month folder structure', 'super-forms' )
+                    ),
+                    'type' => 'checkbox'
+                ),
+                'file_upload_auth' => array(
+                    'name' => esc_html__('Only allow logged in users to download secure/private files:', 'super-forms' ),
+                    'desc' => esc_html__('This setting only works when files are stored in a secure directory outside the wp-content directory. When enabled, this will prevent any none authorized download of files. Users must be logged in before they can download the files.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_auth', $settings, '' ),
+                    'values' => array(
+                        'true' => esc_html__('Only allow logged in users to download secure/private files', 'super-forms' )
+                    ),
+                    'type' => 'checkbox',
+                    'filter' => true,
+                ),                
+                'file_upload_auth_roles' => array(
+                    'name' => esc_html__('Only allow the following user roles to download secure/private files:', 'super-forms' ),
+                    'desc' => esc_html__('This setting only works when files are stored in a secure directory outside the wp-content directory. Leave blank to allow any logged in user to download the files.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'file_upload_auth_roles', $settings, '' ),
+                    'info' => sprintf( 
+                        esc_html__( 
+                            '%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s', 
+                            'super-forms' 
+                        ), '<br />', '<strong>', '</strong>', implode(', ', $roles)
+                    ),
+                    'filter' => true,
+                    'parent' => 'file_upload_auth',
+                    'filter_value' => 'true',
+                ),
+                'file_upload_dir' => array(
+                    'name' => esc_html__('Select where files should be uploaded to', 'super-forms' ),
+                    'desc' => esc_html__('Please note that changing this directory will not affect any previously uploaded files.', 'super-forms' ),
+                    'info' => sprintf( 
+                        esc_html__( 
+                            '%6$sPlease define a directory relative to your%7$s %4$sroot%5$s %6$spath.%7$s%1$s%1$s
+                            Your site root:%1$s
+                            %2$s' . ABSPATH . '%3$s%1$s
+                            Your wp-content directory relative to the root:%1$s
+                            %2$s' . str_replace(ABSPATH, "", WP_CONTENT_DIR) . '%3$s%1$s
+                            %4$sThe%5$s %6$sdefault upload directory%7$s %4$srelative to the root:%5$s%1$s
+                            %2$s' . SUPER_FORMS_UPLOAD_DIR . '%3$s%1$s
+                            %4$sExample for custom%5$s %6$spublic directory:%7$s%1$s
+                            Site visitors will be able to access/download files directly via URL\'s%1$s
+                            %2$smy-custom-public-folder%3$s%1$s
+                            %4$sExample for custom%5$s %6$sprivate directory:%7$s%1$s
+                            Files will be stored securely outside of the site root directory.%1$s
+                            Site visitors won\'t be able to access/download files via URL\'s%1$s
+                            Only use this option if you have sensitive file uploads. If you do not, then it might be best to just use the "Hide files from Media Library" setting.%1$s
+                            Storing files at a secure location can brake some functionality and features related to files/media.%1$s
+                            On some servers it isn\'t possible for Super Forms to create the private directory due to permissions, in that case contact your provider.%1$s
+                            %2$s../my-custom-private-folder%3$s%1$s
+                            %6$sNote to WordPress installations in a subdirectory:%7$s to use a secure directory you will have to go up another directory in your root tree like so:%1$s
+                            %2$s../../my-custom-private-folder%3$s',
+                            'super-forms' 
+                        ), '<br />', '<code>', '</code>', '<strong>', '</strong>', '<strong style="color:red;">', '</strong>'
+                    ),
+                    'default' => self::get_value( $default, 'file_upload_dir', $settings, SUPER_FORMS_UPLOAD_DIR ),
+                    'filter' => true
+                ),
+                // For future improvements:
+                // - upload to Google Drive
+                // - upload to AWS
+                // - upload to Dropbox
+                // - upload to FTP?
+                // - upload somewhere else? (look at WP Migrate plugin for other good options)
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings ) );
+
 
         /** 
          *	SMTP Server Configuration
@@ -837,14 +1001,14 @@ class SUPER_Settings {
                     'parent' => 'smtp_debug',
                     'filter_value' => '1,2,3,4',
                 ),
-                'smtp_send_test_email' => array(
-                    'name' => esc_html__( 'E-mail Test', 'super-forms' ),
-                    'desc' => esc_html__( 'Send a Test Email', 'super-forms' ),
-                    'type' => 'smtp_test',
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled'
-                )
+                // 'smtp_send_test_email' => array(
+                //     'name' => esc_html__( 'E-mail Test', 'super-forms' ),
+                //     'desc' => esc_html__( 'Send a Test Email', 'super-forms' ),
+                //     'type' => 'smtp_test',
+                //     'filter' => true,
+                //     'parent' => 'smtp_enabled',
+                //     'filter_value' => 'enabled'
+                // )
             )
         );
         $array = apply_filters( 'super_settings_after_global_overriding_filter', $array, array( 'settings'=>$settings ) );
@@ -1046,10 +1210,30 @@ class SUPER_Settings {
                     )
                 ),
 
+                // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
+                'retrieve_last_entry_data' => array(
+                    'name' => esc_html__( 'Retrieve form data from users last submission', 'super-forms' ),
+                    'label' => esc_html__( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Autopopulate form with last contact entry data', 'super-forms' ),
+                    ),
+                    'filter'=>true
+                ),
+                'retrieve_last_entry_form' => array(
+                    'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
+                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
+                    'desc' => esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
+                    'filter'=>true,
+                    'parent' => 'retrieve_last_entry_data',
+                    'filter_value' => 'true'
+                ),
                 // @since 2.2.0 - update contact entry data if a contact entry was found based on search field or when POST or GET contained the entry id: ['contact_entry_id']
                 'update_contact_entry' => array(
                     'name' => esc_html__( 'Enable contact entry updating', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'This only works if:%s- Your form contains a search field that searches contact entries based on their title;%s- When $_GET or $_POST contains a key [contact_entry_id] with the entry ID;%s- When you have a Hidden field named "hidden_contact_entry_id" with the tag {user_last_entry_id} set as it\'s Default value;', 'super-forms' ), '<br />', '<br />', '<br />' ),
+                    'label' => sprintf( esc_html__( 'This only works if either one of the following is used/enabled:%1$s- You enabled "Retrieve form data from users last submission"%1$s- Your form contains a search field that searches contact entries based on their title;%1$s- When $_GET or $_POST contains a key [contact_entry_id] with the entry ID;%1$s- When you have a Hidden field named "hidden_contact_entry_id" with the tag {user_last_entry_id} set as it\'s Default value;', 'super-forms' ), '<br />' ),
                     'default' => self::get_value( $default, 'update_contact_entry', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
@@ -1082,26 +1266,7 @@ class SUPER_Settings {
                     'filter_value' => 'true'
                 ),
 
-                // @since 2.9.0 - allow to autopopulate form with last entry data based on logged in user
-                'retrieve_last_entry_data' => array(
-                    'name' => esc_html__( 'Retrieve form data from users last submission', 'super-forms' ),
-                    'label' => esc_html__( 'This only works for logged in users or when $_GET or $_POST contains a key [contact_entry_id] with the entry ID (in that case the "form ID" setting is obsolete)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'retrieve_last_entry_data', $settings, '' ),
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Autopopulate form with last contact entry data', 'super-forms' ),
-                    ),
-                    'filter'=>true
-                ),
-                'retrieve_last_entry_form' => array(
-                    'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
-                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
-                    'desc' => esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
-                    'filter'=>true,
-                    'parent' => 'retrieve_last_entry_data',
-                    'filter_value' => 'true'
-                ),
+
                 'form_show_thanks_msg' => array(
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',
@@ -2497,107 +2662,6 @@ class SUPER_Settings {
         
 
         /** 
-         *  Backend Settings
-         *
-         *  @since      1.0.0
-        */
-
-        // Set to 0 to use the GD library to scale and orient images,
-        // set to 1 to use imagick (if installed, falls back to GD),
-        // set to 2 to use the ImageMagick convert binary directly:
-
-        // GD library
-        $loaded_image_libraries = array();
-        if (function_exists('imagecreatetruecolor')) {
-            $loaded_image_libraries[0] = 'Graphics Draw [GD]';
-        }else{
-            $loaded_image_libraries[0] = 'Graphics Draw [GD] (NOT INSTALLED)';
-        }
-
-        // ImageMagick
-        if( extension_loaded('imagick') || class_exists("Imagick") ) {
-            $loaded_image_libraries[1] = 'ImageMagick [imagick]';
-            $loaded_image_libraries[2] = 'ImageMagick [imagick] (binary)';
-        }else{
-            $loaded_image_libraries[1] = 'ImageMagick [imagick] (Extension not installed)';
-            $loaded_image_libraries[2] = 'ImageMagick Binary [imagick] (Extension not installed)';
-        }
-
-        $array['file_upload_settings'] = array(        
-            'hidden' => true,
-            'name' => esc_html__( 'File Upload Settings', 'super-forms' ),
-            'label' => esc_html__('Here you can change the way files are being processed and uploaded', 'super-forms' ),
-            'fields' => array(
-                'file_upload_image_library' => array(
-                    'name' => esc_html__('Image Library', 'super-forms' ),
-                    'desc' => esc_html__('Choose which image library should be used to scale and orient images', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_image_library', $settings, '1' ),
-                    'type' => 'select', 
-                    'values' => $loaded_image_libraries
-                ),
-                'file_upload_submission_delete' => array(
-                    'name' => esc_html__('Delete files from server after form submissions', 'super-forms' ),
-                    'desc' => esc_html__('When enabled files are automatically deleted after form submissions.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_submission_delete', $settings, '' ),
-                    'values' => array(
-                        'true' => esc_html__('Enable (delete files from server after the form was submitted)', 'super-forms' )
-                    ),
-                    'type' => 'checkbox'
-                ),
-                'file_upload_entry_delete' => array(
-                    'name' => esc_html__('After deleting a Contact Entry delete all it\'s associated files', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_entry_delete', $settings, '' ),
-                    'values' => array(
-                        'true' => esc_html__('Enable (delete associated files after deleting a Contact Entry)', 'super-forms' )
-                    ),
-                    'type' => 'checkbox'
-                ),
-                // 'file_upload_location' => array(
-                //     'name' => esc_html__('Select where the file should be uploaded to', 'super-forms' ),
-                //     'desc' => esc_html__('You have the ability to upload files to the wp-content directory (private) or to the WordPress Media Library (public). It is recommended to use the private method in case you are dealing with sensitive information.', 'super-forms' ),
-                //     'default' => self::get_value( $default, 'file_upload_location', $settings, 'wp_content' ),
-                //     'values' => array(
-                //         'wp_content' => esc_html__('wp-content directory (recommended)', 'super-forms' ),
-                //         'media_library' => esc_html__('Media Library (publicly visible)', 'super-forms' ),
-                //         'custom' => esc_html__('Upload to a custom path', 'super-forms' )
-                //         'disabled' => esc_html__('Temporarily disable file uploads', 'super-forms' )
-                //     ),
-                //     'type' => 'select', 
-                //     'filter' => true
-                // ),
-                // 'file_upload_custom_dir' => array(
-                //     'name' => esc_html__('Enter path', 'super-forms' ),
-                //     'default' => self::get_value( $default, 'file_upload_custom_dir', $settings, '' ),
-                //     'values' => array(
-                //         'true' => esc_html__('Enable', 'super-forms' )
-                //     ),
-                //     'type' => 'checkbox',
-                //     'filter' => true,
-                //     'parent' => 'file_upload_location',
-                //     'filter_value' => 'custom'
-                // ),
-                // 'file_upload_google_drive' => array(
-                //     'name' => esc_html__('Upload files to Google Drive', 'super-forms' ),
-                //     'default' => self::get_value( $default, 'file_upload_google_drive', $settings, '' ),
-                //     'values' => array(
-                //         'true' => esc_html__('Enable', 'super-forms' )
-                //     ),
-                //     'type' => 'checkbox'
-                // ),
-                // 'file_upload_aws' => array(
-                //     'name' => esc_html__('Upload files to your AWS s3 server', 'super-forms' ),
-                //     'default' => self::get_value( $default, 'file_upload_aws', $settings, '' ),
-                //     'values' => array(
-                //         'true' => esc_html__('Enable', 'super-forms' )
-                //     ),
-                //     'type' => 'checkbox'
-                // ),
-            ),
-        );
-        $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings ) );
-
-
-        /** 
          *  Custom CSS
          *
          *  @since      1.0.0
@@ -2810,15 +2874,10 @@ class SUPER_Settings {
      *	@since		1.0.0
     */
     public static function get_value( $strict_default, $name, $settings, $default, $allow_empty=false ) {
-        if( $strict_default==1 ) {
-            return $default;
-        }
+        if( $strict_default==1 ) return $default;
         // Check if this setting is allowd to be left empty
-        if( $allow_empty ) {
-            return ( !isset( $settings[$name] ) ? '' : $settings[$name] );
-        }else{
-            return ( !isset( $settings[$name] ) ? $default : $settings[$name] );
-        }
+        if( !isset( $settings[$name] ) ) return $default;
+        return $settings[$name];
     }
     
     /**

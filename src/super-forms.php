@@ -13,8 +13,8 @@
 // build-SUPER_FORMS_BUNDLE_END
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
- * Description: Build forms anywhere on your website with ease.
- * Version:     4.9.433
+ * Description: The most advanced, flexible and easy to use form builder for WordPress!
+ * Version:     4.9.452
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.433';
+        public $version = '4.9.452';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -167,7 +167,8 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_API_ENDPOINT', $this->apiUrl . $this->apiVersion );
             $this->define( 'SUPER_API_VERSION', $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
-
+            $this->define( 'SUPER_FORMS_UPLOAD_DIR', apply_filters( 'super_forms_upload_dir_filter', str_replace(ABSPATH, '', WP_CONTENT_DIR) . '/uploads/superforms' ) );
+            
         }
 
         
@@ -379,8 +380,176 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'upgrader_process_complete', array( $this, 'api_post_update' ), 10, 2);
             register_activation_hook( __FILE__, array( $this, 'api_post_activation' ) );
             register_deactivation_hook( __FILE__, array( $this, 'api_post_deactivation' ) );
-        }
 
+            // Hide file uploads from Media Library
+            add_action( 'pre_get_posts', array( $this, 'hide_uploads_from_media_library_list_view' ) );
+            add_filter( 'ajax_query_attachments_args', array( $this, 'hide_uploads_from_media_grid_and_overlay_view' ) );
+
+            // Rewrite rule to retrieve secure file uploads
+            add_action( 'init', array( $this, 'rewrite_rules' ) );
+            add_action( 'query_vars', array( $this, 'query_vars' ) );
+            add_filter( 'parse_request', array( $this, 'parse_request' ) );
+        }
+        public function rewrite_rules(){
+            add_rewrite_rule( 
+                'sfgtfi/(.*)', // sfgtfi stands for "super forms get file"
+                'index.php?sfgtfi=$matches[1]', 
+                'top' 
+            );
+        }
+        public function query_vars( $query_vars ){
+            $query_vars[] = 'sfgtfi';
+            return $query_vars;
+        }
+        public function caching_headers($file, $timestamp) {
+            // Example: Tue, 12 May 2020 22:17:04 GMT
+            $last_modified = gmdate('D, d M Y H:i:s T', $timestamp); 
+            // If the content has not changed, do not resend a full response
+            // In other words: be more efficient and save bandwidth :)
+            $etag = md5($timestamp . $file);
+            header('ETag: "' . $etag . '"');
+            // Determine if a resource received or stored is the same
+            // Even though ETag is more accurate, add a 
+            // "Last-Modified" header as a fallback method.
+            header('Last-Modified: ' . $last_modified);
+            // May be stored by any cache, 
+            // even if the response is normally non-cacheable.
+            header('Cache-Control: public');
+            // The Expires header contains the date/time after which the response is considered stale.
+            // "stale" means "not fresh"
+            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + 86400*30 ) . ' GMT' ); // +30 days
+            // Only send back the requested resource (with a 200 status)
+            // if it has been last modified after the given date.
+            // If the request has not been modified since, send back a 304 without any body
+            // Unlike "If-Unmodified-Since", "If-Modified-Since" can only be used with a GET or HEAD.
+            if( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']) ) {
+                $clientEtag = str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH']));
+                if( ($_SERVER['HTTP_IF_MODIFIED_SINCE']==$last_modified) || ($clientEtag==$etag) ) {
+                    status_header(304);
+                    header("Vary: Accept-Encoding,User-Agent");
+                    exit();
+                }
+            }
+        }
+        public function parse_request( &$wp ) {
+            if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
+                // Get settings
+                $settings = SUPER_Common::get_form_settings(0);
+                // Check if user must be logged in to download the file
+                $auth = true;
+                if(!empty($settings['file_upload_auth'])){
+                    if ( !is_user_logged_in() ) {
+                        $auth = false;
+                    }else{
+                        // Also check for roles (if defined)
+                        if(!empty($settings['file_upload_auth_roles'])){
+                            global $current_user;
+                            $allowed_roles = explode(',', $settings['file_upload_auth_roles']);
+                            $allowed_roles = array_map('trim', $allowed_roles);
+                            $allowed_roles = array_filter($allowed_roles);
+                            // Only check if there are any roles, otherwise allow all logged in users
+                            if(count($allowed_roles)>0){
+                                $allowed = false;
+                                foreach( $current_user->roles as $v ) {
+                                    if( in_array( $v, $allowed_roles ) ) {
+                                        $allowed = true;
+                                        break;
+                                    }
+                                }
+                                // Not allowed
+                                if($allowed===false) $auth = false; 
+                            }
+                        }
+                    }
+                }
+                if($auth===false){
+                    auth_redirect();
+                }
+
+                // File location e.g: 2020/05/29329832/file.jpg
+                $fileLocation = $wp->query_vars['sfgtfi'];
+                // Upload directory e.g: wp-content/uploads/superforms
+                // Get settings
+                $settings = SUPER_Common::get_form_settings(0);
+                // Default to super forms directory
+                $uploadPath = SUPER_FORMS_UPLOAD_DIR;
+                if(!empty($settings['file_upload_dir'])){
+                    // User defined directory
+                    $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                }
+                $file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
+                $file = urldecode( $file );
+                if (!$uploadPath || !is_file($file)) {
+                    status_header(404);
+                    exit;
+                }
+                $mime = wp_check_filetype($file);
+                if( false === $mime[ 'type' ] && function_exists( 'mime_content_type' ) ) {
+                    $mime[ 'type' ] = mime_content_type( $file );
+                }
+                if( $mime[ 'type' ] ) {
+                    $mimetype = $mime[ 'type' ];
+                }else{
+                    $mimetype = 'image/' . substr( $file, strrpos( $file, '.' ) + 1 );
+                }
+                header( 'Content-Type: ' . $mimetype ); // always send this
+                if ( false === strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) ) {
+                    header( 'Content-Length: ' . filesize( $file ) );
+                }
+                self::caching_headers($file, filemtime($file));
+                // If we made it this far, just serve the file
+                readfile( $file );
+                exit();
+            }
+            return;
+        }
+        // Hide file uploads in list view (Media Library)
+        public function hide_uploads_from_media_library_list_view($query) {
+            if ( ! is_admin() )  return;
+            if ( ! $query->is_main_query() ) return;
+            $screen = get_current_screen();
+            if ( !$screen || $screen->id !== 'upload' ||  $screen->post_type !== 'attachment' ) {
+                return;
+            }
+            $global_settings = SUPER_Common::get_global_settings();
+            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $global_settings = array_merge( $defaults, $global_settings );
+            if(!empty($global_settings['file_upload_hide_from_media_library'])){
+                $query->set( 'meta_query', array(
+                    array(
+                        'key' => '_wp_attached_file',
+                        'value' => 'superforms', // This is a fallback method for old super forms versions < 4.9.435
+                        'compare' => 'NOT LIKE'
+                    ),
+                    array(
+                        'key' => 'super-forms-form-upload-file',
+                        'compare' => 'NOT EXISTS' // Exclude super forms files
+                    )
+                ) );
+            }
+
+        }
+        // Hide file uploads in grid view (Media Library) and from overlay view (popup)
+        public function hide_uploads_from_media_grid_and_overlay_view( $args ) {
+            if ( ! is_admin() )  return;
+            $global_settings = SUPER_Common::get_global_settings();
+            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $global_settings = array_merge( $defaults, $global_settings );
+            if(!empty($global_settings['file_upload_hide_from_media_library'])){
+                $args['meta_query'] = array(
+                    array(
+                        'key' => '_wp_attached_file',
+                        'value' => 'superforms', // This is a fallback method for old super forms versions < 4.9.435
+                        'compare' => 'NOT LIKE'
+                    ),
+                    array(
+                        'key' => 'super-forms-form-upload-file',
+                        'compare' => 'NOT EXISTS' // Exclude super forms files
+                    )
+                );
+            }
+            return $args;
+        }
         public function sf_add_cron_interval( $schedules ) { 
             $schedules['five_seconds'] = array(
                 'interval' => 5,
@@ -777,6 +946,22 @@ if(!class_exists('SUPER_Forms')) :
                     foreach( $attachments as $attachment ) {
                         // Force delete this attachment
                         wp_delete_attachment( $attachment->ID, true );
+                    }
+                    // Must also delete private uploaded files (if any)
+                    $contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data', true );
+                    if( is_array($contact_entry_data) ) {
+                        foreach( $contact_entry_data as $k => $v ) {
+                            if( $v['type']=='files' ) {
+                                if( isset( $v['files'] ) ) {
+                                    foreach( $v['files'] as $fk => $fv ) {
+                                        if(!empty($fv['path'])){
+                                            // Try to delete it
+                                            SUPER_Common::delete_dir( $fv['path'] );
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
