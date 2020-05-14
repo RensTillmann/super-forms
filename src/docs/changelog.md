@@ -1,6 +1,6 @@
 # Super Forms - Changelog
 
-## May 13, 2020 - Version 4.9.450
+## May 13, 2020 - Version 4.9.452
 
 - **New:** `Secure file uploads` setting under `Super Forms > Settings > File Upload Settings`
   - option to define a custom directory name relative to the site root e.g:
