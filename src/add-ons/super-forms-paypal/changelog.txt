@@ -1,3 +1,8 @@
+May 13, 2020 - Version 1.4.0
+- Added: Option to send custom email after payment completed
+- Added: Option to update registered user role after payment completed (for `Register & Login Add-on` only)
+- Update: hooks from main plugin
+
 Feb 03, 2020 - Version 1.3.0
 - Added: option to conditionally checkout to PayPal, this allows you to optionally let the user pay via PayPal
 - Fix: Subscription checkout amount must be converted to type float

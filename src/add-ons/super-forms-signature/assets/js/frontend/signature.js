@@ -34,26 +34,11 @@
 		});
 	};
 
-	// Refresh Signature (Refresh the appearance of the signature area.)
-	SUPER.refresh_signature = function(changedField){
-		// if(typeof changedField !== 'undefined'){
-		// 	if(changedField.closest('.super-signature')){
-		// 		if( SUPER.has_hidden_parent(changedField)===false ) {
-		// 			$(changedField).parents('.super-signature:eq(0)').find('.super-signature-canvas').signature('resize');
-        //         }
-        //     }
-        // }
-	};
-
 	// After responsiveness changed, resize the canvas of the signature
 	SUPER.refresh_signatures = function(classes, form){
 		if(typeof form === 'undefined') form = document;
 		var i,x,y, 
-			nodes = form.querySelectorAll('.super-signature-canvas'),
-			minWidth = 0,
-			minHeight = 0,
-			width = 0,
-			height = 0;
+			nodes = form.querySelectorAll('.super-signature-canvas');
 
 		for( i = 0; i < nodes.length; i++ ) {
 			// Make drawing smaller by 50% (just as an example)
@@ -64,8 +49,6 @@
 			var canvasWrapperWidth = canvasWrapper.clientWidth;
 			var canvasWrapperHeight = canvasWrapper.clientHeight;
 			var canvas = nodes[i].querySelector('canvas');
-			var canvasWidth = canvas.offsetWidth;
-			var ratio = (canvasWidth/canvasWrapperWidth)*100;
 			canvas.width = canvasWrapperWidth;
 			canvas.height = canvasWrapperHeight;
 			var newLines = [];
@@ -93,8 +76,13 @@
 						newLines[x][y][1] = lines[x][y][1]/finalRatio;
 					}
 				}
-				json = {"lines":newLines};
-				json = JSON.stringify(json);
+				// Check if the signature exceeds height limits
+				//if(canvasWrapperHeight < minHeight){
+					// Exceeds limit, use default json
+				//}else{
+					json = {"lines":newLines};
+					json = JSON.stringify(json);
+				//}
 			}else{
 				// Do not resize, keep original
 			}

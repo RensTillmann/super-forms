@@ -995,17 +995,16 @@ class SUPER_Common {
             $key .= $keys[array_rand($keys)];
         }
         $new_folder = $folder . '/' . $key;
-        //$number = rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 ) . rand( 1000000000, 2147483647 );
-        //$new_folder = $folder . '/' . $number;
         if( file_exists( $new_folder ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if( !file_exists( $new_folder ) ) {
-                mkdir( $new_folder, 0755, true );
-                return $new_folder;
-            }else{
-                return $new_folder;
+            if( !file_exists( $folderPath ) ) {
+                if ( !mkdir($folderPath, 0755, true) ) {
+                    $error = error_get_last();
+                    SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                }
             }
+            return array('folderPath' => $folderPath, 'folderName' => $folderName);
         }
     }
 
@@ -1808,17 +1807,29 @@ class SUPER_Common {
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
 
+        // Get attachment paths
+        $attachmentPaths = array();
+        foreach( $attachments as $urlOrPath ) {
+            // Normalize the path so we do not have double forward slashes
+            $filePath = wp_normalize_path($urlOrPath);
+            if(strpos($filePath, '//')!==false){
+                // This is uploaded to the wp content directory
+                $filePath = str_replace('https://', 'http://', $filePath );
+                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $filePath);
+                $filePath = WP_CONTENT_DIR . $path;
+            }else{
+                // Do nothing
+                // This is uploaded to a custom dir outside the wp content directory
+                // meaning we already have the absolute path
+            }
+            $attachmentPaths[] = $filePath;
+        }
+
         $global_settings = SUPER_Common::get_global_settings();
         if( !isset( $global_settings['smtp_enabled'] ) ) {
             $global_settings['smtp_enabled'] = 'disabled';
         }
         if( $global_settings['smtp_enabled']=='disabled' ) {
-            $wpmail_attachments = array();
-            foreach( $attachments as $k => $v ) {
-                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $v);
-                $wpmail_attachments[] = WP_CONTENT_DIR . $path;
-            }
-
             SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
 
             $headers = array();
@@ -1861,7 +1872,7 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            $result = wp_mail( $to, $subject, $body, $headers, $wpmail_attachments );
+            $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
             $error = '';
             if($result==false){
                 $error = 'Email could not be send through wp_mail()';
@@ -1957,9 +1968,8 @@ class SUPER_Common {
             }
 
             // Add attachment(s)
-            foreach( $attachments as $k => $v ) {
-                $v = str_replace(content_url(), '', $v);
-                $mail->addAttachment( WP_CONTENT_DIR . $v );
+            foreach( $attachmentPaths as $path ) {
+                $mail->addAttachment( $path );
             }
 
             // Add string attachment(s)

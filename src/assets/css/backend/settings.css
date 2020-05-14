@@ -1,5 +1,15 @@
 .super-settings {
     margin: 20px 0px 0px 0px;
+    word-break: break-word;
+}
+
+.super-settings .super-field .super-field-fields code {
+    line-height: normal;
+    display: block;
+    word-break: break-word;
+    font-size: 11px;
+    font-style: initial;
+    margin: 3px 0px 0px 0px;
 }
 
 .super-settings .super-donation {
@@ -142,6 +152,7 @@
     /* fallback if needed */
     width: calc(100% - -1px);
 }
+
 .super-settings .super-wrapper .super-tabs li:not(.save).super-active {
     padding-left: 10px;
     -webkit-box-shadow: -2px 0px 2px .1px rgba(0, 0, 0, 0.1);

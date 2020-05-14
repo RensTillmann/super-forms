@@ -13,7 +13,7 @@
 - [Mailster Add-on](mailster-add-on)
 - [CSV Attachment Add-on](csv-attachment-add-on)
 - [Password Protect & User Lockout & Hide Add-on](password-protect-user-lockout-hide-add-on)
-- [Front-end Register & Login Add-on](front-end-register-login-add-on)
+- [Register & Login Add-on](register-login-add-on)
 - [Popups Add-on](popups-add-on)
 - [Email Templates Add-on](email-templates-add-on)
 - [Email Reminders Add-on](email-reminders-add-on)

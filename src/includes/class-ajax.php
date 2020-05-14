@@ -83,7 +83,7 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
-            'smtp_test'                     => false, // @since 4.9.5
+            //'smtp_test'                     => false, // @since 4.9.5
 
             'subscribe_addon'               => false,
 
@@ -1544,7 +1544,8 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
 
-
+        $formElements = wp_slash($formElements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
+        $formSettings = wp_slash($formSettings); // This is required to keep Custom CSS {content: '\x123';} working
         // @since 4.7.0 - translations
         // We must delete/clear any translations that no longer exist
         $formElements = self::clear_i18n($formElements, $translationSettings);
@@ -1564,7 +1565,6 @@ class SUPER_Ajax {
                 }
             }
         }
-
         // @since 4.7.0 - translation language switcher
         if(isset($_POST['i18n_switch'])) $formSettings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
 
@@ -2151,7 +2151,6 @@ class SUPER_Ajax {
         }
 
 
-
         /** 
          *  Make sure to also save the file into the WP Media Library
          *  In case a user deletes Super Forms these files are not instantly deleted without warning
@@ -2166,35 +2165,6 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
-                            
-                            // // Check that the nonce is valid, and the user can edit this post.
-                            // if ( 
-                            //     isset( $_POST['my_image_upload_nonce'], $_POST['post_id'] ) 
-                            //     && wp_verify_nonce( $_POST['my_image_upload_nonce'], 'my_image_upload' )
-                            //     && current_user_can( 'edit_post', $_POST['post_id'] )
-                            // ) {
-                            //     // The nonce was valid and the user has the capabilities, it is safe to continue.
-
-                            //     // These files need to be included as dependencies when on the front end.
-                            //     require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                            //     require_once( ABSPATH . 'wp-admin/includes/file.php' );
-                            //     require_once( ABSPATH . 'wp-admin/includes/media.php' );
-                                
-                            //     // Let WordPress handle the upload.
-                            //     // Remember, 'my_image_upload' is the name of our file input in our form above.
-                            //     $attachment_id = media_handle_upload( 'my_image_upload', $_POST['post_id'] );
-                                
-                            //     if ( is_wp_error( $attachment_id ) ) {
-                            //         // There was an error uploading the image.
-                            //     } else {
-                            //         // The image was uploaded successfully!
-                            //     }
-
-                            // } else {
-
-                            //     // The security check failed, maybe show the user an error.
-                            // }
-
                             // Before we proceed check if the file already exists, if so, do nothing
                             // Exclude files that are being uploaded for the first time
                             // They will be in the "uploads/php" directory
@@ -2210,52 +2180,75 @@ class SUPER_Ajax {
                             $file = basename( $value['url'] );
                             $folder = basename( dirname( $value['url'] ) );
                             
-                            // @since 3.1 - skip if one of the values are empty
+                            // Skip if one of the values are empty
                             if( ($file=='') || ($folder=='') ) continue;
 
-                            $path = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
-                            
-                            // @since 1.3
-                            // Make sure to skip this file if it's source location is invalid
-                            if (strpos($path, 'uploads/php/files') !== false) {
+                            // Get source file
+                            $sourcePath = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
+                            $sourcePath = urldecode( $sourcePath );
+                            // Determine location to store the file
+                            $wp_upload_dir = wp_upload_dir();
 
-                                $source = urldecode( $path );
-                                $wp_upload_dir = wp_upload_dir();
-                                $folder = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
-                                $unique_folder = SUPER_Common::generate_random_folder($folder);
-                                $newfile = $unique_folder . '/' . basename( $source );
-                                if ( !copy( $source, $newfile ) ) {
-                                    $dir = str_replace( basename( $source ), '', $source );
-                                    SUPER_Common::delete_dir( $dir );
-                                    SUPER_Common::delete_dir( $unique_folder );
-                                    SUPER_Common::output_message(
-                                        $error = true,
-                                        $msg = esc_html__( 'Failed to copy', 'super-forms' ) . '"'.$source.'" to: "'.$newfile.'"',
-                                        $redirect = $redirect
-                                    );
-                                    die();
-                                }else{
-                                    $dir = str_replace( basename( $source ), '', $source );
-                                    if( !empty( $dir ) ) {
-                                        $delete_dirs[] = $dir;
-                                    }
-                                    $filename = $newfile;
-                                    $filetype = wp_check_filetype( basename( $filename ), null );
-                                    $wp_upload_dir = wp_upload_dir();
-                                    $attachment = array(
-                                        'post_mime_type' => $filetype['type'],
-                                        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
-                                        'post_content'   => '',
-                                        'post_status'    => 'inherit'
-                                    );
-                                    $attach_id = wp_insert_attachment( $attachment, $filename );
+                            // Default to super forms directory
+                            $uploadPath = SUPER_FORMS_UPLOAD_DIR;
+                            if(!empty($settings['file_upload_dir'])){
+                                // User defined directory
+                                $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                            }
+                            $fileLocation = '';
+                            if( !isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders']) ) {
+                                $fileLocation .= trailingslashit(wp_normalize_path($wp_upload_dir["subdir"]));
+                                $folder = trailingslashit(wp_normalize_path($uploadPath . $wp_upload_dir["subdir"]));
+                            }else{
+                                $folder = trailingslashit(wp_normalize_path($uploadPath));
+                            }
 
+                            // Create directory if not yet exists and generate random directory
+                            $folderResult = SUPER_Common::generate_random_folder($folder);
+
+                            $folderPath = $folderResult['folderPath'];
+                            $folderName = $folderResult['folderName'];
+                            $fileLocation = trailingslashit(wp_normalize_path($fileLocation)) . $folderName;
+                            $fileName = basename( $sourcePath );
+                            $fileLocation = trailingslashit($fileLocation) . $fileName;
+
+                            // By default upload files to Media Library
+                            $uploadToMediaLibrary = true;
+                            // Check if the file is being uploaded to the wordpress content directory
+                            // If not we won't add it to the media library
+                            $newfile = $folderPath . '/' . $fileName;
+                            if(strpos($newfile, WP_CONTENT_DIR)===false){
+                                $uploadToMediaLibrary = false;
+                            }
+                            $dir = str_replace( $fileName, '', $sourcePath );
+                            if ( !copy( $sourcePath, $newfile ) ) {
+                                $error = error_get_last();
+                                SUPER_Common::delete_dir( dirname($sourcePath) );
+                                SUPER_Common::delete_dir( $folderPath );
+                                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                            }else{
+                                if( !empty( $dir ) ) $delete_dirs[] = $dir;
+                                $filetype = wp_check_filetype( basename( $newfile ), null );
+                                $attachment = array(
+                                    'post_mime_type' => $filetype['type'],
+                                    'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $newfile ) ),
+                                    'post_content'   => '',
+                                    'post_status'    => 'inherit'
+                                );
+                                // Only insert attachment if we are in root directory
+                                if($uploadToMediaLibrary){
+                                    $attachment_id = wp_insert_attachment( $attachment, $newfile );
+                                    add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
                                     require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                                    $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-                                    wp_update_attachment_metadata( $attach_id,  $attach_data );
-                                    
-                                    $data[$k]['files'][$key]['attachment'] = $attach_id;
-                                    $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attach_id );
+                                    $attach_data = wp_generate_attachment_metadata( $attachment_id, $newfile );
+                                    wp_update_attachment_metadata( $attachment_id,  $attach_data );
+                                    $data[$k]['files'][$key]['attachment'] = $attachment_id;
+                                    $data[$k]['files'][$key]['url'] = wp_get_attachment_url( $attachment_id );
+                                }else{
+                                    // If secure upload, update URL:
+                                    $fileUrl = trailingslashit(get_home_url()) . 'sfgtfi' . $fileLocation;
+                                    $data[$k]['files'][$key]['url'] = $fileUrl;
+                                    $data[$k]['files'][$key]['path'] = $folderPath;
                                 }
                             }
                         }
@@ -2417,7 +2410,7 @@ class SUPER_Ajax {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach($v['files'] as $file){
                             $attachment = array(
-                                'ID' => absint($file['attachment']),
+                                'ID' => (!empty($file['attachment']) ? absint($file['attachment']) : 0),
                                 'post_parent' => $contact_entry_id
                             );
                             wp_update_post( $attachment );
@@ -2596,29 +2589,47 @@ class SUPER_Ajax {
                     }else{
                         $v['value'] = '-';
                         foreach( $v['files'] as $key => $value ) {
-                            if( $key==0 ) {
-                                if( !empty( $v['label'] ) ) {
-                                    $v['label'] = str_replace('%d', '', $v['label']);
-                                    $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                                    $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                                }else{
-                                    $row = str_replace( '{loop_label}', '', $row );
-                                    $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
-                                }
-                            }
-                            // In case the file was deleted we do not want to add a hyperlink that links to the file
-                            if( !empty($settings['file_upload_submission_delete']) ) {
-                                $files_value .= $value['value'] . '<br /><br />';
+                            // Check if user explicitely wants to remove files from {loop_fields} in emails
+                            if(!empty($settings['file_upload_remove_from_email_loop'])) {
+                                // Remove this row completely
+                                $row = ''; 
+                                $confirm_row = '';
                             }else{
-                                $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                if( $key==0 ) {
+                                    if( !empty( $v['label'] ) ) {
+                                        $v['label'] = str_replace('%d', '', $v['label']);
+                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+                                    }else{
+                                        $row = str_replace( '{loop_label}', '', $row );
+                                        $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                                    }
+                                }
+                                // In case the file was deleted we do not want to add a hyperlink that links to the file
+                                // In case the user explicitely choose to remove the hyperlink
+                                if( !empty($settings['file_upload_submission_delete']) || 
+                                    !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
+                                    $files_value .= $value['value'] . '<br /><br />';
+                                }else{
+                                    $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                }
                             }
                             // Exclude file from email completely
                             if( $v['exclude']!=2 ) {
-                                if( $v['exclude']==1 ) {
-                                    $attachments[$value['value']] = $value['url'];
+                                // Get either URL or Secure file path
+                                if(!empty($value['attachment'])){
+                                    $fileValue = $value['url'];
                                 }else{
-                                    $attachments[$value['value']] = $value['url'];
-                                    $confirm_attachments[$value['value']] = $value['url'];
+                                    // See if this was a secure file upload
+                                    if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
+                                }
+                                if( $v['exclude']==1 ) {
+                                    // Only exclude from confirmation email
+                                    $attachments[$value['value']] = $fileValue;
+                                }else{
+                                    // Do not exclude
+                                    $attachments[$value['value']] = $fileValue;
+                                    $confirm_attachments[$value['value']] = $fileValue;
                                 }
                             }
                         }
@@ -3046,14 +3057,20 @@ class SUPER_Ajax {
             );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
-            // If the option to delete files after form submission is enabled remove all files from the server
+            // If the option to delete files after form submission is enabled remove all uploaded files from the server
             if( !empty($settings['file_upload_submission_delete']) ) {
                 // Loop through all data with field typ 'files' and look for any uploaded attachments
                 foreach( $data as $k => $v ) {
                     if( $v['type']=='files' ) {
                         if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                             foreach($v['files'] as $file){
-                                wp_delete_attachment( absint($file['attachment']), true );
+                                if(!empty($file['attachment'])){
+                                    wp_delete_attachment( absint($file['attachment']), true );
+                                }else{
+                                    if(!empty($file['path'])){
+                                        SUPER_Common::delete_dir( $file['path'] );
+                                    }
+                                }
                             }
                         }
                     }
@@ -3114,32 +3131,32 @@ class SUPER_Ajax {
         }
     }
 
-    /** 
-     *  Send an test email through SMTP
-     *
-     *  @param  array  $settings
-     *
-     *  @since      1.0.0
-    */
-    public static function smtp_test() {
-        var_dump('test smtp_test()');
-        die();
-        // $settings = SUPER_Common::get_form_settings($form_id);
-        // $from = 'no-reply@f4d.nl';
-        // $to = sanitize_email($_POST['email']);
-        // $from_name = 'f4d.nl';
-        // $subject = 'Subject';
-        // $email_body = 'Email body';
+    // /** 
+    //  *  Send an test email through SMTP
+    //  *
+    //  *  @param  array  $settings
+    //  *
+    //  *  @since      1.0.0
+    // */
+    // public static function smtp_test() {
+    //     var_dump('test smtp_test()');
+    //     die();
+    //     // $settings = SUPER_Common::get_form_settings($form_id);
+    //     // $from = 'no-reply@f4d.nl';
+    //     // $to = sanitize_email($_POST['email']);
+    //     // $from_name = 'f4d.nl';
+    //     // $subject = 'Subject';
+    //     // $email_body = 'Email body';
 
-        // // Send the email
-        // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
+    //     // // Send the email
+    //     // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
 
-        // // Return error message
-        // if( !empty( $mail->ErrorInfo ) ) {
-        //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-        //     SUPER_Common::output_message( $error=true, $msg );
-        // }
-    }
+    //     // // Return error message
+    //     // if( !empty( $mail->ErrorInfo ) ) {
+    //     //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+    //     //     SUPER_Common::output_message( $error=true, $msg );
+    //     // }
+    // }
 }
 endif;
 SUPER_Ajax::init();

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.6.0
+ * Version:     1.7.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.6.0';
+        public $version = '1.7.0';
 
 
         /**
@@ -150,7 +150,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             add_filter( 'woocommerce_get_item_data', array( $this, 'display_product_meta_data_frontend' ), 10, 2 );
 
             if ( $this->is_request( 'frontend' ) ) {
-                add_filter( 'woocommerce_checkout_get_value', array( $this, 'populate_billing_field_values' ), 10, 2 );
+                add_filter( 'woocommerce_checkout_get_value', array( $this, 'populate_checkout_field_values' ), 10, 2 );
                 add_filter( 'woocommerce_checkout_fields' , array( $this, 'custom_override_checkout_fields' ) );
                 add_action( 'woocommerce_cart_calculate_fees', array( $this, 'additional_shipping_costs' ), 5 );
             }
@@ -265,6 +265,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             global $woocommerce;
             if($woocommerce->cart != null){
                 foreach ( $woocommerce->cart->get_cart() as $k => $v ) {
+                    if(!isset($values->legacy_cart_item_key)) continue;
                     if( $k==$values->legacy_cart_item_key ) {
                         foreach( $v['super_data'] as $k => $v ) {
                             wc_add_order_item_meta( $item_id, $k, $v );
@@ -344,15 +345,14 @@ if(!class_exists('SUPER_WooCommerce')) :
          * 
          * @since       1.2.0
         */
-        public static function populate_billing_field_values( $value, $input ) {
+        public static function populate_checkout_field_values( $value, $input ) {
             global $woocommerce;
-            $v = $woocommerce->session->get('_super_form_data', array() );
-            if( (isset($v[$input])) && (isset($v[$input]['value'])) ) return $v[$input]['value'];
-            $input = str_replace('billing_', '', $input);
-            if( (isset($v[$input])) && (isset($v[$input]['value'])) ) return $v[$input]['value'];
-            if($input=='address_1'){
-                if( (isset($v['address'])) && (isset($v['address']['value'])) ) return $v['address']['value'];
-            }
+            // Billing & Shipping
+            $data = $woocommerce->session->get('_super_form_data', array() );
+            if( (isset($data[$input])) && (isset($data[$input]['value'])) ) return $data[$input]['value'];
+            // If form contained no field name that is used on checkout page see if there is a custom mapped one from the settings
+            $fields = $woocommerce->session->get('_super_form_woocommerce_populate_checkout_fields', array() );
+            if( isset($fields[$input]) ) return SUPER_Common::email_tags( $fields[$input], $data );
             return $value;
         }
 
@@ -452,8 +452,16 @@ if(!class_exists('SUPER_WooCommerce')) :
                 if ( class_exists( 'SUPER_Register_Login' ) ) {
                     $user_id = absint($data['user_id']);
                     $settings = $data['atts']['settings'];
-                    if( (isset($settings['register_login_action']) ) && ($settings['register_login_action']=='register') ) {
-                        $woocommerce->session->set( '_super_wc_signup', array( 'user_id'=>$user_id, 'status'=>$settings['woocommerce_signup_status'] ) );
+                    if( !empty($settings['register_login_action']) && $settings['register_login_action']=='register' && $user_id!=0 ) {
+                        $user_role = '';
+                        if( !empty($settings['woocommerce_completed_user_role']) ) {
+                            $user_role = $settings['woocommerce_completed_user_role'];
+                        }
+                        $woocommerce->session->set( '_super_wc_signup', array( 
+                            'user_id' => $user_id,
+                            'status' => $settings['woocommerce_signup_status'],
+                            'role' => $user_role
+                        ));
                     }else{
                         $woocommerce->session->set( '_super_wc_signup', array() );
                     }
@@ -471,7 +479,6 @@ if(!class_exists('SUPER_WooCommerce')) :
          * @since       1.0.0
         */
         public static function update_order_meta( $order_id ) {
-
             // @since 1.2.2 - save the custom fields to the order, so we can retrieve it in back-end for later use
             $custom_fields = SUPER_Forms()->session->get( '_super_wc_custom_fields' );
             if( !empty($custom_fields) ) {
@@ -520,10 +527,28 @@ if(!class_exists('SUPER_WooCommerce')) :
                     );
                     wp_update_post( $my_post );
 
-                    $_super_wc_signup = get_post_meta( $order_id, '_super_wc_signup', true );
-                    update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $_super_wc_signup['status'] );
+
                 }
 
+                // Update user login status and role
+                $_super_wc_signup = get_post_meta( $order_id, '_super_wc_signup', true );
+                if ( !empty( $_super_wc_signup ) ) { // @since 1.0.2 - check if not empty
+                    // Update login status
+                    if(!empty($_super_wc_signup['user_id'])) {
+                        update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $_super_wc_signup['status'] );
+                        // Update user role
+                        if( !empty($_super_wc_signup['role']) ) {
+                            $userdata = array(
+                                'ID' => $_super_wc_signup['user_id'],
+                                'role' => $_super_wc_signup['role']
+                            );
+                            $result = wp_update_user( $userdata );
+                            if( is_wp_error( $result ) ) {
+                                throw new Exception($return->get_error_message());
+                            }
+                        }
+                    }
+                }
 
                 // @since 1.3.8 - Check if sending email is enabled
                 $data = get_post_meta( $order_id, '_super_wc_entry_data', true);
@@ -1128,6 +1153,22 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 // Redirect to cart / checkout page
                 if( isset($settings['woocommerce_redirect']) ) {
+
+                    if( (isset($settings['woocommerce_populate_checkout_fields'])) && ($settings['woocommerce_populate_checkout_fields']!='') ) {
+                        // First reset
+                        $woocommerce->session->set( '_super_form_woocommerce_populate_checkout_fields', array() );
+                        $fields = array();
+                        $woocommerce_populate_checkout_fields = explode( "\n", $settings['woocommerce_populate_checkout_fields'] );  
+                        foreach( $woocommerce_populate_checkout_fields as $k => $v ) {
+                            $field =  explode( "|", $v );
+                            if( !isset( $field[0] ) ) continue; 
+                            $value = '';
+                            if( isset( $field[1] ) ) $value = SUPER_Common::email_tags( $field[1], $data, $settings );
+                            $fields[$field[0]] = $value;
+                        }
+                        $woocommerce->session->set( '_super_form_woocommerce_populate_checkout_fields', $fields );
+                    }
+
                     $woocommerce->session->set( '_super_form_data', $data ); // @since 1.2.0 - save data to session for billing fields
                     $redirect = null;
                     if( $settings['woocommerce_redirect']=='checkout' ) {
@@ -1240,7 +1281,16 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'filter_value' => 'true',
                         'allow_empty' => true,
                     ),
-
+                    'woocommerce_populate_checkout_fields' => array(
+                        'name' => esc_html__( 'Populate checkout fields with form data', 'super-forms' ) . '<br /><i>' . esc_html__( 'Put each on a new line', 'super-forms' ) . '</i><br />',
+                        'label' => sprintf( esc_html__( 'Example:%1$sbilling_first_name|{first_name}%1$sbilling_last_name|{last_name}%1$sbilling_postcode|{zipcode}%1$sbilling_city|{city}%1$s%1$sPossible field to populate on checkout page are:%1$s', 'super-forms' ), '<br />' ) . ' billing_country, shipping_country, billing_first_name, billing_last_name, billing_company, billing_country, billing_address_1, billing_address_2, billing_postcode, billing_city, billing_state, billing_phone, billing_email, order_comments',
+                        'desc' => esc_html__( 'Leave blank to not populate any checkout fields', 'super-forms' ),
+                        'type' => 'textarea',
+                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_populate_checkout_fields', $settings['settings'], "" ),
+                        'filter' => true,
+                        'parent' => 'woocommerce_checkout',
+                        'filter_value' => 'true'
+                    ),
                     // @since 1.2.2 - add custom checkout fields to checkout page
                     'woocommerce_checkout_fields' => array(
                         'name' => esc_html__( 'Add custom checkout field(s)', 'super-forms' ) . '<br /><i>' . esc_html__( 'Put each field on a new line with field options seperated by pipes "|".', 'super-forms' ) . '</i><br />',
@@ -1318,7 +1368,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             $array['woocommerce_checkout']['fields'] = array_merge($array['woocommerce_checkout']['fields'], $new_fields);
             $array['woocommerce_checkout']['fields']['woocommerce_completed_attachments'] = array(
                 'name' => esc_html__( 'Attachments for woocommerce completed emails:', 'super-forms' ),
-                'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
+                'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
                 'default' => SUPER_Settings::get_value( 0, 'woocommerce_completed_attachments', $settings['settings'], '' ),
                 'type' => 'file',
                 'multiple' => 'true',
@@ -1330,7 +1380,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             if ( class_exists( 'SUPER_Frontend_Posting' ) ) {
                 $array['woocommerce_checkout']['fields']['woocommerce_post_status'] = array(
                     'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
-                    'desc' => esc_html__( 'Only used for Front-end posting (publish, future, draft, pending, private, trash, auto-draft)?', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Front-end posting', 'super-forms' ),
                     'default' => SUPER_Settings::get_value( 0, 'woocommerce_post_status', $settings['settings'], 'publish' ),
                     'type' => 'select',
                     'values' => array(
@@ -1349,9 +1399,16 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
 
             if ( class_exists( 'SUPER_Register_Login' ) ) {
+                global $wp_roles;
+                $all_roles = $wp_roles->roles;
+                $editable_roles = apply_filters( 'editable_roles', $all_roles );
+                $roles = array();
+                foreach( $editable_roles as $k => $v ) {
+                    $roles[$k] = $v['name'];
+                }
                 $array['woocommerce_checkout']['fields']['woocommerce_signup_status'] = array(
                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-                    'desc' => esc_html__( 'Only used for Register & Login add-on (active, pending, blocked)?', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
                     'default' => SUPER_Settings::get_value( 0, 'woocommerce_signup_status', $settings['settings'], 'active' ),
                     'type' => 'select',
                     'values' => array(
@@ -1363,6 +1420,17 @@ if(!class_exists('SUPER_WooCommerce')) :
                     'parent' => 'woocommerce_checkout',
                     'filter_value' => 'true',
                 );
+				$array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
+					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_user_role', $settings['settings'], 'active' ),
+					'type' => 'select',
+					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
+					'filter' => true,
+					'parent' => 'woocommerce_checkout',
+					'filter_value' => 'true',
+				);
+
             }
 
             return $array;

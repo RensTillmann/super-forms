@@ -6,10 +6,10 @@
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
-- [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 - [Execute custom JS when a column becomes conditionally visible](#execute-custom-js-when-a-column-becomes-conditionally-visible)
 - [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting Add-on](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting-add-on)
 - [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting Add-on](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting-add-on)
+- [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 
 ## Track form submissions with third party
 
@@ -159,39 +159,6 @@ With the below example code you can send the submitted form data to a different 
     }
 ```
 
-## Delete uploaded files after email has been send
-
-```php
-add_action('super_before_email_success_msg_action', '_super_delete_uploaded_files', 30, 1);
-function _super_delete_uploaded_files( $atts ) {
-
-    // REPLACE 123 WITH YOUR FORM ID
-    $id = 123;
-
-    // CHANGE AND ADD THE NAMES OF FILE UPLOAD FIELDS
-    $fields = array(
-        'file1',
-        'file2',
-        'file3',
-    );
-
-    $form_id = absint($atts['post']['form_id']); // contains the form ID that was submitted
-    if( $form_id == $id ) {
-        $data = $atts['data']; // contains the submitted form data
-        foreach( $fields as $field_name ) {
-            if( isset( $data[$field_name]['files'] ) ) {
-                $files = $data[$field_name]['files'];
-                if( is_array( $files ) ) {
-                    foreach( $files as $file ) {
-                        wp_delete_attachment(absint($file['attachment']), true);
-                    }
-                }
-            }
-        }
-    }
-}
-```
-
 ## Execute custom JS when a column becomes conditionally visible
 
 In some cases you might want to trigger or execute some custom JavaScript upon a column becoming conditionally visible.
@@ -258,4 +225,39 @@ function f4d_convert_file_id_to_url( $attr ) {
     }
 }
 add_action('super_front_end_posting_after_insert_post_action', 'f4d_convert_file_id_to_url', 10, 1);
+```
+
+## Delete uploaded files after email has been send
+
+?> **NOTE:** This code should no longer be used if you wish to delete all the files, since you can do that via `Super Forms > Settings > File Upload Settings`.
+
+```php
+add_action('super_before_email_success_msg_action', '_super_delete_uploaded_files', 30, 1);
+function _super_delete_uploaded_files( $atts ) {
+
+    // REPLACE 123 WITH YOUR FORM ID
+    $id = 123;
+
+    // CHANGE AND ADD THE NAMES OF FILE UPLOAD FIELDS
+    $fields = array(
+        'file1',
+        'file2',
+        'file3',
+    );
+
+    $form_id = absint($atts['post']['form_id']); // contains the form ID that was submitted
+    if( $form_id == $id ) {
+        $data = $atts['data']; // contains the submitted form data
+        foreach( $fields as $field_name ) {
+            if( isset( $data[$field_name]['files'] ) ) {
+                $files = $data[$field_name]['files'];
+                if( is_array( $files ) ) {
+                    foreach( $files as $file ) {
+                        wp_delete_attachment(absint($file['attachment']), true);
+                    }
+                }
+            }
+        }
+    }
+}
 ```

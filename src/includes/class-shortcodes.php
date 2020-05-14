@@ -1646,7 +1646,7 @@ class SUPER_Shortcodes {
 
     // @since 1.2.5     - custom regex validation
     public static function custom_regex( $regex ) {
-        if( !empty($regex) )return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
+        if( !empty($regex) ) return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
     }
 
     public static function loop_conditions( $atts, $tag ) {
@@ -2897,7 +2897,9 @@ class SUPER_Shortcodes {
                 $result .= ' data-search-skip="' . $skip . '"';
             }
 
-            // @since 3.1.0 - make sure if the parameter of this field element is set in the POST or GET we have to set the GET variables to auto fill the form fields based on the contact entry found
+            // @since 3.1.0
+            // make sure if the parameter of this field element is set in the POST or GET we 
+            // have to set the GET variables to auto fill the form fields based on the contact entry found
             if( $atts['value']!='' ) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
@@ -2926,6 +2928,7 @@ class SUPER_Shortcodes {
                             $_GET[$k] = $v['value'];
                         }
                     }
+
                 }
             }
         }
@@ -5492,13 +5495,13 @@ class SUPER_Shortcodes {
         $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
       
         $entry_data = null;
+
         $contact_entry_id = 0;
         if( isset( $_GET['contact_entry_id'] ) ) {
             $contact_entry_id = absint($_GET['contact_entry_id']);
         }else{
             if( isset( $_POST['contact_entry_id'] ) ) {
                 $contact_entry_id = absint($_POST['contact_entry_id']);
-
             }
         }
         if($contact_entry_id!=0){
@@ -5526,12 +5529,16 @@ class SUPER_Shortcodes {
                     SELECT  ID 
                     FROM    $table 
                     WHERE   post_author = $current_user_id AND
-                            post_parent IN ($form_ids) AND
+                            post_parent IN ('$form_ids') AND
                             post_status IN ('publish','super_unread','super_read') AND 
                             post_type = 'super_contact_entry'
                     ORDER BY ID DESC
                     LIMIT 1");
                     if( isset($entry[0])) {
+                        // If entry exists, set the ID so we can actually update it based on the ID later
+                        if( !empty($settings['update_contact_entry']) ) {
+                            $contact_entry_id = absint($entry[0]->ID);
+                        }
                         $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                         if(!empty($entry_data)){
                             unset($entry_data['hidden_form_id']);
@@ -5665,17 +5672,22 @@ class SUPER_Shortcodes {
                 }
             }
             if( $display_msg ) {
-                $result .= '<div class="super-msg super-error">';
-                if($settings['form_locker_msg_title']!='') {
-                    $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
-                }
-                $result .= nl2br($settings['form_locker_msg_desc']);
-                $result .= '<span class="close"></span>';
-                $result .= '</div>';
-                if($settings['form_locker_hide']=='true') {
-                    $result .= '</form>';
+                if(!empty($settings['form_locker_msg'])) {
+                    $result .= '<div class="super-msg super-error">';
+                    if($settings['form_locker_msg_title']!='') {
+                        $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+                    }
+                    $result .= nl2br($settings['form_locker_msg_desc']);
+                    $result .= '<span class="close"></span>';
                     $result .= '</div>';
-                    return $result;
+                    if($settings['form_locker_hide']=='true') {
+                        $result .= '</form>';
+                        $result .= '</div>';
+                        return $result;
+                    }
+                }else{
+                    // Do not display anything
+                    return '';
                 }
             }
         }
@@ -5733,17 +5745,22 @@ class SUPER_Shortcodes {
                     }
                 }
                 if( $display_msg ) {
-                    $result .= '<div class="super-msg super-error">';
-                    if(!empty($settings['user_form_locker_msg_title'])) {
-                        $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
-                    }
-                    $result .= nl2br($settings['user_form_locker_msg_desc']);
-                    $result .= '<span class="close"></span>';
-                    $result .= '</div>';
-                    if(!empty($settings['user_form_locker_hide'])) {
-                        $result .= '</form>';
+                    if(!empty($settings['user_form_locker_msg'])) {
+                        $result .= '<div class="super-msg super-error">';
+                        if(!empty($settings['user_form_locker_msg_title'])) {
+                            $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                        }
+                        $result .= nl2br($settings['user_form_locker_msg_desc']);
+                        $result .= '<span class="close"></span>';
                         $result .= '</div>';
-                        return $result;
+                        if(!empty($settings['user_form_locker_hide'])) {
+                            $result .= '</form>';
+                            $result .= '</div>';
+                            return $result;
+                        }
+                    }else{
+                        // Do not display anything
+                        return '';
                     }
                 }
             }
@@ -5763,7 +5780,6 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . $form_id . '" name="hidden_form_id" />';
         $result .= '</div>';
 
-
         // Grab all form elements
         $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
@@ -5772,6 +5788,7 @@ class SUPER_Shortcodes {
 
         // @since 2.2.0 - update contact entry by ID
         if( (isset( $settings['update_contact_entry'] )) && ($settings['update_contact_entry']=='true') ) {
+            
             // @since 4.7.7 - only add this field if no such field name already exists
             // otherwise we would end up with duplicate fields
             $re = '/{"name":"hidden_contact_entry_id"/';
@@ -5779,7 +5796,7 @@ class SUPER_Shortcodes {
             preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
             if(empty($matches)){
                 $result .= '<div class="super-shortcode super-field super-hidden">';
-                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
+                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . $contact_entry_id . '" name="hidden_contact_entry_id" />';
                 $result .= '</div>';
             }
         }

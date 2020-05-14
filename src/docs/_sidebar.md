@@ -23,6 +23,7 @@
   - [Conditional Validation](conditional-validation.md)
 
 - Features
+  - [File uploads](file-uploads.md)
   - [Translation System](build-in-translation-system.md)
   - [Tags system](tags-system.md)
   - [Conditional Logic](conditional-logic.md)
@@ -72,7 +73,7 @@
     - [Mailster](mailster-add-on)
     - [CSV Attachment](csv-attachment-add-on)
     - [Password Protect & User Lockout & Hide](password-protect-user-lockout-hide-add-on)
-    - [Front-end Register & Login](front-end-register-login-add-on)
+    - [Register & Login](register-login-add-on)
     - [Popups](popups-add-on)
     - [Email Templates](email-templates-add-on)
     - [Email Reminders](email-reminders-add-on)

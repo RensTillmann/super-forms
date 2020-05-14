@@ -2372,8 +2372,8 @@ function SUPERreCaptcha(){
             });
             data[field.attr('name')] = field.val();
             if(wrapper.find('.super-fileupload-files > div.error').length){
-                form.find('.super-form-button.super-loading .super-button-name').html(old_html);
-                form.find('.super-form-button.super-loading').removeClass('super-loading');
+                $(form).find('.super-form-button.super-loading .super-button-name').html(old_html);
+                $(form).find('.super-form-button.super-loading').removeClass('super-loading');
                 clearInterval(interval);
             }else{
                 // Let's check if there are any errors with one of the files
@@ -5183,10 +5183,13 @@ function SUPERreCaptcha(){
                 if( data[i].type=='files' ) {
                     if( (typeof data[i].files !== 'undefined') && (data[i].files.length!==0) ) {
                         fieldName = data[i].files[0].name;
+                    }else{
+                        return true; // Skip it!
                     }
                 }
+                if(!fieldName) return true; // Either no field exists, or it's "_super_dynamic_data"
+                // Get the element
                 element = SUPER.field(form, fieldName);
-
                 // If no element was found, go to next field
                 if(!element) return true;
                 // Add to list of updated fields, required to trigger hook `after_field_change_blur_hook`

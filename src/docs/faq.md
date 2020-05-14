@@ -18,6 +18,7 @@
 **Technical related questions:**
 
 - [Why is my form not sending emails?](#why-is-my-form-not-sending-emails)
+- [Why are emails going into spam folder/inbox?](#why-are-emails-going-into-spam-folderinbox)
 - [Why do I get an error message when uploading a file?](#why-do-i-get-an-error-message-when-uploading-a-file)
 - [How to retrieve the Contact Entry ID in my email?](#how-to-retrieve-the-contact-entry-id-in-my-email)
 - [Can I import options for a dropdown from a CSV file?](#can-i-import-options-for-a-dropdown-from-a-csv-file)
@@ -98,6 +99,22 @@ If you do receive an E-mail with the lost password form, then it is most likely 
 If you are still unable to receive E-mails after the above steps, check if any other plugin is being used that overrides WordPress `wp_mail()` functionality. If you are using **SMTP plugin** or settings, recheck if they are setup correctly.
 
 If after all the above steps you think everything is correctly setup, you can [Contact support](support).
+
+## Why are emails going into spam folder/inbox?
+
+It is important to note that emails are not marked as spam by Super Forms. Instead they are marked as spam by interent spam protection measures.
+Because spam protection rules are constantly getting stricter, a form that previously worked can sometimes stop working out of the blue, even when nothing was changed on your website.
+
+One way to solve the problem is to let your site send emails over SMTP rather than the built-in WordPress mail service.
+E-mails send over SMTP "look" more legitimate and will help your emails pass spam filters.
+
+**Other things you should check are:**
+
+- The `From` address must match the domain of your website e.g: noreply@`mydomain.com`
+- Your `To` address should never match your `From` address because it can trigger spam deletion
+- If you specified a `Reply-To` address, it should never match your `To` address
+- Even though you can add multiple recipients in your `To` setting, it is recommended to use `CC` and `BCC` for multiple recipients
+- Minimize the links you include. E-mail messages with a ton of links might trigger spam filters
 
 ## Why do I get an error message when uploading a file?
 

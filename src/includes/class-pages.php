@@ -545,14 +545,14 @@ class SUPER_Pages {
                                                                     echo '<td><span class="super-contact-entry-data-value">';
                                                                 }
                                                                 $url = $fv['url'];
-                                                                if( isset( $fv['attachment'] ) ) {
+                                                                if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }
                                                                 if($fk>0) echo '<br />';
                                                                 if(!empty($url)){
                                                                     echo '<a class="super-file" target="_blank" href="' . esc_url( $url ) . '">';
                                                                 }
-                                                                echo esc_html( $fv['value'] );
+                                                                echo esc_html( $fv['value'] ); // The filename
                                                                 if(!empty($url)){
                                                                     echo '</a>';
                                                                 }
