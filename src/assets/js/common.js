@@ -1313,7 +1313,6 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function($form, $regular_expression, $v_value, $target, $bwc){
-        debugger;
         if(typeof $bwc === 'undefined') $bwc = false;
         if(typeof $target === 'undefined') $target = null;
         if(typeof $v_value !== 'undefined' && $bwc){
@@ -1324,7 +1323,6 @@ function SUPERreCaptcha(){
                 $v_value = '{'+$v_value+'}';   
             } 
         }
-        debugger;
         var $array = [],
             $value = '',
             $i = 0,
@@ -1344,14 +1342,11 @@ function SUPERreCaptcha(){
             $values,
             $element;
 
-        debugger;
         while (($match = $regular_expression.exec($v_value)) !== null) {
             $array[$i] = $match[1];
             $i++;
         }
-        debugger;
         for ($i = 0; $i < $array.length; $i++) {
-            debugger;
             $element = undefined; // @important!
             $name = $array[$i];
             if($name=='pdf_page' && typeof SUPER.pdf_tags !== 'undefined' ){
@@ -3754,7 +3749,6 @@ function SUPERreCaptcha(){
         // 297 == 1122px
         // Media                Page size           Print area              Margins
         // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
-        debugger;
 
         // Update PDF tags
         SUPER.pdf_tags = {
@@ -4504,18 +4498,14 @@ function SUPERreCaptcha(){
                     }
                     $html = $html.split($original).join($rows);
                 }
-                debugger;
                 $regular_expression = /\{(.*?)\}/g;
                 $array = [];
                 while (($match = $regular_expression.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
                 }
-                debugger;
                 if( $array.length>0 ) {
-                    debugger;
                     for ($counter = 0; $counter < $array.length; $counter++) {
-                        debugger;
                         $values = $array[$counter];
                         $new_value = SUPER.update_variable_fields.replace_tags(form, $regular_expression, '{'+$values+'}', $target);
                         $html = $html.replace('{'+$values+'}', $new_value);
