@@ -92,12 +92,15 @@ function SUPERreCaptcha(){
     }
 
     SUPER.debug_time = function($name){
+        // eslint-disable-next-line no-console
         console.time($name);
     };
     SUPER.debug_time_end = function($name){
+        // eslint-disable-next-line no-console
         console.timeEnd($name);
     };
     SUPER.debug = function($log){
+        // eslint-disable-next-line no-console
         console.log($log);
     };
 
@@ -484,6 +487,7 @@ function SUPERreCaptcha(){
                         changedField.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
+                        // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
                         alert('Failed to process data, please try again');
                     }
@@ -3221,12 +3225,14 @@ function SUPERreCaptcha(){
                 if($proceed){
                     if( ( (typeof $event[1] === 'undefined') || ($event[1]==='') ) || 
                         ( (typeof $event[2] === 'undefined') || ($event[2]==='') ) ) {
+                        // eslint-disable-next-line no-console
                         console.log('Seems like we are missing required ga() parameters!');
                     }else{
 
                         // Event Tracking
                         if( ($event[0]=='send') && ($event[1]=='event') ) {
                             if( (typeof $event[3] === 'undefined') || ($event[3]==='') ) {
+                                // eslint-disable-next-line no-console
                                 console.log('ga() is missing the "eventAction" parameter (The type of interaction e.g. "play")');
                             }else{
                                 $parameters = {};
@@ -4771,6 +4777,7 @@ function SUPERreCaptcha(){
                     return false;
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                    // eslint-disable-next-line no-console
                     console.log(xhr, ajaxOptions, thrownError);
                     alert('Failed to process data, please try again');
                     return false;
@@ -5486,6 +5493,7 @@ function SUPERreCaptcha(){
                     form.classList.remove('super-populating');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                    // eslint-disable-next-line no-console
                     console.log(xhr, ajaxOptions, thrownError);
                     alert('Failed to process data, please try again');
                 }
@@ -5516,6 +5524,7 @@ function SUPERreCaptcha(){
                         form.classList.remove('super-populating');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
+                        // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
                         alert('Failed to process data, please try again');
                     }
@@ -6534,6 +6543,7 @@ function SUPERreCaptcha(){
                             $form.removeClass('super-populating');
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
+                            // eslint-disable-next-line no-console
                             console.log(xhr, ajaxOptions, thrownError);
                             alert('Failed to process data, please try again');
                         }
