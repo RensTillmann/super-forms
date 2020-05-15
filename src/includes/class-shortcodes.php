@@ -3754,6 +3754,8 @@ class SUPER_Shortcodes {
         if(!isset($atts['numberOfMonths'])) $atts['numberOfMonths'] = '1';
         if(!isset($atts['showOtherMonths'])) $atts['showOtherMonths'] = 'false';
         if(!isset($atts['selectOtherMonths'])) $atts['selectOtherMonths'] = 'false';
+        // Must be set `showOtherMonths` to false if `showOtherMonths` is not enabled
+        if($atts['showOtherMonths']!='true') $atts['selectOtherMonths'] = 'false'; 
 
         $result .= ' value="' . esc_attr($atts['value']) . '" 
         name="' . esc_attr($atts['name']) . '" 

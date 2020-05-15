@@ -1612,6 +1612,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   opacity: 0;
 }
 
+.super-keyword-tags.super-focus .super-shortcode-field, .super-keyword-tags.super-focus input[type=text], .super-keyword-tags.super-focus input[type=number], .super-keyword-tags.super-focus input[type=email], .super-keyword-tags.super-focus input[type=tel], .super-keyword-tags.super-focus input[type=url], .super-keyword-tags.super-focus input[type=password], .super-keyword-tags.super-focus input[type=search], .super-keyword-tags.super-focus textarea {
+  opacity: 1;
+}
+
 .super-transparent-fields input, .super-transparent-fields .super-dropdown-ui,
 .super-transparent-fields textarea,
 .super-transparent-fields .super-field div .super-fileupload-button,

@@ -1012,8 +1012,9 @@
             // If custom padding is being used set $column to be the padding wrapper `div`
             column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form(el, form);
-            last = column.querySelector('.super-duplicate-column-fields:last-child');
-            found = column.querySelectorAll('.super-duplicate-column-fields:last-child').length;
+            var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
+            last = duplicateColumns[duplicateColumns.length-1];
+            found = column.querySelectorAll('.super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
                 return false;
@@ -2001,6 +2002,7 @@
                     SUPER.init_replace_html_tags(undefined, $form[0]);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                    // eslint-disable-next-line no-console
                     console.log(xhr, ajaxOptions, thrownError);
                     alert('Failed to process data, please try again');
                 }
@@ -2400,6 +2402,7 @@
         try {
             sfevents = JSON.parse(target.attributes.sfevents.value);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.log(error);
             alert(error);
         }
@@ -2426,6 +2429,7 @@
                         if (_currentFunc[_function[i]]) {
                             _currentFunc = _currentFunc[_function[i]];
                         } else {
+                            // eslint-disable-next-line no-console
                             console.log('Function ' + actions + '() is undefined!');
                             break;
                         }
@@ -2435,6 +2439,7 @@
                     if (_currentFunc[actions]) {
                         _currentFunc = _currentFunc[actions];
                     } else {
+                        // eslint-disable-next-line no-console
                         console.log('Function ' + actions + '() is undefined!');
                     }
                     _currentFunc(e, target, eventType, actions);
@@ -2449,6 +2454,7 @@
                         if (_currentFunc[_function[i]]) {
                             _currentFunc = _currentFunc[_function[i]];
                         } else {
+                            // eslint-disable-next-line no-console
                             console.log('Function ' + key + '() is undefined!');
                             break;
                         }
