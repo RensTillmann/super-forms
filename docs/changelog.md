@@ -1,6 +1,11 @@
 # Super Forms - Changelog
 
-## May 13, 2020 - Version 4.9.452
+## May 15, 2020 - Version 4.9.453
+
+- **Fix:** Limit for dynamic column was no longer working
+- **Fix:** Fix for datepicker, user was able to click days in next and previous months while they shouldn't be able to do so
+
+## May 13, 2020 - Version 4.9.450
 
 - **New:** `Secure file uploads` setting under `Super Forms > Settings > File Upload Settings`
   - option to define a custom directory name relative to the site root e.g:
