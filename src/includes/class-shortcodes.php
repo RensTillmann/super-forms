@@ -1269,7 +1269,7 @@ class SUPER_Shortcodes {
                     $result .= '<div class="super-title">';
                     $result .= $name;
                     if( ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
-                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
+                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="false" />';
                     }
                     $result .= '</div>';
                 }
@@ -1529,7 +1529,7 @@ class SUPER_Shortcodes {
         if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
 
         // @since 3.6.0 - disable field autocompletion
-        if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
+        if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="false"';
 
         // @since 4.9.3 - Adaptive Placeholders
         // If adaptive placeholders is enabled, we will not want to use the default placeholders
@@ -3692,7 +3692,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
+        $result .= '<input class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
 
 
         // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
@@ -3836,7 +3836,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
+        $result .= '<input class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag );

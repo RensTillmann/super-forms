@@ -1166,8 +1166,8 @@ if(!class_exists('SUPER_Forms')) :
             if( $post_type=='super_contact_entry') {
                 $from = ( isset( $_GET['sffrom'] ) && $_GET['sffrom'] ) ? $_GET['sffrom'] : '';
                 $to = ( isset( $_GET['sfto'] ) && $_GET['sfto'] ) ? $_GET['sfto'] : '';
-                echo '<input autocomplete="off" type="text" name="sffrom" placeholder="Date From" value="' . $from . '" />';
-                echo '<input autocomplete="off" type="text" name="sfto" placeholder="Date To" value="' . $to . '" />';
+                echo '<input autocomplete="false" type="text" name="sffrom" placeholder="Date From" value="' . $from . '" />';
+                echo '<input autocomplete="false" type="text" name="sfto" placeholder="Date To" value="' . $to . '" />';
             }
         }
 
