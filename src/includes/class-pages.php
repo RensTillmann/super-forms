@@ -373,7 +373,7 @@ class SUPER_Pages {
 
                     <div id="titlediv" style="margin-bottom:10px;">
                         <div id="titlewrap">
-                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo get_the_title($id); ?>" id="title" spellcheck="true" autocomplete="off">
+                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo get_the_title($id); ?>" id="title" spellcheck="true" autocomplete="false">
                         </div>
                     </div>
 
