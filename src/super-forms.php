@@ -615,7 +615,8 @@ if(!class_exists('SUPER_Forms')) :
                     'body' => array(
                         'addon' => 'pdf',
                         'siteUrl' => site_url(),
-                        'adminUrl' => admin_url()
+                        'adminUrl' => admin_url(),
+                        'domain' => SUPER_Common::getDomain()
                         // 'action' => 'super_subscribe_addon',
                         // 'siteUrl' => site_url(),
                         // 'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
