@@ -10,6 +10,46 @@
         }
         return JSON.stringify(obj) === JSON.stringify({});
     }
+    SUPER.ui = {
+        // Update form settings
+        updateSettings: function(e, el, setting){
+            var i,
+                tab = el.closest('.super-tab-content'),
+                nodes = tab.querySelectorAll('[name]'),
+                formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
+                data = {},
+                value = '',
+                names;
+
+            for(i=0; i < nodes.length; i++){
+                value = nodes[i].value;
+                if(nodes[i].type==='checkbox'){
+                    value = nodes[i].checked;
+                }
+                if(nodes[i].type==='radio'){
+                    value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value
+                }
+                names = nodes[i].name.split('.');
+                if(names.length>1){
+                    if(typeof data[names[0]] === 'undefined'){
+                        data[names[0]] = {};
+                    }
+                    if(names.length>2){
+                        if(typeof data[names[0]][names[1]] === 'undefined'){
+                            data[names[0]][names[1]] = {};
+                        }
+                        data[names[0]][names[1]][names[2]] = value;
+                    }else{
+                        data[names[0]][names[1]] = value;
+                    }
+                }else{
+                    data[nodes[i].name] = value;
+                }
+            }
+            formSettings[setting] = data;
+            document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
+        }
+    };
     SUPER.update_form_elements = function(string){
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
