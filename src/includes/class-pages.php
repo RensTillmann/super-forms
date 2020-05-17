@@ -55,6 +55,13 @@ class SUPER_Pages {
         //             'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
         //             'hostname' => $hostname // hostname
 
+        $addOnsActivated = array();
+        if(class_exists('SUPER_Calculator')) $addOnsActivated['calculator'] = SUPER_Calculator()->version;
+        if(class_exists('SUPER_CSV_Attachment')) $addOnsActivated['csv_attachment'] = SUPER_CSV_Attachment()->version;
+        if(class_exists('SUPER_Email_Reminders')) $addOnsActivated['email_reminders'] = SUPER_Email_Reminders()->version;
+        if(class_exists('SUPER_Email_Templates')) $addOnsActivated['email_templates'] = SUPER_Email_Templates()->version;
+        if(class_exists('SUPER_Frontend_Posting')) $addOnsActivated['frontend_posting'] = SUPER_Frontend_Posting()->version;
+
         $response = wp_remote_post(
             SUPER_API_ENDPOINT . '/addons/list',
             array(
@@ -64,12 +71,12 @@ class SUPER_Pages {
                     'apiEndpoint' => SUPER_API_ENDPOINT,
                     'apiVersion' => SUPER_API_VERSION,
                     'action' => 'super_subscribe_addon',
+                    'pluginVersion' => SUPER_VERSION,
                     'siteUrl' => site_url(),
                     'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
                     'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
                     'userEmail' => $user_email,
-                    'serverAddr' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-                    'hostName' => $hostname // hostname
+                    'addOnsActivated' => json_encode($addOnsActivated)
                 )
             )
         );

@@ -1858,7 +1858,6 @@ class SUPER_Ajax {
                     'planId' => $_POST['planId'],
                     'data' => $_POST['data']
                     // 'url' => $_POST['url'],
-                    // 'site_url' => site_url(),
                     // 'user_email' => $user_email,
                     // 'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
                     // 'hostname' => $hostname // hostname

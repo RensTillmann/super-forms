@@ -1572,11 +1572,11 @@ if(!class_exists('SUPER_Forms')) :
                         if( empty($_GET['m']) ) {
                             throw new Exception("Invalid payload");
                         }
-                        if( empty($p['k']) && empty($p['v']) ) {
-                            throw new Exception("Invalid payload");
-                        }
                         if($_GET['m']=='t'){
                             http_response_code(200);
+                        }
+                        if( empty($p['k']) && empty($p['v']) ) {
+                            throw new Exception("Invalid payload");
                         }
                         if($_GET['m']=='a'){
                             if( !empty($p['k']) && !empty($p['v']) ) {
