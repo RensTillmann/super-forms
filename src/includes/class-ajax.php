@@ -1854,7 +1854,7 @@ class SUPER_Ajax {
                 'method' => 'POST',
                 'timeout' => 45,
                 'body' => array(
-                    'addon' => $_POST['addon'],
+                    'addonSlug' => $_POST['addonSlug'],
                     'planId' => $_POST['planId'],
                     'data' => $_POST['data']
                     // 'url' => $_POST['url'],
