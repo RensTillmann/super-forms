@@ -968,8 +968,8 @@ class SUPER_Common {
             // For backwards compatiblity we will also check for old generated codes
             $exists = $wpdb->get_var( 
                 $wpdb->prepare( 
-                    "SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", 
-                    $code_without_invoice_number
+                    "SELECT COUNT(*) FROM %s WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", 
+                    $table, $code_without_invoice_number
                 ) 
             );
             if( $exists==0 ) {
