@@ -4001,6 +4001,7 @@ class SUPER_Shortcodes {
 
         // @since 2.2.0 - random code generation
         if( !isset( $atts['enable_random_code'] ) ) $atts['enable_random_code'] = '';
+        $codeSettings = array();
         if($atts['enable_random_code']=='true'){
             if( !isset( $atts['code_length'] ) ) $atts['code_length'] = 7;
             if( !isset( $atts['code_characters'] ) ) $atts['code_characters'] = '1';
@@ -4008,7 +4009,16 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
             if( !isset( $atts['code_uppercase'] ) ) $atts['code_uppercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
-            $atts['value'] = SUPER_Common::generate_random_code($atts['code_length'], $atts['code_characters'], $atts['code_prefix'], $atts['code_invoice'], $atts['code_invoice_padding'], $atts['code_suffix'], $atts['code_uppercase'], $atts['code_lowercase']);
+            $codeSettings = array(
+                'len' => $atts['code_length'],
+                'char' => $atts['code_characters'],
+                'pre' => $atts['code_prefix'],
+                'inv' => $atts['code_invoice'],
+                'invp' => $atts['code_invoice_padding'],
+                'suf' => $atts['code_suffix'],
+                'upper' => $atts['code_uppercase'],
+                'lower' => $atts['code_lowercase']
+            );
         }
 
         // Get default value
@@ -4025,6 +4035,8 @@ class SUPER_Shortcodes {
         if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';
         if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
         if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
+
+        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(json_encode($codeSettings)) . '"';
         $result .= ' />';
 
         $result .= self::loop_variable_conditions( $atts );
