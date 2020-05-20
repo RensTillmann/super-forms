@@ -920,7 +920,15 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
-    public static function generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase) {
+    public static function generate_random_code($codesettings){
+        $length = $codesettings['len'];
+        $characters = $codesettings['char'];
+        $prefix = $codesettings['pre'];
+        $invoice = $codesettings['inv'];
+        $invoice_padding = $codesettings['invp'];
+        $suffix = $codesettings['suf'];
+        $uppercase = $codesettings['upper'];
+        $lowercase = $codesettings['lower'];
         $char  = '';
         if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
             $char .= '0123456789';
@@ -957,9 +965,13 @@ class SUPER_Common {
             return $code;
         }
         if( (get_transient($transient)==false) && (get_option($transient)==false) ) {
-            
             // For backwards compatiblity we will also check for old generated codes
-            $exists = $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '$code_without_invoice_number'");
+            $exists = $wpdb->get_var( 
+                $wpdb->prepare( 
+                    "SELECT COUNT(*) FROM $table WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", 
+                    $code_without_invoice_number
+                ) 
+            );
             if( $exists==0 ) {
                 // Set expiration to 12 hours
                 $result = set_transient( $transient, $code_without_invoice_number, 12 * HOUR_IN_SECONDS );

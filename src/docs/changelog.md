@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## May 20, 2020 - Version 4.9.454
+
+- **Fix:** Issue with browser `Back` button remembering the uniquely generated code (Hidden field with Unique code generation enabled), should instead generate a new one so that it is a unique code.
+
 ## May 15, 2020 - Version 4.9.453
 
 - **Fix:** Limit for dynamic column was no longer working

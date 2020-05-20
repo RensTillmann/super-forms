@@ -83,6 +83,8 @@ class SUPER_Ajax {
             'reset_form_settings'           => false, // @since 4.0.0
             'tutorial_do_not_show_again'    => false, // @since 4.0.0
 
+            'update_unique_code'            => true, // @since 4.9.46
+
             //'smtp_test'                     => false, // @since 4.9.5
 
         );
@@ -96,6 +98,16 @@ class SUPER_Ajax {
         }
     }
 
+    // @since 4.9.46
+    // Update unique code when browser "Back" button was pressed
+    // Otherwise some browsers might retain the previously generated code
+    // Which causes duplicated (none unique) codes
+    public static function update_unique_code() {
+        $codesettings = wp_unslash($_POST['codesettings']);
+        $codesettings = json_decode($codesettings, true);
+        echo SUPER_Common::generate_random_code($codesettings);
+        die();
+    }
 
     /** 
      *  Switch language from Front-end, reloads all form elements for choosen langauge
