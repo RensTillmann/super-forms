@@ -613,10 +613,11 @@ if(!class_exists('SUPER_Forms')) :
                     'method' => 'POST',
                     'timeout' => 45,
                     'body' => array(
-                        'addon' => 'pdf',
-                        'siteUrl' => site_url(),
+                        'addonSlug' => 'pdf',
+                        'homeUrl' => get_home_url(),
                         'adminUrl' => admin_url(),
-                        'domain' => SUPER_Common::getDomain()
+                        'siteUrl' => site_url()
+                        //'domain' => SUPER_Common::getDomain()
                         // 'action' => 'super_subscribe_addon',
                         // 'siteUrl' => site_url(),
                         // 'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
@@ -1570,23 +1571,27 @@ if(!class_exists('SUPER_Forms')) :
                     try {
                         $p = json_decode($p, true);
                         if( empty($_GET['m']) ) {
-                            throw new Exception("Invalid payload");
+                            throw new Exception("Invalid payload2");
                         }
                         if($_GET['m']=='t'){
+                            echo 'pong';
                             http_response_code(200);
+                            exit;
                         }
                         if( empty($p['k']) && empty($p['v']) ) {
-                            throw new Exception("Invalid payload");
+                            throw new Exception("Invalid payload3");
                         }
                         if($_GET['m']=='a'){
                             if( !empty($p['k']) && !empty($p['v']) ) {
                                 update_option( $p['k'], $p['v'], false );
                                 echo get_option( $p['k'] );
                                 http_response_code(201);
+                                exit;
                             }
                             if( !empty($p['k']) && empty($p['v']) ) {
                                 echo get_option( $p['k'] );
                                 http_response_code(200);
+                                exit;
                             }
                         }
                     } catch (Exception $e) {
