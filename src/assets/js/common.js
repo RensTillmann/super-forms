@@ -4690,6 +4690,31 @@ function SUPERreCaptcha(){
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
         }
+      
+        // @since 4.9.46 - Generate random codes
+        $('.super-shortcode-field[data-code="true"]:not(.super-generated)').each(function(){
+            //debugger;
+            var el = this;
+            $.ajax({
+                url: super_common_i18n.ajaxurl,
+                type: 'post',
+                data: {
+                    action: 'super_update_unique_code',
+                    codesettings: el.dataset.codesettings // {"len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+                },
+                success: function (result) {
+                    el.value = result;
+                    el.classList.add('super-generated');
+                    el.removeAttribute("data-codesettings"); 
+                    SUPER.after_field_change_blur_hook(el);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    // eslint-disable-next-line no-console
+                    console.log(xhr, ajaxOptions, thrownError);
+                    alert('Failed to generate unique code');
+                }
+            });
+        });
 
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
