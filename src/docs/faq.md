@@ -3,9 +3,13 @@
 **Commonly asked questions:**
 
 - [How can I make all fields to be required?](#how-can-i-make-all-fields-to-be-required)
+- [Why is my form not sending emails?](#why-is-my-form-not-sending-emails)
+- [Why are emails going into spam folder/inbox?](#why-are-emails-going-into-spam-folderinbox)
+- [Why do I get an error message when uploading a file?](#why-do-i-get-an-error-message-when-uploading-a-file)
 - [Will data be lost when updating to a newer version?](#will-data-be-lost-when-updating-to-a-newer-version-of-super-forms)
 - [How to redirect a user after submitting the form?](#how-to-redirect-a-user-after-submitting-the-form)
 - [Is it compatible with Visual Composer?](#is-it-compatible-with-visual-composer)
+- [Is it compatible with Elementor?](#is-it-compatible-with-elementor)
 - [Where can I change the error message of a field?](#where-can-i-change-the-error-message-of-a-field)
 - [Where can I change the form font styles?](#where-can-i-change-the-form-font-styles)
 - [How to make the file upload mandatory?](#how-to-make-the-file-upload-mandatory)
@@ -14,12 +18,6 @@
 - [I changed the settings but it doesn't seem to affect the form?](#i-changed-the-settings-but-it-doesn39t-seem-to-affect-the-form)
 - [Is it compatible with MailChimp?](#is-it-compatible-with-mailchimp)
 - [Is it compatible with MyMail (Mailster) plugin?](#is-it-compatible-with-mymail-mailster-plugin)
-
-**Technical related questions:**
-
-- [Why is my form not sending emails?](#why-is-my-form-not-sending-emails)
-- [Why are emails going into spam folder/inbox?](#why-are-emails-going-into-spam-folderinbox)
-- [Why do I get an error message when uploading a file?](#why-do-i-get-an-error-message-when-uploading-a-file)
 - [How to retrieve the Contact Entry ID in my email?](#how-to-retrieve-the-contact-entry-id-in-my-email)
 - [Can I import options for a dropdown from a CSV file?](#can-i-import-options-for-a-dropdown-from-a-csv-file)
 - [How can I use address autocomplete/search feature?](#how-can-i-use-address-autocompletesearch-feature)
@@ -29,6 +27,7 @@
 - [Why are my conditional variable values on my hidden field not working?](#why-are-my-conditional-variable-values-on-my-hidden-field-not-working)
 - [Can I customize the layout to include collapse groups?](#can-i-customize-the-layout-to-include-collapse-groups)
 - [Is it translation ready / translatable?](#is-it-translation-ready-translatable)
+- [I disabled autocompletion on a field but it's not working](#i-disabled-autocompletion-on-a-field-but-its-not-working)
 
 ## How can I make all fields to be required?
 
@@ -54,6 +53,13 @@ With this element you can simply **Drag & Drop** any form at a specific location
 After you dropped the element you can choose which form it should load simply with the use of a dropdown that will list all the forms you have created.
 
 The Super Forms [shortcode] can also be inserted into a Visual Composer **HTML element**. This makes it easy to insert it into any area within your Visual Composer pages.
+
+## Is it compatible with Elementor?
+
+Super Forms has it's own widget inside Elementor.
+
+With this element you can simply **Drag & Drop** any form at a specific location in your page.
+On this widget you can easily choose which form to load.
 
 ## Where can I change the error message of a field?
 
@@ -172,3 +178,11 @@ Yes, Super Forms is fully translation ready. You can translate the back-end with
 Regarding the front-end, you can duplicate your forms and rename your fields accordingly.
 
 _In the near future Super Forms will have a new feature that will let you translate your forms in a more user friendly way, so you no longer would have to duplicate your form in order to translate them._
+
+## I disabled autocompletion on a field but it's not working
+
+Some browsers will simply ignore the `autocomplete` attribute. There are a couple of solutions which might help you:
+
+- For most browsers the simplest way to solve this would be to change the field name to a random string e.g `xY2a9z` instead of a normal name e.g `address`
+- For Safari browsers the best way to make autocompletion work is to make sure your field name contains the word `search`. So if you have a field named `address` and you wish to disable autocompletion make sure to rename it to either `search_address` (as long as it contains the word `search`).
+- If the above methods both do not work, you might also need to remove the `Placeholder` for the field so that it doesn't contain any reference name to any possible autocompletion. For example, if your placeholder contains `Enter your address` then the word `address` might trigger autocompletion in a given browser.
