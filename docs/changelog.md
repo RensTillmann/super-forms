@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## May 21, 2020 - Version 4.9.455
+
+- **Fix:** MySQL error in prepare() statement when unique code is generated
+
 ## May 20, 2020 - Version 4.9.454
 
 - **Fix:** Issue with browser `Back` button remembering the uniquely generated code (Hidden field with Unique code generation enabled), should instead generate a new one so that it is a unique code.
