@@ -1,5 +1,13 @@
 # Super Forms - Changelog
 
+## May 21, 2020 - Version 4.9.455
+
+- **Fix:** MySQL error in prepare() statement when unique code is generated
+
+## May 20, 2020 - Version 4.9.454
+
+- **Fix:** Issue with browser `Back` button remembering the uniquely generated code (Hidden field with Unique code generation enabled), should instead generate a new one so that it is a unique code.
+
 ## May 15, 2020 - Version 4.9.453
 
 - **Fix:** Limit for dynamic column was no longer working
@@ -28,7 +36,7 @@
 - **New:** `WooCommerce Checkout Add-on`: option to populate checkout fields more easily with native setting, matching the field names e.g `billing_first_name` will still work and will be the `leading` value if it exists. Otherwise you can define values like so in the settings: `billing_first_name|{yourfieldnamehere}`. You can define both `billing_` and `shipping_` fields, both will work.
 - **New:** Added `Custom regex` validation option for `Textarea` element
 - **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or seperate date and time and put them in a seperate column
-- **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option allows including/excluding specific forms from being overridden based on their form ID_
+- **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option that allows including/excluding specific forms from being overridden based on their form ID_
 - **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format
 - **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
 - **Added:** Option to enable RTL (Right to left) layout for E-mails
