@@ -849,6 +849,14 @@
                 $parent.children('.super-accordion-item').removeClass('super-active');
                 // Open current one
                 $this.addClass('super-active');
+                // Make sure to correclty set the slider dragger when accordion is opened
+                var i, nodes = $this[0].querySelectorAll('.super-shortcode.super-slider');
+                for(i=0; i<nodes.length; i++){
+                    if(nodes[i].querySelector('.slider')){
+                        var field = nodes[i].querySelector('.super-shortcode-field');
+                        $(field).simpleSlider("setValue", field.value);
+                    }
+                }
             }
             SUPER.init_super_responsive_form_fields($parent[0]);
         });
