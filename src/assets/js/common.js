@@ -3205,8 +3205,18 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.5.0 - function for intializing google maps elements
+    SUPER.google_maps_api.allMaps = [];
     SUPER.google_maps_api.initMaps = function($field, $form){
         $form = SUPER.get_frontend_or_backend_form($field, $form);
+        var $form_id = 0;
+        if($form.querySelector('input[name="hidden_form_id"]')){
+            $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+        }
+
+        if(typeof SUPER.google_maps_api.allMaps[$form_id] === 'undefined'){
+            SUPER.google_maps_api.allMaps[$form_id] = [];
+        }
+
         var $maps;
         if(!$field){
             $maps = $form.querySelectorAll('.super-google-map');
@@ -3216,21 +3226,45 @@ function SUPERreCaptcha(){
 
         // Loop through maps
         Object.keys($maps).forEach(function(key) {
-            var $data = JSON.parse($maps[key].querySelector('textarea').value),
-                
-                $form_id = $form.querySelector('input[name="hidden_form_id"]').value,
-                $zoom = parseFloat($data.zoom),
-                $address = $data.address,
-                $address_marker = $data.address_marker,
+            $maps[key].classList.add('super-map-rendered');
+            var html,
+                $data = JSON.parse($maps[key].querySelector('textarea').value),
+                $regular_expression = /\{(.*?)\}/g;
+
+                // Address Marker location
+                var $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.address),
+                // Directions API (route)
+                $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.origin),
+                $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.destination),
+                $directionsPanel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.directionsPanel),
+                $populateDistance = $data.populateDistance,
+                $populateDuration = $data.populateDuration,
+                $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.travelMode),
+                $unitSystem = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.unitSystem),
+                // Waypoints
+                $waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
+                $optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
+                $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
+                $avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
+                $avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
+                $avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
+                $region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
+                // drivingOptions (only when travelMode is DRIVING)
+                $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
+                $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
+                // transitOptions (only when travelMode is TRANSIT)
+                $transitArrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
+                $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
+                $transitModes = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitModes),
+                $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                $zoom = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.zoom);
+                if($zoom==='') $zoom = 5; // Default to 5
+                $zoom = parseInt($zoom, 10);
+                var $address_marker = $data.address_marker,
                 $polyline_stroke_weight = $data.polyline_stroke_weight,
                 $polyline_stroke_color = $data.polyline_stroke_color,
                 $polyline_stroke_opacity = $data.polyline_stroke_opacity,
                 $polyline_geodesic = $data.polyline_geodesic,
-                $map = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
-                    zoom: $zoom
-                    //mapTypeId: \'terrain\'
-                }),
-                $center_based_on_address = true,
                 $polylines,
                 $path = [],
                 $coordinates,
@@ -3241,9 +3275,15 @@ function SUPERreCaptcha(){
                 $lat_max = '',
                 $lng_min = '',
                 $lng_max = '',
-                $regular_expression = /\{(.*?)\}/g,
                 Path,
                 geocoder;
+
+                // Only if map wasn't yet initialized
+                SUPER.google_maps_api.allMaps[$form_id][key] = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
+                    center: {lat: 0, lng: 0},
+                    zoom: $zoom
+                    //mapTypeId: \'terrain\'
+                });
 
             // Draw Polylines
             if( $data.enable_polyline=='true' ) {
@@ -3269,7 +3309,7 @@ function SUPERreCaptcha(){
                     if( $lat!==0 && $lng!==0 ) {
                         new google.maps.Marker({
                             position: {lat: $lat, lng: $lng},
-                            map: $map
+                            map: SUPER.google_maps_api.allMaps[$form_id][key]
                         });
                     }
                     $path.push({lat: $lat, lng: $lng});
@@ -3285,17 +3325,16 @@ function SUPERreCaptcha(){
                     if($lng_max<$lng) $lng_max = $lng;
                 });
                 if( $lat_min===0 || $lat_max===0 || $lng_min===0 || $lng_max===0 ) {
-                    $map.setCenter(new google.maps.LatLng(
+                    SUPER.google_maps_api.allMaps[$form_id][key].setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));                    
                 }else{
-                    $center_based_on_address = false;
-                    $map.setCenter(new google.maps.LatLng(
+                    SUPER.google_maps_api.allMaps[$form_id][key].setCenter(new google.maps.LatLng(
                         (($lat_max + $lat_min) / 2.0),
                         (($lng_max + $lng_min) / 2.0)
                     ));
-                    $map.fitBounds(new google.maps.LatLngBounds(
+                    SUPER.google_maps_api.allMaps[$form_id][key].fitBounds(new google.maps.LatLngBounds(
                         new google.maps.LatLng($lat_min, $lng_min), // bottom left
                         new google.maps.LatLng($lat_max, $lng_max) //top right
                     ));
@@ -3306,36 +3345,379 @@ function SUPERreCaptcha(){
                         strokeOpacity: $polyline_stroke_opacity,
                         strokeWeight: $polyline_stroke_weight
                     });
-                    Path.setMap($map);
+                    Path.setMap(SUPER.google_maps_api.allMaps[$form_id][key]);
                 }
             }
 
-            // Center map if needed
-            if( ($address!=='') && ($center_based_on_address===true) ) {
-                geocoder = new google.maps.Geocoder();
-                // Replace with tag if needed
-                $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $address);
-                
-                // Check if address is not empty
-                if($address!==''){
-                    geocoder.geocode( { 'address': $address}, function(results, status) {
-                        if (status == 'OK') {
-                            // Center map based on given address
-                            $map.setCenter(results[0].geometry.location);
-                            // Add marker on address location
-                            if( $address_marker=='true' ) {
-                                new google.maps.Marker({
-                                    map: $map,
-                                    position: results[0].geometry.location
-                                });
-                            }
-                        } else {
-                            // eslint-disable-next-line no-console
-                            console.log('Geocode was not successful for the following reason: ' + status);
-                        }
-                    });
+            // If directions panel is enabled
+            var target, panel=null;
+            target = $form.querySelector('.super-google-map-'+$form_id);
+            if($directionsPanel=='true'){
+                if(target.parentNode.querySelector('.super-google-map-directions')){
+                    target.parentNode.querySelector('.super-google-map-directions').remove();
+                }
+                if( ($origin==='') || ($destination==='') ) {
+                    target.parentNode.classList.remove('super-has-panel');
+                }else{
+                    target.parentNode.classList.add('super-has-panel');
+                    // Only create if not exists
+                    if(!target.parentNode.querySelector('.super-google-map-directions')){
+                        panel = document.createElement('div');
+                        panel.classList.add('super-google-map-directions');
+                        panel.style.height = target.parentNode.offsetHeight+'px';
+                        panel.style.overflowY = "scroll";
+                        target.parentNode.appendChild(panel);
+                        // this is only used when PDF addon is released var printBtn = document.createElement('div');
+                        // this is only used when PDF addon is released printBtn.classList.add('super-google-map-print');
+                        // this is only used when PDF addon is released printBtn.innerHTML = 'Print';
+                        // this is only used when PDF addon is released target.parentNode.appendChild(printBtn);
+                        // this is only used when PDF addon is released if(typeof jsPDF !== 'undefined') {
+                        // this is only used when PDF addon is released     printBtn.addEventListener('click', function(){
+                        // this is only used when PDF addon is released         var pdf = new jsPDF();
+                        // this is only used when PDF addon is released         // Starting at page 1
+                        // this is only used when PDF addon is released         if(typeof SUPER.generate_pdf !== 'undefined') {
+                        // this is only used when PDF addon is released             SUPER.generate_pdf(target, pdf, 1, function(pdf){
+                        // this is only used when PDF addon is released                 // Finally we download the PDF file
+                        // this is only used when PDF addon is released                 pdf.save("download-page-1.pdf");
+                        // this is only used when PDF addon is released             }); 
+                        // this is only used when PDF addon is released         }
+                        // this is only used when PDF addon is released     });
+                        // this is only used when PDF addon is released }
+                    }
                 }
             }
+
+            // Set Directions (route)
+            if( ($origin!=='') && ($destination!=='') ) {
+                var directionsService = new google.maps.DirectionsService();
+                var directionsRenderer = new google.maps.DirectionsRenderer({
+                    draggable: true,
+                    map: SUPER.google_maps_api.allMaps[$form_id][key],
+                    panel: ($directionsPanel=='true' ? document.querySelector('.super-google-map-'+$form_id).parentNode.querySelector('.super-google-map-directions') : null)
+                    // panel: document.getElementById('right-panel')
+                });
+                //directionsRenderer.setMap($map);
+                //$waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
+                //$optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
+                //$provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
+                //$avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
+                //$avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
+                //$avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
+                //$region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
+                // If waypoints is not empty make sure to create a proper object for it
+                if($waypoints!==''){
+                    // $waypoints: $waypoints, //[ {location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true} ],
+                    var w = $waypoints.split('\n');
+                    var i = 0;
+                    $waypoints = [];
+                    for(i=0; i<w.length; i++){
+                        // Ge waypoint location
+                        var v = w[i].split('|');
+                        if(typeof v[1] === 'undefined') v[1] = 'false';
+                        v[1] = (v[1] === 'true');
+                        $waypoints[i] = {
+                            location: v[0],
+                            stopover: v[1]
+                        }
+                    }
+                    console.log($waypoints);
+                    /// $($ga_tracking).each(function(index, value){
+                    ///     // Check if this is a global event or for a specific form (based on form ID):
+                    ///     $proceed = true;
+                    ///     $values = value.split(":");
+                    ///     if($values.length>1){
+                    ///         $event = $values[1].split("|");
+                    ///         if(!$form.hasClass('super-form-'+$values[0])){
+                    ///             $proceed = false;
+                    ///         }
+                    ///     }else{
+                    ///         $event = $values[0].split("|");
+                    ///     }
+
+                    ///     // Only proceed if this was an event that needs to be executed globally, or if the ID matches the submitted form
+                    ///     if($proceed){
+                    ///         if( ( (typeof $event[1] === 'undefined') || ($event[1]==='') ) || 
+                    ///             ( (typeof $event[2] === 'undefined') || ($event[2]==='') ) ) {
+                    ///             // eslint-disable-next-line no-console
+                    ///             console.log('Seems like we are missing required ga() parameters!');
+                    ///         }else{
+
+                    ///             // Event Tracking
+                    ///             if( ($event[0]=='send') && ($event[1]=='event') ) {
+                    ///                 if( (typeof $event[3] === 'undefined') || ($event[3]==='') ) {
+                    ///                     // eslint-disable-next-line no-console
+                    ///                     console.log('ga() is missing the "eventAction" parameter (The type of interaction e.g. "play")');
+                    ///                 }else{
+                    ///                     $parameters = {};
+                    ///                     $parameters.hitType = $event[1];
+                    ///                     $parameters.eventCategory = $event[2];
+                    ///                     $parameters.eventAction = $event[3];
+                    ///                     if( typeof $event[4] !== 'undefined' ) {
+                    ///                         $parameters.eventLabel = $event[4];
+                    ///                     }
+                    ///                     if( typeof $event[5] !== 'undefined' ) {
+                    ///                         $parameters.eventValue = $event[5];
+                    ///                     }
+                    ///                     ga($event[0], $parameters);
+                    ///                 }
+                    ///             }
+                    ///         }
+                    ///     }
+
+                    /// });
+                    ///     // @since 4.6.0 - foreach loop compatibility
+                    ///     $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
+                    ///     while (($v = $regex.exec($html)) !== null) {
+                    ///         // This is necessary to avoid infinite loops with zero-width matches
+                    ///         if ($v.index === $regex.lastIndex) {
+                    ///             $regex.lastIndex++;
+                    ///         }
+                    ///         $original = $v[0];
+                    ///         $field_name = $v[1];
+                    ///         $return = '';
+                    ///         if(typeof $v[2] !== 'undefined') $return = $v[2];
+                    ///         $rows = '';
+                    ///         $field = SUPER.field(form, $field_name);
+                    ///         if($field){
+                    ///             // Of course we have at least one row, so always return the first row
+                    ///             $row = $return.split('<%counter%>').join(1);
+                    ///             $row = $row.split('<%').join('{');
+                    ///             $row = $row.split('%>').join('}');
+                    ///             $rows += $row;
+                    ///             // Loop through all the fields that have been dynamically added by the user
+                    ///             $i=2;
+                    ///             $found = SUPER.field_exists(form, $field_name + '_' + ($i));
+                    ///             while($found){
+                    ///                 $found = SUPER.field_exists(form, $field_name + '_' + ($i));
+                    ///                 if($found){
+                    ///                     $row = $return.split('<%counter%>').join($i);
+                    ///                     $row_regex = /<%(.*?)%>/g;
+                    ///                     $row_str = $return;
+                    ///                     while (($v = $row_regex.exec($row_str)) !== null) {
+                    ///                         // This is necessary to avoid infinite loops with zero-width matches
+                    ///                         if ($v.index === $row_regex.lastIndex) {
+                    ///                             $row_regex.lastIndex++;
+                    ///                         }
+                    ///                         $tag_items = $v[1].split(';');
+                    ///                         $old_name = $tag_items[0];
+                    ///                         if($old_name!=='counter'){
+                    ///                             $tag_items[0] = $tag_items[0]+'_'+$i;
+                    ///                             $new_name = $tag_items.join(';');
+                    ///                             $row = $row.split('<%'+$v[1]+'%>').join('{'+$new_name+'}');
+                    ///                         }
+                    ///                     }
+                    ///                     $rows += $row;
+                    ///                 }
+                    ///                 $i++;
+                    ///             }
+                    ///         }
+                    ///         $html = $html.split($original).join($rows);
+                    ///     }
+                    ///     $regular_expression = /\{(.*?)\}/g;
+                    ///     $array = [];
+                    ///     while (($match = $regular_expression.exec($html)) !== null) {
+                    ///         $array[$counter] = $match[1];
+                    ///         $counter++;
+                    ///     }
+                    ///     if( $array.length>0 ) {
+                    ///         for ($counter = 0; $counter < $array.length; $counter++) {
+                    ///             $values = $array[$counter];
+                    ///             $new_value = SUPER.update_variable_fields.replace_tags(form, $regular_expression, '{'+$values+'}', $target);
+                    ///             $html = $html.replace('{'+$values+'}', $new_value);
+                    ///         }
+                    ///     }
+
+                    ///     // @since 4.6.0 - if statement compatibility
+                    ///     $html = SUPER.filter_if_statements($html);
+                    ///     $target.innerHTML = $html;
+
+                }
+
+                var request = {
+                    origin: $origin,
+                    destination: $destination,
+                    travelMode: $travelMode,
+                    unitSystem: google.maps.UnitSystem[$unitSystem],
+                    waypoints: $waypoints, //[ {location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true} ],
+                    optimizeWaypoints: ('true' === $optimizeWaypoints),
+                    provideRouteAlternatives: ('true' === $provideRouteAlternatives),
+                    avoidFerries: ('true' === $avoidFerries),
+                    avoidHighways: ('true' === $avoidHighways),
+                    avoidTolls: ('true' === $avoidTolls),
+                    region: $region // 'US', 'NL', 'DE', 'UK' etc.
+                };
+               
+                debugger;
+                // transitOptions (only when travelMode is TRANSIT)
+                if($travelMode==='TRANSIT'){
+                    request['transitOptions'] = {
+                        arrivalTime: $transitArrivalTime,
+                        departureTime: $transitDepartureTime,
+                        modes: $transitModes, // ['BUS'],
+                        routingPreference: $routingPreference // 'FEWER_TRANSFERS', 'LESS_WALKING'
+                    }
+                }
+
+                // drivingOptions (only when travelMode is DRIVING)
+                if($travelMode==='DRIVING'){
+                    if($departureTime==='') $departureTime = new Date(Date.now() + 0); // departureTime: new Date(Date.now() + N),  // for the time N milliseconds from now.
+                    if($trafficModel==='') $trafficModel = 'bestguess';
+                    request['drivingOptions'] = {
+                        departureTime: $departureTime,
+                        trafficModel: $trafficModel
+                    }
+                }
+
+                debugger;
+                directionsService.route(request, function (result, status) {
+                    debugger;
+                    if (status == 'OK') {
+                        directionsRenderer.setDirections(result);
+                        if($directionsPanel=='true'){
+                            var totalDist = 0;
+                            var totalTime = 0;
+                            var myroute = result.routes[0];
+                            for (var i = 0; i < myroute.legs.length; i++) {
+                                totalDist += myroute.legs[i].distance.value; // indicates the distance in meters even when unitSystem is set to "IMPERIAL"
+                                totalTime += myroute.legs[i].duration.value; // indicates the duration in seconds
+                            }
+                            // var distance;
+                            // var unit = 'km';
+                            // if($unitSystem=='IMPERIAL') {
+                            //     // Convert meters to miles
+                            //     distance = (totalDist / 1609).toFixed(1);
+                            //     unit = 'mile';
+                            // }else{
+                            //     distance = (totalDist / 1000).toFixed(1);
+                            // }
+                            // var timeUnit;
+                            // if((totalTime / 60).toFixed(2) >= 60){
+                            //     timeUnit = "hours";
+                            //     if((totalTime / 60).toFixed(2) == 60){
+                            //         timeUnit = "hour";
+                            //     }
+                            // }else{
+                            //     timeUnit = "minutes";
+                            //     if((totalTime / 60).toFixed(2) == 1){
+                            //         timeUnit = "minute";
+                            //     }
+                            // }
+                            // var time = ((totalTime / 60).toFixed(2) < 60 ? (totalTime / 60).toFixed(0) : (totalTime / 60 / 60).toFixed(1));
+                            // html = "<strong>Distance:</strong> " + distance + " "+unit+"<br /><strong>Duration:</strong> " + time + " " + timeUnit + "<br />" + html;
+                            // panel.innerHTML = html;
+
+                            // Populate fields with values if defined
+                            var field; 
+                            if($populateDistance!==''){
+                                // Check if field exists in this form
+                                if(SUPER.field_exists($form, $populateDistance)){
+                                    field = SUPER.field($form, $populateDistance);
+                                    field.value = totalDist; // indicates the distance in meters
+                                    SUPER.after_field_change_blur_hook(field);
+                                }
+                            }
+                            if($populateDuration!==''){
+                                // Check if field exists in this form
+                                if(SUPER.field_exists($form, $populateDuration)){
+                                    field = SUPER.field($form, $populateDuration);
+                                    field.value = totalTime; // indicates the duration in seconds
+                                    SUPER.after_field_change_blur_hook(field);
+                                }
+                            }
+                        }
+                    }else{
+                        debugger;
+                        // Display error message
+                        result = {
+                            msg: 'Route was not successful for the following reason: ' + status,
+                            loading: true
+                        }
+                        html = '<div class="super-msg super-error">';
+                        SUPER.form_submission_finished($form[0], result, html);
+                    }
+                });
+                return true;
+            }
+
+            // Add Address Marker
+            if( $address!=='' ) {
+                geocoder = new google.maps.Geocoder();
+                geocoder.geocode( { 'address': $address}, function(result, status) {
+                    if (status == 'OK') {
+                        // Center map based on given address
+                        SUPER.google_maps_api.allMaps[$form_id][key].setCenter(result[0].geometry.location);
+                        // Add marker on address location
+                        if( $address_marker=='true' ) {
+                            new google.maps.Marker({
+                                map: SUPER.google_maps_api.allMaps[$form_id][key],
+                                position: result[0].geometry.location
+                            });
+                        }
+                    } else {
+                        // Display error message
+                        result = {
+                            msg: 'Geocode was not successful for the following reason: ' + status,
+                            loading: true
+                        }
+                        var html = '<div class="super-msg super-error">';
+                        SUPER.form_submission_finished($form[0], result, html);
+                    }
+                });
+                return true;
+            }
+
+            // // Center map if needed
+            // if( ($origin!=='') && ($center_based_on_address===true) ) {
+            //     geocoder = new google.maps.Geocoder();
+            //     // Replace with tag if needed
+            //     $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $origin);
+
+
+            //     // Check if address is not empty
+            //     if($origin!==''){
+            //         geocoder.geocode( { 'address': $origin}, function(results, status) {
+            //             if (status == 'OK') {
+            //                 // Center map based on given address
+            //                 $map.setCenter(results[0].geometry.location);
+            //                 // Add marker on address location
+            //                 if( $address_marker=='true' ) {
+            //                     new google.maps.Marker({
+            //                         map: $map,
+            //                         position: results[0].geometry.location
+            //                     });
+            //                 }
+            //             } else {
+            //                 console.log('Geocode was not successful for the following reason: ' + status);
+            //             }
+            //         });
+
+            //         if($destination!=='') {
+            //             $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $destination);
+            //             $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $travelMode);
+            //             var directionsService = new google.maps.DirectionsService();
+            //             var directionsRenderer = new google.maps.DirectionsRenderer();
+            //             directionsRenderer.setMap($map);
+            //             var request = {
+            //                 origin: $origin,
+            //                 destination: $destination,
+            //                 travelMode: $travelMode
+            //             };
+            //             directionsService.route(request, function (result, status) {
+            //                 if (status == 'OK') {
+            //                     directionsRenderer.setDirections(result);
+            //                 }else{
+            //                     // Display error message
+            //                     result = {
+            //                         msg: 'Route was not successful for the following reason: ' + status,
+            //                         loading: true
+            //                     }
+            //                     var html = '<div class="super-msg super-error">';
+            //                     SUPER.form_submission_finished($form[0], result, html);
+            //                 }
+            //             });
+            //         }
+            //     }
+            // }
 
         });
     };
@@ -4693,7 +5075,6 @@ function SUPERreCaptcha(){
       
         // @since 4.9.46 - Generate random codes
         $('.super-shortcode-field[data-code="true"]:not(.super-generated)').each(function(){
-            //debugger;
             var el = this;
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -5153,6 +5534,22 @@ function SUPERreCaptcha(){
                     }
                 }
             }
+
+            // Check for slider fields, reposition "Dragger" element based on "Track" width
+            // If the dragger position exceeds the track width adjust it to be 
+            // selector.simpleSlider("setValue", value);
+            // Sets the value of the slider.
+            // selector.simpleSlider("setRatio", ratio);
+            var nodes = $this[0].querySelectorAll('.super-slider');
+            for(var i=0; i < nodes.length; i++){
+                var $field = $(nodes[i].querySelector('.super-shortcode-field'));
+                if(!$field) continue;
+                // Must trigger a change:
+                var originalValue = $field.val();
+                $field.simpleSlider('setValue', 0);
+                $field.simpleSlider('setValue', originalValue);
+            }
+
         });
 
         // @since 1.3
