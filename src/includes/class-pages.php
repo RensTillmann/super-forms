@@ -83,7 +83,7 @@ class SUPER_Pages {
                 'method' => 'GET',
                 'timeout' => 45,
                 'body' => array(
-                    'action' => 'super_subscribe_addon',
+                    'action' => 'super_api_subscribe_addon',
                     'apiEndpoint' => SUPER_API_ENDPOINT,
                     'apiVersion' => SUPER_API_VERSION,
                     'homeUrl' => get_home_url(),

@@ -87,8 +87,9 @@ class SUPER_Ajax {
 
             //'smtp_test'                     => false, // @since 4.9.5
 
-            'subscribe_addon'               => false,
-
+            'api_subscribe_addon'               => false,
+            'api_register_user'             => false,
+            'api_login_user'             => false,
 
         );
 
@@ -99,6 +100,64 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+    public static function api_default_post_args($custom_args){
+        $default_args = array(
+            'method' => 'POST',
+            'timeout' => 45,
+            'data_format' => 'body',
+            'headers' => array('Content-Type' => 'application/json; charset=utf-8')
+        );
+        return array_merge($default_args, $custom_args);
+    }
+    public static function api_handle_response($r){
+        if ( is_wp_error( $r ) ) {
+            $err = $r->get_error_message();
+            error_log('is_wp_error: ' . $err, 0);
+            SUPER_Common::output_message(true, $err);
+        }else{
+            error_log('Response: ' . $r['body'], 0);
+            echo $r['body'];
+        }
+        die();
+    }
+    public static function api_register_user() {
+        $custom_args = array(
+            'body' => json_encode(array(
+                'email' => $_POST['email'],
+                'password' => $_POST['password']
+            ))
+        );
+        $args = self::api_default_post_args($custom_args);
+        $r = wp_remote_post($_POST['apiEndpoint'] . '/register', $args);
+        self::api_handle_response($r);
+    }
+    public static function api_login_user() {
+        $custom_args = array(
+            'body' => json_encode(array(
+                'email' => $_POST['email'],
+                'password' => $_POST['password']
+            ))
+        );
+        $args = self::api_default_post_args($custom_args);
+        $r = wp_remote_post($_POST['apiEndpoint'] . '/login', $args);
+        self::api_handle_response($r);
+    }
+    public static function api_subscribe_addon() {
+        $custom_args = array(
+            'body' => array(
+                'addonSlug' => $_POST['addonSlug'],
+                'planId' => $_POST['planId'],
+                'data' => $_POST['data']
+                // 'url' => $_POST['url'],
+                // 'user_email' => $user_email,
+                // 'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
+                // 'hostname' => $hostname // hostname
+            )
+        );
+        $args = self::api_default_post_args($custom_args);
+        $r = wp_remote_post($_POST['apiEndpoint'] . '/addons/subscribe', $args);
+        self::api_handle_response($r);
     }
 
     // @since 4.9.46
@@ -1857,37 +1916,6 @@ class SUPER_Ajax {
         echo $result;        
         die();
         
-    }
-    
-    public static function subscribe_addon() {
-        $response = wp_remote_post(
-            $_POST['apiEndpoint'] . '/addons/subscribe',
-            array(
-                'method' => 'POST',
-                'timeout' => 45,
-                'body' => array(
-                    'addonSlug' => $_POST['addonSlug'],
-                    'planId' => $_POST['planId'],
-                    'data' => $_POST['data']
-                    // 'url' => $_POST['url'],
-                    // 'user_email' => $user_email,
-                    // 'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-                    // 'hostname' => $hostname // hostname
-                )
-            )
-        );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-            error_log('is_wp_error: ' . $error_message, 0);
-            SUPER_Common::output_message(
-                $error = true,
-                $msg = $error_message
-            );
-        }else{
-            error_log('Response: ' . $response['body'], 0);
-            echo $response['body'];
-        }
-        die();
     }
     
     /** 
