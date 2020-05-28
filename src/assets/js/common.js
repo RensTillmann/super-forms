@@ -3257,6 +3257,7 @@ function SUPERreCaptcha(){
                 $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
                 $transitModes = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitModes),
                 $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                $disableDefaultUI = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.disableDefaultUI),
                 $zoom = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.zoom);
                 if($zoom==='') $zoom = 5; // Default to 5
                 $zoom = parseInt($zoom, 10);
@@ -3281,9 +3282,12 @@ function SUPERreCaptcha(){
                 // Only if map wasn't yet initialized
                 SUPER.google_maps_api.allMaps[$form_id][key] = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
                     center: {lat: 0, lng: 0},
-                    zoom: $zoom
+                    zoom: $zoom,
+                    disableDefaultUI: ('true' === $disableDefaultUI),
                     //mapTypeId: \'terrain\'
                 });
+                //SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                //});
 
             // Draw Polylines
             if( $data.enable_polyline=='true' ) {
@@ -5548,6 +5552,23 @@ function SUPERreCaptcha(){
                 var originalValue = $field.val();
                 $field.simpleSlider('setValue', 0);
                 $field.simpleSlider('setValue', originalValue);
+            }
+
+            var formId = 0;
+            if(this.querySelector('input[name="hidden_form_id"]')){
+                formId = this.querySelector('input[name="hidden_form_id"]').value;
+            }
+            // First disable the UI on the map for nicer print of the map
+            // And make map fullwidth and directions fullwidth
+            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+                nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                for(var x=0; x < nodes.length; x++){
+                    nodes[x].style.width = '100%';
+                    if(nodes[x].classList.contains('super-google-map-directions')){
+                        nodes[x].style.overflowY = 'initial';
+                        nodes[x].style.height = 'auto';
+                    }
+                }
             }
 
         });

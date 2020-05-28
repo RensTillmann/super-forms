@@ -607,6 +607,12 @@ $array['html_elements'] = array(
                             'default' => ( !isset( $attributes['zoom']) ? '5' : $attributes['zoom']),
                             'type' => 'text'
                         ),
+                        'disableDefaultUI' => array(
+                            'name' => esc_html__( 'Disable default UI', 'super-forms' ),
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false. When enabled it will not show the default buttons on the map', 'super-forms' ),
+                            'default' => ( !isset( $attributes['disableDefaultUI']) ? 'true' : $attributes['disableDefaultUI']),
+                            'type' => 'text'
+                        ),
                         // Directions API (rout)
                         // Directions API (route)
                         'origin' => array(

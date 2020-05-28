@@ -4378,9 +4378,10 @@ class SUPER_Shortcodes {
         // transitOptions (only when travelMode is TRANSIT)
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['TransitMode']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitModes']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['zoom']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['disableDefaultUI']);
 
         // Polylines
         if( !empty($atts['enable_polyline']) ) {
