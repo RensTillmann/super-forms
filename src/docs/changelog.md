@@ -1,5 +1,21 @@
 # Super Forms - Changelog
 
+## May 29, 2020 - Version 4.9.460
+
+- **Added:** Option for Google Map element to set region code e.g `nl`, `de`, `uk`, `us` etc.uu
+- **Added:** Option for Google Map element to set/adjust `zoom`
+- **Added:** Option for Google Map element to enable/disable `UI (buttons)`
+- **Added:** Option for Google Map element to `draw Route` from address A (origin) to address B (destination)
+- **Added:** Option for Google Map element to optionally display the `directions panel` (list with route instructions)
+- **Added:** Option for Google Map element to set it's travel mode `DRIVING`, `BICYCLKING`, `TRANSIT`, `WALKING`
+- **Added:** Option for Google Map element to populate `distance` to field (including Calculator Add-on)
+- **Added:** Option for Google Map element to populate `duration` to field (including Calculator Add-on)
+- **Added:** Option for Google Map element to define the unit system `METRIC` or `IMPERIAL`
+- **Added:** Option for Google Map element to draw Route with `Waypoints` (stops in between the route)
+- **Added:** Option for Google Map element to optimize route with waypoints (to rearrange it in a more efficient order)
+- **Added:** Option for Google Map element to avoid `Ferries`, `Major highways`, `Toll roads` (if possible)
+- **Fix:** Incorrect incrementing field names in dynamic columns
+
 ## May 21, 2020 - Version 4.9.455
 
 - **Fix:** MySQL error in prepare() statement when unique code is generated
