@@ -4234,7 +4234,7 @@ class SUPER_Shortcodes {
             }
 
             // @since 4.6.0 - also check for if statements and also add those field tags as attribute
-            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
+            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<|\?\?|!\?\?)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 if( isset( $v[1] ) ) {
                     preg_match_all('/{\K[^}]*(?=})/m', $v[1], $matches, PREG_SET_ORDER, 0);

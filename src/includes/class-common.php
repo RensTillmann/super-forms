@@ -391,7 +391,7 @@ class SUPER_Common {
     public static function filter_if_statements($html=''){
         // If does not contain 'endif;' we can just return the `$html` without doing anything
         if(!strpos($html, 'endif;')) return $html;
-        $re = '/\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<)\s*[\'|"]?(.*?)[\'|"]?\s*$/';
+        $re = '/\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<|\?\?|!\?\?)\s*[\'|"]?(.*?)[\'|"]?\s*$/';
         $array = str_split($html);
         $if_index = 0;
         $skip_up_to = 0;
@@ -513,6 +513,8 @@ class SUPER_Common {
                 if($operator==='<=' && $v1<=$v2) $show = true;
                 if($operator==='>' && $v1>$v2) $show = true;
                 if($operator==='<' && $v1<$v2) $show = true;
+                if($operator==='??' && (strpos($v1, $v2))) $show = true;
+                if($operator==='!??' && (!strpos($v1, $v2))) $show = true;
                 if($show){
                     $show_counter++;
                 }
