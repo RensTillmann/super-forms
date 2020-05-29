@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## May 29, 2020 - Version 4.9.461
+
+- **Fix/Improved:** When using third party shortcodes inside HTML element and it does not contain any {tag} we shouldn't refresh the HTML content. This would cause losing any initialized DOM elements. This also should improve speed for forms that use a lot of HTML elements but didn't contain any {tags}
+
 ## May 29, 2020 - Version 4.9.460
 
 - **Added:** Option for Google Map element to set region code e.g `nl`, `de`, `uk`, `us` etc.uu
