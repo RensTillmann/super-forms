@@ -3924,6 +3924,7 @@ function SUPERreCaptcha(){
         }else{
             $html_fields = form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"]');
         }
+        $regular_expression = /\{(.*?)\}/g;
         Object.keys($html_fields).forEach(function(key) {
             var $counter = 0;
             $target = $html_fields[key];
@@ -3933,6 +3934,15 @@ function SUPERreCaptcha(){
             }else{
                 $html = $target.parentNode.querySelector('textarea').value;
             }
+            // Check if html contains {tags}, if not we don't have to do anything.
+            // This also solves bugs with for instance third party plugins
+            // That use shortcodes to initialize elements, which initialization would be lost
+            // upon updating the HTML content based on {tags}.
+            // This can be solved by NOT using either of the {} curly braces inside the HTML content
+            $regular_expression = /\{(.*?)\}/g;
+            if(!$regular_expression.exec($html)) return true;
+
+            // If it has {tags} then continue
             if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
@@ -3982,8 +3992,8 @@ function SUPERreCaptcha(){
                     }
                     $html = $html.split($original).join($rows);
                 }
-                $regular_expression = /\{(.*?)\}/g;
                 $array = [];
+                $regular_expression = /\{(.*?)\}/g;
                 while (($match = $regular_expression.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
