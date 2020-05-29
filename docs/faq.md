@@ -28,6 +28,7 @@
 - [Can I customize the layout to include collapse groups?](#can-i-customize-the-layout-to-include-collapse-groups)
 - [Is it translation ready / translatable?](#is-it-translation-ready-translatable)
 - [I disabled autocompletion on a field but it's not working](#i-disabled-autocompletion-on-a-field-but-its-not-working)
+- [I am getting an error while updating the plugin](#i-am-getting-an-error-while-updating-the-plugin)
 
 ## How can I make all fields to be required?
 
@@ -186,3 +187,11 @@ Some browsers will simply ignore the `autocomplete` attribute. There are a coupl
 - For most browsers the simplest way to solve this would be to change the field name to a random string e.g `xY2a9z` instead of a normal name e.g `address`
 - For Safari browsers the best way to make autocompletion work is to make sure your field name contains the word `search`. So if you have a field named `address` and you wish to disable autocompletion make sure to rename it to either `search_address` (as long as it contains the word `search`).
 - If the above methods both do not work, you might also need to remove the `Placeholder` for the field so that it doesn't contain any reference name to any possible autocompletion. For example, if your placeholder contains `Enter your address` then the word `address` might trigger autocompletion in a given browser.
+
+## I am getting an error while updating the plugin
+
+If you are getting the following error while trying to update Super Forms:
+
+`Unable to rename the update to match the existing directory.`
+
+It is always a permissions problem on your server. In any case you should contact your host about this so they can correctly set the permissions for your WordPress installation.
