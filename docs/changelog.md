@@ -1,8 +1,10 @@
 # Super Forms - Changelog
 
-## May 29, 2020 - Version 4.9.461
+## May 29, 2020 - Version 4.9.462
 
+- **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
 - **Fix/Improved:** When using third party shortcodes inside HTML element and it does not contain any {tag} we shouldn't refresh the HTML content. This would cause losing any initialized DOM elements. This also should improve speed for forms that use a lot of HTML elements but didn't contain any {tags}
+- **Fix:** Issue with slider field inside dynamic column, not updating the amount label position relative to "dragger" when dynamic column becomes visible. Issue also applied to Accordion/Tab element.
 
 ## May 29, 2020 - Version 4.9.460
 

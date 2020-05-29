@@ -1053,7 +1053,7 @@ function SUPERreCaptcha(){
                                         var $field = $wrapper.children('.super-shortcode-field'); 
                                         var $value = $field.val();
                                         if($wrapper.children('.slider').length){
-                                            $field.simpleSlider("setValue", $value);
+                                            SUPER.reposition_slider_amount_label($field[0], $value);
                                         }
                                     }else{
                                         var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
@@ -1063,7 +1063,7 @@ function SUPERreCaptcha(){
                                             var $field = $wrapper.children('.super-shortcode-field'); 
                                             var $value = $field.val();
                                             if($wrapper.children('.slider').length){
-                                                $field.simpleSlider("setValue", $value);
+                                                SUPER.reposition_slider_amount_label($field[0], $value);
                                             }
                                         });
                                     }
@@ -1121,7 +1121,7 @@ function SUPERreCaptcha(){
         if($html.indexOf('endif;')===-1) {
             return $html;  
         }
-        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<)\s*['|"]?(.*?)['|"]?\s*$/,
+        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<|\?\?|!\?\?)\s*['|"]?(.*?)['|"]?\s*$/,
             m,
             v,
             show_counter,
@@ -1263,6 +1263,8 @@ function SUPERreCaptcha(){
                     if(operator==='<=' && v1<=v2) show = true;
                     if(operator==='>' && v1>v2) show = true;
                     if(operator==='<' && v1<v2) show = true;
+                    if(operator==='??' && v1.indexOf(v2) > -1) show = true;
+                    if(operator==='!??' && v1.indexOf(v2) === -1) show = true;
                     if(show){
                         show_counter++;
                     }
@@ -4593,7 +4595,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-slider')){
                     // Only have to set new value if slider was already initialized (this depends on clearing form after a dynamic column was added)
                     if(element.parentNode.querySelector('.slider')){
-                        $(element).simpleSlider("setValue", value);
+                        SUPER.reposition_slider_amount_label(element, value);
                     }
                     continue;
                 }
@@ -4752,7 +4754,7 @@ function SUPERreCaptcha(){
                 }
                 // Slider field
                 if(field.classList.contains('super-slider')){
-                    $(element).simpleSlider("setValue", data[i].value);
+                    SUPER.reposition_slider_amount_label(field, data[i].value);
                     return true;
                 }
                 // Autosuggest field
@@ -5238,6 +5240,12 @@ function SUPERreCaptcha(){
         
     };
 
+    // Reposition slider amount label
+    SUPER.reposition_slider_amount_label = function(field, value){
+        if(typeof value === 'undefined') value = field.value;
+        $(field).simpleSlider("setValue", 0);
+        $(field).simpleSlider("setValue", value);
+    };
     // Init Slider fields
     SUPER.init_slider_field = function(){
         $('.super-slider').each(function () {
@@ -5254,15 +5262,13 @@ function SUPERreCaptcha(){
                 $decimal_separator,
                 $regular_expression,
                 $wrapper,
-                $slider,
                 $number,
                 $amount,
                 $dragger,
                 $slider_width,
                 $amount_width,
                 $dragger_margin_left,
-                $offset_left,
-                $position;
+                $offset_left;
 
             if( $this.find('.slider').length===0 ) {
                 $field = $this.find('.super-shortcode-field');
@@ -5290,14 +5296,9 @@ function SUPERreCaptcha(){
                     animate: false
                 });
                 $wrapper = $field.parents('.super-field-wrapper:eq(0)');
-                $slider = $wrapper.find('.slider');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
-                $slider_width = $slider.outerWidth(true);
-                $amount_width = $wrapper.children('.amount').outerWidth(true);
-                $position = $slider.find('.dragger').position();
-                if( ( typeof $position!=='undefined' && ($position.left+$amount_width) + 5) < $slider_width ) {
-                    $wrapper.children('.amount').css('left', $position.left+'px');
-                }
+                SUPER.reposition_slider_amount_label($field[0]);
+
                 $field.bind("slider:changed", function ($event, $data) {
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
                     $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
@@ -5494,17 +5495,14 @@ function SUPERreCaptcha(){
 
             // Check for slider fields, reposition "Dragger" element based on "Track" width
             // If the dragger position exceeds the track width adjust it to be 
-            // selector.simpleSlider("setValue", value);
             // Sets the value of the slider.
-            // selector.simpleSlider("setRatio", ratio);
             var nodes = $this[0].querySelectorAll('.super-slider');
             for(var i=0; i < nodes.length; i++){
                 var $field = $(nodes[i].querySelector('.super-shortcode-field'));
                 if(!$field) continue;
                 // Must trigger a change:
                 var originalValue = $field.val();
-                $field.simpleSlider('setValue', 0);
-                $field.simpleSlider('setValue', originalValue);
+                SUPER.reposition_slider_amount_label($field[0], originalValue);
             }
 
             ///var formId = 0;
