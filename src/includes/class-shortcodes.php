@@ -4372,14 +4372,15 @@ class SUPER_Shortcodes {
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidHighways']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidTolls']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['region']);
-        // drivingOptions (only when travelMode is DRIVING)
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
-        // transitOptions (only when travelMode is TRANSIT)
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitModes']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        // we will implement this in a later version   // drivingOptions (only when travelMode is DRIVING)
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
+        // we will implement this in a later version   // transitOptions (only when travelMode is TRANSIT)
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitModes']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        // UI settings
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['zoom']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['disableDefaultUI']);
 

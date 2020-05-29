@@ -3221,7 +3221,8 @@ function SUPERreCaptcha(){
         if(!$field){
             $maps = $form.querySelectorAll('.super-google-map');
         }else{
-            $maps = $form.querySelectorAll('.super-google-map[data-fields*="{'+SUPER.get_field_name($field)+'}"]');
+            var field_name = SUPER.get_field_name($field);
+            $maps = $form.querySelectorAll('.super-google-map[data-fields*="{'+field_name+'}"]');
         }
 
         // Loop through maps
@@ -3242,21 +3243,21 @@ function SUPERreCaptcha(){
                 $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.travelMode),
                 $unitSystem = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.unitSystem),
                 // Waypoints
-                $waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
                 $optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
                 $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
                 $avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
                 $avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
                 $avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
                 $region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
-                // drivingOptions (only when travelMode is DRIVING)
-                $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
-                $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
-                // transitOptions (only when travelMode is TRANSIT)
-                $transitArrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
-                $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
-                $transitModes = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitModes),
-                $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                // we will implement this in a later version  DRIVING mode (only when travelMode is DRIVING)
+                // we will implement this in a later version  $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
+                // we will implement this in a later version  $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
+                // we will implement this in a later version  TRANSIT mode (only when travelMode is TRANSIT)
+                // we will implement this in a later version  $transitArrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
+                // we will implement this in a later version  $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
+                // we will implement this in a later version  $transitModes = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitModes),
+                // we will implement this in a later version  $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                // UI Settings
                 $disableDefaultUI = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.disableDefaultUI),
                 $zoom = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.zoom);
                 if($zoom==='') $zoom = 5; // Default to 5
@@ -3265,7 +3266,7 @@ function SUPERreCaptcha(){
                 $polyline_stroke_weight = $data.polyline_stroke_weight,
                 $polyline_stroke_color = $data.polyline_stroke_color,
                 $polyline_stroke_opacity = $data.polyline_stroke_opacity,
-                $polyline_geodesic = $data.polyline_geodesic,
+                // currently not in use? $polyline_geodesic = $data.polyline_geodesic,
                 $polylines,
                 $path = [],
                 $coordinates,
@@ -3344,7 +3345,7 @@ function SUPERreCaptcha(){
                     ));
                     Path = new google.maps.Polyline({
                         path: $path,
-                        geodesic: $polyline_geodesic,
+                        // currently not in use? geodesic: $polyline_geodesic,
                         strokeColor: $polyline_stroke_color,
                         strokeOpacity: $polyline_stroke_opacity,
                         strokeWeight: $polyline_stroke_weight
@@ -3401,148 +3402,94 @@ function SUPERreCaptcha(){
                     // panel: document.getElementById('right-panel')
                 });
                 //directionsRenderer.setMap($map);
-                //$waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
-                //$optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
-                //$provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
-                //$avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
-                //$avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
-                //$avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
-                //$region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
                 // If waypoints is not empty make sure to create a proper object for it
-                if($waypoints!==''){
-                    // $waypoints: $waypoints, //[ {location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true} ],
-                    var w = $waypoints.split('\n');
+                if($data.waypoints!==''){
+                    var w = $data.waypoints.split('\n');
                     var i = 0;
-                    $waypoints = [];
-                    for(i=0; i<w.length; i++){
-                        // Ge waypoint location
+                    var $xw = [];
+                    for( i=0; i < w.length; i++ ) {
+                        // Get waypoint location
                         var v = w[i].split('|');
                         if(typeof v[1] === 'undefined') v[1] = 'false';
-                        v[1] = (v[1] === 'true');
-                        $waypoints[i] = {
-                            location: v[0],
-                            stopover: v[1]
+                        // {waypoint;2}
+                        var location = v[0].replace('{','').replace('}','');
+                        var isTag = false;
+                        if(location!==v[0]) isTag = true;
+                        var advancedTags = location.split(';');
+                        var fieldName = advancedTags[0];
+                        var originFieldName = fieldName;
+                        var advancedIndex = "";
+                        if(advancedTags[1]){
+                            advancedIndex = advancedTags[1];
+                        }
+
+                        // {stopover;2}
+                        var stopover = v[1].replace('{','').replace('}','');
+                        var stopoverIsTag = false;
+                        if(stopover!==v[1]) stopoverIsTag = true;
+                        var stopoverAdvancedTags = stopover.split(';');
+                        var stopoverFieldName = stopoverAdvancedTags[0];
+                        var originStopoverFieldName = stopoverFieldName;
+                        var stopoverAdvancedIndex = "";
+                        if(stopoverAdvancedTags[1]){
+                            stopoverAdvancedIndex = stopoverAdvancedTags[1];
+                        }
+
+                        // Check if either one is a tag, if so look for dynamic columns
+                        if(isTag || stopoverIsTag){
+                            var x=2;
+                            var dynamicFieldName = originFieldName+'_'+x;
+                            var stopoverDynamicFieldName = originStopoverFieldName+'_'+x;
+                            var found = SUPER.field_exists($form, dynamicFieldName);
+                            var stopoverFound = SUPER.field_exists($form, stopoverDynamicFieldName);
+                            var rows = '';
+                            while(found || stopoverFound){
+                                // Location
+                                var tag = '';
+                                if(isTag){
+                                    tag = '{'+dynamicFieldName+'}';
+                                    if(advancedIndex!==''){ tag = '{'+dynamicFieldName+';'+advancedIndex+'}'; }
+                                }else{
+                                    tag = location;
+                                }
+                                rows += tag;
+
+                                // Stopover
+                                if(stopoverIsTag){
+                                    tag = '{'+stopoverDynamicFieldName+'}';
+                                    if(stopoverAdvancedIndex!==''){ tag = '{'+stopoverDynamicFieldName+';'+stopoverAdvancedIndex+'}'; }
+                                }else{
+                                    tag = stopover;
+                                }
+                                // Stopover
+                                rows += "|"+tag+"\n";
+                                // Find for next field and if it exists we add it
+                                x++;
+                                dynamicFieldName = fieldName+'_'+x;
+                                found = SUPER.field_exists($form, dynamicFieldName)
+                            }
+                        }
+                        var waypoints = w[i]+"\n"+rows;
+                        var xw = waypoints.split("\n");
+                        i = 0;
+                        for(i=0; i < xw.length; i++){
+                            if(xw[i]==='') continue;
+                            var values = xw[i].split('|');
+                            location = SUPER.update_variable_fields.replace_tags($form, $regular_expression, values[0]);
+                            // Waypoint may not be empty!
+                            if(location==='') continue;
+                            stopover = SUPER.update_variable_fields.replace_tags($form, $regular_expression, values[1]);
+                            stopover = ('true'===stopover); // convert to boolean
+                            $xw.push({ location: location, stopover: stopover });
                         }
                     }
-                    console.log($waypoints);
-                    /// $($ga_tracking).each(function(index, value){
-                    ///     // Check if this is a global event or for a specific form (based on form ID):
-                    ///     $proceed = true;
-                    ///     $values = value.split(":");
-                    ///     if($values.length>1){
-                    ///         $event = $values[1].split("|");
-                    ///         if(!$form.hasClass('super-form-'+$values[0])){
-                    ///             $proceed = false;
-                    ///         }
-                    ///     }else{
-                    ///         $event = $values[0].split("|");
-                    ///     }
-
-                    ///     // Only proceed if this was an event that needs to be executed globally, or if the ID matches the submitted form
-                    ///     if($proceed){
-                    ///         if( ( (typeof $event[1] === 'undefined') || ($event[1]==='') ) || 
-                    ///             ( (typeof $event[2] === 'undefined') || ($event[2]==='') ) ) {
-                    ///             // eslint-disable-next-line no-console
-                    ///             console.log('Seems like we are missing required ga() parameters!');
-                    ///         }else{
-
-                    ///             // Event Tracking
-                    ///             if( ($event[0]=='send') && ($event[1]=='event') ) {
-                    ///                 if( (typeof $event[3] === 'undefined') || ($event[3]==='') ) {
-                    ///                     // eslint-disable-next-line no-console
-                    ///                     console.log('ga() is missing the "eventAction" parameter (The type of interaction e.g. "play")');
-                    ///                 }else{
-                    ///                     $parameters = {};
-                    ///                     $parameters.hitType = $event[1];
-                    ///                     $parameters.eventCategory = $event[2];
-                    ///                     $parameters.eventAction = $event[3];
-                    ///                     if( typeof $event[4] !== 'undefined' ) {
-                    ///                         $parameters.eventLabel = $event[4];
-                    ///                     }
-                    ///                     if( typeof $event[5] !== 'undefined' ) {
-                    ///                         $parameters.eventValue = $event[5];
-                    ///                     }
-                    ///                     ga($event[0], $parameters);
-                    ///                 }
-                    ///             }
-                    ///         }
-                    ///     }
-
-                    /// });
-                    ///     // @since 4.6.0 - foreach loop compatibility
-                    ///     $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
-                    ///     while (($v = $regex.exec($html)) !== null) {
-                    ///         // This is necessary to avoid infinite loops with zero-width matches
-                    ///         if ($v.index === $regex.lastIndex) {
-                    ///             $regex.lastIndex++;
-                    ///         }
-                    ///         $original = $v[0];
-                    ///         $field_name = $v[1];
-                    ///         $return = '';
-                    ///         if(typeof $v[2] !== 'undefined') $return = $v[2];
-                    ///         $rows = '';
-                    ///         $field = SUPER.field(form, $field_name);
-                    ///         if($field){
-                    ///             // Of course we have at least one row, so always return the first row
-                    ///             $row = $return.split('<%counter%>').join(1);
-                    ///             $row = $row.split('<%').join('{');
-                    ///             $row = $row.split('%>').join('}');
-                    ///             $rows += $row;
-                    ///             // Loop through all the fields that have been dynamically added by the user
-                    ///             $i=2;
-                    ///             $found = SUPER.field_exists(form, $field_name + '_' + ($i));
-                    ///             while($found){
-                    ///                 $found = SUPER.field_exists(form, $field_name + '_' + ($i));
-                    ///                 if($found){
-                    ///                     $row = $return.split('<%counter%>').join($i);
-                    ///                     $row_regex = /<%(.*?)%>/g;
-                    ///                     $row_str = $return;
-                    ///                     while (($v = $row_regex.exec($row_str)) !== null) {
-                    ///                         // This is necessary to avoid infinite loops with zero-width matches
-                    ///                         if ($v.index === $row_regex.lastIndex) {
-                    ///                             $row_regex.lastIndex++;
-                    ///                         }
-                    ///                         $tag_items = $v[1].split(';');
-                    ///                         $old_name = $tag_items[0];
-                    ///                         if($old_name!=='counter'){
-                    ///                             $tag_items[0] = $tag_items[0]+'_'+$i;
-                    ///                             $new_name = $tag_items.join(';');
-                    ///                             $row = $row.split('<%'+$v[1]+'%>').join('{'+$new_name+'}');
-                    ///                         }
-                    ///                     }
-                    ///                     $rows += $row;
-                    ///                 }
-                    ///                 $i++;
-                    ///             }
-                    ///         }
-                    ///         $html = $html.split($original).join($rows);
-                    ///     }
-                    ///     $regular_expression = /\{(.*?)\}/g;
-                    ///     $array = [];
-                    ///     while (($match = $regular_expression.exec($html)) !== null) {
-                    ///         $array[$counter] = $match[1];
-                    ///         $counter++;
-                    ///     }
-                    ///     if( $array.length>0 ) {
-                    ///         for ($counter = 0; $counter < $array.length; $counter++) {
-                    ///             $values = $array[$counter];
-                    ///             $new_value = SUPER.update_variable_fields.replace_tags(form, $regular_expression, '{'+$values+'}', $target);
-                    ///             $html = $html.replace('{'+$values+'}', $new_value);
-                    ///         }
-                    ///     }
-
-                    ///     // @since 4.6.0 - if statement compatibility
-                    ///     $html = SUPER.filter_if_statements($html);
-                    ///     $target.innerHTML = $html;
-
                 }
-
                 var request = {
                     origin: $origin,
                     destination: $destination,
                     travelMode: $travelMode,
                     unitSystem: google.maps.UnitSystem[$unitSystem],
-                    waypoints: $waypoints, //[ {location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true} ],
+                    waypoints: $xw, 
                     optimizeWaypoints: ('true' === $optimizeWaypoints),
                     provideRouteAlternatives: ('true' === $provideRouteAlternatives),
                     avoidFerries: ('true' === $avoidFerries),
@@ -3550,31 +3497,28 @@ function SUPERreCaptcha(){
                     avoidTolls: ('true' === $avoidTolls),
                     region: $region // 'US', 'NL', 'DE', 'UK' etc.
                 };
-               
-                debugger;
-                // transitOptions (only when travelMode is TRANSIT)
-                if($travelMode==='TRANSIT'){
-                    request['transitOptions'] = {
-                        arrivalTime: $transitArrivalTime,
-                        departureTime: $transitDepartureTime,
-                        modes: $transitModes, // ['BUS'],
-                        routingPreference: $routingPreference // 'FEWER_TRANSFERS', 'LESS_WALKING'
-                    }
-                }
 
-                // drivingOptions (only when travelMode is DRIVING)
-                if($travelMode==='DRIVING'){
-                    if($departureTime==='') $departureTime = new Date(Date.now() + 0); // departureTime: new Date(Date.now() + N),  // for the time N milliseconds from now.
-                    if($trafficModel==='') $trafficModel = 'bestguess';
-                    request['drivingOptions'] = {
-                        departureTime: $departureTime,
-                        trafficModel: $trafficModel
-                    }
-                }
+                // we will implement this in a later version  // transitOptions (only when travelMode is TRANSIT)
+                // we will implement this in a later version  if($travelMode==='TRANSIT'){
+                // we will implement this in a later version      request['transitOptions'] = {
+                // we will implement this in a later version          arrivalTime: $transitArrivalTime,
+                // we will implement this in a later version          departureTime: $transitDepartureTime,
+                // we will implement this in a later version          modes: $transitModes, // ['BUS'],
+                // we will implement this in a later version          routingPreference: $routingPreference // 'FEWER_TRANSFERS', 'LESS_WALKING'
+                // we will implement this in a later version      }
+                // we will implement this in a later version  }
 
-                debugger;
+                // we will implement this in a later version  // drivingOptions (only when travelMode is DRIVING)
+                // we will implement this in a later version  if($travelMode==='DRIVING'){
+                // we will implement this in a later version      if($departureTime==='') $departureTime = new Date(Date.now() + 0); // departureTime: new Date(Date.now() + N),  // for the time N milliseconds from now.
+                // we will implement this in a later version      if($trafficModel==='') $trafficModel = 'bestguess';
+                // we will implement this in a later version      request['drivingOptions'] = {
+                // we will implement this in a later version          departureTime: $departureTime,
+                // we will implement this in a later version          trafficModel: $trafficModel
+                // we will implement this in a later version      }
+                // we will implement this in a later version  }
+
                 directionsService.route(request, function (result, status) {
-                    debugger;
                     if (status == 'OK') {
                         directionsRenderer.setDirections(result);
                         if($directionsPanel=='true'){
@@ -3630,7 +3574,6 @@ function SUPERreCaptcha(){
                             }
                         }
                     }else{
-                        debugger;
                         // Display error message
                         result = {
                             msg: 'Route was not successful for the following reason: ' + status,
@@ -5554,22 +5497,22 @@ function SUPERreCaptcha(){
                 $field.simpleSlider('setValue', originalValue);
             }
 
-            var formId = 0;
-            if(this.querySelector('input[name="hidden_form_id"]')){
-                formId = this.querySelector('input[name="hidden_form_id"]').value;
-            }
-            // First disable the UI on the map for nicer print of the map
-            // And make map fullwidth and directions fullwidth
-            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-                nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-                for(var x=0; x < nodes.length; x++){
-                    nodes[x].style.width = '100%';
-                    if(nodes[x].classList.contains('super-google-map-directions')){
-                        nodes[x].style.overflowY = 'initial';
-                        nodes[x].style.height = 'auto';
-                    }
-                }
-            }
+            ///var formId = 0;
+            ///if(this.querySelector('input[name="hidden_form_id"]')){
+            ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
+            ///}
+            ///// First disable the UI on the map for nicer print of the map
+            ///// And make map fullwidth and directions fullwidth
+            ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+            ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            ///    for(var x=0; x < nodes.length; x++){
+            ///        nodes[x].style.width = '100%';
+            ///        if(nodes[x].classList.contains('super-google-map-directions')){
+            ///            nodes[x].style.overflowY = 'initial';
+            ///            nodes[x].style.height = 'auto';
+            ///        }
+            ///    }
+            ///}
 
         });
 

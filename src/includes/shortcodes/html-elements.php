@@ -565,7 +565,7 @@ $array['html_elements'] = array(
                     'tag' => 'google_map',
                     'group' => 'html_elements',
                     'data' => array(
-                        'polyline_geodesic' => 'true'
+                        // currently not in use? 'polyline_geodesic' => 'true'
                     )
                 )
             ),
@@ -613,6 +613,18 @@ $array['html_elements'] = array(
                             'default' => ( !isset( $attributes['disableDefaultUI']) ? 'true' : $attributes['disableDefaultUI']),
                             'type' => 'text'
                         ),
+                        'region' => array(
+                            'name' => esc_html__( '(optional) specifies the region code, specified as a TLD ("top-level domain") two-character value', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Example values are: us (for USA), nl (for Netherlands), es (for Spain), de (for Germany), uk (for Great Britain)', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['region'] ) ? '' : $attributes['region'] ),
+                            'type' => 'text'
+                        ),
+                        'unitSystem' => array(
+                            'name' => esc_html__( 'Specifies what unit system to use when displaying results', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: METRIC or IMPERIAL', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['unitSystem'] ) ? 'METRIC' : $attributes['unitSystem'] ),
+                            'type' => 'text'
+                        ),
                         // Directions API (rout)
                         // Directions API (route)
                         'origin' => array(
@@ -652,13 +664,44 @@ $array['html_elements'] = array(
                             'default'=> ( !isset( $attributes['travelMode'] ) ? 'DRIVING' : $attributes['travelMode'] ),
                             'type' => 'text'
                         ),
-                        'unitSystem' => array(
-                            'name' => esc_html__( 'Specifies what unit system to use when displaying results', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: METRIC or IMPERIAL', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['unitSystem'] ) ? 'METRIC' : $attributes['unitSystem'] ),
-                            'type' => 'text'
-                        ),
-
+                        ///// needs testing, will implement this in later version // drivingOptions (only when travelMode is DRIVING)
+                        ///// needs testing, will implement this in later version 'departureTime' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for DRIVING mode only) Specifies the desired time of departure', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['departureTime'] ) ? '' : $attributes['departureTime'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text'
+                        ///// needs testing, will implement this in later version ),
+                        ///// needs testing, will implement this in later version 'trafficModel' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for DRIVING mode only) Specifies the assumptions to use when calculating time in traffic', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed. Valid values are: bestguess, pessimistic or optimistic', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['trafficModel'] ) ? '' : $attributes['trafficModel'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text'
+                        ///// needs testing, will implement this in later version ),
+                        ///// needs testing, will implement this in later version // transitOptions (only when travelMode is TRANSIT)
+                        ///// needs testing, will implement this in later version 'transitModes' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for TRANSIT mode only) Specifies a preferred mode of transit', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,RAIL,SUBWAY,TRAIN,TRAM', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['transitModes'] ) ? '' : $attributes['transitModes'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text',
+                        ///// needs testing, will implement this in later version ),
+                        ///// needs testing, will implement this in later version 'routingPreference' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for TRANSIT mode only) Specifies preferences for transit routes', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed. Valid values are: FEWER_TRANSFERS or LESS_WALKING', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['routingPreference'] ) ? '' : $attributes['routingPreference'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text'
+                        ///// needs testing, will implement this in later version ),
+                        ///// needs testing, will implement this in later version 'arrivalTime' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for TRANSIT mode only) Specifies the desired time of arrival', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['arrivalTime'] ) ? '' : $attributes['arrivalTime'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text'
+                        ///// needs testing, will implement this in later version ),
+                        ///// needs testing, will implement this in later version 'transitDepartureTime' => array(
+                        ///// needs testing, will implement this in later version     'name' => esc_html__( '(for TRANSIT mode only) Specifies the desired time of departure', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
+                        ///// needs testing, will implement this in later version     'default'=> ( !isset( $attributes['transitDepartureTime'] ) ? '' : $attributes['transitDepartureTime'] ),
+                        ///// needs testing, will implement this in later version     'type' => 'text'
+                        ///// needs testing, will implement this in later version ),
                         // Waypoints
                         'waypoints' => array(
                             'name' => esc_html__( '(optional) Waypoints alter a route by routing it through the specified location(s)', 'super-forms' ), 
@@ -694,50 +737,6 @@ $array['html_elements'] = array(
                             'name' => esc_html__( '(optional) when set to true indicates that the calculated route(s) should avoid toll roads, if possible', 'super-forms' ), 
                             'label' => esc_html__( 'Use {tags} if needed. Valid values are: true or false', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['avoidTolls'] ) ? '' : $attributes['avoidTolls'] ),
-                            'type' => 'text'
-                        ),
-                        'region' => array(
-                            'name' => esc_html__( '(optional) specifies the region code, specified as a TLD ("top-level domain") two-character value', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed. Example values are: us (for USA), nl (for Netherlands), es (for Spain), de (for Germany), uk (for Great Britain)', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['region'] ) ? '' : $attributes['region'] ),
-                            'type' => 'text'
-                        ),
-                        // drivingOptions (only when travelMode is DRIVING)
-                        'departureTime' => array(
-                            'name' => esc_html__( '(optional) Specifies the desired time of departure', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['departureTime'] ) ? '' : $attributes['departureTime'] ),
-                            'type' => 'text'
-                        ),
-                        'trafficModel' => array(
-                            'name' => esc_html__( '(optional) Specifies the assumptions to use when calculating time in traffic', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: bestguess, pessimistic or optimistic', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['trafficModel'] ) ? '' : $attributes['trafficModel'] ),
-                            'type' => 'text'
-                        ),
-                        // transitOptions (only when travelMode is TRANSIT)
-                        'arrivalTime' => array(
-                            'name' => esc_html__( '(optional) Specifies the desired time of arrival', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['arrivalTime'] ) ? '' : $attributes['arrivalTime'] ),
-                            'type' => 'text'
-                        ),
-                        'transitDepartureTime' => array(
-                            'name' => esc_html__( '(optional) Specifies the desired time of departure', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['transitDepartureTime'] ) ? '' : $attributes['transitDepartureTime'] ),
-                            'type' => 'text'
-                        ),
-                        'transitModes' => array(
-                            'name' => esc_html__( '(optional) Specifies a preferred mode of transit', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,RAIL,SUBWAY,TRAIN,TRAM', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['transitModes'] ) ? '' : $attributes['transitModes'] ),
-                            'type' => 'text'
-                        ),
-                        'routingPreference' => array(
-                            'name' => esc_html__( '(optional) Specifies preferences for transit routes', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed. Valid values are: FEWER_TRANSFERS or LESS_WALKING', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['routingPreference'] ) ? '' : $attributes['routingPreference'] ),
                             'type' => 'text'
                         ),
                         // Polylines
@@ -797,17 +796,19 @@ $array['html_elements'] = array(
                             'parent'=>'enable_polyline',
                             'filter_value'=>'true'
                         ),
-                        // Geodisc Polygon
-                        'polyline_geodesic' => array(
-                            'desc' => esc_html__( 'In a geodesic polyline, the segments of the polyline are drawn as the shortest path between two points on the Earth\'s surface, assuming the Earth is a sphere, as opposed to straight lines on the Mercator projection.', 'super-forms' ),
-                            'label' => esc_html__( 'A geodesic polygon will retain its true geographic shape when it is moved, causing the polygon to appear distorted as it is moved north or south in the Mercator projection. Non-geodesic polygons will always retain their initial appearance on the screen.', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['polyline_geodesic'] ) ? '' : $attributes['polyline_geodesic'] ),
-                            'type' => 'checkbox', 
-                            'filter'=>true,
-                            'values' => array(
-                                'true' => esc_html__( 'Enable Geodisc Polygon (default=enabled)', 'super-forms' ),
-                            )
-                        ),
+                        // currently not in use? // Geodisc Polygon
+                        // currently not in use? 'polyline_geodesic' => array(
+                        // currently not in use?     'desc' => esc_html__( 'In a geodesic polyline, the segments of the polyline are drawn as the shortest path between two points on the Earth\'s surface, assuming the Earth is a sphere, as opposed to straight lines on the Mercator projection.', 'super-forms' ),
+                        // currently not in use?     'label' => esc_html__( 'A geodesic polygon will retain its true geographic shape when it is moved, causing the polygon to appear distorted as it is moved north or south in the Mercator projection. Non-geodesic polygons will always retain their initial appearance on the screen.', 'super-forms' ), 
+                        // currently not in use?     'default'=> ( !isset( $attributes['polyline_geodesic'] ) ? '' : $attributes['polyline_geodesic'] ),
+                        // currently not in use?     'type' => 'checkbox', 
+                        // currently not in use?     'values' => array(
+                        // currently not in use?         'true' => esc_html__( 'Enable Geodisc Polygon (default=enabled)', 'super-forms' ),
+                        // currently not in use?     ),
+                        // currently not in use?     'filter'=>true,
+                        // currently not in use?     'parent'=>'enable_polyline',
+                        // currently not in use?     'filter_value'=>'true'
+                        // currently not in use? ),
                         'min_width' => array(
                             'name' => esc_html__( 'Min width in pixels', 'super-forms' ),
                             'label' => esc_html__( '0 = 500px min width', 'super-forms' ),

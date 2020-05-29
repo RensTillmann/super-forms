@@ -960,7 +960,8 @@
                 parent,
                 column,
                 form,
-                last,
+                firstColumn,
+                lastColumn,
                 found,
                 limit,
                 unique_field_names = {},
@@ -976,7 +977,7 @@
                 added_fields_without_suffix = [],
                 field_counter = 0,
                 element,
-                foundHtmlFields,
+                foundElements,
                 html_fields,
                 data_fields,
                 conditions,
@@ -1020,7 +1021,8 @@
             column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form(el, form);
             var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
-            last = duplicateColumns[duplicateColumns.length-1];
+            firstColumn = duplicateColumns[0];
+            lastColumn = duplicateColumns[duplicateColumns.length-1];
             found = column.querySelectorAll('.super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
@@ -1031,7 +1033,7 @@
             field_names = {};
             field_labels = {};
             counter = 0;
-            nodes = last.querySelectorAll('.super-shortcode-field[name]');
+            nodes = firstColumn.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
                 if(field.classList.contains('super-fileupload')){
@@ -1045,7 +1047,7 @@
             }
 
             counter = column.querySelectorAll('.super-duplicate-column-fields').length;
-            clone = last.cloneNode(true);
+            clone = lastColumn.cloneNode(true);
             column.appendChild(clone);
 
             // @since 3.3.0 - hook after appending new column
@@ -1102,27 +1104,29 @@
                 if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
                 field_counter++;
             }
-
             // @since 4.6.0 - update html field tags attribute
-            // Get all HTML elements based on field tag attribute that contain one of these field names
+            // @since 4.6.0 - update accordion title and description field tags attribute
+            // @since 4.9.6 - update google maps field tags attribute
+            // Get all elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
-            // @IMPORTANT: Only do this for HTML elements that are NOT inside a dynamic column
-            foundHtmlFields = [];
+            // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
+            foundElements = [];
             $.each(added_fields_with_suffix, function( index ) {
-                html_fields = form.querySelectorAll('.super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
+                html_fields = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
                 for (i = 0; i < html_fields.length; ++i) {
                     if(!html_fields[i].closest('.super-duplicate-column-fields')){
                         found = false;
-                        for (ii = 0; ii < foundHtmlFields.length; ++ii) {
-                            if($(foundHtmlFields[ii]).is(html_fields[i])) found = true;
+                        for (ii = 0; ii < foundElements.length; ++ii) {
+                            if($(foundElements[ii]).is(html_fields[i])) found = true;
                         }
-                        if(!found) foundHtmlFields.push(html_fields[i]);
+                        if(!found) foundElements.push(html_fields[i]);
                     }
                 }
             });
-            for (i = 0; i < foundHtmlFields.length; ++i) {
-                foundHtmlFields[i].dataset.fields = foundHtmlFields[i].dataset.fields+'{' + added_fields_without_suffix.join('}{') + '}';
+            for (i = 0; i < foundElements.length; ++i) {
+                foundElements[i].dataset.fields = foundElements[i].dataset.fields+'{' + added_fields_without_suffix.join('}{') + '}';
             }
+
             // Now we have updated the names accordingly, we can proceed updating conditional logic and variable fields etc.
             nodes = clone.querySelectorAll('.super-shortcode');
             for (i = 0; i < nodes.length; ++i) {
@@ -1310,41 +1314,42 @@
                 htmlFields,
                 dataFields,
                 parent = this.closest('.super-duplicate-column-fields'),
-                foundHtmlFields = [];
+                foundElements = [];
                
             nodes = parent.querySelectorAll('.super-shortcode-field');
             for (i = 0; i < nodes.length; ++i) {
                 removedFields[nodes[i].name] = nodes[i];
             }
-
             // @since 4.6.0 - update html field tags attribute
-            // Get all HTML elements based on field tag attribute that contain one of these field names
+            // @since 4.6.0 - update accordion title and description field tags attribute
+            // @since 4.9.6 - update google maps field tags attribute
+            // Get all elements based on field tag attribute that contain one of these field names
             // Then convert it to an array and append the missing field names
-            // Only do this for HTML elements that are NOT inside a dynamic column
+            // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
             Object.keys(removedFields).forEach(function(index) {
-                htmlFields = $(form).find('.super-html-content[data-fields*="{'+index+'}"]');
+                htmlFields = $(form).find('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
                 htmlFields.each(function(){
                     var $this = $(this);
                     if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
                         var $found = false;
-                        $.each(foundHtmlFields, function( index, el ){
+                        $.each(foundElements, function( index, el ){
                             if(el.is($this)){
                                 $found = true;
                             }
                         });
                         if(!$found){
-                            foundHtmlFields.push($this);
+                            foundElements.push($this);
                         }
                     }
                 });
             });
             // Update fields attribute and remove all {tags} which where removed/deleted from the DOM
-            for (i = 0; i < foundHtmlFields.length; ++i) {
-                dataFields = foundHtmlFields[i][0].dataset.fields;
+            for (i = 0; i < foundElements.length; ++i) {
+                dataFields = foundElements[i][0].dataset.fields;
                 $.each(removedFields, function( index ) {
                     dataFields = dataFields.replace('{'+index+'}','');
                 });
-                foundHtmlFields[i][0].dataset.fields = dataFields;
+                foundElements[i][0].dataset.fields = dataFields;
             }
             SUPER.init_replace_html_tags(undefined, form);
 
@@ -1367,6 +1372,9 @@
 
             // Now we can remove the dynamic column
             parent.remove();
+
+            // Reload google maps
+            SUPER.google_maps_api.initMaps(undefined, form);
             
         });
 
