@@ -1,5 +1,12 @@
 # Super Forms - Changelog
 
+## May 30, 2020 - Version 4.9.463
+
+- **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some hollidays.
+- **Improved:** Country strings are now translation ready (used on Country element)
+- **Improved:** Google Map element responsiveness on mobile devices
+- **Improved:** Google Map indicator in back-end to notify users that the Map will only be generated on the Front-end
+
 ## May 29, 2020 - Version 4.9.462
 
 - **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.

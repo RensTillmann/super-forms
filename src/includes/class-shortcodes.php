@@ -3782,6 +3782,10 @@ class SUPER_Shortcodes {
         if( isset($atts['excl_days']) && $atts['excl_days']!='' ) {
             $result .= 'data-excl-days="' . esc_attr($atts['excl_days']) . '"';
         }
+        // @since 4.9.46 - Override days exclusion
+        if( isset($atts['excl_days_override']) && $atts['excl_days_override']!='' ) {
+            $result .= 'data-excl-days-override="' . esc_attr($atts['excl_days_override']) . '"';
+        }
         // @since 4.9.3 - Exclude specific dates
         if( isset($atts['excl_dates']) && $atts['excl_dates']!='' ) {
             $result .= 'data-excl-dates="' . esc_attr($atts['excl_dates']) . '"';
@@ -4339,19 +4343,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $map_styles = 'min-width:'.$atts['min_width'].'px;';
-        $map_styles .= 'min-height:'.$atts['min_height'].'px;';
-        if( !empty( $atts['max_width'] ) ) {
-            $map_styles .= 'max-width:'.$atts['max_width'].'px;';
-        }else{
-            $map_styles .= 'max-width:100%';
-        }
-        if( !empty( $atts['max_height'] ) ) {
-            $map_styles .= 'max-height:'.$atts['max_height'].'px;';
-        }else{
-            $map_styles .= 'max-height:100%';
-        }
-
+        $map_styles = 'min-height:' . $atts['min_height'] . 'px;';
         if(empty($atts['api_key'])) $atts['api_key'] = '';
         wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
