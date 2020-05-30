@@ -25,12 +25,14 @@ Each if statement has a so called `operator` to do a so called `Comparison Opera
 * `<` (less than)
 * `>=` (greater than or equal to)
 * `<=` (less than or equal to)
+* `??` (contains)
+* `!??` (does not contains)
 
 ## How to create my own if statements?
 
 An example if statement would look like this:
 
-```php
+```html
 if('John'=='John'):
     Your custom HTML here...
 endif;
@@ -40,7 +42,7 @@ Of course this example will always output the HTML because `John` equals `John`.
 
 But of course we will want to use `{tags}` inside our if statement to compare the `first_name` input field with the name `John`:
 
-```php
+```html
 if({first_name}=='John'):
     Your custom HTML here...
 endif;
@@ -48,7 +50,7 @@ endif;
 
 When you require to output a default text whenever `first_name` is not equal to `John` we can use the `elseif` statement:
 
-```php
+```html
 if({first_name}=='John'):
     This text is only for John :)
 elseif:
@@ -70,7 +72,7 @@ When the user selected this package to be included in their order we want to dis
 
 In our Confirmation email body (which is send to the user) we can enter the following if statement:
 
-```php
+```html
 if({package_1}=='daily_backups'):
     Your backups are being stored daily on 3 other independent servers.
     By default your server has a fallback server that will be activated whenever the server is down for more than 2 min.
@@ -84,7 +86,7 @@ The above if statement will output the text or HTML depending on your own needs 
 
 Another example could be to check if a user is underaged or not and display some information about needing a Parental consent:
 
-```php
+```html
 if({age}<18):
     Because you are underaged we need a parental consent.
     Your parent(s) or guardian(s) need to sign the attached PDF file and return it by replying directly to this email address.
