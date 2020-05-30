@@ -1670,15 +1670,29 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   width: 100%;
   float: left;
 }
-
 .super-google-map .super-google-map-directions .adp-placemark {
   margin: 0;
 }
-
 .super-google-map.super-has-panel > div {
   width: 50%;
   min-width: initial !important;
   float: left;
+}
+
+.super-first-responsiveness .super-google-map.super-has-panel > div:first-child,
+.super-first-responsiveness .super-google-map.super-has-panel > .super-google-map-directions,
+.super-second-responsiveness .super-google-map.super-has-panel > div:first-child,
+.super-second-responsiveness .super-google-map.super-has-panel > .super-google-map-directions {
+  width: 100%;
+}
+
+.super-third-responsiveness .super-google-map.super-has-panel > div:first-child,
+.super-third-responsiveness .super-google-map.super-has-panel > .super-google-map-directions,
+.super-fourth-responsiveness .super-google-map.super-has-panel > div:first-child,
+.super-fourth-responsiveness .super-google-map.super-has-panel > .super-google-map-directions,
+.super-last-responsiveness .super-google-map.super-has-panel > div:first-child,
+.super-last-responsiveness .super-google-map.super-has-panel > .super-google-map-directions {
+  width: 50%;
 }
 
 .super-captcha {

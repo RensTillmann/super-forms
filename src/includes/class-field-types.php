@@ -471,7 +471,7 @@ class SUPER_Field_Types {
         if(isset($field['required'])){
             $return .= ($field['required']==true ? 'required="true" ' : '');
         }
-        $value = esc_textarea(($field['default']));
+        $value = esc_textarea(wp_unslash($field['default']));
         $return .= 'rows="' . $field['rows'] . '" class="element-field">' . $value . '</textarea>';
         return $return;
     }

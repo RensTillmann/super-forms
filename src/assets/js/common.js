@@ -1053,7 +1053,7 @@ function SUPERreCaptcha(){
                                         var $field = $wrapper.children('.super-shortcode-field'); 
                                         var $value = $field.val();
                                         if($wrapper.children('.slider').length){
-                                            $field.simpleSlider("setValue", $value);
+                                            SUPER.reposition_slider_amount_label($field[0], $value);
                                         }
                                     }else{
                                         var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
@@ -1063,7 +1063,7 @@ function SUPERreCaptcha(){
                                             var $field = $wrapper.children('.super-shortcode-field'); 
                                             var $value = $field.val();
                                             if($wrapper.children('.slider').length){
-                                                $field.simpleSlider("setValue", $value);
+                                                SUPER.reposition_slider_amount_label($field[0], $value);
                                             }
                                         });
                                     }
@@ -1121,7 +1121,7 @@ function SUPERreCaptcha(){
         if($html.indexOf('endif;')===-1) {
             return $html;  
         }
-        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<)\s*['|"]?(.*?)['|"]?\s*$/,
+        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<|\?\?|!\?\?)\s*['|"]?(.*?)['|"]?\s*$/,
             m,
             v,
             show_counter,
@@ -1263,6 +1263,8 @@ function SUPERreCaptcha(){
                     if(operator==='<=' && v1<=v2) show = true;
                     if(operator==='>' && v1>v2) show = true;
                     if(operator==='<' && v1<v2) show = true;
+                    if(operator==='??' && v1.indexOf(v2) > -1) show = true;
+                    if(operator==='!??' && v1.indexOf(v2) === -1) show = true;
                     if(show){
                         show_counter++;
                     }
@@ -3834,9 +3836,14 @@ function SUPERreCaptcha(){
     }
     SUPER.google_maps_api.allMaps = [];
     // @since 3.5.0 - function for intializing google maps elements
+    SUPER.google_maps_api.allMaps = [];
     SUPER.google_maps_api.initMaps = function($field, $form){
         $form = SUPER.get_frontend_or_backend_form($field, $form);
-        var $form_id = ($form.querySelector('input[name="hidden_form_id"]') ? $form.querySelector('input[name="hidden_form_id"]').value : 'xxxx');
+        var $form_id = 0;
+        if($form.querySelector('input[name="hidden_form_id"]')){
+            $form_id = $form.querySelector('input[name="hidden_form_id"]').value;
+        }
+
         if(typeof SUPER.google_maps_api.allMaps[$form_id] === 'undefined'){
             SUPER.google_maps_api.allMaps[$form_id] = [];
         }
@@ -3845,7 +3852,8 @@ function SUPERreCaptcha(){
         if(!$field){
             $maps = $form.querySelectorAll('.super-google-map:not(.super-map-rendered)');
         }else{
-            $maps = $form.querySelectorAll('.super-google-map:not(.super-map-rendered)[data-fields*="{'+SUPER.get_field_name($field)+'}"]');
+            var field_name = SUPER.get_field_name($field);
+            $maps = $form.querySelectorAll('.super-google-map[data-fields*="{'+field_name+'}"]');
         }
 
         // Loop through maps
@@ -3856,7 +3864,7 @@ function SUPERreCaptcha(){
                 $regular_expression = /\{(.*?)\}/g;
 
                 // Address Marker location
-            var $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.address),
+                var $address = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.address),
                 // Directions API (route)
                 $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.origin),
                 $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.destination),
@@ -3866,21 +3874,22 @@ function SUPERreCaptcha(){
                 $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.travelMode),
                 $unitSystem = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.unitSystem),
                 // Waypoints
-                $waypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.waypoints),
                 $optimizeWaypoints = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.optimizeWaypoints),
                 $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.provideRouteAlternatives),
                 $avoidFerries = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidFerries),
                 $avoidHighways = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidHighways),
                 $avoidTolls = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.avoidTolls),
                 $region = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.region),
-                // drivingOptions (only when travelMode is DRIVING)
-                $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
-                $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
-                // transitOptions (only when travelMode is TRANSIT)
-                $arrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
-                $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
-                $TransitMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.TransitMode),
-                $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                // we will implement this in a later version  DRIVING mode (only when travelMode is DRIVING)
+                // we will implement this in a later version  $departureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.departureTime),
+                // we will implement this in a later version  $trafficModel = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.trafficModel),
+                // we will implement this in a later version  TRANSIT mode (only when travelMode is TRANSIT)
+                // we will implement this in a later version  $transitArrivalTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.arrivalTime),
+                // we will implement this in a later version  $transitDepartureTime = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitDepartureTime),
+                // we will implement this in a later version  $transitModes = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.transitModes),
+                // we will implement this in a later version  $routingPreference = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.routingPreference),
+                // UI Settings
+                $disableDefaultUI = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.disableDefaultUI),
                 $zoom = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $data.zoom);
                 if($zoom==='') $zoom = 5; // Default to 5
                 $zoom = parseInt($zoom, 10);
@@ -3888,7 +3897,7 @@ function SUPERreCaptcha(){
                 $polyline_stroke_weight = $data.polyline_stroke_weight,
                 $polyline_stroke_color = $data.polyline_stroke_color,
                 $polyline_stroke_opacity = $data.polyline_stroke_opacity,
-                $polyline_geodesic = $data.polyline_geodesic,
+                // currently not in use? $polyline_geodesic = $data.polyline_geodesic,
                 $polylines,
                 $path = [],
                 $coordinates,
@@ -3902,11 +3911,15 @@ function SUPERreCaptcha(){
                 Path,
                 geocoder;
 
-            SUPER.google_maps_api.allMaps[$form_id][key] = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
-                center: {lat: 0, lng: 0},
-                zoom: $zoom
-                //mapTypeId: \'terrain\'
-            });
+                // Only if map wasn't yet initialized
+                SUPER.google_maps_api.allMaps[$form_id][key] = new google.maps.Map(document.getElementById('super-google-map-'+$form_id), {
+                    center: {lat: 0, lng: 0},
+                    zoom: $zoom,
+                    disableDefaultUI: ('true' === $disableDefaultUI),
+                    //mapTypeId: \'terrain\'
+                });
+                //SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                //});
 
             // Draw Polylines
             if( $data.enable_polyline=='true' ) {
@@ -3963,7 +3976,7 @@ function SUPERreCaptcha(){
                     ));
                     Path = new google.maps.Polyline({
                         path: $path,
-                        geodesic: $polyline_geodesic,
+                        // currently not in use? geodesic: $polyline_geodesic,
                         strokeColor: $polyline_stroke_color,
                         strokeOpacity: $polyline_stroke_opacity,
                         strokeWeight: $polyline_stroke_weight
@@ -3990,31 +4003,22 @@ function SUPERreCaptcha(){
                         panel.style.height = target.parentNode.offsetHeight+'px';
                         panel.style.overflowY = "scroll";
                         target.parentNode.appendChild(panel);
-                        var printBtn = document.createElement('div');
-                        printBtn.classList.add('super-google-map-print');
-                        printBtn.innerHTML = 'Print';
-                        target.parentNode.appendChild(printBtn);
-                        printBtn.addEventListener('click', function(){
-                            // var orientation = 'p';
-                            // var format = 'a4';
-                            // var unit = 'px';
-                            // // For quick debugging purposes only:
-                            // var pdf = new jsPDF({
-                            //     orientation: orientation,           // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
-                            //     format: format,               // The format of the first page.  Default is "a4"
-                            //     putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
-                            //     compress: false,            // Compress the generated PDF.
-                            //     precision: 16,              // Precision of the element-positions.
-                            //     userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
-                            //     floatPrecision: 16,         // or "smart", default is 16
-                            //     unit: unit                  // Measurement unit (base unit) to be used when coordinates are specified.
-                            // });
-                            // // Starting at page 1
-                            // pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
-                            //     // Finally we download the PDF file
-                            //     pdf.save("download-page-1.pdf");
-                            // }); 
-                        });
+                        // this is only used when PDF addon is released var printBtn = document.createElement('div');
+                        // this is only used when PDF addon is released printBtn.classList.add('super-google-map-print');
+                        // this is only used when PDF addon is released printBtn.innerHTML = 'Print';
+                        // this is only used when PDF addon is released target.parentNode.appendChild(printBtn);
+                        // this is only used when PDF addon is released if(typeof jsPDF !== 'undefined') {
+                        // this is only used when PDF addon is released     printBtn.addEventListener('click', function(){
+                        // this is only used when PDF addon is released         var pdf = new jsPDF();
+                        // this is only used when PDF addon is released         // Starting at page 1
+                        // this is only used when PDF addon is released         if(typeof SUPER.generate_pdf !== 'undefined') {
+                        // this is only used when PDF addon is released             SUPER.generate_pdf(target, pdf, 1, function(pdf){
+                        // this is only used when PDF addon is released                 // Finally we download the PDF file
+                        // this is only used when PDF addon is released                 pdf.save("download-page-1.pdf");
+                        // this is only used when PDF addon is released             }); 
+                        // this is only used when PDF addon is released         }
+                        // this is only used when PDF addon is released     });
+                        // this is only used when PDF addon is released }
                     }
                 }
             }
@@ -4029,15 +4033,122 @@ function SUPERreCaptcha(){
                     // panel: document.getElementById('right-panel')
                 });
                 //directionsRenderer.setMap($map);
+                // If waypoints is not empty make sure to create a proper object for it
+                if($data.waypoints!==''){
+                    var w = $data.waypoints.split('\n');
+                    var i = 0;
+                    var $xw = [];
+                    for( i=0; i < w.length; i++ ) {
+                        // Get waypoint location
+                        var v = w[i].split('|');
+                        if(typeof v[1] === 'undefined') v[1] = 'false';
+                        // {waypoint;2}
+                        var location = v[0].replace('{','').replace('}','');
+                        var isTag = false;
+                        if(location!==v[0]) isTag = true;
+                        var advancedTags = location.split(';');
+                        var fieldName = advancedTags[0];
+                        var originFieldName = fieldName;
+                        var advancedIndex = "";
+                        if(advancedTags[1]){
+                            advancedIndex = advancedTags[1];
+                        }
+
+                        // {stopover;2}
+                        var stopover = v[1].replace('{','').replace('}','');
+                        var stopoverIsTag = false;
+                        if(stopover!==v[1]) stopoverIsTag = true;
+                        var stopoverAdvancedTags = stopover.split(';');
+                        var stopoverFieldName = stopoverAdvancedTags[0];
+                        var originStopoverFieldName = stopoverFieldName;
+                        var stopoverAdvancedIndex = "";
+                        if(stopoverAdvancedTags[1]){
+                            stopoverAdvancedIndex = stopoverAdvancedTags[1];
+                        }
+
+                        // Check if either one is a tag, if so look for dynamic columns
+                        if(isTag || stopoverIsTag){
+                            var x=2;
+                            var dynamicFieldName = originFieldName+'_'+x;
+                            var stopoverDynamicFieldName = originStopoverFieldName+'_'+x;
+                            var found = SUPER.field_exists($form, dynamicFieldName);
+                            var stopoverFound = SUPER.field_exists($form, stopoverDynamicFieldName);
+                            var rows = '';
+                            while(found || stopoverFound){
+                                // Location
+                                var tag = '';
+                                if(isTag){
+                                    tag = '{'+dynamicFieldName+'}';
+                                    if(advancedIndex!==''){ tag = '{'+dynamicFieldName+';'+advancedIndex+'}'; }
+                                }else{
+                                    tag = location;
+                                }
+                                rows += tag;
+
+                                // Stopover
+                                if(stopoverIsTag){
+                                    tag = '{'+stopoverDynamicFieldName+'}';
+                                    if(stopoverAdvancedIndex!==''){ tag = '{'+stopoverDynamicFieldName+';'+stopoverAdvancedIndex+'}'; }
+                                }else{
+                                    tag = stopover;
+                                }
+                                // Stopover
+                                rows += "|"+tag+"\n";
+                                // Find for next field and if it exists we add it
+                                x++;
+                                dynamicFieldName = fieldName+'_'+x;
+                                found = SUPER.field_exists($form, dynamicFieldName)
+                            }
+                        }
+                        var waypoints = w[i]+"\n"+rows;
+                        var xw = waypoints.split("\n");
+                        i = 0;
+                        for(i=0; i < xw.length; i++){
+                            if(xw[i]==='') continue;
+                            var values = xw[i].split('|');
+                            location = SUPER.update_variable_fields.replace_tags($form, $regular_expression, values[0]);
+                            // Waypoint may not be empty!
+                            if(location==='') continue;
+                            stopover = SUPER.update_variable_fields.replace_tags($form, $regular_expression, values[1]);
+                            stopover = ('true'===stopover); // convert to boolean
+                            $xw.push({ location: location, stopover: stopover });
+                        }
+                    }
+                }
                 var request = {
                     origin: $origin,
                     destination: $destination,
                     travelMode: $travelMode,
                     unitSystem: google.maps.UnitSystem[$unitSystem],
-                    waypoints: [{location: 'Doetinchem', stopover: true}, {location: 'Terborg', stopover: true}, {location: 'Ulft', stopover: true}, {location: 'Gaanderen', stopover: true}],
-                    optimizeWaypoints: true,
-                    region: 'US'
+                    waypoints: $xw, 
+                    optimizeWaypoints: ('true' === $optimizeWaypoints),
+                    provideRouteAlternatives: ('true' === $provideRouteAlternatives),
+                    avoidFerries: ('true' === $avoidFerries),
+                    avoidHighways: ('true' === $avoidHighways),
+                    avoidTolls: ('true' === $avoidTolls),
+                    region: $region // 'US', 'NL', 'DE', 'UK' etc.
                 };
+
+                // we will implement this in a later version  // transitOptions (only when travelMode is TRANSIT)
+                // we will implement this in a later version  if($travelMode==='TRANSIT'){
+                // we will implement this in a later version      request['transitOptions'] = {
+                // we will implement this in a later version          arrivalTime: $transitArrivalTime,
+                // we will implement this in a later version          departureTime: $transitDepartureTime,
+                // we will implement this in a later version          modes: $transitModes, // ['BUS'],
+                // we will implement this in a later version          routingPreference: $routingPreference // 'FEWER_TRANSFERS', 'LESS_WALKING'
+                // we will implement this in a later version      }
+                // we will implement this in a later version  }
+
+                // we will implement this in a later version  // drivingOptions (only when travelMode is DRIVING)
+                // we will implement this in a later version  if($travelMode==='DRIVING'){
+                // we will implement this in a later version      if($departureTime==='') $departureTime = new Date(Date.now() + 0); // departureTime: new Date(Date.now() + N),  // for the time N milliseconds from now.
+                // we will implement this in a later version      if($trafficModel==='') $trafficModel = 'bestguess';
+                // we will implement this in a later version      request['drivingOptions'] = {
+                // we will implement this in a later version          departureTime: $departureTime,
+                // we will implement this in a later version          trafficModel: $trafficModel
+                // we will implement this in a later version      }
+                // we will implement this in a later version  }
+
                 directionsService.route(request, function (result, status) {
                     if (status == 'OK') {
                         directionsRenderer.setDirections(result);
@@ -4107,34 +4218,31 @@ function SUPERreCaptcha(){
             }
 
             // Add Address Marker
-            if( ($address!=='') ) {
+            if( $address!=='' ) {
                 geocoder = new google.maps.Geocoder();
-                if( $address!=='' ) {
-                    geocoder.geocode( { 'address': $address}, function(result, status) {
-                        if (status == 'OK') {
-                            // Center map based on given address
-                            SUPER.google_maps_api.allMaps[$form_id][key].setCenter(result[0].geometry.location);
-                            // Add marker on address location
-                            if( $address_marker=='true' ) {
-                                new google.maps.Marker({
-                                    map: SUPER.google_maps_api.allMaps[$form_id][key],
-                                    position: result[0].geometry.location
-                                });
-                            }
-                        } else {
-                            // Display error message
-                            result = {
-                                msg: 'Geocode was not successful for the following reason: ' + status,
-                                loading: true
-                            }
-                            var html = '<div class="super-msg super-error">';
-                            SUPER.form_submission_finished($form[0], result, html);
+                geocoder.geocode( { 'address': $address}, function(result, status) {
+                    if (status == 'OK') {
+                        // Center map based on given address
+                        SUPER.google_maps_api.allMaps[$form_id][key].setCenter(result[0].geometry.location);
+                        // Add marker on address location
+                        if( $address_marker=='true' ) {
+                            new google.maps.Marker({
+                                map: SUPER.google_maps_api.allMaps[$form_id][key],
+                                position: result[0].geometry.location
+                            });
                         }
-                    });
-                }
+                    } else {
+                        // Display error message
+                        result = {
+                            msg: 'Geocode was not successful for the following reason: ' + status,
+                            loading: true
+                        }
+                        var html = '<div class="super-msg super-error">';
+                        SUPER.form_submission_finished($form[0], result, html);
+                    }
+                });
                 return true;
             }
-
 
             // // Center map if needed
             // if( ($origin!=='') && ($center_based_on_address===true) ) {
@@ -4142,7 +4250,6 @@ function SUPERreCaptcha(){
             //     // Replace with tag if needed
             //     $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $origin);
 
-                
             //     // Check if address is not empty
             //     if($origin!==''){
             //         geocoder.geocode( { 'address': $origin}, function(results, status) {
@@ -4446,6 +4553,7 @@ function SUPERreCaptcha(){
         }else{
             $html_fields = form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name($changed_field)+'}"]');
         }
+        $regular_expression = /\{(.*?)\}/g;
         Object.keys($html_fields).forEach(function(key) {
             var $counter = 0;
             $target = $html_fields[key];
@@ -4455,6 +4563,15 @@ function SUPERreCaptcha(){
             }else{
                 $html = $target.parentNode.querySelector('textarea').value;
             }
+            // Check if html contains {tags}, if not we don't have to do anything.
+            // This also solves bugs with for instance third party plugins
+            // That use shortcodes to initialize elements, which initialization would be lost
+            // upon updating the HTML content based on {tags}.
+            // This can be solved by NOT using either of the {} curly braces inside the HTML content
+            $regular_expression = /\{(.*?)\}/g;
+            if(!$regular_expression.exec($html)) return true;
+
+            // If it has {tags} then continue
             if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
@@ -4504,8 +4621,8 @@ function SUPERreCaptcha(){
                     }
                     $html = $html.split($original).join($rows);
                 }
-                $regular_expression = /\{(.*?)\}/g;
                 $array = [];
+                $regular_expression = /\{(.*?)\}/g;
                 while (($match = $regular_expression.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
@@ -5104,7 +5221,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-slider')){
                     // Only have to set new value if slider was already initialized (this depends on clearing form after a dynamic column was added)
                     if(element.parentNode.querySelector('.slider')){
-                        $(element).simpleSlider("setValue", value);
+                        SUPER.reposition_slider_amount_label(element, value);
                     }
                     continue;
                 }
@@ -5263,7 +5380,7 @@ function SUPERreCaptcha(){
                 }
                 // Slider field
                 if(field.classList.contains('super-slider')){
-                    $(element).simpleSlider("setValue", data[i].value);
+                    SUPER.reposition_slider_amount_label(field, data[i].value);
                     return true;
                 }
                 // Autosuggest field
@@ -5543,7 +5660,6 @@ function SUPERreCaptcha(){
       
         // @since 4.9.46 - Generate random codes
         $('.super-shortcode-field[data-code="true"]:not(.super-generated)').each(function(){
-            //debugger;
             var el = this;
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -5763,6 +5879,12 @@ function SUPERreCaptcha(){
         
     };
 
+    // Reposition slider amount label
+    SUPER.reposition_slider_amount_label = function(field, value){
+        if(typeof value === 'undefined') value = field.value;
+        $(field).simpleSlider("setValue", 0);
+        $(field).simpleSlider("setValue", value);
+    };
     // Init Slider fields
     SUPER.init_slider_field = function(){
         $('.super-slider').each(function () {
@@ -5779,15 +5901,13 @@ function SUPERreCaptcha(){
                 $decimal_separator,
                 $regular_expression,
                 $wrapper,
-                $slider,
                 $number,
                 $amount,
                 $dragger,
                 $slider_width,
                 $amount_width,
                 $dragger_margin_left,
-                $offset_left,
-                $position;
+                $offset_left;
 
             if( $this.find('.slider').length===0 ) {
                 $field = $this.find('.super-shortcode-field');
@@ -5815,14 +5935,9 @@ function SUPERreCaptcha(){
                     animate: false
                 });
                 $wrapper = $field.parents('.super-field-wrapper:eq(0)');
-                $slider = $wrapper.find('.slider');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
-                $slider_width = $slider.outerWidth(true);
-                $amount_width = $wrapper.children('.amount').outerWidth(true);
-                $position = $slider.find('.dragger').position();
-                if( ( typeof $position!=='undefined' && ($position.left+$amount_width) + 5) < $slider_width ) {
-                    $wrapper.children('.amount').css('left', $position.left+'px');
-                }
+                SUPER.reposition_slider_amount_label($field[0]);
+
                 $field.bind("slider:changed", function ($event, $data) {
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
                     $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
@@ -6047,10 +6162,27 @@ function SUPERreCaptcha(){
                         }
                         SUPER.init_slider_field();
                     }else{
-                        $field.simpleSlider('setValue', 0);
-                        $field.simpleSlider('setValue', originalValue);
+                        SUPER.reposition_slider_amount_label($field[0], originalValue);
                     }
                 }
+
+                ///var formId = 0;
+                ///if(this.querySelector('input[name="hidden_form_id"]')){
+                ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
+                ///}
+                ///// First disable the UI on the map for nicer print of the map
+                ///// And make map fullwidth and directions fullwidth
+                ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+                ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                ///    for(var x=0; x < nodes.length; x++){
+                ///        nodes[x].style.width = '100%';
+                ///        if(nodes[x].classList.contains('super-google-map-directions')){
+                ///            nodes[x].style.overflowY = 'initial';
+                ///            nodes[x].style.height = 'auto';
+                ///        }
+                ///    }
+                ///}
+
 
             });
 

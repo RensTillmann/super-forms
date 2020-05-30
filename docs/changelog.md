@@ -1,5 +1,34 @@
 # Super Forms - Changelog
 
+## May 30, 2020 - Version 4.9.463
+
+- **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some hollidays.
+- **Improved:** Country strings are now translation ready (used on Country element)
+- **Improved:** Google Map element responsiveness on mobile devices
+- **Improved:** Google Map indicator in back-end to notify users that the Map will only be generated on the Front-end
+
+## May 29, 2020 - Version 4.9.462
+
+- **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
+- **Fix/Improved:** When using third party shortcodes inside HTML element and it does not contain any {tag} we shouldn't refresh the HTML content. This would cause losing any initialized DOM elements. This also should improve speed for forms that use a lot of HTML elements but didn't contain any {tags}
+- **Fix:** Issue with slider field inside dynamic column, not updating the amount label position relative to "dragger" when dynamic column becomes visible. Issue also applied to Accordion/Tab element.
+
+## May 29, 2020 - Version 4.9.460
+
+- **Added:** Option for Google Map element to set region code e.g `nl`, `de`, `uk`, `us` etc.uu
+- **Added:** Option for Google Map element to set/adjust `zoom`
+- **Added:** Option for Google Map element to enable/disable `UI (buttons)`
+- **Added:** Option for Google Map element to `draw Route` from address A (origin) to address B (destination)
+- **Added:** Option for Google Map element to optionally display the `directions panel` (list with route instructions)
+- **Added:** Option for Google Map element to set it's travel mode `DRIVING`, `BICYCLKING`, `TRANSIT`, `WALKING`
+- **Added:** Option for Google Map element to populate `distance` to field (including Calculator Add-on)
+- **Added:** Option for Google Map element to populate `duration` to field (including Calculator Add-on)
+- **Added:** Option for Google Map element to define the unit system `METRIC` or `IMPERIAL`
+- **Added:** Option for Google Map element to draw Route with `Waypoints` (stops in between the route)
+- **Added:** Option for Google Map element to optimize route with waypoints (to rearrange it in a more efficient order)
+- **Added:** Option for Google Map element to avoid `Ferries`, `Major highways`, `Toll roads` (if possible)
+- **Fix:** Incorrect incrementing field names in dynamic columns
+
 ## May 21, 2020 - Version 4.9.455
 
 - **Fix:** MySQL error in prepare() statement when unique code is generated

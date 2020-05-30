@@ -3795,6 +3795,10 @@ class SUPER_Shortcodes {
         if( isset($atts['excl_days']) && $atts['excl_days']!='' ) {
             $result .= 'data-excl-days="' . esc_attr($atts['excl_days']) . '"';
         }
+        // @since 4.9.46 - Override days exclusion
+        if( isset($atts['excl_days_override']) && $atts['excl_days_override']!='' ) {
+            $result .= 'data-excl-days-override="' . esc_attr($atts['excl_days_override']) . '"';
+        }
         // @since 4.9.3 - Exclude specific dates
         if( isset($atts['excl_dates']) && $atts['excl_dates']!='' ) {
             $result .= 'data-excl-dates="' . esc_attr($atts['excl_dates']) . '"';
@@ -4247,7 +4251,7 @@ class SUPER_Shortcodes {
             }
 
             // @since 4.6.0 - also check for if statements and also add those field tags as attribute
-            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
+            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<|\?\?|!\?\?)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 if( isset( $v[1] ) ) {
                     preg_match_all('/{\K[^}]*(?=})/m', $v[1], $matches, PREG_SET_ORDER, 0);
@@ -4355,19 +4359,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $map_styles = 'min-width:'.$atts['min_width'].'px;';
-        $map_styles .= 'min-height:'.$atts['min_height'].'px;';
-        if( !empty( $atts['max_width'] ) ) {
-            $map_styles .= 'max-width:'.$atts['max_width'].'px;';
-        }else{
-            $map_styles .= 'max-width:100%';
-        }
-        if( !empty( $atts['max_height'] ) ) {
-            $map_styles .= 'max-height:'.$atts['max_height'].'px;';
-        }else{
-            $map_styles .= 'max-height:100%';
-        }
-
+        $map_styles = 'min-height:' . $atts['min_height'] . 'px;';
         if(empty($atts['api_key'])) $atts['api_key'] = '';
         wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
 
@@ -4388,17 +4380,19 @@ class SUPER_Shortcodes {
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidHighways']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidTolls']);
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['region']);
-        // drivingOptions (only when travelMode is DRIVING)
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
-        // transitOptions (only when travelMode is TRANSIT)
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['TransitMode']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        // we will implement this in a later version   // drivingOptions (only when travelMode is DRIVING)
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
+        // we will implement this in a later version   // transitOptions (only when travelMode is TRANSIT)
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitModes']);
+        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        // UI settings
         $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['zoom']);
+        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['disableDefaultUI']);
 
-        // Olylines
+        // Polylines
         if( !empty($atts['enable_polyline']) ) {
             $polylines = explode("\n", $atts['polylines']);
             foreach( $polylines as $k => $v ) {
