@@ -2656,3 +2656,27 @@
     width: 100%;
     min-height: 250px;
 }
+
+.super-google-map-0 {
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction: column;
+}
+.super-google-map-0:after {
+    content:'\f5a0';
+    font-family:'Font Awesome 5 Free';
+    font-weight:900;
+    font-size:90px;
+    width:100px;
+    height:100px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+.super-google-map-0:before {
+    content:'Google Map will only be generated on the Front-end';
+    padding:0px 0px 30px 0px;
+    font-size:16px;
+}

@@ -238,7 +238,7 @@
                 localization = el.dataset.localization,
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
                 parse,year,month,firstDate,$date,days,found,date,fullDate,dateFrom,
-                dateTo,d1,d2,from,to,check,day,exclDays,exclDates,exclDatesReplaced,
+                dateTo,d1,d2,from,to,check,day,exclDays,exclDaysOverride,exclDaysOverrideReplaced,exclDates,exclDatesReplaced,
                 changeMonth =(el.dataset.changeMonth==='true' ? true : false),
                 changeYear =(el.dataset.changeYear==='true' ? true : false),
                 showMonthAfterYear = (el.dataset.showMonthAfterYear==='true' ? true : false),
@@ -322,11 +322,57 @@
                     day = dt.getDay();
                     exclDays = this.dataset.exclDays;
                     exclDates = (typeof this.dataset.exclDates !=='undefined' ? this.dataset.exclDates : undefined);
+                    exclDaysOverride = this.dataset.exclDaysOverride;
+                    exclDaysOverride = (typeof this.dataset.exclDaysOverride !=='undefined' ? this.dataset.exclDaysOverride : undefined);
+
                     if(typeof exclDays !== 'undefined'){
                         days = exclDays.split(',');
                         found = (days.indexOf(day.toString()) > -1);
                         if(found){
-                            return [false, "super-disabled-day"];
+                            if(typeof exclDaysOverride !== 'undefined'){
+                                exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags(form, regex, exclDaysOverride);
+                                exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
+                                date = ('0' + dt.getDate()).slice(-2);
+                                month = ('0' + (dt.getMonth()+1)).slice(-2);
+                                fullDate = dt.getFullYear() + '-' + month + '-' + date;
+                                i;
+                                for( i=0; i < exclDaysOverrideReplaced.length; i++ ) {
+                                    if(exclDaysOverrideReplaced[i]==='') continue;
+                                    // If excluding a fixed day of month
+                                    if(exclDaysOverrideReplaced[i].length<=2){
+                                        if(exclDaysOverrideReplaced[i]==day){
+                                            return [true, ""];
+                                        }
+                                    }
+                                    // If excluding a specific month
+                                    if(exclDaysOverrideReplaced[i].length===3){
+                                        if(exclDaysOverrideReplaced[i].toLowerCase()==dt.toString('MMM').toLowerCase()){
+                                            return [true, ""];
+                                        }
+                                    }
+                                    // If excluding a date range
+                                    if(exclDaysOverrideReplaced[i].split(';').length>1){
+                                        dateFrom = exclDaysOverrideReplaced[i].split(';')[0];
+                                        dateTo = exclDaysOverrideReplaced[i].split(';')[1];
+                                        d1 = dateFrom.split("-");
+                                        d2 = dateTo.split("-");
+                                        from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
+                                        to   = new Date(d2[0], parseInt(d2[1], 10)-1, d2[2]);
+                                        check = new Date(dt.getFullYear(), parseInt(month, 10)-1, date);
+                                        if(check >= from && check <= to){
+                                            return [true, ""];
+                                        }
+                                    }
+                                    // If excluding single date
+                                    if(exclDaysOverrideReplaced[i]==fullDate){
+                                        return [true, ""];
+                                    }
+                                }
+                                // Be default we disable this day
+                                return [false, "super-disabled-day"];
+                            }else{
+                                return [false, "super-disabled-day"];
+                            }
                         }
                     }
                     if(typeof exclDates !== 'undefined'){
