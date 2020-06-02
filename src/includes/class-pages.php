@@ -26,7 +26,7 @@ class SUPER_Pages {
      */
     public static function addons() {
         // Include the file that handles the view
-        // include_once(SUPER_PLUGIN_DIR.'/includes/admin/views/page-addons.php' );
+        include_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
         // Make request
         if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
             $hostname = getHostByName(getHostName()); // PHP >= 5.3.0
@@ -41,19 +41,6 @@ class SUPER_Pages {
                 $user_email = $user->user_email;
             }
         }
-        // $response = wp_remote_post(
-        //     'https://f4d.nl/super-forms/',
-        //     array(
-        //         'method' => 'POST',
-        //         'timeout' => 45,
-        //         'body' => array(
-        //             'action' => 'super_subscribe_addon',
-        //             'addon' => $_POST['addon'],
-        //             'url' => $_POST['url'],
-        //             'site_url' => site_url(),
-        //             'user_email' => $user_email,
-        //             'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-        //             'hostname' => $hostname // hostname
 
         $addOnsActivated = array();
         if(class_exists('SUPER_Calculator')) $addOnsActivated['calculator'] = SUPER_Calculator()->version;
@@ -91,7 +78,8 @@ class SUPER_Pages {
                     'userEmail' => $user_email,
                     'addOnsActivated' => json_encode($addOnsActivated),
                     'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
-                    'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' )
+                    'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'auth' => SUPER_Ajax::api_get_auth()
                 )
             )
         );
