@@ -28,3 +28,6 @@
 .super-rtl .super-field.super-calculator .super-field-wrapper {
 	float: right;
 }
+.super-rtl .super-field.super-calculator.super-align-center .super-field-wrapper {
+	float: initial;
+}
