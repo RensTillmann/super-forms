@@ -85,14 +85,16 @@ class SUPER_Ajax {
 
             'update_unique_code'            => true, // @since 4.9.46
 
-            //'smtp_test'                     => false, // @since 4.9.5
+            //'smtp_test'                   => false, // @since 4.9.5
 
-            'api_subscribe_addon'               => false,
+            'api_subscribe_addon'           => false,
             'api_register_user'             => false,
-            'api_login_user'             => false,
+            'api_login_user'                => false,
+            'api_save_at'                   => false,
+            'api_verify_code'               => false,
+            'api_auth'                      => false,
 
         );
-
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
             add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
 
@@ -101,24 +103,47 @@ class SUPER_Ajax {
             }
         }
     }
-    public static function api_default_post_args($custom_args){
-        $default_args = array(
-            'method' => 'POST',
-            'timeout' => 45,
-            'data_format' => 'body',
-            'headers' => array('Content-Type' => 'application/json; charset=utf-8')
-        );
-        return array_merge($default_args, $custom_args);
-    }
-    public static function api_handle_response($r){
-        if ( is_wp_error( $r ) ) {
-            $err = $r->get_error_message();
-            error_log('is_wp_error: ' . $err, 0);
-            SUPER_Common::output_message(true, $err);
-        }else{
-            error_log('Response: ' . $r['body'], 0);
-            echo $r['body'];
+
+    public static function api_get_auth(){
+        if (isset($_COOKIE['super_forms'])) {
+            return json_encode($_COOKIE['super_forms']);
+            // foreach ($_COOKIE['super_forms'] as $name => $value) {
+            //     $name = htmlspecialchars($name);
+            //     $value = htmlspecialchars($value);
+            //     echo "$name : $value <br />\n";
+            // }
         }
+        return false; // to trigger `omitempty`
+    }
+    public static function api_auth(){
+        $auth = $_POST['auth'];
+        $result = setcookie(
+            'super_forms[wp_admin]', // name
+            $auth, // value
+            time()+60*15, // expires after 15 minutes
+            '',  // path
+            '', // domain
+            false, // secure
+            true // httponly
+        );
+        echo ($result===true ? 'true' : 'false');
+        die();
+    }
+    public static function api_verify_code() {
+        $custom_args = array(
+            'body' => json_encode(array(
+                'code' => $_POST['code']
+            ))
+        );
+        $args = self::api_default_post_args($custom_args);
+        $r = wp_remote_post($_POST['apiEndpoint'] . '/verify/code', $args);
+        self::api_handle_response($r);
+    }
+    public static function api_save_at(){
+        $at = $_POST['at'];
+        $rt = $_POST['rt'];
+        set_transient( 'super_forms_at', $at, 60*15 ); // 15 minutes
+        set_transient( 'super_forms_rt', $rt, 60*60*24 ); // 24 hours
         die();
     }
     public static function api_register_user() {
@@ -158,6 +183,27 @@ class SUPER_Ajax {
         $args = self::api_default_post_args($custom_args);
         $r = wp_remote_post($_POST['apiEndpoint'] . '/addons/subscribe', $args);
         self::api_handle_response($r);
+    }
+    public static function api_default_post_args($custom_args){
+        $default_args = array(
+            'method' => 'POST',
+            'timeout' => 45,
+            'data_format' => 'body',
+            'headers' => array('Content-Type' => 'application/json; charset=utf-8')
+        );
+        $custom_args['body']['auth'] = self::api_get_auth();
+        return array_merge($default_args, $custom_args);
+    }
+    public static function api_handle_response($r){
+        if ( is_wp_error( $r ) ) {
+            $err = $r->get_error_message();
+            error_log('is_wp_error: ' . $err, 0);
+            SUPER_Common::output_message(true, $err);
+        }else{
+            error_log('Response: ' . $r['body'], 0);
+            echo $r['body'];
+        }
+        die();
     }
 
     // @since 4.9.46

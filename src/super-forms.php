@@ -2263,14 +2263,6 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-addons' => array(
-                        'src'     => $backend_path . 'addons.css',
-                        'deps'    => '',
-                        'version' => SUPER_VERSION,
-                        'media'   => 'all',
-                        'screen'  => array( 'super-forms_page_super_addons' ),
-                        'method'  => 'enqueue',
-                    ),
                 )
             );
         }
