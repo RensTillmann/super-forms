@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 03, 2020 - Version 4.9.464
+
+- **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
+
 ## May 30, 2020 - Version 4.9.463
 
 - **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some hollidays.
