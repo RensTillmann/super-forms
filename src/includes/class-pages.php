@@ -65,7 +65,7 @@ class SUPER_Pages {
         // build-SUPER_FORMS_BUNDLE_END
 
     	$auth = SUPER_Ajax::api_get_auth();
-        error_log('$auth:' . $auth);
+        error_log('$auth:' . json_encode($auth));
         $response = wp_remote_post(
             SUPER_API_ENDPOINT . '/addons/list',
             array(
@@ -81,7 +81,7 @@ class SUPER_Pages {
                     'addOnsActivated' => json_encode($addOnsActivated),
                     'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
                     'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
-        		    'auth' => $auth
+        		    'auth' => json_encode($auth)
                 )
             )
         );
