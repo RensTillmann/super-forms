@@ -87,9 +87,11 @@ class SUPER_Ajax {
 
             //'smtp_test'                   => false, // @since 4.9.5
 
+            'api_start_trial'               => false,
             'api_subscribe_addon'           => false,
             'api_register_user'             => false,
             'api_login_user'                => false,
+            'api_logout_user'                => false,
             'api_save_at'                   => false,
             'api_verify_code'               => false,
             'api_auth'                      => false,
@@ -105,7 +107,11 @@ class SUPER_Ajax {
     }
 
     public static function api_get_auth(){
+		error_log("api_get_auth()");
         if (isset($_COOKIE['super_forms'])) {
+			error_log("api_get_auth1()");
+			error_log(json_encode($_COOKIE['super_forms']));
+            error_log('$auth:' . json_encode($_COOKIE['super_forms']));
             return json_encode($_COOKIE['super_forms']);
             // foreach ($_COOKIE['super_forms'] as $name => $value) {
             //     $name = htmlspecialchars($name);
@@ -113,7 +119,9 @@ class SUPER_Ajax {
             //     echo "$name : $value <br />\n";
             // }
         }
-        return false; // to trigger `omitempty`
+		error_log("api_get_auth2()");
+		return "false";
+        //return array('sometesting' => false); //false; //array('auth' => false); //false; // to trigger `omitempty`
     }
     public static function api_auth(){
         $auth = $_POST['auth'];
@@ -135,9 +143,7 @@ class SUPER_Ajax {
                 'code' => $_POST['code']
             ))
         );
-        $args = self::api_default_post_args($custom_args);
-        $r = wp_remote_post($_POST['apiEndpoint'] . '/verify/code', $args);
-        self::api_handle_response($r);
+        self::api_do_request('verify/code', $custom_args);
     }
     public static function api_save_at(){
         $at = $_POST['at'];
@@ -153,9 +159,7 @@ class SUPER_Ajax {
                 'password' => $_POST['password']
             ))
         );
-        $args = self::api_default_post_args($custom_args);
-        $r = wp_remote_post($_POST['apiEndpoint'] . '/register', $args);
-        self::api_handle_response($r);
+        self::api_do_request('register', $custom_args);
     }
     public static function api_login_user() {
         $custom_args = array(
@@ -164,9 +168,26 @@ class SUPER_Ajax {
                 'password' => $_POST['password']
             ))
         );
-        $args = self::api_default_post_args($custom_args);
-        $r = wp_remote_post($_POST['apiEndpoint'] . '/login', $args);
-        self::api_handle_response($r);
+        self::api_do_request('login', $custom_args);
+    }
+    public static function api_logout_user() {
+        $custom_args = array(
+            'body' => json_encode(array(
+                'auth' => self::api_get_auth()
+            ))
+        );
+        setcookie('super_forms[wp_admin]', '', time()-3600);
+        self::api_do_request('logout', $custom_args);
+    }
+    public static function api_start_trial() {
+        $custom_args = array(
+            'body' => array(
+                'addonSlug' => $_POST['addonSlug'],
+                'planId' => $_POST['planId'],
+                'data' => $_POST['data']
+            )
+        );
+        self::api_do_request('addons/subscribe', $custom_args);
     }
     public static function api_subscribe_addon() {
         $custom_args = array(
@@ -174,14 +195,13 @@ class SUPER_Ajax {
                 'addonSlug' => $_POST['addonSlug'],
                 'planId' => $_POST['planId'],
                 'data' => $_POST['data']
-                // 'url' => $_POST['url'],
-                // 'user_email' => $user_email,
-                // 'ip' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-                // 'hostname' => $hostname // hostname
             )
         );
+        self::api_do_request('addons/subscribe', $custom_args);
+    }
+    public static function api_do_request($route, $custom_args){
         $args = self::api_default_post_args($custom_args);
-        $r = wp_remote_post($_POST['apiEndpoint'] . '/addons/subscribe', $args);
+        $r = wp_remote_post($_POST['apiEndpoint'] . '/' . $route, $args);
         self::api_handle_response($r);
     }
     public static function api_default_post_args($custom_args){
@@ -191,7 +211,7 @@ class SUPER_Ajax {
             'data_format' => 'body',
             'headers' => array('Content-Type' => 'application/json; charset=utf-8')
         );
-        $custom_args['body']['auth'] = self::api_get_auth();
+        //$custom_args['body']['auth'] = self::api_get_auth();
         return array_merge($default_args, $custom_args);
     }
     public static function api_handle_response($r){
