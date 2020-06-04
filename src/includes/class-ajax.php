@@ -112,16 +112,10 @@ class SUPER_Ajax {
 			error_log("api_get_auth1()");
 			error_log(json_encode($_COOKIE['super_forms']));
             error_log('$auth:' . json_encode($_COOKIE['super_forms']));
-            return json_encode($_COOKIE['super_forms']);
-            // foreach ($_COOKIE['super_forms'] as $name => $value) {
-            //     $name = htmlspecialchars($name);
-            //     $value = htmlspecialchars($value);
-            //     echo "$name : $value <br />\n";
-            // }
+            return ($_COOKIE['super_forms']);
         }
 		error_log("api_get_auth2()");
-		return "false";
-        //return array('sometesting' => false); //false; //array('auth' => false); //false; // to trigger `omitempty`
+		return array("wp_admin" => "false");
     }
     public static function api_auth(){
         $auth = $_POST['auth'];
@@ -139,7 +133,7 @@ class SUPER_Ajax {
     }
     public static function api_verify_code() {
         $custom_args = array(
-            'body' => json_encode(array(
+            'body' => (array(
                 'code' => $_POST['code']
             ))
         );
@@ -154,7 +148,7 @@ class SUPER_Ajax {
     }
     public static function api_register_user() {
         $custom_args = array(
-            'body' => json_encode(array(
+            'body' => (array(
                 'email' => $_POST['email'],
                 'password' => $_POST['password']
             ))
@@ -163,7 +157,7 @@ class SUPER_Ajax {
     }
     public static function api_login_user() {
         $custom_args = array(
-            'body' => json_encode(array(
+            'body' => (array(
                 'email' => $_POST['email'],
                 'password' => $_POST['password']
             ))
@@ -171,39 +165,39 @@ class SUPER_Ajax {
         self::api_do_request('login', $custom_args);
     }
     public static function api_logout_user() {
-        $custom_args = array(
-            'body' => json_encode(array(
-                'auth' => self::api_get_auth()
-            ))
-        );
-        setcookie('super_forms[wp_admin]', '', time()-3600);
-        self::api_do_request('logout', $custom_args);
+        self::api_do_request('logout', array());
     }
     public static function api_start_trial() {
         $custom_args = array(
-            'body' => array(
+            'body' => (array(
                 'addonSlug' => $_POST['addonSlug'],
                 'planId' => $_POST['planId'],
                 'data' => $_POST['data']
-            )
+            ))
         );
         self::api_do_request('addons/subscribe', $custom_args);
     }
     public static function api_subscribe_addon() {
         $custom_args = array(
-            'body' => array(
+            'body' => (array(
                 'addonSlug' => $_POST['addonSlug'],
                 'planId' => $_POST['planId'],
                 'data' => $_POST['data']
-            )
+            ))
         );
         self::api_do_request('addons/subscribe', $custom_args);
     }
+
     public static function api_do_request($route, $custom_args){
         $args = self::api_default_post_args($custom_args);
+        if($route==='logout'){
+            setcookie('super_forms[wp_admin]', '', time()-3600);
+            error_log('logout args: ' . json_encode($args));
+        }
         $r = wp_remote_post($_POST['apiEndpoint'] . '/' . $route, $args);
         self::api_handle_response($r);
     }
+
     public static function api_default_post_args($custom_args){
         $default_args = array(
             'method' => 'POST',
@@ -211,9 +205,11 @@ class SUPER_Ajax {
             'data_format' => 'body',
             'headers' => array('Content-Type' => 'application/json; charset=utf-8')
         );
-        //$custom_args['body']['auth'] = self::api_get_auth();
+        $custom_args['body']['auth'] = self::api_get_auth();
+        $custom_args['body'] = json_encode($custom_args['body']);
         return array_merge($default_args, $custom_args);
     }
+
     public static function api_handle_response($r){
         if ( is_wp_error( $r ) ) {
             $err = $r->get_error_message();
