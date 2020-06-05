@@ -73,14 +73,14 @@ class SUPER_Pages {
                 'timeout' => 45,
                 'body' => array(
                     'action' => 'super_api_subscribe_addon',
-                    'apiEndpoint' => SUPER_API_ENDPOINT,
-                    'apiVersion' => SUPER_API_VERSION,
-                    'homeUrl' => get_home_url(),
-                    'siteUrl' => site_url(),
-                    'userEmail' => $user_email,
-                    'addOnsActivated' => json_encode($addOnsActivated),
-                    'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
-                    'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
+                    'api_endpoint' => SUPER_API_ENDPOINT,
+                    'api_version' => SUPER_API_VERSION,
+                    'home_url' => get_home_url(),
+                    'site_url' => site_url(),
+                    'email' => $user_email,
+                    'addons_activated' => json_encode($addOnsActivated),
+                    'addons_url' => admin_url( 'admin.php?page=super_addons' ),
+                    'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
         		    'auth' => json_encode($auth)
                 )
             )

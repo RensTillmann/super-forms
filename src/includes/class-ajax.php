@@ -170,8 +170,8 @@ class SUPER_Ajax {
     public static function api_start_trial() {
         $custom_args = array(
             'body' => (array(
-                'addonSlug' => $_POST['addonSlug'],
-                'planId' => $_POST['planId'],
+                'addon_slug' => $_POST['addon_slug'],
+                'plan_id' => $_POST['plan_id'],
                 'data' => $_POST['data']
             ))
         );
@@ -180,8 +180,8 @@ class SUPER_Ajax {
     public static function api_subscribe_addon() {
         $custom_args = array(
             'body' => (array(
-                'addonSlug' => $_POST['addonSlug'],
-                'planId' => $_POST['planId'],
+                'addon_slug' => $_POST['addon_slug'],
+                'plan_id' => $_POST['plan_id'],
                 'data' => $_POST['data']
             ))
         );
@@ -194,7 +194,7 @@ class SUPER_Ajax {
             setcookie('super_forms[wp_admin]', '', time()-3600);
             error_log('logout args: ' . json_encode($args));
         }
-        $r = wp_remote_post($_POST['apiEndpoint'] . '/' . $route, $args);
+        $r = wp_remote_post($_POST['api_endpoint'] . '/' . $route, $args);
         self::api_handle_response($r);
     }
 
@@ -213,10 +213,13 @@ class SUPER_Ajax {
     public static function api_handle_response($r){
         if ( is_wp_error( $r ) ) {
             $err = $r->get_error_message();
-            error_log('is_wp_error: ' . $err, 0);
-            SUPER_Common::output_message(true, $err);
+            error_log('is_wp_error: ' . $err);
+            echo json_encode(array(
+                'status' => 400,
+                'message' => $err
+            ));
         }else{
-            error_log('Response: ' . $r['body'], 0);
+            error_log('Response: ' . $r['body']);
             echo $r['body'];
         }
         die();
