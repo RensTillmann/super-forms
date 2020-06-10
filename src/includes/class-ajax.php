@@ -122,7 +122,7 @@ class SUPER_Ajax {
         $result = setcookie(
             'super_forms[wp_admin]', // name
             $auth, // value
-            time()+60*15, // expires after 15 minutes
+            time()+60*120, // expires after 15 minutes
             '',  // path
             '', // domain
             false, // secure
@@ -170,8 +170,7 @@ class SUPER_Ajax {
     public static function api_start_trial() {
         $custom_args = array(
             'body' => (array(
-                'addon_slug' => $_POST['addon_slug'],
-                'plan_id' => $_POST['plan_id'],
+                'plans' => $_POST['plans'],
                 'data' => $_POST['data']
             ))
         );
