@@ -1035,7 +1035,7 @@ class SUPER_Common {
     public static function decode_textarea( $value ) {
         if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return nl2br( urldecode( stripslashes( $value ) ) );
+            return esc_html(urldecode(stripslashes($value)));
         }
     }
     public static function decode( $value ) {
@@ -1552,7 +1552,7 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( (isset($v['type'])) && ($v['type']=='text') ) {
-                            $v['value'] = nl2br( $v['value'] );
+                            $v['value'] = self::decode_textarea( $v['value'] );
                         }
                         if( isset( $v['timestamp'] ) ) {
                             $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
