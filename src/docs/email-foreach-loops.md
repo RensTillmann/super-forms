@@ -13,13 +13,13 @@ The foreach loop will be used in combination with elements inside a so called [D
 
 If you are familiar with any programming language you can construct your own loops with ease for your emails.
 
-## How to create my own if statements?
+## How to create my own foreach loops?
 
 An example foreach loop would look like this:
 
 ```php
 foreach(first_name):
- Person #<%counter%>: <%first_name%> <%last_name%><br />
+    Person #<%counter%>: <%first_name%> <%last_name%><br />
 endforeach;
 ```
 
