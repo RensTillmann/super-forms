@@ -1007,7 +1007,6 @@
                 column,
                 form,
                 firstColumn,
-                lastColumn,
                 found,
                 limit,
                 unique_field_names = {},
@@ -1068,7 +1067,6 @@
             form = SUPER.get_frontend_or_backend_form(el, form);
             var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
             firstColumn = duplicateColumns[0];
-            lastColumn = duplicateColumns[duplicateColumns.length-1];
             found = column.querySelectorAll('.super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
@@ -1093,7 +1091,7 @@
             }
 
             counter = column.querySelectorAll('.super-duplicate-column-fields').length;
-            clone = lastColumn.cloneNode(true);
+            clone = firstColumn.cloneNode(true);
             column.appendChild(clone);
 
             // @since 3.3.0 - hook after appending new column
