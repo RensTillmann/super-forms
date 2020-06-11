@@ -2,23 +2,14 @@
 
 ## Jun 11, 2020 - Version 4.9.466
 
-- **Fix:** PHP throwing Fatal error when using `Retrieve method` > `Post type`
-
-## Jun 10, 2020 - Version 4.9.465
-
-- **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
-
-## May 30, 2020 - Version 4.9.463
-
+- **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
 - **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some hollidays.
 - **Improved:** Country strings are now translation ready (used on Country element)
 - **Improved:** Google Map element responsiveness on mobile devices
 - **Improved:** Google Map indicator in back-end to notify users that the Map will only be generated on the Front-end
-
-## May 29, 2020 - Version 4.9.462
-
-- **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
 - **Fix/Improved:** When using third party shortcodes inside HTML element and it does not contain any {tag} we shouldn't refresh the HTML content. This would cause losing any initialized DOM elements. This also should improve speed for forms that use a lot of HTML elements but didn't contain any {tags}
+- **Fix:** PHP throwing Fatal error when using `Retrieve method` > `Post type`
+- **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
 - **Fix:** Issue with slider field inside dynamic column, not updating the amount label position relative to "dragger" when dynamic column becomes visible. Issue also applied to Accordion/Tab element.
 
 ## May 29, 2020 - Version 4.9.460
