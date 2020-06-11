@@ -88,10 +88,10 @@ class SUPER_Ajax {
             //'smtp_test'                   => false, // @since 4.9.5
 
             'api_start_trial'               => false,
-            'api_subscribe_addon'           => false,
+            'api_checkout'                  => false,
             'api_register_user'             => false,
             'api_login_user'                => false,
-            'api_logout_user'                => false,
+            'api_logout_user'               => false,
             'api_save_at'                   => false,
             'api_verify_code'               => false,
             'api_auth'                      => false,
@@ -170,21 +170,20 @@ class SUPER_Ajax {
     public static function api_start_trial() {
         $custom_args = array(
             'body' => (array(
+                'slug' => $_POST['slug'],
+                'data' => $_POST['data']
+            ))
+        );
+        self::api_do_request('addons/start_trial', $custom_args);
+    }
+    public static function api_checkout() {
+        $custom_args = array(
+            'body' => (array(
                 'plans' => $_POST['plans'],
                 'data' => $_POST['data']
             ))
         );
-        self::api_do_request('addons/subscribe', $custom_args);
-    }
-    public static function api_subscribe_addon() {
-        $custom_args = array(
-            'body' => (array(
-                'addon_slug' => $_POST['addon_slug'],
-                'plan_id' => $_POST['plan_id'],
-                'data' => $_POST['data']
-            ))
-        );
-        self::api_do_request('addons/subscribe', $custom_args);
+        self::api_do_request('addons/checkout', $custom_args);
     }
 
     public static function api_do_request($route, $custom_args){
