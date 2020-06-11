@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 11, 2020 - Version 4.9.466
+
+- **Fix:** PHP throwing Fatal error when using `Retrieve method` > `Post type`
+
 ## Jun 10, 2020 - Version 4.9.465
 
 - **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
