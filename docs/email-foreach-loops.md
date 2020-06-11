@@ -17,7 +17,7 @@ If you are familiar with any programming language you can construct your own loo
 
 
 
-### How to create my own if statements?
+### How to create my own foreach loops?
 
 An example foreach loop would look like this: 
 
