@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 11, 2020 - Version 4.9.467
+
+- **Fix:** Bug with dynamic columns and field name incremention
+
 ## Jun 11, 2020 - Version 4.9.466
 
 - **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
