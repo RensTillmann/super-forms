@@ -2,7 +2,7 @@
 
 ## Jun 11, 2020 - Version 4.9.467
 
-- **Fix:** Bug with dynamic columns and field name incremention
+- **Fix:** Bug with dynamic columns and field name incremental
 
 ## Jun 11, 2020 - Version 4.9.466
 
