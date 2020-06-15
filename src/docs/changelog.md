@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 15, 2020 - Version 4.9.468
+
+- **Improved:** Resonpsiveness for radio/checkbox items when using Large or Huge field size
+
 ## Jun 11, 2020 - Version 4.9.467
 
 - **Fix:** Bug with dynamic columns and field name incremental
