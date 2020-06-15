@@ -63,33 +63,20 @@ class SUPER_Pages {
         $addOnsActivated['super_forms_bundle'] = SUPER_VERSION;
         unset($addOnsActivated['super_forms']);
         // build-SUPER_FORMS_BUNDLE_END
-
-    	$auth = SUPER_Ajax::api_get_auth();
-        error_log('$auth:' . json_encode($auth));
-        $response = wp_remote_post(
-            SUPER_API_ENDPOINT . '/addons/list',
-            array(
-                'method' => 'GET',
-                'timeout' => 45,
-                'body' => array(
-                    'action' => 'super_api_subscribe_addon',
-                    'api_endpoint' => SUPER_API_ENDPOINT,
-                    'api_version' => SUPER_API_VERSION,
-                    'home_url' => get_home_url(),
-                    'site_url' => site_url(),
-                    'email' => $user_email,
-                    'addons_activated' => json_encode($addOnsActivated),
-                    'addons_url' => admin_url( 'admin.php?page=super_addons' ),
-                    'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
-        		    'auth' => json_encode($auth)
-                )
+        $custom_args = array(
+            'body' => array(
+                'action' => 'super_api_subscribe_addon',
+                'api_endpoint' => SUPER_API_ENDPOINT,
+                'api_version' => SUPER_API_VERSION,
+                'home_url' => get_home_url(),
+                'site_url' => site_url(),
+                'email' => $user_email,
+                'addons_activated' => $addOnsActivated,
+                'addons_url' => admin_url( 'admin.php?page=super_addons' ),
+                'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
             )
         );
-        if ( is_wp_error( $response ) ) {
-            echo '<div class="error notice" style="margin-top:50px;"><p>Unable to load content, please refresh the page, or try again later.</p></div>';
-        }else{
-            echo $response['body'];
-        }
+        SUPER_Ajax::api_do_request('addons/list', $custom_args);
     }
 
 

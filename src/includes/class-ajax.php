@@ -192,8 +192,9 @@ class SUPER_Ajax {
             setcookie('super_forms[wp_admin]', '', time()-3600);
             error_log('logout args: ' . json_encode($args));
         }
-        $r = wp_remote_post($_POST['api_endpoint'] . '/' . $route, $args);
-        self::api_handle_response($r);
+        $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
+        $r = wp_remote_post($api_endpoint . '/' . $route, $args);
+        self::api_handle_response($r, $args);
     }
 
     public static function api_default_post_args($custom_args){
@@ -208,14 +209,18 @@ class SUPER_Ajax {
         return array_merge($default_args, $custom_args);
     }
 
-    public static function api_handle_response($r){
+    public static function api_handle_response($r, $args){
         if ( is_wp_error( $r ) ) {
-            $err = $r->get_error_message();
-            error_log('is_wp_error: ' . $err);
-            echo json_encode(array(
-                'status' => 400,
-                'message' => $err
-            ));
+            if($args['body']['action']=='super_api_subscribe_addon'){
+                echo '<div class="error notice" style="margin-top:50px;"><p>Unable to load content, please refresh the page, or try again later.</p></div>';
+            }else{
+                $err = $r->get_error_message();
+                error_log('is_wp_error: ' . $err);
+                echo json_encode(array(
+                    'status' => 400,
+                    'message' => $err
+                ));
+            }
         }else{
             error_log('Response: ' . $r['body']);
             echo $r['body'];
