@@ -4012,16 +4012,23 @@ ul.super-multipart-steps .super-multipart-step
     .super-shortcode-field,#{$formFields}, .super-item, .super-checkbox .super-item, .super-radio .super-item, .super-fileupload-button span
       font-size: 16px
 
-.super-first-responsiveness .super-field
-  &.super-grouped
-    width: 50%
+.super-first-responsiveness
+  .super-field
+    &.super-grouped
+      width: 50%
+
+.super-first-rsponsiveness,
+.super-second-responsiveness
   .super-item
     line-height: 20px
     padding: 5px 0px 5px 15px
 
-.super-second-responsiveness .super-item
-  line-height: 20px
-  padding: 5px 0px 5px 15px
+.super-first-rsponsiveness,
+.super-second-responsiveness
+  &.super-field-size-large
+    .super-item
+      line-height: 20px
+      padding: 5px 0px 5px 15px
 
 .super-first-responsiveness
   .super-grid > .super-column
@@ -4908,14 +4915,14 @@ ul.super-multipart-steps .super-multipart-step
   justify-content: center
   background-color: rgba(0, 0, 0, 0.4)
   .super-loading-wrapper
-    position: absolute;
-    z-index: 99999999;
-    width: 300px;
-    height: 400px;
-    top: 50%;
-    left: 50%;
-    margin-left: -150px;
-    margin-top: -200px;
+    position: absolute
+    z-index: 99999999
+    width: 300px
+    height: 400px
+    top: 50%
+    left: 50%
+    margin-left: -150px
+    margin-top: -200px
     display: flex
     align-items: center
     justify-content: center
@@ -4942,3 +4949,42 @@ ul.super-multipart-steps .super-multipart-step
         display: block
         height: 5px
         background-color: #4EB1B6
+
+.super-field-size-medium
+  .super-checkbox, .super-radio
+    .super-field-wrapper > .super-item
+      padding: 5px 25px 5px 25px
+      height: initial
+      line-height: initial
+  &.super-first-responsiveness
+    .super-checkbox, .super-radio
+      .super-field-wrapper > .super-item
+        padding: 5px 25px 5px 25px
+        height: initial
+        line-height: initial
+
+.super-field-size-large
+  .super-checkbox, .super-radio
+    .super-field-wrapper > .super-item
+      padding: 5px 35px 5px 35px
+      height: initial
+      line-height: initial
+  &.super-first-responsiveness
+    .super-checkbox, .super-radio
+      .super-field-wrapper > .super-item
+        padding: 5px 35px 5px 35px
+        height: initial
+        line-height: initial
+
+.super-field-size-huge
+  .super-checkbox, .super-radio
+    .super-field-wrapper > .super-item
+      padding: 10px 38px 10px 38px
+      height: initial
+      line-height: initial
+  &.super-first-responsiveness
+    .super-checkbox, .super-radio
+      .super-field-wrapper > .super-item
+        padding: 10px 38px 10px 38px
+        height: initial
+        line-height: initial
