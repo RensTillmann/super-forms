@@ -4930,12 +4930,15 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-first-responsiveness .super-field.super-grouped {
   width: 50%;
 }
-.super-first-responsiveness .super-field .super-item {
+
+.super-first-rsponsiveness .super-item,
+.super-second-responsiveness .super-item {
   line-height: 20px;
   padding: 5px 0px 5px 15px;
 }
 
-.super-second-responsiveness .super-item {
+.super-first-rsponsiveness.super-field-size-large .super-item,
+.super-second-responsiveness.super-field-size-large .super-item {
   line-height: 20px;
   padding: 5px 0px 5px 15px;
 }
@@ -6082,6 +6085,38 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
     padding-left: 80px;
     padding-right: 80px;
   }
+}
+.super-field-size-medium .super-checkbox .super-field-wrapper > .super-item, .super-field-size-medium .super-radio .super-field-wrapper > .super-item {
+  padding: 5px 25px 5px 25px;
+  height: initial;
+  line-height: initial;
+}
+.super-field-size-medium.super-first-responsiveness .super-checkbox .super-field-wrapper > .super-item, .super-field-size-medium.super-first-responsiveness .super-radio .super-field-wrapper > .super-item {
+  padding: 5px 25px 5px 25px;
+  height: initial;
+  line-height: initial;
+}
+
+.super-field-size-large .super-checkbox .super-field-wrapper > .super-item, .super-field-size-large .super-radio .super-field-wrapper > .super-item {
+  padding: 5px 35px 5px 35px;
+  height: initial;
+  line-height: initial;
+}
+.super-field-size-large.super-first-responsiveness .super-checkbox .super-field-wrapper > .super-item, .super-field-size-large.super-first-responsiveness .super-radio .super-field-wrapper > .super-item {
+  padding: 5px 35px 5px 35px;
+  height: initial;
+  line-height: initial;
+}
+
+.super-field-size-huge .super-checkbox .super-field-wrapper > .super-item, .super-field-size-huge .super-radio .super-field-wrapper > .super-item {
+  padding: 10px 38px 10px 38px;
+  height: initial;
+  line-height: initial;
+}
+.super-field-size-huge.super-first-responsiveness .super-checkbox .super-field-wrapper > .super-item, .super-field-size-huge.super-first-responsiveness .super-radio .super-field-wrapper > .super-item {
+  padding: 10px 38px 10px 38px;
+  height: initial;
+  line-height: initial;
 }
 
 /*# sourceMappingURL=elements.css.map */
