@@ -5359,6 +5359,20 @@ function SUPERreCaptcha(){
         if ( $.isFunction($.fn.tooltipster) ) {
             $('.super-tooltip:not(.tooltipstered)').tooltipster({
                 contentAsHTML: true,
+                trigger: 'custom',
+                triggerOpen: {
+                    click: true,
+                    tap: true,
+                    mouseenter: true,
+                    touchstart: true
+                },
+                triggerClose: {
+                    click: true,
+                    tap: true,
+                    mouseleave: true,
+                    originClick: true,
+                    touchleave: true
+                }
             });
         }
     };

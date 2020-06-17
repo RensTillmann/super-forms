@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 17, 2020 - Version 4.9.469
+
+- **Improved:** Tooltips are now also triggered by both `click` and `hover` events
+
 ## Jun 15, 2020 - Version 4.9.468
 
 - **Improved:** Resonpsiveness for radio/checkbox items when using Large or Huge field size
