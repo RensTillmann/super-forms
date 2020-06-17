@@ -38,7 +38,7 @@
         padding: 0px 10px 0px 10px;
         width: auto;
     }
-    .super-preview {
+    .super-builder .super-preview {
         width: 100%;
     }
     .super-preview-elements {
@@ -136,7 +136,7 @@
     .super-form-history {
         margin-bottom:5px;
     }
-    .super-preview {
+    .super-builder .super-preview {
         width: 100%;
         padding: 0px 0px 0px 30px;
     }
@@ -225,7 +225,7 @@
         padding: 0px 10px 0px 10px;
         width: auto;
     }
-    .super-preview {
+    .super-builder .super-preview {
         width: 100%;
     }
     .super-preview-elements {
