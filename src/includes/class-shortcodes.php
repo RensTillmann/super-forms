@@ -1498,12 +1498,10 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.7.7 - absolute default value based on settings
-        //if( (!isset($atts['absolute_default'])) && (isset($atts['value'])) ) {
-        //    $atts['absolute_default'] = $atts['value'];
-        //}
         if( isset($atts['absolute_default']) ) {
-            $result .= ' data-absolute-default="' . esc_attr($atts['absolute_default']) . '"';
+            $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings )) . '"';
         }
+
         
         // @since 2.0.0 - default value data attribute needed for Clear button
         if( isset($atts['value']) ) $result .= ' data-default-value="' . esc_attr($atts['value']) . '"';

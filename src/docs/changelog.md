@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jun 18, 2020 - Version 4.9.470
+
+- **Fix:** When using a predefined tag inside `Default value` setting in combination with a button with action set to `Clear/Reset form` it was replacing the field value to the raw {tag} instead of it's value
+
 ## Jun 17, 2020 - Version 4.9.469
 
 - **Improved:** Tooltips are now also triggered by both `click` and `hover` events
