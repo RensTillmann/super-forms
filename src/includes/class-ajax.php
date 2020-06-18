@@ -87,6 +87,7 @@ class SUPER_Ajax {
 
             //'smtp_test'                   => false, // @since 4.9.5
 
+            'api_cancel_subscription'       => false,
             'api_start_trial'               => false,
             'api_checkout'                  => false,
             'api_register_user'             => false,
@@ -167,6 +168,15 @@ class SUPER_Ajax {
     public static function api_logout_user() {
         self::api_do_request('logout', array());
     }
+    public static function api_cancel_subscription() {
+        $custom_args = array(
+            'body' => (array(
+                'slug' => $_POST['slug'],
+                'data' => $_POST['data']
+            ))
+        );
+        self::api_do_request('addons/cancel', $custom_args);
+    }
     public static function api_start_trial() {
         $custom_args = array(
             'body' => (array(
@@ -211,16 +221,11 @@ class SUPER_Ajax {
 
     public static function api_handle_response($r, $args){
         if ( is_wp_error( $r ) ) {
-            if($args['body']['action']=='super_api_subscribe_addon'){
-                echo '<div class="error notice" style="margin-top:50px;"><p>Unable to load content, please refresh the page, or try again later.</p></div>';
-            }else{
-                $err = $r->get_error_message();
-                error_log('is_wp_error: ' . $err);
-                echo json_encode(array(
-                    'status' => 400,
-                    'message' => $err
-                ));
-            }
+            $err = $r->get_error_message();
+            echo '<div class="error notice" style="margin-top:50px;">';
+                echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
+                echo '<textarea style="display:none;opacity:0;>' . $err . '</textarea>';
+            echo '</div>';
         }else{
             error_log('Response: ' . $r['body']);
             echo $r['body'];
