@@ -5060,6 +5060,13 @@ function SUPERreCaptcha(){
             field = element.closest('.super-field');
             if(!field) continue; // Continue to next field
 
+            // If value is not empty, set filled status
+            if( default_value !== "" ) {
+                field.classList.add('super-filled');
+            }else{
+                field.classList.remove('super-filled');
+            }
+
             // Checkbox and Radio buttons
             if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
                 innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-active');
@@ -6542,8 +6549,11 @@ function SUPERreCaptcha(){
                         }
                         if( !element.classList.contains('super-textarea') ) {
                             if(!form.querySelector('.super-form-button.super-loading')){
-                                submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]').parentNode;
-                                SUPER.validate_form( form, submitButton, undefined, e, true );
+                                submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                                if(submitButton) {
+                                    submitButton = submitButton.parentNode;
+                                    SUPER.validate_form( form, submitButton, undefined, e, true );
+                                }
                             }
                             e.preventDefault();
                         }
