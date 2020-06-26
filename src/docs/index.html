@@ -57,7 +57,32 @@
 	.markdown-section pre > code {
 		background-color:#272822;
 		color:#777777;
+
 	}
+    details {
+        margin-bottom:20px;
+        border-radius:5px;
+    }
+    summary {
+        border:1px solid #aaa;
+        padding:10px 10px 10px 15px;
+        cursor:pointer;
+        font-weight:600;
+        border-radius:5px;
+    }
+    details[open] {
+        border:1px solid #aaa;
+        padding:10px 0px 10px 15px;
+    }
+    details[open] summary {
+        background-color:#42b9831f;
+        border:0;
+        padding:0;
+        margin:-10px 0px 0px -15px;
+        padding:10px 0px 10px 15px;
+        border-radius:0px;
+        border-bottom:1px solid #aaa;
+    }
   </style>
 </head>
 <body>
