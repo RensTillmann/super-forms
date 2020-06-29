@@ -170,10 +170,10 @@
 
 .super-backup-history.super-loading h2:after {
     content: '\f1ce';
+    font-family: 'Font Awesome 5 Free';
     display: inline-block;
     font-size: 20px;
     margin-left: 10px;
-    color: #dcdcdc;
 }
 
 .super-backup-history.super-loading h2:after {
@@ -2553,3 +2553,4 @@
     padding: 0px 0px 30px 0px;
     font-size: 16px;
 }
+
