@@ -2961,29 +2961,35 @@ function SUPERreCaptcha(){
 
     // @since 1.2.3
     SUPER.auto_step_multipart = function(field, form){
-        var i,
-            nodes, 
-            auto_step, 
-            total_fields, 
-            counter, 
-            active_part = form.querySelector('.super-multipart.super-active');
-        if(active_part){
-            auto_step = active_part.dataset.stepAuto;
-            if( auto_step=='yes') {
-                total_fields = 0;
-                nodes = active_part.querySelectorAll('.super-shortcode-field');
-                for (i = 0; i < nodes.length; ++i) {
-                    if(!SUPER.has_hidden_parent(nodes[i])) total_fields++;
-                }
-                counter = 1;
-                nodes = active_part.querySelectorAll('.super-shortcode-field');
+        // If triggered field change is not inside active multi-part we skip it
+        var activeMultipart = field.closest('.super-multipart.super-active');
+        if(!activeMultipart) return false;
+        var i, nodes, totalFields, counter;
+        if(activeMultipart){
+            if( activeMultipart.dataset.stepAuto=='yes') {
+                totalFields = 0;
+                nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
                     if(!SUPER.has_hidden_parent(nodes[i])){
-                        if(total_fields==counter){
+                        // Also exclude any hidden fields, because `has_hidden_parent()` doesn't check for this
+                        if(nodes[i].type=='hidden'){
+                            if(nodes[i].closest('.super-shortcode').classList.contains('super-hidden')){
+                                continue;
+                            }
+                        }
+                        totalFields++;
+                    }
+                }
+                counter = 1;
+                nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
+                for (i = 0; i < nodes.length; ++i) {
+                    if(!SUPER.has_hidden_parent(nodes[i])){
+                        if(totalFields==counter){
                             if(nodes[i].name==field.name){
                                 setTimeout(function (){
-                                    active_part.querySelector('.super-next-multipart').click();
+                                    activeMultipart.querySelector('.super-next-multipart').click();
                                 }, 200);
+                                break;
                             }
                         }
                         counter++;
