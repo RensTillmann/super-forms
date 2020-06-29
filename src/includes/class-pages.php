@@ -74,6 +74,7 @@ class SUPER_Pages {
                 'addons_activated' => $addOnsActivated,
                 'addons_url' => admin_url( 'admin.php?page=super_addons' ),
                 'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
+                'reset_password' => (isset($_GET['reset_password']) ? $_GET['reset_password'] : '')
             )
         );
         SUPER_Ajax::api_do_request('addons/list', $custom_args);
