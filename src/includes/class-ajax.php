@@ -92,6 +92,8 @@ class SUPER_Ajax {
             'api_checkout'                  => false,
             'api_register_user'             => false,
             'api_login_user'                => false,
+            'api_send_reset_password_email' => false,
+            'api_reset_password'            => false,
             'api_logout_user'               => false,
             'api_save_at'                   => false,
             'api_verify_code'               => false,
@@ -108,14 +110,9 @@ class SUPER_Ajax {
     }
 
     public static function api_get_auth(){
-		error_log("api_get_auth()");
         if (isset($_COOKIE['super_forms'])) {
-			error_log("api_get_auth1()");
-			error_log(json_encode($_COOKIE['super_forms']));
-            error_log('$auth:' . json_encode($_COOKIE['super_forms']));
             return ($_COOKIE['super_forms']);
         }
-		error_log("api_get_auth2()");
 		return array("wp_admin" => "false");
     }
     public static function api_auth(){
@@ -155,6 +152,24 @@ class SUPER_Ajax {
             ))
         );
         self::api_do_request('register', $custom_args);
+    }
+    public static function api_send_reset_password_email() {
+        $custom_args = array(
+            'body' => (array(
+                'email' => $_POST['email'],
+                'data' => $_POST['data']
+            ))
+        );
+        self::api_do_request('send_reset_password_email', $custom_args);
+    }
+    public static function api_reset_password() {
+        $custom_args = array(
+            'body' => (array(
+                'code' => $_POST['code'],
+                'password' => $_POST['password']
+            ))
+        );
+        self::api_do_request('reset_password', $custom_args);
     }
     public static function api_login_user() {
         $custom_args = array(
@@ -200,7 +215,6 @@ class SUPER_Ajax {
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
             setcookie('super_forms[wp_admin]', '', time()-3600);
-            error_log('logout args: ' . json_encode($args));
         }
         $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
         $r = wp_remote_post($api_endpoint . '/' . $route, $args);
@@ -224,11 +238,26 @@ class SUPER_Ajax {
             $err = $r->get_error_message();
             echo '<div class="error notice" style="margin-top:50px;">';
                 echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
-                echo '<textarea style="display:none;opacity:0;>' . $err . '</textarea>';
+                echo '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
             echo '</div>';
         }else{
-            error_log('Response: ' . $r['body']);
-            echo $r['body'];
+            // Expecting 99% of the time a 
+            $body = $r['body'];
+            $response = $r['response'];
+            error_log('$r: ' . json_encode($r));
+            error_log('$body: ' . $body);
+            error_log('$response: ' . json_encode($response));
+//$r: {"headers":{},"body":"{\"message\":\"Reset password session has expired!\",\"status\":404}","response":{"code":404,"message":"Not Found"},"cookies":[],"filename":null,"http_response":{"data":null,"headers":null,"status":null}}
+//$body: {"message":"Reset password session has expired!","status":404}
+//$response: {"code":404,"message":"Not Found"}
+            //if($response['code']!=200){
+            //    echo '<div class="error notice" style="margin-top:50px;">';
+            //        echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
+            //        echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
+            //    echo '</div>';
+            //    die();
+            //}
+            echo $body;
         }
         die();
     }
