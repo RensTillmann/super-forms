@@ -2,22 +2,10 @@
 
 ## Jun 29, 2020 - Version 4.9.471
 
-- **Fix:** Multipart autostep not working when having hidden fields at the bottom of a step
-
-## Jun 18, 2020 - Version 4.9.470
-
-- **Fix:** When using a predefined tag inside `Default value` setting in combination with a button with action set to `Clear/Reset form` it was replacing the field value to the raw {tag} instead of it's value
-
-## Jun 17, 2020 - Version 4.9.469
-
 - **Improved:** Tooltips are now also triggered by both `click` and `hover` events
-
-## Jun 15, 2020 - Version 4.9.468
-
 - **Improved:** Resonpsiveness for radio/checkbox items when using Large or Huge field size
-
-## Jun 11, 2020 - Version 4.9.467
-
+- **Fix:** Multipart autostep not working when having hidden fields at the bottom of a step
+- **Fix:** When using a predefined tag inside `Default value` setting in combination with a button with action set to `Clear/Reset form` it was replacing the field value to the raw {tag} instead of it's value
 - **Fix:** Bug with dynamic columns and field name incremental
 
 ## Jun 11, 2020 - Version 4.9.466
