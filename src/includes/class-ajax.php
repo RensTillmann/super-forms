@@ -241,22 +241,21 @@ class SUPER_Ajax {
                 echo '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
             echo '</div>';
         }else{
-            // Expecting 99% of the time a 
             $body = $r['body'];
             $response = $r['response'];
-            error_log('$r: ' . json_encode($r));
             error_log('$body: ' . $body);
             error_log('$response: ' . json_encode($response));
-//$r: {"headers":{},"body":"{\"message\":\"Reset password session has expired!\",\"status\":404}","response":{"code":404,"message":"Not Found"},"cookies":[],"filename":null,"http_response":{"data":null,"headers":null,"status":null}}
-//$body: {"message":"Reset password session has expired!","status":404}
-//$response: {"code":404,"message":"Not Found"}
-            //if($response['code']!=200){
-            //    echo '<div class="error notice" style="margin-top:50px;">';
-            //        echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
-            //        echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
-            //    echo '</div>';
-            //    die();
-            //}
+            // Determine if we encounter a server error or not
+            if($response['code']!=200 && strpos($body, '{') !== 0){
+                // Response is not 200 and isn't a JSON payload either
+                // means we are dealing with a server error returned by Traefik
+                echo '<div class="error notice" style="margin-top:50px;">';
+                    echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
+                    echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
+                echo '</div>';
+                die();
+            }
+            // Just an API error/notice/success message or HTML payload
             echo $body;
         }
         die();
