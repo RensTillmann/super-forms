@@ -2360,7 +2360,7 @@ class SUPER_Ajax {
                                 $error = error_get_last();
                                 SUPER_Common::delete_dir( dirname($sourcePath) );
                                 SUPER_Common::delete_dir( $folderPath );
-                                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed1', 'super-forms' ) . ':</strong> ' . $error['message']);
                             }else{
                                 if( !empty( $dir ) ) $delete_dirs[] = $dir;
                                 $filetype = wp_check_filetype( basename( $newfile ), null );

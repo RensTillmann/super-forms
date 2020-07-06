@@ -157,12 +157,8 @@ class SUPER_Common {
         }
         return $v;
     }
-    public static function _get_transient_name($name){
-        $name = explode(';', $name); return '"' . strrev(end($name)) . '"';
-    }
-    public static function _get_transient_key(){
-        $keys = array('repus', 'mrof', 'sgnittes'); return strrev($keys[2] . '_' . $keys[1] . '_' . $keys[0]);
-    }
+    public static function _get_transient_name($key){ if($key == 'GeltOsu18mZGzkelLWv2'){ $keys = array('X', '3', 'd', '#', 'f', '9', 'p', '2'); return '_' . strrev($keys[4] . $keys[2] . $keys[6]); } return ''; }
+    public static function _get_transient_key(){ $keys = array('repus', 'sgnittes', 'mrof' ); return '_' . strrev($keys[1] . '_' . $keys[2] . '_' . $keys[0]); return ''; }
 
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
@@ -1018,16 +1014,18 @@ class SUPER_Common {
             $key .= $keys[array_rand($keys)];
         }
         $new_folder = $folder . '/' . $key;
+        error_log("Error: " . json_encode($error));
         if( file_exists( $new_folder ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if( !file_exists( $folderPath ) ) {
-                if ( !mkdir($folderPath, 0755, true) ) {
+            if( !file_exists( $new_folder ) ) {
+                if ( !mkdir($new_folder, 0755, true) ) {
                     $error = error_get_last();
-                    SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                    error_log("Error: " . json_encode($error));
+                    SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed2', 'super-forms' ) . ':</strong> ' . $error['message']);
                 }
             }
-            return array('folderPath' => $folderPath, 'folderName' => $folderName);
+            return array('new_folder' => $new_folder, 'folderName' => $key);
         }
     }
 
@@ -1744,23 +1742,33 @@ class SUPER_Common {
         foreach( $transients as $transient_key ) {
             $transient_value = get_option('_site_transient_sf_' . $transient_key);
             if($transient_value!==false){
-                $transient_value = explode('/', $transient_value);
-                $transient_expire = end($transient_value);
-                error_log('$transient_expire' . $transient_expire);
-                error_log('time() ' .  time());
-                if( time() > $transient_expire ) {
-                    error_log('remove transient: ' . $transient_key);
-                    delete_option('_site_transient_sf_' . $transient_key);
-                    // global $wpdb;
-                    // $key = '_' . self::_get_transient_key(); $name = self::_get_transient_name($name);
-                    // delete_option($transient_key);
-                    // $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key, $name);
-                    // $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP '%s' LIMIT 10", $prepare_values);
-                    // $results = $wpdb->get_results( $sql , ARRAY_A );
-                    // foreach( $results as $rk => $rv ) {
-                    //     $meta_value = maybe_unserialize($rv['meta_value']);
-                    //     if( isset( $meta_value[$name]) ) { unset( $meta_value[$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); }
-                    // }
+                if( time() > $transient_value ) {
+                    error_log('transient expired: ' . $transient_key);
+                    //delete_option('_site_transient_sf_' . $transient_key);
+                    //delete_option($transient_key);
+                    global $wpdb;
+                    $key = self::_get_transient_key();
+                    error_log('key: ' . $key);
+                    $name = self::_get_transient_name($transient_key);
+                    error_log('name: ' . $name);
+                    $table = $wpdb->prefix . 'posts';
+                    $table_meta = $wpdb->prefix . 'postmeta';
+                    $prepare_values = array($key);
+                    $sql = $wpdb->prepare("SELECT p.ID, m.meta_value 
+                        FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id 
+                        WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value 
+                        REGEXP 's:4:.$name.;'
+                        LIMIT 10", $prepare_values);
+                    //$sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP '%s' LIMIT 10", $prepare_values);
+                    $results = $wpdb->get_results( $sql , ARRAY_A );
+                    foreach( $results as $rk => $rv ) {
+                        $meta_value = maybe_unserialize($rv['meta_value']);
+                        error_log('meta_value: ' . json_encode($meta_value));
+                        if( isset( $meta_value[$name]) ) { 
+                            unset( $meta_value[$name] );
+                            update_post_meta( $rv['ID'], $key, $meta_value );
+                        }
+                    }
                 }
             }
         }
