@@ -1630,6 +1630,7 @@ function SUPERreCaptcha(){
 
     // Submit the form
     SUPER.complete_submit = function( event, form, data, duration, old_html, status, status_update ){
+        debugger;
         // If form has g-recaptcha element
         if(($(form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
@@ -1857,24 +1858,28 @@ function SUPERreCaptcha(){
         // Put header before form
         headerClone.querySelector('form').innerHTML = '';
         var header = form.querySelector('.super-shortcode[data-pdfoption="header"]');
-        if(header.classList.contains('super-column')){
-            header = header.closest('.super-grid').cloneNode(true);
-        }else{
-            header = header.cloneNode(true);
+        if(header){
+            if(header.classList.contains('super-column')){
+                header = header.closest('.super-grid').cloneNode(true);
+            }else{
+                header = header.cloneNode(true);
+            }
+            header.classList.add('pdf-generated-header');
+            headerClone.querySelector('form').appendChild(header);
         }
-        header.classList.add('pdf-generated-header');
-        headerClone.querySelector('form').appendChild(header);
 
         // Put footer after form
         footerClone.querySelector('form').innerHTML = '';
         var footer = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
-        if(footer.classList.contains('super-column')){
-            footer = footer.closest('.super-grid').cloneNode(true);
-        }else{
-            footer = footer.cloneNode(true);
+        if(footer){
+            if(footer.classList.contains('super-column')){
+                footer = footer.closest('.super-grid').cloneNode(true);
+            }else{
+                footer = footer.cloneNode(true);
+            }
+            footer.classList.add('pdf-generated-footer');
+            footerClone.querySelector('form').appendChild(footer);
         }
-        footer.classList.add('pdf-generated-footer');
-        footerClone.querySelector('form').appendChild(footer);
 
         // nodes = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
         // footerClone.querySelector('form').innerHTML = '';
@@ -2048,9 +2053,10 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
+            debugger;
             if( typeof super_common_i18n[form_id] !== 'undefined' &&
                 typeof super_common_i18n[form_id]._pdf !== 'undefined' &&
-                super_common_i18n[form_id]._pdf.generate === true ) 
+                super_common_i18n[form_id]._pdf.generate === "true" ) 
             {
                 var settings = super_common_i18n[form_id]._pdf;
                 

@@ -1572,8 +1572,11 @@ if(!class_exists('SUPER_Forms')) :
 
         public function sfapi(){
             if(isset($_GET['sfapi'])){
+                error_log("sfapi()");
                 if($_GET['sfapi']=='v1'){
+                    error_log("sfapi() v1");
                     $p = file_get_contents('php://input');
+                    error_log($p);
                     try {
                         $p = json_decode($p, true);
                         if( empty($_GET['m']) ) {
