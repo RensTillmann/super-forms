@@ -95,7 +95,6 @@ class SUPER_Ajax {
             'api_send_reset_password_email' => false,
             'api_reset_password'            => false,
             'api_logout_user'               => false,
-            'api_save_at'                   => false,
             'api_verify_code'               => false,
             'api_auth'                      => false,
 
@@ -123,7 +122,7 @@ class SUPER_Ajax {
             time()+60*120, // expires after 15 minutes
             '',  // path
             '', // domain
-            false, // secure
+            false, // secure (many WP dashboard might not have valid certificate, or are not forced to https protocol)
             true // httponly
         );
         echo ($result===true ? 'true' : 'false');
@@ -136,13 +135,6 @@ class SUPER_Ajax {
             ))
         );
         self::api_do_request('verify/code', $custom_args);
-    }
-    public static function api_save_at(){
-        $at = $_POST['at'];
-        $rt = $_POST['rt'];
-        set_transient( 'super_forms_at', $at, 60*15 ); // 15 minutes
-        set_transient( 'super_forms_rt', $rt, 60*60*24 ); // 24 hours
-        die();
     }
     public static function api_register_user() {
         $custom_args = array(
@@ -205,6 +197,8 @@ class SUPER_Ajax {
         $custom_args = array(
             'body' => (array(
                 'plans' => $_POST['plans'],
+                'payment_method_id' => $_POST['payment_method_id'],
+                'invoice_id' => $_POST['invoice_id'],
                 'data' => $_POST['data']
             ))
         );
@@ -241,22 +235,23 @@ class SUPER_Ajax {
                 echo '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
             echo '</div>';
         }else{
-            $body = $r['body'];
-            $response = $r['response'];
-            error_log('$body: ' . $body);
-            error_log('$response: ' . json_encode($response));
-            // Determine if we encounter a server error or not
-            if($response['code']!=200 && strpos($body, '{') !== 0){
-                // Response is not 200 and isn't a JSON payload either
-                // means we are dealing with a server error returned by Traefik
-                echo '<div class="error notice" style="margin-top:50px;">';
-                    echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
-                    echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
-                echo '</div>';
-                die();
-            }
             // Just an API error/notice/success message or HTML payload
+            $body = $r['body'];
+            error_log('$body: ' . $body);
             echo $body;
+            //$response = $r['response'];
+            //error_log('$body: ' . $body);
+            //error_log('$response: ' . json_encode($response));
+            // Determine if we encounter a server error or not
+            //if($response['code']!=200 && strpos($body, '{') !== 0){
+            //    // Response is not 200 and isn't a JSON payload either
+            //    // means we are dealing with a server error returned by Traefik
+            //    echo '<div class="error notice" style="margin-top:50px;">';
+            //        echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
+            //        echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
+            //    echo '</div>';
+            //    die();
+            //}
         }
         die();
     }
