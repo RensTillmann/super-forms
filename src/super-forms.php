@@ -566,9 +566,10 @@ if(!class_exists('SUPER_Forms')) :
             return $tabs;
         }
         public static function add_pdf_tab_content($atts){
+            $slug = 'pdf';
             $pdf = array();
-            if(isset($atts['settings']) && isset($atts['settings']['_pdf'])){
-                $pdf = $atts['settings']['_pdf'];
+            if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
+                $pdf = $atts['settings']['_'.$slug];
             }
             if(!is_array($pdf)) $pdf = array();
             $defaults = array(
@@ -612,31 +613,36 @@ if(!class_exists('SUPER_Forms')) :
                 array(
                     'method' => 'POST',
                     'timeout' => 45,
-                    'body' => array(
-                        'addonSlug' => 'pdf',
-                        'homeUrl' => get_home_url(),
-                        'adminUrl' => admin_url(),
-                        'siteUrl' => site_url()
-                        //'domain' => SUPER_Common::getDomain()
-                        // 'action' => 'super_subscribe_addon',
-                        // 'siteUrl' => site_url(),
-                        // 'addonsUrl' => admin_url( 'admin.php?page=super_addons' ),
-                        // 'ajaxUrl' => admin_url( 'admin-ajax.php', 'relative' ),
-                        // 'userEmail' => $user_email,
-                        // 'serverAddr' => $_SERVER['SERVER_ADDR'], // The IP address of the server under which the current script is executing.
-                        // 'hostName' => $hostname // hostname
-                    )
+                    'data_format' => 'body',
+                    'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+                    'body' => json_encode(array(
+                        'slug' => 'pdf',
+                        'home_url' => get_home_url(),
+                        'admin_url' => admin_url()
+                    ))
                 )
             );
             if ( is_wp_error( $response ) ) {
+                echo 'Some error1...';
                 echo $response->get_error_message();
             }else{
-                echo $response['body'];
+                // Just an API error/notice/success message or HTML payload
+                $body = $response['body'];
+                $response = $response['response'];
+                $transient = set_transient( 'super_transient', array('check'=>true), 0);
+                $html = '<div class="super_transient"></div>';
+                if($response['code']==200 && strpos($body, '{') === 0){
+                    $object = json_decode($body);
+                    if($object->status==200){
+                        $html = $object->body;
+                    }
+                }
+                echo $html;
             }
 
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="generate" value="true"' . ($pdf['generate']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
                 echo '</label>';
@@ -644,7 +650,7 @@ if(!class_exists('SUPER_Forms')) :
          
             // Enable debug mode
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="debug" value="true"' . ($pdf['debug']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable debug mode (only enable this when you are testing the PDF output)', 'super-forms' ) . '</span>';
                 echo '</label>';
@@ -662,21 +668,21 @@ if(!class_exists('SUPER_Forms')) :
 
             // Attach to admin E-mail
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
             // Attach to confirmation E-mail
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
             // Direct download link
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="downloadLink" value="true"' . ($pdf['downloadLink']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
@@ -686,10 +692,10 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<div class="sfui-title">';
                     echo esc_html__( 'Page orientation', 'super-forms' );
                 echo '</div>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="radio" name="orientation" value="portrait"' . ($pdf['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
                 echo '</label>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_pdf\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';

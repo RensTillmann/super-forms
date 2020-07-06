@@ -96,7 +96,7 @@
             data = {},
             value = '',
             names;
-        if(tab.querySelector('.sfvalidator')){
+        if(tab.querySelector('.super_transient')){
             for(i=0; i < nodes.length; i++){
                 value = nodes[i].value;
                 if(nodes[i].type==='checkbox'){
