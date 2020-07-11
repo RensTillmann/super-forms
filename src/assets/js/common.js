@@ -359,11 +359,7 @@ function SUPERreCaptcha(){
                     $(data.context.children()[index]).append(error);
                 });
                 alert(data.errorThrown.message);
-                var submitButton = form.querySelector('.super-form-button.super-loading');
-                submitButton.classList.remove('super-loading');
-                var buttonName = submitButton.querySelector('.super-button-name');
-                var normal = buttonName.dataset.normal;
-                buttonName.innerHTML = normal;
+                SUPER.reset_submit_button_loading_state(form);
                 SUPER.handle_validations(el, undefined, '', undefined, form);
                 SUPER.scrollToError(form);
             }).on('fileuploadsubmit', function (e, data) {
@@ -1629,41 +1625,76 @@ function SUPERreCaptcha(){
     };
 
     // Submit the form
-    SUPER.complete_submit = function( event, form, data, duration, old_html, status, status_update ){
-        debugger;
+    SUPER.complete_submit = function( event, form, data, duration, old_html ){
         // If form has g-recaptcha element
         if(($(form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
                 grecaptcha.execute($(form).find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function(token){
-                    SUPER.create_ajax_request(event, form, data, duration, old_html, status, status_update, token);
+                    SUPER.create_ajax_request(event, form, data, duration, old_html, token);
                 });
             });
         }else{
-            SUPER.create_ajax_request(event, form, data, duration, old_html, status, status_update);
+            SUPER.create_ajax_request(event, form, data, duration, old_html);
         }
     };
 
     // Send E-mail
-    SUPER.send_email = function(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version){
-        var html;
+    SUPER.send_email = function(args) {
+        if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
+        var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+        if(args.pdfArgs!==false){
+            // When debugging is enabled download file instantly without submitting the form
+            if(args.pdfArgs.pdfSettings.debug==="true"){
+                // Direct download of PDF
+                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename).then(function() {
+                    // Close loading overlay
+                    SUPER.close_loading_overlay(args.loadingOverlay);
+                }, function() {
+                    // Show error message
+                    if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+                });
+                return false;
+            }
+            // Update processing state
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
+        }
         $.ajax({
             url: super_common_i18n.ajaxurl,
             type: 'post',
             data: {
                 action: 'super_send_email',
-                super_ajax_nonce: super_ajax_nonce,
-                data: data,
-                form_id: form_id,
-                entry_id: entry_id,
-                entry_status: status,
-                entry_status_update: status_update,
-                token: token,
-                version: version,
-                i18n: form.data('i18n') // @since 4.7.0 translation
+                super_ajax_nonce: args.super_ajax_nonce,
+                data: args.data,
+                form_id: args.form_id,
+                entry_id: args.entry_id,
+                token: args.token,
+                version: args.version,
+                i18n: args.form.data('i18n') // @since 4.7.0 translation
             },
-            success: function (result) {
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        //Do something with upload progress here
+                        if(args.pdfArgs!==false){
+                            args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+                        }else{
+                            args.progressBar.style.width = (100*percentComplete)+"%";  
+                        }
+                    }
+               }, false);
+               //xhr.addEventListener("progress", function(evt) {
+               //    if (evt.lengthComputable) {
+               //        var percentComplete = evt.loaded / evt.total;
+               //        //Do something with download progress
+               //    }
+               //}, false);
+               return xhr;
+            },
+            success: function(result){
                 result = JSON.parse(result);
-
+                var html;
                 // Check for errors, if there are any display them to the user 
                 if(result.error===true){
                     html = '<div class="super-msg super-error">';
@@ -1682,35 +1713,34 @@ function SUPERreCaptcha(){
                 }
                 if(result.error===true){
                     // Display error message
-                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                    SUPER.form_submission_finished(args, result, html);
                 }else{
                     // Clear form progression (if enabled)
-                    if( form[0].classList.contains('super-save-progress') ) {
+                    if( args.form[0].classList.contains('super-save-progress') ) {
                         $.ajax({
                             url: super_common_i18n.ajaxurl,
                             type: 'post',
                             data: {
                                 action: 'super_save_form_progress',
                                 data: '',
-                                form_id: form_id
+                                form_id: args.form_id
                             }
                         });
                     }
                     // Trigger js hook and continue
-                    SUPER.after_email_send_hook(form, data, old_html, result);
+                    SUPER.after_email_send_hook(args.form, args.data, args.old_html, result);
                     // If a hook is redirecting we should avoid doing other things
-                    if(form.data('is-redirecting')){
+                    if(args.form.data('is-redirecting')){
                         // However if a hook is doing things in the back-end, we must check until finished
-                        if(form.data('is-doing-things')){
+                        if(args.form.data('is-doing-things')){
                             clearInterval(SUPER.submit_form_interval);
                             SUPER.submit_form_interval = setInterval(function(){
-                                if(form.data('is-doing-things')){
-                                    console.log('still doing things...', form.data('is-doing-things'));
+                                if(args.form.data('is-doing-things')){
+                                    // Still doing things...
                                 }else{
-                                    console.log('done with things...', form.data('is-doing-things'));
                                     clearInterval(SUPER.submit_form_interval);
                                     // Form submission is finished
-                                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                                    SUPER.form_submission_finished(args, result, html);
                                 }
                             }, 100);
                         }
@@ -1718,16 +1748,16 @@ function SUPERreCaptcha(){
                     }
 
                     // @since 2.2.0 - custom form POST method
-                    if( (form.find('form').attr('method')=='post') && (form.find('form').attr('action')!=='') ){
-                        form.find('form').submit(); // When doing custom POST, the form will redirect itself
+                    if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
+                        args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
                         return false;
                     }
-
                     // Form submission is finished
-                    SUPER.form_submission_finished(form[0], result, html, old_html, duration);
+                    SUPER.form_submission_finished(args, result, html);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
                 console.log(xhr, ajaxOptions, thrownError);
                 alert('Failed to process data, please try again');
             }
@@ -1735,12 +1765,70 @@ function SUPERreCaptcha(){
     };
 
 
-    SUPER.before_generate_pdf = function(form, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, callback){
+    SUPER.close_loading_overlay = function(loadingOverlay){
+        if(loadingOverlay) loadingOverlay.remove();
+    };
+    SUPER.reset_pdf_generation = function(form){
+        // Only if not already canceled/reset
+        if(form && !form.classList.contains('super-generating-pdf')){
+            return false;
+        }
+        // Show scrollbar again
+        document.documentElement.classList.remove('super-hide-scrollbar');
+        var inlineStyle = document.querySelector('#super-generating-pdf');
+        if(inlineStyle) inlineStyle.remove();
+        // Make all mutli-parts invisible again (except for the last active multi-part)
+        // Make all TABs invisible
+        // Make all accordions invisible
+        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        for(var i=0; i < nodes.length; i++){
+            if(!nodes[i].classList.contains('super-active-origin')){
+                nodes[i].classList.remove('super-active');
+            }else{
+                nodes[i].classList.remove('super-active-origin');
+            }
+        }
+        // @@@@@@@@@@@@@@
+        // // Re-enable the UI for Maps and resize to original width
+        // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+        //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+        //         disableDefaultUI: false
+        //     });
+        //     var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+        //     for(var x=0; x < children.length; x++){
+        //         children[x].style.width = '';
+        //         if(children[x].classList.contains('super-google-map-directions')){
+        //             children[x].style.overflowY = 'scroll';
+        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+        //         }
+        //     }
+        // }
+        // @@@@@@@@@@@@@@
 
-        //form.style.overflow = "-moz-hidden-unscrollable";
-        //form.style.width = "500px";
-        // Must scroll to top of window, or it will not work properly!
-        //document.body.scrollTop = document.documentElement.scrollTop = 0;
+        // Restore form position and remove the cloned form
+        // Before removing cloned form, insert original form before cloned form
+        form.querySelector('form').style.marginTop = '';
+        SUPER.reset_submit_button_loading_state(form);
+        var placeholder = document.querySelector('.super-pdf-placeholder');
+        placeholder.parentNode.insertBefore(form, placeholder.nextSibling);
+        form.classList.remove('super-generating-pdf');
+        placeholder.remove();
+        var pdfPageContainer = document.querySelector('.super-pdf-page-container');
+        if(pdfPageContainer) pdfPageContainer.remove();
+        SUPER.init_super_responsive_form_fields(form);
+    };
+    SUPER.reset_submit_button_loading_state = function(form){
+        var submitButton = form.querySelector('.super-form-button.super-loading');
+        if(submitButton){
+            submitButton.classList.remove('super-loading');
+            var buttonName = submitButton.querySelector('.super-button-name');
+            var normal = buttonName.dataset.normal;
+            buttonName.innerHTML = normal;
+        }
+    };
+
+    SUPER.before_generate_pdf = function(args, callback){
+        var form = args.form0;
 
         // Define PDF tags
         SUPER.pdf_tags = {
@@ -1751,8 +1839,13 @@ function SUPERreCaptcha(){
         // Must hide scrollbar
         document.documentElement.classList.add('super-hide-scrollbar');
         form.classList.add('super-generating-pdf');
+
         // Must hide elements
         var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
+        // Required to render pseudo elements (html2canvas code was altered for this)
+        css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
+        css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
+        // Hide none essential elements/styles from the PDF output
         css += '.super-generating-pdf *,';
         css += '.super-generating-pdf *:after,';
         css += '.super-generating-pdf .super-accordion-header:after,';
@@ -1770,12 +1863,12 @@ function SUPERreCaptcha(){
         css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
         // Header margins
-        css += '.super-pdf-header { padding: '+settings.margins.header.top+settings.unit+' '+settings.margins.header.right+settings.unit+' '+settings.margins.header.bottom+settings.unit+' '+settings.margins.header.left+settings.unit+'; }';
+        css += '.super-pdf-header { padding: '+args.pdfSettings.margins.header.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.left+args.pdfSettings.unit+'; }';
         css += '.super-pdf-header .super-form, .super-pdf-header .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
         // Body margins
-        css += '.super-pdf-body { padding: '+settings.margins.body.top+settings.unit+' '+settings.margins.body.right+settings.unit+' '+settings.margins.body.bottom+settings.unit+' '+settings.margins.body.left+settings.unit+'; }';
+        css += '.super-pdf-body { padding: '+args.pdfSettings.margins.body.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.left+args.pdfSettings.unit+'; }';
         // Footer margins
-        css += '.super-pdf-footer { padding: '+settings.margins.footer.top+settings.unit+' '+settings.margins.footer.right+settings.unit+' '+settings.margins.footer.bottom+settings.unit+' '+settings.margins.footer.left+settings.unit+'; }';
+        css += '.super-pdf-footer { padding: '+args.pdfSettings.margins.footer.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.left+args.pdfSettings.unit+'; }';
         css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
 
         var head = document.head || document.getElementsByTagName('head')[0],
@@ -1791,36 +1884,18 @@ function SUPERreCaptcha(){
         }
 
         var formId = form.querySelector('input[name="hidden_form_id"]').value;
-        
-        // Create loader overlay
-        var loadingOverlay = document.createElement('div');
-        var html = '';
-        html += '<div class="super-loading-wrapper">';
-            html += '<div class="super-loading-text">';
-                html += '<div class="super-custom-el1"></div>';
-                html += '<div class="super-inner-text">';
-                    html += '<span>Processing form data</span><span>...</span>';
-                html += '</div>';
-                html += '<div class="super-progress">';
-                    html += '<div class="super-progress-bar"></div>';
-                html += '</div>';
-                html += '<div class="super-custom-el2"></div>';
-            html += '</div>';
-        html += '</div>';
-        loadingOverlay.innerHTML = html;
-        loadingOverlay.classList.add('super-loading-overlay');
-        document.body.appendChild(loadingOverlay);
-        var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
 
         // Firstly clone the form, so we can display a "fake" form
-        var clone = form.cloneNode(true);
+        var placeholder = form.cloneNode(true);
+        placeholder.classList.add('super-pdf-placeholder');
+        args.placeholder = placeholder;
         var headerClone = form.cloneNode(true);
         var footerClone = form.cloneNode(true);
-        form.parentNode.insertBefore(clone, form.nextSibling);
-
+        form.parentNode.insertBefore(placeholder, form.nextSibling);
+        
         // PDF page container
         var pdfPageContainer = document.createElement('div');
-        html = '<div class="super-pdf-header">';
+        var html = '<div class="super-pdf-header">';
             // Put any header(s) here
         html += '</div>';
         html += '<div class="super-pdf-body">';
@@ -1832,18 +1907,25 @@ function SUPERreCaptcha(){
         pdfPageContainer.innerHTML = html;
         pdfPageContainer.classList.add('super-pdf-page-container');
         document.body.appendChild(pdfPageContainer);
-        pdfPageContainer.style.width = (pageWidthInPixels*2)+'px';
-        pdfPageContainer.style.zIndex = "999999999";
+        pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+        pdfPageContainer.style.zIndex = "-999999999";
+        pdfPageContainer.style.left = "9999px";
+        pdfPageContainer.style.top = "-9999px";
+        // ------- for debugging only: ----
+        //pdfPageContainer.style.zIndex = "9999999999";
+        //pdfPageContainer.style.left = "0px";
+        //pdfPageContainer.style.top = "0px";
+        // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
-        pdfPageContainer.style.left = "0px";
-        pdfPageContainer.style.top = "0px";
-        pdfPageContainer.style.height = (pageHeightInPixels*2)+'px';
-        pdfPageContainer.style.maxHeight = (pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.backgroundColor = "#ffffff";
+        pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
         pdfPageContainer.style.overflow = "hidden";
         pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
-        pdfPageContainer.querySelector('.super-pdf-body').appendChild(form);
+        pdfPageContainer.querySelector('.super-pdf-body').appendChild(args.form0);
         pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footerClone);
 
+        // @@@ WE DO NO LONGER NEED THIS, IT IS HANDLED BY CSS @@@
         // // Check for any specific PDF exclusions
         // nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="exclude"]');
         // for(i=0; i < nodes.length; i++){
@@ -1854,6 +1936,7 @@ function SUPERreCaptcha(){
         // for(i=0; i < nodes.length; i++){
         //     nodes[i].style.display = 'block';
         // }
+        // @@@ WE DO NO LONGER NEED THIS, IT IS HANDLED BY CSS @@@
 
         // Put header before form
         headerClone.querySelector('form').innerHTML = '';
@@ -1899,9 +1982,9 @@ function SUPERreCaptcha(){
         var headerFooterHeight = 0;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-        scrollAmount = (pageHeightInPixels*2)-headerFooterHeight;
-        pdfPageContainer.querySelector('.super-pdf-body').style.height = scrollAmount+'px';
-        pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = scrollAmount+'px';
+        args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+        pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
+        pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
 
         // Make all mutli-parts visible
         // Make all TABs visible
@@ -1915,32 +1998,7 @@ function SUPERreCaptcha(){
             }
         }
 
-        // // Get current form width before making position fixed
-        // var formWidth = form.clientWidth;
-        // //alert(formWidth);
-        // // Now give z-index of -9999 to the original form so we can't see it anymore
-        // //form.style.zIndex = "-99999";
-        // form.style.zIndex = "999999999";
-        // // Adjust form width, so that it fits nicely on a PDF page
-        // form.style.position = "fixed";
-        // form.style.left = "0px";
-        // form.style.top = "0px";
-
-        // Set fix width based on current width
-        //form.style.width = formWidth+'px'; //(793-(margins.left*3.55))+'px';
-
-        // form.style.width = (pageWidthInPixels*2)+'px'; //(793-(margins.left*3.55))+'px';
-        //pageWidth, pageHeight
-
         SUPER.init_super_responsive_form_fields(form, function(){
-            // Remove transition from Toggle element
-            // var nodes = form.querySelectorAll('.super-toggle-switch .super-toggle-group');
-            // for(var i=0; i < nodes.length; i++){
-            //     nodes[i].style.transition = 'initial';
-            // }
-
-            //progressBar.style.width = "5%";
-
             // First disable the UI on the map for nicer print of the map
             // And make map fullwidth and directions fullwidth
             for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
@@ -1956,7 +2014,6 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            //progressBar.style.width = "10%";
             
             // Convert height of textarea to fit content (otherwie it would be cut of during printing)
             function adjustHeight(el, minHeight) {
@@ -1990,29 +2047,18 @@ function SUPERreCaptcha(){
                 // we adjust height to the initial content
                 adjustHeight(el, minHeight);
             });
-            //progressBar.style.width = "20%";
 
             // Grab the total form height, this is required to know how many pages will be generated for the PDF file
             // This way we can also show the progression to the end user
             //scrollAmount = (pageHeightInPixels*2);
-            var totalPages = Math.ceil(form.clientHeight/scrollAmount);
-            //console.log(form.clientHeight/scrollAmount);
-            //console.log(Math.ceil(form.clientHeight/scrollAmount));
-            //console.log(totalPages);
-
-            // Make form scrollable, this way we can generate PDF page properly
-            //form.style.height = scrollAmount+'px';
-            //form.style.maxHeight = scrollAmount+'px';
-            //form.style.overflow = "hidden";
-            //progressBar.style.width = "80%";
-            //return false;
-            callback(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar);
+            args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
+            args.progressBar.style.width = 5+'%';
+            callback(args);
         });
-
     };
 
     // Send form submission through ajax request
-    SUPER.create_ajax_request = function( event, form, data, duration, old_html, status, status_update, token ){
+    SUPER.create_ajax_request = function( event, form, data, duration, old_html, token ){
         form = $(form);
 
         var form_id,
@@ -2020,10 +2066,6 @@ function SUPERreCaptcha(){
             json_data,
             version,
             super_ajax_nonce;
-
-        // @since 3.4.0 - entry status
-        if(typeof status === 'undefined') status = '';
-        if(typeof status_update === 'undefined') status_update = '';
 
         form_id = data.form_id;
         entry_id = data.entry_id;
@@ -2053,13 +2095,62 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
-            debugger;
-            if( typeof super_common_i18n[form_id] !== 'undefined' &&
-                typeof super_common_i18n[form_id]._pdf !== 'undefined' &&
-                super_common_i18n[form_id]._pdf.generate === "true" ) 
-            {
-                var settings = super_common_i18n[form_id]._pdf;
-                
+            // Create loader overlay
+            var loadingOverlay = document.createElement('div');
+            var html = '';
+            html += '<div class="super-loading-wrapper">';
+                html += '<div class="super-close"></div>';
+                html += '<div class="super-loading-text">';
+                    html += '<div class="super-custom-el1"></div>';
+                    html += '<div class="super-inner-text"></div>';
+                    html += '<div class="super-progress">';
+                        html += '<div class="super-progress-bar"></div>';
+                    html += '</div>';
+                    html += '<div class="super-custom-el2"></div>';
+                html += '</div>';
+            html += '</div>';
+            loadingOverlay.innerHTML = html;
+            loadingOverlay.classList.add('super-loading-overlay');
+            loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
+            loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
+            var generatePdf = false;
+            if( typeof super_common_i18n[form_id] !== 'undefined' && typeof super_common_i18n[form_id]._pdf !== 'undefined' && super_common_i18n[form_id]._pdf.generate === "true" ) {
+                generatePdf = true;
+                var pdfSettings = super_common_i18n[form_id]._pdf;
+                loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
+            }
+            document.body.appendChild(loadingOverlay);
+            // Close Popup (if any)
+            if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                SUPER.init_popups.close(true);
+            }
+
+            // Close modal (should also reset pdf generation)
+            var closeBtn = loadingOverlay.querySelector('.super-close');
+            if(closeBtn){
+                closeBtn.addEventListener('click', function(){
+                    // Close overlay
+                    SUPER.close_loading_overlay(loadingOverlay);
+                });
+            }
+
+            var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
+            var args = {
+                form: form,
+                super_ajax_nonce: super_ajax_nonce,
+                old_html: old_html,
+                duration: duration,
+                data: data,
+                form_id: form_id,
+                entry_id: entry_id,
+                token: token,
+                version: version,
+                loadingOverlay: loadingOverlay,
+                progressBar: progressBar
+            }
+
+            // Generate PDF
+            if( generatePdf ){
                 // Page margins and print area
                 // Media                Page size           Print area              Margins
                 //                                                                  Top         Bottom      Sides
@@ -2083,10 +2174,10 @@ function SUPERreCaptcha(){
                 // A9           37 x 52	                1.5 x 2.0
                 // A10          26 x 37                 1.0 x 1.5
 
-                var orientation = settings.orientation;
-                var format = settings.format;
+                var orientation = pdfSettings.orientation;
+                var format = pdfSettings.format;
                 // Check if custom format is defined
-                var customFormat = settings.customformat;
+                var customFormat = pdfSettings.customformat;
                 if(typeof customFormat !== 'undefined' && customFormat!==''){
                     customFormat = customFormat.split(',');
                     if(typeof customFormat[1] !== 'undefined'){
@@ -2099,6 +2190,7 @@ function SUPERreCaptcha(){
                 }
 
                 // For quick debugging purposes only:
+                // eslint-disable-next-line no-undef
                 var pdf = new jsPDF({
                     orientation: orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
                     format: format,             // The format of the first page.  Default is "a4"
@@ -2107,7 +2199,7 @@ function SUPERreCaptcha(){
                     precision: 16,              // Precision of the element-positions.
                     userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
                     floatPrecision: 16,         // or "smart", default is 16
-                    unit: settings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+                    unit: pdfSettings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
                 });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
                                                     // Can be:
                                                     // a0 - a10
@@ -2124,8 +2216,6 @@ function SUPERreCaptcha(){
 
                 var pageWidth = pdf.internal.pageSize.getWidth();
                 var pageHeight = pdf.internal.pageSize.getHeight();
-                console.log('PDF width:', pageWidth+' '+settings.unit);
-                console.log('PDF height:', pageHeight+' '+settings.unit);
 
                 // PDF width: 595.28 pt
                 // PDF height: 841.89 pt
@@ -2148,196 +2238,136 @@ function SUPERreCaptcha(){
                 // in to px  = X / 0.0185185185010975
 
                 var k = 1;
-                if(settings.unit=='pt') k = 1.333333333333333;
-                if(settings.unit=='mm') k = 0.4703703703703702;
-                if(settings.unit=='cm') k = 0.04703703703703702;
-                if(settings.unit=='in') k = 0.0185185185010975;
+                if(pdfSettings.unit=='pt') k = 1.333333333333333;
+                if(pdfSettings.unit=='mm') k = 0.4703703703703702;
+                if(pdfSettings.unit=='cm') k = 0.04703703703703702;
+                if(pdfSettings.unit=='in') k = 0.0185185185010975;
 
                 var pageWidthInPixels = pageWidth / k;
                 var pageHeightInPixels = pageHeight / k;
                 // Make form scrollable based on a4 height
                 var scrollAmount = 0;
 
-                SUPER.before_generate_pdf(form[0], pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, function(form, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar){
+                args.form0 = form[0];
+                args.pageWidth = pageWidth;
+                args.pageHeight = pageHeight;
+                args.pageWidthInPixels = pageWidthInPixels;
+                args.pageHeightInPixels = pageHeightInPixels;
+                args.pdfSettings = pdfSettings;
+                args.scrollAmount = scrollAmount;
+                args.pdf = pdf;
 
-                    // Starting at page 1
-                    pdf = SUPER.generate_pdf(form, pdf, 1, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, function(pdf, form, clone){
-                        // Show scrollbar again
-                        document.documentElement.classList.remove('super-hide-scrollbar');
-                        var inlineStyle = document.querySelector('#super-generating-pdf');
-                        if(inlineStyle) inlineStyle.remove();
-                        // Make all mutli-parts invisible again (except for the last active multi-part)
-                        // Make all TABs invisible
-                        // Make all accordions invisible
-                        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
-                        for(var i=0; i < nodes.length; i++){
-                            if(!nodes[i].classList.contains('super-active-origin')){
-                                nodes[i].classList.remove('super-active');
-                            }else{
-                                nodes[i].classList.remove('super-active-origin');
-                            }
-                        }
-                        // Check for any specific PDF exclusions
-                        // Check for any specific PDF inclusions
-                        nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="exclude"],.super-shortcode[data-pdfoption="include"]');
-                        for(i=0; i < nodes.length; i++){
-                            nodes[i].style.display = '';
-                        }
-                        // // Re-enable the UI for Maps and resize to original width
-                        // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
-                        //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
-                        //         disableDefaultUI: false
-                        //     });
-                        //     var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-                        //     for(var x=0; x < children.length; x++){
-                        //         children[x].style.width = '';
-                        //         if(children[x].classList.contains('super-google-map-directions')){
-                        //             children[x].style.overflowY = 'scroll';
-                        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
-                        //         }
-                        //     }
-                        // }
-                        // Restore form position and remove the cloned form
-                        clone.remove();
-                        form.querySelector('form').style.marginTop = '';
-                        form.style.position = '';
-                        form.style.zIndex = '';
-                        form.style.left = '';
-                        form.style.top = '';
-                        form.style.width = '';
-                        form.style.height = '';
-                        form.style.maxHeight = '';
-                        form.style.overflow = '';
+                // Blur/unfocus any focussed field
+                // bug in google chrome on mobile devices
+                // .....
+                //
+                // Add a timeout (just to be sure)
+                setTimeout(function(){
+                    SUPER.before_generate_pdf(args, function(args){
+                        // Start generating pages (starting at page 1)
+                        args.currentPage = 1;
+                        pdf = SUPER.generate_pdf(args, function(pdf, form){
+                            // Reset everything to how it was
+                            SUPER.reset_pdf_generation(form);
 
-                        // Remove loader overlay
-                        var loadingOverlay = document.querySelector('.super-loading-overlay');
-                        if(loadingOverlay) loadingOverlay.remove();
-
-                        // Finally we download the PDF file
-                        if(settings.debug===true){
-                            pdf.save(settings.filename);
-                        }else{
-                            // Finally we download the PDF file
+                            // Attach as file to form data
                             var datauristring = pdf.output('datauristring', {
-                                filename: settings.filename
+                                filename: pdfSettings.filename
                             });
-                            data.datauristring = {
-                                name: 'pdf_file',
-                                value: datauristring,
-                                type: 'datauristring'
+                            var exclude = 0;
+                            if(pdfSettings.adminEmail!=='true' && pdfSettings.confirmationEmail!=='true'){
+                                exclude = 2;
+                            }else{
+                                if(pdfSettings.adminEmail==='true'){
+                                    exclude = 1;
+                                }
+                                if(pdfSettings.confirmationEmail==='true'){
+                                    exclude = 3;
+                                }
+                            }
+                            data._generated_pdf_file = {
+                                files: [{
+                                    label: pdfSettings.emailLabel,
+                                    name: pdfSettings.filename,
+                                    datauristring: datauristring,
+                                    value: pdfSettings.filename
+                                }],
+                                label: pdfSettings.emailLabel,
+                                type: 'files',
+                                exclude: exclude
                             };
-                            SUPER.send_email($(form), super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
-                        }
-                    }); 
-                });
-            }else{
-                SUPER.send_email(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, status_update, token, version);
+                            args.pdfArgs = {
+                                pdfSettings: pdfSettings,
+                                pdf: pdf
+                            }
+                            SUPER.send_email(args);
+                        }); 
+                    });
+                }, 500);
+                return false;
             }
-
-            // var pdf = new jsPDF();
-            // // Starting at page 1
-            // pdf = SUPER.generate_pdf(target, pdf, 1, function(pdf){
-            //     // Finally we download the PDF file
-            //     pdf.save("download-page-1.pdf");
-            // }); 
-
-            // // Default export is a4 paper, portrait, using milimeters for units
-            // var pdf = new jsPDF();
-            // pdf.text('Hello world4!', 10, 10)
-            // var datauristring = pdf.output('datauristring', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // data.datauristring = {
-            //     name: 'pdf_file',
-            //     value: datauristring,
-            //     type: 'datauristring'
-            // };
-            
-            // var arraybuffer = pdf.output('arraybuffer', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // data.arraybuffer = arraybuffer;
-            // var bloburi = pdf.output('bloburi', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // data.bloburi = bloburi;
-
-            // var datauri = pdf.output('datauri', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // data.datauri = datauri;       
-            //data.bloburi = bloburi;       
-            //data.datauristring = datauristring;       
-            //data.datauri = datauri;       
-
-            // var dataurlnewwindow = pdf.output('dataurlnewwindow', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // console.log(dataurlnewwindow);
-
-            // var pdfobjectnewwindow = pdf.output('pdfobjectnewwindow', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // console.log(pdfobjectnewwindow);
-
-            // var pdfjsnewwindow = pdf.output('pdfjsnewwindow', {
-            //     filename: 'TESTING.pdf'
-            // });
-            // console.log(pdfjsnewwindow);
-
-            // A string identifying one of the possible output types. Possible values are 
-            // 'arraybuffer', 
-            // 'blob', 
-            // 'bloburi'/'bloburl', 
-            // 'datauristring'/'dataurlstring', 
-            // 'datauri'/'dataurl',
-            //  'dataurlnewwindow', 
-            //  'pdfobjectnewwindow', 
-            //  'pdfjsnewwindow'.
-
-            //var formData = new FormData();
-            //formData.append("TESTING.pdf", blob);
-
+            // We do not need to generate a PDF
+            SUPER.send_email(args); //(form, super_ajax_nonce, old_html, duration, data, form_id, entry_id, token, version);
+        });
+    };
+    // Show PDF download button
+    SUPER.show_pdf_download_btn = function(args){
+        var btn = document.createElement('div');
+        btn.classList.add('super-pdf-download-btn');
+        btn.innerHTML = args.pdfArgs.pdfSettings.downloadBtnText;
+        args.loadingOverlay.querySelector('.super-loading-text').appendChild(btn);
+        btn.addEventListener('click', function(){
+            args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename);
         });
     };
     // Form submission is finished
-    SUPER.form_submission_finished = function(form, $result, $html, $old_html, $duration){
-        if($result.redirect){
-            window.location.href = $result.redirect;
+    SUPER.form_submission_finished = function(args, result){ 
+        args.progressBar.style.width = 100+"%";  
+        var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+        // Redirect user to specified url
+        if(result.redirect){
+            // Show redirecting text
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.redirecting+'</span>';
+            window.location.href = result.redirect;
         }else{
-            if($result.msg!==''){
-                $html += $result.msg;
-                $html += '<span class="close"></span>';
-                $html += '</div>';
-                // Remove any existing messages
-                $('.super-msg').remove();
-                $($html).prependTo($(form));
-            }
-
-            // @since 3.4.0 - keep loading state active
-            if($result.loading!==true){
-                // @since 2.1.0
-                var $proceed = SUPER.before_scrolling_to_message_hook(form, $(form).offset().top - 30);
-                if($proceed===true){
-                    $('html, body').animate({
-                        scrollTop: $(form).offset().top-200
-                    }, 1000);
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+            // Check if there is a message
+            if(result.msg!==''){
+                // Check if this is an error message
+                if(result.error===true){
+                    args.loadingOverlay.classList.add('super-error');
+                }else{
+                    args.loadingOverlay.classList.add('super-success');
+                    if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
+                        SUPER.show_pdf_download_btn(args);
+                    }
                 }
-                
-                $(form).find('.super-form-button.super-loading .super-button-name').html($old_html);
-                $(form).find('.super-form-button.super-loading').removeClass('super-loading');
-                if($result.error===false){
-
+                // Display the error/success message
+                if(innerText) innerText.innerHTML = result.msg;
+            }else{
+                // We do not want to display a thank you message, but might want to display a Download PDF button
+                if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
+                    args.loadingOverlay.classList.add('super-success');
+                    SUPER.show_pdf_download_btn(args);
+                }else{
+                    // Just close the overlay, no need to show download button
+                    SUPER.close_loading_overlay(args.loadingOverlay);
+                }
+            }
+            // @since 3.4.0 - keep loading state active
+            if(result.loading!==true){
+                SUPER.reset_submit_button_loading_state(args.form[0]);
+                if(result.error===false){
                     // @since 2.0.0 - hide form or not
-                    if($(form).data('hide')===true){
-                        $(form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut($duration);
+                    if($(args.form).data('hide')===true){
+                        $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
                         setTimeout(function () {
-                            $(form).find('.super-field, .super-shortcode').remove();
-                        }, $duration);
+                            $(args.form).find('.super-field, .super-shortcode').remove();
+                        }, 500);
                     }else{
                         // @since 2.0.0 - clear form after submitting
-                        if($(form).data('clear')===true){
-                            SUPER.init_clear_form(form);
+                        if($(args.form).data('clear')===true){
+                            SUPER.init_clear_form(args.form0);
                         }
                     }
                 }
@@ -2346,7 +2376,7 @@ function SUPERreCaptcha(){
     };
 
     // File upload handler
-    SUPER.upload_files = function( e, form, data, duration, old_html, status, status_update ){
+    SUPER.upload_files = function( e, form, data, duration, old_html ){
         var i,nodes,minfiles,$this,wrapper,field,interval,total_file_uploads,shortcode_field;
         
         nodes = form.querySelectorAll('.super-fileupload-files');
@@ -2410,7 +2440,7 @@ function SUPERreCaptcha(){
                 data = SUPER.prepare_form_data($(form));
                 SUPER.before_submit_hook(e, form, data, old_html, function(){
                     setTimeout(function() {
-                        SUPER.complete_submit( e, form, data, duration, old_html, status, status_update );
+                        SUPER.complete_submit( e, form, data, duration, old_html );
                     }, 1000);    
                 });
             }
@@ -2966,7 +2996,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.2.3
-    SUPER.auto_step_multipart = function(field, form){
+    SUPER.auto_step_multipart = function(field){
         // If triggered field change is not inside active multi-part we skip it
         var activeMultipart = field.closest('.super-multipart.super-active');
         if(!activeMultipart) return false;
@@ -3018,7 +3048,7 @@ function SUPERreCaptcha(){
         return params;
     };
     SUPER.before_submit_hook = function(event, form, data, oldHtml, callback){
-        var proceed=true, i, name, duration = SUPER.get_duration(), functions = super_common_i18n.dynamic_functions.before_submit_hook;
+        var proceed=true, i, name, functions = super_common_i18n.dynamic_functions.before_submit_hook;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
                 name = functions[i].name;
@@ -3035,7 +3065,11 @@ function SUPERreCaptcha(){
                         });
                     }                               
                     // Display error message
-                    SUPER.form_submission_finished(form, result, html, oldHtml, duration);
+                    var args = {
+                        form: form,
+                        data: data
+                    }
+                    SUPER.form_submission_finished(args, result, html);
                 }
             }
         }
@@ -3121,7 +3155,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof $field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart($field, $form);
+            SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
     };
@@ -3143,7 +3177,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof $field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart($field, $form);
+            SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form);
     };
@@ -3156,7 +3190,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof $field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart($field, $form);
+            SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
     };
@@ -3169,7 +3203,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof $field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart($field, $form);
+            SUPER.auto_step_multipart($field);
         }
         SUPER.save_form_progress($form); // @since 3.2.0
     };
@@ -3746,7 +3780,6 @@ function SUPERreCaptcha(){
     // visualization provides heatmaps for visual representation of data.
     // Consult the Visualization library documentation for more information.
 
-
     SUPER.google_maps_api = function(){};
     SUPER.google_maps_init = function(field, form){
         form = SUPER.get_frontend_or_backend_form(field, form);
@@ -3762,7 +3795,13 @@ function SUPERreCaptcha(){
     };
 
     // PDF Generation
-    SUPER.generate_pdf = function(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, callback){
+    SUPER.generate_pdf = function(args, callback){
+        
+        var form = args.form0.closest('.super-form');
+        // When canceled the following class will no longer exist, and we should not proceed
+        if(form && !form.classList.contains('super-generating-pdf')){
+            return false;
+        }
 
         // Set form width and height according to a4 paper size minus the margins
         // 210 == 793px
@@ -3772,11 +3811,10 @@ function SUPERreCaptcha(){
 
         // Update PDF tags
         SUPER.pdf_tags = {
-            pdf_page: currentPage,
-            pdf_total_pages: totalPages
+            pdf_page: args.currentPage,
+            pdf_total_pages: args.totalPages
         };
 
-        var form = target.closest('.super-form');
         // Update pdf {tags}
         SUPER.after_field_change_blur_hook(undefined, form);
         var pdfHeaderForm = document.querySelector('.super-pdf-header .super-form');
@@ -3785,66 +3823,74 @@ function SUPERreCaptcha(){
         SUPER.after_field_change_blur_hook(undefined, pdfFooterForm);
 
         // Scroll to the "fake" page
-        form.querySelector('form').style.marginTop = "-"+(scrollAmount * (currentPage-1))+'px';
-        // @ important, do not shrink but instead add some margin to the last page, so that it fit's on a single page 100%
-        // otherwise there are problems with longly stretched images in the PDF
-
-
-        // Might need to shrink the form height
-        // Because the last page shouldn't contain any duplicate info from the previous page
-        // var schrinkBy = form.querySelector('form').clientHeight - (scrollAmount * (currentPage));
-        // var schrinked = scrollAmount - -schrinkBy;
-        // if(schrinkBy < 0 && currentPage>1 ){
-        //     // We should shrink the form
-        //     form.style.maxHeight = schrinked + 'px';
-        //     form.querySelector('form').style.marginTop = "-"+(scrollAmount * (currentPage-1))+'px';
-        // }
+        form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
 
         // Because disabling the UI takes some time, add a timeout
+        var timeout = (args.currentPage===1 ? 200 : 0);
         setTimeout(function(){
-            
-            // console.log(-window.scrollY);
-            // console.log(window.scrollY);
-            // console.log(document.body.scrollTop);
-            // console.log(document.documentElement.scrollTop);
-            // document.body.scrollTop = document.documentElement.scrollTop = 0;
-
             // Now allow printing
-            html2canvas(document.querySelector('.super-pdf-page-container'), {
-                logging: false,
-                useCORS: true,
-                allowTaint: false, 
-                scale: 3,
-                scrollX: 0, // Important, do not remove
-                scrollY: 0, // -window.scrollY, // Important, do not remove
-                ignoreElements: (node) => {
-                    return node.className === 'super-loading-overlay' || node.classList.contains('super-form-button');
+            try {
+                // Only if not already canceled/reset
+                if(form && !form.classList.contains('super-generating-pdf')){
+                    return false;
                 }
-            }).then(canvas => {    
-                var percentage = (100/(totalPages+1))*currentPage;
-                progressBar.style.width = percentage+"%";  
-                var imgData = canvas.toDataURL("image/jpeg", 1.0);
-                // Add this image as 1 single page
-                pdf.addImage(
-                    imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
-                    'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
-                                // e.g. 'JPEG', 'PNG', 'WEBP'
-                    0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                    0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-                    pageWidth,
-                    pageHeight
-                );
-                // If there are more pages to be processed, go ahead
-                if(form.querySelector('form').clientHeight > (scrollAmount * currentPage)){
-                    currentPage++;
-                    pdf.addPage();
-                    SUPER.generate_pdf(target, pdf, currentPage, clone, pageWidth, pageHeight, pageWidthInPixels, pageHeightInPixels, settings, scrollAmount, loadingOverlay, totalPages, progressBar, callback);
-                }else{                   
-                    // No more pages to generate (submit form / send email)
-                    callback(pdf, form, clone);
-                }
-            });
-        }, 200 );
+                // eslint-disable-next-line no-undef
+                html2canvas(document.querySelector('.super-pdf-page-container'), {
+                    scrollX: 0, // Important, do not remove
+                    scrollY: 0,  // -window.scrollY, // Important, do not remove
+                    scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
+                    currentPage: args.currentPage,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff',
+                    //onclone: function(document){
+                    //    // Remove any elements that we do not need
+                    //    var i, nodes = document.body.childNodes;
+                    //    console.log(nodes.length);
+                    //    for(i=0; i<nodes.length; i++){
+                    //        if(nodes[i].tagName==='LINK') continue;
+                    //        if(nodes[i].tagName==='SCRIPT') continue;
+                    //        if(nodes[i].className==='super-pdf-page-container') continue;
+                    //        nodes[i].remove();
+                    //    }
+                    //    nodes = document.body.childNodes;
+                    //    console.log(nodes.length);
+                    //},
+                }).then(canvas => {    
+                    // Only if not already canceled/reset
+                    if(form && !form.classList.contains('super-generating-pdf')){
+                        return false;
+                    }
+                    var percentage = ((50/(args.totalPages+1))*args.currentPage)+5;
+                    if(percentage<5) percentage = 5;
+                    if(percentage>=50) percentage = 50;
+                    args.progressBar.style.width = percentage+"%";  
+                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                    // Add this image as 1 single page
+                    args.pdf.addImage(
+                        imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
+                        'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
+                                    // e.g. 'JPEG', 'PNG', 'WEBP'
+                        0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                        0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                        args.pageWidth,
+                        args.pageHeight
+                    );
+                    // If there are more pages to be processed, go ahead
+                    if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
+                        args.currentPage++;
+                        args.pdf.addPage();
+                        SUPER.generate_pdf(args, callback);
+                    }else{                   
+                        // No more pages to generate (submit form / send email)
+                        callback(args.pdf, form);
+                    }
+                });
+            }
+            catch(error) {
+                console.log("Error: ", error);
+            }
+        }, timeout );
     }
     SUPER.google_maps_api.allMaps = [];
     // @since 3.5.0 - function for intializing google maps elements
@@ -3871,8 +3917,7 @@ function SUPERreCaptcha(){
         // Loop through maps
         Object.keys($maps).forEach(function(key) {
             $maps[key].classList.add('super-map-rendered');
-            var html,
-                $data = JSON.parse($maps[key].querySelector('textarea').value),
+            var $data = JSON.parse($maps[key].querySelector('textarea').value),
                 $regular_expression = /\{(.*?)\}/g;
 
                 // Address Marker location
@@ -4220,10 +4265,14 @@ function SUPERreCaptcha(){
                         // Display error message
                         result = {
                             msg: 'Route was not successful for the following reason: ' + status,
-                            loading: true
+                            loading: true,
+                            error: true
                         }
-                        html = '<div class="super-msg super-error">';
-                        SUPER.form_submission_finished($form[0], result, html);
+                        var args = {
+                            form: $form
+                        }
+                        var html = '<div class="super-msg super-error">';
+                        SUPER.form_submission_finished(args, result, html);
                     }
                 });
                 return true;
@@ -4247,10 +4296,14 @@ function SUPERreCaptcha(){
                         // Display error message
                         result = {
                             msg: 'Geocode was not successful for the following reason: ' + status,
-                            loading: true
+                            loading: true,
+                            error: true
+                        }
+                        var args = {
+                            form: $form
                         }
                         var html = '<div class="super-msg super-error">';
-                        SUPER.form_submission_finished($form[0], result, html);
+                        SUPER.form_submission_finished(args, result, html);
                     }
                 });
                 return true;
@@ -6067,8 +6120,7 @@ function SUPERreCaptcha(){
 		if (SUPER.responsive_form_fields_timeout !== null) {
 			clearTimeout(SUPER.responsive_form_fields_timeout);
 		}
-		SUPER.responsive_form_fields_timeout = setTimeout(function () {
-            console.log('resizing/responsiveness');
+        SUPER.responsive_form_fields_timeout = setTimeout(function () {
             var $classes = [
                 'super-first-responsiveness',
                 'super-second-responsiveness',
@@ -6095,10 +6147,9 @@ function SUPERreCaptcha(){
                 forms = $(form);
             }
             forms.each(function(){
-
                 var $this = $(this);
                 var $width = $(this).outerWidth(true);
-
+                // Change in width, apply responsiveness
                 if($width > 0 && $width < 530){
                     SUPER.remove_super_form_classes($this,$classes);
                     $this.addClass($classes[0]);

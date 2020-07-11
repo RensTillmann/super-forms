@@ -120,6 +120,9 @@
   margin-left: auto;
   margin-right: auto;
 }
+.super-form.super-adaptive {
+  padding-top: 10px !important;
+}
 
 .super-noselect {
   -webkit-touch-callout: none;
@@ -6095,7 +6098,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-loading-overlay {
   position: fixed;
-  z-index: 99999999;
+  z-index: 2000000050;
   width: 100%;
   height: 100%;
   top: 0px;
@@ -6107,7 +6110,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-loading-overlay .super-loading-wrapper {
   position: absolute;
-  z-index: 99999999;
+  z-index: 2000000100;
   width: 300px;
   height: 400px;
   top: 50%;
@@ -6135,6 +6138,8 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   content: "\f1ce";
   color: #c5c5c5;
   font-size: 34px;
+  width: 34px;
+  height: 55px;
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;
   -ms-animation: rotating 2s linear infinite;
@@ -6158,6 +6163,73 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: block;
   height: 5px;
   background-color: #4EB1B6;
+}
+.super-loading-overlay .super-pdf-download-btn,
+.super-loading-overlay .super-close {
+  text-align: center;
+  margin: 25px 0px 0px 0px;
+  background-color: #53d453;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 25px 5px 25px !important;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.super-loading-overlay .super-pdf-download-btn:hover {
+  background-color: #5ce45c;
+}
+.super-loading-overlay .super-pdf-download-btn:after {
+  color: white;
+  padding: 0px 0px 0px 15px;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f1c1";
+  font-size: 24px;
+}
+.super-loading-overlay .super-close {
+  padding: 5px 5px 5px 5px;
+  background-color: #e43434;
+}
+.super-loading-overlay .super-close {
+  display: none;
+  background: none;
+  color: #666666;
+  text-decoration: underline;
+  padding: 10px 25px;
+}
+.super-loading-overlay .super-close:hover {
+  color: #111111;
+}
+.super-loading-overlay .super-loading-text {
+  width: 220px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.super-loading-overlay .super-inner-text {
+  text-align: center;
+}
+.super-loading-overlay.super-error .super-loading-wrapper:after, .super-loading-overlay.super-success .super-loading-wrapper:after {
+  content: "\f00d";
+  -webkit-animation: none;
+  animation: none;
+  color: #e43434;
+}
+.super-loading-overlay.super-error .super-progress, .super-loading-overlay.super-success .super-progress {
+  display: none;
+}
+.super-loading-overlay.super-error .super-close, .super-loading-overlay.super-success .super-close {
+  display: block;
+}
+.super-loading-overlay.super-success .super-loading-wrapper:after {
+  content: "\f00c";
+  color: #4eb1b6;
 }
 
 .super-field-size-medium .super-checkbox .super-field-wrapper > .super-item, .super-field-size-medium .super-radio .super-field-wrapper > .super-item {

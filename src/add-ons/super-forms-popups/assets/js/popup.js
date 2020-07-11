@@ -410,16 +410,10 @@
 			SUPER.init_popups.close(true);
 		});
 		$(window).click(function(e){
-			var $target = $(e.target);
-			
-			// @since 1.1.0 - do not close popup when user selects date or time
-			if($target.parents('.super-datepicker-dialog').length) return false;
-			if($target.parents('.super-timepicker-dialog').length) return false;
-
-			var $popup = $('.super-popup');
-			if(!$($target).parents().addBack().is($popup)) {
+            console.log(e.target);
+            if(e.target.classList.contains('super-popup-wrapper')){
 				SUPER.init_popups.close();
-			}
+            }
 		});
 		$(window).keyup(function(e){
 			if(e.keyCode === 27){

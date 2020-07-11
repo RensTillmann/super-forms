@@ -999,33 +999,28 @@ class SUPER_Common {
         }
         return self::generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase);
     }
-
-
+    
+    
     /**
      * Generate random folder number
      *
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        $length = 100;
-        $key = '';
-        $keys = array_merge(range(0, 9), range('a', 'z'));
-        for ($i = 0; $i < $length; $i++) {
-            $key .= $keys[array_rand($keys)];
-        }
-        $new_folder = $folder . '/' . $key;
-        error_log("Error: " . json_encode($error));
-        if( file_exists( $new_folder ) ) {
+        error_log($folder);
+        $folderName = rand( 100000000, 999999999 );
+        $folderPath = trailingslashit($folder) . $folderName;
+        error_log($folder);
+        error_log($folderPath);
+        if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if( !file_exists( $new_folder ) ) {
-                if ( !mkdir($new_folder, 0755, true) ) {
-                    $error = error_get_last();
-                    error_log("Error: " . json_encode($error));
-                    SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed2', 'super-forms' ) . ':</strong> ' . $error['message']);
-                }
+            if ( !mkdir($folderPath, 0755, true) ) {
+                $error = error_get_last();
+                error_log(json_encode($error));
+                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
             }
-            return array('new_folder' => $new_folder, 'folderName' => $key);
+            return array('folderPath' => $folderPath, 'folderName' => $folderName);
         }
     }
 
