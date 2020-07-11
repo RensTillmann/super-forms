@@ -303,8 +303,9 @@ $exclude = array(
     'values'=>array(
         '0'=>esc_html__( 'Do not exclude from emails', 'super-forms' ),
         '1'=>esc_html__( 'Exclude from confirmation email', 'super-forms' ), 
-
-        // Since version 1.0.4
+        // @since 4.9.471
+        '3'=>esc_html__( 'Exclude from admin email', 'super-forms' ),
+        // @since 1.0.4
         '2'=>esc_html__( 'Exclude from all emails', 'super-forms' )
     )
 );

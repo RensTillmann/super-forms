@@ -3934,8 +3934,6 @@ class SUPER_Shortcodes {
             $countries = explode( "\n", $countries );
         }
 
-        if( isset($settings['form_button_loading']) ) $loading = $settings['form_button_loading'];
-
         // @since 2.8.0 - give the possibility to filter countries list (currently used by register & login add-on for woocommerce countries)
         $countries = apply_filters( 'super_countries_list_filter', $countries, array( 'name'=>$atts['name'], 'settings'=>$settings ) );
 
@@ -4346,7 +4344,8 @@ class SUPER_Shortcodes {
     */
     public static function google_map( $tag, $atts ) {
         // In order to print google map load the libraries:
-        wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+        wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
+        wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
         wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );          
         
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
@@ -4478,10 +4477,6 @@ class SUPER_Shortcodes {
 
         if( !empty( $atts['loading'] ) ) $loading = $atts['loading'];
         
-        // @since 3.4.0 - entry status
-        if( !isset( $atts['entry_status'] ) ) $atts['entry_status'] = '';
-        if( !isset( $atts['entry_status_update'] ) ) $atts['entry_status_update'] = '';
-        
         if( isset( $atts['custom_advanced'] ) ) {
             if( $atts['custom_advanced']=='custom' ) {
                 if( isset( $atts['radius'] ) ) $radius = $atts['radius'];
@@ -4558,7 +4553,7 @@ class SUPER_Shortcodes {
             }
 
             $result .= '<div ' . $atts['target'] . 'data-href="' . esc_attr($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
-                $result .= '<div class="super-button-name" data-action="' . esc_attr($action) . '" data-status="' . esc_attr($atts['entry_status']) . '" data-status-update="' .esc_attr($atts['entry_status_update']) . '" data-normal="' . esc_attr($name) . '" data-loading="' . esc_attr($loading) . '">';
+                $result .= '<div class="super-button-name" data-action="' . esc_attr($action) . '" data-normal="' . esc_attr($name) . '" data-loading="' . esc_attr($loading) . '">';
                     $icon_html = '';
                     if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                         $icon_tag = explode(' ', $icon);
@@ -5617,16 +5612,6 @@ class SUPER_Shortcodes {
             if(!empty($i18n)){
                 $result .= ' data-i18n="' . $i18n . '"';
             }
-            // if(!empty($settings['_pdf']) && $settings['_pdf']['generate']=='true'){
-            //     $result .= ' data-pdf="' . esc_attr(json_encode($settings['_pdf'])) . '"';
-            //     // foreach($settings['_pdf'] as $pdfk => $pdfv){
-            //     //     if($pdfk=='customFormat' && $pdfv==='') continue;
-            //     //     if(is_array($pdfv)){
-            //     //     }else{
-            //     //         $result .= ' data-pdf-' . $pdfk . '="' . esc_attr($pdfv) . '"';
-            //     //     }
-            //     // }
-            // }
             $result .= '>';
 
             // @since 4.7.0 - improved method to center form and to give max width to the form

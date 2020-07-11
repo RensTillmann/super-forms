@@ -174,6 +174,8 @@ $formFieldsFocus: 'input[type="text"]:focus,input[type="number"]:focus,input[typ
     display: block
     margin-left: auto
     margin-right: auto
+  &.super-adaptive
+    padding-top: 10px!important
 
 .super-noselect
   +userSelect(none)
@@ -4905,7 +4907,7 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-loading-overlay
   position: fixed
-  z-index: 99999999
+  z-index: 2000000050
   width: 100%
   height: 100%
   top: 0px
@@ -4916,7 +4918,7 @@ ul.super-multipart-steps .super-multipart-step
   background-color: rgba(0, 0, 0, 0.4)
   .super-loading-wrapper
     position: absolute
-    z-index: 99999999
+    z-index: 2000000100
     width: 300px
     height: 400px
     top: 50%
@@ -4936,6 +4938,8 @@ ul.super-multipart-steps .super-multipart-step
       content: unicode("f1ce")
       color: #c5c5c5
       font-size: 34px
+      width: 34px
+      height: 55px
       +rotating()
     .super-progress
       width: 100%
@@ -4949,6 +4953,62 @@ ul.super-multipart-steps .super-multipart-step
         display: block
         height: 5px
         background-color: #4EB1B6
+  .super-pdf-download-btn,
+  .super-close
+    text-align: center
+    margin: 25px 0px 0px 0px
+    background-color: #53d453
+    color: white
+    cursor: pointer
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 5px 25px 5px 25px!important
+    +borderRadius(3px)
+  .super-pdf-download-btn:hover
+    background-color: #5ce45c
+  .super-pdf-download-btn:after
+    color: white
+    padding: 0px 0px 0px 15px
+    +fontAwesome(900)
+    content: unicode("f1c1")
+    font-size: 24px
+  .super-close
+    padding: 5px 5px 5px 5px
+    background-color: #e43434
+  .super-close
+    display: none
+    background: none
+    color: #666666
+    text-decoration: underline
+    padding: 10px 25px
+  .super-close:hover
+    color: #111111
+  .super-loading-text
+    width: 220px
+    display: flex
+    flex-wrap: wrap
+    align-items: center
+    justify-content: center
+    position: relative
+  .super-inner-text
+    text-align: center
+  &.super-error,
+  &.super-success
+    .super-loading-wrapper:after
+      content: unicode("f00d")
+      -webkit-animation: none
+      animation: none
+      color: #e43434
+    .super-progress
+      display: none
+    .super-close
+      display: block
+  &.super-success
+    .super-loading-wrapper:after
+      content: unicode("f00c")
+      color: #4eb1b6
+
 
 .super-field-size-medium
   .super-checkbox, .super-radio

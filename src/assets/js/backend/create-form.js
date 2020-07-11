@@ -1455,6 +1455,7 @@
                         alert(super_create_form_i18n.export_form_error);
                     },
                     complete: function () {
+                        init_form_settings_container_heights();
                         // Disable sortable functionality
                         if ($('.super-create-form').hasClass('super-translation-mode')) {
                             $('.super-preview-elements').sortable('disable');

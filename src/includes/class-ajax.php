@@ -2251,14 +2251,13 @@ class SUPER_Ajax {
                 if(!empty($user_limits[$current_user_id])) {
                     $count = absint($user_limits[$current_user_id])+1;
                 }
-
                 $limit = 0;
                 if( !empty($settings['user_form_locker_limit']) ){
                     $limit = absint($settings['user_form_locker_limit']);
                 } 
 
                 $display_msg = false;
-                if( $count>=$limit ) {
+                if( $count>$limit ) {
                     $msg = '';
                     if($settings['user_form_locker_msg_title']!='') {
                         $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
@@ -2284,15 +2283,14 @@ class SUPER_Ajax {
             }
             $settings['header_additional'] = $header_additional;
         }
-
-
+ 
+        
         /** 
          *  Make sure to also save the file into the WP Media Library
          *  In case a user deletes Super Forms these files are not instantly deleted without warning
          *
          *  @since      1.1.8
         */
-        
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             $delete_dirs = array();
             foreach( $data as $k => $v ) {
@@ -2300,6 +2298,37 @@ class SUPER_Ajax {
                 if( $v['type']=='files' ) {
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
                         foreach( $v['files'] as $key => $value ) {
+                            // If there is a generated PDF let it act as a regular file upload
+                            // Try to generate PDF file
+                            if(isset($value['datauristring'])){
+                                try {
+                                    $imgData = str_replace( ' ', '+', $value['datauristring']);
+                                    $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
+                                    $imgData = base64_decode( $imgData );
+                                    // Path where the image is going to be saved
+                                    $folder = SUPER_PLUGIN_DIR . '/uploads/php/files';
+                                    $folderResult = SUPER_Common::generate_random_folder($folder);
+                                    $folderPath = $folderResult['folderPath'];
+                                    $folderName = $folderResult['folderName'];
+                                    $value['value'] = SUPER_Common::email_tags( $value['value'], $data, $settings );
+                                    $value['emailLabel'] = SUPER_Common::email_tags( $value['emailLabel'], $data, $settings );
+                                    $fileName = $value['value'];
+                                    $fileLocation = trailingslashit($folderPath) . $fileName;
+                                    // Write $imgData into the image file
+                                    $file = fopen( $fileLocation, 'w' );
+                                    fwrite( $file, $imgData );
+                                    fclose( $file );
+                                    $value['url'] = $fileLocation;
+                                    $data[$k]['files'][$key] = $value;
+                                } catch (Exception $e) {
+                                    // Print error message
+                                    SUPER_Common::output_message(
+                                        $error = true,
+                                        $e->getMessage()
+                                    );
+                                }
+                            }
+
                             // Before we proceed check if the file already exists, if so, do nothing
                             // Exclude files that are being uploaded for the first time
                             // They will be in the "uploads/php" directory
@@ -2399,60 +2428,9 @@ class SUPER_Ajax {
                 SUPER_Common::delete_dir( $dir );
             }
         }
-
+        
         // @since 4.9.5
         $data = apply_filters( 'super_after_processing_files_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
-
-        // Try to generate PDF file
-        if(isset($data['datauristring'])){
-            try {
-                $imgData = str_replace( ' ', '+', $data['datauristring']['value'] );
-                $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
-                $imgData = base64_decode( $imgData );
-                // Path where the image is going to be saved
-                $wp_upload_dir = wp_upload_dir();
-                $filePath = $wp_upload_dir['basedir'] . '/superforms' . $wp_upload_dir["subdir"];
-                $filePath = SUPER_Common::generate_random_folder( $filePath ) . '/test123.pdf'; // . basename( $source );
-                // Write $imgData into the image file
-                $file = fopen( $filePath, 'w' );
-                fwrite( $file, $imgData );
-                fclose( $file );
-                // Insert PDF as an attachment, this way it will be stored into the WP database so that it can be retrieved at a later time
-                $filetype = wp_check_filetype( basename( $filePath ), null );
-                $attachment = array(
-                    'post_mime_type' => $filetype['type'],
-                    'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filePath ) ),
-                    'post_content'   => '',
-                    'post_status'    => 'inherit'
-                );
-                $attach_id = wp_insert_attachment( $attachment, $filePath );
-                require_once( ABSPATH . 'wp-admin/includes/image.php' );
-                $attach_data = wp_generate_attachment_metadata( $attach_id, $filePath );
-                wp_update_attachment_metadata( $attach_id,  $attach_data );
-                $data['datauristring'] = array(
-                    'label' => 'Generated PDF',
-                    'type' => 'files',
-                    'exclude' => 0,
-                    'files' => array(
-                        array(
-                            'name' => 'generatedpdf',
-                            'value' => wp_get_attachment_url( $attach_id ),
-                            'attachment' => $attach_id,
-                            'url' => wp_get_attachment_url( $attach_id ),
-                            'thumburl' => '',
-                            'label' => 'Generated PDF',
-                            'exclude' => 0,
-                        )
-                    )
-                );
-            } catch (Exception $e) {
-                // Print error message
-                SUPER_Common::output_message( 
-                    $error = true, 
-                    $e->getMessage()
-                );
-            }
-        }
 
         // @since 2.8.0 - save generated code(s) into options table instaed of postmeta table per contact entry
         foreach( $data as $k => $v ) {
@@ -2664,11 +2642,16 @@ class SUPER_Ajax {
                 if( isset($settings['confirm_email_loop']) ) {
                     $confirm_row = $settings['confirm_email_loop'];
                 }
-
+                // Exclude from emails
+                // 0 = Do not exclude from e-mails
+                // 1 = Exclude from confirmation email
+                // 2 = Exclude from all email
+                // 3 = Exclude from admin email
                 if( !isset( $v['exclude'] ) ) {
                     $v['exclude'] = 0;
                 }
                 if( $v['exclude']==2 ) {
+                    // Exclude from all emails
                     continue;
                 }
 
@@ -2749,7 +2732,11 @@ class SUPER_Ajax {
                                     $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                                 }
                             }
-                            // Exclude file from email completely
+                            // Check if we should exclude the file from emails
+                            // 0 = Do not exclude from e-mails
+                            // 1 = Exclude from confirmation email
+                            // 2 = Exclude from all email
+                            // 3 = Exclude from admin email
                             if( $v['exclude']!=2 ) {
                                 // Get either URL or Secure file path
                                 if(!empty($value['attachment'])){
@@ -2758,13 +2745,18 @@ class SUPER_Ajax {
                                     // See if this was a secure file upload
                                     if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
                                 }
+                                // 1 = Exclude from confirmation email
                                 if( $v['exclude']==1 ) {
-                                    // Only exclude from confirmation email
                                     $attachments[$value['value']] = $fileValue;
                                 }else{
-                                    // Do not exclude
-                                    $attachments[$value['value']] = $fileValue;
-                                    $confirm_attachments[$value['value']] = $fileValue;
+                                    // 3 = Exclude from admin email
+                                    if( $v['exclude']==3 ) {
+                                        $confirm_attachments[$value['value']] = $fileValue;
+                                    }else{
+                                        // Do not exclude
+                                        $attachments[$value['value']] = $fileValue;
+                                        $confirm_attachments[$value['value']] = $fileValue;
+                                    }
                                 }
                             }
                         }
@@ -2811,17 +2803,20 @@ class SUPER_Ajax {
                 }
 
                 // @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
-                if( $settings['email_exclude_empty']=='true' && empty($v['value']) ) {
+                // 0 = Do not exclude from e-mails
+                // 1 = Exclude from confirmation email
+                // 2 = Exclude from all email
+                // 3 = Exclude from admin email
+                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && empty($v['value']) )) {
+                    // Exclude from admin email loop
                 }else{
                     $email_loop .= $row;
                 }
-                if( $v['exclude']==1 ) {
+                if( $v['exclude']==1 || ($settings['confirm_exclude_empty']=='true' && empty($v['value']) )) {
+                    // Exclude from confirmation email loop
                 }else{
-                    if( $settings['confirm_exclude_empty']=='true' && empty($v['value']) ) {
-                    }else{
-                        $confirm_loop .= $confirm_row;
-                    }
-                }                    
+                    $confirm_loop .= $confirm_row;
+                }
             }
         }
 

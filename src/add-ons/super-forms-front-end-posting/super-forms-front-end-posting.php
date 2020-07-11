@@ -301,7 +301,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 
                 // post_title and post_content are required so let's check if these are both set
                 if( (!isset( $data['post_title'])) || (!isset($data['post_content'])) ) {
-                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$spost_title%2$s and %1$spost_content%2$s fields which are required in order to create a new post. Please %3$sedit%4$sedit your form and try again', 'super-forms' ), '<strong>', '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$spost_title%2$s and %1$spost_content%2$s fields which are required in order to create a new post. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>', '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,

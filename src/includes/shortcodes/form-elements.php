@@ -3465,29 +3465,6 @@ $array['form_elements'] = array(
                             'filter'=>true,
                             'i18n'=>true
                         ),
-                     
-
-                        // @since 3.4.0 - contact entry statuses
-                        'entry_status' => array(
-                            'name'=>esc_html__( 'Contact entry status after submitting', 'super-forms' ),
-                            'desc'=>esc_html__( 'What status should the contact entry get after submitting the form?', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['entry_status']) ? '' : $attributes['entry_status']),
-                            'type'=>'select',
-                            'values'=> $statuses,
-                            'parent'=>'action',
-                            'filter_value'=>'submit',
-                            'filter'=>true,
-                        ),
-                        'entry_status_update' => array(
-                            'name'=>esc_html__( 'Contact entry status after updating a contact entry', 'super-forms' ),
-                            'desc'=>esc_html__( 'This will only be useful if the form updates a previous created entry', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['entry_status_update']) ? '' : $attributes['entry_status_update']),
-                            'type'=>'select',
-                            'values'=> $statuses,
-                            'parent'=>'action',
-                            'filter_value'=>'submit',
-                            'filter'=>true,
-                        ),
                         // @since 2.0.0
                         'loading' => array(
                             'name' => esc_html__('Button loading name', 'super-forms' ),

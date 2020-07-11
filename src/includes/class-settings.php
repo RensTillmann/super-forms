@@ -1265,8 +1265,6 @@ class SUPER_Settings {
                     'parent' => 'update_contact_entry',
                     'filter_value' => 'true'
                 ),
-
-
                 'form_show_thanks_msg' => array(
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',

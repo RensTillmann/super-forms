@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.471
+ * Version:     4.9.498
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.471';
+        public $version = '4.9.498';
         public $slug = 'super-forms';
         public $apiUrl = 'https://apiv1.super-forms.com/';
         public $apiVersion = 'v1';
@@ -566,6 +566,8 @@ if(!class_exists('SUPER_Forms')) :
             return $tabs;
         }
         public static function add_pdf_tab_content($atts){
+            $html = '<div class="super_transient"></div>';
+            
             $slug = 'pdf';
             $pdf = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
@@ -576,13 +578,18 @@ if(!class_exists('SUPER_Forms')) :
                 'generate' => '',
                 'debug' => '',
                 'filename' => 'form.pdf',
-                'adminEmail' => '',
-                'confirmationEmail' => '',
-                'downloadLink' => '',
+                'emailLabel' => 'PDF File:',
+                'adminEmail' => 'true',
+                'confirmationEmail' => 'true',
+                'excludeEntry' => '',
+                'downloadBtn' => 'true',
+                'downloadBtnText' => esc_html__( 'Download Summary', 'super-forms' ),
+                'generatingText' => esc_html__( 'Generating PDF file...', 'super-forms' ),
                 'orientation' => 'portrait',
                 'format' => 'a4',
                 'unit' => 'mm',
                 'customFormat' => '',
+                'renderScale' => 3,
                 'margins' => array(
                     // 5 mm default for a4
                     'header' => array(
@@ -606,39 +613,37 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
             $pdf = wp_parse_args( $pdf, $defaults );
-
-            // Make request
+            
+            // Get transient
             $response = wp_remote_post(
-                SUPER_API_ENDPOINT . '/subscription/verify',
+                SUPER_API_ENDPOINT . '/settings/transient',
                 array(
                     'method' => 'POST',
                     'timeout' => 45,
                     'data_format' => 'body',
                     'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
                     'body' => json_encode(array(
-                        'slug' => 'pdf',
+                        'transient_key' => 'GeltOsu18mZGzkelLWv2',
                         'home_url' => get_home_url(),
                         'admin_url' => admin_url()
                     ))
                 )
             );
             if ( is_wp_error( $response ) ) {
-                echo 'Some error1...';
-                echo $response->get_error_message();
+                $html .= $response->get_error_message();
             }else{
                 // Just an API error/notice/success message or HTML payload
                 $body = $response['body'];
                 $response = $response['response'];
                 $transient = set_transient( 'super_transient', array('check'=>true), 0);
-                $html = '<div class="super_transient"></div>';
                 if($response['code']==200 && strpos($body, '{') === 0){
                     $object = json_decode($body);
                     if($object->status==200){
                         $html = $object->body;
                     }
                 }
-                echo $html;
             }
+            echo $html;
 
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
@@ -652,7 +657,7 @@ if(!class_exists('SUPER_Forms')) :
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="debug" value="true"' . ($pdf['debug']=='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span>' . esc_html__( 'Enable debug mode (only enable this when you are testing the PDF output)', 'super-forms' ) . '</span>';
+                    echo '<span>' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
@@ -663,6 +668,18 @@ if(!class_exists('SUPER_Forms')) :
                 echo '</div>';
                 echo '<label>';
                     echo '<input type="text" name="filename" value="' . $pdf['filename'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+                
+            // E-mail label
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'E-mail label', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="emailLabel" value="' . $pdf['emailLabel'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
@@ -679,14 +696,41 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
+            
+            // Attach to contact entry
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="excludeEntry" value="true"' . ($pdf['excludeEntry']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
 
             // Direct download link
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                    echo '<input type="checkbox" name="downloadLink" value="true"' . ($pdf['downloadLink']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
+                    echo '<input type="checkbox" name="downloadBtn" value="true"' . ($pdf['downloadBtn']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
 
+            // Download button text
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Download button text', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="downloadBtnText" value="' . $pdf['downloadBtnText'] . '" />';
+                echo '</label>';
+            echo '</div>';
+
+            // Generating text
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Generating text', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="generatingText" value="' . $pdf['generatingText'] . '" />';
+                echo '</label>';
+            echo '</div>';
+                
             // Page orientation:
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -828,7 +872,22 @@ if(!class_exists('SUPER_Forms')) :
             // {tags} usage notice
             echo '<div class="sfui-notice sfui-desc">';
                 echo esc_html__( 'You can use {pdf_page} and {pdf_total_pages} inside your header or footer to retrieve the current PDF page and total pages.', 'super-forms' );
+            echo '</div>';    
+            
+            // Render scale (quality)
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'PDF render scale', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="number" min="0" max="20" step="0.1" name="renderScale" value="' . $pdf['renderScale'] . '" />';
+                    echo '<span>' . esc_html__( 'the recommended render scale is 3', 'super-forms' ) . '</span>';
+                echo '</label>';
+                echo '<div class="sfui-notice sfui-desc">';
+                echo esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
+                echo '</div>';
             echo '</div>';
+
         }
         public function pdf_element_settings($array, $attr){
             foreach($array as $group => $v){
@@ -1435,11 +1494,12 @@ if(!class_exists('SUPER_Forms')) :
             if(!isset($settings['file_upload_image_library'])) $settings['file_upload_image_library'] = 1;
             $image_library = absint($settings['file_upload_image_library']);
 
-            $l10n = array(
+            $i18n = array(
                 'ajaxurl'=>$ajax_url,
                 'preload'=>$settings['form_preload'],
                 'duration'=>$settings['form_duration'],
                 'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                 'loading'=>SUPER_Forms()->common_i18n['loading'],
                 'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                 'elementor'=>SUPER_Forms()->common_i18n['elementor'],
@@ -1450,9 +1510,9 @@ if(!class_exists('SUPER_Forms')) :
                 'image_library' => $image_library, 
             );
             if(absint($form_id)!==0){
-                if(isset($settings['_pdf'])) $l10n[$form_id]['_pdf'] = $settings['_pdf'];
+                if(isset($settings['_pdf'])) $i18n[$form_id]['_pdf'] = $settings['_pdf'];
             }
-            wp_localize_script($handle, $name, $l10n);
+            wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
             
             $handle = 'super-elements';
@@ -1468,7 +1528,8 @@ if(!class_exists('SUPER_Forms')) :
             wp_enqueue_script( $handle );
 
             // For printing
-            wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+            wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
+            wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
             wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
 
             // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
@@ -1508,7 +1569,8 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 // For printing
-                wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.js', array(), SUPER_VERSION, false );   
+                wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
+                wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
                 wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
             }
 
@@ -1580,7 +1642,7 @@ if(!class_exists('SUPER_Forms')) :
                     try {
                         $p = json_decode($p, true);
                         if( empty($_GET['m']) ) {
-                            throw new Exception("Invalid payload2");
+                            throw new Exception("Invalid payload");
                         }
                         if($_GET['m']=='t'){
                             echo 'pong';
@@ -1588,12 +1650,18 @@ if(!class_exists('SUPER_Forms')) :
                             exit;
                         }
                         if( empty($p['k']) && empty($p['v']) ) {
-                            throw new Exception("Invalid payload3");
+                            throw new Exception("Invalid payload");
                         }
                         if($_GET['m']=='a'){
                             if( !empty($p['k']) && !empty($p['v']) ) {
-                                update_option( $p['k'], $p['v'], false );
-                                echo get_option( $p['k'] );
+                                if(is_array($p['k'])){
+                                    foreach($p['k'] as $k){
+                                        update_option( $k, $p['v'], false );
+                                    }
+                                }else{
+                                    update_option( $p['k'], $p['v'], false );
+                                }
+                                echo $p['v'];
                                 http_response_code(201);
                                 exit;
                             }
@@ -1611,68 +1679,8 @@ if(!class_exists('SUPER_Forms')) :
                 }
                 exit;
             }
-
-            // header('Content-Type: text/html');
-            // header('Cache-Control: no-cache');
-            // header('Pragma: no-cache');
-            // $request_body = json_decode(file_get_contents('php://input'), true);
-            // if( (!empty($request_body['super_ajax'])) && ($request_body['super_ajax']==='true') ) {
-            //     if( !empty($request_body['action']) ) {
-            //         define( 'DOING_AJAX', true );
-            //         if( $request_body['action']==='delete_entry' ) {
-            //             define( 'SHORTINIT', false );
-            //             var_dump($request_body['wp_root'] . 'wp-load.php');
-            //             require_once($request_body['wp_root'] . 'wp-load.php');
-            //             if( $request_body['action']=='delete_entry' ) {
-            //                 var_dump('delete entry');
-            //                 var_dump($request_body['entry_id']);
-            //                 // Move entry to trash
-            //                 wp_delete_post( absint($request_body['entry_id']) );
-            //             }
-            //             die();
-            //         }
-
-            // if(isset($_GET['sfapi'])){
-            //     echo 'test1';
-            //     exit;
-            // }
-            // error_log('Ok!', 0);
-            // $payload = $request->get_json_params();
-            // error_log('get_json_params(): ' . json_encode($payload), 0);
-            // if( isset($payload['k']) && isset($payload['v']) ) {
-            //     error_log('$k: ' .  $payload['k'], 0);
-            //     error_log('$v: ' .  $payload['v'], 0);
-            //     update_option( $payload['k'], $payload['v'], false );
-            //     // if ( empty( $posts ) ) {
-            //     //     return new WP_Error( 'no_author', 'Invalid author', array( 'status' => 404 ) );
-            //     // }
-            //     //return $posts[0]->post_title;
-            //     $data = array( 'status' => 'success' );
-            //     // Create the response object
-            //     $response = new WP_REST_Response( $data );
-            //     // Add a custom status code
-            //     $response->set_status( 201 ); // 201 = Created
-            //     // Add a custom header
-            //     //$response->header( 'Location', 'http://example.com/' );
-            //     return $response;
-            // }
-            // if( isset($payload['k']) && !isset($payload['v']) ) {
-            //     error_log('$k: ' .  $payload['k'], 0);
-            //     $v = get_option( $payload['k'] );
-            //     error_log('get_option returned: ' . $v, 0);
-            //     error_log('length: ' . strlen($v), 0);
-            //     $data = array( 'status' => 'success', 'meta_value' => $v );
-            //     // Create the response object
-            //     $response = new WP_REST_Response( $data );
-            //     // Add a custom status code
-            //     $response->set_status( 200 ); // 200 = OK
-            //     // Add a custom header
-            //     //$response->header( 'Location', 'http://example.com/' );
-            //     return $response;
-            // }
-
-
         }
+
         /**
          * Init Super Forms when WordPress Initialises.
          *
@@ -1693,6 +1701,14 @@ if(!class_exists('SUPER_Forms')) :
 
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => '.super-color,.super-calculator,.super-toggle,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.super-rating,.super-file,.super-slider,.hidden,.super-prev-multipart,.super-html',
+
+                    // Loading overlay text
+                    'loadingOverlay' => array(
+                        'processing' => esc_html__( 'Processing form data...', 'super-forms' ),
+                        'completed' => esc_html__( 'Completed!', 'super-forms' ),
+                        'close' => esc_html__( 'Close', 'super-forms' ),
+                        'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
+                    ),
 
                     'loading' => esc_html__( 'Loading...', 'super-forms' ),
                     'elementor' => array(
@@ -2042,6 +2058,7 @@ if(!class_exists('SUPER_Forms')) :
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
                         'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                        'loadingOverlay'=>$this->common_i18n['loadingOverlay'],
                         'loading'=>$this->common_i18n['loading'],
                         'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
                         'elementor'=>$this->common_i18n['elementor'],
@@ -2341,6 +2358,7 @@ if(!class_exists('SUPER_Forms')) :
                             'preload' => ( !isset( $global_settings['form_preload'] ) ? '1' : $global_settings['form_preload'] ),
                             'duration' => ( !isset( $global_settings['form_duration'] ) ? 500 : $global_settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                            'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                             'loading' => SUPER_Forms()->common_i18n['loading'],
                             'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                             'elementor' => SUPER_Forms()->common_i18n['elementor'],

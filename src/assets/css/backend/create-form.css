@@ -1148,7 +1148,8 @@
 
 .super-elements {
     float: left;
-    width: 500px;
+    width: 50%;
+    max-width: 500px;
     position: relative;
     z-index: 3;
     padding-left: 10px;
