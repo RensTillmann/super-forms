@@ -11,4 +11,3 @@
 | `super_init` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_init) |
 | `super_before_printing_message` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_printing_message) |
 | `super_duplicate_form` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_duplicate_form) |
-

@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $version = '4.9.498';
         public $slug = 'super-forms';
-        public $apiUrl = 'https://apiv1.super-forms.com/';
+        public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
         
         /**

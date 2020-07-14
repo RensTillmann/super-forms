@@ -77,7 +77,7 @@ class SUPER_Pages {
                 'reset_password' => (isset($_GET['reset_password']) ? $_GET['reset_password'] : '')
             )
         );
-        SUPER_Ajax::api_do_request('addons/list', $custom_args);
+        echo SUPER_Ajax::api_do_request('addons/list', $custom_args);
     }
 
 

@@ -7,24 +7,21 @@
 * [How to enable it?](#how-to-enable-it)
 * [Example form](#example-form)
 
-
-### About
+## About
 
 With this feature for [Text fields](text) you can calculate either the distance or duration between 2 different locations.
 When calculating the distance you can return the total kilometers (metric) or miles (imperial).
-When calculating the duration (travel time) you can return the total seconds or minutes. 
+When calculating the duration (travel time) you can return the total seconds or minutes.
 
 The distance and duration between the two locations are calculated with the **google directions API**.
 
-?> **NOTE:** In order for this feature to work you must enable the **Directions API** within 
+?> **NOTE:** In order for this feature to work you must enable the **Directions API** within
 
-
-### When to use this feature?
+## When to use this feature?
 
 You will want to use this feature whenever you need to calculate **travel time** or **travel distance** between 2 different locations. The value returned can be populated to another [Text field](text) that you can optionally set to be disabled to not allow the user to edit the field. You can also put this field in a hidden column to make it invisible to the end user.
 
-
-### How to enable it?
+## How to enable it?
 
 This feature can be enabled for any [Text field](text) in your form.
 
@@ -43,17 +40,17 @@ When the field acts as **Start address**, you will have to define what the **Des
 
 When you have choosen to use the field as the Start address, you can now choose what value you wish to return from the API.
 You can choose one of the following options:
-- **Distance in meters** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
-- **Duration in seconds** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
-- **Distance text in km or miles**
-- **Duration text in minutes**
+
+* **Distance in meters** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
+* **Duration in seconds** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
+* **Distance text in km or miles**
+* **Duration text in minutes**
 
 Now we have to **Select a unit system** for the value returned by the API.
 You can choose between **Metric** (kilometer/meters) or **Imperial** (miles/feet) unit system.
 
 The final step is to enter the [Unique field name](unique-field-name) which the distance/duration value should be populated to. This can either be a [Text field](text) or [Hidden field](hidden) (only enter the unique field name without any brackets).
 
-
-### Example form
+## Example form
 
 You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Distance calculator`

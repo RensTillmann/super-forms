@@ -205,14 +205,17 @@ class SUPER_Ajax {
         self::api_do_request('addons/checkout', $custom_args);
     }
 
-    public static function api_do_request($route, $custom_args){
+    public static function api_do_request($route, $custom_args, $method='echo'){
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
             setcookie('super_forms[wp_admin]', '', time()-3600);
         }
         $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
         $r = wp_remote_post($api_endpoint . '/' . $route, $args);
-        self::api_handle_response($r, $args);
+        $response = self::api_handle_response($r, $args);
+        if($method=='return') return $response;
+        if($method=='echo') echo $response;
+        die();
     }
 
     public static function api_default_post_args($custom_args){
@@ -228,32 +231,18 @@ class SUPER_Ajax {
     }
 
     public static function api_handle_response($r, $args){
+        $body = '';
         if ( is_wp_error( $r ) ) {
             $err = $r->get_error_message();
-            echo '<div class="error notice" style="margin-top:50px;">';
-                echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
-                echo '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
-            echo '</div>';
+            $body .= '<div class="error notice" style="margin-top:50px;">';
+                $body .= '<p>Unable to load content, please refresh the page, or try again later.</p>';
+                $body .= '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
+            $body .= '</div>';
         }else{
             // Just an API error/notice/success message or HTML payload
-            $body = $r['body'];
-            error_log('$body: ' . $body);
-            echo $body;
-            //$response = $r['response'];
-            //error_log('$body: ' . $body);
-            //error_log('$response: ' . json_encode($response));
-            // Determine if we encounter a server error or not
-            //if($response['code']!=200 && strpos($body, '{') !== 0){
-            //    // Response is not 200 and isn't a JSON payload either
-            //    // means we are dealing with a server error returned by Traefik
-            //    echo '<div class="error notice" style="margin-top:50px;">';
-            //        echo '<p>Unable to load content, please refresh the page, or try again later.</p>';
-            //        echo '<textarea style="display:none;opacity:0;">' . json_encode($response) . '</textarea>';
-            //    echo '</div>';
-            //    die();
-            //}
+            $body .= $r['body'];
         }
-        die();
+        return $body;
     }
 
     // @since 4.9.46

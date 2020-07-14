@@ -7,8 +7,7 @@ This guide will explain what a column is, what features it has, when it's smart 
 * [When to use a column?](#when-to-use-a-column)
 * [How to add a column?](#how-to-use-a-column)
 
-
-### What is a column?
+## What is a column?
 
 In short a column is a section of your form where you insert a set of elements.
 A column will determine the layout of the elements that are inside the column.
@@ -17,9 +16,10 @@ You can put an unlimited amount of columns next to eachother.
 This makes creating forms really flexible because you now do not have limitation on how many elements you need next to eachother.
 A column can also be inserted into another column with unlimited nesting possibility.
 
-### What features does a column have?
+## What features does a column have?
 
 Each column has the following features:
+
 * [Conditional Logic](#conditional-logic) - conditionally hide/show column based on other field values
 * [Column Visibility](#column-visibility) - will make column invisible on front-end
 * [Dynamic Add More](#dynamic-add-more) - allows users to add/duplicate a set of fields
@@ -31,15 +31,13 @@ Each column has the following features:
 * **Force responsiveness on mobile devices (always 100% width)** - Based on screen width (breaking point = 760px)
 * **Styling options** - background (image, color, opacity), custom padding, positioning (static,absolute etc.)
 
-
-#### Conditional Logic:
+### Conditional Logic:
 
 Because conditional logic can be applied on almost all elements this part is covered in the [Conditional Logic](conditional-logic) guide.
 
 ?> **NOTE:** when a column or any element is **conditionally hidden** the fields will not be included in emails (if enabled) and will not be saved under contact entries (if enabled).
 
-
-#### Column Visibility:
+### Column Visibility:
 
 Whenever you want to hide a set of fields on the front-end you can enable the option to make the column invisible.
 In order to do this click on the :pencil2: icon of the column to start editing the column.
@@ -55,8 +53,7 @@ When you preview your form by clicking the `Preview` button at the top right of 
 ?> **NOTE:** when a column is **invisible** the fields will still be included in emails (if enabled) and saved under contact entries (if enabled).
 If you still require specific fields inside a hidden column to be excluded, you can change this per field. To do this edit the field and go to `Advanced` TAB and change the **Exclude from email** and **Do not save field in Contact Entry** options accordingly.
 
-
-#### Dynamic Add More:
+### Dynamic Add More:
 
 In some cases you want to allow the end user to add a new set of fields dynamically by clicking a :heavy_plus_sign: button.
 
@@ -68,19 +65,15 @@ So it basically duplicates the column on the front-end.
 
 If you need it to have a maximum duplications of 8 (which is the case in our example) you can change the **Limit for dynamic fields (0 = unlimited)** option.
 
+### Update Conditions Dynamically:
 
-#### Update Conditions Dynamically:
-
-When you have enabled [Dynamic Add More](#dynamic-add-more) and you have elements inside the column that are using 
-conditional logic based on a field inside this same column and you require these conditional logic to keep working 
+When you have enabled [Dynamic Add More](#dynamic-add-more) and you have elements inside the column that are using
+conditional logic based on a field inside this same column and you require these conditional logic to keep working
 on dynamically added columns you will have to enable the **Update conditional logic dynamically** option.
 
 This will make sure that whenever a column is duplicated by the user on the front-end, it's conditions reference will be update to it's own column rather than the first original column.
 
-
-
-
-### When to use a column?
+## When to use a column?
 
 A column comes in handy when you ever need to apply the same [conditional logic](conditional-logic) on each of those elements.
 This prevents you from having to add the same conditions on each element one by one.
@@ -96,13 +89,13 @@ This will free up a lot of working space whenever you have finished this part of
 This will make it also a lot easier to drag & drop new elements into the correct place of your form.
 When you otherwise would have to scroll down or up all the way, you now probably only have to scroll a little bit or not at all :wink:
 
-
-### How to add a column?
+## How to add a column?
 
 In order to add a column you can open up the **Layout Elements** section on the builder page.
 You will see 4 elements, 3 of them are columns the other one is a so called [Multi-part](multi-parts), which is not a column.
 The first one is a 100% width column or so called 1/1 column. The second column is a 50% width (1/2). The third is a 33% width (1/3) column.
 When added you can still change the column sizes to one of the following ratio's:
+
 * 1/1 (100%)
 * 1/2 (50%)
 * 1/3 (33%)

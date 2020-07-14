@@ -3,8 +3,7 @@
 * [When should I use this feature?](#when-should-i-use-this-feature)
 * [How to enable this feature?](#how-to-enable-this-feature)
 
-
-### When should I use this feature? 
+## When should I use this feature?
 
 Whenever you require to submit the form data to an external API, or to your custom PHP script.
 
@@ -12,8 +11,7 @@ In that case you can let the form submit all it's data to this custom URL via a 
 
 ?> **Please note:** that it's up to the URL how to deal with the POST request and that this is not Super Forms responsibility.
 
-
-### How to enable this feature?
+## How to enable this feature?
 
 To use this feature you can go to `Form Settings > Form Settings` and enable the option **Enable form POST method**.
 

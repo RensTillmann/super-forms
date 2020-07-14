@@ -3,13 +3,11 @@
 * [Demo Form](#demo-form)
 * [Description](#description)
 
-
-### Demo Form:
+## Demo Form:
 
 A live demo can be found here: [http://f4d.nl/super-forms/documentation/build-in-translation-system/](http://f4d.nl/super-forms/documentation/build-in-translation-system/)
 
-
-### Description
+## Description
 
 Do you need a form in multiple languages? No problem with Super Forms!
 
@@ -23,9 +21,8 @@ Both `Elements Settings` and `Form Settings` can be translated, so that you can 
 
 Enable the `Language Switcher` so that your users can easily switch to their preferred languages on the fly or choose to display a fixed language with the use of shortcodes:
 
-    [super_form i18n="en_GB" id="49515"]
-
-    [super_form i18n="nl_NL" id="49515"]
-
-    [super_form i18n="de_DE" id="49515"]
-
+```html
+[super_form i18n="en_GB" id="49515"]
+[super_form i18n="nl_NL" id="49515"]
+[super_form i18n="de_DE" id="49515"]
+```
