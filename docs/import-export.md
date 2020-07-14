@@ -1,14 +1,13 @@
 # Import & Export
 
 This guide will walk you through the steps to import and export:
+
 * [Global settings](#global-settings)
 * [Form settings](#form-settings)
 * [Contact entries](#contact-entries)
 * [Forms](#forms)
 
-
-
-### Global Settings
+## Global Settings
 
 If you have 2 WordPress websites and you wish to import the same settings you have for **website 1** to **website 2** you can simply do this by going to `Super Forms` > `Settings` on **website 1**.
 
@@ -22,9 +21,7 @@ Click on the `Import Settings` button to override the current settings with the 
 
 Super Forms will now save the settings and you will now have the same global settings that you have on **website 1**.
 
-
-
-### Form Settings
+## Form Settings
 
 To export just the form settings, you can go to (on the form builder page) `Form Settings` > `Export & Import`
 
@@ -38,8 +35,7 @@ Now you can choose to import both the `Settings` and `Elements`, in our case we 
 
 This way your form elements will not be replaced with those from the exported form.
 
-
-### Contact Entries
+## Contact Entries
 
 There are multiple ways to export Contact Entries
 
@@ -47,7 +43,7 @@ There are multiple ways to export Contact Entries
 * [Export entries based on date range to CSV](#export-entries-based-on-date-range-to-csv)
 * [Export specific entries to CSV](#export-specific-entries-to-csv)
 
-#### Export all entries to XML
+### Export all entries to XML
 
 ?> This method will download all of your Contact Entries as an **XML file**.
 
@@ -61,8 +57,7 @@ This will download all of Super Forms **Contact Entries** in an **XML** format.
 This XML file can now be used to import it into any other WordPress website.
 Of course you can also use the XML file for other purposes.
 
-
-#### Export entries based on date range to CSV
+### Export entries based on date range to CSV
 
 ?> This method allows you to export your Contact Entries as a **CSV file** based on a selected date range.
 
@@ -84,8 +79,7 @@ This comes in handy whenever your CSV file has heading columns that do not requi
 
 _Of course you can also use the CSV export file to do anything else, for instance import it into your MailChimp lists or any other program's that support CSV importing._
 
-
-#### Export specific entries to CSV
+### Export specific entries to CSV
 
 ?> This method allows you to export specific selected Contact Entries to a **CSV file**.
 
@@ -98,16 +92,14 @@ Each field will become it's own column in the CSV file.
 After selecting the fields you require in your CSV file click on the `Export` button.
 _Your CSV file will now be downloaded._
 
-
-### Forms
+## Forms
 
 There are 2 ways to export Forms
 
 * [Export specific forms](#export-specific-forms)
 * [Export all forms](#export-all-forms)
 
-
-#### Export specific forms
+### Export specific forms
 
 ?> This method allows you to export just one form.
 
@@ -123,8 +115,7 @@ Now click `Export` (this should save the export file to your computer)
 
 The exported file will hold both the form elements and the form settings.
 
-
-#### Export all forms
+### Export all forms
 
 ?> This method allows you to export all forms at once.
 
@@ -137,4 +128,3 @@ Now search the import file on your computer and upload it.
 
 The import will now run. Give it a couple of minutes (depending on the amount of forms) to process.
 After the import finished your forms should have been imported and available for usage.
-

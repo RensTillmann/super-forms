@@ -15,8 +15,7 @@ Enable the Auto Suggest setting and choose on of the below **Retrieve methods** 
 * [Tags](#tags)
 * [CSV file](#csv-file)
 
-
-### Custom Items
+## Custom Items
 
 This retrieve method allows you to enter your own predefined values by hand. It allows to enter a `Label` and `Value` for each option.
 
@@ -27,12 +26,12 @@ The `Value` will be saved in the [Contact Entry](contact-entry) and used in the 
 In case no match was found, the entered string of the user will be saved instead, meaning the user is free to enter whatever they like for the field.
 If you do not want a user to have this permission you should consider using a [Dropdown Field](dropdown) instead.
 
-
-### Specific taxonomy
+## Specific taxonomy
 
 This retrieve method allows to filter a specific taxonomy (category) based on it's **slug** name.
-- For **Post Categories** the slug name would `category`.<br />
-- For **WooCommerce Product Categories** the slug name would be `product_cat`.
+
+* For **Post Categories** the slug name would `category`.
+* For **WooCommerce Product Categories** the slug name would be `product_cat`.
 
 To exclude categories from the list you can enter each category ID seperated by comma's under the **Exclude a category** option.
 
@@ -41,28 +40,26 @@ If you wish to hide empty categories you can do this by enabling the **Hide empt
 Whenever you need to retrieve child categories based on a parent category you can enter the category parent ID under the **Based on parent ID** option.
 You will have the ability to either return the `Slug`, `Title` or `ID` of the category.
 
-
-### Specific posts
+## Specific posts
 
 This retrieve method allows to filter on posts based on the given `Post type`.
-- For **Pages** the post type would be `page`
-- For **Posts** the post type would be `post`
-- For **WooCommerce Products** the post type would be `product`
+
+* For **Pages** the post type would be `page`
+* For **Posts** the post type would be `post`
+* For **WooCommerce Products** the post type would be `product`
 
 To exclude posts from the list you can enter each post ID seperated by comma's under the **Exclude a post** option.
 
 Whenever you need to retrieve child post based on a parent post you can enter the post parent ID under the **Based on parent ID** option.
 You will have the ability to either return the `Slug`, `Title` or `ID` of the post.
 
-
-### Tags
+## Tags
 
 This retrieve method allows you to filter on post tags.
 
 You will have the ability to either return the `Slug`, `Title` or `ID` of the tag.
 
-
-### CSV file
+## CSV file
 
 This retrieve method allows you to filter based on a CSV file you uploaded.
 
