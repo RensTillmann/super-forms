@@ -97,6 +97,7 @@ class SUPER_Ajax {
             'api_logout_user'               => false,
             'api_verify_code'               => false,
             'api_auth'                      => false,
+            'api_submit_feedback'           => false,
 
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -127,6 +128,16 @@ class SUPER_Ajax {
         );
         echo ($result===true ? 'true' : 'false');
         die();
+    }
+    public static function api_submit_feedback() {
+        $custom_args = array(
+            'body' => (array(
+                'addon_title' => $_POST['addon_title'],
+                'feedback' => $_POST['feedback'],
+                'email' => $_POST['email']
+            ))
+        );
+        self::api_do_request('feedback/submit', $custom_args);
     }
     public static function api_verify_code() {
         $custom_args = array(

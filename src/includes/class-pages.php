@@ -27,42 +27,8 @@ class SUPER_Pages {
     public static function addons() {
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
-        // Make request
-        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            $hostname = getHostByName(getHostName()); // PHP >= 5.3.0
-        }else{
-            $hostname = getHostByName(php_uname('n')); // PHP < 5.3.0
-        }
-        $user_id = get_current_user_id();
-        $user_email = '';
-        if($user_id!==0){
-            $user = get_user_by( 'ID', $user_id );
-            if($user!==false){
-                $user_email = $user->user_email;
-            }
-        }
-
-        $addOnsActivated = array();
-        if(class_exists('SUPER_Calculator')) $addOnsActivated['calculator'] = SUPER_Calculator()->version;
-        if(class_exists('SUPER_CSV_Attachment')) $addOnsActivated['csv_attachment'] = SUPER_CSV_Attachment()->version;
-        if(class_exists('SUPER_Email_Reminders')) $addOnsActivated['email_reminders'] = SUPER_Email_Reminders()->version;
-        if(class_exists('SUPER_Email_Templates')) $addOnsActivated['email_templates'] = SUPER_Email_Templates()->version;
-        if(class_exists('SUPER_Frontend_Posting')) $addOnsActivated['frontend_posting'] = SUPER_Frontend_Posting()->version;
-        if(class_exists('SUPER_Mailchimp')) $addOnsActivated['mailchimp'] = SUPER_Mailchimp()->version;
-        if(class_exists('SUPER_Mailster')) $addOnsActivated['mailster'] = SUPER_Mailster()->version;
-        if(class_exists('SUPER_Password_Protect')) $addOnsActivated['password_protect'] = SUPER_Password_Protect()->version;
-        if(class_exists('SUPER_PayPal')) $addOnsActivated['paypal'] = SUPER_PayPal()->version;
-        if(class_exists('SUPER_Popup')) $addOnsActivated['popup'] = SUPER_Popup()->version;
-        if(class_exists('SUPER_Register_Login')) $addOnsActivated['register_login'] = SUPER_Register_Login()->version;
-        if(class_exists('SUPER_Signature')) $addOnsActivated['signature'] = SUPER_Signature()->version;
-        if(class_exists('SUPER_WooCommerce')) $addOnsActivated['woocommerce'] = SUPER_WooCommerce()->version;
-        if(class_exists('SUPER_Zapier')) $addOnsActivated['zapier'] = SUPER_Zapier()->version;
-
-        $addOnsActivated['super_forms'] = SUPER_VERSION;
-        // build-SUPER_FORMS_BUNDLE
-        $addOnsActivated['super_forms_bundle'] = SUPER_VERSION;
-        unset($addOnsActivated['super_forms']);
-        // build-SUPER_FORMS_BUNDLE_END
+        $userEmail = SUPER_Common::get_user_email();
+        $addOnsActivated = SUPER_Common::get_activated_addons();
         $custom_args = array(
             'body' => array(
                 'action' => 'super_api_subscribe_addon',
@@ -70,7 +36,7 @@ class SUPER_Pages {
                 'api_version' => SUPER_API_VERSION,
                 'home_url' => get_home_url(),
                 'site_url' => site_url(),
-                'email' => $user_email,
+                'email' => $userEmail,
                 'addons_activated' => $addOnsActivated,
                 'addons_url' => admin_url( 'admin.php?page=super_addons' ),
                 'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),

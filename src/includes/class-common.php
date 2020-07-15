@@ -1090,6 +1090,40 @@ class SUPER_Common {
         }
     }
 
+    public static function get_user_email() {
+        $user_id = get_current_user_id();
+        $user_email = '';
+        if($user_id!==0){
+            $user = get_user_by( 'ID', $user_id );
+            if($user!==false){
+                $user_email = $user->user_email;
+            }
+        }
+        return $user_email;
+    }
+    public static function get_activated_addons() {
+        $addOnsActivated = array();
+        if(class_exists('SUPER_Calculator')) $addOnsActivated['calculator'] = SUPER_Calculator()->version;
+        if(class_exists('SUPER_CSV_Attachment')) $addOnsActivated['csv_attachment'] = SUPER_CSV_Attachment()->version;
+        if(class_exists('SUPER_Email_Reminders')) $addOnsActivated['email_reminders'] = SUPER_Email_Reminders()->version;
+        if(class_exists('SUPER_Email_Templates')) $addOnsActivated['email_templates'] = SUPER_Email_Templates()->version;
+        if(class_exists('SUPER_Frontend_Posting')) $addOnsActivated['frontend_posting'] = SUPER_Frontend_Posting()->version;
+        if(class_exists('SUPER_Mailchimp')) $addOnsActivated['mailchimp'] = SUPER_Mailchimp()->version;
+        if(class_exists('SUPER_Mailster')) $addOnsActivated['mailster'] = SUPER_Mailster()->version;
+        if(class_exists('SUPER_Password_Protect')) $addOnsActivated['password_protect'] = SUPER_Password_Protect()->version;
+        if(class_exists('SUPER_PayPal')) $addOnsActivated['paypal'] = SUPER_PayPal()->version;
+        if(class_exists('SUPER_Popup')) $addOnsActivated['popup'] = SUPER_Popup()->version;
+        if(class_exists('SUPER_Register_Login')) $addOnsActivated['register_login'] = SUPER_Register_Login()->version;
+        if(class_exists('SUPER_Signature')) $addOnsActivated['signature'] = SUPER_Signature()->version;
+        if(class_exists('SUPER_WooCommerce')) $addOnsActivated['woocommerce'] = SUPER_WooCommerce()->version;
+        if(class_exists('SUPER_Zapier')) $addOnsActivated['zapier'] = SUPER_Zapier()->version;
+        $addOnsActivated['super_forms'] = SUPER_VERSION;
+        // build-SUPER_FORMS_BUNDLE
+        $addOnsActivated['super_forms_bundle'] = SUPER_VERSION;
+        unset($addOnsActivated['super_forms']);
+        // build-SUPER_FORMS_BUNDLE_END
+        return $addOnsActivated;
+    }
 
     /**
      * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
