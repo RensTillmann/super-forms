@@ -22,7 +22,6 @@
                 names;
 
             for(i=0; i < nodes.length; i++){
-                debugger;
                 value = nodes[i].value;
                 if(nodes[i].type==='checkbox') value = nodes[i].checked;
                 if(nodes[i].type==='radio') value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value; 
@@ -45,7 +44,6 @@
                     data[nodes[i].name] = value;
                 }
             }
-            debugger;
             formSettings[setting] = data;
             document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
         }
@@ -54,7 +52,6 @@
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
     SUPER.update_form_settings = function(string){
-        debugger;
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string);
     };
     SUPER.update_translation_settings = function(string){
@@ -69,7 +66,6 @@
         return $elements;
     };
     SUPER.get_form_settings = function(string){
-        debugger;
         if(typeof string === 'undefined') string = false;
         var $settings = {};
         $('.super-create-form .super-form-settings .element-field').each(function () {
@@ -93,7 +89,7 @@
             }
         });
         var i,
-            tab = document.querySelector('.super-tab-content.super-tab-pdf_settings'),
+            tab = document.querySelector('.super-tab-content.super-tab-pdf'),
             nodes = tab.querySelectorAll('[name]:not(.sfui-exclude)'),
             data = {},
             value = '',

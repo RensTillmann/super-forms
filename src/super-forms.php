@@ -283,9 +283,7 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi'));
-            
             add_action( 'sf_cron_jobs', array( $this, 'sf_cron_exec' ) );
-            add_filter( 'cron_schedules', array( $this, 'sf_add_cron_interval' ) );
 
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
@@ -353,7 +351,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
 
                 add_filter( 'super_create_form_tabs', array( $this, 'add_pdf_tab' ), 10, 1 );
-                add_action( 'super_create_form_pdf_settings_tab', array( $this, 'add_pdf_tab_content' ) );
+                add_action( 'super_create_form_pdf_tab', array( $this, 'add_pdf_tab_content' ) );
 
             }
             
@@ -550,24 +548,13 @@ if(!class_exists('SUPER_Forms')) :
             }
             return $args;
         }
-        public function sf_add_cron_interval( $schedules ) { 
-            $schedules['five_seconds'] = array(
-                'interval' => 5,
-                'display'  => esc_html__( 'Every Five Seconds' ), );
-            return $schedules;
-        }
-        public function sf_cron_exec() {
-            error_log('SF Cronjob was triggered 5', 0);
-            // Cleen up database, unused backups/options/transients etc.
-            SUPER_Common::cleanup_db();
-        }
+
         public static function add_pdf_tab($tabs){
-            $tabs['pdf_settings'] = esc_html__( 'PDF', 'super-forms' );
+            $tabs['pdf'] = esc_html__( 'PDF', 'super-forms' );
             return $tabs;
         }
         public static function add_pdf_tab_content($atts){
             $html = '<div class="super_transient"></div>';
-            
             $slug = 'pdf';
             $pdf = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
@@ -577,8 +564,8 @@ if(!class_exists('SUPER_Forms')) :
             $defaults = array(
                 'generate' => '',
                 'debug' => '',
-                'filename' => 'form.pdf',
-                'emailLabel' => 'PDF File:',
+                'filename' => esc_html__( 'form', 'super-forms' ).'.pdf',
+                'emailLabel' => 'PDF '.esc_html__( 'File', 'super-forms' ).':',
                 'adminEmail' => 'true',
                 'confirmationEmail' => 'true',
                 'excludeEntry' => '',
@@ -613,8 +600,6 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
             $pdf = wp_parse_args( $pdf, $defaults );
-            
-            // Get transient
             $response = wp_remote_post(
                 SUPER_API_ENDPOINT . '/settings/transient',
                 array(
@@ -644,7 +629,6 @@ if(!class_exists('SUPER_Forms')) :
                 }
             }
             echo $html;
-
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
@@ -652,7 +636,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-         
             // Enable debug mode
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
@@ -660,7 +643,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Filename
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -671,7 +653,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-                
             // E-mail label
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -682,35 +663,30 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Attach to admin E-mail
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Attach to confirmation E-mail
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-            
             // Attach to contact entry
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="excludeEntry" value="true"' . ($pdf['excludeEntry']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Direct download link
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="downloadBtn" value="true"' . ($pdf['downloadBtn']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Download button text
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -720,7 +696,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="text" name="downloadBtnText" value="' . $pdf['downloadBtnText'] . '" />';
                 echo '</label>';
             echo '</div>';
-
             // Generating text
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -730,7 +705,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="text" name="generatingText" value="' . $pdf['generatingText'] . '" />';
                 echo '</label>';
             echo '</div>';
-                
             // Page orientation:
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title">';
@@ -743,7 +717,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
-
             // Unit 
             // Possible values are "pt" (points), "mm", "cm", "in" or "px".
             $units = array('mm', 'pt', 'cm', 'in', 'px');
@@ -759,7 +732,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '</select>';
                 echo '</label>';
             echo '</div>';
-
             // Page format:
             $formats = array();
             $i = 0;
@@ -792,7 +764,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>(' . esc_html__( 'optional, leave blank for none', 'super-forms' ) . ')</span>';
                 echo '</label>';
             echo '</div>';
-            
             // Body margins
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
@@ -818,9 +789,7 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<div class="sfui-notice sfui-desc">';
                     echo esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element.', 'super-forms' );
                 echo '</div>';
-
             echo '</div>';
-
             // Header margins
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
@@ -844,7 +813,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="number" min="0" name="margins.header.left" value="' . $pdf['margins']['header']['left'] . '" />';
                 echo '</label>';
             echo '</div>';
-
             // Footer margins
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
@@ -868,12 +836,10 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="number" min="0" name="margins.footer.left" value="' . $pdf['margins']['footer']['left'] . '" />';
                 echo '</label>';
             echo '</div>';
-
             // {tags} usage notice
             echo '<div class="sfui-notice sfui-desc">';
                 echo esc_html__( 'You can use {pdf_page} and {pdf_total_pages} inside your header or footer to retrieve the current PDF page and total pages.', 'super-forms' );
             echo '</div>';    
-            
             // Render scale (quality)
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
@@ -887,14 +853,13 @@ if(!class_exists('SUPER_Forms')) :
                 echo esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
                 echo '</div>';
             echo '</div>';
-
         }
         public function pdf_element_settings($array, $attr){
             foreach($array as $group => $v){
                 $shortcodes = $array[$group]['shortcodes'];
                 foreach($shortcodes as $tag => $settings){
                     if( (isset($settings['callback'])) && (isset($array[$group]['shortcodes'][$tag])) && (isset($array[$group]['shortcodes'][$tag]['atts'])) ) {
-                        $array[$group]['shortcodes'][$tag]['atts']['pdf_settings'] = array(
+                        $array[$group]['shortcodes'][$tag]['atts']['pdf'] = array(
                             'name' => esc_html__( 'PDF Settings', 'super-forms' ),
                             'fields' => array(
                                 'pdfOption' => array(
@@ -946,21 +911,23 @@ if(!class_exists('SUPER_Forms')) :
             }
         }
         public function api_post($type) {
-            $slug = $this->slug;
-            // build-SUPER_FORMS_BUNDLE
-            $slug = $this->slug . '-bundle';
-            // build-SUPER_FORMS_BUNDLE_END
-            $data = array(
-                'version' => $this->version,
-                'slug' => $slug,
-                'domain' => site_url(),
-                'type' => $type
-            );
-            $response = wp_remote_post( 
-                'https://f4d.nl/super-forms/?api=update-plugin', 
+            $userEmail = SUPER_Common::get_user_email();
+            $addOnsActivated = SUPER_Common::get_activated_addons();
+            $response = wp_remote_post(
+                SUPER_API_ENDPOINT . '/plugin/'.$type, // activation, deactivation
                 array(
+                    'method' => 'POST',
                     'timeout' => 45,
-                    'body' => $data
+                    'data_format' => 'body',
+                    'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+                    'body' => json_encode(array(
+                        'home_url' => get_home_url(),
+                        'site_url' => site_url(),
+                        'email' => $userEmail,
+                        'addons_activated' => $addOnsActivated,
+                        'version' => $this->version,
+                        'type' => $type
+                    ))
                 )
             );
         }
@@ -1634,11 +1601,8 @@ if(!class_exists('SUPER_Forms')) :
 
         public function sfapi(){
             if(isset($_GET['sfapi'])){
-                error_log("sfapi()");
                 if($_GET['sfapi']=='v1'){
-                    error_log("sfapi() v1");
                     $p = file_get_contents('php://input');
-                    error_log($p);
                     try {
                         $p = json_decode($p, true);
                         if( empty($_GET['m']) ) {
@@ -1693,7 +1657,7 @@ if(!class_exists('SUPER_Forms')) :
     
             $this->load_plugin_textdomain();
 
-            if( ! wp_next_scheduled( 'sf_cron_jobs' ) ) wp_schedule_event( time(), 'five_seconds', 'sf_cron_jobs' );
+            if( ! wp_next_scheduled( 'sf_cron_jobs' ) ) wp_schedule_event( time(), 'weekly', 'sf_cron_jobs' );
 
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
@@ -3011,6 +2975,16 @@ if(!class_exists('SUPER_Forms')) :
                   });
                   </script>';
              }
+        }
+
+
+        /**
+         * Cleanup database
+         *
+        */
+        public function sf_cron_exec() {
+            // Cleen up database, unused backups/options/transients etc.
+            SUPER_Common::cleanup_db();
         }
 
 

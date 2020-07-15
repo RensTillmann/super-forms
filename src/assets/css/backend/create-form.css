@@ -1,57 +1,68 @@
-.super-tabs>.super-tab-code:before, .super-shortcode-tabs_pre:before, .super-shortcode-accordion_pre:before {
-    content: 'NEW' !important;
-    line-height: normal;
+.super-preview .super-demos-notice {
+  border:4px dashed red;
+  background-color:white;
+  padding: 20px 20px 20px 20px;
+  margin: 0px 0px 20px 0px;
+}
+.super-preview .super-demos-notice h1 {
+  color:red;
+  margin:0px 0px 0px 0px;
+  padding:0px 0px 20px 0px;
+  font-size:24px;
+  line-height:normal;
+}
+.super-preview .super-demos-notice h2 {
+  color:red;
+  margin:0px 0px 0px 0px;
+  padding:5px 0px 5px 0px;
+  font-size:16px;
+  line-height:normal;
+  color:#333;
+}
+.super-preview .super-demos-notice p {
+  color:red;
+  margin:0px 0px 0px 0px;
+  padding:5px 0px 5px 0px;
+  font-size:14px;
+  line-height:normal;
+  color:#555;
+}
+.super-tabs > .super-tab-pdf {
+    background-color:#ff7e7e!important;
+    color:white!important;
+    position: relative;
+    padding-right: 60px !important;
+}
+.super-tabs > .super-tab-pdf:before {
+    content: 'Add-on' !important;
     position: absolute;
-    right: -6px;
-    top: 10px;
+    right: -3px;
+    top: 7px;
     display: block !important;
-    background-color: red;
-    font-size: 9px !important;
-    text-transform: initial !important;
-    color: white;
     padding-left: 15px;
     padding: 2px 5px 2px 14px;
-    font-weight: bold;
-    font-family: inherit;
+    font-weight: bold!important;
+    font-family: inherit!important;
+    font-size: 9px !important;
+    line-height: normal;
+    text-transform: initial !important;
+    background-color: red;
+    color: white;
 }
-
-.super-tabs>.super-tab-code:after, .super-shortcode-tabs_pre:after, .super-shortcode-accordion_pre:after {
+.super-tabs > .super-tab-pdf:after {
     content: '';
     position: absolute;
-    right: 26px;
-    top: 9px;
+    right: 41px;
+    top: 7px;
     display: block !important;
     width: 0;
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 8px solid #E9E9E9;
+    border-left: 8px solid #ff7e7e;
 }
-
-.super-tabs>.super-tab-code {
-    position: relative;
-    padding-right: 40px !important;
-}
-
-.super-tabs>.super-tab-code.super-active {
-    position: relative;
-}
-
-.super-tabs>.super-tab-code:before {
-    top: 7px;
-    background-color: #ff7e7e;
-}
-
-.super-tabs>.super-tab-code.super-active:before {
-    background-color: red;
-}
-
-.super-tabs>.super-tab-code:after {
-    top: 7px;
-}
-
-.super-tabs>.super-tab-code.super-active:after {
-    border-left: 8px solid #ffffff;
+.super-tabs>.super-tab-pdf.super-active:after {
+    border-left: 8px solid #ff7e7e;
 }
 
 .super-raw-code-form-elements, .super-raw-code-form-settings, .super-raw-code-translation-settings {
@@ -746,21 +757,6 @@
     cursor: default;
 }
 
-.super-preview .super-demos-notice {
-    border: 2px dashed #ded367;
-    float: left;
-    padding: 20px 20px 20px 20px;
-    margin: 0px 0px 10px 0px;
-    background-color: #fff8b2;
-    color: #86804a;
-    width: 100%;
-}
-
-.super-preview .super-demos-notice h2 {
-    color: #86804a;
-    margin: 0px 0px 0px 0px;
-    font-size: 24px;
-}
 
 .super-preview-elements {
     margin: 10px 0px 0px 0px;
