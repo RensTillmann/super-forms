@@ -6138,8 +6138,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   content: "\f1ce";
   color: #c5c5c5;
   font-size: 34px;
-  width: 34px;
-  height: 55px;
+  margin-bottom: 25px;
   -webkit-animation: rotating 2s linear infinite;
   -moz-animation: rotating 2s linear infinite;
   -ms-animation: rotating 2s linear infinite;
@@ -6175,6 +6174,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   align-items: center;
   justify-content: center;
   padding: 5px 25px 5px 25px !important;
+  line-height: normal;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;

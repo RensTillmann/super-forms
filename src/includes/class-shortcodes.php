@@ -4345,8 +4345,8 @@ class SUPER_Shortcodes {
     public static function google_map( $tag, $atts ) {
         // In order to print google map load the libraries:
         wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-        wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-        wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );          
+        wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
+        wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
         
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
