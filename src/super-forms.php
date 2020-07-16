@@ -629,6 +629,18 @@ if(!class_exists('SUPER_Forms')) :
                 }
             }
             echo $html;
+            // Hiding/Showing elements in PDF
+            echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>Tip:</strong> ' . esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element. Each element can be included or excluded specifically from the PDF or from the form. You can define this on a per element basis (including columns) by editing the element and navigating to "PDF Settings" section. Here you can define if the element should be only visible in the PDF or Form, or both.', 'super-forms' );
+            echo '</div>';
+            // Header/Footer usage notice
+            echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>Tip:</strong> ' . esc_html__( 'To use a header and footer for your PDF, you can edit any element (including columns) and navigate to "PDF Settings" section. Here you can define if the element should be used as a header or footer. Note that you can only use one header or footer element. To add multiple elements you should use a column instead.', 'super-forms' );
+            echo '</div>';    
+            // {tags} usage notice
+            echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>Tip:</strong> ' . esc_html__( '{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to be used in your header/footer.', 'super-forms' );
+            echo '</div>';    
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
@@ -785,10 +797,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
                     echo '<input type="number" min="0" name="margins.body.left" value="' . $pdf['margins']['body']['left'] . '" />';
                 echo '</label>';
-
-                echo '<div class="sfui-notice sfui-desc">';
-                    echo esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element.', 'super-forms' );
-                echo '</div>';
             echo '</div>';
             // Header margins
             echo '<div class="sfui-setting">';
@@ -836,10 +844,6 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<input type="number" min="0" name="margins.footer.left" value="' . $pdf['margins']['footer']['left'] . '" />';
                 echo '</label>';
             echo '</div>';
-            // {tags} usage notice
-            echo '<div class="sfui-notice sfui-desc">';
-                echo esc_html__( 'You can use {pdf_page} and {pdf_total_pages} inside your header or footer to retrieve the current PDF page and total pages.', 'super-forms' );
-            echo '</div>';    
             // Render scale (quality)
             echo '<div class="sfui-setting">';
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
@@ -850,7 +854,7 @@ if(!class_exists('SUPER_Forms')) :
                     echo '<span>' . esc_html__( 'the recommended render scale is 3', 'super-forms' ) . '</span>';
                 echo '</label>';
                 echo '<div class="sfui-notice sfui-desc">';
-                echo esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
+                echo '<strong>Info:</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
                 echo '</div>';
             echo '</div>';
         }
@@ -1306,10 +1310,26 @@ if(!class_exists('SUPER_Forms')) :
                 if( version_compare($version, $this->version, '<') ) {
                     update_option( 'super_current_version', $this->version );
                     echo '<div class="notice notice-success">'; // notice-success, notice-error
-                        echo '<p>';
-                        echo sprintf( esc_html__( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/changelog">', '</a>' );
-                        echo sprintf( esc_html__( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
-                        echo '</p>';
+                        echo '<div class="super-demos-notice">';
+                        echo '<div style="display:flex;padding: 20px 50px 20px 0px;">';
+                            echo '<img style="height:100px;width:154px;" src="'.SUPER_PLUGIN_FILE.'/assets/images/logo.jpg" />';
+                            echo '<div>';
+                                echo '<p>';
+                                    echo sprintf( esc_html__( 'Successfully updated Super Forms to v' . $this->version . ' - %sCheck what\'s new!%s', 'super_forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/changelog">', '</a>' );
+                                    echo sprintf( esc_html__( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>');
+                                echo '</p>';
+                                echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
+                                echo '<hr />';
+                                echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
+                                echo '<p>' . sprintf( esc_html__( 'I know many of you have been waiting for this for a long time. Hopefully it was worth waiting for you! You can then start a 15 day trial for free! This should give you enough time to play around and to decide if this Add-on works well with your forms. Once you activated the Add-on you can enable PDF generation on your forms under the "PDF" Tab on the builder page. Please keep in mind that this Add-on is currently in BETA stage. We would love to get your feedback which you can submit via the %1$sAdd-ons%2$s page.', 'super-forms'), '<a target="_blank" href="' . get_admin_url() . 'admin.php?page=super_addons' . '">', '</a>') . '</p>';
+                                echo '<p><a target="_blank" href="' . admin_url() . 'admin.php?page=super_addons" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                                echo '<hr />';
+                                echo '<h2>' . sprintf( esc_html__( 'Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
+                                echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . get_admin_url() . 'upload.php' . '">', '</a>') . '</p>';
+                                echo '<p><a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#file-upload-settings" class="button button-primary button-large">' . esc_html__( 'Change File Upload Settings', 'super-forms' ) . '</a></p>';
+                                echo '</div>';
+                            echo '</div>';
+                        echo '</div>';
                     echo '</div>';
                 }
             }
@@ -1493,11 +1513,13 @@ if(!class_exists('SUPER_Forms')) :
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/common.js', array( 'super-common' ), SUPER_VERSION, false );  
             wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
             wp_enqueue_script( $handle );
-
-            // For printing
-            wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-            wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-            wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
+            
+            // @since 4.9.500 - PDF Generation
+            if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
+                wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
+                wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
+                wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
+            }
 
             // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
             // This is also used on the Elementor editor pages
@@ -1530,15 +1552,20 @@ if(!class_exists('SUPER_Forms')) :
                 if( !empty($settings['form_google_places_api']) ) {
                     wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
                 }
+
+
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
                 wp_enqueue_script( 'upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                // For printing
-                wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-                wp_enqueue_script( 'html2canvas', SUPER_PLUGIN_FILE.'lib/html2canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-                wp_enqueue_script( 'jspdf', SUPER_PLUGIN_FILE.'lib/jspdf.debug.js', array(), SUPER_VERSION, false );  
+                
+                // @since 4.9.500 - PDF Generation
+                if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
+                    wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
+                    wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
+                    wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
+                }
             }
 
             // @since 1.2.8 -   super_after_enqueue_element_scripts_action
@@ -2269,6 +2296,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public static function get_scripts() {
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'assets/';
+            $lib_path    = str_replace( array( 'http:', 'https:' ), '', SUPER_PLUGIN_FILE ) . 'lib/';
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $global_settings = SUPER_Common::get_global_settings();
@@ -2564,8 +2592,48 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
-                    ),  
-                    
+                    ), 
+                    'super-elements' => array(
+                        'src'     => $frontend_path . 'elements.js',
+                        'deps'    => array( 'super-backend-common', 'super-colorpicker' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'register',
+                        'localize' => SUPER_Forms()->elements_i18n,
+                    ), 
+                    'es6-promise-auto' => array(
+                        'src'     => $lib_path . 'es6-promise.auto.min.js',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue'
+                    ), 
+                    'super-html-canvas' => array(
+                        'src'     => $lib_path . 'super-html-canvas.min.js',
+                        'deps'    => array( 'es6-promise-auto' ),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ), 
+                    'super-pdf-gen' => array(
+                        'src'     => $lib_path . 'super-pdf-gen.min.js',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array(
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
+                    ), 
                     'super-stripe-js-v3' => array(
                         'src'     => 'https://js.stripe.com/v3/',
                         'deps'    => array(),
