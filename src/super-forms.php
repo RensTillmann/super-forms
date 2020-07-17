@@ -288,7 +288,8 @@ if(!class_exists('SUPER_Forms')) :
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
             add_filter( 'super_shortcodes_end_filter', array( $this, 'pdf_element_settings' ), 10, 2 );
-
+            add_filter( 'super_form_js_filter', array( $this, 'pdf_form_js' ), 10, 2);
+            
             if ( $this->is_request( 'frontend' ) ) {
 
                 add_action( 'wp_head', array( $this, 'ga_tracking_code' ), 1 );
@@ -858,6 +859,7 @@ if(!class_exists('SUPER_Forms')) :
                 echo '</div>';
             echo '</div>';
         }
+        public function pdf_form_js($js, $attr){ $form_id = $attr['id']; if(absint($form_id)!==0){ $settings = $attr['settings']; if(isset($settings['_pdf'])){ $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse(\''.json_encode($settings['_pdf']).'\');'; } } return $js; }
         public function pdf_element_settings($array, $attr){
             foreach($array as $group => $v){
                 $shortcodes = $array[$group]['shortcodes'];
@@ -1257,7 +1259,7 @@ if(!class_exists('SUPER_Forms')) :
                     ?>
                     <script type="text/javascript">
                     //<![CDATA[
-                        <?php echo stripslashes(apply_filters( 'super_form_js_filter', $js )); ?>
+                        <?php echo stripslashes($js); ?>
                     //]]>
                     </script>
                     <?php
@@ -1496,9 +1498,6 @@ if(!class_exists('SUPER_Forms')) :
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
                 'image_library' => $image_library, 
             );
-            if(absint($form_id)!==0){
-                if(isset($settings['_pdf'])) $i18n[$form_id]['_pdf'] = $settings['_pdf'];
-            }
             wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
             

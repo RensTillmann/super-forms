@@ -5873,10 +5873,15 @@ class SUPER_Shortcodes {
             SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
 
             // @since 4.2.0 - custom JS script
+            $js = '';
+            if( !empty(SUPER_Forms()->theme_custom_js) ) {
+                $js .= SUPER_Forms()->theme_custom_js;
+            }
             $global_settings = SUPER_Common::get_global_settings();
             if( !empty($global_settings['theme_custom_js']) ) {
-                SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $global_settings['theme_custom_js'], array( 'id'=>$form_id, 'settings'=>$settings ) );
+                $js .= $global_settings['theme_custom_js'];
             }
+            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $js, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
             $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
         }
