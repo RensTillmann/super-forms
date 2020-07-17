@@ -11,6 +11,7 @@
 * [Show download PDF button](#show-download-pdf-button)
 * [Portrait vs Landscape](#portrait-vs-landscape)
 * [Advanced settings](#advanced-settings)
+* [Pricing](#pricing)
 
 ## About
 
@@ -109,3 +110,16 @@ The render scale should normally be left unchanged unless your PDF file size is 
 Keep in mind that you will lose "pixel" quality when lowering the render scale.
 
 When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.
+
+## Pricing
+
+This Add-on comes with a single site licensing system with the following volume pricing:
+
+Volume | Price per license | Monthly cost
+--- | --- | ---
+15 day trial | n/a | n/a
+1+ | $5.00 | 1 license would cost $5 p/m
+5+ | $3.00 | 5 license would cost $15 p/m
+10+ | $2.50 | 10 license would cost $25 p/m
+20+ | $2.00 | 20 license would cost $40 p/m
+40+ | $1.50 | 40 license would cost $60 p/m
