@@ -1309,18 +1309,20 @@ class SUPER_Ajax {
         }else{
             $title = get_the_title( $form_id );
         }
-
-        $settings = json_decode( stripslashes( $_POST['settings'] ), true );
-        $elements = json_decode( stripslashes( $_POST['elements'] ), true );
-        $translations = get_post_meta( $form_id, '_super_translations', true );
+        $formSettings = $_POST['formSettings'];
+        $formElements = wp_unslash($_POST['formElements']);
+        $formElements = json_decode($formElements, true);
+        $translationSettings = get_post_meta( $form_id, '_super_translations', true );
         $export = array(
             'title' => $title,
-            'settings' => $settings,
-            'elements' => $elements,
-            'translations' => $translations
+            'settings' => $formSettings,
+            'elements' => $formElements,
+            'translations' => $translationSettings
         );
         $export = '<html>'.maybe_serialize($export);
-        $file_location = '/uploads/php/files/super-form-export.html';
+        $filename = $title.'-super-forms-export.html';
+        $filename = sanitize_file_name($filename);
+        $file_location = '/uploads/php/files/'.$filename;
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         file_put_contents($source, $export);
         echo SUPER_PLUGIN_FILE . $file_location;
@@ -1350,7 +1352,7 @@ class SUPER_Ajax {
             if($html_tag==='<html>'){
                 $contents = substr($contents, 6);
             }
-
+            
             // Check if content is json (backward compatibility import from older SF versions)
             json_decode($contents);
             if( json_last_error() == JSON_ERROR_NONE ) {
@@ -1702,12 +1704,18 @@ class SUPER_Ajax {
     public static function save_form( $id=null, $formElements=null, $translationSettings=null, $formSettings=null, $title=null ) {
         if(empty($id)){
             if(isset($_POST['form_id'])) $id = $_POST['form_id'];
-            $_POST['formElements'] = wp_unslash($_POST['formElements']);
-            $formElements = json_decode($_POST['formElements'], true);
-            $_POST['formSettings'] = wp_unslash($_POST['formSettings']);
-            $formSettings = json_decode($_POST['formSettings'], true);
-            $_POST['translationSettings'] = wp_unslash($_POST['translationSettings']);
-            $translationSettings = json_decode($_POST['translationSettings'], true);
+            if(empty($formElements)){
+                $_POST['formElements'] = wp_unslash($_POST['formElements']);
+                $formElements = json_decode($_POST['formElements'], true);
+            }
+            if(empty($formSettings)){
+                $_POST['formSettings'] = wp_unslash($_POST['formSettings']);
+                $formSettings = json_decode($_POST['formSettings'], true);
+            }
+            if(empty($translationSettings)){
+                $_POST['translationSettings'] = wp_unslash($_POST['translationSettings']);
+                $translationSettings = json_decode($_POST['translationSettings'], true);
+            }
         }
         $id = absint( $id );
 
