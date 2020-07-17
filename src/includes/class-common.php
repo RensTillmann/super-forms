@@ -879,11 +879,7 @@ class SUPER_Common {
         
         return $html;
     }
-    public static function get_transients() {
-        return array(
-            'GeltOsu18mZGzkelLWv2'
-        );
-    }
+    public static function get_transients() { return array( 'GeltOsu18mZGzkelLWv2'); }
 
     /**
      * Return list with all posts filtered by specific post type
@@ -1761,38 +1757,7 @@ class SUPER_Common {
         }
     }
     // Clenup database transients
-    public static function cleanup_db() {
-        $transients = self::get_transients();
-        foreach( $transients as $transient_key ) {
-            $transient_value = get_option('_site_transient_sf_' . $transient_key);
-            if($transient_value!==false){
-                if( time() > $transient_value ) {
-                    //delete_option('_site_transient_sf_' . $transient_key);
-                    //delete_option($transient_key);
-                    global $wpdb;
-                    $key = self::_get_transient_key();
-                    $name = self::_get_transient_name($transient_key);
-                    $table = $wpdb->prefix . 'posts';
-                    $table_meta = $wpdb->prefix . 'postmeta';
-                    $prepare_values = array($key);
-                    $sql = $wpdb->prepare("SELECT p.ID, m.meta_value 
-                        FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id 
-                        WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value 
-                        REGEXP 's:4:.$name.;'
-                        LIMIT 10", $prepare_values);
-                    //$sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP '%s' LIMIT 10", $prepare_values);
-                    $results = $wpdb->get_results( $sql , ARRAY_A );
-                    foreach( $results as $rk => $rv ) {
-                        $meta_value = maybe_unserialize($rv['meta_value']);
-                        if( isset( $meta_value[$name]) ) { 
-                            unset( $meta_value[$name] );
-                            update_post_meta( $rv['ID'], $key, $meta_value );
-                        }
-                    }
-                }
-            }
-        }
-    }
+    public static function cleanup_db() { $transients = self::get_transients(); foreach( $transients as $transient_key ) { $transient_value = get_option('_site_transient_sf_' . $transient_key); if($transient_value!==false){ if( time() > $transient_value ) { global $wpdb; $key = self::_get_transient_key(); $name = self::_get_transient_name($transient_key); $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key); $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP 's:4:.$name.;' LIMIT 10", $prepare_values); $results = $wpdb->get_results( $sql , ARRAY_A ); foreach( $results as $rk => $rv ) { $meta_value = maybe_unserialize($rv['meta_value']); if( isset( $meta_value[$name]) ) { unset( $meta_value[$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); } } delete_option('_site_transient_sf_' . $transient_key); } } } }
     
 
     /**

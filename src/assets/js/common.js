@@ -2114,9 +2114,9 @@ function SUPERreCaptcha(){
             loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
             loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
             var generatePdf = false;
-            if(typeof super_common_i18n[form_id] !== 'undefined' && typeof super_common_i18n[form_id]._pdf !== 'undefined' && super_common_i18n[form_id]._pdf.generate === "true"){
+            if(typeof SUPER.form_js !== 'undefined' && typeof SUPER.form_js[form_id]._pdf !== 'undefined' && SUPER.form_js[form_id]._pdf.generate === "true"){
                 generatePdf = true;
-                var pdfSettings = super_common_i18n[form_id]._pdf;
+                var pdfSettings = SUPER.form_js[form_id]._pdf;
                 loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
             }else{
                 // In case we are in back-end preview mode
