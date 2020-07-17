@@ -62,8 +62,8 @@
 
 - Add-ons / Extensions
   - [All Add-ons](add-ons)
+    - [PDF Generator](pdf-generator-add-on)
     - [Calculator](calculator-add-on)
-    - [WooCommerce Custom Orders](woocommerce-custom-orders-add-on)
     - [WooCommerce Checkout](woocommerce-checkout-add-on)
     - [PayPal](paypal-add-on)
     - [Signature](signature-add-on)
@@ -72,7 +72,8 @@
     - [MailChimp](mailchimp-add-on)
     - [Mailster](mailster-add-on)
     - [CSV Attachment](csv-attachment-add-on)
-    - [Password Protect & User Lockout & Hide](password-protect-user-lockout-hide-add-on)
+    - [Password Protect & Hide](password-protect-user-lockout-hide-add-on)
+    - [User Lockout](password-protect-user-lockout-hide-add-on)
     - [Register & Login](register-login-add-on)
     - [Popups](popups-add-on)
     - [Email Templates](email-templates-add-on)

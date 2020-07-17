@@ -8,6 +8,11 @@
 
     <?php
     $add_ons = array(
+        'pdf_generator' => array(
+            'title' => 'PDF Generator Add-on',
+            'url' => 'https://renstillmann.github.io/super-forms/#/pdf-generator-add-on',
+            'id' => '21048964',
+        ),
         'email_reminders' => array(
             'title' => 'E-mail Reminders Add-on',
             'url' => 'https://renstillmann.github.io/super-forms/#/email-reminders-add-on',
@@ -15,27 +20,27 @@
         ),
         'paypal' => array(
             'title' => 'PayPal Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-paypal-addon/21048964',
+            'url' => 'https://renstillmann.github.io/super-forms/#/paypal-add-on',
             'id' => '21048964',
         ),
         'mailster' => array(
             'title' => 'Mailster Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-mailster-addon/19735910',
+            'url' => 'https://renstillmann.github.io/super-forms/#/mailster-add-on',
             'id' => '19735910',
         ),
         'password_protect' => array(
             'title' => 'Password Protect & User Lockout & Hide Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-password-protect-user-lockout-hide-addon/19604086',
+            'url' => 'https://renstillmann.github.io/super-forms/#/password-protect-user-lockout-hide-add-on',
             'id' => '19604086',
         ),
         'zapier' => array(
             'title' => 'Zapier Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-zapier/19483649',
+            'url' => 'https://renstillmann.github.io/super-forms/#/zapier-add-on',
             'id' => '19483649',
         ),
         'csv_attachment' => array(
             'title' => 'CSV Attachment Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-csv-attachment/19437918',
+            'url' => 'https://renstillmann.github.io/super-forms/#/csv-attachment-add-on',
             'id' => '19437918',
         ),
         'popups' => array(
@@ -55,7 +60,7 @@
         ),
         'calculator' => array(
             'title' => 'Calculator Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-calculator/16045945',
+            'url' => 'https://renstillmann.github.io/super-forms/#/calculator-add-on',
             'id' => '16045945',
         ),
         'signature' => array(
@@ -70,12 +75,12 @@
         ),
         'register_login' => array(
             'title' => 'Register & Login Add-on',
-            'url' => 'https://codecanyon.net/item/frontend-register-login/14403267',
+            'url' => 'https://renstillmann.github.io/super-forms/#/register-login-add-on',
             'id' => '14403267',
         ),
         'mailchimp' => array(
             'title' => 'MailChimp Add-on',
-            'url' => 'https://codecanyon.net/item/super-forms-mailchimp-addon/14126404',
+            'url' => 'https://renstillmann.github.io/super-forms/#/mailchimp-add-on',
             'id' => '14126404',
         ),
     );
@@ -91,6 +96,30 @@
         // 'import' => '', // @since 4.0.0 - for new super forms versions
         // 'date' => '2018-04-25',
         
+        array(
+            'title' => 'PDF Generator (Add-on)',
+            'description' => 'Convert form submission to PDF and attach them to E-mails and or Contact entries, or allow instant download of the PDF.',
+            'requirements' => 'pdf_generator',
+            'live_preview' => 'http://f4d.nl/super-forms',
+            'date' => '2020-07-17',
+            'import' => 'a:4:{s:5:"title";s:3:"PDF";s:8:"settings";a:179:{s:4:"send";s:3:"yes";s:9:"header_to";s:20:"{option_admin_email}";s:16:"header_from_type";s:7:"default";s:20:"header_reply_enabled";s:0:"";s:14:"header_subject";s:12:"New question";s:15:"email_body_open";s:57:"The following information has been send by the submitter:";s:10:"email_body";s:46:"<table cellpadding=\"5\">{loop_fields}</table>";s:16:"email_body_close";s:31:"Best regards, {option_blogname}";s:10:"email_loop";s:82:"<tr><th valign=\"top\" align=\"right\">{loop_label}</th><td>{loop_value}</td></tr>";s:19:"email_exclude_empty";s:0:"";s:16:"email_body_nl2br";s:4:"true";s:9:"email_rtl";s:0:"";s:9:"header_cc";s:0:"";s:10:"header_bcc";s:0:"";s:17:"header_additional";s:0:"";s:7:"confirm";s:3:"yes";s:10:"confirm_to";s:7:"{email}";s:17:"confirm_from_type";s:7:"default";s:28:"confirm_header_reply_enabled";s:0:"";s:15:"confirm_subject";s:10:"Thank you!";s:17:"confirm_body_open";s:40:"Dear user,
+
+Thank you for contacting us!";s:12:"confirm_body";s:46:"<table cellpadding=\"5\">{loop_fields}</table>";s:18:"confirm_body_close";s:63:"We will reply within 48 hours.
+
+Best Regards, {option_blogname}";s:18:"confirm_email_loop";s:82:"<tr><th valign=\"top\" align=\"right\">{loop_label}</th><td>{loop_value}</td></tr>";s:21:"confirm_exclude_empty";s:0:"";s:18:"confirm_body_nl2br";s:4:"true";s:11:"confirm_rtl";s:0:"";s:17:"confirm_header_cc";s:0:"";s:18:"confirm_header_bcc";s:0:"";s:25:"confirm_header_additional";s:0:"";s:19:"header_content_type";s:4:"html";s:14:"header_charset";s:5:"UTF-8";s:17:"admin_attachments";s:0:"";s:19:"confirm_attachments";s:0:"";s:14:"email_template";s:22:"default_email_template";s:18:"save_contact_entry";s:3:"yes";s:27:"contact_entry_exclude_empty";s:0:"";s:24:"conditionally_save_entry";s:0:"";s:27:"contact_entry_custom_status";s:0:"";s:25:"enable_custom_entry_title";s:0:"";s:18:"save_form_progress";s:0:"";s:24:"retrieve_last_entry_data";s:0:"";s:20:"update_contact_entry";s:0:"";s:20:"form_show_thanks_msg";s:4:"true";s:17:"form_thanks_title";s:10:"Thank you!";s:23:"form_thanks_description";s:30:"We will reply within 24 hours.";s:12:"form_preload";s:1:"1";s:13:"form_duration";s:3:"500";s:16:"form_post_option";s:0:"";s:18:"form_disable_enter";s:0:"";s:20:"form_redirect_option";s:0:"";s:26:"form_hide_after_submitting";s:4:"true";s:27:"form_clear_after_submitting";s:0:"";s:13:"form_location";s:0:"";s:11:"form_locker";s:0:"";s:16:"user_form_locker";s:0:"";s:11:"theme_style";s:0:"";s:16:"theme_field_size";s:6:"medium";s:16:"theme_hide_icons";s:3:"yes";s:9:"theme_rtl";s:0:"";s:30:"theme_field_colors_placeholder";s:7:"#9a9a9a";s:26:"adaptive_placeholder_focus";s:7:"#4EB1B6";s:28:"enable_adaptive_placeholders";s:4:"true";s:32:"placeholder_adaptive_positioning";s:0:"";s:27:"adaptive_placeholder_filled";s:7:"#9a9a9a";s:33:"adaptive_placeholder_bg_top_focus";s:7:"#ffffff";s:36:"adaptive_placeholder_bg_bottom_focus";s:7:"#ffffff";s:34:"adaptive_placeholder_bg_top_filled";s:7:"#ffffff";s:37:"adaptive_placeholder_bg_bottom_filled";s:7:"#ffffff";s:33:"adaptive_placeholder_border_focus";s:0:"";s:34:"adaptive_placeholder_border_filled";s:0:"";s:17:"theme_center_form";s:0:"";s:15:"theme_max_width";s:1:"0";s:17:"theme_form_margin";s:15:"0px 0px 0px 0px";s:26:"theme_ui_loading_icon_font";s:7:"#c5c5c5";s:17:"theme_field_label";s:7:"#444444";s:23:"theme_field_description";s:7:"#8e8e8e";s:24:"theme_ui_checkbox_border";s:7:"#4EB1B6";s:23:"theme_ui_checkbox_inner";s:7:"#4EB1B6";s:23:"theme_ui_checkbox_label";s:7:"#444444";s:20:"theme_ui_quantity_bg";s:7:"#4EB1B6";s:22:"theme_ui_quantity_font";s:7:"#ffffff";s:26:"theme_ui_quantity_bg_hover";s:7:"#7ed0d4";s:28:"theme_ui_quantity_font_hover";s:7:"#ffffff";s:18:"theme_ui_toggle_bg";s:7:"#4EB1B6";s:20:"theme_ui_toggle_font";s:7:"#ffffff";s:27:"theme_ui_toggle_disabled_bg";s:7:"#e4e4e4";s:29:"theme_ui_toggle_disabled_font";s:7:"#9c9c9c";s:20:"theme_ui_keywords_bg";s:7:"#4EB1B6";s:22:"theme_ui_keywords_font";s:7:"#ffffff";s:22:"theme_ui_keywords_icon";s:7:"#2e8a90";s:28:"theme_ui_keywords_icon_hover";s:7:"#246569";s:16:"theme_ui_tags_bg";s:7:"#4EB1B6";s:18:"theme_ui_tags_font";s:7:"#ffffff";s:20:"theme_ui_tags_remove";s:7:"#2e8a90";s:26:"theme_ui_tags_remove_hover";s:7:"#246569";s:27:"theme_ui_tags_list_bg_hover";s:7:"#fdecde";s:23:"theme_ui_slider_dragger";s:7:"#4EB1B6";s:21:"theme_ui_slider_track";s:7:"#CDCDCD";s:22:"theme_field_colors_top";s:7:"#ffffff";s:25:"theme_field_colors_bottom";s:7:"#ffffff";s:25:"theme_field_colors_border";s:7:"#cdcdcd";s:23:"theme_field_colors_font";s:7:"#444444";s:28:"theme_field_colors_top_focus";s:7:"#ffffff";s:31:"theme_field_colors_bottom_focus";s:7:"#ffffff";s:31:"theme_field_colors_border_focus";s:7:"#4EB1B6";s:29:"theme_field_colors_font_focus";s:7:"#444444";s:23:"theme_field_transparent";s:0:"";s:18:"theme_rating_color";s:7:"#cdcdcd";s:15:"theme_rating_bg";s:7:"#ffffff";s:19:"theme_rating_border";s:7:"#cdcdcd";s:24:"theme_rating_color_hover";s:7:"#f7f188";s:21:"theme_rating_bg_hover";s:7:"#ffffff";s:25:"theme_rating_color_active";s:7:"#f7ea00";s:22:"theme_rating_bg_active";s:7:"#ffffff";s:28:"theme_multipart_progress_bar";s:4:"true";s:32:"theme_progress_bar_primary_color";s:7:"#87CC83";s:34:"theme_progress_bar_secondary_color";s:7:"#E2E2E2";s:31:"theme_progress_bar_border_color";s:7:"#CECECE";s:21:"theme_multipart_steps";s:4:"true";s:33:"theme_multipart_steps_hide_mobile";s:4:"true";s:33:"theme_progress_step_primary_color";s:7:"#CECECE";s:35:"theme_progress_step_secondary_color";s:7:"#E2E2E2";s:32:"theme_progress_step_border_color";s:7:"#CECECE";s:30:"theme_progress_step_font_color";s:7:"#FFFFFF";s:40:"theme_progress_step_primary_color_active";s:7:"#87CC83";s:42:"theme_progress_step_secondary_color_active";s:7:"#E2E2E2";s:39:"theme_progress_step_border_color_active";s:7:"#CECECE";s:37:"theme_progress_step_font_color_active";s:7:"#FFFFFF";s:16:"theme_error_font";s:7:"#f2322b";s:26:"theme_error_msg_font_color";s:7:"#D08080";s:28:"theme_error_msg_border_color";s:7:"#FFCBCB";s:24:"theme_error_msg_bg_color";s:7:"#FFEBEB";s:26:"theme_error_msg_icon_color";s:7:"#FF9A9A";s:28:"theme_success_msg_font_color";s:7:"#5E7F62";s:30:"theme_success_msg_border_color";s:7:"#90C397";s:26:"theme_success_msg_bg_color";s:7:"#C5FFCD";s:28:"theme_success_msg_icon_color";s:7:"#90C397";s:24:"theme_success_msg_margin";s:16:"0px 0px 30px 0px";s:16:"font_global_size";s:2:"12";s:15:"font_label_size";s:2:"16";s:21:"font_description_size";s:2:"14";s:17:"font_google_fonts";s:0:"";s:18:"font_global_family";s:24:"\"Open Sans\",sans-serif";s:15:"form_custom_css";s:0:"";s:11:"form_button";s:6:"Submit";s:19:"form_button_loading";s:10:"Loading...";s:18:"theme_button_color";s:7:"#f26c68";s:24:"theme_button_color_hover";s:7:"#444444";s:17:"theme_button_font";s:7:"#ffffff";s:23:"theme_button_font_hover";s:7:"#ffffff";s:18:"form_button_radius";s:6:"square";s:16:"form_button_type";s:4:"flat";s:16:"form_button_size";s:6:"medium";s:17:"form_button_align";s:4:"left";s:17:"form_button_width";s:4:"auto";s:23:"form_button_icon_option";s:4:"none";s:21:"csv_attachment_enable";s:0:"";s:16:"email_reminder_1";s:0:"";s:16:"email_reminder_2";s:0:"";s:16:"email_reminder_3";s:0:"";s:16:"email_reminder_4";s:0:"";s:16:"email_reminder_5";s:0:"";s:16:"email_reminder_6";s:0:"";s:16:"email_reminder_7";s:0:"";s:23:"frontend_posting_action";s:4:"none";s:16:"mailster_enabled";s:0:"";s:16:"password_protect";s:0:"";s:22:"password_protect_roles";s:0:"";s:22:"password_protect_login";s:0:"";s:31:"password_protect_not_login_hide";s:0:"";s:15:"paypal_checkout";s:0:"";s:21:"register_login_action";s:4:"none";s:15:"stripe_checkout";s:0:"";s:20:"woocommerce_checkout";s:0:"";s:13:"zapier_enable";s:0:"";s:11:"import-file";s:0:"";s:13:"popup_enabled";s:0:"";s:4:"_pdf";a:16:{s:8:"generate";s:4:"true";s:5:"debug";s:5:"false";s:8:"filename";s:8:"form.pdf";s:10:"emailLabel";s:9:"PDF File:";s:10:"adminEmail";s:4:"true";s:17:"confirmationEmail";s:4:"true";s:12:"excludeEntry";s:5:"false";s:11:"downloadBtn";s:4:"true";s:15:"downloadBtnText";s:16:"Download Summary";s:14:"generatingText";s:22:"Generating PDF file...";s:11:"orientation";s:8:"portrait";s:4:"unit";s:2:"mm";s:6:"format";s:2:"a4";s:12:"customFormat";s:0:"";s:7:"margins";a:3:{s:4:"body";a:4:{s:3:"top";s:1:"0";s:5:"right";s:1:"5";s:6:"bottom";s:1:"0";s:4:"left";s:1:"5";}s:6:"header";a:4:{s:3:"top";s:1:"5";s:5:"right";s:1:"5";s:6:"bottom";s:1:"5";s:4:"left";s:1:"5";}s:6:"footer";a:4:{s:3:"top";s:1:"5";s:5:"right";s:1:"5";s:6:"bottom";s:1:"5";s:4:"left";s:1:"5";}}s:11:"renderScale";s:1:"3";}}s:8:"elements";a:8:{i:0;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:2:{i:0;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:1:{i:0;a:3:{s:3:"tag";s:7:"heading";s:5:"group";s:13:"html_elements";s:4:"data";a:1:{s:5:"title";s:32:"PDF HEADER (NOT VISIBLE IN FORM)";}}}s:4:"data";a:1:{s:4:"size";s:3:"2/3";}}i:1;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:1:{i:0;a:3:{s:3:"tag";s:4:"html";s:5:"group";s:13:"html_elements";s:4:"data";a:2:{s:4:"html";s:68:"<div style="float:right;">Page {pdf_page} of {pdf_total_pages}</div>";s:5:"nl2br";s:4:"true";}}}s:4:"data";a:1:{s:4:"size";s:3:"1/3";}}}s:4:"data";a:2:{s:5:"label";s:10:"PDF HEADER";s:9:"pdfOption";s:6:"header";}}i:1;a:3:{s:3:"tag";s:7:"heading";s:5:"group";s:13:"html_elements";s:4:"data";a:2:{s:5:"title";s:38:"PDF CONTENT/TEXT (NOT VISIBLE IN FORM)";s:9:"pdfOption";s:7:"include";}}i:2;a:3:{s:3:"tag";s:7:"heading";s:5:"group";s:13:"html_elements";s:4:"data";a:2:{s:5:"title";s:38:"FORM CONTENT/TEXT (NOT VISIBLE IN PDF)";s:9:"pdfOption";s:7:"exclude";}}i:3;a:3:{s:3:"tag";s:4:"html";s:5:"group";s:13:"html_elements";s:4:"data";a:5:{s:5:"title";s:47:"Some custom HTML inside PDF (not shown in form)";s:8:"subtitle";s:26:"Use any html you\'d like :)";s:4:"html";s:450:"<p style="color:red;">
+Thank you for filling out this form, this is a HTML element with custom HTML. You can use your own HTML and it will be rendered in the PDF as is. For example:
+
+<pre><xmp><strong style="color:red;">Red</strong></xmp></pre>
+
+Would be rendered as:
+
+<strong style="color:red;">Red</strong>.
+
+This PDF generator is just awesome!
+And of course you can use tags:
+You entered the following E-mail address: <strong>{email}</strong>
+</p>";s:5:"nl2br";s:4:"true";s:9:"pdfOption";s:7:"include";}}i:4;a:3:{s:3:"tag";s:7:"divider";s:5:"group";s:13:"html_elements";s:4:"data";a:1:{s:9:"pdfOption";s:7:"include";}}i:5;a:3:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:4:{i:0;a:3:{s:3:"tag";s:4:"text";s:5:"group";s:13:"form_elements";s:4:"data";a:7:{s:4:"name";s:5:"email";s:5:"email";s:14:"Email address:";s:11:"placeholder";s:19:"Your E-mail Address";s:17:"placeholderFilled";s:14:"E-mail Address";s:4:"type";s:5:"email";s:10:"validation";s:5:"email";s:4:"icon";s:12:"envelope;far";}}i:1;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:3:{i:0;a:3:{s:3:"tag";s:5:"color";s:5:"group";s:13:"form_elements";s:4:"data";a:3:{s:4:"name";s:5:"color";s:5:"email";s:6:"Color:";s:4:"icon";s:11:"eye-dropper";}}i:1;a:3:{s:3:"tag";s:8:"quantity";s:5:"group";s:13:"form_elements";s:4:"data";a:2:{s:4:"name";s:10:"quantity_1";s:5:"email";s:9:"Quantity:";}}i:2;a:3:{s:3:"tag";s:8:"checkbox";s:5:"group";s:13:"form_elements";s:4:"data";a:4:{s:4:"name";s:8:"option_1";s:5:"email";s:7:"Option:";s:4:"icon";s:16:"check-square;far";s:14:"checkbox_items";a:3:{i:0;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"First choice";s:5:"value";s:12:"first_choice";}i:1;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:13:"Second choice";s:5:"value";s:13:"second_choice";}i:2;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"Third choice";s:5:"value";s:12:"third_choice";}}}}}s:4:"data";a:1:{s:4:"size";s:3:"1/4";}}i:2;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:3:{i:0;a:3:{s:3:"tag";s:6:"toggle";s:5:"group";s:13:"form_elements";s:4:"data";a:3:{s:4:"name";s:8:"quantity";s:5:"email";s:9:"Quantity:";s:4:"icon";s:9:"toggle-on";}}i:1;a:3:{s:3:"tag";s:6:"rating";s:5:"group";s:13:"form_elements";s:4:"data";a:4:{s:4:"name";s:6:"rating";s:5:"email";s:7:"Rating:";s:10:"validation";s:4:"none";s:4:"icon";s:5:"heart";}}i:2;a:3:{s:3:"tag";s:5:"radio";s:5:"group";s:13:"form_elements";s:4:"data";a:4:{s:4:"name";s:8:"option_2";s:5:"email";s:7:"Option:";s:4:"icon";s:14:"dot-circle;far";s:11:"radio_items";a:3:{i:0;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"First choice";s:5:"value";s:12:"first_choice";}i:1;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:13:"Second choice";s:5:"value";s:13:"second_choice";}i:2;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"Third choice";s:5:"value";s:12:"third_choice";}}}}}s:4:"data";a:1:{s:4:"size";s:3:"1/4";}}i:3;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:3:{i:0;a:3:{s:3:"tag";s:8:"textarea";s:5:"group";s:13:"form_elements";s:4:"data";a:5:{s:4:"name";s:8:"question";s:5:"email";s:9:"Question:";s:11:"placeholder";s:23:"Ask us any questions...";s:17:"placeholderFilled";s:8:"Question";s:4:"icon";s:8:"question";}}i:1;a:3:{s:3:"tag";s:6:"slider";s:5:"group";s:13:"form_elements";s:4:"data";a:6:{s:4:"name";s:6:"amount";s:5:"email";s:7:"Amount:";s:5:"value";s:1:"0";s:8:"currency";s:1:"$";s:18:"thousand_separator";s:1:",";s:4:"icon";s:9:"sliders-h";}}i:2;a:3:{s:3:"tag";s:8:"dropdown";s:5:"group";s:13:"form_elements";s:4:"data";a:5:{s:4:"name";s:6:"option";s:5:"email";s:7:"Option:";s:11:"placeholder";s:19:"- select a option -";s:4:"icon";s:21:"caret-square-down;far";s:14:"dropdown_items";a:3:{i:0;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"First choice";s:5:"value";s:12:"first_choice";}i:1;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:13:"Second choice";s:5:"value";s:13:"second_choice";}i:2;a:3:{s:7:"checked";s:5:"false";s:5:"label";s:12:"Third choice";s:5:"value";s:12:"third_choice";}}}}}s:4:"data";a:1:{s:4:"size";s:3:"1/2";}}}}i:6;a:3:{s:3:"tag";s:9:"signature";s:5:"group";s:13:"form_elements";s:4:"data";a:3:{s:4:"name";s:9:"signature";s:5:"email";s:10:"Signature:";s:4:"icon";s:9:"signature";}}i:7;a:4:{s:3:"tag";s:6:"column";s:5:"group";s:15:"layout_elements";s:5:"inner";a:2:{i:0;a:3:{s:3:"tag";s:7:"heading";s:5:"group";s:13:"html_elements";s:4:"data";a:1:{s:5:"title";s:32:"PDF FOOTER (NOT VISIBLE IN FORM)";}}i:1;a:3:{s:3:"tag";s:4:"html";s:5:"group";s:13:"html_elements";s:4:"data";a:2:{s:4:"html";s:68:"<div style="float:right;">Page {pdf_page} of {pdf_total_pages}</div>";s:5:"nl2br";s:4:"true";}}}s:4:"data";a:2:{s:5:"label";s:10:"PDF FOOTER";s:9:"pdfOption";s:6:"footer";}}}s:12:"translations";a:1:{s:2:"af";a:3:{s:8:"language";s:9:"Afrikaans";s:4:"flag";s:2:"dz";s:3:"rtl";b:0;}}}'
+        ),
         array(
             'title' => 'E-mail & Appointment Reminders',
             'description' => 'Send reminders to your customers or users based on specific dates and times',
@@ -560,9 +589,9 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                         <div class="name column-name">
                             <h3>
                                 <?php
-                                echo '<a href="' . $v['live_preview'] . '?TB_iframe=true&width=700&height=550" class="thickbox">';
+                                //echo '<a href="' . $v['live_preview'] . '?TB_iframe=true&width=700&height=550" class="thickbox">';
                                 echo $v['title'];
-                                echo '</a>';
+                                //echo '</a>';
                                 ?>
                             </h3>
                         </div>
@@ -575,9 +604,9 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                                 </li>
                                 <li>
                                     <?php 
-                                    if(!empty($v['live_preview'])) { 
-                                        echo '<a target="_blank" href="' . $v['live_preview'] . '">Live Preview</a>';
-                                    } 
+                                    //if(!empty($v['live_preview'])) { 
+                                        //echo '<a target="_blank" href="' . $v['live_preview'] . '">Live Preview</a>';
+                                    //} 
                                     ?>
                                 </li>
                             </ul>
@@ -589,9 +618,13 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                         </div>
                     </div>
                     <div class="plugin-card-bottom">
+                        <?php
+                        /*
                         <div class="column-updated">
                             <strong>Created on:</strong> <?php echo date_i18n('d M, Y', strtotime($v['date'])); ?>
                         </div>
+                        */
+                        ?>
                         <div class="column-compatibility">
                             <span class="compatibility-compatible">
                                 <strong>Requirements:</strong>

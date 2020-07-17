@@ -1007,17 +1007,13 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        error_log($folder);
         $folderName = rand( 100000000, 999999999 );
         $folderPath = trailingslashit($folder) . $folderName;
-        error_log($folder);
-        error_log($folderPath);
         if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
         }else{
             if ( !mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();
-                error_log(json_encode($error));
                 SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
             }
             return array('folderPath' => $folderPath, 'folderName' => $folderName);
@@ -1766,20 +1762,16 @@ class SUPER_Common {
     }
     // Clenup database transients
     public static function cleanup_db() {
-        error_log('cleanup_db()');
         $transients = self::get_transients();
         foreach( $transients as $transient_key ) {
             $transient_value = get_option('_site_transient_sf_' . $transient_key);
             if($transient_value!==false){
                 if( time() > $transient_value ) {
-                    error_log('transient expired: ' . $transient_key);
                     //delete_option('_site_transient_sf_' . $transient_key);
                     //delete_option($transient_key);
                     global $wpdb;
                     $key = self::_get_transient_key();
-                    error_log('key: ' . $key);
                     $name = self::_get_transient_name($transient_key);
-                    error_log('name: ' . $name);
                     $table = $wpdb->prefix . 'posts';
                     $table_meta = $wpdb->prefix . 'postmeta';
                     $prepare_values = array($key);
@@ -1792,7 +1784,6 @@ class SUPER_Common {
                     $results = $wpdb->get_results( $sql , ARRAY_A );
                     foreach( $results as $rk => $rv ) {
                         $meta_value = maybe_unserialize($rv['meta_value']);
-                        error_log('meta_value: ' . json_encode($meta_value));
                         if( isset( $meta_value[$name]) ) { 
                             unset( $meta_value[$name] );
                             update_post_meta( $rv['ID'], $key, $meta_value );

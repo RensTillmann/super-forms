@@ -1626,7 +1626,6 @@ function SUPERreCaptcha(){
 
     // Submit the form
     SUPER.complete_submit = function( event, form, data, duration, old_html ){
-        debugger;
         // If form has g-recaptcha element
         if(($(form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
             grecaptcha.ready(function(){
@@ -2060,7 +2059,6 @@ function SUPERreCaptcha(){
 
     // Send form submission through ajax request
     SUPER.create_ajax_request = function( event, form, data, duration, old_html, token ){
-        debugger;
         form = $(form);
 
         var form_id,
@@ -2097,7 +2095,6 @@ function SUPERreCaptcha(){
             version = 'v3';
         }
         SUPER.before_email_send_hook(event, form, data, old_html, function(){
-            debugger;
             // Create loader overlay
             var loadingOverlay = document.createElement('div');
             var html = '';
@@ -2160,7 +2157,6 @@ function SUPERreCaptcha(){
                 progressBar: progressBar
             }
 
-            debugger;
             // Generate PDF
             if( generatePdf ){
                 // Page margins and print area

@@ -1,5 +1,14 @@
 # Super Forms - Changelog
 
+## Jul 17, 2020 - Version 4.9.500
+
+- **NEW:** PDF Generator Add-on, read the docs for more info here: [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
+- **Added:** Documentation for [Register & Login Add-on](https://renstillmann.github.io/super-forms/#/register-login-add-on)
+- **Added:** Documentation for [Zapier Add-on](https://renstillmann.github.io/super-forms/#/zapier-add-on)
+- **Added:** Documentation for [MailChimp Add-on](https://renstillmann.github.io/super-forms/#/mailchimp-add-on)
+- **Added:** Documentation for [Mailster Add-on](https://renstillmann.github.io/super-forms/#/mailster-add-on)
+- **Added:** Documentation for [Mailster Add-on](https://renstillmann.github.io/super-forms/#/mailster-add-on)
+
 ## Jun 29, 2020 - Version 4.9.471
 
 - **Improved:** Tooltips are now also triggered by both `click` and `hover` events
@@ -11,18 +20,10 @@
 ## Jun 11, 2020 - Version 4.9.466
 
 - **Added:** New operator `??` (contains) and `!??` (does not contain) for E-mail/HTML if statements.
-<<<<<<< HEAD
-- **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some holidays.  - **Improved:** Country strings are now translation ready (used on Country element)
-- **Improved:** Google Map element responsiveness on mobile devices
-- **Improved:** Google Map indicator in back-end to notify users that the Map will only be generated on the Front-end
-- **Fix:** PHP throwing Fatal error when using `Retrieve method` > `Post type`
-- **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
-=======
 - **Added:** Option for datepicker to specify dates or date range to override the `Exclude days` setting. This way you can for instance exclude all Mondays, and Tuesdays, with the exception for some hollidays.
 - **Improved:** Country strings are now translation ready (used on Country element)
 - **Improved:** Google Map element responsiveness on mobile devices
 - **Improved:** Google Map indicator in back-end to notify users that the Map will only be generated on the Front-end
->>>>>>> master
 - **Fix/Improved:** When using third party shortcodes inside HTML element and it does not contain any {tag} we shouldn't refresh the HTML content. This would cause losing any initialized DOM elements. This also should improve speed for forms that use a lot of HTML elements but didn't contain any {tags}
 - **Fix:** PHP throwing Fatal error when using `Retrieve method` > `Post type`
 - **Fix:** 3 demo forms were no longer installing properly due to invalid serialized array
