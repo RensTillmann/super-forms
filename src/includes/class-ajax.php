@@ -246,7 +246,7 @@ class SUPER_Ajax {
         if ( is_wp_error( $r ) ) {
             $err = $r->get_error_message();
             $body .= '<div class="error notice" style="margin-top:50px;">';
-                $body .= '<p>Unable to load content, please refresh the page, or try again later.</p>';
+                $body .= '<p>'.esc_html__('Unable to load content, please refresh the page, or try again later.', 'super-forms').'</p>';
                 $body .= '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
             $body .= '</div>';
         }else{
@@ -644,7 +644,7 @@ class SUPER_Ajax {
                     }else{
                         echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
                     }
-                    echo '<span>Restore backup</span></li>';
+                    echo '<span>'.esc_html__('Restore backup', 'super-forms').'</span></li>';
                 }
                 echo '</ul>';
             }
@@ -985,7 +985,7 @@ class SUPER_Ajax {
             }
         }
         $columns[] = 'entry_ip';
-        echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">Toggle all fields</span>';
+        echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">'.esc_html__('Toggle all fields', 'super-forms').'</span>';
         echo '<ul class="super-export-entry-columns">';
         foreach( $columns as $k => $v ) {
             echo '<li class="super-entry-column" data-name="' . esc_attr($v) . '">';
@@ -997,7 +997,7 @@ class SUPER_Ajax {
         }
         echo '</ul>';
         echo '<input type="hidden" name="query" value="' . $query . '" />';
-        echo '<span class="button button-primary button-large super-export-selected-columns">Export</span>';
+        echo '<span class="button button-primary button-large super-export-selected-columns">'.esc_html__('Export', 'super-forms').'</span>';
         die();
     }
 
@@ -1933,7 +1933,7 @@ class SUPER_Ajax {
                         $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . esc_html__('Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
                     if($k==='distance_calculator' && empty($settings['form_google_places_api'])){
-                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'In order to use this feature you must provide your Google API key in %sSuper Forms > Settings > Form Settings%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#form-settings">', '</a>' );
+                        $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'In order to use this feature you must provide your Google API key in %sSuper Forms > Settings > Form Settings%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#form-settings') . '">', '</a>' );
                     }
                     if( isset( $v['fields'] ) ) {
                         $result .= self::loop_over_element_setting_fields($v['fields'], $data, $shortcodes, $group, $tag, $k);
@@ -2737,7 +2737,7 @@ class SUPER_Ajax {
                                     !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
                                     $files_value .= $value['value'] . '<br /><br />';
                                 }else{
-                                    $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                    $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
                                 }
                             }
                             // Check if we should exclude the file from emails

@@ -546,7 +546,7 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
     ?>
 
     <div class="wp-list-table widefat plugin-install">
-        <h2 class="screen-reader-text">Forms list</h2>
+        <h2 class="screen-reader-text"><?php echo esc_html__('Forms list', 'super-forms'); ?></h2>
         <div id="the-list">
             <?php
             foreach( $forms as $k => $v ) {
@@ -570,13 +570,13 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                             <ul class="plugin-action-buttons">
                                 <li>
                                     <?php
-                                    echo '<span class="install-now button">Install Now</span>';
+                                    echo '<span class="install-now button">'.esc_html('Install Now', 'super-forms').'</span>';
                                     ?>
                                 </li>
                                 <li>
                                     <?php 
                                     if(!empty($v['live_preview'])) { 
-                                        echo '<a target="_blank" href="' . $v['live_preview'] . '">Live Preview</a>';
+                                        echo '<a target="_blank" href="' . $v['live_preview'] . '">'.esc_html__('Live Preview', 'super-forms').'</a>';
                                     } 
                                     ?>
                                 </li>
@@ -590,11 +590,11 @@ Best Regards, {option_blogname}";s:18:"confirm_body_nl2br";s:4:"true";s:19:"head
                     </div>
                     <div class="plugin-card-bottom">
                         <div class="column-updated">
-                            <strong>Created on:</strong> <?php echo date_i18n('d M, Y', strtotime($v['date'])); ?>
+                            <strong><?php echo esc_html__('Created on', 'super-forms'); ?>:</strong> <?php echo date_i18n('d M, Y', strtotime($v['date'])); ?>
                         </div>
                         <div class="column-compatibility">
                             <span class="compatibility-compatible">
-                                <strong>Requirements:</strong>
+                            <strong><?php echo esc_html__('Requirements', 'super-forms'); ?>:</strong>
                                 <?php 
                                 if( !empty($v['requirements']) ) {
                                     $requirements = explode(',', $v['requirements']);

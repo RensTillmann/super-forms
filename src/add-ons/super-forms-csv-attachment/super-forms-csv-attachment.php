@@ -261,7 +261,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                 if($fp==false){
                     SUPER_Common::output_message(
                         $error = true,
-                        $msg = '<strong>Error:</strong> ' . __( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
+                        $msg = '<strong>' . esc_html__('Error', 'super-forms') . ':</strong> ' . esc_html__( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
                     );
                 }else{
                     foreach ( $rows as $fields ) {

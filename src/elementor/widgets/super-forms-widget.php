@@ -77,7 +77,7 @@ class Elementor_Super_Forms_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'content_section',
 			[
-				'label' => __( 'Content', 'super-forms' ),
+				'label' => esc_html__( 'Content', 'super-forms' ),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -87,14 +87,14 @@ class Elementor_Super_Forms_Widget extends \Elementor\Widget_Base {
 			'numberposts' => -1
         );
         $forms = get_posts( $args );
-        $form_ids = [ '0' => __( '- select -', 'super-forms' ) ];
+        $form_ids = [ '0' => esc_html__( '- select -', 'super-forms' ) ];
         foreach($forms as $value){
             $form_ids[$value->ID] = $value->post_title;
 		}
 		$this->add_control(
 			'form_id',
 			[
-				'label' => __( 'Select a form', 'super-forms' ),
+				'label' => esc_html__( 'Select a form', 'super-forms' ),
 				'type' => \Elementor\Controls_Manager::SELECT2,
 				'options' => $form_ids,
 				'default' => '0',
@@ -119,7 +119,7 @@ class Elementor_Super_Forms_Widget extends \Elementor\Widget_Base {
 		$settings = $this->get_settings_for_display();
 		$form_id = absint($settings['form_id']);
 		if($form_id==0){
-			echo __( 'No form selected, please select a form!', 'super-forms' );	
+			echo esc_html__( 'No form selected, please select a form!', 'super-forms' );	
 		}else{
 			echo do_shortcode('[super_form id="'.$form_id.'"]');
 			SUPER_Forms::add_form_styles();

@@ -257,50 +257,50 @@ if (!class_exists('SUPER_PayPal')):
 		public function set_payment_statuses(){
 			self::$paypal_payment_statuses = array(
 				'Canceled_Reversal' => array(
-					 'label' => __( 'Canceled Reversal', 'super-forms' ),
-					 'desc' => __( 'A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.', 'super-forms' )
+					 'label' => esc_html__( 'Canceled Reversal', 'super-forms' ),
+					 'desc' => esc_html__( 'A reversal has been canceled. For example, you won a dispute with the customer, and the funds for the transaction that was reversed have been returned to you.', 'super-forms' )
 				),
 				'Completed' => array(
-	 				'label' => __( 'Completed', 'super-forms' ),
-	 				'desc' => __( 'The payment has been completed, and the funds have been added successfully to your account balance.', 'super-forms' )
+	 				'label' => esc_html__( 'Completed', 'super-forms' ),
+	 				'desc' => esc_html__( 'The payment has been completed, and the funds have been added successfully to your account balance.', 'super-forms' )
 				),
 				'Created' => array(
-	 				'label' => __( 'Created', 'super-forms' ),
-	 				'desc' => __( 'A German ELV payment is made using Express Checkout.', 'super-forms' )
+	 				'label' => esc_html__( 'Created', 'super-forms' ),
+	 				'desc' => esc_html__( 'A German ELV payment is made using Express Checkout.', 'super-forms' )
 				),
 				'Denied' => array(
-	 				'label' => __( 'Denied', 'super-forms' ),
-	 				'desc' => __( 'The payment was denied. This happens only if the payment was previously pending because of one of the reasons listed for the pending_reason variable or the Fraud_Management_Filters_x variable.', 'super-forms' )
+	 				'label' => esc_html__( 'Denied', 'super-forms' ),
+	 				'desc' => esc_html__( 'The payment was denied. This happens only if the payment was previously pending because of one of the reasons listed for the pending_reason variable or the Fraud_Management_Filters_x variable.', 'super-forms' )
 				),
 				'Expired' => array(
-	 				'label' => __( 'Expired', 'super-forms' ),
-	 				'desc' => __( 'This authorization has expired and cannot be captured.', 'super-forms' )
+	 				'label' => esc_html__( 'Expired', 'super-forms' ),
+	 				'desc' => esc_html__( 'This authorization has expired and cannot be captured.', 'super-forms' )
 				),
 				'Failed' => array(
-	 				'label' => __( 'Failed', 'super-forms' ),
-	 				'desc' => __( 'The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'super-forms' )
+	 				'label' => esc_html__( 'Failed', 'super-forms' ),
+	 				'desc' => esc_html__( 'The payment has failed. This happens only if the payment was made from your customer\'s bank account.', 'super-forms' )
 				),
 				'Pending' => array(
-	 				'label' => __( 'Pending', 'super-forms' ),
-	 				'desc' => __( 'The payment is pending.', 'super-forms' )
+	 				'label' => esc_html__( 'Pending', 'super-forms' ),
+	 				'desc' => esc_html__( 'The payment is pending.', 'super-forms' )
 				),
 				'Refunded' => array(
-	 				'label' => __( 'Refunded', 'super-forms' ),
-	 				'desc' => __( 'You refunded the payment.', 'super-forms' )
+	 				'label' => esc_html__( 'Refunded', 'super-forms' ),
+	 				'desc' => esc_html__( 'You refunded the payment.', 'super-forms' )
 					// See 'pending_reason' for more information.
 				),
 				'Reversed' => array(
-	 				'label' => __( 'Reversed', 'super-forms' ),
-	 				'desc' => __( 'A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.', 'super-forms' ) // See pending_reason for more information.
+	 				'label' => esc_html__( 'Reversed', 'super-forms' ),
+	 				'desc' => esc_html__( 'A payment was reversed due to a chargeback or other type of reversal. The funds have been removed from your account balance and returned to the buyer. The reason for the reversal is specified in the ReasonCode element.', 'super-forms' ) // See pending_reason for more information.
 					// See 'ReasonCode' for more information.
 				),
 				'Processed' => array(
-	 				'label' => __( 'Processed', 'super-forms' ),
-	 				'desc' => __( 'A payment has been accepted.', 'super-forms' )
+	 				'label' => esc_html__( 'Processed', 'super-forms' ),
+	 				'desc' => esc_html__( 'A payment has been accepted.', 'super-forms' )
 				),
 				'Voided' => array(
-	 				'label' => __( 'Voided', 'super-forms' ),
-	 				'desc' => __( 'This authorization has been voided.', 'super-forms' )
+	 				'label' => esc_html__( 'Voided', 'super-forms' ),
+	 				'desc' => esc_html__( 'This authorization has been voided.', 'super-forms' )
 				)
 			);
 		}
@@ -367,7 +367,7 @@ if (!class_exists('SUPER_PayPal')):
                     $super_form_filter = (isset($_GET['super_form_filter']) ? $_GET['super_form_filter'] : 0);
                     echo '<option value="0">' . esc_html__( 'All forms', 'super-forms' ) . '</option>';
                     foreach( $forms as $value ) {
-                        echo '<option value="' . $value->ID . '" ' . ($value->ID==$super_form_filter ? 'selected="selected"' : '') . '>' . $value->post_title . '</option>';
+                        echo '<option value="' . esc_attr($value->ID) . '" ' . ($value->ID==$super_form_filter ? 'selected="selected"' : '') . '>' . $value->post_title . '</option>';
                     }
                 }
                 echo '</select>';
@@ -525,9 +525,9 @@ if (!class_exists('SUPER_PayPal')):
 		        unset( $actions['inline hide-if-no-js'] );
 		        unset( $actions['view'] );
 		        unset( $actions['edit'] );
-		        $actions['view'] = '<a href="admin.php?page=super_paypal_txn&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
+		        $actions['view'] = '<a href="' . esc_url('admin.php?page=super_paypal_txn&id=' . get_the_ID()) . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
 		        if(get_post_type()==='super_paypal_sub'){
-		        	$actions['view'] = '<a href="admin.php?page=super_paypal_sub&id=' . get_the_ID() . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
+		        	$actions['view'] = '<a href="' . esc_url('admin.php?page=super_paypal_sub&id=' . get_the_ID()) . '">' . esc_html__( 'View', 'super-forms' ) . '</a>';
 		        }
 		        if( isset( $trash ) ) {
 		            $actions['trash'] = $trash;
@@ -717,11 +717,11 @@ if (!class_exists('SUPER_PayPal')):
 				        	$entry_status_desc = $entry_status;
 				        }
 				        if( $txn_data['txn_type']=='recurring_payment_suspended' ) {
-				        	$entry_status_desc = __( 'This profile has been suspended, and no further amounts will be collected.', 'super-forms' );
+				        	$entry_status_desc = esc_html__( 'This profile has been suspended, and no further amounts will be collected.', 'super-forms' );
 				        }
 				        if( $txn_data['txn_type']=='subscr_cancel' ) {
-				        	$entry_status = __( 'Canceled', 'super-forms' );
-				        	$entry_status_desc = __( 'This recurring payment plan has been canceled and cannot be reactivated. No more recurring payments will be made.', 'super-forms' );
+				        	$entry_status = esc_html__( 'Canceled', 'super-forms' );
+				        	$entry_status_desc = esc_html__( 'This recurring payment plan has been canceled and cannot be reactivated. No more recurring payments will be made.', 'super-forms' );
 				        }
 						echo '<span title="' . esc_attr($entry_status_desc) . '" class="super-txn-status super-txn-status-' . strtolower($entry_status) . '">' . esc_html($entry_status) . '</span>';
 			    	}else{
@@ -797,7 +797,7 @@ if (!class_exists('SUPER_PayPal')):
 					} else {
 						$form = get_post($form_id);
 						if (isset($form->post_title)) {
-							echo '<a href="admin.php?page=super_create_form&id=' . $form->ID . '">' . $form->post_title . '</a>';
+							echo '<a href="' . ('admin.php?page=super_create_form&id=' . absint($form->ID)) . '">' . esc_html($form->post_title) . '</a>';
 						}
 						else {
 							echo esc_html__( 'Unknown', 'super-forms');
@@ -1050,12 +1050,12 @@ if (!class_exists('SUPER_PayPal')):
 													if( (isset($custom[3])) && ($custom[3]!=0) ) {
 														$user_info = get_userdata($custom[3]);
 														echo '<div class="misc-pub-section">';
-		                                                	echo '<span>' . esc_html__( 'Submitted by user', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+		                                                	echo '<span>' . esc_html__( 'Submitted by user', 'super-forms' ) . ': <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
 		                                            	echo '</div>';
 		                                           	}
 													if( (isset($custom[2])) && ($custom[2]!=0) ) {
 														echo '<div class="misc-pub-section">';
-		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="admin.php?page=super_contact_entry&id=' . $custom[0] . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
+		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_contact_entry&id=' . $custom[0]) . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
 		                                            	echo '</div>';
 		                                           	}
 		                                           	
@@ -1071,7 +1071,7 @@ if (!class_exists('SUPER_PayPal')):
 													$post_id = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = '$sub_id'");
 													if(absint($post_id)!=0){
 														echo '<div class="misc-pub-section">';
-	                                                		echo '<span>' . esc_html__( 'Based on subscription', 'super-forms' ) . ': <a href="admin.php?page=super_paypal_sub&id=' . $post_id . '"><strong>' . $sub_id . '</strong></a></span>';
+	                                                		echo '<span>' . esc_html__( 'Based on subscription', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_paypal_sub&id=' . $post_id) . '"><strong>' . $sub_id . '</strong></a></span>';
 	                                            		echo '</div>';													
 		                                           	}
 
@@ -1081,7 +1081,7 @@ if (!class_exists('SUPER_PayPal')):
 														$edit_link = get_edit_post_link($post_id);
 														?>
 														<div class="misc-pub-section">
-		                                                	<?php echo '<span>' . esc_html__('Created Post', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . $edit_link . '"><strong>' . get_the_title( $post_id ) . '</strong></a></span>'; ?>
+		                                                	<?php echo '<span>' . esc_html__('Created Post', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url($edit_link) . '"><strong>' . get_the_title( $post_id ) . '</strong></a></span>'; ?>
 		                                            	</div>
 		                                           		<?php
 		                                           	}
@@ -1094,7 +1094,7 @@ if (!class_exists('SUPER_PayPal')):
 		                                           		if( $user_info ) { // @since 1.0.1 - check if user exists
 															?>
 															<div class="misc-pub-section">
-			                                                	<?php echo '<span>' . esc_html__('Created User', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . $edit_link . '"><strong>' . $user_info->user_login . '</strong></a></span>'; ?>
+			                                                	<?php echo '<span>' . esc_html__('Created User', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url($edit_link) . '"><strong>' . $user_info->user_login . '</strong></a></span>'; ?>
 			                                            	</div>
 			                                           		<?php
 		                                           		}
@@ -1102,7 +1102,7 @@ if (!class_exists('SUPER_PayPal')):
 		                                           	?>
 
 													<div class="misc-pub-section">
-		                                                <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <?php echo '<a href="admin.php?page=super_create_form&id=' . $custom[0] . '"><strong>' . get_the_title( $custom[0] ) . '</strong></a></span>'; ?>
+		                                                <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $custom[0]) . '"><strong>' . get_the_title( $custom[0] ) . '</strong></a></span>'; ?>
 		                                            </div>
 
 		                                            <div class="clear"></div>
@@ -1354,7 +1354,7 @@ if (!class_exists('SUPER_PayPal')):
 		                                                <span><?php echo esc_html__('Submitted', 'super-forms' ) . ':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
 		                                            </div>
 													<div class="misc-pub-section">
-		                                                <span><?php echo esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <strong><?php echo '<a href="admin.php?page=super_create_form&id=' . $custom[0] . '">' . get_the_title( $custom[0] ) . '</a>'; ?></strong></span>
+		                                                <span><?php echo esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <strong><?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $custom[0]) . '">' . get_the_title( $custom[0] ) . '</a>'; ?></strong></span>
 		                                            </div>
 
 		                                            <div class="clear"></div>
@@ -1757,7 +1757,7 @@ if (!class_exists('SUPER_PayPal')):
 											if( !empty($settings['file_upload_submission_delete']) ) {
 												$files_value .= $value['value'] . '<br /><br />';
 											}else{
-												$files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+												$files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . $value['value'] . '</a><br /><br />';
 											}
 											// Exclude file from email completely
 											if( $v['exclude']!=2 ) {
@@ -3003,7 +3003,7 @@ if (!class_exists('SUPER_PayPal')):
 
 					'paypal_completed_entry_status' => array(
 						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
-						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
+						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
 						'default' => SUPER_Settings::get_value(0, 'paypal_completed_entry_status', $settings['settings'], 'completed' ),
 						'type' => 'select',
 						'values' => $statuses,

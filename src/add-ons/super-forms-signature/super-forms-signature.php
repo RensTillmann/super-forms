@@ -276,8 +276,8 @@ if(!class_exists('SUPER_Signature')) :
         public static function load_scripts($atts) {
             if($atts['ajax']) {
                 wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
-                wp_enqueue_script( 'jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
-                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common', 'jquery-signature' ), SUPER_Signature()->version );
+                wp_enqueue_script( 'super-jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
+                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common', 'super-jquery-signature' ), SUPER_Signature()->version );
             }
         }
 
@@ -392,8 +392,8 @@ if(!class_exists('SUPER_Signature')) :
             }else{
                 wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
             }
-            wp_enqueue_script( 'jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
-			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'jquery-signature' ), SUPER_Signature()->version );
+            wp_enqueue_script( 'super-jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
+			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-jquery-signature' ), SUPER_Signature()->version );
 
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts );
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );

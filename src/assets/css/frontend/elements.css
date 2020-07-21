@@ -1985,6 +1985,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   background: none !important;
   border: none !important;
   overflow: visible;
+  z-index: 2000000000;
 }
 .sp-container.super-forms .sp-picker-container {
   border: none;

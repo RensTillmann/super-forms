@@ -74,14 +74,14 @@
 
 				// Exit intent
 				if( ($settings.exit_intent)  == 'true' ) {
-					jQuery(document).bind('mouseleave', function() {
+					jQuery(document).on('mouseleave', function() {
 						SUPER.init_popups.show( $this, $settings );
 					});
 				}
 
 				// Display the popup on page leave / page close/exit
 				if( ($settings.leave)  == 'true' ) {
-					jQuery(document).bind('mouseleave', function() {
+					jQuery(document).on('mouseleave', function() {
 						SUPER.init_popups.show( $this, $settings );
 					});
 					window.onbeforeunload = function(e) {
@@ -116,7 +116,7 @@
 					var idleTimer = null;
 					var idleState = false;
 					var idleWait = parseInt($settings.inactivity, 10) * 1000;
-					$('*').bind('mousemove hover dblclick mouseenter mouseleave click mouseup mousedown keydown scroll', function () {
+					$('*').on('mousemove hover dblclick mouseenter mouseleave click mouseup mousedown keydown scroll', function () {
 						if(!idleState) {
 							clearTimeout(idleTimer);
 							idleTimer = setTimeout(function () {
@@ -409,8 +409,7 @@
 		$doc.on('click', '.super-popup-close:not(.super-form-button)', function(){
 			SUPER.init_popups.close(true);
 		});
-		$(window).click(function(e){
-            console.log(e.target);
+		$(window).on('click', function(e){
             if(e.target.classList.contains('super-popup-wrapper')){
 				SUPER.init_popups.close();
             }

@@ -545,7 +545,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
             $array['email_reminders'] = array(        
                 'name' => esc_html__( 'E-mail Reminders', 'super-forms' ),
                 'label' => esc_html__( 'E-mail Reminders', 'super-forms' ),
-                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#email-reminders">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#email-reminders">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
                 'fields' => array(
                     'email_reminder_amount' => array(
                         'hidden' => true,

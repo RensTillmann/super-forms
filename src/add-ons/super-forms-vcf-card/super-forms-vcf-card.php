@@ -216,7 +216,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             if($fp==false){
 //                 SUPER_Common::output_message(
 //                     $error = true,
-//                     $msg = '<strong>Error:</strong> ' . __( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
+//                     $msg = '<strong>Error:</strong> ' . esc_html__( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
 //                 );
 //             }else{
 //                 fwrite( $fp, $cardData );

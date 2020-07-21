@@ -95,7 +95,7 @@ if ( !class_exists('Puc_v4p6_Vcs_PluginUpdateChecker') ):
 			if ( empty($info->sections['changelog']) ) {
 				$info->sections['changelog'] = $api->getRemoteChangelog($ref, $this->package->getAbsoluteDirectoryPath());
 				if ( empty($info->sections['changelog']) ) {
-					$info->sections['changelog'] = __('There is no changelog available.', 'plugin-update-checker');
+					$info->sections['changelog'] = esc_html__('There is no changelog available.', 'plugin-update-checker');
 				}
 			}
 

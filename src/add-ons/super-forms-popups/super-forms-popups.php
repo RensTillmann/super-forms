@@ -321,7 +321,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(
-                    'super-css-plugin' => array(
+                    'css-plugin' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js',
                         'deps'    => array( 'jquery', 'super-common' ),
                         'version' => SUPER_Popup()->version,
@@ -331,9 +331,9 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-ease-pack' => array(
+                    'ease-pack' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js',
-                        'deps'    => array( 'super-css-plugin' ),
+                        'deps'    => array( 'css-plugin' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
                         'screen'  => array( 
@@ -341,9 +341,9 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    'super-tween-lite' => array(
+                    'tween-lite' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js',
-                        'deps'    => array( 'super-ease-pack' ),
+                        'deps'    => array( 'ease-pack' ),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
                         'screen'  => array( 
@@ -351,19 +351,9 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                         ),
                         'method'  => 'enqueue',
                     ),
-                    // 'super-jquery-gsap' => array(
-                    //     'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js',
-                    //     'deps'    => array( 'super-tween-lite' ),
-                    //     'version' => SUPER_Popup()->version,
-                    //     'footer'  => false,
-                    //     'screen'  => array( 
-                    //         'super-forms_page_super_create_form',
-                    //     ),
-                    //     'method'  => 'enqueue',
-                    // ),
                     'super-popup' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/popup.js',
-                        'deps'    => array( 'super-jquery-gsap' ),
+                        'deps'    => array(),
                         'version' => SUPER_Popup()->version,
                         'footer'  => false,
                         'screen'  => array( 

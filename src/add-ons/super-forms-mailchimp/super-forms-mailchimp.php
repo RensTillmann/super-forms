@@ -313,7 +313,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
                         SUPER_Common::output_message(
                             $error = true,
-                            $msg = '<strong>Error:</strong> ' . json_encode($obj)
+                            $msg = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . json_encode($obj)
                         );
                     }
                 }
@@ -361,7 +361,7 @@ if(!class_exists('SUPER_Mailchimp')) :
             // Check if the API key has been set
             if( ( !isset( $global_settings['mailchimp_key'] ) ) || ( $global_settings['mailchimp_key']=='' ) ) {
                 $show_hidden_field = false;
-                $result .= '<strong style="color:red;">' . esc_html__( 'Please setup your API key in', 'super-forms' ) . ' <a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#mailchimp">Super Forms > ' . esc_html__( 'Settings', 'super-forms' ) . ' > Mailchimp</a></strong>';
+                $result .= '<strong style="color:red;">' . esc_html__( 'Please setup your API key in', 'super-forms' ) . ' <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#mailchimp').'">Super Forms > ' . esc_html__( 'Settings', 'super-forms' ) . ' > Mailchimp</a></strong>';
             }else{
                 if( ( !isset( $atts['list_id'] ) ) || ( $atts['list_id']=='' ) ) {
                     $show_hidden_field = false;
@@ -404,9 +404,9 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                                curl_setopt( $ch, CURLOPT_ENCODING, '' );
 		                                $output = curl_exec( $ch );
                                         $output = json_decode( $output );
-                                        $result .= '<span class="super-group-title">' . $v->title . '</span>';
+                                        $result .= '<span class="super-group-title">' . esc_html($v->title) . '</span>';
 		                                foreach( $output->interests as $ik => $iv ) {
-		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" /><div>' . $iv->name . '</div></label>';
+		                                    $result .= '<label class="super-item"><input type="checkbox" value="' . esc_attr( $iv->id ) . '" /><div>' . esc_html($iv->name) . '</div></label>';
 		                                }
 		                            }
 		                            $result .= '<input class="super-shortcode-field" type="hidden"';

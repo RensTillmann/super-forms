@@ -1160,7 +1160,7 @@ class SUPER_Settings {
                 // @since 3.4.0  - custom contact entry status
                 'contact_entry_custom_status' => array(
                     'name' => esc_html__( 'Contact entry status', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>'),
+                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>'),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'contact_entry_custom_status', $settings, '' ),
                     'values' => $statuses,
@@ -1257,7 +1257,7 @@ class SUPER_Settings {
                 // @since 3.4.0  - allow to update the contact entry status after updating the entry
                 'contact_entry_custom_status_update' => array(
                     'name' => esc_html__( 'Contact entry status after updating', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
+                    'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'contact_entry_custom_status_update', $settings, '' ),
                     'values' => $statuses,
@@ -2830,31 +2830,7 @@ class SUPER_Settings {
             ),
         );
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
-
-
-        /** 
-         *	Support
-         *
-         *	@since		1.0.0
-        */
-        $array['support'] = array(
-            'hidden' => true,
-            'name' => esc_html__( 'Support', 'super-forms' ),
-            'label' => esc_html__( 'Support', 'super-forms' ),
-            'html' => array(
-                '<p>For support please contact us through Envato: <a href="http://codecanyon.net/user/feeling4design">feeling4design</a></p>',
-                '<div class="super-subscribe">',
-                    '<h3>Staying up to date:</h3>',
-                    '<p>',
-                        'To stay up to date with the latest news regarding Super Forms, <a target="_blank" href="https://codecanyon.net/user/feeling4design/followers">follow us on codecanyon</a> and <a target="_blank" href="https://my.sendinblue.com/users/subscribe/js_id/37455/id/1">subscribe to our newsletter</a>.',
-                    '</p>',
-                '</div>',
-                
-            ),
-        );
         $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
-
-        
         $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings ) );
         
         return $array;
