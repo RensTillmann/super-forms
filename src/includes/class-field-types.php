@@ -120,12 +120,12 @@ class SUPER_Field_Types {
                         $image = !empty( $image[0] ) ? $image[0] : '';
                         if( !empty( $image ) ) {
                             $return .= '<li data-file="' . $v['image'] . '">';
-                            $return .= '<div class="image"><img src="' . $image . '"></div>';
+                            $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
                             $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                             $return .= '<span>px</span>';
                             $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                             $return .= '<span>px</span>';
-                            $return .= '<a href="#" class="super-delete">Delete</a>';
+                            $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
                             $return .= '</li>';
                         }
                         $return .= '</ul>';
@@ -256,12 +256,12 @@ class SUPER_Field_Types {
                             $image = !empty( $image[0] ) ? $image[0] : '';
                             if( !empty( $image ) ) {
                                 $return .= '<li data-file="' . $v['image'] . '">';
-                                $return .= '<div class="image"><img src="' . $image . '"></div>';
+                                $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
                                 $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                                 $return .= '<span>px</span>';
                                 $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
                                 $return .= '<span>px</span>';
-                                $return .= '<a href="#" class="super-delete">Delete</a>';
+                                $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
                                 $return .= '</li>';
                             }
                             $return .= '</ul>';
@@ -296,8 +296,8 @@ class SUPER_Field_Types {
         $image = !empty( $image[0] ) ? $image[0] : '';
         if( !empty( $image ) ) {
             $return .= '<li data-file="' . $field['default'] . '">';
-            $return .= '<div class="image"><img src="' . $image . '"></div>';
-            $return .= '<a href="#" class="super-delete">Delete</a>';
+            $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
+            $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
             $return .= '</li>';
         }
         $return .= '</ul>';
@@ -340,9 +340,9 @@ class SUPER_Field_Types {
                 }
 
                 $return .= '<li data-file="' . $v . '">';
-                $return .= '<div class="image"><img src="' . $icon . '"></div>';
-                $return .= '<a href="' . $url . '">' . $filename . '</a>';
-                $return .= '<a href="#" class="super-delete">Delete</a>';
+                $return .= '<div class="image"><img src="' . esc_url($icon) . '"></div>';
+                $return .= '<a href="' . esc_url($url) . '">' . $filename . '</a>';
+                $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
                 $return .= '</li>';
             }
         }
@@ -500,8 +500,8 @@ class SUPER_Field_Types {
                     $type = $data[$id][$i]['type'];
                     $return .= '<select name="type" data-value="' . $type . '">';
                         $return .= '<option value="">- retrieve method -</option>';
-                        $return .= '<option value="long"' . ($type=='long' ? ' selected="selected"' : '') . '>Long name (default)</option>';
-                        $return .= '<option value="short"' . ($type=='short' ? ' selected="selected"' : '') . '>Short name</option>';
+                        $return .= '<option value="long"' . ($type=='long' ? ' selected="selected"' : '') . '>'.esc_html__('Long name (default)', 'super-forms').'</option>';
+                        $return .= '<option value="short"' . ($type=='short' ? ' selected="selected"' : '') . '>'.esc_html__('Short name', 'super-forms').'</option>';
                     $return .= '</select>';
                 $return .= '</div>';
                 $i++;
@@ -513,8 +513,8 @@ class SUPER_Field_Types {
                     $return .= '<input type="hidden" name="key" value="' . $k . '" />';
                     $return .= '<select class="super-previously-created" name="field" data-value=""></select>';
                     $return .= '<select name="type" data-value="">';
-                        $return .= '<option value="long">Long name (default)</option>';
-                        $return .= '<option value="short">Short name</option>';
+                        $return .= '<option value="long">'.esc_html__('Long name (default)', 'super-forms').'</option>';
+                        $return .= '<option value="short">'.esc_html__('Short name', 'super-forms').'</option>';
                     $return .= '</select>';
                 $return .= '</div>';
             }
@@ -556,8 +556,8 @@ class SUPER_Field_Types {
                     $return .= '<input type="text" placeholder="Value" value="' . $v['value'] . '" name="conditional_value">';
                     $return .= '<select name="conditional_and_method">';
                         $return .= '<option selected="selected" value="">- select -</option>';
-                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
-                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
+                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">'.esc_html__('AND', 'super-forms').'</option>';
+                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">'.esc_html__('OR', 'super-forms').'</option>';
                     $return .= '</select>';
                     $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_and . '" name="conditional_field_and">';
                     $return .= '<select name="conditional_logic_and">';
@@ -584,8 +584,8 @@ class SUPER_Field_Types {
                 $return .= '<input type="text" placeholder="Value" value="" name="conditional_value">';
                 $return .= '<select name="conditional_and_method">';
                     $return .= '<option selected="selected" value="">- select -</option>';
-                    $return .= '<option value="and">AND</option>';
-                    $return .= '<option value="or">OR</option>';
+                    $return .= '<option value="and">'.esc_html__('AND', 'super-forms').'</option>';
+                    $return .= '<option value="or">'.esc_html__('OR', 'super-forms').'</option>';
                 $return .= '</select>';
                 $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field_and">';
                 $return .= '<select name="conditional_logic_and">';
@@ -652,8 +652,8 @@ class SUPER_Field_Types {
                     $return .= '<input type="text" placeholder="Value" value="' . $v['value'] . '" name="conditional_value">';
                     $return .= '<select name="conditional_and_method">';
                         $return .= '<option selected="selected" value="">- select -</option>';
-                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">AND</option>';
-                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">OR</option>';
+                        $return .= '<option' . ('and'==$v['and_method'] ? ' selected="selected"' : '') . '  value="and">'.esc_html__('AND', 'super-forms').'</option>';
+                        $return .= '<option' . ('or'==$v['and_method'] ? ' selected="selected"' : '') . '  value="or">'.esc_html__('OR', 'super-forms').'</option>';
                     $return .= '</select>';
                     $return .= '<input type="text" placeholder="Field {tag}" value="' . $field_and . '" name="conditional_field_and">';
                     $return .= '<select name="conditional_logic_and">';
@@ -682,8 +682,8 @@ class SUPER_Field_Types {
                 $return .= '<input type="text" placeholder="Value" value="" name="conditional_value">';
                 $return .= '<select name="conditional_and_method">';
                     $return .= '<option selected="selected" value="">- select -</option>';
-                    $return .= '<option value="and">AND</option>';
-                    $return .= '<option value="or">OR</option>';
+                    $return .= '<option value="and">'.esc_html__('AND', 'super-forms').'</option>';
+                    $return .= '<option value="or">'.esc_html__('OR', 'super-forms').'</option>';
                 $return .= '</select>';
                 $return .= '<input type="text" placeholder="Field {tag}" value="" name="conditional_field_and">';
                 $return .= '<select name="conditional_logic_and">';

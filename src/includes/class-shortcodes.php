@@ -196,7 +196,7 @@ class SUPER_Shortcodes {
                 }
                 // If we need to display the featured image
                 if($atts['display_featured_image']=='true'){
-                    $item .= '<div class="image" style="background-image:url(\'' . $main_image_url . '\');"><img src="' . $main_image_url . '"' . '></div>';
+                    $item .= '<div class="image" style="background-image:url(\'' . $main_image_url . '\');"><img src="' . esc_url($main_image_url) . '"' . '></div>';
                 }
                 // If we need to display the title, excerpt or price
                 $item .= '<span class="super-item-label">';
@@ -359,10 +359,10 @@ class SUPER_Shortcodes {
                         $class .= ' super-has-image';
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         if( !empty( $image ) ) {
-                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
                         $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
                         if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
@@ -412,10 +412,10 @@ class SUPER_Shortcodes {
                         $class .= ' super-has-image';
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         if( !empty( $image ) ) {
-                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }else{
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $item .= '<div class="image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
                         $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '" />';
                         if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
@@ -880,7 +880,6 @@ class SUPER_Shortcodes {
             // Retrieve meta data from author
             if( $atts[$prefix.'retrieve_method']=='author' ) {
                 // First check if we are on the author profile page, and see if we can find author based on slug
-                // get_current_user_id()
                 $page_url = ( isset($_SERVER['HTTPS']) ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                 $author_name = basename($page_url);
                 $current_author = ( isset($_GET['author']) ? get_user_by('id', absint($_GET['author'])) : get_user_by('slug', $author_name) );
@@ -1587,7 +1586,7 @@ class SUPER_Shortcodes {
                 if( $tag=='text' ) {
                     // @since   1.3   - predefined input mask e.g: (___) ___-____
                     if( !empty($atts['mask']) ) {
-                        wp_enqueue_script( 'masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array( 'jquery' ), SUPER_VERSION, false );
+                        wp_enqueue_script( 'super-masked-input', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-input.js', array( 'jquery' ), SUPER_VERSION, false );
                         $result .= ' data-mask="' . esc_attr($atts['mask']) . '"';
                     }
                     if( $atts['maxlength']>0 ) {
@@ -1881,7 +1880,7 @@ class SUPER_Shortcodes {
                             $img_styles = '';
                             if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                             if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                            $tab_html .= '<div class="super-tab-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                            $tab_html .= '<div class="super-tab-image"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
                         $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
                         $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
@@ -2017,7 +2016,7 @@ class SUPER_Shortcodes {
                                 $img_styles = '';
                                 if( $v['max_width']!='' ) $img_styles .= 'max-width:' . $v['max_width'] . 'px;';
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
-                                $result .= '<div class="super-accordion-image"><img src="' . $image . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
+                                $result .= '<div class="super-accordion-image"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
                             $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['title'], false);
                             $dataFields = '';
@@ -2617,8 +2616,8 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        wp_enqueue_style( 'super-colorpicker', SUPER_PLUGIN_FILE.'assets/css/frontend/colorpicker.css', array(), SUPER_VERSION );    
-        wp_enqueue_script( 'super-colorpicker', SUPER_PLUGIN_FILE . 'assets/js/frontend/colorpicker.js', array( 'jquery' ), SUPER_VERSION, false );
+        wp_enqueue_style( 'spectrum', SUPER_PLUGIN_FILE.'assets/css/frontend/spectrum.css', array(), SUPER_VERSION );    
+        wp_enqueue_script( 'spectrum', SUPER_PLUGIN_FILE . 'assets/js/frontend/spectrum.js', array( 'jquery' ), SUPER_VERSION, false );
 
         if( (!isset($atts['wrapper_width'])) || ($atts['wrapper_width']==0) ) $atts['wrapper_width'] = 70;
         if( ($settings['theme_hide_icons']=='no') && ($atts['icon']!='') ) {
@@ -2713,7 +2712,7 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
-        wp_enqueue_script( 'masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false ); 
+        wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false ); 
         
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
@@ -3392,14 +3391,14 @@ class SUPER_Shortcodes {
             }
             if(!empty($load_more_items)){
                 $result .= '<div class="super-load-more">' . $load_more_items . '</div>';
-                $result .= '<div class="super-load-more-button"><span>' . __( 'Load more', 'super-forms' ) . '</span></div>';
+                $result .= '<div class="super-load-more-button"><span>' . esc_html__( 'Load more', 'super-forms' ) . '</span></div>';
             }
 
         }else{
             // Check if this the "Slider" layout is enabled, if so we will add a wrapper so that the "CarouselJS" can initilize the slider/carousel
             if(!empty($atts['display']) && $atts['display']=='slider'){
-                wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
-                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
+                wp_enqueue_style( 'super-carousel', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
+                wp_enqueue_script( 'super-carousel', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
                 $result .= '<div class="carouseljs">';
                 // Override default configuration for the carousel based on element settings
                 $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
@@ -3478,14 +3477,14 @@ class SUPER_Shortcodes {
             }
             if(!empty($load_more_items)){
                 $result .= '<div class="super-load-more">' . $load_more_items . '</div>';
-                $result .= '<div class="super-load-more-button"><span>' . __( 'Load more', 'super-forms' ) . '</span></div>';
+                $result .= '<div class="super-load-more-button"><span>' . esc_html__( 'Load more', 'super-forms' ) . '</span></div>';
             }
 
         }else{
             // Check if this the "Slider" layout is enabled, if so we will add a wrapper so that the "CarouselJS" can initilize the slider/carousel
             if(!empty($atts['display']) && $atts['display']=='slider'){
-                wp_enqueue_style( 'super-carouseljs', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
-                wp_enqueue_script( 'super-carouseljs', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
+                wp_enqueue_style( 'super-carousel', SUPER_PLUGIN_FILE.'assets/css/frontend/carousel.css', array(), SUPER_VERSION );    
+                wp_enqueue_script( 'super-carousel', SUPER_PLUGIN_FILE . 'assets/js/frontend/carousel.js', array( 'super-common' ), SUPER_VERSION );
                 $result .= '<div class="carouseljs">';
                 // Override default configuration for the carousel based on element settings
                 $result .= '<textarea>{"trackBg":"' . $atts['display_trackBg'] . '","itemBg":"' . $atts['display_itemBg'] . '","columns":"' . absint($atts['display_columns']) . '","minwidth":"' . absint($atts['display_minwidth']) . '","navigation":' . ($atts['display_nav']===true ? 'true' : 'false') . ',"dots":' . ($atts['display_dots_nav']===true ? 'true' : 'false') . '}</textarea>';
@@ -3519,10 +3518,10 @@ class SUPER_Shortcodes {
 
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'jquery-ui-widget' );
-        wp_enqueue_script( 'upload-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'upload-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'upload-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        wp_enqueue_script( 'upload-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'jquery-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'jquery-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'jquery-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
+        wp_enqueue_script( 'jquery-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
@@ -3599,10 +3598,10 @@ class SUPER_Shortcodes {
                         if($file_headers && (strpos($file_headers[0], '404'))==false) {
                             // File exists, let's add it to the list
                             $class = ' finished'; // Required in order for the file upload to know if all files are uploaded to the server
-                            $files .= '<div data-name="' . $v['value'] . '" class="super-uploaded"';
-                            $files .= ' data-url="' . $v['url'] . '"';
-                            $files .= ' data-thumburl="' . $v['thumburl'] . '">';
-                            $files .= '<span class="super-fileupload-name"><a href="' . $v['url'] . '" target="_blank">' . $v['value'] . '</a></span>';
+                            $files .= '<div data-name="' . esc_attr($v['value']) . '" class="super-uploaded"';
+                            $files .= ' data-url="' . esc_attr($v['url']) . '"';
+                            $files .= ' data-thumburl="' . esc_attr($v['thumburl']) . '">';
+                            $files .= '<span class="super-fileupload-name"><a href="' . esc_url($v['url']) . '" target="_blank">' . esc_html($v['value']) . '</a></span>';
                             $files .= '<span class="super-fileupload-delete"></span>';
                             $files .= '</div>';
                         }
@@ -4066,7 +4065,7 @@ class SUPER_Shortcodes {
                 'Please enter your reCAPTCHA API keys in %sSuper Forms > Settings > Form Settings%s',
                 'super-forms' 
             ),
-            '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#form-settings">', 
+            '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#form-settings') . '">', 
             '</a>' 
         );
         if($atts['version']==='v3'){
@@ -5624,16 +5623,16 @@ class SUPER_Shortcodes {
             if($settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
                 if(!empty($translations) && is_array($translations)){
-                    wp_enqueue_style( 'flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
+                    wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
                     $default_language = current($translations);
                     // Set default language to current language if not empty
                     if(!empty($i18n)) $default_language = $translations[$i18n];
                     $result .= '<div class="super-i18n-switcher">';
                         $result .= '<div class="super-dropdown">';
-                            $result .= '<div class="super-dropdown-placeholder"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $default_language['flag'] . '" /></div>';
+                            $result .= '<div class="super-dropdown-placeholder"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $default_language['flag'] . '" /></div>';
                             $result .= '<ul class="super-dropdown-items">';
                                 foreach($translations as $tk => $tv){
-                                    $result .= '<li class="super-item' . ($tv['flag']==$default_language['flag'] ? ' super-active' : '') . '" data-value="' . $tk . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $tv['flag'] . '" /></li>';
+                                    $result .= '<li class="super-item' . ($tv['flag']==$default_language['flag'] ? ' super-active' : '') . '" data-value="' . $tk . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $tv['flag'] . '" /></li>';
                                 }
                             $result .= '</ul>';
                         $result .= '</div>';

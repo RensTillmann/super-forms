@@ -368,7 +368,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 $order_id = absint($order_id);
                 if( $order_id!=0 ) {
                     $result .= '<tr><th align="right">' . esc_html__( 'WooCommerce Order', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
-                    $result .= '<a href="' . get_admin_url() . 'post.php?post=' . $order_id . '&action=edit">' . get_the_title( $order_id ) . '</a>';
+                    $result .= '<a href="' . esc_url(get_admin_url() . 'post.php?post=' . $order_id . '&action=edit') . '">' . get_the_title( $order_id ) . '</a>';
                     $result .= '</span></td></tr>';
                 }
             }
@@ -631,7 +631,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                                                 $row = str_replace( '{loop_label}', '', $row );
                                             }
                                         }
-                                        $files_value .= '<a href="' . $value['url'] . '" target="_blank">' . $value['value'] . '</a><br /><br />';
+                                        $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . $value['value'] . '</a><br /><br />';
                                         if( $v['exclude']!=2 ) {
                                             if( $v['exclude']==1 ) {
                                                 $attachments[$value['value']] = $value['url'];
@@ -824,7 +824,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
-                    $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,

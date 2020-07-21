@@ -207,7 +207,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
             $styles['super-front-end-listing'] = array(
-                'src'     => $assets_path . 'css/backend/style.css',
+                'src'     => $assets_path . 'css/backend/script.css',
                 'deps'    => '',
                 'version' => SUPER_Front_End_Listing()->version,
                 'media'   => 'all',
@@ -234,16 +234,16 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         }
 
         public static function add_tab($tabs){
-            $tabs['front_end_listing'] = __( 'Front-end Listing', 'super-forms' );
+            $tabs['front_end_listing'] = esc_html__( 'Front-end Listing', 'super-forms' );
             return $tabs;
         }
         public static function add_tab_content($atts){
             //array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content )
             $tooltips = array(
-                __( 'Give this listing a name', 'super-forms' ),
-                __('Paste shortcode on any page', 'super-forms' ),
-                __('Change Settings', 'super-forms' ),
-                __('Delete Listing', 'super-forms' )
+                esc_html__( 'Give this listing a name', 'super-forms' ),
+                esc_html__('Paste shortcode on any page', 'super-forms' ),
+                esc_html__('Change Settings', 'super-forms' ),
+                esc_html__('Delete Listing', 'super-forms' )
             );
             $shortcode = '[form-not-saved-yet]';
             $form_id = absint($atts['form_id']);
@@ -471,20 +471,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             if( empty($list['date_range']['till']) ) $list['date_range']['till'] = '';
 	   
             if( empty($list['show_title']) || (!is_array($list['show_title'])) ) $list['show_title'] = array();
-            if( empty($list['show_title']['name']) ) $list['show_title']['name'] = __( 'Title', 'super-forms' );
-            if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = __( 'Filter by title', 'super-forms' );
+            if( empty($list['show_title']['name']) ) $list['show_title']['name'] = esc_html__( 'Title', 'super-forms' );
+            if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = esc_html__( 'Filter by title', 'super-forms' );
             if( empty($list['show_title']['position']) ) $list['show_title']['position'] = 1;
             if( empty($list['show_title']['width']) ) $list['show_title']['width'] = 150;
 
             if( empty($list['show_status']) || (!is_array($list['show_status'])) ) $list['show_status'] = array();
-            if( empty($list['show_status']['name']) ) $list['show_status']['name'] = __( 'Status', 'super-forms' );
-            if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = __( '- choose status -', 'super-forms' );
+            if( empty($list['show_status']['name']) ) $list['show_status']['name'] = esc_html__( 'Status', 'super-forms' );
+            if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = esc_html__( '- choose status -', 'super-forms' );
             if( empty($list['show_status']['position']) ) $list['show_status']['position'] = 2;
             if( empty($list['show_status']['width']) ) $list['show_status']['width'] = 150;
 	    
             if( empty($list['show_date']) || (!is_array($list['show_date'])) ) $list['show_date'] = array();
-            if( empty($list['show_date']['name']) ) $list['show_date']['name'] = __( 'Date created', 'super-forms' );
-            if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = __( 'Filter by date', 'super-forms' );
+            if( empty($list['show_date']['name']) ) $list['show_date']['name'] = esc_html__( 'Date created', 'super-forms' );
+            if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = esc_html__( 'Filter by date', 'super-forms' );
             if( empty($list['show_date']['position']) ) $list['show_date']['position'] = 3;
             if( empty($list['show_date']['width']) ) $list['show_date']['width'] = 150;
 
@@ -894,7 +894,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                     $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
                                         if($column_key=='post_title'){
                                             $result .= $entry->post_title;
-                                            //$result .= '<a href="#">' . $entry->post_title . '</a>';
                                         }elseif($column_key=='entry_status'){
                                             if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
                                                 $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
@@ -945,7 +944,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
                     $result .= '<span class="super-next"></span>';
                     $result .= '<div class="super-nav">';
-                        $url = strtok($_SERVER["REQUEST_URI"], '?');
+                        $url = esc_url(strtok($_SERVER["REQUEST_URI"], '?'));
                         $total_pages = ceil($results_found/$limit);
                         
                         // Previous 2 pages

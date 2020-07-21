@@ -146,7 +146,7 @@ class SUPER_Pages {
                             <ul class="super-dropdown-items">
                                 <?php
                                 foreach($flags as $k => $v){
-                                    echo '<li class="super-item" data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                    echo '<li class="super-item" data-value="' . $k . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $k . '" />' . $v . '</li>';
                                 }
                                 ?>
                             </ul>
@@ -191,12 +191,12 @@ class SUPER_Pages {
                                 }
                                 ?>
                                 <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
-                                    <div class="super-dropdown-placeholder"><?php echo '<img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $v['flag'] . '" />' . $flags[$v['flag']]; ?></div>
+                                    <div class="super-dropdown-placeholder"><?php echo '<img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $v['flag'] . '" />' . $flags[$v['flag']]; ?></div>
                                     <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
                                     <ul class="super-dropdown-items">
                                         <?php
                                         foreach($flags as $fk => $fv){
-                                            echo '<li data-value="' . $fk . '" class="super-item' . ($fk==$v['flag'] ? ' super-active' : '') . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $fk . '" />' . $fv . '</li>';
+                                            echo '<li data-value="' . $fk . '" class="super-item' . ($fk==$v['flag'] ? ' super-active' : '') . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $fk . '" />' . $fv . '</li>';
                                         }
                                         ?>
                                     </ul>
@@ -252,7 +252,7 @@ class SUPER_Pages {
                                 <ul class="super-dropdown-items">
                                     <?php
                                     foreach($flags as $k => $v){
-                                        echo '<li class="super-item" data-value="' . $k . '"><img src="'. SUPER_PLUGIN_FILE . 'assets/images/blank.gif" class="flag flag-' . $k . '" />' . $v . '</li>';
+                                        echo '<li class="super-item" data-value="' . $k . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $k . '" />' . $v . '</li>';
                                     }
                                     ?>
                                 </ul>
@@ -423,7 +423,7 @@ class SUPER_Pages {
                                                     <span><?php echo esc_html__('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo esc_html__('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                                 </div>
                                                 <div class="misc-pub-section">
-                                                    <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ': <strong><a href="admin.php?page=super_create_form&id=' . $data['form_id'][0]['value'] . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
+                                                    <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ': <strong><a href="' . esc_url('admin.php?page=super_create_form&id=' . $data['form_id'][0]['value']) . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
                                                 </div>
                                                 <?php
                                                 if(SUPER_WC_ACTIVE){
@@ -431,7 +431,7 @@ class SUPER_Pages {
                                                     if(!empty($wc_order_id)){
                                                         ?>
                                                         <div class="misc-pub-section">
-                                                            <span><?php echo esc_html__('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="'.get_edit_post_link($wc_order_id,'').'">#'.$wc_order_id.'</a>'; ?></strong></span>
+                                                            <span><?php echo esc_html__('WooCommerce Order', 'super-forms' ).':'; ?> <strong><?php echo '<a href="' . esc_url(get_edit_post_link($wc_order_id,'')).'">#'.$wc_order_id.'</a>'; ?></strong></span>
                                                         </div>
                                                         <?php
                                                     }
@@ -441,7 +441,7 @@ class SUPER_Pages {
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
                                                     echo '<div class="misc-pub-section">';
-                                                        echo '<span>' . esc_html__( 'Submitted by', 'super-forms' ) . ': <a href="' . get_edit_user_link($user_info->ID) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+                                                        echo '<span>' . esc_html__( 'Submitted by', 'super-forms' ) . ': <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
                                                     echo '</div>';
                                                 }
                                                 ?>

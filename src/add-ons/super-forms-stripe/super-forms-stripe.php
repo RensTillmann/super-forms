@@ -880,7 +880,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $txn_id = self::getTransactionId($data);
                 ?>
                 <div class="misc-pub-section">
-                    <span><?php echo esc_html__('Stripe Transaction', 'super-forms' ).':'; ?> <strong><?php echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $txn_id . '">' . substr($txn_id, 0, 15) . ' ...</a>'; ?></strong></span>
+                    <span><?php echo esc_html__('Stripe Transaction', 'super-forms' ).':'; ?> <strong><?php echo '<a target="_blank" href="' . esc_url('https://dashboard.stripe.com/payments/' . $txn_id) . '">' . substr($txn_id, 0, 15) . ' ...</a>'; ?></strong></span>
                 </div>
                 <?php
             }
@@ -1496,8 +1496,8 @@ if(!class_exists('SUPER_Stripe')) :
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
                     'stripe_pk' => $global_settings['stripe_pk'],
-                    'choose_payment_method' => __( 'Please choose a payment method!', 'super-forms' ),
-                    'ideal_subscription_error' => __( 'Subscriptions can not be paid through iDeal, please choose a different payment method!', 'super-forms' ),
+                    'choose_payment_method' => esc_html__( 'Please choose a payment method!', 'super-forms' ),
+                    'ideal_subscription_error' => esc_html__( 'Subscriptions can not be paid through iDeal, please choose a different payment method!', 'super-forms' ),
                     'styles' => array(
                         'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
@@ -1678,13 +1678,13 @@ if(!class_exists('SUPER_Stripe')) :
             if( (!empty($global_settings['stripe_mode'])) && ((empty($global_settings['stripe_sandbox_public_key'])) || (empty($global_settings['stripe_sandbox_secret_key']))) ) {
                 $configured = false;
                 echo '<div class="super-stripe-notice">';
-                echo sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
+                echo sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' );
                 echo '</div>';
             }
             if( (empty($global_settings['stripe_mode'])) && ((empty($global_settings['stripe_live_public_key'])) || (empty($global_settings['stripe_live_secret_key']))) ) {
                 $configured = false;
                 echo '<div class="super-stripe-notice">';
-                echo sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
+                echo sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' );
                 echo '</div>';
             }
 
@@ -2222,7 +2222,7 @@ if(!class_exists('SUPER_Stripe')) :
             $symbol = (isset(self::$currency_codes[$currency_code]) ? self::$currency_codes[$currency_code] : $currency_code);
             switch ($column) {
                 case 'stripe_txn_id':
-                    echo '<a target="_blank" href="https://dashboard.stripe.com/payments/' . $txn_id . '">' . $txn_id . '</a>';
+                    echo '<a target="_blank" href="' . esc_url('https://dashboard.stripe.com/payments/' . $txn_id) . '">' . $txn_id . '</a>';
                     break;
                 case 'stripe_receipt':
                     $receiptUrl = ( (!empty($d['charges']) && (!empty($d['charges']['data'])) ) ? $d['charges']['data'][0]['receipt_url'] : '');
@@ -2230,7 +2230,7 @@ if(!class_exists('SUPER_Stripe')) :
                         $receiptUrl = $d['receipt_url'];
                     }
                     if( !empty($receiptUrl) ) {
-                        echo '<a target="_blank" href="' . esc_url_raw($receiptUrl) . '">';
+                        echo '<a target="_blank" href="' . esc_url($receiptUrl) . '">';
                         echo esc_html__( 'View Receipt', 'super-forms' );
                         echo '</a>';
                     }
@@ -2349,17 +2349,17 @@ if(!class_exists('SUPER_Stripe')) :
                         if( !empty($name) ) {
                             $name = ' (' . $name . ')';
                         }
-                        echo esc_html__( 'User:', 'super-forms' ) . ' <a target="_blank" href="' . get_edit_user_link( $user_id ) . '">' . $user->user_login . $name . '</a>';
+                        echo esc_html__( 'User:', 'super-forms' ) . ' <a target="_blank" href="' . esc_url(get_edit_user_link( $user_id )) . '">' . $user->user_login . $name . '</a>';
                         echo '<br />';
                     }
                     if( isset($dmetadata['_super_contact_entry_id']) ) {
                         $entry_id = absint($dmetadata['_super_contact_entry_id']);
-                        echo esc_html__( 'Contact Entry:', 'super-forms' ) . ' <a target="_blank" href="' . get_edit_post_link( $entry_id ) . '">' . get_the_title($entry_id) . '</a>';
+                        echo esc_html__( 'Contact Entry:', 'super-forms' ) . ' <a target="_blank" href="' . esc_url(get_edit_post_link( $entry_id )) . '">' . get_the_title($entry_id) . '</a>';
                         echo '<br />';
                     }
                     $form_id = wp_get_post_parent_id($post_id);
                     if ($form_id != 0) {
-                        echo esc_html__( 'Form:', 'super-forms' ) . ' <a target="_blank" href="admin.php?page=super_create_form&id=' . $form_id . '">' . get_the_title($form_id) . '</a>';
+                        echo esc_html__( 'Form:', 'super-forms' ) . ' <a target="_blank" href="' . esc_url('admin.php?page=super_create_form&id=' . $form_id) . '">' . get_the_title($form_id) . '</a>';
                         echo '<br />';
                     }
 
@@ -2502,13 +2502,13 @@ if(!class_exists('SUPER_Stripe')) :
                         if( (!empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_sandbox_key'])) ) {
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
+                                $msg = sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' )
                             );
                         }
                         if( (empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_live_key'])) ) {
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
+                                $msg = sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' )
                             );
                         }
                         // Check if iDeal element exists
@@ -3005,7 +3005,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }
 
                 // Enqueue styles
-                wp_enqueue_style( 'stripe-confirmation', plugin_dir_url( __FILE__ ) . 'confirmation.css', array(), SUPER_Stripe()->version );
+                wp_enqueue_style( 'super-stripe-confirmation', plugin_dir_url( __FILE__ ) . 'stripe-confirmation.css', array(), SUPER_Stripe()->version );
                 // Enqueue scripts
                 wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
                 $handle = 'super-stripe-confirmation';
@@ -3283,7 +3283,7 @@ if(!class_exists('SUPER_Stripe')) :
                    
                     'stripe_completed_entry_status' => array(
                         'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
-                        'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . admin_url() . 'admin.php?page=super_settings#backend-settings">', '</a>' ),
+                        'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
                         'default' => SUPER_Settings::get_value(0, 'stripe_completed_entry_status', $settings['settings'], 'completed' ),
                         'type' => 'select',
                         'values' => $statuses,

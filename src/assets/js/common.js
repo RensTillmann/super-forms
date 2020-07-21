@@ -2145,6 +2145,7 @@ function SUPERreCaptcha(){
             var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
             var args = {
                 form: form,
+                form0: form[0],
                 super_ajax_nonce: super_ajax_nonce,
                 old_html: old_html,
                 duration: duration,
@@ -2256,7 +2257,6 @@ function SUPERreCaptcha(){
                 // Make form scrollable based on a4 height
                 var scrollAmount = 0;
 
-                args.form0 = form[0];
                 args.pageWidth = pageWidth;
                 args.pageHeight = pageHeight;
                 args.pageWidthInPixels = pageWidthInPixels;
@@ -2356,6 +2356,16 @@ function SUPERreCaptcha(){
                 }
                 // Display the error/success message
                 if(innerText) innerText.innerHTML = result.msg;
+                // Convert any JS to executable JS
+                var node = innerText.querySelector('script');
+                if(node && node.tagName === 'SCRIPT'){
+                    var script  = document.createElement("script");
+                    script.text = node.innerHTML;
+                    for( var i = node.attributes.length-1; i >= 0; i-- ) {
+                        script.setAttribute( node.attributes[i].name, node.attributes[i].value );
+                    }
+                    node.parentNode.replaceChild(script, node);
+                }
             }else{
                 // We do not want to display a thank you message, but might want to display a Download PDF button
                 if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
@@ -6022,7 +6032,7 @@ function SUPERreCaptcha(){
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
                 SUPER.reposition_slider_amount_label($field[0]);
 
-                $field.bind("slider:changed", function ($event, $data) {
+                $field.on("slider:changed", function ($event, $data) {
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
                     $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regular_expression, 'g'), '$&' + ($thousand_separator || ''));
                     $amount = $wrapper.children('.amount');

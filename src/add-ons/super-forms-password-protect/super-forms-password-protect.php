@@ -320,7 +320,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                     if ( !SUPER_Password_Protect()->is_request( 'admin' ) ) {
 	                    // Before we proceed, lets check if we have a password field
 	                    if( !isset( $atts['data']['password'] ) ) {
-	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] ) . '">', '</a>' );
+	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] )) . '">', '</a>' );
 	                        SUPER_Common::output_message(
 	                            $error = true,
 	                            $msg = $msg,
@@ -353,7 +353,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                 $field_found = strpos($elements_json, '"name":"password"');
                 if ($field_found === false) {
                     $msg  = '<div class="super-msg super-error">';
-                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] ) . '">', '</a>' );
+                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] )) . '">', '</a>' );
                     $msg .= '<span class="close"></span>';
                     $msg .= '</div>';
                     return $result.$msg;

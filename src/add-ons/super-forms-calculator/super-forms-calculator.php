@@ -398,7 +398,7 @@ if(!class_exists('SUPER_Calculator')) :
         public static function add_scripts( $array ) {
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
             $frontend_path  = $assets_path . 'js/frontend/';
-            $array['super-calculator-mathjs'] = array(
+            $array['mathjs'] = array(
                 'src'     => $frontend_path . 'mathjs.min.js',
                 'deps'    => array( 'jquery', 'super-common' ),
                 'version' => SUPER_Calculator()->version,
@@ -410,7 +410,7 @@ if(!class_exists('SUPER_Calculator')) :
             );
             $array['super-calculator'] = array(
                 'src'     => $frontend_path . 'calculator.js',
-                'deps'    => array( 'super-calculator-mathjs' ),
+                'deps'    => array( 'mathjs' ),
                 'version' => SUPER_Calculator()->version,
                 'footer'  => false,
                 'screen'  => array( 

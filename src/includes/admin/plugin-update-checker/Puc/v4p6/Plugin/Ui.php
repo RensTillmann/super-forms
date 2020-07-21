@@ -51,7 +51,7 @@ if ( !class_exists('Puc_v4p6_Plugin_Ui', false) ):
 		 */
 		public function addViewDetailsLink($pluginMeta, $pluginFile, $pluginData = array()) {
 			if ( $this->isMyPluginFile($pluginFile) && !isset($pluginData['slug']) ) {
-				$linkText = apply_filters($this->updateChecker->getUniqueName('view_details_link'), __('View details'));
+				$linkText = apply_filters($this->updateChecker->getUniqueName('view_details_link'), esc_html__('View details'));
 				if ( !empty($linkText) ) {
 					$viewDetailsLinkPosition = 'append';
 

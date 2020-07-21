@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Register & Login
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.8.0
+ * Version:     1.8.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.8.0';
+        public $version = '1.8.1';
 
 
         /**
@@ -476,9 +476,9 @@ if(!class_exists('SUPER_Register_Login')) :
         */
         public static function resend_activation_code_script( $data ) {
             $global_settings = get_option( 'super_settings' );
-            $handle = 'super-register-common';
+            $handle = 'super-register-login-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/common.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
             wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'duration'=>absint( $global_settings['form_duration'] ) ) );
             wp_enqueue_script( $handle );
         }
@@ -736,7 +736,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Approved Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
@@ -820,7 +820,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Activation Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message. You can use {activation_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to activate your account.%1$sBelow you will find your activation code. You need this code to activate your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to activate your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to activate your account.%1$sBelow you will find your activation code. You need this code to activate your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to activate your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
@@ -937,7 +937,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Lost Password Email Body', 'super-forms' ),
                         'desc' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( __( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -949,7 +949,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'name' => esc_html__( 'Not logged in message (leave blank for no message)', 'super-forms' ),
                         'desc' => esc_html__( 'Display a message when no user is logged in', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_not_logged_in_msg', $settings['settings'], sprintf( __( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_login_not_logged_in_msg', $settings['settings'], sprintf( esc_html__( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
@@ -1236,7 +1236,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
-                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
+                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
@@ -1479,7 +1479,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
-                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
@@ -1500,16 +1500,18 @@ if(!class_exists('SUPER_Register_Login')) :
 
                         // First check if the user role is allowed to login
                         $allowed = false;
-
                         if( ( !isset( $settings['login_user_role'] ) ) || ( $settings['login_user_role']=='' ) ) {
                             $allowed = true;
                         }else{
-                            $allowed = in_array( $user->roles[0], $settings['login_user_role'] );
-                            if( in_array( '', $settings['login_user_role'] ) ) {
+                            if( empty($settings['login_user_role'])){
                                 $allowed = true;
                             }
+                            foreach( $user->roles as $role ) {
+                                if(in_array( $role, $settings['login_user_role'] )){
+                                    $allowed = true;
+                                }
+                            }
                         }                        
-
                         if( $allowed != true ) {
                             wp_logout();
                             $msg = esc_html__( 'You are not allowed to login!', 'super-forms' );
@@ -1526,7 +1528,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         // Maybe this user was already registered before Super Forms was used, if so skip the test
                         if( ( !isset( $data['activation_code'] ) ) && ( $status==0 ) && ( $status!='' ) ) {
                             wp_logout();
-                            $msg = sprintf( esc_html__( 'You haven\'t activated your account yet. Please check your email or click %shere%s to resend your activation email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $atts['post']['form_id'] ) . '" data-user="' . $user->user_login . '">', '</a>' );
+                            $msg = sprintf( esc_html__( 'You haven\'t activated your account yet. Please check your email or click %shere%s to resend your activation email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $atts['post']['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '">', '</a>' );
                             SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
                             SUPER_Common::output_message(
                                 $error = true,
@@ -1613,7 +1615,7 @@ if(!class_exists('SUPER_Register_Login')) :
    
                 // Before we proceed, lets check if we have at least a user_email field
                 if( !isset( $data['user_email'] ) ) {
-                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,

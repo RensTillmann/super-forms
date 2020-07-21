@@ -1,5 +1,21 @@
 # Super Forms - Changelog
 
+## Jul 21, 2020 - Version 4.9.502
+
+- **Improved:** Envato Quality Indicator Application
+  - Removed prefix from third-party assets handles
+  - Renamed asset handles to match filename, and without extension
+  - Missing translatable text strings
+  - Escape translatable strings
+  - Remove all unused code
+  - Escape all translatable strings
+  - Use `.on()` rather than `.click()`, `.bind()`, `.hover()`, `.submit()` etc.
+- **Fix:** Clear form after submission throwing javascript error
+
+## Jul 20, 2020 - Version 4.9.501
+
+- **Fix:** Compatibility with PayPal Add-on (not redirecting to PayPal checkout page after form submission)
+
 ## Jul 17, 2020 - Version 4.9.500
 
 - **NEW:** PDF Generator Add-on, read the docs for more info here: [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)

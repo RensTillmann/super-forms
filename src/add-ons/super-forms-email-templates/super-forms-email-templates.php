@@ -433,10 +433,10 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
             $logo = wp_get_attachment_image_src($header_logo, 'full' );
             $logo = !empty( $logo[0] ) ? $logo[0] : '';
             if( !empty( $logo ) ) {
-                $email_body .= '<img src="' . $logo . '" alt="' . $header_title . '" style="padding: 0px 0 30px 0;display: block;" />';
-                $email_body .= '<p style="margin:0;">' . $header_title . '</p>';
+                $email_body .= '<img src="' . esc_url($logo) . '" alt="' . esc_attr($header_title) . '" style="padding: 0px 0 30px 0;display: block;" />';
+                $email_body .= '<p style="margin:0;">' . esc_html($header_title) . '</p>';
             }else{
-                $email_body .= '<p style="margin:0;">' . $header_title . '</p>';
+                $email_body .= '<p style="margin:0;">' . esc_html($header_title) . '</p>';
             }
             $email_body .= '</td>';
             $email_body .= '</tr>';
@@ -480,8 +480,8 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     if(!isset($exploded[2])) $exploded[2] = '';
 	                if( ( $exploded[0]!='' ) && ( $exploded[1]!='' ) ) {
 		                $email_body .= '<td style="font-family: Arial, sans-serif; font-size: 12px; font-weight: bold;">';
-		                    $email_body .= '<a href="' . $exploded[0] . '" target="_blank" style="color:#ffffff;">';
-		                        $email_body .= '<img src="' . $exploded[1] . '" alt="' . $exploded[2] . '" style="padding-left:5px;display: block;" border="0" />';
+		                    $email_body .= '<a href="' . esc_url($exploded[0]) . '" target="_blank" style="color:#ffffff;">';
+		                        $email_body .= '<img src="' . esc_url($exploded[1]) . '" alt="' . esc_attr($exploded[2]) . '" style="padding-left:5px;display: block;" border="0" />';
 		                    $email_body .= '</a>';
 		                $email_body .= '</td>';
 	            	}
