@@ -211,6 +211,7 @@
                     // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
                     $form.data('is-redirecting', 'true');
                     // Make payment intent
+                    debugger;
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
                         type: 'post',
@@ -221,8 +222,13 @@
                             response: $response
                         },
                         success: function (result) {
+                            debugger;
                             result = JSON.parse(result);
                             console.log(result);
+                            if (result.error) {
+                                SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIdeal[index]);
+                                return false;
+                            }
                             if (result.stripe_method == 'subscription') {
                                 result.error = true;
                                 result.msg = super_stripe_i18n.ideal_subscription_error;

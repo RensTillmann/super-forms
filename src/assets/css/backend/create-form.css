@@ -2587,10 +2587,19 @@
     font-weight: 600;
     font-size: 14px;
     padding: 0px 10px 5px 0px;
+    flex-basis: 160px;
+}
+.sfui-setting .sfui-title > span {
+    color: #ff9221;
+    font-size: 12px;
 }
 .sfui-setting .sfui-title i {
     font-weight: initial;
 }
+.super-tab-stripe .sfui-setting .sfui-title {
+    flex-basis: 290px;
+}
+
 .super-google-map-0 {
     position: relative;
     display: flex;
