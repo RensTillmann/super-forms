@@ -36,6 +36,7 @@ class SUPER_Pages {
                 'api_version' => SUPER_API_VERSION,
                 'home_url' => get_home_url(),
                 'site_url' => site_url(),
+                'protocol' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http",
                 'email' => $userEmail,
                 'addons_activated' => $addOnsActivated,
                 'addons_url' => admin_url( 'admin.php?page=super_addons' ),

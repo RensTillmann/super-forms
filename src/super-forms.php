@@ -354,6 +354,8 @@ if(!class_exists('SUPER_Forms')) :
                 add_filter( 'super_create_form_tabs', array( $this, 'add_pdf_tab' ), 10, 1 );
                 add_action( 'super_create_form_pdf_tab', array( $this, 'add_pdf_tab_content' ) );
 
+                add_filter( 'super_create_form_tabs', array( $this, 'add_stripe_tab' ), 10, 1 );
+                add_action( 'super_create_form_stripe_tab', array( $this, 'add_stripe_tab_content' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -548,6 +550,293 @@ if(!class_exists('SUPER_Forms')) :
                 );
             }
             return $args;
+        }
+        public static function add_stripe_tab($tabs){
+            $tabs['stripe'] = esc_html__( 'Stripe', 'super-forms' );
+            return $tabs;
+        }
+        public static function add_stripe_tab_content($atts){
+            $html = '<div class="super_transient"></div>';
+            $slug = 'stripe';
+            $stripe = array();
+            if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
+                $stripe = $atts['settings']['_'.$slug];
+            }
+            if(!is_array($stripe)) $stripe = array();
+            $defaults = array(
+                'checkout' => '',
+                'condition' => array(
+                    'enabled' => 'false',
+                    'field' => '',
+                    'check' => '==',
+                    'value' => ''
+                ),
+                'method' => 'single', // subscription
+                'amount' => '5.95',
+                'currency' => 'USD',
+                'receipt_email' => '{email}',
+                'description' => esc_html__( 'Payment description', 'super-forms' ),
+                'return_url' => '{option_siteurl}',
+                'statement_descriptor' => '',
+                'shipping' => array(
+                    'address' => array(
+                        'line1' => '',
+                        'city' => '',
+                        'country' => '',
+                        'line2' => '',
+                        'postal_code' => '',
+                        'state' => '',
+                    ),
+                    'name' => '',
+                    'carrier' => '',
+                    'phone' => '',
+                    'tracking_number' => ''
+                )
+            );
+            $stripe = wp_parse_args( $stripe, $defaults );
+            //$response = wp_remote_post(
+            //    SUPER_API_ENDPOINT . '/settings/transient',
+            //    array(
+            //        'method' => 'POST',
+            //        'timeout' => 45,
+            //        'data_format' => 'body',
+            //        'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+            //        'body' => json_encode(array(
+            //            'transient_key' => 'GeltOsu18mZGzkelLWv2',
+            //            'home_url' => get_home_url(),
+            //            'admin_url' => admin_url()
+            //        ))
+            //    )
+            //);
+            //if ( is_wp_error( $response ) ) {
+            //    $html .= $response->get_error_message();
+            //}else{
+            //    // Just an API error/notice/success message or HTML payload
+            //    $body = $response['body'];
+            //    $response = $response['response'];
+            //    $transient = set_transient( 'super_transient', array('check'=>true), 0);
+            //    if($response['code']==200 && strpos($body, '{') === 0){
+            //        $object = json_decode($body);
+            //        if($object->status==200){
+            //            $html = $object->body;
+            //        }
+            //    }
+            //}
+            echo $html;
+
+            // Enable Stripe Checkout
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="checkout" value="true"' . ($stripe['checkout']=='true' ? ' checked="checked"' : '') . ' />';
+                    echo '<span>' . esc_html__( 'Enable Stripe Checkout', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Conditionally checkout to stripe
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="condition.enabled" value="true"' . ($stripe['condition']['enabled']=='true' ? ' checked="checked"' : '') . ' />';
+                    echo '<span>' . esc_html__( 'Conditionally checkout', 'super-forms' ) . '</span>';
+                    echo '<input type="text" name="condition.field" value="' . $stripe['condition']['field'] . '" placeholder="{' . esc_html__('field', 'super-forms') . '_' . esc_html__('name', 'super-forms') . '}" />';
+                    echo '<select name="unit">';
+                        echo '<option value="==" '.($stripe['condition.check']==='==' ? ' selected="selected"' : '') .'>== (' . esc_html__('Equal', 'super-forms') . ')</option>';
+                        echo '<option value="!=" '.($stripe['condition.check']==='!=' ? ' selected="selected"' : '') .'>!= (' . esc_html__('Not equal', 'super-forms') . ')</option>';
+                    echo '</select>';
+                    echo '<input type="text" name="condition.value" value="' . $stripe['condition']['value'] . '" placeholder="' . esc_html__('value', 'super-forms') . '_' . esc_html__('name', 'super-forms') . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Checkout Method
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo sprintf( esc_html__( 'Checkout method %sREQUIRED%s', 'super-forms' ), '<span>', '</span>');
+                    echo '<br /><i>' . sprintf( esc_html__( 'Must be `%s` or `%s`', 'super-forms' ), 'single', 'subscription' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="method" value="' . $stripe['method'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Amount to charge
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo sprintf( esc_html__( 'Amount to charge %sREQUIRED%s', 'super-forms' ), '<span>', '</span>');
+                    echo '<br /><i>' . esc_html__( 'Must be of type', 'super-forms' ) . ' float (no comma\'s are allowed)</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="amount" value="' . $stripe['amount'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Currency
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo sprintf( esc_html__( 'Currency %sREQUIRED%s', 'super-forms' ), '<span>', '</span>');
+                    echo '<br /><i>' . sprintf( esc_html__( 'Three-letter ISO code for the currency e.g: USD, AUD, EUR. List of %ssupported currencies%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="currency" value="' . $stripe['currency'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Receipt E-mail
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Receipt E-mail', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'Email address that the receipt for the resulting payment will be sent to.', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="receipt_email" value="' . $stripe['receipt_email'] . '" />';
+                    echo '<span>' . esc_html__( 'You should use a {tag} here to retrieve the customers E-mail address', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Thank you page (return URL)
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Return URL', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'Return the customer to this page after a sucessfull payment. Leave blank to redirect to home page.', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="return_url" value="' . $stripe['return_url'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Description
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Description', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing.', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="description" value="' . $stripe['description'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Statement descriptor
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Statement descriptor', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'You can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters. An arbitrary string to be displayed on your customer’s statement. As an example, if your website is "RunClub" and the item you’re charging for is a race ticket, you may want to specify "RunClub 5K race ticket".', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="statement_descriptor" value="' . $stripe['statement_descriptor'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Shipping information
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Shipping information', 'super-forms' );
+                echo '</div>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Address line 1 (e.g: street, PO Box, or company name).', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.line1" value="' . $stripe['shipping']['address']['line1'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'City, district, suburb, town, or village.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.city" value="' . $stripe['shipping']['address']['city'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Two-letter country code (ISO 3166-1 alpha-2).', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.country" value="' . $stripe['shipping']['address']['country'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Address line 2 (e.g: apartment, suite, unit, or building).', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.line2" value="' . $stripe['shipping']['address']['line2'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'ZIP or postal code.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.postal_code" value="' . $stripe['shipping']['address']['postal_code'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'State, county, province, or region.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.address.state" value="' . $stripe['shipping']['address']['state'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Recipient name.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.name" value="' . $stripe['shipping']['name'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Recipient phone (including extension).', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.phone" value="' . $stripe['shipping']['phone'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'Carrier, the delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.carrier" value="' . $stripe['shipping']['carrier'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo '<i>';
+                    echo '<span>' . esc_html__( 'The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas.', 'super-forms' ) . '</span>';
+                    echo '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="shipping.tracking_number" value="' . $stripe['shipping']['tracking_number'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
         }
 
         public static function add_pdf_tab($tabs){

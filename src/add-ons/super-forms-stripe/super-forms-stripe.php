@@ -510,6 +510,7 @@ if(!class_exists('SUPER_Stripe')) :
         // When charge succeeded
         public function charge_succeeded($paymentIntent){
 
+            error_log("charge_succeeded()");
             // Get the metadata from the paymentIntent
             if(isset($paymentIntent['object']) && isset($paymentIntent['payment_intent']) && $paymentIntent['object']=='charge'){
                 try {
@@ -518,6 +519,7 @@ if(!class_exists('SUPER_Stripe')) :
                     );
                     $paymentIntent = $paymentIntent->toArray();
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler9()");
                     self::exceptionHandler($e);
                 }
             }
@@ -1035,6 +1037,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // Save the stripe customer ID for this wordpress user
                     update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
                 }else{
+                    error_log("exceptionHandler10()");
                     self::exceptionHandler($e, $metadata);
                 }
             }
@@ -1054,6 +1057,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'metadata' => $metadata
                 ]);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                error_log("exceptionHandler11()");
                 self::exceptionHandler($e, $metadata);
             }
 
@@ -1199,6 +1203,7 @@ if(!class_exists('SUPER_Stripe')) :
                             )
                         ]);
                     } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                        error_log("exceptionHandler12()");
                         self::exceptionHandler($e, $metadata);
                     }
 
@@ -1280,6 +1285,7 @@ if(!class_exists('SUPER_Stripe')) :
                             // Save the stripe customer ID for this wordpress user
                             update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
                         }else{
+                            error_log("exceptionHandler13()");
                             self::exceptionHandler($e, $metadata);
                         }
                     }
@@ -1301,6 +1307,7 @@ if(!class_exists('SUPER_Stripe')) :
                         ]);
                         error_log('Subscription::create() 2: ' . $customer->id, 0);
                     } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                        error_log("exceptionHandler14()");
                         self::exceptionHandler($e, $metadata);
                     }
         
@@ -1399,34 +1406,17 @@ if(!class_exists('SUPER_Stripe')) :
 
         // Create PaymentIntent
         public static function createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata){
-            // // SEPA Direct Debit Subscription
-            // if($payment_method.'-'.$stripeMethod == 'sepa_debit-subscription'){
-            // }
-            // // SEPA Direct Debit Single
-            // if($payment_method.'-'.$stripeMethod == 'sepa_debit-single'){
-            // }
-            // // iDeal Subscription
-            // if($payment_method.'-'.$stripeMethod == 'ideal-subscription'){
-            //     // Can't create subscription with iDeal as payment method, please choose different payment method
-            // }
-            // // iDeal Single
-            // if($payment_method.'-'.$stripeMethod == 'ideal-single'){
-            // }
-            // // Credit Card Subscription
-            // if($payment_method.'-'.$stripeMethod == 'card-subscription'){
-            // }
-            // // Credit Card Single
-            // if($payment_method.'-'.$stripeMethod == 'card-single'){
-            // }
-
+            error_log("createPaymentIntent()");
+            error_log("payment_method: " . $payment_method);
+            error_log("amount: " . $amount);
+            error_log("currency: " . $currency);
+            error_log("description: " . $description);
             try {
-                error_log('$payment_method 2: '. $payment_method, 0);
                 $data = array(
                     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
                     'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
                     'description' => $description,
                     'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
-                    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
                     // Shipping information for this PaymentIntent.
                     'shipping' => array(
                         'address' => array(
@@ -1444,11 +1434,46 @@ if(!class_exists('SUPER_Stripe')) :
                     ),
                     'metadata' => $metadata
                 );
+                // Only add receipt email if E-mail address was set
+                if(!empty($settings['stripe_email'])){
+                    $data['receipt_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
+                }
                 if( $payment_method=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
                 }
                 $intent = \Stripe\PaymentIntent::create($data);
+
+                //error_log('$payment_method 2: '. $payment_method, 0);
+                //$data = array(
+                //    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+                //    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+                //    'description' => $description,
+                //    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
+                //    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
+                //    // Shipping information for this PaymentIntent.
+                //    'shipping' => array(
+                //        'address' => array(
+                //            'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
+                //            'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
+                //            'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
+                //            'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
+                //            'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
+                //            'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
+                //        ),
+                //        'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
+                //        'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
+                //        'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
+                //        'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
+                //    ),
+                //    'metadata' => $metadata
+                //);
+                //if( $payment_method=='sepa_debit' ) {
+                //    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
+                //}
+                //$intent = \Stripe\PaymentIntent::create($data);
+                //error_log("intent:" . json_encode($intent));
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                error_log("exceptionHandler15()");
                 self::exceptionHandler($e, $metadata);
             }
             return $intent;
@@ -1702,6 +1727,9 @@ if(!class_exists('SUPER_Stripe')) :
             return \Stripe\Invoice::retrieve($id);
         }
         public static function exceptionHandler($e, $metadata=array()){
+            error_log("e: " . json_encode($e));
+            error_log("err: " . json_encode($e->getError()));
+            error_log("metadata: " . json_encode($metadata));
             self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
             echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
             die();
@@ -1747,6 +1775,7 @@ if(!class_exists('SUPER_Stripe')) :
             // echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) ); die();
         }
         public static function createRefund($payment_intent, $reason, $amount) {
+            error_log("createRefund()");
             try {
                 $response = \Stripe\Refund::create([
                     'payment_intent' => $payment_intent,
@@ -1754,18 +1783,21 @@ if(!class_exists('SUPER_Stripe')) :
                     'amount' => $amount
                 ]);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                error_log("exceptionHandler1()");
                 self::exceptionHandler($e);
             }
             echo json_encode($response->toArray(), JSON_PRETTY_PRINT);
             die();
         }
         public static function getPaymentIntents( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            error_log("getPaymentIntents()");
             if($limit==1){
                 try {
                     $paymentIntents->data[] = \Stripe\PaymentIntent::retrieve(
                         $starting_after // in this case it holds the payment intent ID
                     );
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler2()");
                     self::exceptionHandler($e);
                 }
             }else{
@@ -1778,6 +1810,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'ending_before' => $ending_before
                     ]);
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler3()");
                     self::exceptionHandler($e);
                 }
             }
@@ -1841,12 +1874,14 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         public static function getCustomers( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            error_log("getCustomers()");
             if($limit==1){
                 try {
                     $customers->data[] = \Stripe\Customer::retrieve(
                         $starting_after // in this case it holds the payment intent ID
                     );
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler4()");
                     self::exceptionHandler($e);
                 }
             }else{
@@ -1858,6 +1893,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'ending_before' => $ending_before
                     ]);
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler5()");
                     self::exceptionHandler($e);
                 }
             }
@@ -1896,12 +1932,14 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         public static function getSubscriptions( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
+            error_log("getSubscriptions()");
             if($limit==1){
                 try {
                     $subscriptions->data[] = \Stripe\Customer::retrieve(
                         $starting_after // in this case it holds the payment intent ID
                     );
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler6()");
                     self::exceptionHandler($e);
                 }
             }else{
@@ -1912,6 +1950,7 @@ if(!class_exists('SUPER_Stripe')) :
                         'status' => 'all'
                     ]);
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler7()");
                     self::exceptionHandler($e);
                 }
             }
@@ -1924,6 +1963,7 @@ if(!class_exists('SUPER_Stripe')) :
                         $v->items->data[$kk]->productName = $product->name;
                     }
                 } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler8()");
                     self::exceptionHandler($e);
                 }
                 //$subscriptions->data[$k]->productName = $product->name;
@@ -3189,6 +3229,14 @@ if(!class_exists('SUPER_Stripe')) :
                         'values' => array(
                             'true' => esc_html__( 'Enable Stripe Checkout', 'super-forms' ),
                         ),
+                    ),
+                    'stripe_receipt_email' => array(
+                        'name' => esc_html__( 'Owner’s email address', 'super-forms' ),
+                        'label' => esc_html__( '(optional)', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value(0, 'stripe_receipt_email', $settings['settings'], '' ),
+                        'filter' => true,
+                        'parent' => 'stripe_checkout_advanced',
+                        'filter_value' => 'true',
                     ),
 
 					// @since 1.3.0 - Conditionally Stripe Checkout
