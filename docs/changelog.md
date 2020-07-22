@@ -1,5 +1,9 @@
 # Super Forms - Changelog
 
+## Jul 22, 2020 - Version 4.9.503
+
+- **Fix:** Allow user to trial Add-on even when on a non-secure connection (http)
+
 ## Jul 21, 2020 - Version 4.9.502
 
 - **Improved:** Envato Quality Indicator Application
