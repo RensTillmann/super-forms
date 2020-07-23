@@ -5501,6 +5501,16 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   display: flex;
 }
 
+.super-first-responsiveness .super-checkbox.display-grid .super-item,
+.super-first-responsiveness .super-radio.display-grid .super-item {
+  width: 100%;
+}
+
+.super-second-responsiveness .super-checkbox.display-grid .super-item,
+.super-second-responsiveness .super-radio.display-grid .super-item {
+  width: 50%;
+}
+
 .display-slider *:before {
   box-sizing: border-box !important;
 }

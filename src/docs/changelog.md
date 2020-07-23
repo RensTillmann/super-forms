@@ -1,5 +1,7 @@
 # Super Forms - Changelog
 
+- **Improved:** Responsiveness for Radio/Checkboxes with Grid layout enabled
+
 ## Jul 22, 2020 - Version 4.9.503
 
 - **Fix:** Allow user to trial Add-on even when on a non-secure connection (http)
