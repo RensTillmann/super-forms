@@ -88,8 +88,18 @@
                 $settings[$name] = $value;
             }
         });
+        // Tab settings
+        $settings = SUPER.get_tab_settings($settings, 'pdf');
+        $settings = SUPER.get_tab_settings($settings, 'stripe');
+        if(string===true) {
+            if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
+            return '';
+        }
+        return $settings;
+    };
+    SUPER.get_tab_settings = function(settings, slug){
         var i,
-            tab = document.querySelector('.super-tab-content.super-tab-pdf'),
+            tab = document.querySelector('.super-tab-content.super-tab-'+slug),
             nodes = tab.querySelectorAll('[name]:not(.sfui-exclude)'),
             data = {},
             value = '',
@@ -118,14 +128,10 @@
                     data[nodes[i].name] = value;
                 }
             }
-            $settings['_pdf'] = data;
+            settings['_'+slug] = data;
         }
-        if(string===true) {
-            if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
-            return '';
-        }
-        return $settings;
-    };
+        return settings;
+    }
     SUPER.get_translation_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $translations = {};
