@@ -2747,7 +2747,7 @@ function SUPERreCaptcha(){
         if( el.closest('.super-tabs-content') && 
             !el.closest('.super-tabs-content').querySelector('.super-error-active')){
                 index = $(el.closest('.super-tabs-content')).index();
-                if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
+                if(el.closest('.super-tabs') && el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
                     el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.remove('super-error');
                 }
         }
@@ -4635,6 +4635,12 @@ function SUPERreCaptcha(){
             $new_value,
             $match;
 
+        // Only when not on canvas in builder mode
+        if(form.classList.contains('super-preview-elements'){
+            return false;
+        }
+
+        // Continue otherwise
         if(typeof $changed_field === 'undefined') {
             $html_fields = form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
         }else{

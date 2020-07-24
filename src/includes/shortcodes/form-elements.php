@@ -2489,6 +2489,10 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes, ''),
                         'tooltip' => $tooltip,
+                        'validation' => $validation_empty,
+                        'may_be_empty' => $allow_empty,
+                        'may_be_empty_conditions' => $allow_empty_conditions,
+                        'error' => $error,
                         'localization' => array(
                             'name' => esc_html__( 'Choose a localization (for language and format)', 'super-forms' ), 
                             'label' => esc_html__( 'English / Western formatting is the default', 'super-forms' ), 
@@ -2571,15 +2575,50 @@ $array['form_elements'] = array(
                             ),
                             'i18n' => true
                         ),
+                        'format' => array(
+                            'name'=>esc_html__( 'Date Format', 'super-forms' ), 
+                            'desc'=>esc_html__( 'Change the date format', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
+                            'filter'=>true,
+                            'type'=>'select', 
+                            'values'=>array(
+                                'custom' => esc_html__( 'Custom date format', 'super-forms' ),
+                                'dd-mm-yy' => esc_html__( 'European - dd-mm-yy', 'super-forms' ),
+                                'mm/dd/yy' => esc_html__( 'Default - mm/dd/yy', 'super-forms' ),
+                                'yy-mm-dd' => esc_html__( 'ISO 8601 - yy-mm-dd', 'super-forms' ),
+                                'd M, y' => esc_html__( 'Short - d M, y', 'super-forms' ),
+                                'd MM, y' => esc_html__( 'Medium - d MM, y', 'super-forms' ),
+                                'DD, d MM, yy' => esc_html__( 'Full - DD, d MM, yy', 'super-forms' ),
+                            ),
+                            'i18n'=>true
+                        ),
+                        'custom_format' => array(
+                            'name'=>'Enter a custom Date Format',
+                            'default'=> ( !isset( $attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
+                            'filter'=>true,
+                            'parent'=>'format',
+                            'filter_value'=>'custom',
+                            'i18n'=>true
+                        ),
+                        'minlength' => array(
+                            'name'=>esc_html__( 'Date range (minimum)', 'super-forms' ),
+                            'label'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
+                            'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
+                        ),
+                        'maxlength' => array(
+                            'name'=>esc_html__( 'Date range (maximum)', 'super-forms' ),
+                            'label'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
+                            'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
+                        ),
                         'range' => array(
-                            'name'=>esc_html__( 'Enter a range', 'super-forms' ), 
-                            'desc'=>esc_html__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super-forms' ), 
+                            'name'=>esc_html__( 'Year range', 'super-forms' ), 
+                            'label'=>esc_html__( 'Example 100 years in the past and 5 years in the future: -100:+5', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['range']) ? '-100:+5' : $attributes['range']),
                         ),
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' ),
+                            'label' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' ),
                             'i18n'=>true
                         ),
                         'current_date' => array(
@@ -2642,35 +2681,10 @@ $array['form_elements'] = array(
                             'type'=> 'textarea',
                             'default'=> ( !isset( $attributes['excl_days_override'] ) ? '' : $attributes['excl_days_override'] ),
                         ),
-                        'format' => array(
-                            'name'=>esc_html__( 'Date Format', 'super-forms' ), 
-                            'desc'=>esc_html__( 'Change the date format', 'super-forms' ), 
-                            'default'=> ( !isset( $attributes['format']) ? 'dd-mm-yy' : $attributes['format']),
-                            'filter'=>true,
-                            'type'=>'select', 
-                            'values'=>array(
-                                'custom' => esc_html__( 'Custom date format', 'super-forms' ),
-                                'dd-mm-yy' => esc_html__( 'European - dd-mm-yy', 'super-forms' ),
-                                'mm/dd/yy' => esc_html__( 'Default - mm/dd/yy', 'super-forms' ),
-                                'yy-mm-dd' => esc_html__( 'ISO 8601 - yy-mm-dd', 'super-forms' ),
-                                'd M, y' => esc_html__( 'Short - d M, y', 'super-forms' ),
-                                'd MM, y' => esc_html__( 'Medium - d MM, y', 'super-forms' ),
-                                'DD, d MM, yy' => esc_html__( 'Full - DD, d MM, yy', 'super-forms' ),
-                            ),
-                            'i18n'=>true
-                        ),
-                        'custom_format' => array(
-                            'name'=>'Enter a custom Date Format',
-                            'default'=> ( !isset( $attributes['custom_format']) ? 'dd-mm-yy' : $attributes['custom_format']),
-                            'filter'=>true,
-                            'parent'=>'format',
-                            'filter_value'=>'custom',
-                            'i18n'=>true
-                        ),
                         // @since 3.1.0 - option to change the first day of the week on date picker element
                         'first_day' => array(
                             'name'=>esc_html__( 'First day of week', 'super-forms' ), 
-                            'desc'=>esc_html__( 'Change the first day of the week e.g Sunday or Monday', 'super-forms' ), 
+                            'label'=>esc_html__( 'Change the first day of the week e.g Sunday or Monday', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['first_day']) ? '1' : $attributes['first_day']),
                             'type'=>'select', 
                             'values'=>array(
@@ -2750,28 +2764,10 @@ $array['form_elements'] = array(
                             'steps' => 1, 
                             'name' => esc_html__( 'The number of months to show at once', 'super-forms' ), 
                         ),
-                        'validation' => $validation_empty,
-                        'may_be_empty' => $allow_empty,
-                        'may_be_empty_conditions' => $allow_empty_conditions,
-                        'error' => $error,
-                    ),
-                ),
-                'advanced' => array(
-                    'name' => esc_html__( 'Advanced', 'super-forms' ),
-                    'fields' => array(
-                        'disabled' => $disabled,
-                        'autocomplete' => $autocomplete,
-                        'grouped' => $grouped,
-                        'width' => $width,
-                        'wrapper_width' => $wrapper_width,
-                        'minlength' => array(
-                            'name'=>esc_html__( 'Date range (minimum)', 'super-forms' ),
-                            'desc'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
-                            'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength']),
-                        ),
+
                         'connected_min' => array(
                             'name'=>esc_html__( 'Min. Connect with other datepicker', 'super-forms' ),
-                            'desc'=>esc_html__( 'Achieve date range with 2 datepickers', 'super-forms' ),
+                            'label'=>esc_html__( 'Achieve date range with 2 datepickers', 'super-forms' ),
                             'default'=> ( !isset( $attributes['connected_min']) ? '' : $attributes['connected_min']),
                             'type'=>'select',
                             'values'=>array(
@@ -2786,14 +2782,9 @@ $array['form_elements'] = array(
                             'steps' => 1, 
                             'name' => esc_html__( 'Days to add/deduct based on connected datepicker', 'super-forms' ), 
                         ),
-                        'maxlength' => array(
-                            'name'=>esc_html__( 'Date range (maximum)', 'super-forms' ),
-                            'desc'=> sprintf( esc_html__( 'Amount in days to add or deduct based on current day%s(leave blank to remove limitations)', 'super-forms' ), '<br />' ),
-                            'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength']),
-                        ),
                         'connected_max' => array(
                             'name'=>esc_html__( 'Max. Connect with other datepicker', 'super-forms' ),
-                            'desc'=>esc_html__( 'Achieve date range with 2 datepickers', 'super-forms' ),
+                            'label'=>esc_html__( 'Achieve date range with 2 datepickers', 'super-forms' ),
                             'default'=> ( !isset( $attributes['connected_max']) ? '' : $attributes['connected_max']),
                             'type'=>'select',
                             'values'=>array(
@@ -2808,7 +2799,16 @@ $array['form_elements'] = array(
                             'steps' => 1, 
                             'name' => esc_html__( 'Days to add/deduct based on connected datepicker', 'super-forms' ), 
                         ),
-
+                    ),
+                ),
+                'advanced' => array(
+                    'name' => esc_html__( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'disabled' => $disabled,
+                        'autocomplete' => $autocomplete,
+                        'grouped' => $grouped,
+                        'width' => $width,
+                        'wrapper_width' => $wrapper_width,
                         'exclude' => $exclude,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
                         'error_position' => $error_position,
@@ -2873,16 +2873,6 @@ $array['form_elements'] = array(
                                 'true' => esc_html__( 'Return the current time as default value', 'super-forms' ),
                             )
                         ),
-                        'tooltip' => $tooltip,
-                        'validation' => $validation_empty,
-                        'may_be_empty' => $allow_empty,
-                        'may_be_empty_conditions' => $allow_empty_conditions,
-                        'error' => $error,
-                    ),
-                ),
-                'time_format' => array(
-                    'name' => esc_html__( 'Time Format', 'super-forms' ),
-                    'fields' => array(
                         'format' => array(
                             'name'=>esc_html__( 'Choose a Time format', 'super-forms' ),
                             'desc'=>esc_html__( 'How times should be displayed in the list and input element.', 'super-forms' ),
@@ -2924,6 +2914,11 @@ $array['form_elements'] = array(
                                 'true'=>'Show duration',
                             ),
                         ),
+                        'tooltip' => $tooltip,
+                        'validation' => $validation_empty,
+                        'may_be_empty' => $allow_empty,
+                        'may_be_empty_conditions' => $allow_empty_conditions,
+                        'error' => $error,
                     ),
                 ),
                 'advanced' => array(
