@@ -307,7 +307,7 @@
 // 	}
 
 // 	// Handle form submission.
-// 	SUPER.stripe_ideal_create_source = function($event, $form, $data, $old_html, callback){
+// 	SUPER.stripe_ideal_create_source = function($event, $form, $data, $oldHtml, callback){
 // 	  forms.forEach(function(form, index){
 //  		if($form[0] == form){
 //  			console.log('match!');

@@ -3,9 +3,15 @@
 (function() { // Hide scope, no $ conflict
     jQuery(document).ready(function ($) {
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
-            var form = this.closest('.super-form');
-            SUPER.conditional_logic(undefined, form, true );
-            SUPER.validate_form( form, this, undefined, e, true );
+            var args = {
+                el: undefined,
+                form: this.closest('.super-form'),
+                submitButton: this,
+                validateMultipart: undefined,
+                event: e,
+                doingSubmit: true
+            };
+            SUPER.validate_form(args);
             return false;
         });
         SUPER.init_tooltips(); 
