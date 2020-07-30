@@ -374,7 +374,6 @@ function SUPERreCaptcha(){
     // @since 3.5.0 - calculate distance (google)
     var distance_calculator_timeout = null; 
     SUPER.calculate_distance = function(args){
-        debugger;
         if(args.el.classList.contains('super-distance-calculator')){
             var form = SUPER.get_frontend_or_backend_form(args),
                 $method = args.el.dataset.distanceMethod,
@@ -449,6 +448,11 @@ function SUPERreCaptcha(){
                             }
                             $field = SUPER.field(form, $field);
                             $field.value = $calculation_value;
+                            if($calculation_value===''){
+                                $field.closest('.super-shortcode').classList.remove('super-filled');
+                            }else{
+                                $field.closest('.super-shortcode').classList.add('super-filled');
+                            }
                             SUPER.after_field_change_blur_hook({el: $field});
                             SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
                         }else{
@@ -494,7 +498,6 @@ function SUPERreCaptcha(){
 
     // Handle Conditional logic
     SUPER.conditional_logic = function(args){
-        debugger;
         var logic,
             didLoop = false,
             form = SUPER.get_frontend_or_backend_form(args);
@@ -1315,12 +1318,12 @@ function SUPERreCaptcha(){
     // @since 1.4 - Update variable fields
     SUPER.update_variable_fields = function(args){
         if(typeof args.el !== 'undefined'){
-            args.variableFields = args.form.querySelectorAll('.super-variable-conditions[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+            args.conditionalLogic = args.form.querySelectorAll('.super-variable-conditions[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
         }else{
-            args.variableFields = args.form.querySelectorAll('.super-variable-conditions');
+            args.conditionalLogic = args.form.querySelectorAll('.super-variable-conditions');
         }
-        if(typeof args.variableFields !== 'undefined'){
-            if(args.variableFields.length!==0){
+        if(typeof args.conditionalLogic !== 'undefined'){
+            if(args.conditionalLogic.length!==0){
                 SUPER.conditional_logic.loop(args);
             }
         }
@@ -2417,7 +2420,7 @@ function SUPERreCaptcha(){
     SUPER.upload_files = function(args){
         var i,nodes,minfiles,$this,wrapper,field,interval,total_file_uploads,shortcode_field;
         
-        nodes = form.querySelectorAll('.super-fileupload-files');
+        nodes = args.form.querySelectorAll('.super-fileupload-files');
         for( i = 0; i < nodes.length; i++) {
             minfiles = nodes[i].parentNode.querySelector('.super-active-files').dataset.minfiles;
             if( typeof minfiles === 'undefined' ) {
@@ -2427,12 +2430,12 @@ function SUPERreCaptcha(){
                 nodes[i].parentNode.querySelector('.super-fileupload').classList.add('finished');
             }
         }
-        nodes = form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+        nodes = args.form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
         for( i = 0; i < nodes.length; i++) {
-            data = $(nodes[i]).data();
-            data.submit();
+            args.data = $(nodes[i]).data();
+            args.data.submit();
         }
-        $(form).find('.super-fileupload').on('fileuploaddone', function (e, data) {
+        $(args.form).find('.super-fileupload').on('fileuploaddone', function (e, data) {
             $this = $(this);
             wrapper = $this.parents('.super-field-wrapper:eq(0)');
             field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
@@ -2447,8 +2450,8 @@ function SUPERreCaptcha(){
             });
             data[field.attr('name')] = field.val();
             if(wrapper.find('.super-fileupload-files > div.error').length){
-                $(form).find('.super-form-button.super-loading .super-button-name').html(oldHtml);
-                $(form).find('.super-form-button.super-loading').removeClass('super-loading');
+                $(args.form).find('.super-form-button.super-loading .super-button-name').html(args.oldHtml);
+                $(args.form).find('.super-form-button.super-loading').removeClass('super-loading');
                 clearInterval(interval);
             }else{
                 // Let's check if there are any errors with one of the files
@@ -2463,7 +2466,7 @@ function SUPERreCaptcha(){
         });
         interval = setInterval(function() {
             total_file_uploads = 0;
-            $(form).find('.super-fileupload').each(function(){
+            $(args.form).find('.super-fileupload').each(function(){
                 shortcode_field = $(this);
                 if( SUPER.has_hidden_parent(shortcode_field[0])===false ) {
                     total_file_uploads++;
@@ -2471,17 +2474,11 @@ function SUPERreCaptcha(){
                     shortcode_field.removeClass('finished');
                 }
             });
-            if($(form).find('.super-fileupload.finished').length == total_file_uploads){
+            if($(args.form).find('.super-fileupload.finished').length == total_file_uploads){
                 clearInterval(interval);
                 SUPER.init_fileupload_fields();
-                $(form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                data = SUPER.prepare_form_data($(form));
-                var args = {
-                    event: e,
-                    form: form,
-                    data: SUPER.prepare_form_data($(form)),
-                    oldHtml: oldHtml
-                };
+                $(args.form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
+                args.data = SUPER.prepare_form_data($(args.form));
                 args.callback = function(){
                     setTimeout(function() {
                         SUPER.complete_submit(args);
@@ -2684,8 +2681,8 @@ function SUPERreCaptcha(){
             }
             value = args.el.dataset.conditionalValidationValue;
             value2 = args.el.dataset.conditionalValidationValue2;
-            if(typeof value !== 'undefined') value = SUPER.get_conditional_validation_value(value, form);
-            if(typeof value2 !== 'undefined') value2 = SUPER.get_conditional_validation_value(value2, form);
+            if(typeof value !== 'undefined') value = SUPER.get_conditional_validation_value(value, args.form);
+            if(typeof value2 !== 'undefined') value2 = SUPER.get_conditional_validation_value(value2, args.form);
             counter = 0;
             if(args.conditionalValidation=='equal' && field_value==value) counter++;
             if(args.conditionalValidation=='not_equal' && field_value!=value) counter++;
@@ -4437,8 +4434,7 @@ function SUPERreCaptcha(){
                 // Set text field to the formatted address
                 var place = autocomplete.getPlace();
                 field.value = place.formatted_address;
-                debugger;
-                SUPER.calculate_distance(field);
+                SUPER.calculate_distance({el: field});
 
                 var mapping = {
                     street_number: 'street_number',
@@ -4494,8 +4490,13 @@ function SUPERreCaptcha(){
                         $attribute = $attribute.split('|');
                         if($attribute[1]==='') $attribute[1] = 'long';
                         $val = place.address_components[i][$attribute[1]+'_name'];
-                        inputField = SUPER.field(form, $attribute[0]);
+                        inputField = SUPER.field(args.form, $attribute[0]);
                         inputField.value = $val;
+                        if($val===''){
+                            inputField.closest('.super-shortcode').classList.remove('super-filled');
+                        }else{
+                            inputField.closest('.super-shortcode').classList.add('super-filled');
+                        }
                         SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                     }
                 }
@@ -4511,8 +4512,13 @@ function SUPERreCaptcha(){
                     }else{
                         $address += street_data.number[$attribute[1]];
                     }
-                    inputField = SUPER.field(form, $attribute[0]);
+                    inputField = SUPER.field(args.form, $attribute[0]);
                     inputField.value = $address;
+                    if($address===''){
+                        inputField.closest('.super-shortcode').classList.remove('super-filled');
+                    }else{
+                        inputField.closest('.super-shortcode').classList.add('super-filled');
+                    }
                     SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
 
@@ -4527,8 +4533,13 @@ function SUPERreCaptcha(){
                     }else{
                         $address += street_data.name[$attribute[1]];
                     }
-                    inputField = SUPER.field(form, $attribute[0]);
+                    inputField = SUPER.field(args.form, $attribute[0]);
                     inputField.value = $address;
+                    if($address===''){
+                        inputField.closest('.super-shortcode').classList.remove('super-filled');
+                    }else{
+                        inputField.closest('.super-shortcode').classList.add('super-filled');
+                    }
                     SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             });
@@ -5003,7 +5014,6 @@ function SUPERreCaptcha(){
 
     // @since 3.1.0 - print form data
     SUPER.init_print_form = function(args){
-        debugger;
         var items,
             $data,
             $parent,
@@ -5048,7 +5058,6 @@ function SUPERreCaptcha(){
                 }
             });
         }else{
-            debugger;
             $css = "<style type=\"text/css\">";
             $css += "body {font-family:Arial,sans-serif;color:#444;-webkit-print-color-adjust:exact;}";
             $css += "table {font-size:12px;}";
@@ -6579,8 +6588,7 @@ function SUPERreCaptcha(){
             var field = this;
             if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
-                debugger;
-                SUPER.calculate_distance(field);
+                SUPER.calculate_distance({el: field});
             }, 1000);
         });
 
