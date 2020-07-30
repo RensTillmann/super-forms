@@ -1,27 +1,7 @@
 <?php
-/**
- * Super Forms - Front-end Listing
- *
- * @package   Super Forms - Front-end Listing
- * @author    feeling4design
- * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2019 by feeling4design
- *
- * @wordpress-plugin
- * Plugin Name: Super Forms - Front-end Listing
- * Plugin URI:  http://codecanyon.net/user/feeling4design
- * Description: Allows you to list contact entries on your front-end
- * Version:     1.0.0
- * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
- * Text Domain: super-forms
- * Domain Path: /i18n/languages/
-*/
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-
 
 if(!class_exists('SUPER_Front_End_Listing')) :
 
@@ -207,7 +187,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
             $styles['super-front-end-listing'] = array(
-                'src'     => $assets_path . 'css/backend/script.css',
+                'src'     => $assets_path . 'css/backend/styles.css',
                 'deps'    => '',
                 'version' => SUPER_Front_End_Listing()->version,
                 'media'   => 'all',

@@ -159,8 +159,8 @@
 	};
 
 	// Init Calculator
-	SUPER.init_calculator = function(el, form, skip, doBefore, doAfter){
-		form = SUPER.get_frontend_or_backend_form(el, form);           
+	SUPER.init_calculator = function(args){
+		var form = SUPER.get_frontend_or_backend_form(args);
 
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
 			format,amount,currency,target,superMath,calculatorFields,doNotSkip,decimalSeparator,prevAmount,$jsformat,
@@ -170,20 +170,17 @@
 			array = [],
 			oldNameSuffix = '';
 
-        if(skip===false) doNotSkip = true;
-        if(!el){
+        if(args.skip===false) doNotSkip = true;
+        if(!args.el){
             doNotSkip = true;
             calculatorFields = form.querySelectorAll('.super-calculator-wrapper');
             // @since 1.5.0 - first update the data fields attribute to make sure regex tags are replaced with according field names
             SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
         }else{
-            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+el.name+'}"]');
+            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.name+'}"]');
         }
 
         if(calculatorFields.length===0) return true;
-
-		if(typeof doBefore === 'undefined') doBefore = true;
-		if(typeof doAfter === 'undefined') doAfter = true;
 
         for (i = 0; i < calculatorFields.length; ++i) {
 			target = calculatorFields[i];
@@ -364,7 +361,7 @@
 
         // @since 1.4.0 - update conditional logic based on the updated calculator field
         $.each(updatedCalculatorFields, function( index, field ) {
-			SUPER.after_field_change_blur_hook(field, form);
+			SUPER.after_field_change_blur_hook({el: field, form: form});
         });
 	
 	};

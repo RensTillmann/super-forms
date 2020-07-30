@@ -26,7 +26,7 @@
 						}else{
 							$this.removeClass('super-filled');
 						}
-						SUPER.after_field_change_blur_hook($field[0]);
+						SUPER.after_field_change_blur_hook({el: $field[0]});
 					}
 				});
 				$canvas.signature('clear');

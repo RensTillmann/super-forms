@@ -14,6 +14,7 @@
     - [Dropdown](dropdown.md)
     - [Checkbox](checkbox.md)
     - [Radio buttons](radio-buttons.md)
+    - [Datepicker](datepicker.md)
     - [Other Form Elements](other-form-elements.md)
   
   - [HTML Elements](html-elements.md)
