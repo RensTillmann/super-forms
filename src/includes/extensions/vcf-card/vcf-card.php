@@ -1,23 +1,4 @@
 <?php
-/**
- * Super Forms - VCF Card
- *
- * @package   Super Forms - VCF Card
- * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2016 by feeling4design
- *
- * @wordpress-plugin
- * Plugin Name: Super Forms - VCF Card
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * Description: Sends a VCF file with the form data to the admin email as an attachment
- * Version:     1.3.0
- * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
- * Text Domain: super-forms
- * Domain Path: /i18n/languages/
-*/
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }

@@ -1,30 +1,9 @@
 <?php
-/**
- * Super Forms - Stripe
- *
- * @package   Super Forms - Stripe
- * @author    feeling4design
- * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2016 by feeling4design
- *
- * @wordpress-plugin
- * Plugin Name: Super Forms - Stripe
- * Plugin URI:  http://codecanyon.net/user/feeling4design
- * Description: Charge your customers with Stripe
- * Version:     1.0.0
- * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
- * Text Domain: super-forms
- * Domain Path: /i18n/languages/
-*/
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-
 if(!class_exists('SUPER_Stripe')) :
-
 
     /**
      * Main SUPER_Stripe Class
@@ -619,6 +598,7 @@ if(!class_exists('SUPER_Stripe')) :
                 'localize'=> array(
                     'sandbox' => ( !empty($global_settings['stripe_mode']) ? 'true' : 'false' ),
                     'dashboardUrl' => 'https://dashboard.stripe.com' . ( !empty($global_settings['stripe_mode']) ? '/test' : '' ),
+                    'viewOnlineInvoice' => esc_html__( 'View online invoice', 'super-forms' ),
                     'refundReasons' => array(
                         'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
                         'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
@@ -1104,7 +1084,7 @@ if(!class_exists('SUPER_Stripe')) :
             //     stripe.confirmCardPayment(result.client_secret).then(function (result) {
             //         if (result.error) {
             //             // Display error.msg in your UI.
-            //             SUPER.stripe_proceed(result, $form, $old_html);
+            //             SUPER.stripe_proceed(result, $form, $oldHtml);
             //         } else {
             //             // The payment has succeeded. Display a success message.
             //             console.log('The payment has succeeded, show success message2.');
@@ -1144,6 +1124,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Get form settings
             $form_id = absint($data['hidden_form_id']['value']);
             $settings = SUPER_Common::get_form_settings($form_id);
+            $stripeSettings = $settings['_stripe'];
             // Get payment method [card, sepa_debit, ideal]
             $payment_method = sanitize_text_field($_POST['payment_method']);
 
@@ -1178,7 +1159,8 @@ if(!class_exists('SUPER_Stripe')) :
             $metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'payment_method'=>$payment_method ) );
 
             // Subscription Payment:
-            if( $settings['stripe_method']=='subscription' ) {
+            //
+            if( $stripeSettings['method']=='subscription' ) {
                 if($payment_method=='sepa_debit'){
                     error_log('SEPA Debit subscription', 0);
                     // Create a Payment method for sepa_debit
@@ -1209,7 +1191,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     error_log('paymentMethod ID:' . $paymentMethod->id, 0);
                     // Check if plan ID is empty (is required)
-                    if(empty($settings['stripe_plan_id'])){
+                    if(empty($stripeSettings['plan_id'])){
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' )
@@ -1297,7 +1279,7 @@ if(!class_exists('SUPER_Stripe')) :
                             'customer' => $customer->id,
                             'items' => [
                                 [
-                                    'plan' => $settings['stripe_plan_id'],
+                                    'plan' => $stripeSettings['plan_id'],
                                 ],
                             ],
                             // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
@@ -1379,16 +1361,16 @@ if(!class_exists('SUPER_Stripe')) :
                 die();
             }
             // Single Payments:
-            if( $settings['stripe_method']=='single' ) {
+            if( $stripeSettings['method']=='single' ) {
                 // The URL the customer should be redirected to after the authorization process.
-                if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-                $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
+                if(empty($stripeSettings['return_url'])) $stripeSettings['return_url'] = get_home_url(); // default to home page
+                $stripe_return_url = esc_url(SUPER_Common::email_tags( $stripeSettings['return_url'], $data, $settings ));
                 
                 // Get PaymentIntent data
-                $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
+                $amount = SUPER_Common::email_tags( $stripeSettings['amount'], $data, $settings );
                 $amount = SUPER_Common::tofloat($amount)*100;
-                $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
-                $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
+                $currency = (!empty($stripeSettings['currency']) ? sanitize_text_field($stripeSettings['currency']) : 'usd');
+                $description = (!empty($stripeSettings['description']) ? sanitize_text_field($stripeSettings['description']) : '');
                 error_log('$payment_method 1: '. $payment_method, 0);
 
                 $intent = self::createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata);
@@ -1436,7 +1418,7 @@ if(!class_exists('SUPER_Stripe')) :
                 );
                 // Only add receipt email if E-mail address was set
                 if(!empty($settings['stripe_email'])){
-                    $data['receipt_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
+                    $data['stripe_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ); // Email address that the receipt for the resulting payment will be sent to.
                 }
                 if( $payment_method=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.

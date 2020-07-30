@@ -203,7 +203,7 @@
                 }
             }
         }
-        SUPER.after_field_change_blur_hook($this);
+        SUPER.after_field_change_blur_hook({el: $this});
     };
 
     // init Datepicker
@@ -223,7 +223,7 @@
         nodes = document.querySelectorAll('.super-datepicker:not(.super-picker-initialized)');
         for (i = 0; i < nodes.length; ++i) {
             var el = nodes[i],
-                form = SUPER.get_frontend_or_backend_form(el),
+                form = SUPER.get_frontend_or_backend_form({el: el}),
                 format = el.dataset.format, //'MM/dd/yyyy';
                 jsformat = el.dataset.jsformat, //'MM/dd/yyyy';
                 isRTL = (el.closest('.super-form') ? el.closest('.super-form').classList.contains('super-rtl') : false),
@@ -330,7 +330,7 @@
                         found = (days.indexOf(day.toString()) > -1);
                         if(found){
                             if(typeof exclDaysOverride !== 'undefined'){
-                                exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags(form, regex, exclDaysOverride);
+                                exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
                                 exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
                                 date = ('0' + dt.getDate()).slice(-2);
                                 month = ('0' + (dt.getMonth()+1)).slice(-2);
@@ -376,7 +376,7 @@
                         }
                     }
                     if(typeof exclDates !== 'undefined'){
-                        exclDatesReplaced = SUPER.update_variable_fields.replace_tags(form, regex, exclDates);
+                        exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDates});
                         exclDatesReplaced = exclDatesReplaced.split("\n");
                         date = ('0' + dt.getDate()).slice(-2);
                         month = ('0' + (dt.getMonth()+1)).slice(-2);
@@ -540,7 +540,7 @@
             d = new Date(Date.UTC(yyyy, mm, dd, $h, $m, $s));
             $timestamp = d.getTime();
             $this[0].dataset.mathDiff = $timestamp;
-            SUPER.after_field_change_blur_hook($this[0]);
+            SUPER.after_field_change_blur_hook({el: $this[0]});
         }
 
         // Init timepickers
@@ -904,7 +904,7 @@
                     }
                 }
             }
-            SUPER.init_super_responsive_form_fields($parent[0]);
+            SUPER.init_super_responsive_form_fields({form: $parent[0]});
         });
 
         // @since 3.1.0 - auto transform to uppercase
@@ -931,7 +931,7 @@
                 $words = $text.match(/\S+/g);
                 $words = $words ? $words.length : 0;
                 $this.attr('data-word-count', $words);
-                SUPER.after_field_change_blur_hook($this[0]);
+                SUPER.after_field_change_blur_hook({el: $this[0]});
             }, $time);
         });
 
@@ -958,7 +958,7 @@
                 if($new_value < $min) return false;
             }
             $input_field.val($new_value);
-            SUPER.after_field_change_blur_hook($input_field[0]);
+            SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
         // @since 4.9.0 - Quantity field only allow number input
         $doc.on('input', '.super-quantity .super-shortcode-field', function() {
@@ -975,7 +975,7 @@
             }
             $this.toggleClass('super-active');
             $input_field.val($new_value);
-            SUPER.after_field_change_blur_hook($input_field[0]);
+            SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
 
         // @since 2.1 - trigger field change hook after currency field value has changed
@@ -990,10 +990,10 @@
                     clearTimeout($calculation_threshold);
                 }
                 $calculation_threshold = setTimeout(function () {
-                    SUPER.after_field_change_blur_hook($this[0]);
+                    SUPER.after_field_change_blur_hook({el: $this[0]});
                 }, $threshold);
             }else{
-                SUPER.after_field_change_blur_hook($this[0]);
+                SUPER.after_field_change_blur_hook({el: $this[0]});
             }
         });
         
@@ -1065,7 +1065,7 @@
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
             column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
-            form = SUPER.get_frontend_or_backend_form(el, form);
+            form = SUPER.get_frontend_or_backend_form({el: el, form: form});
             var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
             firstColumn = duplicateColumns[0];
             found = column.querySelectorAll('.super-duplicate-column-fields').length;
@@ -1344,7 +1344,7 @@
 
             // @since 2.4.0 - update conditional logic and other variable fields based on the newly added fields
             Object.keys(added_fields).forEach(function(index) {
-                SUPER.after_field_change_blur_hook(added_fields[index], form);
+                SUPER.after_field_change_blur_hook({el: added_fields[index], form: form});
             });
 
             SUPER.init_common_fields();
@@ -1396,7 +1396,7 @@
                 });
                 foundElements[i][0].dataset.fields = dataFields;
             }
-            SUPER.init_replace_html_tags(undefined, form);
+            SUPER.init_replace_html_tags({el: undefined, form: form});
 
             // Because we must trigger field change, we can not delete the nodes just yet
             // Instead we make this dynamic column hidden, and then trigger field change hook
@@ -1412,7 +1412,7 @@
 
             // Update conditional logic and other variable fields based on the removed fields in this dynamic column
             Object.keys(removedFields).forEach(function(index) {
-                SUPER.after_field_change_blur_hook(removedFields[index], form);
+                SUPER.after_field_change_blur_hook({el: removedFields[index], form: form});
             });
 
             // Now we can remove the dynamic column
@@ -1647,7 +1647,7 @@
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
             wrapper.parentNode.classList.add('super-filled');
-            SUPER.after_field_change_blur_hook(wrapper.querySelector('.super-shortcode-field'));
+            SUPER.after_field_change_blur_hook({el: wrapper.querySelector('.super-shortcode-field')});
             if(populate=='true'){
                 SUPER.populate_form_data_ajax(field);
             }
@@ -1666,7 +1666,7 @@
             wrapper.classList.remove('super-overlap');
             wrapper.parentNode.classList.remove('super-filled');
             field.focus();
-            SUPER.after_field_change_blur_hook(field);
+            SUPER.after_field_change_blur_hook({el: field});
         });
 
         // Update autosuggest
@@ -1679,7 +1679,7 @@
             $(this).addClass('super-active');
             $field.find('.super-shortcode-field').val($value);
             $field.removeClass('super-focus').removeClass('super-string-found');
-            SUPER.after_field_change_blur_hook($field.find('.super-shortcode-field')[0]);
+            SUPER.after_field_change_blur_hook({el: $field.find('.super-shortcode-field')[0]});
         });
 
         // Update dropdown
@@ -1694,7 +1694,6 @@
                 value,
                 name,
                 validation,
-                duration,
                 max,
                 min,
                 total,
@@ -1705,7 +1704,7 @@
             e.stopPropagation();
             if(field.classList.contains('super-focus-dropdown')){
                 field.classList.remove('super-focus-dropdown');
-                form = SUPER.get_frontend_or_backend_form(this);
+                form = SUPER.get_frontend_or_backend_form({el: this});
                 wrapper = this.closest('.super-field-wrapper');
                 input = wrapper.querySelector('.super-shortcode-field');
                 parent = this.closest('.super-dropdown-ui');
@@ -1761,10 +1760,9 @@
                 }
                 validation = input.dataset.validation;
                 if(typeof validation !== 'undefined' && validation !== false){
-                    duration = SUPER.get_duration();
-                    SUPER.handle_validations(input, validation, '', duration, form);
+                    SUPER.handle_validations({el: input, form: form, validation: validation});
                 }
-                SUPER.after_dropdown_change_hook(input);
+                SUPER.after_dropdown_change_hook({el: input});
             }
         });
 
@@ -1778,17 +1776,16 @@
             if(this.classList.contains('super-fileupload')) return false;
             var keyCode = e.keyCode || e.which; 
             if (keyCode != 9) { 
-                var $form = SUPER.get_frontend_or_backend_form(this);
-                var $duration = SUPER.get_duration();
-                var $validation = this.dataset.validation;
-                var $conditional_validation = this.dataset.conditionalValidation;
-                SUPER.handle_validations(this, $validation, $conditional_validation, $duration, $form);
-                SUPER.after_field_change_blur_hook(this);
+                var form = SUPER.get_frontend_or_backend_form({el: this}),
+                    validation = this.dataset.validation,
+                    conditionalValidation = this.dataset.conditionalValidation;
+                SUPER.handle_validations({el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});
+                SUPER.after_field_change_blur_hook({el: this});
             }
         });
 
         $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
-            var $form,$this,$parent,$field,$active,$validation,$duration;
+            var $form,$this,$parent,$field,$active,$validation;
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
                     window.open(
@@ -1799,7 +1796,7 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                $form = SUPER.get_frontend_or_backend_form(this);
+                $form = SUPER.get_frontend_or_backend_form({el: this});
                 $this = this.querySelector('input[type="radio"]');
                 if(this.classList.contains('super-active')) return true;
                 $parent = this.closest('.super-field-wrapper');
@@ -1808,12 +1805,11 @@
                 if($active) $active.classList.remove('super-active');
                 this.classList.add('super-active');
                 $validation = $field.dataset.validation;
-                $duration = SUPER.get_duration();
                 $field.value = $this.value;
                 if(typeof $validation !== 'undefined' && $validation !== false){
-                    SUPER.handle_validations($field, $validation, '', $duration, $form);
+                    SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                SUPER.after_radio_change_hook($field);
+                SUPER.after_radio_change_hook({el: $field});
             }
             return false;
         });
@@ -1827,8 +1823,7 @@
                 $field,
                 $counter,
                 $maxlength,
-                $validation,
-                $duration;
+                $validation;
 
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
@@ -1840,7 +1835,7 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                $form = SUPER.get_frontend_or_backend_form(this);
+                $form = SUPER.get_frontend_or_backend_form({el: this});
                 $checkbox = this.querySelector('input[type="checkbox"]');
                 $parent = $checkbox.closest('.super-field-wrapper');
                 $field = $parent.querySelector('input[type="hidden"]');
@@ -1864,18 +1859,16 @@
                 }
                 $field.value = $value;
                 $validation = $field.dataset.validation;
-                $duration = SUPER.get_duration();
                 if(typeof $validation !== 'undefined' && $validation !== false){
-                    SUPER.handle_validations($field, $validation, '', $duration, $form);
+                    SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                SUPER.after_checkbox_change_hook($field);
+                SUPER.after_checkbox_change_hook({el: $field});
             }
             return false;
         });
 
         $doc.on('change', '.super-form select', function () {
-            var $form = SUPER.get_frontend_or_backend_form(this),
-                $duration = SUPER.get_duration(),
+            var $form = SUPER.get_frontend_or_backend_form({el: this}),
                 $min = this.dataset.minlength,
                 $max = this.dataset.maxlength,
                 $validation;
@@ -1889,11 +1882,10 @@
                 this.closest('.super-field').classList.remove('super-error-active');
             }
             $validation = this.dataset.validation;
-            $duration = SUPER.get_duration();
             if(typeof $validation !== 'undefined' && $validation !== false){
-                SUPER.handle_validations(this, $validation, '', $duration, $form);
+                SUPER.handle_validations({el: this, form: $form, validation: $validation});
             }
-            SUPER.after_dropdown_change_hook(this);
+            SUPER.after_dropdown_change_hook({el: this});
         });
         
         $doc.on('mouseleave','.super-button .super-button-wrap',function(){
@@ -1985,7 +1977,7 @@
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form( currentActive, el, true, e, true );
+                    result = SUPER.validate_form({el: el, form: currentActive, validateMultipart: true, event: e});
                     if(result!==true) return false;
                 }
             }
@@ -2059,7 +2051,7 @@
                 complete: function(){
                     $form.addClass('super-initialized');
                     SUPER.init_common_fields();
-                    SUPER.init_replace_html_tags(undefined, $form[0]);
+                    SUPER.init_replace_html_tags({el: undefined, form: $form[0]});
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     // eslint-disable-next-line no-console
@@ -2105,7 +2097,7 @@
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form( form.querySelector('.super-multipart.super-active'), el, true, e, true );
+                    result = SUPER.validate_form({el: el, form: form.querySelector('.super-multipart.super-active'), validateMultipart: true, event: e});
                     if(result!==true) return false;
                 }
                 if(total>current_step+1){
@@ -2315,7 +2307,7 @@
             }
             // Scroll to bottom of tags container
             tagsContainer.scrollTop = tagsContainer.scrollHeight;
-            SUPER.after_field_change_blur_hook(keywordField);
+            SUPER.after_field_change_blur_hook({el: keywordField});
         },
         add: function(e, target){
             var i,

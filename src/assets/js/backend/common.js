@@ -128,8 +128,7 @@
     jQuery(document).ready(function ($) {
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
             var form = this.closest('.super-form');
-            SUPER.conditional_logic(undefined, form );
-            SUPER.validate_form( form, this, undefined, e, true );
+            SUPER.validate_form(args);
             return false;
         });
         // Delete WP forms.css stylesheet (we don't want it!)

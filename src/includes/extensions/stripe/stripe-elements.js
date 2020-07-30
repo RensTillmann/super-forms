@@ -183,10 +183,10 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_ideal_create_payment_method = function ($form, $data, $old_html, $response) {
+    SUPER.stripe_ideal_create_payment_method = function (args){ //$form, $data, $oldHtml, $response) {
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
         SUPER.Stripe.forms.forEach(function (form, index) {
-            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element'))) {
+            if ((args.form == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element'))) {
                 console.log('match ideal!');
                 // Check if element exists and if not empty
                 if (SUPER.Stripe.ideal[index] && SUPER.Stripe.ideal[index]._empty) {
@@ -209,7 +209,7 @@
                 } else {
                     console.log('test2');
                     // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
-                    $form.data('is-redirecting', 'true');
+                    args.from.data('is-redirecting', 'true');
                     // Make payment intent
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
@@ -222,15 +222,17 @@
                         },
                         success: function (result) {
                             result = JSON.parse(result);
+                            args.result = result;
+                            args.stripe = SUPER.Stripe.StripesIdeal[index]; 
                             console.log(result);
                             if (result.error) {
-                                SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIdeal[index]);
+                                SUPER.stripe_proceed(args); //result, args.form, args.oldHtml, args.data, SUPER.Stripe.StripesIdeal[index]);
                                 return false;
                             }
                             if (result.stripe_method == 'subscription') {
                                 result.error = true;
                                 result.msg = super_stripe_i18n.ideal_subscription_error;
-                                SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIdeal[index]);
+                                SUPER.stripe_proceed(args); //result, args.form, args.oldHtml, args.data, SUPER.Stripe.StripesIdeal[index]);
                                 return false;
                             } else {
                                 // Single payment checkout
@@ -245,7 +247,7 @@
                                     return_url: result.return_url // Required for iDeal payment method
                                 }).then(function (result) {
                                     if (result.error) {
-                                        SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIdeal[index]);
+                                        SUPER.stripe_proceed(args); //result, args.form, args.oldHtml, args.data, SUPER.Stripe.StripesIdeal[index]);
                                         return false;
                                     }
                                 });
@@ -265,10 +267,10 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_iban_create_payment_method = function ($form, $data, $old_html, $response) {
+    SUPER.stripe_iban_create_payment_method = function (args){ //$form, $data, $oldHtml, $response) {
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
         SUPER.Stripe.forms.forEach(function (form, index) {
-            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element'))) {
+            if ((args.form == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element'))) {
                 console.log('match iban!');
                 // Check if element exists and if not empty
                 if (SUPER.Stripe.iban[index] && SUPER.Stripe.iban[index]._empty) {
@@ -291,8 +293,8 @@
                 } else {
                     console.log('test2');
                     // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
-                    $form.data('is-redirecting', 'true');
-                    $form.data('is-doing-things', 'true');
+                    args.form.data('is-redirecting', 'true');
+                    args.form.data('is-doing-things', 'true');
                     // Make payment intent
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
@@ -307,6 +309,8 @@
                             result = JSON.parse(result);
                             console.log('test@1');
                             console.log(result);
+                            args.result = result;
+                            args.stripe = SUPER.Stripe.StripesIban[index];
                             if (result.stripe_method == 'subscription') {
                                 console.log('test@2');
                                 // requires_confirmation
@@ -320,7 +324,7 @@
                                     },
                                 }).then(function(result) {
                                     console.log('test@3');
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIban[index]);
+                                    SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesIban[index]);
                                 });
                             }else{
                                 console.log('test@4');
@@ -335,7 +339,7 @@
                                         },
                                     },
                                 }).then(function(result) {
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesIban[index]);
+                                    SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesIban[index]);
                                 });
                             }
 
@@ -344,7 +348,7 @@
                             // if (result.stripe_method == 'subscription') {
                             //     result.error = true;
                             //     result.msg = super_stripe_i18n.ideal_subscription_error;
-                            //     SUPER.stripe_proceed(result, $form, $old_html);
+                            //     SUPER.stripe_proceed(result, $form, $oldHtml);
                             //     return false;
                             // } else {
                             //     // Single payment checkout
@@ -359,7 +363,7 @@
                             //         return_url: result.return_url // Required for iDeal payment method
                             //     }).then(function (result) {
                             //         if (result.error) {
-                            //             SUPER.stripe_proceed(result, $form, $old_html);
+                            //             SUPER.stripe_proceed(result, $form, $oldHtml);
                             //             return false;
                             //         }
                             //     });
@@ -374,7 +378,7 @@
                             //         }
                             //     }).then(function (result) {
                             //         console.log('test2');
-                            //         SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
+                            //         SUPER.stripe_proceed(result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                             //     });
 
                             // }
@@ -439,16 +443,16 @@
 
 
     // Handle error
-    SUPER.stripe_proceed = function (result, $form, $old_html, $data, stripe) {
+    SUPER.stripe_proceed = function (args){ //result, $form, $oldHtml, $data, stripe) {
         console.log('test@5');
-        console.log(result);
-        console.log($data);
-        if (result.error) {
+        console.log(args.result);
+        console.log(args.data);
+        if (args.result.error) {
             console.log('test@6');
             // Display error.msg in your UI.
             $('.super-msg').remove();
             var $html = '<div class="super-msg super-error">';
-            $html += (typeof result.msg !== 'undefined' ? result.msg : result.error.message);
+            $html += (typeof args.result.msg !== 'undefined' ? args.result.msg : args.result.error.message);
             $html += '<span class="close"></span>';
             $html += '</div>';
             $($html).prependTo($form);
@@ -459,7 +463,7 @@
                     scrollTop: $form.offset().top - 200
                 }, 1000);
             }
-            $form.find('.super-form-button.super-loading .super-button-name').html($old_html);
+            $form.find('.super-form-button.super-loading .super-button-name').html($oldHtml);
             $form.find('.super-form-button.super-loading').removeClass('super-loading');
             return false;
         } else {
@@ -468,14 +472,10 @@
             // if (typeof result.paymentIntent !== 'undefined') {
             //     paymentMethodId = result.paymentIntent.payment_method; // When SEPA was used
             // }
-            if (typeof result.paymentMethod !== 'undefined') {
-                paymentMethodId = result.paymentMethod.id; // When CC was used
+            if (typeof args.result.paymentMethod !== 'undefined') {
+                paymentMethodId = args.result.paymentMethod.id; // When CC was used
             }
             if (typeof paymentMethodId !== 'undefined') {
-                console.log('test@8');
-                console.log($data);
-                console.log(result);
-                console.log(paymentMethodId);
                 // Create the subscriptions
                 $.ajax({
                     url: super_stripe_i18n.ajaxurl,
@@ -483,22 +483,15 @@
                     data: {
                         action: 'super_stripe_create_subscription',
                         payment_method: paymentMethodId,
-                        metadata: result.metadata,
-                        data: $data
+                        metadata: args.result.metadata,
+                        data: args.data, //$data
                     },
                     success: function (result) {
-                        console.log('test@9');
                         result = JSON.parse(result);
-
-                        // client_secret: "pi_1GPvlQFKn7uROhgCuVYUSb9s_secret_RP4KZgblszos5NL33CSVgX22o"
-                        // subscription_status: "active"
-                        // invoice_status: "open"
-                        // paymentintent_status: "processing"
-
-                        console.log(result);
+                        args.result = result;
                         // If an error occured
                         if (result.error) {
-                            SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
+                            SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, stripe);
                             return false;
                         }
                         // Outcome 1: Payment succeeds
@@ -522,10 +515,10 @@
                         // Outcome 4: Requires action
                         if ((result.subscription_status == 'incomplete') && (result.invoice_status == 'open') && (result.paymentintent_status == 'requires_action')) {
                             // Notify customer that further action is required
-                            stripe.confirmCardPayment(result.client_secret).then(function (result) {
+                            args.stripe.confirmCardPayment(result.client_secret).then(function (result) {
                                 if (result.error) {
                                     // Display error.msg in your UI.
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, stripe);
+                                    SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, stripe);
                                     return false;
                                 } else {
                                     // The payment has succeeded. Display a success message.
@@ -557,11 +550,11 @@
     };
 
     // Handle form submission.
-    SUPER.stripe_cc_create_payment_method = function ($form, $data, $old_html, $response) {
+    SUPER.stripe_cc_create_payment_method = function (args) { //$form, $data, $oldHtml, $response) {
         console.log('test2222');
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
         SUPER.Stripe.forms.forEach(function (form, index) {
-            if (($form[0] == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element'))) {
+            if ((args.form == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element'))) {
                 console.log('match cc!');
                 // Check if element exists and if not empty
                 if (SUPER.Stripe.cards[index] && SUPER.Stripe.cards[index]._empty) {
@@ -583,8 +576,8 @@
                     console.log('test1');
                 } else {
                     console.log('test2');
-                    $form.data('is-redirecting', 'true');
-                    $form.data('is-doing-things', 'true');
+                    args.form.data('is-redirecting', 'true');
+                    args.form.data('is-doing-things', 'true');
                     // Submit form data so that we can prepare for a payment
                     $.ajax({
                         url: super_stripe_i18n.ajaxurl,
@@ -598,10 +591,12 @@
                         success: function (result) {
                             result = JSON.parse(result);
                             console.log(result);
+                            args.result = result;
+                            args.stripe = SUPER.Stripe.StripesCc[index];
                             // Check for errors
                             if (result.error) {
                                 // Display error.msg in your UI.
-                                SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
+                                SUPER.stripe_proceed(args) //result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                                 return false;
                             }
                             // Check if this is a single payment or a subscription
@@ -625,7 +620,7 @@
                                     // It will return "paymentMethodId" which is the payment ID e.g: pm_XXXXXXX
                                     result.metadata = $metadata; // Must add metadata
                                     console.log('test1');
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
+                                    SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             } else {
                                 // Single payment checkout
@@ -638,7 +633,7 @@
                                     }
                                 }).then(function (result) {
                                     console.log('test2');
-                                    SUPER.stripe_proceed(result, $form, $old_html, $data, SUPER.Stripe.StripesCc[index]);
+                                    SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                                 });
                             }
                         },

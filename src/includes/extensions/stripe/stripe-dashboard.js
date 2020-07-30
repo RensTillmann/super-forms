@@ -326,8 +326,7 @@
                                 null: "Select a reason",
                                 duplicate: "Duplicate",
                                 fraudulent: "Fraudulent",
-                                requested_by_customer: "Requested by customer",
-                                other: "Other"
+                                requested_by_customer: "Requested by customer"
                             }
                         },
                         "payment_intent": {
@@ -867,6 +866,9 @@
                     $class = ' super-stripe-canceled';
                 }
                 if (payload.status == 'failed') {
+                    $labelColor = '#a41c4e';
+                    $bgColor = '#fde2dd';
+                    $pathFill = '#a41c4e';
                     $label = 'Failed';
                     $class = ' super-stripe-failed';
                     if (((payload['last_payment_error'])) && (($declineCodes[payload['last_payment_error']['decline_code']]))) {
@@ -883,6 +885,9 @@
                 }
                 if (payload.status == 'requires_action' || payload.status == 'requires_confirmation' || payload.status == 'requires_payment_method' || payload.status == 'requires_capture') {
                     if (((payload['last_payment_error'])) && (($declineCodes[payload['last_payment_error']['decline_code']]))) {
+                        $labelColor = '#a41c4e';
+                        $bgColor = '#fde2dd';
+                        $pathFill = '#a41c4e';
                         $class = ' super-stripe-failed';
                         $label = 'Failed';
                         $title = ' title="' + $declineCodes[payload['last_payment_error']['decline_code']]['desc'] + '"';
@@ -898,13 +903,24 @@
                                 if (payload.status == 'requires_confirmation') {
                                     $title = ' title="The customer has not completed the payment."';
                                 } else {
-                                    if (payload.charges.data[0].status == 'failed') {
-                                        $class = ' super-stripe-failed';
-                                        $label = 'Failed';
-                                        $title = '';
-                                        $path = 'M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z';
-                                    } else {
-                                        $title = ' title="The customer has not entered their payment method."';
+                                    if (payload.charges.total_count!==0) {
+                                        if (payload.charges.data[0].status == 'failed') {
+                                            $labelColor = '#a41c4e';
+                                            $bgColor = '#fde2dd';
+                                            $pathFill = '#a41c4e';
+                                            $class = ' super-stripe-failed';
+                                            $label = 'Failed';
+                                            $title = '';
+                                            $path = 'M8 6.585l4.593-4.592a1 1 0 0 1 1.415 1.416L9.417 8l4.591 4.591a1 1 0 0 1-1.415 1.416L8 9.415l-4.592 4.592a1 1 0 0 1-1.416-1.416L6.584 8l-4.59-4.591a1 1 0 1 1 1.415-1.416z';
+                                        } else {
+                                            $title = ' title="The customer has not entered their payment method."';
+                                        }
+                                    }else{
+                                        if (payload.status == 'requires_payment_method') {
+                                            $title = ' title="The customer has not entered their payment method."';
+                                        }else{
+                                            $title = ' title="'+payload.status+'"';
+                                        }
                                     }
                                 }
                             }
@@ -918,9 +934,8 @@
                 if (payload.status == 'succeeded') {
                     if (payload.charges.data[0].refunded) {
                         $label = 'Refunded';
-                        $title = '';
+                        $title = ' title="This payment has been fully refunded."';
                         $class = ' super-stripe-refunded';
-                        $pathFill = '#697386';
                         $path = 'M10.5 5a5 5 0 0 1 0 10 1 1 0 0 1 0-2 3 3 0 0 0 0-6l-6.586-.007L6.45 9.528a1 1 0 0 1-1.414 1.414L.793 6.7a.997.997 0 0 1 0-1.414l4.243-4.243A1 1 0 0 1 6.45 2.457L3.914 4.993z';
                     } else {
                         if (payload.charges.data[0].disputed) {
@@ -931,22 +946,19 @@
                         } else {
                             if (payload.charges.data[0].amount_refunded) {
                                 $label = 'Partial refund';
-                                $labelColor = '#3d4eac';
                                 payload.charges.data[0].amount_refundedFormatted = OSREC.CurrencyFormatter.format(payload.charges.data[0].amount_refunded / 100, {
                                     currency: payload.currency
                                 });
                                 $title = ' title="' + payload.charges.data[0].amount_refundedFormatted + ' ' + 'was refunded"';
                                 $class = ' super-stripe-partial-refund';
-                                $pathFill = '#5469d4';
-                                $bgColor = '#d6ecff';
                                 $path = 'M9 8a1 1 0 0 0-1-1H5.5a1 1 0 1 0 0 2H7v4a1 1 0 0 0 2 0zM4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm4 5.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z';
                             } else {
                                 $label = 'Succeeded';
-                                $labelColor = '#3d4eac';
-                                $title = '';
+                                $labelColor = '#0e6245';
+                                $title = ' title="This payment is complete."';
                                 $class = ' super-stripe-succeeded';
                                 $pathFill = '#5469d4';
-                                $bgColor = '#d6ecff';
+                                $bgColor = '#cbf4c9';
                                 $path = 'M5.297 13.213L.293 8.255c-.39-.394-.39-1.033 0-1.426s1.024-.394 1.414 0l4.294 4.224 8.288-8.258c.39-.393 1.024-.393 1.414 0s.39 1.033 0 1.426L6.7 13.208a.994.994 0 0 1-1.402.005z';
                             }
                         }
@@ -967,7 +979,7 @@
                     }
                 }
 
-                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
+                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:1px 6px 1px 6px;background-color:' + $bgColor + ';border-radius:4px;font-weight:500;">';
                 html += $label;
                 html += '<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" style="height:12px;width:12px;padding-left:3px;margin-bottom:-1px;">';
                 html += '<path style="fill:' + $pathFill + ';" d="' + $path + '" fill-rule="evenodd"></path>';
@@ -981,7 +993,7 @@
                 column.className = columnClass + 'super-stripe-description';
                 // If has invoice link to invoice
                 if (payload.invoice) {
-                    column.innerHTML = '<a title="' + super_stripe_dashboard_i18n.view_online_invoice + '" href="#" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>' + app.ui.svg.invoice.html + payload.description + '</a>';
+                    column.innerHTML = '<a title="' + super_stripe_dashboard_i18n.viewOnlineInvoice + '" href="#" sfevents=\'{"click":{"app.api.invoice.online":{"invoiceId":"' + payload.invoice + '"}}}\'>' + app.ui.svg.invoice.html + payload.description + '</a>';
                 } else {
                     column.innerHTML = (payload.description ? payload.description : '');
                 }
@@ -993,7 +1005,7 @@
                 html = '';
                 // WordPress user
                 if (payload.wp_user_info) {
-                    html += '<a class="super-stripe-wp-user" target="_blank" href="' + payload.wp_user_info.data.edit_link + '">' + payload.wp_user_info.data.display_name + '</a>';
+                    html += '<a class="super-stripe-wp-user" target="_blank" href="' + payload.wp_user_info.edit_link + '">' + payload.wp_user_info.display_name + '</a>';
                 }
                 // Stripe customer
                 if (payload.customer) {
@@ -1265,10 +1277,10 @@
                 column = document.createElement('div');
                 column.className = columnClass + 'super-stripe-status';
                 var $label = '',
-                    $labelColor = '#3d4eac',
+                    $labelColor = '#0e6245',
                     $title = '',
                     $class = '',
-                    $bgColor = '#d6ecff';
+                    $bgColor = '#cbf4c9';
 
                 if (payload.status == 'incomplete') {
                     $label = 'Incomplete';
@@ -1300,14 +1312,14 @@
                     $title = ' title="Canceled"';
                     $class = ' super-stripe-canceled';
                     $labelColor = '#4f566b',
-                        $bgColor = '#e3e8ee';
+                    $bgColor = '#e3e8ee';
                 }
                 if (payload.status == 'unpaid') {
                     $label = 'Unpaid';
                     $title = ' title="Unpaid"';
                     $class = ' super-stripe-unpaid';
                 }
-                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
+                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:1px 6px 1px 6px;background-color:' + $bgColor + ';border-radius:4px;font-weight:500;">';
                 html += $label;
                 html += '</span>';
                 column.innerHTML = html;
@@ -1330,7 +1342,7 @@
                     $title = ' title="Send"';
                     $class = ' super-stripe-send';
                 }
-                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:2px 8px 2px 8px;background-color:' + $bgColor + ';border-radius:20px;font-weight:500;">';
+                html += '<span' + $title + ' class="super-stripe-status' + $class + '" style="color:' + $labelColor + ';font-size:12px;padding:1px 6px 1px 6px;background-color:' + $bgColor + ';border-radius:4px;font-weight:500;">';
                 html += $label;
                 html += '</span>';
                 column.innerHTML = html;
@@ -1563,6 +1575,7 @@
                                 });
                             } else {
                                 app.removeClass(app.qa('.super-stripe-modal.super-loading'), 'super-loading');
+                                app.ui.svg.loader.remove(); // Delete loader
                                 if (payload.error) {
                                     alert(payload.error.message);
                                 }

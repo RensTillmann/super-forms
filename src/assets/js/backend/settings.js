@@ -236,7 +236,7 @@
 
         $doc.on('click','.super-settings .super-export-entries',function(){
             var $this = $(this);
-            var $old_html = $this.html();
+            var $oldHtml = $this.html();
             var $type = $this.data('type');
             var $from = $('.super-export-import-entries input[name="from"]').val();
             var $till = $('.super-export-import-entries input[name="till"]').val();
@@ -261,7 +261,7 @@
                     alert(super_settings_i18n.export_entries_error);
                 },
                 complete: function(){
-                    $this.html($old_html);
+                    $this.html($oldHtml);
                 }
             });
         });
@@ -497,7 +497,7 @@
                 $preview.html('');
             });
             $button.on('click', function () {
-                var $old_html = $button.html();
+                var $oldHtml = $button.html();
                 $button.html(super_settings_i18n.import_working);
                 $('.ui-widget-overlay').hide();
                 $this.parents('.shortcode-dialog').hide();
@@ -540,7 +540,7 @@
                                         alert(super_settings_i18n.import_error);
                                     },
                                     complete: function(){
-                                        $button.html($old_html);
+                                        $button.html($oldHtml);
                                     }
                                 });
                             }
