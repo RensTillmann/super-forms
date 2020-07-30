@@ -1,26 +1,6 @@
 <?php
 // @TODO
 // Option to add fees / discounts
-
-/**
- * Super Forms - WooCommerce Custom Orders
- *
- * @package   Super Forms - WooCommerce Custom Orders
- * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
- *
- * @wordpress-plugin
- * Plugin Name: Super Forms - WooCommerce Custom Orders
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * Description: Create custom WooCommerce orders with Super Forms
- * Version:     1.0.0
- * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
- * Text Domain: super-forms
- * Domain Path: /i18n/languages/
-*/
-
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }

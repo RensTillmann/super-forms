@@ -273,6 +273,7 @@ if(!class_exists('SUPER_Forms')) :
             // build-SUPER_FORMS_BUNDLE_END
 
             include_once( 'elementor/elementor-super-forms-extension.php' );
+            add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
 
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
@@ -390,6 +391,14 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'rewrite_rules' ) );
             add_action( 'query_vars', array( $this, 'query_vars' ) );
             add_filter( 'parse_request', array( $this, 'parse_request' ) );
+        }
+        public static function include_extensions(){
+            // Include Add-ons
+            $directory = SUPER_PLUGIN_DIR . '/includes/extensions';
+            $folders = array_diff(scandir($directory), array('..', '.'));
+            foreach($folders as $k => $v){
+                include_once('includes/extensions/'.$v.'/'.$v.'.php');
+            }
         }
         public function rewrite_rules(){
             add_rewrite_rule( 
@@ -629,19 +638,6 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                     echo '<input type="checkbox" name="checkout" value="true"' . ($stripe['checkout']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable Stripe Checkout', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Conditionally checkout to stripe
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                    echo '<input type="checkbox" name="condition.enabled" value="true"' . ($stripe['condition']['enabled']=='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span>' . esc_html__( 'Conditionally checkout', 'super-forms' ) . '</span>';
-                    echo '<input type="text" name="condition.field" value="' . $stripe['condition']['field'] . '" placeholder="{' . esc_html__('field', 'super-forms') . '_' . esc_html__('name', 'super-forms') . '}" />';
-                    echo '<select name="condition.check">';
-                        echo '<option value="==" '.($stripe['condition']['check']==='==' ? ' selected="selected"' : '') .'>== (' . esc_html__('Equal', 'super-forms') . ')</option>';
-                        echo '<option value="!=" '.($stripe['condition']['check']==='!=' ? ' selected="selected"' : '') .'>!= (' . esc_html__('Not equal', 'super-forms') . ')</option>';
-                    echo '</select>';
-                    echo '<input type="text" name="condition.value" value="' . $stripe['condition']['value'] . '" placeholder="' . esc_html__('value', 'super-forms') . '_' . esc_html__('name', 'super-forms') . '" />';
                 echo '</label>';
             echo '</div>';
             // Checkout Method
@@ -1249,7 +1245,7 @@ if(!class_exists('SUPER_Forms')) :
                         $words = $text.match(/\S+/g);
                         $words = $words ? $words.length : 0;
                         jQuery($this.targetElm).attr("data-word-count", $words);
-                        SUPER.after_field_change_blur_hook($this.targetElm);
+                        SUPER.after_field_change_blur_hook({el: $this.targetElm});
                     }, $time);
                 });
             }';

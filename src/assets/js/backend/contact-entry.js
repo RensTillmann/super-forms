@@ -40,7 +40,7 @@
         // @since 1.7 - update the contact entry values
         $doc.on('click', '.super-update-contact-entry', function(){
             var $button = $(this);
-            var $old_html = $button.html();
+            var $oldHtml = $button.html();
             var $id = $button.data('contact-entry');
             var $entry_status = $('select[name="entry_status"]').val();
             $button.html('Loading...').addClass('disabled');
@@ -76,7 +76,7 @@
                     $($msg).insertBefore('#poststuff');
                 },
                 complete: function() {
-                    $button.html($old_html).removeClass('disabled');
+                    $button.html($oldHtml).removeClass('disabled');
                 }
             });
         });
@@ -84,7 +84,7 @@
         // @since 1.7 - export individual contact entries
         $doc.on('click', '.super-export-entries', function(){
             var $button = $(this);
-            var $old_html = $button.html();
+            var $oldHtml = $button.html();
             var $selected_entries = $('input[name="post[]"]:checked');
             if($selected_entries.length===0){
                 alert('No Contact Entries Selected!');
@@ -113,7 +113,7 @@
                         }); 
                     },
                     complete: function() {
-                        $button.html($old_html).removeClass('disabled');
+                        $button.html($oldHtml).removeClass('disabled');
                         // Reorder and re-check based on local storage
                         var $columns = localStorage.getItem('_super_entry_order');
                         $columns = JSON.parse($columns);

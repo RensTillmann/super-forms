@@ -271,8 +271,8 @@
     SUPER.loading_states = function (button, status) {
         status = status || 'loading';
         if (status == 'loading') {
-            var old_html = button.html();
-            button.data('old-html', old_html);
+            var oldHtml = button.html();
+            button.data('old-html', oldHtml);
             button.parents('.super-form-button:eq(0)').addClass('super-loading');
             button.html('<i class="fas fa-refresh fa-spin"></i>');
         } else {
@@ -1565,7 +1565,7 @@
 
         });
         $doc.on('click', '.super-delete-backups', function () {
-            var $old_html = $(this).html();
+            var $oldHtml = $(this).html();
             var $button = $(this);
             $button.html(super_create_form_i18n.deleting).addClass('super-loading');
             $.ajax({
@@ -1578,7 +1578,7 @@
                 success: function () {
                     $('.super-wizard-backup-history > ul').remove();
                     $('<i>' + super_create_form_i18n.no_backups_found + '</i>').appendTo($('.super-wizard-backup-history'));
-                    $button.html($old_html).removeClass('super-loading');
+                    $button.html($oldHtml).removeClass('super-loading');
                 }
             });
         });
