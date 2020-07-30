@@ -90,7 +90,7 @@
         });
         // Tab settings
         $settings = SUPER.get_tab_settings($settings, 'pdf');
-        $settings = SUPER.get_tab_settings($settings, 'stripe');
+        //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';

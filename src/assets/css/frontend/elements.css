@@ -3524,6 +3524,7 @@ ul.super-multipart-steps .super-multipart-step {
   margin: 0px 20px 5px 0px;
   cursor: pointer;
   float: left;
+  list-style: none;
 }
 
 .super-initialized ul.super-multipart-steps * {

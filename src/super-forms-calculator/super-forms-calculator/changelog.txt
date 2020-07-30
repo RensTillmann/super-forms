@@ -1,6 +1,3 @@
-Jul 30, 2020 - Version 2.1.6
-- Comaptibility with latest version of Super Forms
-
 Jun 02, 2020 - Version 2.1.5
 - Fix: Issue align center setting when RTL is enabled
 

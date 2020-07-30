@@ -1,6 +1,15 @@
 # Super Forms - Changelog
 
+## PDF Generator Add-on now available! More info here:
+
+- [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
+
+## Jul 30, 2020 - Version 4.9.504
+
+- **Improved:** Code refactoring
 - **Improved:** Responsiveness for Radio/Checkboxes with Grid layout enabled
+- **Fix:** When using radio/checkbox/dropdown with values like `0.2`, `0.20`, `0.200` and the option with `0.2` was set as the default value the other options should not be set as default value on the front-end. Fixed by enabling `strict` on `in_array()` function
+- **Fix:** When using address autocomplete with mapped fields and adaptive placeholder the "filled" status should be activated for the field
 
 ## Jul 22, 2020 - Version 4.9.503
 

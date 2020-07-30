@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Calculator
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.1.7
+ * Version:     2.1.5
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.1.7';
+        public $version = '2.1.5';
 
 
         /**
@@ -272,13 +272,12 @@ if(!class_exists('SUPER_Calculator')) :
             $fields_array = $array['form_elements']['shortcodes']['date']['atts']['general']['fields'];
             $res = array_slice($fields_array, 0, 8, true);
             $setting['return_age'] = array(
-                'name' => esc_html__( 'Return age as value instead of the date', 'super-forms'),
-                'label' => esc_html__( 'When enabled the age will be returned based on the selected date. This can be useful when a user enters their birthdate or when you need to know the age of an object.', 'super-forms' ), 
+                'desc' => esc_html__( 'Return age based on selected date to use with calculations', 'super-forms' ), 
                 'default'=> ( !isset( $attributes['return_age'] ) ? '' : $attributes['return_age'] ),
                 'type' => 'checkbox', 
                 'filter'=>true,
                 'values' => array(
-                    'true' => esc_html__( 'Yes', 'super-forms' ),
+                    'true' => esc_html__( 'Return age for calculation fields', 'super-forms' ),
                 )
             );
             $res = $res + $setting + array_slice($fields_array, 1, count($fields_array) - 1, true);

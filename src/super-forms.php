@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.503
+ * Version:     4.9.504
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.503';
+        public $version = '4.9.504';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -273,7 +273,7 @@ if(!class_exists('SUPER_Forms')) :
             // build-SUPER_FORMS_BUNDLE_END
 
             include_once( 'elementor/elementor-super-forms-extension.php' );
-            add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
+            //add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
 
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
@@ -355,8 +355,8 @@ if(!class_exists('SUPER_Forms')) :
                 add_filter( 'super_create_form_tabs', array( $this, 'add_pdf_tab' ), 10, 1 );
                 add_action( 'super_create_form_pdf_tab', array( $this, 'add_pdf_tab_content' ) );
 
-                add_filter( 'super_create_form_tabs', array( $this, 'add_stripe_tab' ), 10, 1 );
-                add_action( 'super_create_form_stripe_tab', array( $this, 'add_stripe_tab_content' ) );
+                //add_filter( 'super_create_form_tabs', array( $this, 'add_stripe_tab' ), 10, 1 );
+                //add_action( 'super_create_form_stripe_tab', array( $this, 'add_stripe_tab_content' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
