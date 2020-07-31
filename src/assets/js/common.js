@@ -6705,7 +6705,14 @@ function SUPERreCaptcha(){
                             if(!form.querySelector('.super-form-button.super-loading')){
                                 submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
                                 if(submitButton) {
-                                    submitButton = submitButton.parentNode;
+                                    var args = {
+                                        el: undefined,
+                                        form: form,
+                                        submitButton: submitButton.parentNode,
+                                        validateMultipart: undefined,
+                                        event: e,
+                                        doingSubmit: true
+                                    };
                                     SUPER.validate_form(args);
                                 }
                             }
