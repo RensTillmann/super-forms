@@ -3833,7 +3833,6 @@ function SUPERreCaptcha(){
     SUPER.google_maps_api = function(){};
     SUPER.google_maps_init = function(args){
         if(typeof args === 'undefined') args = {};
-        args.form = SUPER.get_frontend_or_backend_form(args);
         if(!args.form) return true;
         // @since 3.0.0
         SUPER.google_maps_api.initAutocomplete(args);
@@ -4799,8 +4798,6 @@ function SUPERreCaptcha(){
     // Replace form action attribute {tags} with field values
     // @since 4.4.6
     SUPER.init_replace_post_url_tags = function(args){
-        args.form = SUPER.get_frontend_or_backend_form(args);
-        
         var $match,
             $target = args.form.querySelector('form'),
             $actiontags = ($target ? $target.dataset.actiontags : ''),

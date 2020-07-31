@@ -4,7 +4,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jul 31, 2020 - Version 4.9.505
+## Jul 31, 2020 - Version 4.9.506
 
 - **Fix:** JS error with Multi-part element when `Check for errors before going to next step` is enabled
 
