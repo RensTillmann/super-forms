@@ -127,7 +127,14 @@
 
     jQuery(document).ready(function ($) {
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
-            var form = this.closest('.super-form');
+            var args = {
+                el: undefined,
+                form: this.closest('.super-form'),
+                submitButton: this,
+                validateMultipart: undefined,
+                event: e,
+                doingSubmit: true
+            };
             SUPER.validate_form(args);
             return false;
         });

@@ -1977,7 +1977,7 @@
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: currentActive, validateMultipart: true, event: e});
+                    result = SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e});
                     if(result!==true) return false;
                 }
             }
@@ -2097,7 +2097,7 @@
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: form.querySelector('.super-multipart.super-active'), validateMultipart: true, event: e});
+                    result = SUPER.validate_form({el: el, form: form.querySelector('.super-multipart.super-active'), submitButton: el, validateMultipart: true, event: e});
                     if(result!==true) return false;
                 }
                 if(total>current_step+1){
