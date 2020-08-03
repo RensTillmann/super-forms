@@ -2132,16 +2132,16 @@ function SUPERreCaptcha(){
             loadingOverlay.classList.add('super-loading-overlay');
             loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
             loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
-            var generatePdf = false;
+            var generatePdf = false, pdfSettings;
             if(typeof SUPER.form_js !== 'undefined' && typeof SUPER.form_js[form_id]._pdf !== 'undefined' && SUPER.form_js[form_id]._pdf.generate === "true"){
                 generatePdf = true;
-                var pdfSettings = SUPER.form_js[form_id]._pdf;
+                pdfSettings = SUPER.form_js[form_id]._pdf;
                 loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
             }else{
                 // In case we are in back-end preview mode
                 if(typeof SUPER.get_form_settings === 'function' && typeof SUPER.get_form_settings()._pdf !== 'undefined' && SUPER.get_form_settings()._pdf.generate === "true" ){
                     generatePdf = true;
-                    var pdfSettings = SUPER.get_form_settings()._pdf;
+                    pdfSettings = SUPER.get_form_settings()._pdf;
                     loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
                 }
             }
@@ -2162,7 +2162,7 @@ function SUPERreCaptcha(){
             }
 
             var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
-            var args = {
+            args = {
                 form: form,
                 form0: form[0],
                 super_ajax_nonce: super_ajax_nonce,
@@ -2509,7 +2509,6 @@ function SUPERreCaptcha(){
             attr,
             text_field,
             total,
-            logic,
             conditions,
             field_value,
             value2,
@@ -2801,7 +2800,6 @@ function SUPERreCaptcha(){
             proceed = SUPER.before_submit_button_click_hook(args.event, args.submitButton),
             regex = /\{(.*?)\}/g,
             array = [],
-            data = [],
             error = false,
             name,
             field,
@@ -2956,8 +2954,7 @@ function SUPERreCaptcha(){
 
             submitButtonName.innerHTML = '<i class="fas fa-refresh fa-spin"></i>'+loading;
             // Prepare arguments
-            data = SUPER.prepare_form_data($(args.form));
-            var args = {
+            args = {
                 event: args.event,
                 form: args.form,
                 data: SUPER.prepare_form_data($(args.form)),
@@ -3091,15 +3088,15 @@ function SUPERreCaptcha(){
             for( i = 0; i < functions.length; i++){
                 name = functions[i].name;
                 if(typeof SUPER[name] === 'undefined') continue;
-                var result = SUPER[name](event, form, data, oldHtml, callback);
+                var result = SUPER[name](args);
                 result = JSON.parse(result);
                 // Check for errors, if there are any display them to the user 
                 if(result.error===true){
                     proceed = false;
-                    var i,
+                    var ii,
                         nodes = document.querySelectorAll('.super-msg'),
                         html = '<div class="super-msg super-error">';
-                    for (i = 0; i < nodes.length; i++) { 
+                    for (ii = 0; ii < nodes.length; ii++) { 
                         nodes[i].remove();
                     }
                     if(typeof result.fields !== 'undefined'){
@@ -3110,15 +3107,15 @@ function SUPERreCaptcha(){
                     html += result.msg;
                     html += '<span class="close"></span>';
                     html += '</div>';
-                    $(html).prependTo($(form));
-                    var btn = form.querySelector('.super-form-button.super-loading');
+                    $(html).prependTo($(args.form));
+                    var btn = args.form.querySelector('.super-form-button.super-loading');
                     if(btn) {
                         var btnName = btn.querySelector('.super-button-name');
-                        btnName.innerHTML = oldHtml;
+                        btnName.innerHTML = args.oldHtml;
                         btn.classList.remove('super-loading');
                     }
                     $('html, body').animate({
-                        scrollTop: $(form).offset().top-200
+                        scrollTop: $(args.form).offset().top-200
                     }, 1000);
                 }
             }
@@ -3204,19 +3201,19 @@ function SUPERreCaptcha(){
                 SUPER[value.name](args);
             }
         });
-        if( typeof $field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart($field);
+        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
+            SUPER.auto_step_multipart(args.el);
         }
         SUPER.save_form_progress(args);
     };
     SUPER.after_field_change_blur_hook = function(args){
-        if( typeof args.field !== 'undefined' ) {
-            if(args.field.value===''){
-                if(args.field.closest('.super-shortcode')) {
-                    args.field.closest('.super-shortcode').classList.remove('super-filled');
+        if( typeof args.el !== 'undefined' ) {
+            if(args.el.value===''){
+                if(args.el.closest('.super-shortcode')) {
+                    args.el.closest('.super-shortcode').classList.remove('super-filled');
                 }
             }else{
-                if(args.field.closest('.super-shortcode')) args.field.closest('.super-shortcode').classList.add('super-filled');
+                if(args.el.closest('.super-shortcode')) args.el.closest('.super-shortcode').classList.add('super-filled');
             }
         }
         args.form = SUPER.get_frontend_or_backend_form(args);
@@ -3226,8 +3223,8 @@ function SUPERreCaptcha(){
                 SUPER[value.name](args);
             }
         });
-        if( typeof args.field !== 'undefined'  && ($skip!==true) ) {
-            SUPER.auto_step_multipart(args);
+        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
+            SUPER.auto_step_multipart(args.el);
         }
         SUPER.save_form_progress(args);
     };
@@ -3239,8 +3236,8 @@ function SUPERreCaptcha(){
                 SUPER[value.name](args);
             }
         });
-        if( typeof args.field !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args.field);
+        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
+            SUPER.auto_step_multipart(args.el);
         }
         SUPER.save_form_progress(args);
     };
@@ -3252,8 +3249,8 @@ function SUPERreCaptcha(){
                 SUPER[value.name](args);
             }
         });
-        if( typeof args.field !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args.field);
+        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
+            SUPER.auto_step_multipart(args);
         }
         SUPER.save_form_progress(args);
     };
@@ -3956,10 +3953,10 @@ function SUPERreCaptcha(){
         }
 
         var $maps;
-        if(!args.field){
+        if(!args.el){
             $maps = args.form.querySelectorAll('.super-google-map:not(.super-map-rendered)');
         }else{
-            var field_name = SUPER.get_field_name(args.field);
+            var field_name = SUPER.get_field_name(args.el);
             $maps = args.form.querySelectorAll('.super-google-map[data-fields*="{'+field_name+'}"]');
         }
 
@@ -3972,30 +3969,30 @@ function SUPERreCaptcha(){
                 var $address = SUPER.update_variable_fields.replace_tags(args);
                 // Directions API (route)
                 args.value = $data.origin;
-                $origin = SUPER.update_variable_fields.replace_tags(args);
+                var $origin = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.destination;
-                $destination = SUPER.update_variable_fields.replace_tags(args);
+                var $destination = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.directionsPanel;
-                $directionsPanel = SUPER.update_variable_fields.replace_tags(args);
-                $populateDistance = $data.populateDistance,
-                $populateDuration = $data.populateDuration,
+                var $directionsPanel = SUPER.update_variable_fields.replace_tags(args);
+                var $populateDistance = $data.populateDistance;
+                var $populateDuration = $data.populateDuration;
                 args.value = $data.travelMode;
-                $travelMode = SUPER.update_variable_fields.replace_tags(args);
+                var $travelMode = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.unitSystem;
-                $unitSystem = SUPER.update_variable_fields.replace_tags(args);
+                var $unitSystem = SUPER.update_variable_fields.replace_tags(args);
                 // Waypoints
                 args.value = $data.optimizeWaypoints;
-                $optimizeWaypoints = SUPER.update_variable_fields.replace_tags(args);
+                var $optimizeWaypoints = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.provideRouteAlternatives;
-                $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags(args);
+                var $provideRouteAlternatives = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.avoidFerries;
-                $avoidFerries = SUPER.update_variable_fields.replace_tags(args);
+                var $avoidFerries = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.avoidHighways;
-                $avoidHighways = SUPER.update_variable_fields.replace_tags(args);
+                var $avoidHighways = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.avoidTolls;
-                $avoidTolls = SUPER.update_variable_fields.replace_tags(args);
+                var $avoidTolls = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.region;
-                $region = SUPER.update_variable_fields.replace_tags(args);
+                var $region = SUPER.update_variable_fields.replace_tags(args);
                 // we will implement this in a later version  DRIVING mode (only when travelMode is DRIVING)
                 // we will implement this in a later version  $departureTime = SUPER.update_variable_fields.replace_tags(args),
                 // we will implement this in a later version  $trafficModel = SUPER.update_variable_fields.replace_tags(args),
@@ -4006,9 +4003,9 @@ function SUPERreCaptcha(){
                 // we will implement this in a later version  $routingPreference = SUPER.update_variable_fields.replace_tags(args),
                 // UI Settings
                 args.value = $data.disableDefaultUI;
-                $disableDefaultUI = SUPER.update_variable_fields.replace_tags(args);
+                var $disableDefaultUI = SUPER.update_variable_fields.replace_tags(args);
                 args.value = $data.zoom;
-                $zoom = SUPER.update_variable_fields.replace_tags(args);
+                var $zoom = SUPER.update_variable_fields.replace_tags(args);
                 if($zoom==='') $zoom = 5; // Default to 5
                 $zoom = parseInt($zoom, 10);
                 var $address_marker = $data.address_marker,
@@ -4047,7 +4044,7 @@ function SUPERreCaptcha(){
                     $lat = $coordinates[0];
                     $lng = $coordinates[1];
                     // If {tag} was found
-                    regex = /\{(.*?)\}/g;
+                    var regex = /\{(.*?)\}/g;
                     if(regex.exec($lat)!==null){
                         $field_name = $lat.replace('{','').replace('}','');                       
                         $lat = SUPER.field(args.form, $field_name).dataset.lat;
@@ -4670,7 +4667,6 @@ function SUPERreCaptcha(){
     SUPER.init_replace_html_tags = function(args){
         var $i,
             $v,
-            $regex,
             $row_regex,
             $html_fields,
             $target,
@@ -5741,19 +5737,19 @@ function SUPERreCaptcha(){
             form = SUPER.get_frontend_or_backend_form(args);
 
         // If we are populating based of WC order search
-        if(field.classList.contains('super-wc-order-search')){
+        if(args.el.classList.contains('super-wc-order-search')){
             // Get order ID based on active item
-            value = field.querySelector('.super-active').dataset.value;
+            value = args.el.querySelector('.super-active').dataset.value;
             orderId = value.split(';')[0];
             // Check if we need to skip any fields
             skipFields = '';
-            if(field.querySelector('.super-shortcode-field')){
-                if(field.querySelector('.super-shortcode-field').dataset.wcoss){
-                    skipFields = field.querySelector('.super-shortcode-field').dataset.wcoss; 
+            if(args.el.querySelector('.super-shortcode-field')){
+                if(args.el.querySelector('.super-shortcode-field').dataset.wcoss){
+                    skipFields = args.el.querySelector('.super-shortcode-field').dataset.wcoss; 
                 }
             } 
             // We now have the order ID, let's search the order and get entry data if possible
-            field.querySelector('.super-field-wrapper').classList.add('super-populating');
+            args.el.querySelector('.super-field-wrapper').classList.add('super-populating');
             form.classList.add('super-populating');
             $.ajax({
                 url: super_common_i18n.ajaxurl,
@@ -5767,7 +5763,7 @@ function SUPERreCaptcha(){
                     SUPER.populate_form_with_entry_data(data, form);
                 },
                 complete: function(){
-                    field.querySelector('.super-field-wrapper').classList.remove('super-populating');
+                    args.el.querySelector('.super-field-wrapper').classList.remove('super-populating');
                     form.classList.remove('super-populating');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
@@ -5777,13 +5773,13 @@ function SUPERreCaptcha(){
                 }
             });
         }else{
-            field.dataset.typing = 'false';
-            value = field.value;
-            method = field.dataset.searchMethod;
+            args.el.dataset.typing = 'false';
+            value = args.el.value;
+            method = args.el.dataset.searchMethod;
             // Check if we need to skip any fields
-            skipFields = (field.dataset.searchSkip ? field.dataset.searchSkip : '');
+            skipFields = (args.el.dataset.searchSkip ? args.el.dataset.searchSkip : '');
             if( value.length > 2 ) {
-                field.closest('.super-field-wrapper').classList.add('super-populating');
+                args.el.closest('.super-field-wrapper').classList.add('super-populating');
                 form.classList.add('super-populating');
                 $.ajax({
                     url: super_common_i18n.ajaxurl,
@@ -5798,7 +5794,7 @@ function SUPERreCaptcha(){
                         SUPER.populate_form_with_entry_data(data, form);
                     },
                     complete: function(){
-                        field.closest('.super-field-wrapper').classList.remove('super-populating');
+                        args.el.closest('.super-field-wrapper').classList.remove('super-populating');
                         form.classList.remove('super-populating');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
