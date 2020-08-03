@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Aug 03, 2020 - Version 4.9.507
+
+- **Fix:** Google Maps not loading due to JavaScript error
+- **Fix:** Several other JS errors fixed
+
 ## Jul 31, 2020 - Version 4.9.506
 
 - **Fix:** JS error with Multi-part element when `Check for errors before going to next step` is enabled

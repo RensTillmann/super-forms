@@ -2149,6 +2149,8 @@
         var adaptivePlaceholder = document.querySelectorAll('.super-adaptive-placeholder');
         for (var i = 0; i < adaptivePlaceholder.length; i++) {
             var input = adaptivePlaceholder[i].parentNode.querySelector('.super-shortcode-field');
+            if(!input) continue;
+
             input.onclick = input.onfocus = function () {
                 this.closest('.super-shortcode').classList.add('super-focus');
             }
@@ -2162,7 +2164,7 @@
                     parent = this.closest('.super-shortcode');
                 if(parent.classList.contains('super-currency')){
                     if($(this).maskMoney('unmasked')[0]===0){
-                       filled = false;
+                    filled = false;
                     }
                 }
                 if (this.value.length === 0) filled = false;
@@ -2180,7 +2182,7 @@
                 if(parent.classList.contains('super-currency')){
                     if($(input).maskMoney('unmasked')[0]===0){
                         filled = false;
-                     }
+                    }
                 }
                 if (event.type == 'cut' || event.type == 'paste') {
                     setTimeout(function () {
