@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Aug 04, 2020 - Version 4.9.508
+
+- **Fix:** Multi-part autostep function passed incorrect parameter causing problems with checkboxes and other selectable elements
+
 ## Aug 03, 2020 - Version 4.9.507
 
 - **Fix:** Google Maps not loading due to JavaScript error
