@@ -3031,9 +3031,9 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.2.3
-    SUPER.auto_step_multipart = function(field){
+    SUPER.auto_step_multipart = function(args){
         // If triggered field change is not inside active multi-part we skip it
-        var activeMultipart = field.closest('.super-multipart.super-active');
+        var activeMultipart = args.el.closest('.super-multipart.super-active');
         if(!activeMultipart) return false;
         var i, nodes, totalFields, counter;
         if(activeMultipart){
@@ -3056,7 +3056,7 @@ function SUPERreCaptcha(){
                 for (i = 0; i < nodes.length; ++i) {
                     if(!SUPER.has_hidden_parent(nodes[i])){
                         if(totalFields==counter){
-                            if(nodes[i].name==field.name){
+                            if(nodes[i].name==args.el.name){
                                 setTimeout(function (){
                                     activeMultipart.querySelector('.super-next-multipart').click();
                                 }, 200);
@@ -3202,7 +3202,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args.el);
+            SUPER.auto_step_multipart(args);
         }
         SUPER.save_form_progress(args);
     };
@@ -3224,7 +3224,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args.el);
+            SUPER.auto_step_multipart(args);
         }
         SUPER.save_form_progress(args);
     };
@@ -3237,7 +3237,7 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args.el);
+            SUPER.auto_step_multipart(args);
         }
         SUPER.save_form_progress(args);
     };
