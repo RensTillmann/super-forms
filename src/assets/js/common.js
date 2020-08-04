@@ -6202,13 +6202,17 @@ function SUPERreCaptcha(){
     };
 
     // Handle the responsiveness of the form
-    SUPER.responsive_form_fields_timeout = null;
+    SUPER.responsive_form_fields_timeout = {};
     SUPER.init_super_responsive_form_fields = function(args){
         if(typeof args === 'undefined') args = {};
-		if (SUPER.responsive_form_fields_timeout !== null) {
-			clearTimeout(SUPER.responsive_form_fields_timeout);
+        if(typeof args.form === 'undefined') {
+            args.form = document.querySelector('.super-form');
+        }
+        var formId = args.form.querySelector('input[name="hidden_form_id"]').value;
+		if (SUPER.responsive_form_fields_timeout[formId] !== null) {
+			clearTimeout(SUPER.responsive_form_fields_timeout[formId]);
 		}
-        SUPER.responsive_form_fields_timeout = setTimeout(function () {
+        SUPER.responsive_form_fields_timeout[formId] = setTimeout(function () {
             var $classes = [
                 'super-first-responsiveness',
                 'super-second-responsiveness',
@@ -6228,72 +6232,75 @@ function SUPERreCaptcha(){
             var $new_window_class = '';
             var $window_width = $(window).outerWidth(true);
 
-            var forms;
-            if(typeof args.form === 'undefined') {
-                forms = $('.super-form');
-            }else{
-                forms = $(args.form);
+            var $this = $(args.form);
+            var $width = $this.outerWidth(true);
+            // Change in width, apply responsiveness
+            if($width > 0 && $width < 530){
+                SUPER.remove_super_form_classes($this,$classes);
+                $this.addClass($classes[0]);
+                $new_class = $classes[0];
             }
-            forms.each(function(){
-                var $this = $(this);
-                var $width = $(this).outerWidth(true);
-                // Change in width, apply responsiveness
-                if($width > 0 && $width < 530){
-                    SUPER.remove_super_form_classes($this,$classes);
-                    $this.addClass($classes[0]);
-                    $new_class = $classes[0];
-                }
-                if($width >= 530 && $width < 760){
-                    SUPER.remove_super_form_classes($this,$classes);
-                    $this.addClass($classes[1]);
-                    $new_class = $classes[1];
-                }
-                if($width >= 760 && $width < 1200){
-                    SUPER.remove_super_form_classes($this,$classes);
-                    $this.addClass($classes[2]);
-                    $new_class = $classes[2];
-                }
-                if($width >= 1200 && $width < 1400){
-                    SUPER.remove_super_form_classes($this,$classes);
-                    $this.addClass($classes[3]);
-                    $new_class = $classes[3];
-                }
-                if($width >= 1400){
-                    SUPER.remove_super_form_classes($this,$classes);
-                    $this.addClass($classes[4]);
-                    $new_class = $classes[4];
-                }
+            if($width >= 530 && $width < 760){
+                SUPER.remove_super_form_classes($this,$classes);
+                $this.addClass($classes[1]);
+                $new_class = $classes[1];
+            }
+            if($width >= 760 && $width < 1200){
+                SUPER.remove_super_form_classes($this,$classes);
+                $this.addClass($classes[2]);
+                $new_class = $classes[2];
+            }
+            if($width >= 1200 && $width < 1400){
+                SUPER.remove_super_form_classes($this,$classes);
+                $this.addClass($classes[3]);
+                $new_class = $classes[3];
+            }
+            if($width >= 1400){
+                SUPER.remove_super_form_classes($this,$classes);
+                $this.addClass($classes[4]);
+                $new_class = $classes[4];
+            }
 
-                // @since 1.9 - add the window width responsiveness classes
-                if($window_width > 0 && $window_width < 530){
-                    SUPER.remove_super_form_classes($this,$window_classes);
-                    $this.addClass($window_classes[0]);
-                    $new_window_class = $window_classes[0];
-                }
-                if($window_width >= 530 && $window_width < 760){
-                    SUPER.remove_super_form_classes($this,$window_classes);
-                    $this.addClass($window_classes[1]);
-                    $new_window_class = $window_classes[1];
-                }
-                if($window_width >= 760 && $window_width < 1200){
-                    SUPER.remove_super_form_classes($this,$window_classes);
-                    $this.addClass($window_classes[2]);
-                    $new_window_class = $window_classes[2];
-                }
-                if($window_width >= 1200 && $window_width < 1400){
-                    SUPER.remove_super_form_classes($this,$window_classes);
-                    $this.addClass($window_classes[3]);
-                    $new_window_class = $window_classes[3];
-                }
-                if($window_width >= 1400){
-                    SUPER.remove_super_form_classes($this,$window_classes);
-                    $this.addClass($window_classes[4]);
-                    $new_window_class = $window_classes[4];
-                }
+            // @since 1.9 - add the window width responsiveness classes
+            if($window_width > 0 && $window_width < 530){
+                SUPER.remove_super_form_classes($this,$window_classes);
+                $this.addClass($window_classes[0]);
+                $new_window_class = $window_classes[0];
+            }
+            if($window_width >= 530 && $window_width < 760){
+                SUPER.remove_super_form_classes($this,$window_classes);
+                $this.addClass($window_classes[1]);
+                $new_window_class = $window_classes[1];
+            }
+            if($window_width >= 760 && $window_width < 1200){
+                SUPER.remove_super_form_classes($this,$window_classes);
+                $this.addClass($window_classes[2]);
+                $new_window_class = $window_classes[2];
+            }
+            if($window_width >= 1200 && $window_width < 1400){
+                SUPER.remove_super_form_classes($this,$window_classes);
+                $this.addClass($window_classes[3]);
+                $new_window_class = $window_classes[3];
+            }
+            if($window_width >= 1400){
+                SUPER.remove_super_form_classes($this,$window_classes);
+                $this.addClass($window_classes[4]);
+                $new_window_class = $window_classes[4];
+            }
 
-                // @since 3.2.0 - check if RTL support is enabled, if so we must revert column order on mobile devices
-                if( $this.hasClass('super-rtl') ) {
-                    if( (!$this.hasClass('super-rtl-reversed')) && ($new_class=='super-first-responsiveness') ) {
+            // @since 3.2.0 - check if RTL support is enabled, if so we must revert column order on mobile devices
+            if( $this.hasClass('super-rtl') ) {
+                if( (!$this.hasClass('super-rtl-reversed')) && ($new_class=='super-first-responsiveness') ) {
+                    $this.find('.super-grid').each(function(){
+                        var $grid = $(this);
+                        var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
+                        $grid.append($columns.get().reverse());
+                        $grid.children('div.super-column:last-child').removeClass('first-column');
+                        $grid.children('div.super-column:eq(0)').addClass('first-column');
+                    });
+                    $this.addClass('super-rtl-reversed');
+                }else{
+                    if( ($this.hasClass('super-rtl-reversed')) && ($new_class!='super-first-responsiveness') ) {
                         $this.find('.super-grid').each(function(){
                             var $grid = $(this);
                             var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
@@ -6301,60 +6308,49 @@ function SUPERreCaptcha(){
                             $grid.children('div.super-column:last-child').removeClass('first-column');
                             $grid.children('div.super-column:eq(0)').addClass('first-column');
                         });
-                        $this.addClass('super-rtl-reversed');
-                    }else{
-                        if( ($this.hasClass('super-rtl-reversed')) && ($new_class!='super-first-responsiveness') ) {
-                            $this.find('.super-grid').each(function(){
-                                var $grid = $(this);
-                                var $columns = $grid.children('div.super-column:not(.super-not-responsive)');
-                                $grid.append($columns.get().reverse());
-                                $grid.children('div.super-column:last-child').removeClass('first-column');
-                                $grid.children('div.super-column:eq(0)').addClass('first-column');
-                            });
-                            $this.removeClass('super-rtl-reversed');
-                        }
+                        $this.removeClass('super-rtl-reversed');
                     }
                 }
+            }
 
-                // Check for slider fields, reposition "Dragger" element based on "Track" width
-                // If the dragger position exceeds the track width adjust it to be 
-                // selector.simpleSlider("setValue", value);
-                // Sets the value of the slider.
-                // selector.simpleSlider("setRatio", ratio);
-                var nodes = $this[0].querySelectorAll('.super-slider');
-                for(var i=0; i < nodes.length; i++){
-                    var $field = $(nodes[i].querySelector('.super-shortcode-field'));
-                    if(!$field) continue;
-                    // Must trigger a change:
-                    var originalValue = $field.val();
-                    if(typeof $field.data("slider-object") === 'undefined'){
-                        // Must re-generate slider field, because this is a cloned form
-                        if(nodes[i].querySelector('.slider')){
-                            nodes[i].querySelector('.slider').remove();
-                        }
-                        SUPER.init_slider_field();
-                    }else{
-                        SUPER.reposition_slider_amount_label($field[0], originalValue);
+            // Check for slider fields, reposition "Dragger" element based on "Track" width
+            // If the dragger position exceeds the track width adjust it to be 
+            // selector.simpleSlider("setValue", value);
+            // Sets the value of the slider.
+            // selector.simpleSlider("setRatio", ratio);
+            var nodes = $this[0].querySelectorAll('.super-slider');
+            for(var i=0; i < nodes.length; i++){
+                var $field = $(nodes[i].querySelector('.super-shortcode-field'));
+                if(!$field) continue;
+                // Must trigger a change:
+                var originalValue = $field.val();
+                if(typeof $field.data("slider-object") === 'undefined'){
+                    // Must re-generate slider field, because this is a cloned form
+                    if(nodes[i].querySelector('.slider')){
+                        nodes[i].querySelector('.slider').remove();
                     }
+                    SUPER.init_slider_field();
+                }else{
+                    SUPER.reposition_slider_amount_label($field[0], originalValue);
                 }
+            }
 
-                ///var formId = 0;
-                ///if(this.querySelector('input[name="hidden_form_id"]')){
-                ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
-                ///}
-                ///// First disable the UI on the map for nicer print of the map
-                ///// And make map fullwidth and directions fullwidth
-                ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-                ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
-                ///    for(var x=0; x < nodes.length; x++){
-                ///        nodes[x].style.width = '100%';
-                ///        if(nodes[x].classList.contains('super-google-map-directions')){
-                ///            nodes[x].style.overflowY = 'initial';
-                ///            nodes[x].style.height = 'auto';
-                ///        }
-                ///    }
-                ///}
-            });
+            ///var formId = 0;
+            ///if(this.querySelector('input[name="hidden_form_id"]')){
+            ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
+            ///}
+            ///// First disable the UI on the map for nicer print of the map
+            ///// And make map fullwidth and directions fullwidth
+            ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+            ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            ///    for(var x=0; x < nodes.length; x++){
+            ///        nodes[x].style.width = '100%';
+            ///        if(nodes[x].classList.contains('super-google-map-directions')){
+            ///            nodes[x].style.overflowY = 'initial';
+            ///            nodes[x].style.height = 'auto';
+            ///        }
+            ///    }
+            ///}
 
             // @since 1.3
             SUPER.after_responsive_form_hook($classes, args.form, $new_class, $window_classes, $new_window_class);

@@ -2406,47 +2406,50 @@
 
         $doc.on('click', '.super-create-form .super-actions .super-preview', function () {
             var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
-            if ($(this).hasClass('mobile')) {
-                $('.super-live-preview').removeClass('tablet');
-                $('.super-create-form .super-actions .super-preview.tablet').removeClass('super-active');
-                $('.super-create-form .super-actions .super-preview.desktop').removeClass('super-active');
+            if ($(this).hasClass('super-mobile')) {
+                $('.super-live-preview').removeClass('super-tablet');
+                $('.super-create-form .super-actions .super-preview.super-tablet').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
                 $(this).addClass('super-active');
-                $('.super-live-preview').addClass('mobile');
+                $('.super-live-preview').addClass('super-mobile');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
+                    return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
             }
-            if ($(this).hasClass('tablet')) {
-                $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .super-preview.mobile').removeClass('super-active');
-                $('.super-create-form .super-actions .super-preview.desktop').removeClass('super-active');
+            if ($(this).hasClass('super-tablet')) {
+                $('.super-live-preview').removeClass('super-mobile');
+                $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
                 $(this).addClass('super-active');
-                $('.super-live-preview').addClass('tablet');
+                $('.super-live-preview').addClass('super-tablet');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
+                    return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
             }
-            if ($(this).hasClass('desktop')) {
-                $('.super-live-preview').removeClass('tablet');
-                $('.super-live-preview').removeClass('mobile');
-                $('.super-create-form .super-actions .super-preview.mobile').removeClass('super-active');
-                $('.super-create-form .super-actions .super-preview.tablet').removeClass('super-active');
+            if ($(this).hasClass('super-desktop')) {
+                $('.super-live-preview').removeClass('super-tablet');
+                $('.super-live-preview').removeClass('super-mobile');
+                $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');
+                $('.super-create-form .super-actions .super-preview.super-tablet').removeClass('super-active');
                 $(this).addClass('super-active');
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
                         $('.super-tabs-content').css('display', 'none');
                     });
+                    return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
                 SUPER.init_super_responsive_form_fields();
                 return false;
