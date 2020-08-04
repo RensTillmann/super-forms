@@ -1121,6 +1121,7 @@
 
 .super-live-preview {
     float: left;
+    clear: both;
     width: 100%;
     margin: 0px 0px 0px 0px;
     padding: 20px 15px;
@@ -1134,11 +1135,11 @@
     display: none;
 }
 
-.super-create-form .super-live-preview.mobile {
+.super-create-form .super-live-preview.super-mobile {
     max-width: 320px;
 }
 
-.super-create-form .super-live-preview.tablet {
+.super-create-form .super-live-preview.super-tablet {
     max-width: 768px;
 }
 
@@ -2625,4 +2626,3 @@
     padding: 0px 0px 30px 0px;
     font-size: 16px;
 }
-
