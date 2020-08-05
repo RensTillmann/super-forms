@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Aug 05, 2020 - Version 4.9.510
+
+- **Fix:** Make sure that third party plugins do not display notifications on the builder page that are not using the build in admin notice function within wordpress but a custom one
+
 ## Aug 04, 2020 - Version 4.9.509
 
 - **Fix:** Responsiveness when using multiple form on a single page

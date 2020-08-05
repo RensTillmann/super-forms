@@ -45,8 +45,8 @@
 	};
 
 	// Set expiration when form has been submitted by the user
-	SUPER.init_set_expiration_cookie_on_submit_popup = function($form){
-		var $wrapper = $form.parents('.super-popup-wrapper');
+	SUPER.init_set_expiration_cookie_on_submit_popup = function(args){
+		var $wrapper = $(args.form).parents('.super-popup-wrapper');
 		var $settings = $wrapper.find('textarea[name="super-popup-settings"]').val();
 		if(typeof $settings === 'string'){
 			$settings = JSON.parse($settings);

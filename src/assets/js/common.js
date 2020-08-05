@@ -6208,7 +6208,7 @@ function SUPERreCaptcha(){
         if(typeof args.form === 'undefined') {
             args.form = document.querySelector('.super-form');
         }
-        var formId = args.form.querySelector('input[name="hidden_form_id"]').value;
+        var formId = (args.form.querySelector('input[name="hidden_form_id"]') ? args.form.querySelector('input[name="hidden_form_id"]').value : 0);
 		if (SUPER.responsive_form_fields_timeout[formId] !== null) {
 			clearTimeout(SUPER.responsive_form_fields_timeout[formId]);
 		}
