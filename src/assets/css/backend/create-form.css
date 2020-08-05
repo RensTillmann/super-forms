@@ -71,8 +71,14 @@
     margin-bottom: 40px;
 }
 
-#wpbody-content>.updated, #wpbody-content>.error, #wpbody-content>.notice, #wpbody-content>* {
-    display: none;
+#wpbody-content>.updated, 
+#wpbody-content>.error,
+#wpbody-content>.notice,
+#wpbody-content>* {
+    display: none!important;
+}
+#wpbody-content .super-create-form {
+    display:block!important;
 }
 
 .super-tab-translations .super-dropdown-search input::-webkit-input-placeholder, .super-form-settings .super-field input::-webkit-input-placeholder, .super-form-settings .super-field textarea::-webkit-input-placeholder, .super-element-settings .super-field input::-webkit-input-placeholder, .super-element-settings .super-field textarea::-webkit-input-placeholder {
@@ -112,6 +118,7 @@
     display: block !important;
     direction: ltr;
 }
+
 
 /* @since 2.9.0 - form setup wizard */
 .super-create-form .super-first-time-setup {
