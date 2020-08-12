@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Aug 10, Version 4.9.511
+
+- **Improved:** Regex that looks for {tags} inside HTML element to exclude any tags that include double quote or single quote, because some third party plugin shortcodes might generate HTML with element attributes like `{"something":"here"}` which caused Super Forms to throw a JS error
+
 ## Aug 05, 2020 - Version 4.9.510
 
 - **Fix:** Make sure that third party plugins do not display notifications on the builder page that are not using the build in admin notice function within wordpress but a custom one

@@ -231,7 +231,7 @@
                 max = el.dataset.maxlength,
                 workDays,
                 weekends,
-                regex = /\{(.*?)\}/g,
+                regex = /{([^"']*?)}/g,
                 range = el.dataset.range,
                 maxPicks =(el.dataset.maxpicks ? parseInt(el.dataset.maxpicks, 10) : 1),
                 firstDay = el.dataset.firstDay,
@@ -1043,12 +1043,12 @@
                 array,
                 match,
                 number,
-                regex = /\{(.*?)\}/g,
+                regex = /{([^"']*?)}/g,
                 oldv,
                 duplicate_dynamically;
 
             function return_replace_names(value, new_count, replace_names){
-                regex = /{(.*?)}/g;
+                regex = /{([^"']*?)}/g;
                 while ((vv = regex.exec(value)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if (vv.index === regex.lastIndex) {
@@ -1192,6 +1192,7 @@
                                     v = v.toString().split(';');
                                     name = v[0];
                                     // First check if the field even exists, if not just skip
+                                    
                                     found_field = SUPER.field(form, name);
                                     if(!found_field){
                                         // Do nothing

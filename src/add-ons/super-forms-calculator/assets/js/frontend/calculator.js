@@ -58,7 +58,7 @@
 				dataFields = wrapper.dataset.fields;
 				superMath = wrapper.dataset.superMath;
 				if( superMath!='' ) {
-					regex = /\{(.*?)\}/g;
+					regex = /{([^"']*?)}/g;
 					array = [];
 					i = 0;
 					match;
@@ -165,7 +165,7 @@
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
 			format,amount,currency,target,superMath,calculatorFields,doNotSkip,decimalSeparator,prevAmount,$jsformat,
 			$timestamp,$parse,$field,$number,$numeric_amount,span,
-			regex = /\{(.*?)\}/g,
+			regex = /{([^"']*?)}/g,
 			updatedCalculatorFields = {},	
 			array = [],
 			oldNameSuffix = '';

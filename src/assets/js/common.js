@@ -703,7 +703,7 @@ function SUPERreCaptcha(){
         string_value = value.toString();
         bracket = "{";
         if(string_value.indexOf(bracket) != -1){
-            regex = /\{(.*?)\}/g;
+            regex = /{([^"']*?)}/g;
             name = regex.exec(value);
             name = name[1];
             element = SUPER.field(form, name);
@@ -775,7 +775,7 @@ function SUPERreCaptcha(){
         return $shortcode_field_value;
     };
     SUPER.conditional_logic.loop = function(args){
-        args.regex = /\{(.*?)\}/g;
+        args.regex = /{([^"']*?)}/g;
         var v,
             $v,
             $this,
@@ -786,7 +786,7 @@ function SUPERreCaptcha(){
             $action,
             $conditions,
             $total,
-            $regex = /{(.*?)}/g,
+            $regex = /{([^"']*?)}/g,
             $shortcode_field_value,
             $shortcode_field_and_value,
             $continue,
@@ -1359,7 +1359,7 @@ function SUPERreCaptcha(){
             key,
             $values,
             $element,
-            $regex = /\{(.*?)\}/g;
+            $regex = /{([^"']*?)}/g;
 
 
         while (($match = $regex.exec(args.value)) !== null) {
@@ -2798,7 +2798,7 @@ function SUPERreCaptcha(){
             action = (args.submitButton.querySelector('.super-button-name') ? args.submitButton.querySelector('.super-button-name').dataset.action : ''),
             url = (typeof args.submitButton.dataset.href !== 'undefined' ? decodeURIComponent(args.submitButton.dataset.href) : undefined) ,
             proceed = SUPER.before_submit_button_click_hook(args.event, args.submitButton),
-            regex = /\{(.*?)\}/g,
+            regex = /{([^"']*?)}/g,
             array = [],
             error = false,
             name,
@@ -4044,7 +4044,7 @@ function SUPERreCaptcha(){
                     $lat = $coordinates[0];
                     $lng = $coordinates[1];
                     // If {tag} was found
-                    var regex = /\{(.*?)\}/g;
+                    var regex = /{([^"']*?)}/g;
                     if(regex.exec($lat)!==null){
                         $field_name = $lat.replace('{','').replace('}','');                       
                         $lat = SUPER.field(args.form, $field_name).dataset.lat;
@@ -4699,7 +4699,7 @@ function SUPERreCaptcha(){
         }else{
             $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
         }
-        $regex = /\{(.*?)\}/g;
+        $regex = /{([^"']*?)}/g;
         Object.keys($html_fields).forEach(function(key) {
             var $counter = 0;
             $target = $html_fields[key];
@@ -4714,7 +4714,7 @@ function SUPERreCaptcha(){
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
-            $regex = /\{(.*?)\}/g;
+            $regex = /{([^"']*?)}/g;
             if(!$regex.exec($html)) return true;
 
             // If it has {tags} then continue
@@ -4768,7 +4768,7 @@ function SUPERreCaptcha(){
                     $html = $html.split($original).join($rows);
                 }
                 $array = [];
-                $regex = /\{(.*?)\}/g;
+                $regex = /{([^"']*?)}/g;
                 while (($match = $regex.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
@@ -4797,7 +4797,7 @@ function SUPERreCaptcha(){
         var $match,
             $target = args.form.querySelector('form'),
             $actiontags = ($target ? $target.dataset.actiontags : ''),
-            $regex = /\{(.*?)\}/g,
+            $regex = /{([^"']*?)}/g,
             $array = [],
             $counter = 0,
             $values,
