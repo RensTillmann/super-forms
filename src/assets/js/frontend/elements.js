@@ -1108,7 +1108,7 @@
                 last_tab_index = '';
             }
             last_tab_index = parseFloat(last_tab_index);
-
+            
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
             added_fields = {};
             added_fields_with_suffix = {};
@@ -1149,6 +1149,7 @@
                 if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
                 field_counter++;
             }
+            
             // @since 4.6.0 - update html field tags attribute
             // @since 4.6.0 - update accordion title and description field tags attribute
             // @since 4.9.6 - update google maps field tags attribute
@@ -1318,7 +1319,7 @@
             // DO NOT TURN THE BELOW 2 HOOKS AROUND OR IT
             // WILL BRAKE THE CALCULATOR ELEMENT
             // ############ !!!! IMPORTANT !!!! ############
-
+            
             // @since 2.4.0 - hook after adding new column
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
 
@@ -1420,7 +1421,7 @@
             parent.remove();
 
             // Reload google maps
-            SUPER.google_maps_api.initMaps(undefined, form);
+            SUPER.google_maps_api.initMaps({form: form});
             
         });
 
@@ -2006,6 +2007,8 @@
             // Focus first TAB index field in next multi-part
             super_focus_first_tab_index_field(e, form, multipart);
 
+            // Update HTML element to reflect changes e.g foreach() and if statements
+            SUPER.init_replace_html_tags({form: form});
         });
         
         // @since 4.7.0 - translation language switcher

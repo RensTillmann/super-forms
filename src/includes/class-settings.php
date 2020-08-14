@@ -1000,15 +1000,7 @@ class SUPER_Settings {
                     'filter' => true,
                     'parent' => 'smtp_debug',
                     'filter_value' => '1,2,3,4',
-                ),
-                // 'smtp_send_test_email' => array(
-                //     'name' => esc_html__( 'E-mail Test', 'super-forms' ),
-                //     'desc' => esc_html__( 'Send a Test Email', 'super-forms' ),
-                //     'type' => 'smtp_test',
-                //     'filter' => true,
-                //     'parent' => 'smtp_enabled',
-                //     'filter_value' => 'enabled'
-                // )
+                )
             )
         );
         $array = apply_filters( 'super_settings_after_global_overriding_filter', $array, array( 'settings'=>$settings ) );

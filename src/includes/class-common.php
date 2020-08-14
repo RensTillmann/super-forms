@@ -542,22 +542,6 @@ class SUPER_Common {
         }
         return false;       
     }
-    // public static function getDomain() {
-    //     $sURL    = site_url(); // WordPress function
-    //     $asParts = parse_url( $sURL ); // PHP function
-    //     if ( ! $asParts ) {
-    //         return site_url();
-    //     } 
-    //     $sScheme = $asParts['scheme'];
-    //     $nPort   = $asParts['port'];
-    //     $sHost   = $asParts['host'];
-    //     $nPort   = 80 == $nPort ? '' : $nPort;
-    //     $nPort   = 'https' == $sScheme AND 443 == $nPort ? '' : $nPort;
-    //     $sPort   = ! empty( $sPort ) ? ":$nPort" : '';
-    //     $sReturn = $sScheme . '://' . $sHost . $sPort;
-    //     return $sReturn;
-    // }
-
 
     /**
      * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
