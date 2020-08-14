@@ -374,28 +374,6 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                     unset($postarr['comment_status']);
                 }
 
-                // // Lets check if tax_input field exists
-                // // If so, let's check if the post_taxonomy exists, because this is required in order to connect the categories accordingly to the post.
-                // if( $tax_input!='' ) {
-                //     if( $cat_taxonomy=='' ) {
-                //         $msg = sprintf( esc_html__( 'You have a field called %1$s but you haven\'t set a valid taxonomy name. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>tax_input</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                //         SUPER_Common::output_message(
-                //             $error = true,
-                //             $msg = $msg,
-                //             $redirect = null
-                //         );
-                //     }else{
-                //         if ( !taxonomy_exists( $cat_taxonomy ) ) {
-                //             $msg = sprintf( esc_html__( 'The taxonomy %1$s doesn\'t seem to exist. Please %2$sedit%3$s your form and try again ', 'super-forms' ), '<strong>' . $settings['frontend_posting_post_cat_taxonomy'] . '</strong>', '<a href="' . get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] ) . '">', '</a>' );
-                //             SUPER_Common::output_message(
-                //                 $error = true,
-                //                 $msg = $msg,
-                //                 $redirect = null
-                //             );
-                //         }
-                //     }
-                // }
-
                 // Lets check if tags_input field exists
                 // If so, let's check if the tag_taxonomy exists, because this is required in order to connect the categories accordingly to the post.
                 if( $tags_input!='' ) {

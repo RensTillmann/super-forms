@@ -4714,8 +4714,19 @@ function SUPERreCaptcha(){
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
+            var $skipUpdate = true;
             $regex = /{([^"']*?)}/g;
-            if(!$regex.exec($html)) return true;
+            if($regex.exec($html)){
+                $skipUpdate = false;
+            }
+            $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
+            if($regex.exec($html)){
+                $skipUpdate = false;
+            }
+            if($html.indexOf('endif;')!==-1){
+                $skipUpdate = false;
+            }
+            if($skipUpdate) return true;
 
             // If it has {tags} then continue
             if( $html!=='' ) {
@@ -5397,15 +5408,7 @@ function SUPERreCaptcha(){
             element.value = value;
         }
 
-        // @since 2.9.0 - make sure to do conditional logic and calculations
-        // This must not be done when a dynamic column is cloned
-        // This would causes issues with variable conditions being executed again and updating fields, resulting
-        // them in becoming emptied, instead of preserving their current value.
-        // Think about a "customer_search" field that populates other fields based on variable conditions like:
-        // {customer_search;2} etc.
-        if(typeof clone === 'undefined') {
-            SUPER.after_field_change_blur_hook({el: undefined, form: main_form});
-        }
+        SUPER.after_field_change_blur_hook({form: main_form});
 
         // After form cleared
         SUPER.after_form_cleared_hook(form);

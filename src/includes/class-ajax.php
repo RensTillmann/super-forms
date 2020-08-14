@@ -85,8 +85,6 @@ class SUPER_Ajax {
 
             'update_unique_code'            => true, // @since 4.9.46
 
-            //'smtp_test'                   => false, // @since 4.9.5
-
             'api_cancel_subscription'       => false,
             'api_start_trial'               => false,
             'api_checkout'                  => false,
@@ -3268,33 +3266,6 @@ class SUPER_Ajax {
             die();
         }
     }
-
-    // /** 
-    //  *  Send an test email through SMTP
-    //  *
-    //  *  @param  array  $settings
-    //  *
-    //  *  @since      1.0.0
-    // */
-    // public static function smtp_test() {
-    //     var_dump('test smtp_test()');
-    //     die();
-    //     // $settings = SUPER_Common::get_form_settings($form_id);
-    //     // $from = 'no-reply@f4d.nl';
-    //     // $to = sanitize_email($_POST['email']);
-    //     // $from_name = 'f4d.nl';
-    //     // $subject = 'Subject';
-    //     // $email_body = 'Email body';
-
-    //     // // Send the email
-    //     // $mail = SUPER_Common::email( $to, $from, $from_name, false, '', '', '', '', $subject, $email_body, $settings );
-
-    //     // // Return error message
-    //     // if( !empty( $mail->ErrorInfo ) ) {
-    //     //     $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-    //     //     SUPER_Common::output_message( $error=true, $msg );
-    //     // }
-    // }
 }
 endif;
 SUPER_Ajax::init();

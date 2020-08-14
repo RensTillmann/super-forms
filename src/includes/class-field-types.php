@@ -798,26 +798,6 @@ class SUPER_Field_Types {
         return $return;
     }
     
-    // // SMTP Test
-    // //Input field    
-    // public static function smtp_test() {
-    //     $return = '<div class="super-smtp-test">';
-    //         $return .= '<div class="super-smtp-test-row">';
-    //             $return .= '<input type="text" name="smpt_test_to" value="'.get_option('admin_email').'" />';
-    //         $return .= '</div>';
-    //         $return .= '<div class="super-smtp-test-row">';
-    //             $return .= '<label>';
-    //                 $return .= '<input type="checkbox" checked="checked" name="smpt_test_html" />';
-    //                 $return .= '<span>' . esc_html( 'Send in HTML or plain text format.', 'super-forms' ) . '</span>';
-    //             $return .= '</label>';
-    //         $return .= '</div>';
-    //         $return .= '<span class="button super-button super-send-smtp-test"><i class="fas fa-envelope"></i> ' . esc_html( 'Send Test Email', 'super-forms' ) . '</span>';
-    //     $return .= '</div>';
-    //     return $return;
-    // }
-
-
-
     //Icon list
     public static function icon($id, $field){
         
