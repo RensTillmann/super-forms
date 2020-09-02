@@ -918,8 +918,18 @@ class SUPER_Ajax {
                 }
             }
         }
-
-        $file_location = '/uploads/php/files/super-contact-entries.csv';
+        
+        // Delete old files
+        $file_location = '/uploads/php/files/super-contact-entries-*.csv';
+        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+        $files = glob($source);
+        foreach($files as $v){
+            if( file_exists( $v ) ) {
+                SUPER_Common::delete_file( $v );
+            }
+        }
+        // Save new file
+        $file_location = '/uploads/php/files/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -984,6 +994,7 @@ class SUPER_Ajax {
         }
         $columns[] = 'entry_ip';
         echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">'.esc_html__('Toggle all fields', 'super-forms').'</span>';
+        echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 10px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
         echo '<ul class="super-export-entry-columns">';
         foreach( $columns as $k => $v ) {
             echo '<li class="super-entry-column" data-name="' . esc_attr($v) . '">';
@@ -995,7 +1006,7 @@ class SUPER_Ajax {
         }
         echo '</ul>';
         echo '<input type="hidden" name="query" value="' . $query . '" />';
-        echo '<span class="button button-primary button-large super-export-selected-columns">'.esc_html__('Export', 'super-forms').'</span>';
+        echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 0px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
         die();
     }
 
@@ -1246,7 +1257,7 @@ class SUPER_Ajax {
             }
         }
 
-        echo '<div class="message success">';
+        echo '<div class="message super-success">';
         echo sprintf( esc_html__( '%d of %d contact entries imported!', 'super-forms' ), $imported, count($entries) );
         echo '</div>';
         die();
@@ -1618,7 +1629,18 @@ class SUPER_Ajax {
                 }
             }
         }
-        $file_location = '/uploads/php/files/super-contact-entries.csv';
+
+        // Delete old files
+        $file_location = '/uploads/php/files/super-contact-entries-*.csv';
+        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+        $files = glob($source);
+        foreach($files as $v){
+            if( file_exists( $v ) ) {
+                SUPER_Common::delete_file( $v );
+            }
+        }
+        // Save new file
+        $file_location = '/uploads/php/files/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );

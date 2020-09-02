@@ -1257,6 +1257,14 @@ class SUPER_Settings {
                     'parent' => 'update_contact_entry',
                     'filter_value' => 'true'
                 ),
+                'form_processing_overlay' => array(
+                    'default' => self::get_value( $default, 'form_processing_overlay', $settings, 'true' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => esc_html__( 'Display form processing overlay (popup)', 'super-forms' ),
+                    ),
+                ),
                 'form_show_thanks_msg' => array(
                     'default' => self::get_value( $default, 'form_show_thanks_msg', $settings, 'true' ),
                     'type' => 'checkbox',

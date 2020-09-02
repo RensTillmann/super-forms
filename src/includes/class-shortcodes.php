@@ -5601,6 +5601,7 @@ class SUPER_Shortcodes {
             $result .= '"';
             $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
             $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
+            $result .= ( (isset($settings['form_processing_overlay'])) && ($settings['form_processing_overlay']=='true') ? ' data-overlay="true"' : '' );
             
             // @since 3.3.0     - Disable submission on "Enter" 
             $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
@@ -5699,7 +5700,7 @@ class SUPER_Shortcodes {
                         $result .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
                     }
                     $result .= nl2br($settings['form_locker_msg_desc']);
-                    $result .= '<span class="close"></span>';
+                    $result .= '<span class="super-close"></span>';
                     $result .= '</div>';
                     if($settings['form_locker_hide']=='true') {
                         $result .= '</form>';
@@ -5772,7 +5773,7 @@ class SUPER_Shortcodes {
                             $result .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
                         }
                         $result .= nl2br($settings['user_form_locker_msg_desc']);
-                        $result .= '<span class="close"></span>';
+                        $result .= '<span class="super-close"></span>';
                         $result .= '</div>';
                         if(!empty($settings['user_form_locker_hide'])) {
                             $result .= '</form>';

@@ -453,7 +453,7 @@
             $('.super-msg').remove();
             var $html = '<div class="super-msg super-error">';
             $html += (typeof args.result.msg !== 'undefined' ? args.result.msg : args.result.error.message);
-            $html += '<span class="close"></span>';
+            $html += '<span class="super-close"></span>';
             $html += '</div>';
             $($html).prependTo($form);
             // keep loading state active

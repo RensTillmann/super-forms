@@ -4,7 +4,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Aug 13, Version 4.9.512
+## Aug 27, 2020 - Version 4.9.513
+
+- **Added:** Setting to turn of the new "Processing overlay/popup" and fall back to the legacy (old) thank you message `Form Settings > Form Settings > Display form processing overlay (popup)`
+- **Added:** Prefix `super` to `close` classname for zero conflict policy
+- **Improved:** When using the `Popup Add-on` and `Show thank you message` is disabled the popup should automatically close after form submission (this will prevent displaying an empty popup)
+- **Improved:** Added timestamp to Contact Entries export file name (solves problem with cached files)
+
+## Aug 13, 2020 - Version 4.9.512
 
 - **WP Requirements Compliant: Maintains items to Envato's current standards for WordPress**
 - **Improved:** Regex that looks for {tags} inside HTML element to exclude any tags that include double quote or single quote, because some third party plugin shortcodes might generate HTML with element attributes like `{"something":"here"}` which caused Super Forms to throw a JS error

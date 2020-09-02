@@ -1426,7 +1426,7 @@
         });
 
         // Close messages
-        $doc.on('click', '.super-msg .close', function(){
+        $doc.on('click', '.super-msg .super-close', function(){
             $(this).parents('.super-msg:eq(0)').fadeOut(500);
         });
 

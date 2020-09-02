@@ -475,7 +475,7 @@ function SUPERreCaptcha(){
                             $origin_field.blur();
                             if(typeof $destination_field !== 'undefined') $destination_field.blur();
                             $html += $alert_msg;
-                            $html += '<span class="close"></span>';
+                            $html += '<span class="super-close"></span>';
                             $html += '</div>';
                             $($html).prependTo($(form));
                             $('html, body').animate({
@@ -1692,47 +1692,26 @@ function SUPERreCaptcha(){
             },
             xhr: function() {
                 var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener("progress", function(evt) {
-                    if (evt.lengthComputable) {
-                        var percentComplete = evt.loaded / evt.total;
-                        //Do something with upload progress here
-                        if(args.pdfArgs!==false){
-                            args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-                        }else{
-                            args.progressBar.style.width = (100*percentComplete)+"%";  
+                if(args.showOverlay==="true"){
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress here
+                            if(args.pdfArgs!==false){
+                                args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+                            }else{
+                                args.progressBar.style.width = (100*percentComplete)+"%";  
+                            }
                         }
-                    }
-               }, false);
-               //xhr.addEventListener("progress", function(evt) {
-               //    if (evt.lengthComputable) {
-               //        var percentComplete = evt.loaded / evt.total;
-               //        //Do something with download progress
-               //    }
-               //}, false);
-               return xhr;
+                    }, false);
+                }
+                return xhr;
             },
             success: function(result){
                 result = JSON.parse(result);
-                var html;
-                // Check for errors, if there are any display them to the user 
-                if(result.error===true){
-                    html = '<div class="super-msg super-error">';
-                    if(typeof result.fields !== 'undefined'){
-                        $.each(result.fields, function( index, value ) {
-                            $(value+'[name="'+index+'"]').parent().addClass('error');
-                        });
-                    }                               
-                }else{
-                    html = '<div class="super-msg super-success"';
-                    // @since 3.4.0 - option to not display the message
-                    if(result.display===false){
-                        html += 'style="display:none;">';
-                    }
-                    html += '>';
-                }
                 if(result.error===true){
                     // Display error message
-                    SUPER.form_submission_finished(args, result, html);
+                    SUPER.form_submission_finished(args, result);
                 }else{
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {
@@ -1759,7 +1738,7 @@ function SUPERreCaptcha(){
                                 }else{
                                     clearInterval(SUPER.submit_form_interval);
                                     // Form submission is finished
-                                    SUPER.form_submission_finished(args, result, html);
+                                    SUPER.form_submission_finished(args, result);
                                 }
                             }, 100);
                         }
@@ -1772,7 +1751,7 @@ function SUPERreCaptcha(){
                         return false;
                     }
                     // Form submission is finished
-                    SUPER.form_submission_finished(args, result, html);
+                    SUPER.form_submission_finished(args, result);
                 }
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -2088,6 +2067,7 @@ function SUPERreCaptcha(){
 
         form_id = args.data.form_id;
         entry_id = args.data.entry_id;
+        args.showOverlay = args.form.dataset.overlay;
 
         // @since 1.3
         data = SUPER.after_form_data_collected_hook(args.data.data);
@@ -2146,10 +2126,8 @@ function SUPERreCaptcha(){
                 }
             }
 
-            document.body.appendChild(loadingOverlay);
-            // Close Popup (if any)
-            if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-                SUPER.init_popups.close(true);
+            if(args.showOverlay==="true"){
+                document.body.appendChild(loadingOverlay);
             }
 
             // Close modal (should also reset pdf generation)
@@ -2167,6 +2145,7 @@ function SUPERreCaptcha(){
                 form0: form[0],
                 super_ajax_nonce: super_ajax_nonce,
                 oldHtml: args.oldHtml,
+                showOverlay: args.showOverlay,
                 data: data,
                 form_id: form_id,
                 entry_id: entry_id,
@@ -2353,15 +2332,13 @@ function SUPERreCaptcha(){
     };
     // Form submission is finished
     SUPER.form_submission_finished = function(args, result){ 
-        if(args.progressBar) args.progressBar.style.width = 100+"%";  
-        var innerText = args.loadingOverlay.querySelector('.super-inner-text');
-        // Redirect user to specified url
-        if(result.redirect){
-            // Show redirecting text
-            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.redirecting+'</span>';
-            window.location.href = result.redirect;
-        }else{
-            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+        if(args.showOverlay==="true"){
+            // Display message inside overlay
+            if(args.progressBar) args.progressBar.style.width = 100+"%";  
+            var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+            if(innerText) {
+                innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+            }
             // Check if there is a message
             if(result.msg!==''){
                 // Check if this is an error message
@@ -2371,6 +2348,10 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-success');
                     if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
                         SUPER.show_pdf_download_btn(args);
+                    }
+                    // Close Popup (if any)
+                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                        SUPER.init_popups.close(true);
                     }
                 }
                 // Display the error/success message
@@ -2391,25 +2372,74 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-success');
                     SUPER.show_pdf_download_btn(args);
                 }else{
-                    // Just close the overlay, no need to show download button
+                    // Just close the overlay, no need to show download button and we do not have a message to display
                     SUPER.close_loading_overlay(args.loadingOverlay);
                 }
+                // Close Popup (if any)
+                if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                    SUPER.init_popups.close(true);
+                }
             }
-            // @since 3.4.0 - keep loading state active
-            if(result.loading!==true){
-                SUPER.reset_submit_button_loading_state(args.form[0]);
-                if(result.error===false){
-                    // @since 2.0.0 - hide form or not
-                    if($(args.form).data('hide')===true){
-                        $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
-                        setTimeout(function () {
-                            $(args.form).find('.super-field, .super-shortcode').remove();
-                        }, 500);
-                    }else{
-                        // @since 2.0.0 - clear form after submitting
-                        if($(args.form).data('clear')===true){
-                            SUPER.init_clear_form(args.form0);
-                        }
+        }else{
+            // Display message in legacy mode
+            // But only display if not empty
+            if(result.msg!==''){
+                // Remove existing messages
+                var ii,
+                    html,
+                    nodes = document.querySelectorAll('.super-msg');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].remove();
+                }
+                // Check for errors, if there are any display them to the user 
+                if(result.error===true){
+                    html = '<div class="super-msg super-error">';
+                    if(typeof result.fields !== 'undefined'){
+                        $.each(result.fields, function( index, value ) {
+                            $(value+'[name="'+index+'"]').parent().addClass('error');
+                        });
+                    }                               
+                }else{
+                    html = '<div class="super-msg super-success"';
+                    // @since 3.4.0 - option to not display the message
+                    if(result.display===false){
+                        html += 'style="display:none;">';
+                    }
+                    html += '>';
+                }
+                html += result.msg;
+                html += '<span class="super-close"></span>';
+                html += '</div>';
+                $(html).prependTo($(args.form));
+                $('html, body').animate({
+                    scrollTop: $(args.form).offset().top-200
+                }, 1000);
+            }
+        }
+        // Redirect user to specified url
+        if(result.redirect){
+            window.location.href = result.redirect;
+        }
+        // @since 3.4.0 - keep loading state active
+        if(result.loading!==true){
+            SUPER.reset_submit_button_loading_state(args.form[0]);
+            if(result.error===false){
+                // @since 2.0.0 - hide form or not
+                if($(args.form).data('hide')===true){
+                    $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
+                    setTimeout(function () {
+                        $(args.form).find('.super-field, .super-shortcode').remove();
+                    }, 500);
+                }else{
+                    // @since 2.0.0 - clear form after submitting
+                    if($(args.form).data('clear')===true){
+                        SUPER.init_clear_form(args.form0);
+                    }
+                }
+                if(result.msg===''){
+                    // Close Popup (if any)
+                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                        SUPER.init_popups.close(true);
                     }
                 }
             }
@@ -3097,7 +3127,7 @@ function SUPERreCaptcha(){
                         nodes = document.querySelectorAll('.super-msg'),
                         html = '<div class="super-msg super-error">';
                     for (ii = 0; ii < nodes.length; ii++) { 
-                        nodes[i].remove();
+                        nodes[ii].remove();
                     }
                     if(typeof result.fields !== 'undefined'){
                         $.each(result.fields, function( index, value ) {
@@ -3105,7 +3135,7 @@ function SUPERreCaptcha(){
                         });
                     }                               
                     html += result.msg;
-                    html += '<span class="close"></span>';
+                    html += '<span class="super-close"></span>';
                     html += '</div>';
                     $(html).prependTo($(args.form));
                     var btn = args.form.querySelector('.super-form-button.super-loading');
@@ -4329,8 +4359,7 @@ function SUPERreCaptcha(){
                             loading: true,
                             error: true
                         }
-                        var html = '<div class="super-msg super-error">';
-                        SUPER.form_submission_finished(args, result, html);
+                        SUPER.form_submission_finished(args, result);
                     }
                 });
                 return true;
@@ -4357,64 +4386,11 @@ function SUPERreCaptcha(){
                             loading: true,
                             error: true
                         }
-                        var html = '<div class="super-msg super-error">';
-                        SUPER.form_submission_finished(args, result, html);
+                        SUPER.form_submission_finished(args, result);
                     }
                 });
                 return true;
             }
-
-            // // Center map if needed
-            // if( ($origin!=='') && ($center_based_on_address===true) ) {
-            //     geocoder = new google.maps.Geocoder();
-            //     // Replace with tag if needed
-            //     $origin = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $origin);
-
-            //     // Check if address is not empty
-            //     if($origin!==''){
-            //         geocoder.geocode( { 'address': $origin}, function(results, status) {
-            //             if (status == 'OK') {
-            //                 // Center map based on given address
-            //                 $map.setCenter(results[0].geometry.location);
-            //                 // Add marker on address location
-            //                 if( $address_marker=='true' ) {
-            //                     new google.maps.Marker({
-            //                         map: $map,
-            //                         position: results[0].geometry.location
-            //                     });
-            //                 }
-            //             } else {
-            //                 console.log('Geocode was not successful for the following reason: ' + status);
-            //             }
-            //         });
-
-            //         if($destination!=='') {
-            //             $destination = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $destination);
-            //             $travelMode = SUPER.update_variable_fields.replace_tags($form, $regular_expression, $travelMode);
-            //             var directionsService = new google.maps.DirectionsService();
-            //             var directionsRenderer = new google.maps.DirectionsRenderer();
-            //             directionsRenderer.setMap($map);
-            //             var request = {
-            //                 origin: $origin,
-            //                 destination: $destination,
-            //                 travelMode: $travelMode
-            //             };
-            //             directionsService.route(request, function (result, status) {
-            //                 if (status == 'OK') {
-            //                     directionsRenderer.setDirections(result);
-            //                 }else{
-            //                     // Display error message
-            //                     result = {
-            //                         msg: 'Route was not successful for the following reason: ' + status,
-            //                         loading: true
-            //                     }
-            //                     var html = '<div class="super-msg super-error">';
-            //                     SUPER.form_submission_finished($form[0], result, html);
-            //                 }
-            //             });
-            //         }
-            //     }
-            // }
         });
     };
 

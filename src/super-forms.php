@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.512
+ * Version:     4.9.513
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.512';
+        public $version = '4.9.513';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -2714,7 +2714,7 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content = '';
                     $custom_content .= '<div class="super-msg super-'.$super_msg['type'].' super-visible">';
                     $custom_content .= $super_msg['msg'];
-                    $custom_content .= '<span class="close"></span>';
+                    $custom_content .= '<span class="super-close"></span>';
                     $custom_content .= '</div>';
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
                     $form_id = absint($super_msg['data']['hidden_form_id']['value']);

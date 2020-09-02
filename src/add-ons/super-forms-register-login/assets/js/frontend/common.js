@@ -36,13 +36,13 @@
                             });
                         }                               
                     }else{
-                        $html = '<div class="super-msg success">';
+                        $html = '<div class="super-msg super-success">';
                     }
                     if($result.redirect){
                         window.location.replace($result.redirect);
                     }else{
                         $html += $result.msg;
-                        $html += '<span class="close"></span>';
+                        $html += '<span class="super-close"></span>';
                         $html += '</div>';
                         var $new_message = $($html).insertBefore($msg_container);
                         $msg_container.remove();

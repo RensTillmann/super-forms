@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Password Protect
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.2.1
+ * Version:     1.2.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.1';
+        public $version = '1.2.2';
 
 
         /**
@@ -273,7 +273,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                             $msg  = '<div id="super-form-' . $atts['id'] . '" class="super-form super-form-' . $atts['id'] . '">';
                                 $msg .= '<div class="super-msg super-error">';
                                 $msg .= $atts['settings']['password_protect_login_msg'];
-                                $msg .= '<span class="close"></span>';
+                                $msg .= '<span class="super-close"></span>';
                                 $msg .= '</div>';
                             $msg .= '</div>';
                             if( SUPER_Forms()->form_custom_css!='' ) {
@@ -354,7 +354,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                 if ($field_found === false) {
                     $msg  = '<div class="super-msg super-error">';
                     $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] )) . '">', '</a>' );
-                    $msg .= '<span class="close"></span>';
+                    $msg .= '<span class="super-close"></span>';
                     $msg .= '</div>';
                     return $result.$msg;
                 }
@@ -389,11 +389,11 @@ if(!class_exists('SUPER_Password_Protect')) :
                                     $error = true,
                                     $msg = $atts['settings']['password_protect_login_msg'],
                                     $redirect = null
-                                );               
+                                );
                             }
                             $msg  = '<div class="super-msg super-error">';
                             $msg .= $atts['settings']['password_protect_login_msg'];
-                            $msg .= '<span class="close"></span>';
+                            $msg .= '<span class="super-close"></span>';
                             $msg .= '</div>';
                             return $result.$msg;
                         }
@@ -444,7 +444,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                     if( $atts['settings']['password_protect_show_msg']=='true' ) {
                         $msg  = '<div class="super-msg super-error">';
                         $msg .= $atts['settings']['password_protect_msg'];
-                        $msg .= '<span class="close"></span>';
+                        $msg .= '<span class="super-close"></span>';
                         $msg .= '</div>';
                         return $result.$msg;
                     }

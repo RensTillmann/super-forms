@@ -1,3 +1,6 @@
+Aug 27, 2020 - Version 1.8.2
+- Added: Prefix `super` to `close` classname for zero conflict policy
+
 Jul 20, 2020 - Version 1.8.1
 - Improved: `Allowed user role(s)` setting
 
