@@ -389,7 +389,7 @@ return $import_fonts."
     margin: ".$v['theme_success_msg_margin'].";
 }
 ".$s.".super-msg.super-success a,
-".$s.".super-msg.super-success .close {
+".$s.".super-msg.super-success .super-close {
     color: ".$v['theme_success_msg_font_color'].";
 }
 ".$s.".super-msg.super-success:after {

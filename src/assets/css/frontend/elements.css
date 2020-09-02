@@ -87,7 +87,7 @@
   font-weight: 900;
 }
 
-.super-msg:after, .super-msg .close:after {
+.super-msg:after, .super-msg .super-close:after {
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
 }
@@ -134,7 +134,7 @@
   outline: 0;
 }
 
-.super-msg .close, .super-msg a {
+.super-msg .super-close, .super-msg a {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -295,7 +295,7 @@ h1.super-thanks-title {
 .super-msg a {
   font-weight: bold;
 }
-.super-msg .close {
+.super-msg .super-close {
   width: 20px;
   height: 20px;
   display: block;
@@ -309,11 +309,11 @@ h1.super-thanks-title {
   font-weight: 100;
   color: #D08080;
 }
-.super-msg .close:hover {
+.super-msg .super-close:hover {
   opacity: 1;
   color: #D08080;
 }
-.super-msg .close:after {
+.super-msg .super-close:after {
   content: "\f00d";
 }
 .super-msg.super-success:after {
@@ -349,7 +349,7 @@ h1.super-thanks-title {
   background-color: #C5FFCD;
   color: #5E7F62;
 }
-.super-msg.super-success .close {
+.super-msg.super-success .super-close {
   color: #5E7F62;
 }
 .super-msg.info:before {
@@ -391,7 +391,7 @@ h1.super-thanks-title {
   text-align: right;
   padding: 20px 60px 20px 50px;
 }
-.super-rtl .super-msg .close {
+.super-rtl .super-msg .super-close {
   right: inherit;
   left: 6px;
 }

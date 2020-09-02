@@ -126,7 +126,7 @@
     font-size: 12px;
 }
 
-.super-settings .message.success {
+.super-settings .message.super-success {
     border-color: rgb(52, 182, 52);
     background-color: rgb(196, 255, 196);
     color: rgb(0, 0, 0);

@@ -1,3 +1,6 @@
+Aug 27, 2020 - Version 1.2.2
+- Added: Prefix `super` to `close` classname for zero conflict policy
+
 May 13, 2020 - Version 1.2.1
 - Update: hooks from main plugin
 

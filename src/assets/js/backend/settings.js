@@ -301,7 +301,7 @@
                         location.reload();
                     },
                     error: function(){
-                        $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.restore_default_error);
+                        $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.restore_default_error);
                     }
                 });
             }
@@ -310,7 +310,7 @@
         $doc.on('click','.super-settings .save-settings',function(){ 
             var $this = $(this);
             $this.html(super_settings_i18n.save_loading);
-            $('.save .message').removeClass('error').removeClass('success');
+            $('.save .message').removeClass('error').removeClass('super-success');
             var $data = [];
             $('.super-fields .element-field').each(function(){
                 var $this = $(this);
@@ -340,7 +340,7 @@
                     data = $.parseJSON(data);
                     if((data !== null) && (data.error !== 'undefined')){
                         if(data.error=='smtp_error'){
-                            $('.save .message').removeClass('success').addClass('error').html(data.msg);
+                            $('.save .message').removeClass('super-success').addClass('error').html(data.msg);
                             var $tab = $('input[name="smtp_username"]').parents('.super-fields:eq(0)').index() - 1;
                             $('.super-tabs > li, .super-wrapper > .super-fields').removeClass('super-active');
                             $('.super-tabs li:eq('+$tab+')').addClass('super-active');
@@ -349,10 +349,10 @@
                         }
                     }
                     $this.html(super_settings_i18n.save_settings);
-                    $('.save .message').removeClass('error').addClass('success').html(super_settings_i18n.save_success);
+                    $('.save .message').removeClass('error').addClass('super-success').html(super_settings_i18n.save_success);
                 },
                 error: function(){
-                    $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.save_error);
+                    $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.save_error);
                 }
             });
         });
@@ -416,11 +416,11 @@
                 },
                 success: function(){
                     $button.val(super_settings_i18n.save_settings);
-                    $('.save .message').removeClass('error').addClass('success').html(super_settings_i18n.save_success);
+                    $('.save .message').removeClass('error').addClass('super-success').html(super_settings_i18n.save_success);
                     location.reload();
                 },
                 error: function(){
-                    $('.save .message').removeClass('success').addClass('error').html(super_settings_i18n.save_error);
+                    $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.save_error);
                 },
                 complete: function(){
                     $button.removeClass('super-loading');

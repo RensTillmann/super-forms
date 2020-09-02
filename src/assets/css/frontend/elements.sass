@@ -149,7 +149,7 @@ $formFieldsFocus: 'input[type="text"]:focus,input[type="number"]:focus,input[typ
   +fontAwesomeBrands(900)
 
 .super-msg
-  &:after, .close:after
+  &:after, .super-close:after
     +fontAwesome(900)
 
 .super-back-to-top i
@@ -181,7 +181,7 @@ $formFieldsFocus: 'input[type="text"]:focus,input[type="number"]:focus,input[typ
   +userSelect(none)
 
 .super-msg
-  .close, a
+  .super-close, a
     +userSelect(none)
 
 .super-item, .super-multipart-step
@@ -282,7 +282,7 @@ h1.super-thanks-title
     font-size: 14px
   a
     font-weight: bold
-  .close
+  .super-close
     width: 20px
     height: 20px
     display: block
@@ -324,7 +324,7 @@ h1.super-thanks-title
     border: 1px solid #90C397
     background-color: #C5FFCD
     color: #5E7F62
-    .close
+    .super-close
       color: #5E7F62
   &.info:before
     content: unicode("f058")
@@ -357,7 +357,7 @@ h1.super-thanks-title
 .super-rtl .super-msg
   text-align: right
   padding: 20px 60px 20px 50px
-  .close
+  .super-close
     right: inherit
     left: 6px
   &:after
