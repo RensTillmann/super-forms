@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Sep 03, 2020 - Version 4.9.514
+
+- **Fix:** JavaScript error when using conditional validation e.g: `Allow field to be empty > Yes, but not when the following conditions are met`
+
 ## Aug 27, 2020 - Version 4.9.513
 
 - **Added:** Setting to turn of the new "Processing overlay/popup" and fall back to the legacy (old) thank you message `Form Settings > Form Settings > Display form processing overlay (popup)`

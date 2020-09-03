@@ -2564,11 +2564,13 @@ function SUPERreCaptcha(){
                 if (mayBeEmpty == 'conditions') {
                     // Allow field to be empty only when following conditions are met
                     allowEmpty = true; 
-                    conditions = parent.querySelectorAll('.super-validate-conditions');
-                    if (conditions) {
-                        result = SUPER.conditional_logic.loop(args);
-                        if (!result) {
-                            allowEmpty = false; // when condition is met, we do not allow field to be empty
+                    args.conditionalLogic = args.form.querySelectorAll('.super-validate-conditions');
+                    if(typeof args.conditionalLogic !== 'undefined'){
+                        if(args.conditionalLogic.length!==0){
+                            result = SUPER.conditional_logic.loop(args);
+                            if (!result) {
+                                allowEmpty = false; // when condition is met, we do not allow field to be empty
+                            }
                         }
                     }
                 }
