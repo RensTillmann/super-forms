@@ -79,19 +79,19 @@ span.super-popup-close:hover,
 span.super-popup-close:active {
 	text-decoration: none !important;
 }
-.super-popup-wrapper .super-popup.stickyTop {
-	top:0px;
+.super-popup-wrapper .super-popup.super-popup-sticky-top {
+	top:0px!important;
 }
-.super-popup-wrapper .super-popup.stickyRight {
-	right:0px;
-	left:auto;
+.super-popup-wrapper .super-popup.super-popup-sticky-right {
+	right:0px!important;
+	left:auto!important;
 }
-.super-popup-wrapper .super-popup.stickyBottom {
-	bottom:0px;
-	top:auto;
+.super-popup-wrapper .super-popup.super-popup-sticky-bottom {
+	bottom:0px!important;
+	top:auto!important;
 }
-.super-popup-wrapper .super-popup.stickyLeft {
-	left:0px;
+.super-popup-wrapper .super-popup.super-popup-sticky-left {
+	left:0px!important;
 }
 .super-popup textarea[name="super-popup-settings"] {
 	display:none!important;

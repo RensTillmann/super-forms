@@ -1,3 +1,6 @@
+Sep 08, 2020 - Version 1.5.7
+- Fix: Sticky popup setting not working
+
 Aug 27, 2020 - Version 1.5.6
 - Added: Prefix `super` to `close` classname for zero conflict policy
 

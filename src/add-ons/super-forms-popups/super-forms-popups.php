@@ -10,7 +10,7 @@
  * Plugin Name: Super Forms - Popups
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Create fully customizable popups for Super Forms
- * Version:     1.5.6
+ * Version:     1.5.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.5.6';
+        public $version = '1.5.7';
 
 
         /**
@@ -622,7 +622,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
                     $form_html = $result;
                     $result = '';
                     $result .= '<div class="super-popup-wrapper-' . $form_id . ' super-popup-wrapper" style="opacity:0;z-index:-2147483648;">';
-                        $result .= '<div class="super-popup-' . $form_id . ' super-popup" style="opacity:0;">';
+                        $result .= '<div class="super-popup-' . $form_id . ' super-popup super-popup-sticky-'.($settings['popup_sticky']).'" style="opacity:0;">';
                 
                             // Popup close button
                             if(empty($settings['popup_close_btn'])) $settings['popup_close_btn'] = 'true';
