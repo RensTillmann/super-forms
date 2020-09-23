@@ -2539,7 +2539,6 @@ function SUPERreCaptcha(){
             attr,
             text_field,
             total,
-            conditions,
             field_value,
             value2,
             counter,
@@ -5790,7 +5789,6 @@ function SUPERreCaptcha(){
 
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
-        
         // Do not do anything if all forms where intialized already
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
@@ -5995,6 +5993,41 @@ function SUPERreCaptcha(){
                     }else{
                         $form.prepend($progress_steps);
                         $form.prepend($progress_bar);
+                    }
+                }
+                
+                // @SINCE 4.9.520 - Remember multi-part position/location and allow to anchor to a specific multi-part
+                // Example: http://domain.com/page#step-49344-3
+                var currentStep = window.location.hash.substring(1);
+                if(currentStep!==''){
+                    var explodedStep = currentStep.split('-');
+                    if(explodedStep[0]==='step'){
+                        var stepFormID = explodedStep[1];
+                        var multiPart = explodedStep[2];
+                        // Lookup the form based on the ID
+                        var multiPartForm = document.querySelector('.super-form-'+stepFormID);
+                        if(multiPartForm){
+                            // We found a form, check if it contains a multi-part, if so then make it active
+                            var nodes = multiPartForm.querySelectorAll('.super-multipart');
+                            for(var i = 0; i < nodes.length; i++){
+                                if(multiPart==(i+1)){
+                                    nodes[i].classList.add('super-active');
+                                }else{
+                                    nodes[i].classList.remove('super-active');
+                                }
+                            }
+                            nodes = multiPartForm.querySelectorAll('.super-multipart-step');
+                            for(i = 0; i < nodes.length; i++){
+                                if(multiPart==(i+1)){
+                                    nodes[i].classList.add('super-active');
+                                }else{
+                                    nodes[i].classList.remove('super-active');
+                                }
+                            }
+                            var progress = 100 / nodes.length;
+                            progress = progress * parseInt(multiPart, 10);
+                            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+                        }
                     }
                 }
             }

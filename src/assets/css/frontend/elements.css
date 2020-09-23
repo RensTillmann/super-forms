@@ -1321,27 +1321,6 @@ h1.super-thanks-title {
   padding-right: 95px;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .super-form.super-window-first-responsiveness ::-webkit-input-placeholder,
-.super-form.super-window-second-responsiveness ::-webkit-input-placeholder {
-    font-size: 16px !important;
-  }
-
-  .super-form.super-window-first-responsiveness :-moz-placeholder,
-.super-form.super-window-second-responsiveness :-moz-placeholder {
-    font-size: 16px !important;
-  }
-
-  .super-form.super-window-first-responsiveness ::-moz-placeholder,
-.super-form.super-window-second-responsiveness ::-moz-placeholder {
-    font-size: 16px !important;
-  }
-
-  .super-form.super-window-first-responsiveness :-ms-input-placeholder,
-.super-form.super-window-second-responsiveness :-ms-input-placeholder {
-    font-size: 16px !important;
-  }
-}
 .super-readonly:after {
   content: "";
   position: absolute;
@@ -4932,34 +4911,17 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding-right: 45px;
 }
 
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
-  .super-window-first-responsiveness .super-shortcode-field:focus, .super-window-first-responsiveness input[type=text]:focus, .super-window-first-responsiveness input[type=number]:focus, .super-window-first-responsiveness input[type=email]:focus, .super-window-first-responsiveness input[type=tel]:focus, .super-window-first-responsiveness input[type=url]:focus, .super-window-first-responsiveness input[type=password]:focus, .super-window-first-responsiveness input[type=search]:focus, .super-window-first-responsiveness textarea:focus {
-    font-size: 16px;
-  }
-
-  .super-window-second-responsiveness .super-shortcode-field:focus, .super-window-second-responsiveness input[type=text]:focus, .super-window-second-responsiveness input[type=number]:focus, .super-window-second-responsiveness input[type=email]:focus, .super-window-second-responsiveness input[type=tel]:focus, .super-window-second-responsiveness input[type=url]:focus, .super-window-second-responsiveness input[type=password]:focus, .super-window-second-responsiveness input[type=search]:focus, .super-window-second-responsiveness textarea:focus {
-    font-size: 16px;
-  }
-
-  .super-window-first-responsiveness .super-shortcode-field, .super-window-first-responsiveness input[type=text], .super-window-first-responsiveness input[type=number], .super-window-first-responsiveness input[type=email], .super-window-first-responsiveness input[type=tel], .super-window-first-responsiveness input[type=url], .super-window-first-responsiveness input[type=password], .super-window-first-responsiveness input[type=search], .super-window-first-responsiveness textarea, .super-window-first-responsiveness .super-item, .super-window-first-responsiveness .super-checkbox .super-item, .super-window-first-responsiveness .super-radio .super-item, .super-window-first-responsiveness .super-fileupload-button span {
-    font-size: 16px;
-  }
-
-  .super-window-second-responsiveness .super-shortcode-field, .super-window-second-responsiveness input[type=text], .super-window-second-responsiveness input[type=number], .super-window-second-responsiveness input[type=email], .super-window-second-responsiveness input[type=tel], .super-window-second-responsiveness input[type=url], .super-window-second-responsiveness input[type=password], .super-window-second-responsiveness input[type=search], .super-window-second-responsiveness textarea, .super-window-second-responsiveness .super-item, .super-window-second-responsiveness .super-checkbox .super-item, .super-window-second-responsiveness .super-radio .super-item, .super-window-second-responsiveness .super-fileupload-button span {
-    font-size: 16px;
-  }
-}
 .super-first-responsiveness .super-field.super-grouped {
   width: 50%;
 }
 
-.super-first-rsponsiveness .super-item,
+.super-first-responsiveness .super-item,
 .super-second-responsiveness .super-item {
   line-height: 20px;
   padding: 5px 0px 5px 15px;
 }
 
-.super-first-rsponsiveness.super-field-size-large .super-item,
+.super-first-responsiveness.super-field-size-large .super-item,
 .super-second-responsiveness.super-field-size-large .super-item {
   line-height: 20px;
   padding: 5px 0px 5px 15px;

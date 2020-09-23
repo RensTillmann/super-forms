@@ -1,6 +1,47 @@
 <?php
 $s = '.super-form-'.$form_id.' ';
+$rs1 = '.super-form-'.$form_id.'.super-window-first-responsiveness ';
+$rs2 = '.super-form-'.$form_id.'.super-window-second-responsiveness ';
+$rs3 = '.super-form-'.$form_id.'.super-window-third-responsiveness ';
 $v = $settings;
+
+// Google fonts
+if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
+$import_fonts = '';
+if($v['font_google_fonts']!=''){
+    $google_fonts = explode( "\n", $v['font_google_fonts'] );  
+    foreach( $google_fonts as $font ) {
+        $import_fonts .= "@import url('".$font."');\n";
+    }
+}
+// Font family
+if( empty( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
+// Globals
+if( empty( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
+if( empty( $v['font_global_weight'] ) ) { $v['font_global_weight'] = 'normal'; }else{ $v['font_global_weight']; }
+if( empty( $v['font_global_lineheight'] ) ) { $v['font_global_lineheight'] = 'normal'; }else{ $v['font_global_lineheight'] .= 'px'; }
+// Labels
+if( empty( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
+if( empty( $v['font_label_weight'] ) ) { $v['font_label_weight'] = 'normal'; }else{ $v['font_label_weight']; }
+if( empty( $v['font_label_lineheight'] ) ) { $v['font_label_lineheight'] = 'normal'; }else{ $v['font_label_lineheight'] .= 'px'; }
+// Descriptions
+if( empty( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
+if( empty( $v['font_description_weight'] ) ) { $v['font_description_weight'] = 'normal'; }else{ $v['font_description_weight']; }
+if( empty( $v['font_description_lineheight'] ) ) { $v['font_description_lineheight'] = 'normal'; }else{ $v['font_description_lineheight'] .= 'px'; }
+// Globals (mobile)
+if( empty( $v['font_global_size_mobile'] ) ) $v['font_global_size_mobile'] = 16;
+if( empty( $v['font_global_weight_mobile'] ) ) { $v['font_global_weight_mobile'] = 'normal'; }else{ $v['font_global_weight_mobile']; }
+if( empty( $v['font_global_lineheight_mobile'] ) ) { $v['font_global_lineheight_mobile'] = 'normal'; }else{ $v['font_global_lineheight_mobile'] .= 'px'; }
+// Labels (mobile)
+if( empty( $v['font_label_size_mobile'] ) ) $v['font_label_size_mobile'] = 20;
+if( empty( $v['font_label_weight_mobile'] ) ) { $v['font_label_weight_mobile'] = 'normal'; }else{ $v['font_label_weight_mobile']; }
+if( empty( $v['font_label_lineheight_mobile'] ) ) { $v['font_label_lineheight_mobile'] = 'normal'; }else{ $v['font_label_lineheight_mobile'] .= 'px'; }
+// Descriptions (mobile)
+if( empty( $v['font_description_size_mobile'] ) ) $v['font_description_size_mobile'] = 16;
+if( empty( $v['font_description_weight_mobile'] ) ) { $v['font_description_weight_mobile'] = 'normal'; }else{ $v['font_description_weight_mobile']; }
+if( empty( $v['font_description_lineheight_mobile'] ) ) { $v['font_description_lineheight_mobile'] = 'normal'; }else{ $v['font_description_lineheight_mobile'] .= 'px'; }
+
+if( !isset( $v['theme_ui_toggle_disabled_font'] ) ) $v['theme_ui_toggle_disabled_font'] = '#9c9c9c';
 
 if( !isset( $v['theme_field_colors_placeholder'] ) ) {
     $v['theme_field_colors_placeholder'] = '';
@@ -23,21 +64,6 @@ if( !isset( $v['theme_ui_keywords_font'] ) ) $v['theme_ui_keywords_font'] = '#ff
 if( !isset( $v['theme_ui_keywords_icon'] ) ) $v['theme_ui_keywords_icon'] = '#2e8a90';
 if( !isset( $v['theme_ui_keywords_icon_hover'] ) ) $v['theme_ui_keywords_icon_hover'] = '#246569';
 
-// @since 2.9.0
-if( !isset( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
-if( !isset( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
-if( !isset( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
-if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
-if( !isset( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
-
-$import_fonts = '';
-if($v['font_google_fonts']!=''){
-    $google_fonts = explode( "\n", $v['font_google_fonts'] );  
-    foreach( $google_fonts as $font ) {
-        $import_fonts .= "@import url('".$font."');\n";
-    }
-}
-
 // @since 3.0.0 - loading icon font color
 if( !isset( $v['theme_ui_loading_icon_font'] ) ) $v['theme_ui_loading_icon_font'] = '#c5c5c5';
 
@@ -57,11 +83,11 @@ if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true'
 }\n";
 }else{
     if( (isset($v['theme_multipart_steps_hide_mobile'])) && ($v['theme_multipart_steps_hide_mobile']=='true') ) {
-        $extra_styles .= ".super-form-".$form_id.".super-window-first-responsiveness .super-multipart-steps,
-.super-form-".$form_id.".super-window-second-responsiveness .super-multipart-steps,
-.super-form-".$form_id.".super-window-third-responsiveness .super-multipart-steps {
+        $extra_styles .= $rs1.".super-multipart-steps,
+".$rs2.".super-multipart-steps,
+".$rs3.".super-multipart-steps {
     display:none;
-}\n";  
+}\n";
     }
 }
 
@@ -88,7 +114,6 @@ if( !isset( $v['theme_icon_border'] ) ) $v['theme_icon_border'] = '#cdcdcd';
 if( !isset( $v['theme_icon_color_focus'] ) ) $v['theme_icon_color_focus'] = '#4EB1B6';
 if( !isset( $v['theme_icon_bg_focus'] ) ) $v['theme_icon_bg_focus'] = '#ffffff';
 if( !isset( $v['theme_icon_border_focus'] ) ) $v['theme_icon_border_focus'] = '#cdcdcd';
-
 
 // @since 4.9.3 - Adaptive Placeholders */
 if( empty( $v['theme_field_colors_placeholder'] ) ) $v['theme_field_colors_placeholder'] = '#9a9a9a';
@@ -122,11 +147,165 @@ $placeholder_bg_filled = "
 
 return $import_fonts."
 
+/* Font styles */
+".$s.".super-button .super-button-name,
+".$s.".super-entered-keywords > span,
+".$s.".super-no-results,
+".$s.".super-html-subtitle,
+".$s.".super-html-content,
+".$s.".super-slider .super-field-wrapper span.amount,
+".$s.".super-fileupload-button,
+".$s.".super-msg,
+".$s.".super-radio.display-horizontal .super-field-wrapper label,
+".$s.".super-checkbox.display-horizontal .super-field-wrapper label,
+".$s.".super-radio.display-vertical .super-field-wrapper label,
+".$s.".super-checkbox.display-vertical .super-field-wrapper label,
+".$s.".super-error-msg,
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
+".$s.".super-field .super-field-wrapper .super-keyword-filter,
+".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
+".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
+".$s.".super-fileupload-files > div .super-fileupload-name,
+".$s.".super-fileupload-files > div .super-fileupload-delete,
+".$s.".super-toggle-prefix-label,
+".$s.".super-toggle-suffix-label,
+".$s.".super-toggle-switch,
+".$s.".super-field .super-field-wrapper .super-shortcode-field,
+.super-datepicker-dialog,
+.super-datepicker-dialog *,
+.super-datepicker-dialog .ui-datepicker-month,
+.super-datepicker-dialog .ui-datepicker-year,
+.ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog,
+".$s.".super-dropdown-ui .super-item.super-placeholder,
+".$s.".super-adaptive-placeholder:before {
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+    font-weight: ".$v['font_global_weight'].";
+    line-height: ".$v['font_global_lineheight'].";
+}
+/* Labels */
+".$s.".super-field .super-label,
+".$s.".super-field .super-group-title {
+    font-size: ".$v['font_label_size']."px;
+    font-weight: ".$v['font_label_weight'].";
+    line-height: ".$v['font_label_lineheight'].";
+}
+/* Descriptions */
+".$s.".super-field .super-description {
+    font-size: ".$v['font_description_size']."px;
+    font-weight: ".$v['font_description_weight'].";
+    line-height: ".$v['font_description_lineheight'].";
+}
+/* Placeholders */
+".$s."::-webkit-input-placeholder { /* WebKit browsers */
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+    font-weight: ".$v['font_global_weight'].";
+    line-height: ".$v['font_global_lineheight'].";
+}
+".$s.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+    font-weight: ".$v['font_global_weight'].";
+    line-height: ".$v['font_global_lineheight'].";
+}
+".$s."::-moz-placeholder { /* Mozilla Firefox 19+ */
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+    font-weight: ".$v['font_global_weight'].";
+    line-height: ".$v['font_global_lineheight'].";
+}
+".$s.":-ms-input-placeholder { /* Internet Explorer 10+ */
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+    font-weight: ".$v['font_global_weight'].";
+    line-height: ".$v['font_global_lineheight'].";
+}
+
+/* Mobile font styles */
+".$rs1.".super-button .super-button-name,
+".$rs1.".super-entered-keywords > span,
+".$rs1.".super-no-results,
+".$rs1.".super-html-subtitle,
+".$rs1.".super-html-content,
+".$rs1.".super-slider .super-field-wrapper span.amount,
+".$rs1.".super-fileupload-button,
+".$rs1.".super-msg,
+".$rs1.".super-radio.display-horizontal .super-field-wrapper label,
+".$rs1.".super-checkbox.display-horizontal .super-field-wrapper label,
+".$rs1.".super-radio.display-vertical .super-field-wrapper label,
+".$rs1.".super-checkbox.display-vertical .super-field-wrapper label,
+".$rs1.".super-error-msg,
+".$rs1.".super-field .super-field-wrapper .super-shortcode-field,
+".$rs1.".super-field .super-field-wrapper .super-keyword-filter,
+".$rs1.".super-field .super-field-wrapper .super-autosuggest-tags,
+".$rs1.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
+".$rs1.".super-fileupload-files > div .super-fileupload-name,
+".$rs1.".super-fileupload-files > div .super-fileupload-delete,
+".$rs1.".super-toggle-prefix-label,
+".$rs1.".super-toggle-suffix-label,
+".$rs1.".super-toggle-switch,
+".$rs1.".super-field .super-field-wrapper .super-shortcode-field,
+".$rs1.".super-datepicker-dialog,
+".$rs1.".super-datepicker-dialog *,
+".$rs1.".super-datepicker-dialog .ui-datepicker-month,
+".$rs1.".super-datepicker-dialog .ui-datepicker-year,
+".$rs1.".ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog,
+".$rs1.".super-dropdown-ui .super-item.super-placeholder,
+".$rs1.".super-adaptive-placeholder:before {
+    font-size: ".$v['font_global_size_mobile']."px;
+    font-weight: ".$v['font_global_weight_mobile'].";
+    line-height: ".$v['font_global_lineheight_mobile'].";
+}
+
+/* Labels */
+".$rs1.".super-field .super-label,
+".$rs1.".super-field .super-group-title {
+    font-size: ".$v['font_label_size_mobile']."px;
+    font-weight: ".$v['font_label_weight_mobile'].";
+    line-height: ".$v['font_label_lineheight_mobile'].";
+}
+/* Descriptions */
+".$rs1.".super-field .super-description {
+    font-size: ".$v['font_description_size_mobile']."px;
+    font-weight: ".$v['font_description_weight_mobile'].";
+    line-height: ".$v['font_description_lineheight_mobile'].";
+}
+/* Placeholders */
+".$rs1."::-webkit-input-placeholder { /* WebKit browsers */
+    font-size: ".$v['font_global_size_mobile']."px;
+    font-weight: ".$v['font_global_weight_mobile'].";
+    line-height: ".$v['font_global_lineheight_mobile'].";
+}
+".$rs1.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    font-size: ".$v['font_global_size_mobile']."px;
+    font-weight: ".$v['font_global_weight_mobile'].";
+    line-height: ".$v['font_global_lineheight_mobile'].";
+}
+".$rs1."::-moz-placeholder { /* Mozilla Firefox 19+ */
+    font-size: ".$v['font_global_size_mobile']."px;
+    font-weight: ".$v['font_global_weight_mobile'].";
+    line-height: ".$v['font_global_lineheight_mobile'].";
+}
+".$rs1.":-ms-input-placeholder { /* Internet Explorer 10+ */
+    font-size: ".$v['font_global_size_mobile']."px;
+    font-weight: ".$v['font_global_weight_mobile'].";
+    line-height: ".$v['font_global_lineheight_mobile'].";
+}
+
+/* Slider amount positioning based on font size */
+".$s.".super-slider .super-field-wrapper span.amount {
+    top: -".ceil($v['font_global_size']/2)."px;
+}
+".$rs1.".super-slider .super-field-wrapper span.amount {
+    top: -".ceil($v['font_global_size_mobile']/2)."px;
+}
+
+/* Colors */
+
 /* Dropdown placeholder */
 ".$s.".super-dropdown-ui .super-item.super-placeholder {
     color:".$v['theme_field_colors_placeholder'].";
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-focus .super-dropdown-ui .super-item.super-placeholder {
     color:".$v['adaptive_placeholder_focus'].";
@@ -139,8 +318,6 @@ return $import_fonts."
 /* Initial Color */
 ".$s.".super-adaptive-placeholder:before {
   color:".$v['theme_field_colors_placeholder'].";
-  font-size: ".$v['font_global_size']."px;
-  font-family: ".$v['font_global_family'].";
 }
 /* Focused Colors */
 ".$s.".super-focus .super-adaptive-placeholder:before,
@@ -165,25 +342,17 @@ return $import_fonts."
 
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['theme_field_colors_placeholder'].";
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     color:".$v['theme_field_colors_placeholder'].";
     opacity:1;
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
 }
 ".$s."::-moz-placeholder { /* Mozilla Firefox 19+ */
     color:".$v['theme_field_colors_placeholder'].";
     opacity:1;
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
 }
 ".$s.":-ms-input-placeholder { /* Internet Explorer 10+ */
     color:".$v['theme_field_colors_placeholder'].";
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
 }
 ".$s.".super-focus ::-webkit-input-placeholder { /* WebKit browsers */
     color:".$v['adaptive_placeholder_focus'].";
@@ -199,9 +368,6 @@ return $import_fonts."
 ".$s.".super-focus :-ms-input-placeholder { /* Internet Explorer 10+ */
    color:".$v['adaptive_placeholder_focus'].";
 }
-
-
-
 
 ".$s.".super-field .super-label,
 ".$s.".super-field .super-group-title,
@@ -428,55 +594,8 @@ return $import_fonts."
 .super-entered-keywords > span:hover:after {
     color: ".$v['theme_ui_keywords_icon_hover'].";
 }
-
-
-/* @since 2.9.0 - font sizes adjustments */
-".$s.".super-no-results,
-".$s.".super-html-subtitle,
-".$s.".super-html-content,
-".$s.".super-slider .super-field-wrapper span.amount,
-".$s.".super-fileupload-button,
-".$s.".super-msg,
-".$s.".super-radio.display-horizontal .super-field-wrapper label,
-".$s.".super-checkbox.display-horizontal .super-field-wrapper label,
-".$s.".super-radio.display-vertical .super-field-wrapper label,
-".$s.".super-checkbox.display-vertical .super-field-wrapper label,
-".$s.".super-error-msg,
-".$s.".super-field .super-field-wrapper .super-shortcode-field,
-".$s.".super-field .super-field-wrapper .super-keyword-filter,
-".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
-".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
-".$s.".super-fileupload-files > div .super-fileupload-name,
-".$s.".super-fileupload-files > div .super-fileupload-delete,
-".$s.".super-toggle-prefix-label,
-".$s.".super-toggle-suffix-label,
-".$s.".super-toggle-switch,
-".$s.".super-field .super-field-wrapper .super-shortcode-field,
-.ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog {
-    font-size: ".$v['font_global_size']."px;
-    font-family: ".$v['font_global_family'].";
-}
-.super-datepicker-dialog,
-.super-datepicker-dialog *,
-.super-datepicker-dialog .ui-datepicker-month,
-.super-datepicker-dialog .ui-datepicker-year {
-    font-family: ".$v['font_global_family'].";
-}
 ".$s.".super-button .super-button-name {
     color: ".$v['theme_button_font'].";
-    font-family: ".$v['font_global_family'].";
-}
-".$s.".super-entered-keywords > span {
-    font-family: ".$v['font_global_family'].";
-}
-".$s.".super-field .super-label,
-".$s.".super-field .super-group-title {
-    font-size: ".$v['font_label_size']."px;
-    line-height: ".$v['font_label_size']."px;
-}
-".$s.".super-field .super-description {
-    font-size: ".$v['font_description_size']."px;
-    line-height: ".$v['font_description_size']."px;
 }
 .super-visible {
     visibility:visible;

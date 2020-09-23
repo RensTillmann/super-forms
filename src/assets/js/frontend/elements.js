@@ -1612,7 +1612,7 @@
                     $('.super-timepicker').timepicker('hide');
                 }
             }else{
-                if(!$(this).hasClass('super-focus')){
+                if( (!$(this).hasClass('super-focus')) && (!$(this).hasClass('super-datepicker')) ){
                     if($(this).closest('.super-form').hasClass('super-window-first-responsiveness') || $(this).closest('.super-form').hasClass('super-window-second-responsiveness') ){
                         $('html, body').animate({
                             scrollTop: $(this).offset().top-20
@@ -1962,6 +1962,7 @@
             var i, nodes,
                 el = this,
                 form = el.closest('.super-form'),
+                form_id = form.querySelector('input[name="hidden_form_id"]').value,
                 currentActive = form.querySelector('.super-multipart.super-active'),          
                 currentActiveTab = form.querySelector('.super-multipart-step.super-active'),
                 activeChildren = Array.prototype.slice.call( currentActiveTab.parentNode.children ),
@@ -1983,6 +1984,8 @@
                     if(result!==true) return false;
                 }
             }
+            window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
+
             progress = 100 / total;
             progress = progress * (index+1);
             multipart = form.querySelectorAll('.super-multipart')[index];
@@ -2073,6 +2076,7 @@
                 index,
                 el = this,
                 form = el.closest('.super-form'),
+                form_id = form.querySelector('input[name="hidden_form_id"]').value,
                 total = form.querySelectorAll('.super-multipart').length,
                 current = form.querySelector('.super-multipart-step.super-active'),
                 children = Array.prototype.slice.call( current.parentNode.children ),
@@ -2118,6 +2122,7 @@
                     index = current_step+1;
                 }
             }
+            window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
             skip = super_skip_multipart(el, form);

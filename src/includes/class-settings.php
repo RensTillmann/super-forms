@@ -2382,16 +2382,39 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
 
-        
+        /** 
+         *  Font families
+         *
+         *  @since      2.9.0
+        */
+        $array['font_family'] = array(
+            'name' => esc_html__( 'Font family', 'super-forms' ),
+            'label' => esc_html__( 'Font family', 'super-forms' ),
+            'fields' => array(
+                'font_google_fonts' => array(
+                    'name' => esc_html__( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
+                    'label' => sprintf( esc_html__( 'Click %shere%s to search for google fonts%sCopy past the URL e.g:%shttps://fonts.googleapis.com/css?family=Raleway', 'super-forms' ), '<a target="_blank" href="https://fonts.google.com/">', '</a>', '<br />', '<br />' ),
+                    'default' => self::get_value( $default, 'font_google_fonts', $settings, '' ),
+                    'type' => 'textarea',
+                ),
+                'font_global_family' => array(
+                    'name' => esc_html__( 'Global font family', 'super-forms' ),
+                    'label' => esc_html__( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
+                ),
+            )
+        );
+
         /** 
          *  Font styles
          *
          *  @since      2.9.0
         */
-        $array['font_styles'] = array(        
+        $array['font_styles'] = array(
             'name' => esc_html__( 'Font styles', 'super-forms' ),
             'label' => esc_html__( 'Font styles', 'super-forms' ),
             'fields' => array(
+                // Globals
                 'font_global_size' => array(
                     'name' => esc_html__( 'Global font size', 'super-forms' ),
                     'label' => esc_html__( '(12 = default)', 'super-forms' ),
@@ -2401,6 +2424,25 @@ class SUPER_Settings {
                     'max'=>50,
                     'steps'=>1,
                 ),
+                'font_global_lineheight' => array(
+                    'name' => esc_html__( 'Global line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_lineheight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_global_weight' => array(
+                    'name' => esc_html__( 'Global font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_weight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
+                ),
+                // Labels
                 'font_label_size' => array(
                     'name' => esc_html__( 'Field label font size', 'super-forms' ),
                     'label' => esc_html__( '(16 = default)', 'super-forms' ),
@@ -2410,6 +2452,25 @@ class SUPER_Settings {
                     'max'=>50,
                     'steps'=>1,
                 ),
+                'font_label_lineheight' => array(
+                    'name' => esc_html__( 'Field label line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_lineheight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_label_weight' => array(
+                    'name' => esc_html__( 'Field label font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_weight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
+                ),
+                // Descriptions
                 'font_description_size' => array(
                     'name' => esc_html__( 'Field description font size', 'super-forms' ),
                     'label' => esc_html__( '(14 = default)', 'super-forms' ),
@@ -2419,18 +2480,118 @@ class SUPER_Settings {
                     'max'=>50,
                     'steps'=>1,
                 ),
-                'font_google_fonts' => array(
-                    'name' => esc_html__( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'Click %shere%s to search for google fonts%sCopy past the URL e.g:%shttps://fonts.googleapis.com/css?family=Raleway', 'super-forms' ), '<a target="_blank" href="https://fonts.google.com/">', '</a>', '<br />', '<br />' ),
-                    'default' => self::get_value( $default, 'font_google_fonts', $settings, '' ),
-                    'type' => 'textarea',
-                    
+                'font_description_lineheight' => array(
+                    'name' => esc_html__( 'Field description line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_lineheight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
                 ),
-                'font_global_family' => array(
-                    'name' => esc_html__( 'Global font family', 'super-forms' ),
-                    'label' => esc_html__( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
-                    
+                'font_description_weight' => array(
+                    'name' => esc_html__( 'Field description font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_weight', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
+                ),
+            )
+        );
+        /** 
+         *  Font styles mobile/responsiveness
+         *
+         *  @since      4.9.52
+        */
+        $array['font_styles_mobile'] = array(
+            'name' => esc_html__( 'Font styles (mobile/responsive)', 'super-forms' ),
+            'label' => esc_html__( 'Font styles (mobile/responsive)', 'super-forms' ),
+            'fields' => array(
+                // Globals
+                'font_global_size_mobile' => array(
+                    'name' => esc_html__( 'Global font size', 'super-forms' ),
+                    'label' => esc_html__( '(16 = default)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_size_mobile', $settings, 16 ),
+                    'type'=>'slider',
+                    'min'=>8,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_global_lineheight_mobile' => array(
+                    'name' => esc_html__( 'Global line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_lineheight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_global_weight_mobile' => array(
+                    'name' => esc_html__( 'Global font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_weight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
+                ),
+                // Labels
+                'font_label_size_mobile' => array(
+                    'name' => esc_html__( 'Field label font size', 'super-forms' ),
+                    'label' => esc_html__( '(20 = default)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_size_mobile', $settings, 20 ),
+                    'type'=>'slider',
+                    'min'=>8,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_label_lineheight_mobile' => array(
+                    'name' => esc_html__( 'Field label line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_lineheight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_label_weight_mobile' => array(
+                    'name' => esc_html__( 'Field label font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_weight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
+                ),
+                // Descriptions
+                'font_description_size_mobile' => array(
+                    'name' => esc_html__( 'Field description font size', 'super-forms' ),
+                    'label' => esc_html__( '(16 = default)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_size_mobile', $settings, 16 ),
+                    'type'=>'slider',
+                    'min'=>8,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_description_lineheight_mobile' => array(
+                    'name' => esc_html__( 'Field description line height', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_lineheight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>50,
+                    'steps'=>1,
+                ),
+                'font_description_weight_mobile' => array(
+                    'name' => esc_html__( 'Field description font weight', 'super-forms' ),
+                    'label' => esc_html__( '(set to 0 to use normal font weight)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_weight_mobile', $settings, 0 ),
+                    'type'=>'slider',
+                    'min'=>0,
+                    'max'=>900,
+                    'steps'=>100,
                 ),
             )
         );
