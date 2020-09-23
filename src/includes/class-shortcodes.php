@@ -4147,38 +4147,44 @@ class SUPER_Shortcodes {
         if( !empty($atts['title']) ) {
             $result .= '<div class="super-heading-title">';
             $styles = '';
-            if($atts['heading_size']!=0) {
-                $styles .= 'font-size:'.$atts['heading_size'].'px;';
+            if(!empty($atts['heading_size']) && $atts['heading_size']!=='-1') $styles .= 'font-size:'.$atts['heading_size'].'px;'; 
+            if(!empty($atts['heading_color'])) $styles .= 'color:'.$atts['heading_color'].';'; 
+            if(!empty($atts['heading_weight']) && $atts['heading_weight']!=='none') $styles .= 'font-weight:'.$atts['heading_weight'].';'; 
+            if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') $styles .= 'text-align:'.$atts['heading_align'].';'; 
+            if(!empty($atts['heading_margin'])) $styles .= 'margin:'.$atts['heading_margin'].';'; 
+            if(!empty($atts['heading_line_height'])){
+                if($atts['heading_line_height']!=='-1'){
+                    if($atts['heading_line_height']==='0'){
+                        $styles .= 'line-height:normal;';
+                    }else{
+                        $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
+                    }
+                }
             }
-            $styles .= 'color:'.$atts['heading_color'].';';
-            $styles .= 'font-weight:'.$atts['heading_weight'].';';
-            $styles .= 'text-align:'.$atts['heading_align'].';';
-            $styles .= 'margin:'.$atts['heading_margin'].';';
-            if($atts['heading_line_height']==0) {
-                $styles .= 'line-height:normal;';
-            }else{
-                $styles .= 'line-height:'.$atts['heading_line_height'].'px;';
-            }
-            $result .= '<'.$atts['size'] . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . ' style="'.$styles.'">';
+            if(!empty($styles)) $styles = ' style="'.$styles.'"';
+            $result .= '<'.$atts['size'] . ($atts['class']!='' ? ' class="' . $atts['class'] . '"' : '') . $styles . '>';
             $result .= stripslashes($atts['title']);
             $result .= '</'.$atts['size'].'>';
             $result .= '</div>';
         }
         if( !empty($atts['desc']) ) {
             $styles = '';
-            if($atts['desc_size']!=0) {
-                $styles .= 'font-size:'.$atts['desc_size'].'px;';
+            if(!empty($atts['desc_size']) && $atts['desc_size']!=='0') $styles .= 'font-size:'.$atts['desc_size'].'px;'; 
+            if(!empty($atts['desc_color'])) $styles .= 'color:'.$atts['desc_color'].';'; 
+            if(!empty($atts['desc_weight']) && $atts['desc_weight']!=='none') $styles .= 'font-weight:'.$atts['desc_weight'].';'; 
+            if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') $styles .= 'text-align:'.$atts['desc_align'].';'; 
+            if(!empty($atts['desc_margin'])) $styles .= 'margin:'.$atts['desc_margin'].';'; 
+            if(!empty($atts['desc_line_height'])){
+                if($atts['desc_line_height']!=='-1'){
+                    if($atts['desc_line_height']==='0'){
+                        $styles .= 'line-height:normal;';
+                    }else{
+                        $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
+                    }
+                }
             }
-            $styles .= 'color:'.$atts['desc_color'].';';
-            $styles .= 'font-weight:'.$atts['desc_weight'].';';
-            $styles .= 'text-align:'.$atts['desc_align'].';';
-            $styles .= 'margin:'.$atts['desc_margin'].';';
-            if($atts['desc_line_height']==0) {
-                $styles .= 'line-height:normal;';
-            }else{
-                $styles .= 'line-height:'.$atts['desc_line_height'].'px;';
-            }
-            $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" style="'.$styles.'">';
+            if(!empty($styles)) $styles = ' style="'.$styles.'"';
+            $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles . '>';
             $result .= stripslashes($atts['desc']);
             $result .= '</div>';
         }

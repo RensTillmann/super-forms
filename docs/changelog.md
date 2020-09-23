@@ -4,6 +4,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Sep 22, 2020 - Version 4.9.520
+
+- **Added:** When going to next multi-part super forms will remember the last step the user was on so when the user refreshes the page the last step will be opened.
+- **Added:** Option to link to a specific Multi-part via URL anchor e.g: `domain.com/order-form#step-12345-3` where `step` is the identifier, `12345` the form ID and `3` the step (multi-part) that needs to be openend/shown upon page load.
+- **Added:** Options for `Heading` element to use the WordPress theme styles by setting options to `none` or `-1`, for instance for Font weight, Line height etc.
+- **Added:** Options to control font styles (size, line height, font weight) globally (all elements) and for field labels/descriptions specifically, plus with the option to define the font styles on mobile devices (first/second responsiveness based on window/screen width).
+- **Fix:** Field placeholder font size not correctly set based on font settings.
+
 ## Sep 03, 2020 - Version 4.9.514
 
 - **Fix:** JavaScript error when using conditional validation e.g: `Allow field to be empty > Yes, but not when the following conditions are met`
