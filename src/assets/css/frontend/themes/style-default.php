@@ -164,7 +164,6 @@ return $import_fonts."
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-keyword-filter,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
-".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-fileupload-files > div .super-fileupload-name,
 ".$s.".super-fileupload-files > div .super-fileupload-delete,
 ".$s.".super-toggle-prefix-label,
@@ -183,6 +182,11 @@ return $import_fonts."
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
 }
+".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item {
+    font-family: ".$v['font_global_family'].";
+    font-size: ".$v['font_global_size']."px;
+}
+
 /* Labels */
 ".$s.".super-field .super-label,
 ".$s.".super-field .super-group-title {
@@ -239,7 +243,6 @@ return $import_fonts."
 ".$rs1.".super-field .super-field-wrapper .super-shortcode-field,
 ".$rs1.".super-field .super-field-wrapper .super-keyword-filter,
 ".$rs1.".super-field .super-field-wrapper .super-autosuggest-tags,
-".$rs1.".super-field .super-field-wrapper .super-dropdown-ui .super-item,
 ".$rs1.".super-fileupload-files > div .super-fileupload-name,
 ".$rs1.".super-fileupload-files > div .super-fileupload-delete,
 ".$rs1.".super-toggle-prefix-label,
@@ -256,6 +259,9 @@ return $import_fonts."
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+}
+".$rs1.".super-field .super-field-wrapper .super-dropdown-ui .super-item {
+    font-size: ".$v['font_global_size_mobile']."px;
 }
 
 /* Labels */
