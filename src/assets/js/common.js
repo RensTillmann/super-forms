@@ -5823,7 +5823,7 @@ function SUPERreCaptcha(){
             var field = this;
             if(field.value!==''){
                 field.classList.add('super-dom-populated');
-                SUPER.populate_form_data_ajax(field);
+                SUPER.populate_form_data_ajax({el: field});
             }
         });
 
@@ -6833,7 +6833,7 @@ function SUPERreCaptcha(){
             var field = this;
             if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
-                SUPER.populate_form_data_ajax(field);
+                SUPER.populate_form_data_ajax({el: field});
             }, 1000);
         });
 
