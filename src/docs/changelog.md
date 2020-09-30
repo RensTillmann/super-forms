@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Sep 30, 2020 - Version 4.9.521
+
+- **Fix:** When using a field to search previous contact entry a JavaScript error is thrown causing the form to not load.
+
 ## Sep 22, 2020 - Version 4.9.520
 
 - **Added:** When going to next multi-part super forms will remember the last step the user was on so when the user refreshes the page the last step will be opened.

@@ -1651,7 +1651,7 @@
             wrapper.parentNode.classList.add('super-filled');
             SUPER.after_field_change_blur_hook({el: wrapper.querySelector('.super-shortcode-field')});
             if(populate=='true'){
-                SUPER.populate_form_data_ajax(field);
+                SUPER.populate_form_data_ajax({el: field});
             }
         });
         // On removing item
