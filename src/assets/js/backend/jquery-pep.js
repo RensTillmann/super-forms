@@ -805,15 +805,15 @@
   //    when we constrain to parent/window
   Pep.prototype.handleConstraint = function(dx, dy, accountForTranslation) {
     var pos               = this.$el.position();
-    this.pos.x            = pos.left;
-    this.pos.y            = pos.top;
+    this.pos.left            = pos.left;
+    this.pos.top            = pos.top;
 
     var hash              = { x: false, y: false };
 
     var upperYLimit, upperXLimit, lowerXLimit, lowerYLimit;
 
     // log our positions
-    this.log({ type: "pos-coords", x: this.pos.x, y: this.pos.y});
+    this.log({ type: "pos-coords", x: this.pos.left, y: this.pos.top});
 
     if ( $.isArray( this.options.constrainTo ) ) {
 
@@ -827,8 +827,8 @@
       }
 
       // is our object trying to move outside lower X & Y limits?
-      if ( this.pos.x + dx < lowerXLimit)     hash.x = lowerXLimit;
-      if ( this.pos.y + dy < lowerYLimit)     hash.y = lowerYLimit;
+      if ( this.pos.left + dx < lowerXLimit)     hash.x = lowerXLimit;
+      if ( this.pos.top + dy < lowerYLimit)     hash.y = lowerYLimit;
 
     } else if ( typeof this.options.constrainTo === 'string' ) {
       lowerXLimit       = 0;
@@ -837,13 +837,13 @@
       upperYLimit       = this.$container.height() - this.$el.outerHeight();
 
       // is our object trying to move outside lower X & Y limits?
-      if ( this.pos.x + dx < 0 )              hash.x = 0;
-      if ( this.pos.y + dy < 0 )              hash.y = 0;
+      if ( this.pos.left + dx < 0 )              hash.x = 0;
+      if ( this.pos.top + dy < 0 )              hash.y = 0;
     }
 
     // is our object trying to move outside upper X & Y limits?
-    if ( this.pos.x + dx > upperXLimit )    hash.x = upperXLimit;
-    if ( this.pos.y + dy > upperYLimit )    hash.y = upperYLimit;
+    if ( this.pos.left + dx > upperXLimit )    hash.x = upperXLimit;
+    if ( this.pos.top + dy > upperYLimit )    hash.y = upperYLimit;
 
     // Account for translation, which makes movement a little tricky.
     if ( this.shouldUseCSSTranslation() && accountForTranslation ){

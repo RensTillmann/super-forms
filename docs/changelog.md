@@ -4,9 +4,17 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Sep 30, 2020 - Version 4.9.521
+## Oct 22, 2020 - Version 4.9.530
 
+- **New:** PDF Generator will now generate text to make PDF searchable
+- **Improved:** Use the build in WordPress PHP Mailer library instead of included one, and removed the library from plugin source code
+- **Fix:** Form not loading when using multiple forms on a single page
+- **Fix:** Internet Explorer javascript error (added polyfil for promises)
+- **Fix:** FireFox issue with adaptive placeholders causing to overlapping placeholder with text from the browsers remembered values (fields history)
+- **Fix:** Some PHP Notices/Warnings
+- **Fix:** {tags} for PDF filename not working
 - **Fix:** When using a field to search previous contact entry a JavaScript error is thrown causing the form to not load.
+- **Changed:** Default font family is now set to `"Helvetica", "Arial", sans-serif`
 
 ## Sep 22, 2020 - Version 4.9.520
 

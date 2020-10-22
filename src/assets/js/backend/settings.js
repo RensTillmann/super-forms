@@ -257,7 +257,8 @@
                 success: function (data) {
                     window.location.href = data;
                 },
-                error: function(){
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr, ajaxOptions, thrownError);
                     alert(super_settings_i18n.export_entries_error);
                 },
                 complete: function(){
@@ -300,8 +301,9 @@
                     success: function () {
                         location.reload();
                     },
-                    error: function(){
+                    error: function (xhr, ajaxOptions, thrownError) {
                         $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.restore_default_error);
+                        console.log(xhr, ajaxOptions, thrownError);
                     }
                 });
             }
@@ -351,8 +353,9 @@
                     $this.html(super_settings_i18n.save_settings);
                     $('.save .message').removeClass('error').addClass('super-success').html(super_settings_i18n.save_success);
                 },
-                error: function(){
+                error: function (xhr, ajaxOptions, thrownError) {
                     $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.save_error);
+                    console.log(xhr, ajaxOptions, thrownError);
                 }
             });
         });
@@ -419,8 +422,9 @@
                     $('.save .message').removeClass('error').addClass('super-success').html(super_settings_i18n.save_success);
                     location.reload();
                 },
-                error: function(){
+                error: function (xhr, ajaxOptions, thrownError) {
                     $('.save .message').removeClass('super-success').addClass('error').html(super_settings_i18n.save_error);
+                    console.log(xhr, ajaxOptions, thrownError);
                 },
                 complete: function(){
                     $button.removeClass('super-loading');
@@ -472,7 +476,8 @@
                         }, 10*limit);
                     }
                 },
-                error: function(){
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr, ajaxOptions, thrownError);
                     alert(super_settings_i18n.export_forms_error);
                 }
             });
@@ -536,7 +541,8 @@
                                         $('<div>'+super_settings_i18n.import_completed+'!</div>').insertAfter($button);
                                         $button.remove();
                                     },
-                                    error: function(){
+                                    error: function (xhr, ajaxOptions, thrownError) {
+                                        console.log(xhr, ajaxOptions, thrownError);
                                         alert(super_settings_i18n.import_error);
                                     },
                                     complete: function(){

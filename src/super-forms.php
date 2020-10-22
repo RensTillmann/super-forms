@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.521
+ * Version:     4.9.530
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.521';
+        public $version = '4.9.530';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -577,6 +577,7 @@ if(!class_exists('SUPER_Forms')) :
                 'adminEmail' => 'true',
                 'confirmationEmail' => 'true',
                 'excludeEntry' => '',
+                'textRendering' => 'true',
                 'downloadBtn' => 'true',
                 'downloadBtnText' => esc_html__( 'Download Summary', 'super-forms' ),
                 'generatingText' => esc_html__( 'Generating PDF file...', 'super-forms' ),
@@ -850,6 +851,15 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<label>';
                     echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
                     echo '<input type="number" min="0" name="margins.footer.left" value="' . $pdf['margins']['footer']['left'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Render text (make PDF searchable)
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'PDF Text rendering', 'super-forms' );
+                echo '</div>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="textRendering" value="true"' . ($pdf['textRendering']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
             // Render scale (quality)
@@ -1522,9 +1532,8 @@ if(!class_exists('SUPER_Forms')) :
             
             // @since 4.9.500 - PDF Generation
             if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
-                wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-                wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-                wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
+                wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
+                wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
             }
 
             // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
@@ -1566,9 +1575,8 @@ if(!class_exists('SUPER_Forms')) :
                 
                 // @since 4.9.500 - PDF Generation
                 if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
-                    wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-                    wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-                    wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
+                    wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
+                    wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
                 }
             }
 
@@ -2608,19 +2616,9 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
                     ), 
-                    'es6-promise-auto' => array(
-                        'src'     => $lib_path . 'es6-promise.auto.min.js',
-                        'deps'    => array(),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue'
-                    ), 
                     'super-html-canvas' => array(
                         'src'     => $lib_path . 'super-html-canvas.min.js',
-                        'deps'    => array( 'es6-promise-auto' ),
+                        'deps'    => array(),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(
@@ -2630,7 +2628,7 @@ if(!class_exists('SUPER_Forms')) :
                     ), 
                     'super-pdf-gen' => array(
                         'src'     => $lib_path . 'super-pdf-gen.min.js',
-                        'deps'    => array(),
+                        'deps'    => array( 'super-html-canvas' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(

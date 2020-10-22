@@ -1,5 +1,12 @@
 /* globals jQuery, SUPER, grecaptcha, super_common_i18n, ajaxurl, IBAN, tinyMCE, google, quicktags */
+
 "use strict";
+
+// polyfill remove() ie9 and above
+(function (arr) { arr.forEach(function (item) { if (item.hasOwnProperty('remove')) { return; } Object.defineProperty(item, 'remove', { configurable: true, enumerable: true, writable: true, value: function remove() { this.parentNode.removeChild(this); } }); }); })([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+// polyfill es6 promises (auto)
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):t.ES6Promise=e()}(this,function(){"use strict";function t(t){var e=typeof t;return null!==t&&("object"===e||"function"===e)}function e(t){return"function"==typeof t}function n(t){W=t}function r(t){z=t}function o(){return function(){return process.nextTick(a)}}function i(){return"undefined"!=typeof U?function(){U(a)}:c()}function s(){var t=0,e=new H(a),n=document.createTextNode("");return e.observe(n,{characterData:!0}),function(){n.data=t=++t%2}}function u(){var t=new MessageChannel;return t.port1.onmessage=a,function(){return t.port2.postMessage(0)}}function c(){var t=setTimeout;return function(){return t(a,1)}}function a(){for(var t=0;t<N;t+=2){var e=Q[t],n=Q[t+1];e(n),Q[t]=void 0,Q[t+1]=void 0}N=0}function f(){try{var t=Function("return this")().require("vertx");return U=t.runOnLoop||t.runOnContext,i()}catch(e){return c()}}function l(t,e){var n=this,r=new this.constructor(p);void 0===r[V]&&x(r);var o=n._state;if(o){var i=arguments[o-1];z(function(){return T(o,r,i,n._result)})}else j(n,r,t,e);return r}function h(t){var e=this;if(t&&"object"==typeof t&&t.constructor===e)return t;var n=new e(p);return w(n,t),n}function p(){}function v(){return new TypeError("You cannot resolve a promise with itself")}function d(){return new TypeError("A promises callback cannot return that same promise.")}function _(t,e,n,r){try{t.call(e,n,r)}catch(o){return o}}function y(t,e,n){z(function(t){var r=!1,o=_(n,e,function(n){r||(r=!0,e!==n?w(t,n):A(t,n))},function(e){r||(r=!0,S(t,e))},"Settle: "+(t._label||" unknown promise"));!r&&o&&(r=!0,S(t,o))},t)}function m(t,e){e._state===Z?A(t,e._result):e._state===$?S(t,e._result):j(e,void 0,function(e){return w(t,e)},function(e){return S(t,e)})}function b(t,n,r){n.constructor===t.constructor&&r===l&&n.constructor.resolve===h?m(t,n):void 0===r?A(t,n):e(r)?y(t,n,r):A(t,n)}function w(e,n){if(e===n)S(e,v());else if(t(n)){var r=void 0;try{r=n.then}catch(o){return void S(e,o)}b(e,n,r)}else A(e,n)}function g(t){t._onerror&&t._onerror(t._result),E(t)}function A(t,e){t._state===X&&(t._result=e,t._state=Z,0!==t._subscribers.length&&z(E,t))}function S(t,e){t._state===X&&(t._state=$,t._result=e,z(g,t))}function j(t,e,n,r){var o=t._subscribers,i=o.length;t._onerror=null,o[i]=e,o[i+Z]=n,o[i+$]=r,0===i&&t._state&&z(E,t)}function E(t){var e=t._subscribers,n=t._state;if(0!==e.length){for(var r=void 0,o=void 0,i=t._result,s=0;s<e.length;s+=3)r=e[s],o=e[s+n],r?T(n,r,o,i):o(i);t._subscribers.length=0}}function T(t,n,r,o){var i=e(r),s=void 0,u=void 0,c=!0;if(i){try{s=r(o)}catch(a){c=!1,u=a}if(n===s)return void S(n,d())}else s=o;n._state!==X||(i&&c?w(n,s):c===!1?S(n,u):t===Z?A(n,s):t===$&&S(n,s))}function M(t,e){try{e(function(e){w(t,e)},function(e){S(t,e)})}catch(n){S(t,n)}}function P(){return tt++}function x(t){t[V]=tt++,t._state=void 0,t._result=void 0,t._subscribers=[]}function C(){return new Error("Array Methods must be provided an Array")}function O(t){return new et(this,t).promise}function k(t){var e=this;return new e(L(t)?function(n,r){for(var o=t.length,i=0;i<o;i++)e.resolve(t[i]).then(n,r)}:function(t,e){return e(new TypeError("You must pass an array to race."))})}function F(t){var e=this,n=new e(p);return S(n,t),n}function Y(){throw new TypeError("You must pass a resolver function as the first argument to the promise constructor")}function q(){throw new TypeError("Failed to construct 'Promise': Please use the 'new' operator, this object constructor cannot be called as a function.")}function D(){var t=void 0;if("undefined"!=typeof global)t=global;else if("undefined"!=typeof self)t=self;else try{t=Function("return this")()}catch(e){throw new Error("polyfill failed because global object is unavailable in this environment")}var n=t.Promise;if(n){var r=null;try{r=Object.prototype.toString.call(n.resolve())}catch(e){}if("[object Promise]"===r&&!n.cast)return}t.Promise=nt}var K=void 0;K=Array.isArray?Array.isArray:function(t){return"[object Array]"===Object.prototype.toString.call(t)};var L=K,N=0,U=void 0,W=void 0,z=function(t,e){Q[N]=t,Q[N+1]=e,N+=2,2===N&&(W?W(a):R())},B="undefined"!=typeof window?window:void 0,G=B||{},H=G.MutationObserver||G.WebKitMutationObserver,I="undefined"==typeof self&&"undefined"!=typeof process&&"[object process]"==={}.toString.call(process),J="undefined"!=typeof Uint8ClampedArray&&"undefined"!=typeof importScripts&&"undefined"!=typeof MessageChannel,Q=new Array(1e3),R=void 0;R=I?o():H?s():J?u():void 0===B&&"function"==typeof require?f():c();var V=Math.random().toString(36).substring(2),X=void 0,Z=1,$=2,tt=0,et=function(){function t(t,e){this._instanceConstructor=t,this.promise=new t(p),this.promise[V]||x(this.promise),L(e)?(this.length=e.length,this._remaining=e.length,this._result=new Array(this.length),0===this.length?A(this.promise,this._result):(this.length=this.length||0,this._enumerate(e),0===this._remaining&&A(this.promise,this._result))):S(this.promise,C())}return t.prototype._enumerate=function(t){for(var e=0;this._state===X&&e<t.length;e++)this._eachEntry(t[e],e)},t.prototype._eachEntry=function(t,e){var n=this._instanceConstructor,r=n.resolve;if(r===h){var o=void 0,i=void 0,s=!1;try{o=t.then}catch(u){s=!0,i=u}if(o===l&&t._state!==X)this._settledAt(t._state,e,t._result);else if("function"!=typeof o)this._remaining--,this._result[e]=t;else if(n===nt){var c=new n(p);s?S(c,i):b(c,t,o),this._willSettleAt(c,e)}else this._willSettleAt(new n(function(e){return e(t)}),e)}else this._willSettleAt(r(t),e)},t.prototype._settledAt=function(t,e,n){var r=this.promise;r._state===X&&(this._remaining--,t===$?S(r,n):this._result[e]=n),0===this._remaining&&A(r,this._result)},t.prototype._willSettleAt=function(t,e){var n=this;j(t,void 0,function(t){return n._settledAt(Z,e,t)},function(t){return n._settledAt($,e,t)})},t}(),nt=function(){function t(e){this[V]=P(),this._result=this._state=void 0,this._subscribers=[],p!==e&&("function"!=typeof e&&Y(),this instanceof t?M(this,e):q())}return t.prototype["catch"]=function(t){return this.then(null,t)},t.prototype["finally"]=function(t){var n=this,r=n.constructor;return e(t)?n.then(function(e){return r.resolve(t()).then(function(){return e})},function(e){return r.resolve(t()).then(function(){throw e})}):n.then(t,t)},t}();return nt.prototype.then=l,nt.all=O,nt.race=k,nt.resolve=h,nt.reject=F,nt._setScheduler=n,nt._setAsap=r,nt._asap=z,nt.polyfill=D,nt.Promise=nt,nt.polyfill(),nt});
+
 // polyfill for 'closest()' to support IE9+
 // reference: https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 if (!Element.prototype.matches) {
@@ -1698,9 +1705,9 @@ function SUPERreCaptcha(){
                             var percentComplete = evt.loaded / evt.total;
                             //Do something with upload progress here
                             if(args.pdfArgs!==false){
-                                args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+                                if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
                             }else{
-                                args.progressBar.style.width = (100*percentComplete)+"%";  
+                                if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
                             }
                         }
                     }, false);
@@ -1837,12 +1844,25 @@ function SUPERreCaptcha(){
         // Must hide scrollbar
         document.documentElement.classList.add('super-hide-scrollbar');
         form.classList.add('super-generating-pdf');
+        
+        // Normalize font styles
+        var normalizeFontStylesNodesClasses = 'h1, h2, h3, h4, h5, h6, .super-label, .super-description, .super-heading-title, .super-heading-description, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-quantity .super-shortcode-field, .super-toggle-switch, .super-currency .super-shortcode-field, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content',
+        normalizeFontStylesNodesClassesExploded = normalizeFontStylesNodesClasses.split(','),
+        newNormalizeFontStylesNodesClasses = '';
+        for(i=0; i<normalizeFontStylesNodesClassesExploded.length; i++){
+            if(i>0) newNormalizeFontStylesNodesClasses += ', ';
+            newNormalizeFontStylesNodesClasses += '.super-pdf-page-container '+normalizeFontStylesNodesClassesExploded[i];
+        }
 
         // Must hide elements
         var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
         // Required to render pseudo elements (html2canvas code was altered for this)
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
+        // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
+        css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
+        // Remove any form padding
+        css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
         // Hide none essential elements/styles from the PDF output
         css += '.super-generating-pdf *,';
         css += '.super-generating-pdf *:after,';
@@ -1861,13 +1881,15 @@ function SUPERreCaptcha(){
         css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
         // Header margins
-        css += '.super-pdf-header { padding: '+args.pdfSettings.margins.header.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.left+args.pdfSettings.unit+'; }';
-        css += '.super-pdf-header .super-form, .super-pdf-header .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
+        var headerMarginBottom = parseFloat(args.pdfSettings.margins.header.bottom)+parseFloat(args.pdfSettings.margins.body.top);
+        css += '.super-pdf-header {padding: '+args.pdfSettings.margins.header.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.right+args.pdfSettings.unit+' '+headerMarginBottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.left+args.pdfSettings.unit+' }';
+        css += '.super-pdf-header .super-form, .super-pdf-header .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
         // Body margins
-        css += '.super-pdf-body { padding: '+args.pdfSettings.margins.body.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.left+args.pdfSettings.unit+'; }';
+        css += '.super-pdf-body {padding: 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.right+args.pdfSettings.unit+' 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.left+args.pdfSettings.unit+';}';
         // Footer margins
-        css += '.super-pdf-footer { padding: '+args.pdfSettings.margins.footer.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.left+args.pdfSettings.unit+'; }';
-        css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form { padding: 0!important; margin: 0!important; float: left!important; width: 100%!important; }';
+        var footerMarginTop = parseFloat(args.pdfSettings.margins.footer.top)+parseFloat(args.pdfSettings.margins.body.bottom);
+        css += '.super-pdf-footer {padding: '+footerMarginTop+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.left+args.pdfSettings.unit+'; }';
+        css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
 
         var head = document.head || document.getElementsByTagName('head')[0],
         style = document.createElement('style');
@@ -1910,6 +1932,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.left = "9999px";
         pdfPageContainer.style.top = "-9999px";
         // ------- for debugging only: ----
+        //debugger;
         //pdfPageContainer.style.zIndex = "9999999999";
         //pdfPageContainer.style.left = "0px";
         //pdfPageContainer.style.top = "0px";
@@ -1922,19 +1945,6 @@ function SUPERreCaptcha(){
         pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
         pdfPageContainer.querySelector('.super-pdf-body').appendChild(args.form0);
         pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footerClone);
-
-        // @@@ WE DO NO LONGER NEED THIS, IT IS HANDLED BY CSS @@@
-        // // Check for any specific PDF exclusions
-        // nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="exclude"]');
-        // for(i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = 'none';
-        // }
-        // // Check for any specific PDF inclusions
-        // nodes = form.querySelectorAll('.super-shortcode[data-pdfoption="include"],.super-shortcode[data-pdfoption="header"],.super-shortcode[data-pdfoption="footer"]');
-        // for(i=0; i < nodes.length; i++){
-        //     nodes[i].style.display = 'block';
-        // }
-        // @@@ WE DO NO LONGER NEED THIS, IT IS HANDLED BY CSS @@@
 
         // Put header before form
         headerClone.querySelector('form').innerHTML = '';
@@ -1962,20 +1972,6 @@ function SUPERreCaptcha(){
             footerClone.querySelector('form').appendChild(footer);
         }
 
-        // nodes = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
-        // footerClone.querySelector('form').innerHTML = '';
-        // var footer;
-        // for(i=0; i < nodes.length; i++){
-        //     // Check if is column element, if so we must grab grid instead of column itself 
-        //     if(nodes[i].classList.contains('super-column')){
-        //         footer = nodes[i].closest('.super-grid').cloneNode(true);
-        //     }else{
-        //         footer = nodes[i].cloneNode(true);
-        //     }
-        //     footer.classList.add('pdf-generated-footer');
-        //     footerClone.querySelector('form').appendChild(footer);
-        // }
-
         // Resize PDF body height based on header/footer heights
         var headerFooterHeight = 0;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
@@ -1994,6 +1990,21 @@ function SUPERreCaptcha(){
             }else{
                 nodes[i].classList.add('super-active');
             }
+        }
+
+        // Normalize all font sizes
+        // Example of allowed font sizes are: 10px, 12.5px, 15px, 17.5px, 20px etc. (increment with 2.5px)
+        // Other font sizes creates issues within the PDF
+        // We only have to loop over fields that we are going to print out
+        nodes = pdfPageContainer.querySelectorAll(normalizeFontStylesNodesClasses);
+        for( i=0; i < nodes.length; i++ ) {
+            var el = nodes[i];
+            if(el.classList.contains('super-heading-title')){
+                el = el.children[0];
+            }
+            var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+            var newFontSize = 2.5 * Math.ceil(fontSize/2.5);
+            el.style.fontSize = newFontSize+'px';
         }
 
         SUPER.init_super_responsive_form_fields({form: form, callback: function(){
@@ -2025,16 +2036,16 @@ function SUPERreCaptcha(){
                 el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
             }
             // we use the "data-adaptheight" attribute as a marker
-            // var textAreas = [].slice.call(document.querySelectorAll('textarea[data-adaptheight]'));
-            var textAreas = form.querySelectorAll('.super-textarea .super-shortcode-field');
             // iterate through all the textareas on the page
-            textAreas.forEach(function(el) {
+            var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                el = nodes[i];
                 // we need box-sizing: border-box, if the textarea has padding
                 el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
                 // we don't need any scrollbars, do we? :)
                 el.style.overflowY = 'hidden';
                 // the minimum height initiated through the "rows" attribute
-                var minHeight = el.scrollHeight;
+                minHeight = el.scrollHeight * 1.03;
                 el.addEventListener('input', function() {
                     adjustHeight(el, minHeight);
                 });
@@ -2044,13 +2055,13 @@ function SUPERreCaptcha(){
                 });
                 // we adjust height to the initial content
                 adjustHeight(el, minHeight);
-            });
+            }
 
             // Grab the total form height, this is required to know how many pages will be generated for the PDF file
             // This way we can also show the progression to the end user
             //scrollAmount = (pageHeightInPixels*2);
             args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
-            args.progressBar.style.width = 5+'%';
+            if(args.progressBar) args.progressBar.style.width = 5+'%';
             callback(args);
         }});
     };
@@ -2113,16 +2124,21 @@ function SUPERreCaptcha(){
             loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
             loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
             var generatePdf = false, pdfSettings;
-            if(typeof SUPER.form_js !== 'undefined' && typeof SUPER.form_js[form_id]._pdf !== 'undefined' && SUPER.form_js[form_id]._pdf.generate === "true"){
-                generatePdf = true;
-                pdfSettings = SUPER.form_js[form_id]._pdf;
-                loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
+            if( typeof SUPER.form_js !== 'undefined' && 
+                typeof SUPER.form_js[form_id] !== 'undefined' && 
+                typeof SUPER.form_js[form_id]._pdf !== 'undefined' && 
+                SUPER.form_js[form_id]._pdf.generate === "true" ) {
+                    generatePdf = true;
+                    pdfSettings = SUPER.form_js[form_id]._pdf;
+                    loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
             }else{
                 // In case we are in back-end preview mode
-                if(typeof SUPER.get_form_settings === 'function' && typeof SUPER.get_form_settings()._pdf !== 'undefined' && SUPER.get_form_settings()._pdf.generate === "true" ){
-                    generatePdf = true;
-                    pdfSettings = SUPER.get_form_settings()._pdf;
-                    loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
+                if( typeof SUPER.get_form_settings === 'function' && 
+                    typeof SUPER.get_form_settings()._pdf !== 'undefined' && 
+                    SUPER.get_form_settings()._pdf.generate === "true" ) {
+                        generatePdf = true;
+                        pdfSettings = SUPER.get_form_settings()._pdf;
+                        loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
                 }
             }
 
@@ -2179,6 +2195,7 @@ function SUPERreCaptcha(){
                 // A8           52 x 74                 2.0 x 2.9
                 // A9           37 x 52	                1.5 x 2.0
                 // A10          26 x 37                 1.0 x 1.5
+
 
                 var orientation = pdfSettings.orientation;
                 var format = pdfSettings.format;
@@ -2261,6 +2278,7 @@ function SUPERreCaptcha(){
                 args.pdfSettings = pdfSettings;
                 args.scrollAmount = scrollAmount;
                 args.pdf = pdf;
+                args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
 
                 // Blur/unfocus any focussed field
                 // bug in google chrome on mobile devices
@@ -2274,7 +2292,6 @@ function SUPERreCaptcha(){
                         pdf = SUPER.generate_pdf(args, function(pdf, form){
                             // Reset everything to how it was
                             SUPER.reset_pdf_generation(form);
-
                             // Attach as file to form data
                             var datauristring = pdf.output('datauristring', {
                                 filename: pdfSettings.filename
@@ -3872,6 +3889,227 @@ function SUPERreCaptcha(){
         if($field.name) return $field.name;
     };
 
+    SUPER.strip_tags = function(input,allowed){
+        allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
+        var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
+        return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) { return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ''; });
+    }
+    // PDF Draw text
+    SUPER.draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
+        args.pdf.setFontType('normal');
+        var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
+        if(el.classList.contains('super-heading-title')){
+            el = nodes[i].children[0];
+        }
+        if(el.classList.contains('super-toggle-switch')){
+            if(el.classList.contains('super-active')){
+                el = el.querySelector('.super-toggle-on');
+                value = el.querySelector('.super-toggle-on > span').innerText;
+                paddingRight = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-right'))/scale)*convertFromPixel;
+            }else{
+                el = el.querySelector('.super-toggle-off');
+                value = el.querySelector('.super-toggle-off > span').innerText;
+                paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            }
+        }else{
+            if(el.closest('.super-text, .super-textarea, .super-quantity, .super-currency')){
+                if(el.value) {
+                    value = el.value;
+                }else if(el.innerText) {
+                    value = el.innerText;
+                }
+            }else{
+                value = el.innerText;
+            }
+        }
+        if(value==='') return true; //continue;
+        pos = el.getBoundingClientRect();
+        // Before we print the text, we must check if it's visible for this specific PDF page
+        tmpPosTop = pos.top+9999;
+        // Only if not header and not footer, because these are printed on every single page
+        if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
+            var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+            //if((tmpPosTop) < 0 || tmpPosTop > (args.scrollAmount)){
+            if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
+                return true; //continue;
+            }
+        }
+        //if(args.currentPage>1){
+        //    tmpPosTop += headerBottomBodyTopMargin;
+        //}
+        var posWidth = (pos.width/scale)*convertFromPixel;
+        var posHeight = (pos.height/scale)*convertFromPixel;
+        var posLeft = ((pos.left-9999)/scale)*convertFromPixel;
+        var posTop = ((tmpPosTop)/scale)*convertFromPixel;
+        if(el.classList.contains('super-pdf-text')){
+            if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
+                args.pdf.setFontType('bold');
+            }
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        if(el.closest('.super-toggle-prefix-label') || el.closest('.super-toggle-suffix-label')){
+            posTop = ((tmpPosTop+1)/scale)*convertFromPixel;
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        if(el.closest('.super-radio') || el.closest('.super-checkbox') || el.classList.contains('super-fileupload-button-text')){
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+        var fontSizePoint = fontSize * 0.67;
+        value = args.pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth);
+        var charSpace = -(fontSize*charSpaceMultiplier)*convertFromPixel;
+        var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
+        if(el.closest('.super-adaptive-placeholder')){
+            posLeft = posLeft+(posWidth/2);
+            if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            args.pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
+            return true; //continue;
+        }
+        if(el.closest('.super-dropdown')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            args.pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-radio') || el.closest('.super-checkbox')){
+            if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            args.pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-toggle-switch')){
+            if(el.closest('.super-toggle-switch').classList.contains('super-active')){
+                if(drawRectangle) args.pdf.rect(posLeft+((posWidth-paddingRight)/2), posTop, posWidth-paddingRight, posHeight);
+                args.pdf.text(value, posLeft+((posWidth-paddingRight)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            }else{
+                if(drawRectangle) args.pdf.rect(posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop, posWidth-paddingLeft, posHeight);
+                args.pdf.text(value, posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            }
+            return true; //continue;
+        }
+        if(el.closest('.super-quantity')){
+            if(drawRectangle) args.pdf.rect(posLeft, posTop+(posHeight/2), posWidth, posHeight);
+            posLeft = posLeft+(posWidth/2);
+            args.pdf.text(value, posLeft, posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-textarea')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/scale)*convertFromPixel;
+            if(drawRectangle) args.pdf.rect(posLeft, posTop, posWidth, posHeight);
+            args.pdf.text(value, posLeft+paddingLeft, posTop+paddingTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-text') || el.closest('.super-currency')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            if(drawRectangle) args.pdf.rect(posLeft, posTop, posWidth, posHeight);
+            args.pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+        args.pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+        return true; //continue;
+    };
+
+    // PDF render text
+    SUPER.render_pdf_text = function(args){
+        // If so add a text node on the exact position
+        var i, nodes, formWidth, formHeight, pdfPageWidth, pdfPageHeight, scale,
+            lineHeight = 1.194,
+            drawRectangle = false, // true,
+            renderingMode = 'invisible', // fill,
+            headerBottomBodyTopMargin, tmpPosTop,
+            charSpace, topLineHeight, oneLineHeight, posWidth, posHeight, posLeft, posTop, pos, marginTop, paddingTop, paddingBottom, paddingRight, paddingLeft, paddingTop,
+            resume, value, el, fontSize, fontSizePoint,
+            // Loop over all elements and see if the element is included in the PDF
+            pdfPageContainer = document.querySelector('.super-pdf-page-container'),
+            //pdfHeader = pdfPageContainer.querySelector('.super-pdf-header'),
+            //pdfBody = pdfPageContainer.querySelector('.super-pdf-body'),
+            //pdfFooter = pdfPageContainer.querySelector('.super-pdf-footer'),
+            convertToPixel = 1,
+            convertFromPixel = 1,
+            charSpaceMultiplier = 0.00135,
+            ptsPerInch = 72;
+
+        // Convert unit to pixel
+        if(args.pdfSettings.unit=='pt') convertToPixel = 1.333333333333333;
+        if(args.pdfSettings.unit=='mm') convertToPixel = 3.7795275591;
+        if(args.pdfSettings.unit=='cm') convertToPixel = 37.7952755906
+        if(args.pdfSettings.unit=='in') convertToPixel = 96;
+        // Convert pixel to unit
+        if(args.pdfSettings.unit=='pt') convertFromPixel = 0.75;
+        if(args.pdfSettings.unit=='mm') convertFromPixel = 0.2645833333;
+        if(args.pdfSettings.unit=='cm') convertFromPixel = 0.0264583333;
+        if(args.pdfSettings.unit=='in') convertFromPixel = 0.0104166667;
+        // Convert pixel to unit
+        if(args.pdfSettings.unit=='pt') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='mm') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='cm') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='in') charSpaceMultiplier = 0.00200;
+        var topLineHeightDivider = 1;
+        if(args.pdfSettings.unit=='px') topLineHeightDivider = 2;
+        var m = args.pdfSettings.margins;
+        var headerMargins = {
+            top: parseFloat(m.header.top)*convertToPixel,
+            right: parseFloat(m.header.right)*convertToPixel,
+            bottom: parseFloat(m.header.bottom)*convertToPixel,
+            left: parseFloat(m.header.left)*convertToPixel,
+        };
+        var bodyMargins = {
+            top: parseFloat(m.body.top)*convertToPixel,
+            right: parseFloat(m.body.right)*convertToPixel,
+            bottom: parseFloat(m.body.bottom)*convertToPixel,
+            left: parseFloat(m.body.left)*convertToPixel,
+        };
+        var footerMargins = {
+            top: parseFloat(m.footer.top)*convertToPixel,
+            right: parseFloat(m.footer.right)*convertToPixel,
+            bottom: parseFloat(m.footer.bottom)*convertToPixel,
+            left: parseFloat(m.footer.left)*convertToPixel,
+        };
+        headerBottomBodyTopMargin = headerMargins.bottom+bodyMargins.top;
+            
+        // Determine scale
+        formWidth = args.form0.clientWidth;
+        formHeight = args.form0.clientHeight;
+        formWidth = formWidth + bodyMargins.left + bodyMargins.right;
+        pdfPageWidth = args.pdf.internal.pageSize.getWidth()*convertToPixel;
+        pdfPageHeight = args.pdf.internal.pageSize.getHeight();
+        scale = formWidth / pdfPageWidth;
+
+        args.pdf.setFont('Helvetica');
+        args.pdf.setTextColor('red');
+        args.pdf.setLineWidth(1*convertFromPixel);
+
+        nodes = pdfPageContainer.querySelectorAll('.super-label, .super-description, .super-heading-title, .super-heading-description, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-toggle-switch, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-currency .super-shortcode-field');
+        for( i=0; i < nodes.length; i++ ) {
+            el = nodes[i];
+            // For HTML content we will need to do some special things because a HTML element will contain unkown nodes with unkown styles
+            // We will first have to wrap any stand alone text inside a <div> tag. This way we can more accurately position the overlapping text
+            // After that we can loop over nodes and check for child nodes and do the same thing
+            // Once done we can then do a final loop
+            if(el.classList.contains('super-html-content')){
+                // Wrap individual text inside "span" tags
+                //var regex = /(?<=(>))((?![<])(.{1,}?))(?=<)/gm;
+                //var str = el.innerHTML;
+                //var subst = '<span class="super-pdf-text">$2</span>';
+                //// The substituted value will be contained in the result variable
+                //var result = str.replace(regex, subst);
+                //regex = /(?<=<.+?>)([\s]+(?!<).{1,}[\s]+)(?=<.+?>)/gm;
+                //str = result;
+                //subst = '<span class="super-pdf-text">$1</span>';
+                //// The substituted value will be contained in the result variable
+                //el.innerHTML = str.replace(regex, subst);
+                //var childNodes = el.querySelectorAll('.super-pdf-text');
+                //for(var x=0; x < childNodes.length; x++){
+                //    resume = SUPER.draw_pdf_text(i, childNodes[x], childNodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+                //    if(resume) continue;
+                //}
+                continue;
+            }
+            resume = SUPER.draw_pdf_text(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+            if(resume) continue;
+        }
+    };
+
     // PDF Generation
     SUPER.generate_pdf = function(args, callback){
         
@@ -3920,29 +4158,17 @@ function SUPERreCaptcha(){
                     currentPage: args.currentPage,
                     useCORS: true,
                     allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    //onclone: function(document){
-                    //    // Remove any elements that we do not need
-                    //    var i, nodes = document.body.childNodes;
-                    //    console.log(nodes.length);
-                    //    for(i=0; i<nodes.length; i++){
-                    //        if(nodes[i].tagName==='LINK') continue;
-                    //        if(nodes[i].tagName==='SCRIPT') continue;
-                    //        if(nodes[i].className==='super-pdf-page-container') continue;
-                    //        nodes[i].remove();
-                    //    }
-                    //    nodes = document.body.childNodes;
-                    //    console.log(nodes.length);
-                    //},
-                }).then(canvas => {    
+                    backgroundColor: '#ffffff'
+                }).then(function(canvas) {
                     // Only if not already canceled/reset
                     if(form && !form.classList.contains('super-generating-pdf')){
                         return false;
                     }
+
                     var percentage = ((50/(args.totalPages+1))*args.currentPage)+5;
                     if(percentage<5) percentage = 5;
                     if(percentage>=50) percentage = 50;
-                    args.progressBar.style.width = percentage+"%";  
+                    if(args.progressBar) args.progressBar.style.width = percentage+"%";  
                     var imgData = canvas.toDataURL("image/jpeg", 1.0);
                     // Add this image as 1 single page
                     args.pdf.addImage(
@@ -3954,6 +4180,10 @@ function SUPERreCaptcha(){
                         args.pageWidth,
                         args.pageHeight
                     );
+                    // Make PDF searchable when text rendering is enabled
+                    if(args.pdfSettings.textRendering==='true'){
+                        SUPER.render_pdf_text(args);
+                    }
                     // If there are more pages to be processed, go ahead
                     if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
                         args.currentPage++;
@@ -4592,8 +4822,8 @@ function SUPERreCaptcha(){
             $this = forms[key];
 
             // @since 3.2.0 
-            // - Add tab indexes to all fields
-            // - Check if RTL support is enabled, if so we must reverse columns order before we add TAB indexes to fields
+            // Add tab indexes to all fields
+            // Check if RTL support is enabled, if so we must reverse columns order before we add TAB indexes to fields
             if( $this.classList.contains('super-rtl') ) {
                 // Reverse column order before adding TAB indexes
                 SUPER.reverse_columns($this);
@@ -4604,10 +4834,75 @@ function SUPERreCaptcha(){
             $fields.each(function(key, value){
                 $(value).attr('data-super-tab-index', key);
             });
-            // - Now we have added the TAB indexes, make sure to reverse the order back to normal in case of RTL support
+            // Now we have added the TAB indexes, make sure to reverse the order back to normal in case of RTL support
             if( $this.classList.contains('super-rtl') ) {
                 SUPER.reverse_columns($this);
             }
+            // Because of the FireFox bug with adaptive placeholders we must loop over all fields to check if they are not empty.
+            // if the field is not empty we will add the super-filled class to it's parent node
+            var i=0, el, value, nodes = $this.querySelectorAll('.super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-currency .super-shortcode-field, .super-dropdown .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                if(nodes[i].value!==''){
+                    el = nodes[i].closest('.super-shortcode');
+                    el.querySelector('.super-adaptive-placeholder').children[0].innerHTML = el.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
+                    el.classList.add('super-filled');
+                }
+            }
+            // ... but for signatures (if add-on is active)
+            nodes = $this.querySelectorAll('.super-signature');
+            for(i=0; i<nodes.length; i++){
+                value = nodes[i].querySelector('.super-signature-lines').value;
+                if(value!==''){
+                    value = value.replace('\\"lines\\"', '"lines"');
+                    $(nodes[i]).find('.super-signature-canvas').signature('enable').signature('draw', value);
+                }
+            }
+            // .. but for toggle field
+            nodes = $this.querySelectorAll('.super-toggle .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                if(nodes[i].value!==''){
+                    el = nodes[i].closest('.super-shortcode');
+                    if(nodes[i].value===el.querySelector('.super-toggle-on').dataset.value){
+                        el.querySelector('.super-toggle-switch').classList.add('super-active');
+                    }
+                }
+            }
+            // .. but for radio buttons
+            nodes = $this.querySelectorAll('.super-radio .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                if(nodes[i].value!==''){
+                    el = nodes[i].closest('.super-shortcode');
+                    var items = el.querySelectorAll('.super-item');
+                    for(var ii = 0; ii < items.length; ii++){
+                        var input = items[ii].querySelector('input');
+                        if(input.value == nodes[i].value){
+                            input.checked = true;
+                            items[ii].classList.add('super-active');
+                            break; // Radio button can only have 1 active item
+                        }
+                    }
+                }
+            }
+            // .. but for checkboxes
+            nodes = $this.querySelectorAll('.super-checkbox .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                if(nodes[i].value!==''){
+                    el = nodes[i].closest('.super-shortcode');
+                    items = el.querySelectorAll('.super-item');
+                    for(ii = 0; ii < items.length; ii++){
+                        input = items[ii].querySelector('input');
+                        items[ii].classList.remove('super-active');
+                        input.checked = false;
+                        var options = nodes[i].value.split(',');
+                        if(options.indexOf(input.value)!==-1){
+                            input.checked = true;
+                            items[ii].classList.add('super-active');
+                        }
+                    }
+                }
+            }
+
+            // Collect arguments to be parsed to the after initialization hook
             var args = {
                 el: undefined,
                 form: $this,

@@ -1756,9 +1756,9 @@
                     input.value = values;
                 }
                 if(input.value===''){
-                    wrapper.classList.remove('super-filled');
+                    field.classList.remove('super-filled');
                 }else{
-                    wrapper.classList.add('super-filled');
+                    field.classList.add('super-filled');
                 }
                 validation = input.dataset.validation;
                 if(typeof validation !== 'undefined' && validation !== false){
@@ -2155,9 +2155,9 @@
         });
 
         // @since 4.9.3 - Adaptive Placeholders
-        var adaptivePlaceholder = document.querySelectorAll('.super-adaptive-placeholder');
-        for (var i = 0; i < adaptivePlaceholder.length; i++) {
-            var input = adaptivePlaceholder[i].parentNode.querySelector('.super-shortcode-field');
+        var nodes = document.querySelectorAll('.super-adaptive-placeholder');
+        for (var i = 0; i < nodes.length; i++) {
+            var input = nodes[i].parentNode.querySelector('.super-shortcode-field');
             if(!input) continue;
 
             input.onclick = input.onfocus = function () {
@@ -2169,21 +2169,30 @@
                 }
             }
             input.addEventListener('keyup', function () {
+                var placeholder = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholder;
+                var placeholderFilled = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
+                var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
+                
                 var filled = true,
                     parent = this.closest('.super-shortcode');
                 if(parent.classList.contains('super-currency')){
                     if($(this).maskMoney('unmasked')[0]===0){
-                    filled = false;
+                        filled = false;
                     }
                 }
                 if (this.value.length === 0) filled = false;
                 if(filled){
                     parent.classList.add('super-filled');
+                    span.innerHTML = placeholderFilled;
                 }else{
                     parent.classList.remove('super-filled');
+                    span.innerHTML = placeholder;
                 }
             });
-            input.oncut = input.onpaste = function () {
+            input.oncut = input.onpaste = function (event) {
+                var placeholder = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholder;
+                var placeholderFilled = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
+                var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
                 var filled = true,
                     input = event.target,
                     parent = event.target.closest('.super-shortcode');
@@ -2198,8 +2207,10 @@
                         if (input.value.length === 0) filled = false;
                         if(filled){
                             parent.classList.add('super-filled');
+                            span.innerHTML = placeholderFilled;
                         }else{
                             parent.classList.remove('super-filled');
+                            span.innerHTML = placeholder;
                         }
                     }, 100);
                 }

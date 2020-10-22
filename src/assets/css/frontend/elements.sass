@@ -427,7 +427,7 @@ h1.super-thanks-title
   > div > span
     padding: 1px 25px 1px 10px
     margin: 6px 0px 6px 6px
-    line-height: normal
+    line-height: 1.2
     &:after
       right: 4px
       top: 2px
@@ -441,7 +441,7 @@ h1.super-thanks-title
   > div > span
     padding: 6px 25px 6px 10px
     margin: 6px 0px 6px 6px
-    line-height: normal
+    line-height: 1.2
     &:after
       right: 5px
       top: 7px
@@ -455,7 +455,7 @@ h1.super-thanks-title
   > div > span
     padding: 11px 30px 11px 15px
     margin: 6px 0px 6px 6px
-    line-height: normal
+    line-height: 1.2
     &:after
       right: 8px
       top: 12px
@@ -903,8 +903,7 @@ h1.super-thanks-title
   height: 100%
   pointer-events: none
   margin: 0px 0px 0px 15px
-  &:before
-    content: attr(data-placeholder)
+  span
     display: inline-block
     white-space: nowrap
     transition: 0.1s ease-in-out
@@ -914,8 +913,6 @@ h1.super-thanks-title
     -webkit-box-sizing: border-box
     transition-duration: 0.1s
     font-weight: normal
-.super-filled .super-adaptive-placeholder:before
-  content: attr(data-placeholderFilled)
 .super-focus
   .super-adaptive-placeholder
     z-index: 3600
@@ -924,60 +921,42 @@ h1.super-thanks-title
 .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
 .super-filled .super-adaptive-placeholder,
 .super-adaptive-positioning
-  &:before
+  span
     font-size: 10px !important
     border: 0 !important
     padding: 0px 4px 0px 4px
-    line-height: 10px
+    line-height: 1.2
 
-/* Large size
-.super-field-size-large
-  .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
-  .super-filled .super-adaptive-placeholder,
-  .super-adaptive-positioning
-    &:before
-      content: attr(data-placeholder)
-      display: inline-block
-      white-space: nowrap
-      transition: 0.1s ease-in-out
-      padding: 0px 0px 0px 0px
-      box-sizing: border-box
-      -moz-box-sizing: border-box
-      -webkit-box-sizing: border-box
-      transition-duration: 0.1s
-      font-weight: normal
-  .super-filled .super-adaptive-placeholder:before
-    content: attr(data-placeholderFilled)
 
 /* Huge size
 .super-field-size-huge
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
-    &:before
+    span
       font-size: 12px !important
-      line-height: 16px
+      line-height: 1.2
 
 /* Full rounded theme
 .super-full-rounded
-  .super-focus .super-adaptive-placeholder:before,
-  .super-filled .super-adaptive-placeholder:before
+  .super-focus .super-adaptive-placeholder span,
+  .super-filled .super-adaptive-placeholder span
     margin-left: 2px
-  .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder:before,
-  .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder:before
+  .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder span,
+  .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder span
     margin-left: 0px
   &.super-field-size-huge
-    .super-focus .super-adaptive-placeholder:before,
-    .super-filled .super-adaptive-placeholder:before
+    .super-focus .super-adaptive-placeholder span,
+    .super-filled .super-adaptive-placeholder span
       margin-left: 7px
-    .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder:before,
-    .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder:before
+    .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder span,
+    .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder span
       margin-left: 0px
 
   .super-focus .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
-    &:before
+    span
       +borderRadius(22px)
 
 /* Icons outside
@@ -1356,7 +1335,7 @@ textarea
     font-size: 12px
     height: 33px
     min-height: 33px
-    line-height: normal
+    line-height: 1.2
     +borderRadius(0px)
     +boxSizing(border-box)
     outline: none!important
@@ -1752,6 +1731,14 @@ textarea
   padding: 0px 20px 0px 0px
   font-weight: normal
   padding: 0px 0px 0px 20px
+.super-toggle-prefix-label,
+.super-toggle-suffix-label
+  span
+    display: flex
+    justify-content: center
+    align-items: center
+    height: 100%
+    float: left
 
 .super-toggle-prefix-question, .super-toggle-suffix-question
   height: 33px
@@ -1782,6 +1769,9 @@ textarea
       position: absolute
       left: 0
       top: 0
+      display: flex
+      justify-content: center
+      align-items: center
     .super-toggle-off
       height: 33px
       line-height: 33px
@@ -1795,6 +1785,9 @@ textarea
       left: inherit
       right: 0px
       padding: 0px 0px 0px 10px
+      display: flex
+      justify-content: center
+      align-items: center
   .super-toggle-handle
     width: 20px
     position: absolute
@@ -1901,7 +1894,7 @@ textarea
   text-align: center
   width: 30px
   height: 30px
-  line-height: normal
+  line-height: 1.2
 
 .super-captcha p
   position: relative
@@ -2087,6 +2080,8 @@ textarea
   height: 33px
   line-height: 33px
   position: relative
+  display: flex
+  align-items: center
   &.super-fileupload-image
     height: auto !important
     border: 0px !important
@@ -3289,10 +3284,6 @@ ul.super-multipart-steps .super-multipart-step
     font-size: 18px
   .super-fileupload-button
     height: 33px
-    .super-fileupload-button-text
-      height: 31px
-      line-height: 31px
-      display: block
   .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper
     height: 33px
   .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper
@@ -3492,10 +3483,6 @@ ul.super-multipart-steps .super-multipart-step
     font-size: 18px
   .super-fileupload-button
     height: 43px
-    .super-fileupload-button-text
-      height: 41px
-      line-height: 41px
-      display: block
   .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper
     height: 43px
   .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper
@@ -3702,10 +3689,6 @@ ul.super-multipart-steps .super-multipart-step
     font-size: 18px
   .super-fileupload-button
     height: 53px
-    .super-fileupload-button-text
-      height: 51px
-      line-height: 51px
-      display: block
   .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper
     height: 53px
   .super-shortcode.super-field.super-focus-dropdown .super-field-wrapper
@@ -4146,7 +4129,7 @@ ul.super-multipart-steps .super-multipart-step
     padding: 2px 5px 0px 0px
     color: #dadada
     height: 100%
-    line-height: normal
+    line-height: 1.2
     font-size: 14px
   .super-dropdown-placeholder
     padding: 0
@@ -4359,7 +4342,7 @@ ul.super-multipart-steps .super-multipart-step
   position: relative
   cursor: pointer
   font-size: 0.9rem
-  line-height: normal
+  line-height: 1.2
   &:before,&:after
     content: ''
     position: absolute
@@ -4588,19 +4571,19 @@ ul.super-multipart-steps .super-multipart-step
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
-    &:before
+    span
       margin-top: -32px
 .super-field-size-large
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
-    &:before
+    span
       margin-top: -37px
 .super-field-size-huge
   .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
   .super-filled .super-adaptive-placeholder,
   .super-adaptive-positioning
-    &:before
+    span
       margin-top: -42px
 
 .super-field-size-medium
@@ -4960,7 +4943,7 @@ ul.super-multipart-steps .super-multipart-step
     align-items: center
     justify-content: center
     padding: 5px 25px 5px 25px!important
-    line-height: normal
+    line-height: 1.2
     +borderRadius(3px)
   .super-pdf-download-btn:hover
     background-color: #5ce45c
@@ -4988,6 +4971,7 @@ ul.super-multipart-steps .super-multipart-step
     justify-content: center
     position: relative
   .super-inner-text
+    width: 100%
     text-align: center
   &.super-error,
   &.super-success

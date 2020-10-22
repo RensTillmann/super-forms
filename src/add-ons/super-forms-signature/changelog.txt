@@ -1,3 +1,6 @@
+Oct 22, 2020 - Version 1.6.2
+- Fix: Issue with PDF generator displaying "Your browser does not support signing" text
+
 Jul 30, 2020 - Version 1.6.1
 - Comaptibility with latest version of Super Forms
 

@@ -110,7 +110,7 @@
     float: left;
     width: 40%;
     height: 25px;
-    line-height: normal;
+    line-height: 1.2;
     font-size: 12px;
 }
 .super-add-item label textarea {

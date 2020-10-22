@@ -8,6 +8,8 @@ $v = $settings;
 // Google fonts
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
 $import_fonts = '';
+//$import_fonts .= "@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');\n";
+$import_fonts .= "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
 if($v['font_google_fonts']!=''){
     $google_fonts = explode( "\n", $v['font_google_fonts'] );  
     foreach( $google_fonts as $font ) {
@@ -15,31 +17,37 @@ if($v['font_google_fonts']!=''){
     }
 }
 // Font family
-if( empty( $v['font_global_family'] ) ) $v['font_global_family'] = '"Open Sans",sans-serif';
+if( empty( $v['font_global_family'] ) ) $v['font_global_family'] = '"Helvetica", "Arial", sans-serif';
 // Globals
 if( empty( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
 if( empty( $v['font_global_weight'] ) ) { $v['font_global_weight'] = 'normal'; }else{ $v['font_global_weight']; }
-if( empty( $v['font_global_lineheight'] ) ) { $v['font_global_lineheight'] = 'normal'; }else{ $v['font_global_lineheight'] .= 'px'; }
+if( empty( $v['font_global_lineheight'] ) ) { $v['font_global_lineheight'] = '1.2'; }
+if( floatval($v['font_global_lineheight'])>5 ) { $v['font_global_lineheight'] = '1.2'; }
 // Labels
 if( empty( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
 if( empty( $v['font_label_weight'] ) ) { $v['font_label_weight'] = 'normal'; }else{ $v['font_label_weight']; }
-if( empty( $v['font_label_lineheight'] ) ) { $v['font_label_lineheight'] = 'normal'; }else{ $v['font_label_lineheight'] .= 'px'; }
+if( empty( $v['font_label_lineheight'] ) ) { $v['font_label_lineheight'] = '1.2'; }
+if( floatval($v['font_label_lineheight'])>5 ) { $v['font_label_lineheight'] = '1.2'; }
 // Descriptions
 if( empty( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
 if( empty( $v['font_description_weight'] ) ) { $v['font_description_weight'] = 'normal'; }else{ $v['font_description_weight']; }
-if( empty( $v['font_description_lineheight'] ) ) { $v['font_description_lineheight'] = 'normal'; }else{ $v['font_description_lineheight'] .= 'px'; }
+if( empty( $v['font_description_lineheight'] ) ) { $v['font_description_lineheight'] = '1.2'; }
+if( floatval($v['font_description_lineheight'])>5 ) { $v['font_description_lineheight'] = '1.2'; }
 // Globals (mobile)
 if( empty( $v['font_global_size_mobile'] ) ) $v['font_global_size_mobile'] = 16;
 if( empty( $v['font_global_weight_mobile'] ) ) { $v['font_global_weight_mobile'] = 'normal'; }else{ $v['font_global_weight_mobile']; }
-if( empty( $v['font_global_lineheight_mobile'] ) ) { $v['font_global_lineheight_mobile'] = 'normal'; }else{ $v['font_global_lineheight_mobile'] .= 'px'; }
+if( empty( $v['font_global_lineheight_mobile'] ) ) { $v['font_global_lineheight_mobile'] = '1.2'; }
+if( floatval($v['font_global_lineheight_mobile'])>5 ) { $v['font_global_lineheight_mobile'] = '1.2'; }
 // Labels (mobile)
 if( empty( $v['font_label_size_mobile'] ) ) $v['font_label_size_mobile'] = 20;
 if( empty( $v['font_label_weight_mobile'] ) ) { $v['font_label_weight_mobile'] = 'normal'; }else{ $v['font_label_weight_mobile']; }
-if( empty( $v['font_label_lineheight_mobile'] ) ) { $v['font_label_lineheight_mobile'] = 'normal'; }else{ $v['font_label_lineheight_mobile'] .= 'px'; }
+if( empty( $v['font_label_lineheight_mobile'] ) ) { $v['font_label_lineheight_mobile'] = '1.2'; }
+if( floatval($v['font_label_lineheight_mobile'])>5 ) { $v['font_label_lineheight_mobile'] = '1.2'; }
 // Descriptions (mobile)
 if( empty( $v['font_description_size_mobile'] ) ) $v['font_description_size_mobile'] = 16;
 if( empty( $v['font_description_weight_mobile'] ) ) { $v['font_description_weight_mobile'] = 'normal'; }else{ $v['font_description_weight_mobile']; }
-if( empty( $v['font_description_lineheight_mobile'] ) ) { $v['font_description_lineheight_mobile'] = 'normal'; }else{ $v['font_description_lineheight_mobile'] .= 'px'; }
+if( empty( $v['font_description_lineheight_mobile'] ) ) { $v['font_description_lineheight_mobile'] = '1.2'; }
+if( floatval($v['font_description_lineheight_mobile'])>5 ) { $v['font_description_lineheight_mobile'] = '1.2'; }
 
 if( !isset( $v['theme_ui_toggle_disabled_font'] ) ) $v['theme_ui_toggle_disabled_font'] = '#9c9c9c';
 
@@ -126,8 +134,8 @@ if( empty( $v['adaptive_placeholder_bg_bottom_filled'] ) ) $v['adaptive_placehol
 $bottom = $v['adaptive_placeholder_bg_bottom_focus'];
 $top = $v['adaptive_placeholder_bg_top_focus'];
 $placeholder_bg_focus = "
-".$s.".super-focus .super-adaptive-placeholder:before,
-".$s.".super-adaptive-positioning:before {
+".$s.".super-focus .super-adaptive-placeholder span,
+".$s.".super-adaptive-positioning span {
     background: ".$bottom."; /* Old browsers */
     background: -moz-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* Chrome10-25,Safari5.1-6 */
@@ -137,7 +145,7 @@ $placeholder_bg_focus = "
 $bottom = $v['adaptive_placeholder_bg_bottom_filled'];
 $top = $v['adaptive_placeholder_bg_top_filled'];
 $placeholder_bg_filled = "
-".$s.".super-filled .super-adaptive-placeholder:before {
+".$s.".super-filled .super-adaptive-placeholder span {
     background: ".$bottom."; /* Old browsers */
     background: -moz-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* FF3.6-15 */
     background: -webkit-linear-gradient(top, ".$top." 50%, ".$bottom." 50%); /* Chrome10-25,Safari5.1-6 */
@@ -148,6 +156,7 @@ $placeholder_bg_filled = "
 return $import_fonts."
 
 /* Font styles */
+".$s.",
 ".$s.".super-button .super-button-name,
 ".$s.".super-entered-keywords > span,
 ".$s.".super-no-results,
@@ -176,15 +185,18 @@ return $import_fonts."
 .super-datepicker-dialog .ui-datepicker-year,
 .ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog,
 ".$s.".super-dropdown-ui .super-item.super-placeholder,
-".$s.".super-adaptive-placeholder:before {
+".$s.".super-adaptive-placeholder span {
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 ".$s.".super-field .super-field-wrapper .super-dropdown-ui .super-item {
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
+    line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 
 /* Labels */
@@ -193,12 +205,14 @@ return $import_fonts."
     font-size: ".$v['font_label_size']."px;
     font-weight: ".$v['font_label_weight'].";
     line-height: ".$v['font_label_lineheight'].";
+    letter-spacing: 0;
 }
 /* Descriptions */
 ".$s.".super-field .super-description {
     font-size: ".$v['font_description_size']."px;
     font-weight: ".$v['font_description_weight'].";
     line-height: ".$v['font_description_lineheight'].";
+    letter-spacing: 0;
 }
 /* Placeholders */
 ".$s."::-webkit-input-placeholder { /* WebKit browsers */
@@ -206,24 +220,28 @@ return $import_fonts."
     font-size: ".$v['font_global_size']."px;
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 ".$s.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 ".$s."::-moz-placeholder { /* Mozilla Firefox 19+ */
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 ".$s.":-ms-input-placeholder { /* Internet Explorer 10+ */
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
     font-weight: ".$v['font_global_weight'].";
     line-height: ".$v['font_global_lineheight'].";
+    letter-spacing: 0;
 }
 
 /* Mobile font styles */
@@ -255,13 +273,16 @@ return $import_fonts."
 ".$rs1.".super-datepicker-dialog .ui-datepicker-year,
 ".$rs1.".ui-timepicker-wrapper.super-form-".$form_id.".super-timepicker-dialog,
 ".$rs1.".super-dropdown-ui .super-item.super-placeholder,
-".$rs1.".super-adaptive-placeholder:before {
+".$rs1.".super-adaptive-placeholder span {
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 ".$rs1.".super-field .super-field-wrapper .super-dropdown-ui .super-item {
     font-size: ".$v['font_global_size_mobile']."px;
+    line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 
 /* Labels */
@@ -270,33 +291,39 @@ return $import_fonts."
     font-size: ".$v['font_label_size_mobile']."px;
     font-weight: ".$v['font_label_weight_mobile'].";
     line-height: ".$v['font_label_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 /* Descriptions */
 ".$rs1.".super-field .super-description {
     font-size: ".$v['font_description_size_mobile']."px;
     font-weight: ".$v['font_description_weight_mobile'].";
     line-height: ".$v['font_description_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 /* Placeholders */
 ".$rs1."::-webkit-input-placeholder { /* WebKit browsers */
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 ".$rs1.":-moz-placeholder { /* Mozilla Firefox 4 to 18 */
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 ".$rs1."::-moz-placeholder { /* Mozilla Firefox 19+ */
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 ".$rs1.":-ms-input-placeholder { /* Internet Explorer 10+ */
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";
     line-height: ".$v['font_global_lineheight_mobile'].";
+    letter-spacing: 0;
 }
 
 /* Slider amount positioning based on font size */
@@ -322,22 +349,22 @@ return $import_fonts."
 
 /* @since 4.9.3 - Adaptive Placeholders */
 /* Initial Color */
-".$s.".super-adaptive-placeholder:before {
+".$s.".super-adaptive-placeholder span {
   color:".$v['theme_field_colors_placeholder'].";
 }
 /* Focused Colors */
-".$s.".super-focus .super-adaptive-placeholder:before,
-".$s.".super-adaptive-positioning:before {
+".$s.".super-focus .super-adaptive-placeholder span,
+".$s.".super-adaptive-positioning span {
   color:".$v['adaptive_placeholder_focus'].";
   ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
 }
 /* Filled Colors */
-".$s.".super-filled .super-adaptive-placeholder:before {
+".$s.".super-filled .super-adaptive-placeholder span {
   color:".$v['adaptive_placeholder_filled'].";
   ".(!empty($v['adaptive_placeholder_border_filled']) ? 'border:1px solid '.$v['adaptive_placeholder_border_filled'] : 'border: 0' ).";
 }
 /* Filled + Focus Colors */
-".$s.".super-focus.super-filled .super-adaptive-placeholder:before {
+".$s.".super-focus.super-filled .super-adaptive-placeholder span {
     color:".$v['adaptive_placeholder_focus'].";
     ".(!empty($v['adaptive_placeholder_border_focus']) ? 'border:1px solid '.$v['adaptive_placeholder_border_focus'] : 'border: 0' ).";
 }

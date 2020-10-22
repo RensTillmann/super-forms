@@ -619,7 +619,7 @@ $array['form_elements'] = array(
                         ),
                         'address_api_key' => array(
                             'name' => esc_html__( 'Google API key', 'super-forms' ), 
-                            'label' => sprintf( esc_html__( 'In order to make calls you have to enable these libraries in your %sAPI manager%s:%s- Google Maps JavaScript API%s- Google Places API Web Service', 'super-forms' ), '<a target="_blank" href="https://console.developers.google.com">', '</a>', '<br />', '<br />' ),
+                            'label' => sprintf( esc_html__( 'In order to make calls you have to enable these libraries in your %1$sAPI manager%2$s:%3$s- Google Maps JavaScript API%3$s- Google Places API Web Service', 'super-forms' ), '<a target="_blank" href="https://console.developers.google.com">', '</a>', '<br />' ),
                             'desc' => esc_html__( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['address_api_key'] ) ? '' : $attributes['address_api_key'] ),
                             'filter'=>true,
@@ -2900,7 +2900,7 @@ $array['form_elements'] = array(
                         ),
                         'range' => array(
                             'name'=>esc_html__( 'Disable time options by ranges', 'super-forms' ),
-                            'desc'=>sprintf( esc_html__( 'Example:%s0:00|9:00%s17:00|0:00%s(enter each range on a new line)', 'super-forms' ), '<br />', '<br />', '<br />' ),
+                            'desc'=>sprintf( esc_html__( 'Example:%1$s0:00|9:00%1$s17:00|0:00%1$s(enter each range on a new line)', 'super-forms' ), '<br />' ),
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['range']) ? '' : $attributes['range']),
                         ),                            
