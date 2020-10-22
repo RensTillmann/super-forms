@@ -44,7 +44,7 @@
     font-weight: bold!important;
     font-family: inherit!important;
     font-size: 9px !important;
-    line-height: normal;
+    line-height: 1.2;
     text-transform: initial !important;
     background-color: red;
     color: white;
@@ -302,7 +302,7 @@
 
 .super-wizard-settings>.super-tab-content>li>div>span {
     font-size: 12px;
-    line-height: normal;
+    line-height: 1.2;
     width: 30%;
     flex-grow: 1;
 }
@@ -982,7 +982,7 @@
     color: #AEAEAE;
     padding: 0px;
     font-size: 11px;
-    line-height: normal;
+    line-height: 1.2;
 }
 
 .super-translation-mode .super-preview-elements .super-element .super-element-header .super-title {
@@ -1059,7 +1059,7 @@
     cursor: pointer;
     padding: 6px 6px 5px 6px;
     font-size: 12px;
-    line-height: normal;
+    line-height: 1.2;
 }
 
 .super-element-actions .super-transfer-drop {
@@ -1733,7 +1733,7 @@
     font-size: 11px;
     padding: 0px 0px 0px 5px;
     height: 20px;
-    line-height: normal;
+    line-height: 1.2;
     max-width: 100%;
     min-height: 20px;
     border-radius: 0px;
@@ -1768,7 +1768,7 @@
 
 .super-element-settings .super-field textarea, .super-form-settings .super-field textarea {
     height: auto;
-    line-height: normal;
+    line-height: 1.2;
     font-size: 11px;
     padding: 3px 3px 3px 3px;
 }
@@ -2570,7 +2570,7 @@
 }
 
 .sfui-setting label {
-    line-height: normal;
+    line-height: 1.2;
     display: flex;
     padding-right: 20px;
 }

@@ -312,7 +312,7 @@
         min-height: 30px;
     }
     .super-preview-elements .super-element .super-element-header .super-title {
-        line-height: normal;
+        line-height: 1.2;
     }
     .super-preview-elements .super-element .super-element-header .super-title input {
         min-height: 22px;

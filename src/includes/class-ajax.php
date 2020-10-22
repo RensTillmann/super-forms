@@ -1077,40 +1077,37 @@ class SUPER_Ajax {
             $array[$v['name']] = $v['value'];
         }
         if($array['smtp_enabled']=='enabled'){
-            if ( !class_exists( 'PHPMailer' ) ) {
-                require_once( 'phpmailer/class.phpmailer.php' );
-            }
-            if ( !class_exists( 'SMTP' ) ) {
-                require_once( 'phpmailer/class.smtp.php' );
-            }
-            $mail = new PHPMailer;
-            $mail->isSMTP();
-            $mail->Host = $array['smtp_host'];
-            $mail->Username = $array['smtp_username'];
-            $mail->Password = $array['smtp_password'];
-            $mail->Port = $array['smtp_port'];
-            if( $array['smtp_auth']=='enabled' ) $mail->SMTPAuth = true;
-            if( $array['smtp_secure']!='' ) $mail->SMTPSecure = $array['smtp_secure']; 
-            if($mail->smtpConnect()!==true){
-                $reflector = new \ReflectionClass($mail);
-                $classProperty = $reflector->getProperty('language');
-                $classProperty->setAccessible(true);
-                $error_data = $classProperty->getValue($mail);
-                foreach($error_data as $ek => $ev){
+            global $phpmailer;
+            $phpmailer->isSMTP();
+            $phpmailer->Host = $array['smtp_host'];
+            $phpmailer->Port = $array['smtp_port'];
+            $phpmailer->Username = $array['smtp_username'];
+            $phpmailer->Password = $array['smtp_password'];
+            if( $array['smtp_auth']=='enabled' ) $phpmailer->SMTPAuth = true;
+            if( $array['smtp_secure']!='' ) $phpmailer->SMTPSecure = $array['smtp_secure']; 
+            try {
+                if($phpmailer->smtpConnect()){
+                    $phpmailer->smtpClose();
+                }else{
                     SUPER_Common::output_message(
                         $error='smtp_error',
-                        $ev
+                        esc_html__( 'Invalid SMTP settings!', 'super-forms' )
                     );
                     die();
                 }
+            } catch (Exception $e) {
                 SUPER_Common::output_message(
                     $error='smtp_error',
-                    esc_html__( 'Invalid SMTP settings!', 'super-forms' )
+                    $e->getMessage()
                 );
                 die();
             }
         }
         update_option( 'super_settings', $array );
+        SUPER_Common::output_message(
+            $error = false,
+            $msg = ''
+        );
         die();
     }
 

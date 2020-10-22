@@ -1530,10 +1530,10 @@ class SUPER_Shortcodes {
         if(!empty($settings['theme_style']) && $settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
         if( (empty($settings['enable_adaptive_placeholders'])) ) {
             if( !empty( $atts['default_placeholder'] ) ) {
-                $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
+                $result .= ' placeholder="1' . esc_attr($atts['default_placeholder']) . '"';
             }else{
                 if( !empty( $atts['placeholder'] ) ) {
-                    $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
+                    $result .= ' placeholder="2' . esc_attr($atts['placeholder']) . '"';
                 }
             }
         }
@@ -1632,7 +1632,10 @@ class SUPER_Shortcodes {
         if($settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
         if( (!empty($settings['enable_adaptive_placeholders'])) && (!empty($atts['placeholder'])) ) {
             if(empty($atts['placeholderFilled'])) $atts['placeholderFilled'] = $atts['placeholder'];
-            return '<span class="super-adaptive-placeholder' . (!empty($settings['placeholder_adaptive_positioning']) ? ' super-adaptive-positioning' : '') . '" data-placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholderFilled="' . esc_attr($atts['placeholderFilled']) . '"></span>';
+            $html = '<span class="super-adaptive-placeholder' . (!empty($settings['placeholder_adaptive_positioning']) ? ' super-adaptive-positioning' : '') . '" data-placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholderFilled="' . esc_attr($atts['placeholderFilled']) . '">';
+            $html .= '<span>' . $atts['placeholder'] . '</span>';
+            $html .= '</span>';
+            return $html;
         } 
     }
 
@@ -2511,7 +2514,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -2562,7 +2565,7 @@ class SUPER_Shortcodes {
         if(!isset($atts['prefix_tooltip'])) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-prefix-label">';
-            if($atts['prefix_label']!='') $result .= $atts['prefix_label'];
+            if($atts['prefix_label']!='') $result .= '<span>'.$atts['prefix_label'].'</span>';
             if($atts['prefix_tooltip']!='') $result .= '<span class="super-toggle-prefix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['prefix_tooltip'] ) ) . '"></span>';
             $result .= '</div>';
         }
@@ -2576,8 +2579,8 @@ class SUPER_Shortcodes {
 
         $result .= '<div class="super-toggle-switch ' . ( $toggle_active ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
-                $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '">' . $atts['on_label'] . '</label>';
-                $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '">' . $atts['off_label'] . '</label>';
+                $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '"><span>' . $atts['on_label'] . '</span></label>';
+                $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '"><span>' . $atts['off_label'] . '</span></label>';
                 $result .= '<span class="super-toggle-handle"></span>';
             $result .= '</div>';
         $result .= '</div>';
@@ -2585,7 +2588,7 @@ class SUPER_Shortcodes {
         if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
         $result .= ' name="' . $atts['name'] . '" value="' . ( $toggle_active ? $atts['on_value'] : $atts['off_value'] ) . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         $result .= '</div>';
@@ -2594,7 +2597,7 @@ class SUPER_Shortcodes {
         if( !isset($atts['suffix_tooltip']) ) $atts['suffix_tooltip'] = '';
         if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-suffix-label">';
-            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+            if($atts['suffix_label']!='') $result .= '<span>'.$atts['suffix_label'].'</span>';
             if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
             $result .= '</div>';
         }
@@ -2636,7 +2639,7 @@ class SUPER_Shortcodes {
         if( !isset($atts['prefix_tooltip']) ) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-prefix-label">';
-            if($atts['prefix_label']!='') $result .= $atts['prefix_label'];
+            if($atts['prefix_label']!='') $result .= '<span>'.$atts['prefix_label'].'</span>';
             if($atts['prefix_tooltip']!='') $result .= '<span class="super-toggle-prefix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['prefix_tooltip'] ) ) . '"></span>';
             $result .= '</div>';
         }
@@ -2648,7 +2651,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         $result .= '</div>';
 
@@ -2656,7 +2659,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['suffix_tooltip'] ) ) $atts['suffix_tooltip'] = '';
         if( ($atts['suffix_label']!='') || ($atts['suffix_tooltip']!='') ) {
             $result .= '<div class="super-toggle-suffix-label">';
-            if($atts['suffix_label']!='') $result .= $atts['suffix_label'];
+            if($atts['suffix_label']!='') $result .= '<span>'.$atts['suffix_label'].'</span>';
             if($atts['suffix_tooltip']!='') $result .= '<span class="super-toggle-suffix-question super-tooltip" title="' . esc_attr( stripslashes( $atts['suffix_tooltip'] ) ) . '"></span>';
             $result .= '</div>';
         }
@@ -2690,7 +2693,7 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field" type="text"';
 
         $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -2708,7 +2711,6 @@ class SUPER_Shortcodes {
      *  @since      2.1.0
     */ 
     public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
@@ -2737,7 +2739,7 @@ class SUPER_Shortcodes {
             $result .= ' data-threshold="' . $atts['threshold'] . '"';
         }
 
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
@@ -3187,7 +3189,7 @@ class SUPER_Shortcodes {
                 ob_start();
                 wp_editor( $atts['value'], $atts['name'] . '-' . self::$current_form_id, $editor_settings );
                 $editor_html = ob_get_clean();
-                $common_attributes = self::common_attributes( $atts, $tag );
+                $common_attributes = self::common_attributes( $atts, $tag, $settings );
                 $editor_html = str_replace( '></textarea>', $common_attributes . ' data-force-br="' . $atts['force_br'] . '" data-teeny="' . $atts['teeny'] . '" data-incl-url="' . $includes_url . '"></textarea>', $editor_html );
                 $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . self::$current_form_id . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor', $editor_html );
@@ -3215,7 +3217,7 @@ class SUPER_Shortcodes {
                 ob_start();
                 wp_editor( $atts['value'], $atts['name'] . '-' . self::$current_form_id, $editor_settings );
                 $editor_html = ob_get_clean();
-                $common_attributes = self::common_attributes( $atts, $tag );
+                $common_attributes = self::common_attributes( $atts, $tag, $settings );
                 $editor_html = str_replace( '<textarea','<textarea '.$common_attributes.' ', $editor_html );
                 $editor_html = str_replace( '<textarea', '<textarea id="' . $atts['name'] . '-' . self::$current_form_id . '"', $editor_html );
                 $result .= str_replace( 'super-shortcode-field', 'super-shortcode-field super-text-editor super-initialized', $editor_html );
@@ -3303,7 +3305,7 @@ class SUPER_Shortcodes {
         $result .= '"';
         $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -3413,7 +3415,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . implode(',',$selected_items) . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -3499,7 +3501,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -3616,7 +3618,7 @@ class SUPER_Shortcodes {
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
         $result .= ' />';
         $result .= '<input class="super-active-files" type="hidden" value="" name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         $result .= '<div class="super-progress-bar"></div>';
         $result .= '<div class="super-fileupload-files">';
@@ -3795,7 +3797,7 @@ class SUPER_Shortcodes {
         if( isset($atts['excl_dates']) && $atts['excl_dates']!='' ) {
             $result .= 'data-excl-dates="' . esc_attr($atts['excl_dates']) . '"';
         }
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' readonly="true" />';
 
         // @since 4.9.3 - Adaptive placeholders
@@ -3835,7 +3837,7 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         
         // @since 4.9.3 - Adaptive placeholders
@@ -3873,7 +3875,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field super-star-rating" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -3904,8 +3906,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
-        $result .= self::common_attributes( $atts, $tag );
-
+        $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
         // @since 1.2.5     - custom regex validation
@@ -4169,7 +4170,7 @@ class SUPER_Shortcodes {
         }
         if( !empty($atts['desc']) ) {
             $styles = '';
-            if(!empty($atts['desc_size']) && $atts['desc_size']!=='0') $styles .= 'font-size:'.$atts['desc_size'].'px;'; 
+            if(!empty($atts['desc_size']) && $atts['desc_size']!=='-1') $styles .= 'font-size:'.$atts['desc_size'].'px;'; 
             if(!empty($atts['desc_color'])) $styles .= 'color:'.$atts['desc_color'].';'; 
             if(!empty($atts['desc_weight']) && $atts['desc_weight']!=='none') $styles .= 'font-weight:'.$atts['desc_weight'].';'; 
             if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') $styles .= 'text-align:'.$atts['desc_align'].';'; 
@@ -4349,9 +4350,8 @@ class SUPER_Shortcodes {
     */
     public static function google_map( $tag, $atts ) {
         // In order to print google map load the libraries:
-        wp_enqueue_script( 'es6-promise-auto', SUPER_PLUGIN_FILE.'lib/es6-promise.auto.min.js', array(), SUPER_VERSION, false );   
-        wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array('es6-promise-auto'), SUPER_VERSION, false );   
-        wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array(), SUPER_VERSION, false );          
+        wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
+        wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
         
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );

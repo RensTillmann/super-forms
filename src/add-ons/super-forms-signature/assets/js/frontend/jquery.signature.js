@@ -38,8 +38,6 @@ $(selector).signature({color: 'blue', guideline: true}) */
 			@property {string} [guidelineColor='#a0a0a0'] The guideline colour.
 			@property {number} [guidelineOffset=50] The guideline offset (pixels) from the bottom.
 			@property {number} [guidelineIndex=10] The guideline indent (pixels) from the edges.
-			@property {string} [notAvailable='Your browser doesn\'t support signing']
-								The error message to show when no canvas is available.
 			@property {string|Element|jQuery} [syncField=null] The selector, DOM element, or jQuery object
 								for a field to automatically synchronise with a text version of the signature.
 			@property {string} [syncFormat='JSON'] The output representation: 'JSON', 'SVG', 'PNG', 'JPEG'.
@@ -55,7 +53,6 @@ $(selector).signature({color: 'blue', guideline: true}) */
 			guidelineColor: '#a0a0a0',
 			guidelineOffset: 50,
 			guidelineIndent: 10,
-			notAvailable: 'Your browser doesn\'t support signing',
 			syncField: null,
 			syncFormat: 'JSON',
 			svgStyles: false,
@@ -69,7 +66,7 @@ $(selector).signature({color: 'blue', guideline: true}) */
 			this.element.addClass(this.widgetFullName || this.widgetBaseClass);
 			try {
 				this.canvas = $('<canvas width="' + this.element.width() + '" height="' +
-					this.element.height() + '">' + this.options.notAvailable + '</canvas>')[0];
+					this.element.height() + '"></canvas>')[0];
 				this.element.append(this.canvas);
 			}
 			catch (e) {
@@ -78,7 +75,6 @@ $(selector).signature({color: 'blue', guideline: true}) */
 				this.canvas = document.createElement('canvas');
 				this.canvas.setAttribute('width', this.element.width());
 				this.canvas.setAttribute('height', this.element.height());
-				this.canvas.innerHTML = this.options.notAvailable;
 				this.element.append(this.canvas);
 				/* jshint -W106 */
 				if (G_vmlCanvasManager) { // Requires excanvas.js

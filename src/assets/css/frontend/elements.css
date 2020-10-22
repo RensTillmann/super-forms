@@ -471,7 +471,7 @@ h1.super-thanks-title {
 .super-field-size-medium .super-autosuggest-tags > div > span {
   padding: 1px 25px 1px 10px;
   margin: 6px 0px 6px 6px;
-  line-height: normal;
+  line-height: 1.2;
 }
 .super-field-size-medium .super-autosuggest-tags > div > span:after {
   right: 4px;
@@ -488,7 +488,7 @@ h1.super-thanks-title {
 .super-field-size-large .super-autosuggest-tags > div > span {
   padding: 6px 25px 6px 10px;
   margin: 6px 0px 6px 6px;
-  line-height: normal;
+  line-height: 1.2;
 }
 .super-field-size-large .super-autosuggest-tags > div > span:after {
   right: 5px;
@@ -505,7 +505,7 @@ h1.super-thanks-title {
 .super-field-size-huge .super-autosuggest-tags > div > span {
   padding: 11px 30px 11px 15px;
   margin: 6px 0px 6px 6px;
-  line-height: normal;
+  line-height: 1.2;
 }
 .super-field-size-huge .super-autosuggest-tags > div > span:after {
   right: 8px;
@@ -1073,8 +1073,7 @@ h1.super-thanks-title {
   pointer-events: none;
   margin: 0px 0px 0px 15px;
 }
-.super-adaptive-placeholder:before {
-  content: attr(data-placeholder);
+.super-adaptive-placeholder span {
   display: inline-block;
   white-space: nowrap;
   transition: 0.1s ease-in-out;
@@ -1084,10 +1083,6 @@ h1.super-thanks-title {
   -webkit-box-sizing: border-box;
   transition-duration: 0.1s;
   font-weight: normal;
-}
-
-.super-filled .super-adaptive-placeholder:before {
-  content: attr(data-placeholderFilled);
 }
 
 .super-focus .super-adaptive-placeholder {
@@ -1095,62 +1090,43 @@ h1.super-thanks-title {
 }
 
 /* Default Theme & Size */
-.super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-filled .super-adaptive-placeholder:before,
-.super-adaptive-positioning:before {
+.super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder span,
+.super-filled .super-adaptive-placeholder span,
+.super-adaptive-positioning span {
   font-size: 10px !important;
   border: 0 !important;
   padding: 0px 4px 0px 4px;
-  line-height: 10px;
-}
-
-/* Large size */
-.super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-field-size-large .super-filled .super-adaptive-placeholder:before,
-.super-field-size-large .super-adaptive-positioning:before {
-  content: attr(data-placeholder);
-  display: inline-block;
-  white-space: nowrap;
-  transition: 0.1s ease-in-out;
-  padding: 0px 0px 0px 0px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  transition-duration: 0.1s;
-  font-weight: normal;
-}
-.super-field-size-large .super-filled .super-adaptive-placeholder:before {
-  content: attr(data-placeholderFilled);
+  line-height: 1.2;
 }
 
 /* Huge size */
-.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
-.super-field-size-huge .super-adaptive-positioning:before {
+.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder span,
+.super-field-size-huge .super-filled .super-adaptive-placeholder span,
+.super-field-size-huge .super-adaptive-positioning span {
   font-size: 12px !important;
-  line-height: 16px;
+  line-height: 1.2;
 }
 
 /* Full rounded theme */
-.super-full-rounded .super-focus .super-adaptive-placeholder:before,
-.super-full-rounded .super-filled .super-adaptive-placeholder:before {
+.super-full-rounded .super-focus .super-adaptive-placeholder span,
+.super-full-rounded .super-filled .super-adaptive-placeholder span {
   margin-left: 2px;
 }
-.super-full-rounded .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder:before,
-.super-full-rounded .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+.super-full-rounded .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder span,
+.super-full-rounded .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder span {
   margin-left: 0px;
 }
-.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder:before,
-.super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder:before {
+.super-full-rounded.super-field-size-huge .super-focus .super-adaptive-placeholder span,
+.super-full-rounded.super-field-size-huge .super-filled .super-adaptive-placeholder span {
   margin-left: 7px;
 }
-.super-full-rounded.super-field-size-huge .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder:before,
-.super-full-rounded.super-field-size-huge .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+.super-full-rounded.super-field-size-huge .super-focus .super-icon-inside.super-icon-left .super-adaptive-placeholder span,
+.super-full-rounded.super-field-size-huge .super-filled .super-icon-inside.super-icon-left .super-adaptive-placeholder span {
   margin-left: 0px;
 }
-.super-full-rounded .super-focus .super-adaptive-placeholder:before,
-.super-full-rounded .super-filled .super-adaptive-placeholder:before,
-.super-full-rounded .super-adaptive-positioning:before {
+.super-full-rounded .super-focus .super-adaptive-placeholder span,
+.super-full-rounded .super-filled .super-adaptive-placeholder span,
+.super-full-rounded .super-adaptive-positioning span {
   -webkit-border-radius: 22px;
   -moz-border-radius: 22px;
   border-radius: 22px;
@@ -1563,7 +1539,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-size: 12px;
   height: 33px;
   min-height: 33px;
-  line-height: normal;
+  line-height: 1.2;
   -webkit-border-radius: 0px;
   -moz-border-radius: 0px;
   border-radius: 0px;
@@ -2067,6 +2043,15 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   padding: 0px 0px 0px 20px;
 }
 
+.super-toggle-prefix-label span,
+.super-toggle-suffix-label span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  float: left;
+}
+
 .super-toggle-prefix-question, .super-toggle-suffix-question {
   height: 33px;
   display: inline-block;
@@ -2102,6 +2087,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   position: absolute;
   left: 0;
   top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .super-toggle-switch .super-toggle-group .super-toggle-off {
   height: 33px;
@@ -2116,6 +2104,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   left: inherit;
   right: 0px;
   padding: 0px 0px 0px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .super-toggle-switch .super-toggle-handle {
   width: 20px;
@@ -2240,7 +2231,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   text-align: center;
   width: 30px;
   height: 30px;
-  line-height: normal;
+  line-height: 1.2;
 }
 
 .super-captcha p {
@@ -2445,6 +2436,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   height: 33px;
   line-height: 33px;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 .super-fileupload-button.super-fileupload-image {
   height: auto !important;
@@ -4088,11 +4081,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium .super-fileupload-button {
   height: 33px;
 }
-.super-field-size-medium .super-fileupload-button .super-fileupload-button-text {
-  height: 31px;
-  line-height: 31px;
-  display: block;
-}
 .super-field-size-medium .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
   height: 33px;
 }
@@ -4335,11 +4323,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-field-size-large .super-fileupload-button {
   height: 43px;
-}
-.super-field-size-large .super-fileupload-button .super-fileupload-button-text {
-  height: 41px;
-  line-height: 41px;
-  display: block;
 }
 .super-field-size-large .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
   height: 43px;
@@ -4584,11 +4567,6 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 }
 .super-field-size-huge .super-fileupload-button {
   height: 53px;
-}
-.super-field-size-huge .super-fileupload-button .super-fileupload-button-text {
-  height: 51px;
-  line-height: 51px;
-  display: block;
 }
 .super-field-size-huge .super-field.super-dropdown.super-focus-dropdown .super-field-wrapper {
   height: 53px;
@@ -5094,7 +5072,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   padding: 2px 5px 0px 0px;
   color: #dadada;
   height: 100%;
-  line-height: normal;
+  line-height: 1.2;
   font-size: 14px;
 }
 .super-i18n-switcher .super-dropdown-placeholder {
@@ -5344,7 +5322,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   position: relative;
   cursor: pointer;
   font-size: 0.9rem;
-  line-height: normal;
+  line-height: 1.2;
 }
 .super-accordion-header:before, .super-accordion-header:after {
   content: "";
@@ -5649,21 +5627,21 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   height: 53px;
 }
 
-.super-field-size-medium .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-field-size-medium .super-filled .super-adaptive-placeholder:before,
-.super-field-size-medium .super-adaptive-positioning:before {
+.super-field-size-medium .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder span,
+.super-field-size-medium .super-filled .super-adaptive-placeholder span,
+.super-field-size-medium .super-adaptive-positioning span {
   margin-top: -32px;
 }
 
-.super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-field-size-large .super-filled .super-adaptive-placeholder:before,
-.super-field-size-large .super-adaptive-positioning:before {
+.super-field-size-large .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder span,
+.super-field-size-large .super-filled .super-adaptive-placeholder span,
+.super-field-size-large .super-adaptive-positioning span {
   margin-top: -37px;
 }
 
-.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder:before,
-.super-field-size-huge .super-filled .super-adaptive-placeholder:before,
-.super-field-size-huge .super-adaptive-positioning:before {
+.super-field-size-huge .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder span,
+.super-field-size-huge .super-filled .super-adaptive-placeholder span,
+.super-field-size-huge .super-adaptive-positioning span {
   margin-top: -42px;
 }
 
@@ -6149,7 +6127,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   align-items: center;
   justify-content: center;
   padding: 5px 25px 5px 25px !important;
-  line-height: normal;
+  line-height: 1.2;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
@@ -6187,6 +6165,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
   position: relative;
 }
 .super-loading-overlay .super-inner-text {
+  width: 100%;
   text-align: center;
 }
 .super-loading-overlay.super-error .super-loading-wrapper:after, .super-loading-overlay.super-success .super-loading-wrapper:after {

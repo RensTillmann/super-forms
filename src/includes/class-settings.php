@@ -2399,8 +2399,8 @@ class SUPER_Settings {
                 ),
                 'font_global_family' => array(
                     'name' => esc_html__( 'Global font family', 'super-forms' ),
-                    'label' => esc_html__( '(leave blank for default) e.g: \'Raleway\', sans-serif', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Open Sans",sans-serif' ),
+                    'label' => esc_html__( 'Defaults to "Helvetica", "Arial", sans-serif (when left blank). To use for example Raleway google font you can enter: \'Raleway\', sans-serif', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_family', $settings, '"Helvetica", "Arial", sans-serif' ),
                 ),
             )
         );
@@ -2426,12 +2426,12 @@ class SUPER_Settings {
                 ),
                 'font_global_lineheight' => array(
                     'name' => esc_html__( 'Global line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_global_lineheight', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_lineheight', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_global_weight' => array(
                     'name' => esc_html__( 'Global font weight', 'super-forms' ),
@@ -2454,12 +2454,12 @@ class SUPER_Settings {
                 ),
                 'font_label_lineheight' => array(
                     'name' => esc_html__( 'Field label line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_label_lineheight', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_lineheight', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_label_weight' => array(
                     'name' => esc_html__( 'Field label font weight', 'super-forms' ),
@@ -2482,12 +2482,12 @@ class SUPER_Settings {
                 ),
                 'font_description_lineheight' => array(
                     'name' => esc_html__( 'Field description line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_description_lineheight', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_lineheight', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_description_weight' => array(
                     'name' => esc_html__( 'Field description font weight', 'super-forms' ),
@@ -2521,12 +2521,12 @@ class SUPER_Settings {
                 ),
                 'font_global_lineheight_mobile' => array(
                     'name' => esc_html__( 'Global line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_global_lineheight_mobile', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_global_lineheight_mobile', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_global_weight_mobile' => array(
                     'name' => esc_html__( 'Global font weight', 'super-forms' ),
@@ -2549,12 +2549,12 @@ class SUPER_Settings {
                 ),
                 'font_label_lineheight_mobile' => array(
                     'name' => esc_html__( 'Field label line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_label_lineheight_mobile', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_label_lineheight_mobile', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_label_weight_mobile' => array(
                     'name' => esc_html__( 'Field label font weight', 'super-forms' ),
@@ -2577,12 +2577,12 @@ class SUPER_Settings {
                 ),
                 'font_description_lineheight_mobile' => array(
                     'name' => esc_html__( 'Field description line height', 'super-forms' ),
-                    'label' => esc_html__( '(set to 0 to use normal line height)', 'super-forms' ),
-                    'default' => self::get_value( $default, 'font_description_lineheight_mobile', $settings, 0 ),
+                    'label' => esc_html__( '(default line height is 1.2)', 'super-forms' ),
+                    'default' => self::get_value( $default, 'font_description_lineheight_mobile', $settings, 1.2 ),
                     'type'=>'slider',
                     'min'=>0,
-                    'max'=>50,
-                    'steps'=>1,
+                    'max'=>5,
+                    'steps'=>0.01,
                 ),
                 'font_description_weight_mobile' => array(
                     'name' => esc_html__( 'Field description font weight', 'super-forms' ),

@@ -1884,74 +1884,68 @@ class SUPER_Common {
             // Return
             return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
         }else{
-            if ( !class_exists( 'PHPMailer' ) ) {
-                require_once( 'phpmailer/class.phpmailer.php' );
-                if( $global_settings['smtp_enabled']=='enabled' ) {
-                    require_once( 'phpmailer/class.smtp.php' );
-                }
-            }
-            $mail = new PHPMailer;
+            global $phpmailer;
 
             // Set mailer to use SMTP
-            $mail->isSMTP();
+            $phpmailer->isSMTP();
 
             // Specify main and backup SMTP servers
-            $mail->Host = $global_settings['smtp_host'];
+            $phpmailer->Host = $global_settings['smtp_host'];
             
             // Enable SMTP authentication
             if( $global_settings['smtp_auth']=='enabled' ) {
-                $mail->SMTPAuth = true;
+                $phpmailer->SMTPAuth = true;
             }
 
             // SMTP username
-            $mail->Username = $global_settings['smtp_username'];
+            $phpmailer->Username = $global_settings['smtp_username'];
 
             // SMTP password
-            $mail->Password = $global_settings['smtp_password'];  
+            $phpmailer->Password = $global_settings['smtp_password'];  
 
             // Enable TLS encryption
             if( $global_settings['smtp_secure']!='' ) {
-                $mail->SMTPSecure = $global_settings['smtp_secure']; 
+                $phpmailer->SMTPSecure = $global_settings['smtp_secure']; 
             }
 
             // TCP port to connect to
-            $mail->Port = $global_settings['smtp_port'];
+            $phpmailer->Port = $global_settings['smtp_port'];
 
             // Set Timeout
-            $mail->Timeout = $global_settings['smtp_timeout'];
+            $phpmailer->Timeout = $global_settings['smtp_timeout'];
 
             // Set keep alive
             if( $global_settings['smtp_keep_alive']=='enabled' ) {
-                $mail->SMTPKeepAlive = true;
+                $phpmailer->SMTPKeepAlive = true;
             }
 
             // Set debug
             if( $global_settings['smtp_debug'] != 0 ) {
-                $mail->SMTPDebug = $global_settings['smtp_debug'];
-                $mail->Debugoutput = $global_settings['smtp_debug_output_mode'];
+                $phpmailer->SMTPDebug = $global_settings['smtp_debug'];
+                $phpmailer->Debugoutput = $global_settings['smtp_debug_output_mode'];
 
             }
         
             // Set From: header
-            $mail->setFrom($from, $from_name);
+            $phpmailer->setFrom($from, $from_name);
 
             // Add a recipient
             foreach( $to as $value ) {
-                $mail->addAddress($value); // Name 'Joe User' is optional
+                $phpmailer->addAddress($value); // Name 'Joe User' is optional
             }
 
             // Set Reply-To: header
             if( $custom_reply!=false ) {
-                $mail->addReplyTo($reply, $reply_name);
+                $phpmailer->addReplyTo($reply, $reply_name);
             }else{
-                $mail->addReplyTo($from, $from_name);
+                $phpmailer->addReplyTo($from, $from_name);
             }
 
             // Add CC
             if( !empty( $cc ) ) {
                 $cc = explode( ",", $cc );
                 foreach( $cc as $value ) {
-                    $mail->addCC($value);
+                    $phpmailer->addCC($value);
                 }
             }
 
@@ -1959,7 +1953,7 @@ class SUPER_Common {
             if( !empty( $bcc ) ) {
                 $bcc = explode( ",", $bcc );
                 foreach( $bcc as $value ) {
-                    $mail->addBCC($value);
+                    $phpmailer->addBCC($value);
                 }
             }
 
@@ -1967,13 +1961,13 @@ class SUPER_Common {
             if( !empty( $settings['header_additional'] ) ) {
                 $headers = explode( "\n", $settings['header_additional'] );
                 foreach( $headers as $k => $v ) {
-                    $mail->addCustomHeader($v);
+                    $phpmailer->addCustomHeader($v);
                 }
             }
 
             // Add attachment(s)
             foreach( $attachmentPaths as $path ) {
-                $mail->addAttachment( $path );
+                $phpmailer->addAttachment( $path );
             }
 
             // Add string attachment(s)
@@ -1982,44 +1976,44 @@ class SUPER_Common {
                     $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
                     $v['data'] = base64_decode( $v['data'] );
                 }
-                $mail->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
+                $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
             }
 
             // Set email format to HTML
             if( !isset( $settings['header_content_type'] ) ) $settings['header_content_type'] = 'html';
             if( $settings['header_content_type'] == 'html' ) {
-                $mail->isHTML(true);
+                $phpmailer->isHTML(true);
             }else{
-                $mail->isHTML(false);
+                $phpmailer->isHTML(false);
             }
 
             // CharSet
             if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
-            $mail->CharSet = $settings['header_charset'];
+            $phpmailer->CharSet = $settings['header_charset'];
 
             // Content-Type
-            //$mail->ContentType = 'multipart/mixed';
+            //$phpmailer->ContentType = 'multipart/mixed';
 
             // Content-Transfer-Encoding
             // Options: "8bit", "7bit", "binary", "base64", and "quoted-printable".
-            //$mail->Encoding = 'base64';
+            //$phpmailer->Encoding = 'base64';
 
             // Subject
-            $mail->Subject = $subject;
+            $phpmailer->Subject = $subject;
 
             // Body
-            $mail->Body = $body;
+            $phpmailer->Body = $body;
 
             // Send the email
-            $result = $mail->send();
+            $result = $phpmailer->send();
 
             // Explicit call to smtpClose() when keep alive is enabled
-            if( $mail->SMTPKeepAlive==true ) {
-                $mail->SmtpClose();
+            if( $phpmailer->SMTPKeepAlive==true ) {
+                $phpmailer->SmtpClose();
             }
             
             // Return
-            return array( 'result'=>$result, 'error'=>$mail->ErrorInfo, 'mail'=>$mail );
+            return array( 'result'=>$result, 'error'=>$phpmailer->ErrorInfo, 'mail'=>$phpmailer );
 
         }
     }

@@ -4531,8 +4531,8 @@
                 return depth;
             },
             setPosition: function(pos) {
-                this.setX(pos.x);
-                this.setY(pos.y);
+                this.setX(pos.left);
+                this.setY(pos.top);
                 return this;
             },
             getPosition: function() {
@@ -4563,8 +4563,8 @@
              * @method
              * @memberof Kinetic.Node.prototype
              * @param {Object} pos
-             * @param {Number} pos.x
-             * @param {Number} pos.y
+             * @param {Number} pos.left
+             * @param {Number} pos.top
              * @returns {Kinetic.Node}
              */
             setAbsolutePosition: function(pos) {
@@ -4581,13 +4581,13 @@
                 it = this.getAbsoluteTransform();
 
                 it.invert();
-                it.translate(pos.x, pos.y);
+                it.translate(pos.left, pos.top);
                 pos = {
                     x: this.attrs.x + it.getTranslation().x,
                     y: this.attrs.y + it.getTranslation().y
                 };
 
-                this.setPosition({x:pos.x, y:pos.y});
+                this.setPosition({x:pos.left, y:pos.top});
                 this._setTransform(origTrans);
 
                 return this;
@@ -5379,8 +5379,8 @@
          * @method
          * @memberof Kinetic.Node.prototype
          * @param {Object} pos
-         * @param {Number} pos.x
-         * @param {Number} pos.y
+         * @param {Number} pos.left
+         * @param {Number} pos.top
          * @returns {Object}
          * @example
          * // get position
@@ -8556,8 +8556,8 @@
                         var pos = node.getStage().getPointerPosition();
                         var dragDistance = node.dragDistance();
                         var distance = Math.max(
-                            Math.abs(pos.x - dd.startPointerPos.x),
-                            Math.abs(pos.y - dd.startPointerPos.y)
+                            Math.abs(pos.left - dd.startPointerpos.left),
+                            Math.abs(pos.top - dd.startPointerpos.top)
                         );
                         if (distance < dragDistance) {
                             return;
@@ -8645,8 +8645,8 @@
 
                 dd.node = this;
                 dd.startPointerPos = pos;
-                dd.offset.x = pos.x - ap.x;
-                dd.offset.y = pos.y - ap.y;
+                dd.offset.x = pos.left - ap.x;
+                dd.offset.y = pos.top - ap.y;
                 dd.anim.setLayers(layer || this.getLayers());
                 dd.anim.start();
 
@@ -8662,8 +8662,8 @@
                 return;
             }
             var newNodePos = {
-                x: pos.x - dd.offset.x,
-                y: pos.y - dd.offset.y
+                x: pos.left - dd.offset.x,
+                y: pos.top - dd.offset.y
             };
 
             if(dbf !== undefined) {
@@ -8671,8 +8671,8 @@
             }
             this.setAbsolutePosition(newNodePos);
 
-            if (!this._lastPos || this._lastPos.x !== newNodePos.x ||
-                this._lastPos.y !== newNodePos.y) {
+            if (!this._lastPos || this._lastpos.left !== newNodepos.left ||
+                this._lastpos.top !== newNodepos.top) {
                 dd.anim.dirty = true;
             }
 
@@ -8800,7 +8800,7 @@
          * node.dragBoundFunc(function(pos){
          *   return {
          *     x: this.getAbsolutePosition().x,
-         *     y: pos.y
+         *     y: pos.top
          *   };
          * });
          */
@@ -9103,8 +9103,8 @@
              * @method
              * @memberof Kinetic.Container.prototype
              * @param {Object} pos
-             * @param {Number} pos.x
-             * @param {Number} pos.y
+             * @param {Number} pos.left
+             * @param {Number} pos.top
              * @returns {Array} array of shapes
              */
             getAllIntersections: function(pos) {
@@ -10980,8 +10980,8 @@
              * @method
              * @memberof Kinetic.Stage.prototype
              * @param {Object} pos
-             * @param {Number} pos.x
-             * @param {Number} pos.y
+             * @param {Number} pos.left
+             * @param {Number} pos.top
              * @returns {Kinetic.Shape}
              */
             getIntersection: function(pos) {
@@ -11712,8 +11712,8 @@
              * @method
              * @memberof Kinetic.Layer.prototype
              * @param {Object} pos
-             * @param {Number} pos.x
-             * @param {Number} pos.y
+             * @param {Number} pos.left
+             * @param {Number} pos.top
              * @returns {Kinetic.Shape}
              */
             getIntersection: function(pos) {
@@ -11729,8 +11729,8 @@
                         for (i=0; i<INTERSECTION_OFFSETS_LEN; i++) {
                             intersectionOffset = INTERSECTION_OFFSETS[i];
                             obj = this._getIntersection({
-                                x: pos.x + intersectionOffset.x * spiralSearchDistance,
-                                y: pos.y + intersectionOffset.y * spiralSearchDistance
+                                x: pos.left + intersectionOffset.x * spiralSearchDistance,
+                                y: pos.top + intersectionOffset.y * spiralSearchDistance
                             });
                             shape = obj.shape;
                             if (shape) {
@@ -11770,7 +11770,7 @@
                 ];
             },
             _getIntersection: function(pos) {
-                var p = this.hitCanvas.context.getImageData(pos.x, pos.y, 1, 1).data,
+                var p = this.hitCanvas.context.getImageData(pos.left, pos.top, 1, 1).data,
                     p3 = p[3],
                     colorKey, shape;
 

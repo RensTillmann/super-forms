@@ -1,3 +1,6 @@
+Oct 22, 2020 - Version 2.1.8
+- Improved: CSS alignment for calculator label
+
 Jul 30, 2020 - Version 2.1.6
 - Comaptibility with latest version of Super Forms
 

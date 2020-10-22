@@ -1506,7 +1506,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'choose_payment_method' => esc_html__( 'Please choose a payment method!', 'super-forms' ),
                     'ideal_subscription_error' => esc_html__( 'Subscriptions can not be paid through iDeal, please choose a different payment method!', 'super-forms' ),
                     'styles' => array(
-                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Helvetica", "Arial", sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
                         'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
                         'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
@@ -2897,7 +2897,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
                     'stripe_pk' => $global_settings['stripe_pk'],
                     'styles' => array(
-                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Helvetica", "Arial", sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
                         'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
                         'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
@@ -2956,7 +2956,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
                     'stripe_pk' => $global_settings['stripe_pk'],
                     'styles' => array(
-                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Open Sans",sans-serif' ),
+                        'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Helvetica", "Arial", sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
                         'color' => ( isset( $settings['theme_field_colors_font'] ) ? $settings['theme_field_colors_font'] : '#444444' ),
                         'colorFocus' => ( isset( $settings['theme_field_colors_font_focus'] ) ? $settings['theme_field_colors_font_focus'] : '#444444' ),
