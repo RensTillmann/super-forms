@@ -4181,6 +4181,7 @@ function SUPERreCaptcha(){
                         args.pageHeight
                     );
                     // Make PDF searchable when text rendering is enabled
+                    if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
                     if(args.pdfSettings.textRendering==='true'){
                         SUPER.render_pdf_text(args);
                     }
@@ -4844,8 +4845,10 @@ function SUPERreCaptcha(){
             for(i=0; i<nodes.length; i++){
                 if(nodes[i].value!==''){
                     el = nodes[i].closest('.super-shortcode');
-                    el.querySelector('.super-adaptive-placeholder').children[0].innerHTML = el.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
-                    el.classList.add('super-filled');
+                    if(el.querySelector('.super-adaptive-placeholder')){
+                        el.querySelector('.super-adaptive-placeholder').children[0].innerHTML = el.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
+                        el.classList.add('super-filled');
+                    }
                 }
             }
             // ... but for signatures (if add-on is active)
