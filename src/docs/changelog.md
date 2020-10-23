@@ -4,8 +4,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Oct 23, 2020 - Version 4.9.531
+## Oct 23, 2020 - Version 4.9.532
 
+- **Fix:** Issue when adaptive placeholders are being used, but are empty, would cause it to be prefixed with numbers "1" or "2"
 - **Fix:** JS error when not using adaptive placeholders
 
 ## Oct 22, 2020 - Version 4.9.530
