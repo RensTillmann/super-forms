@@ -1530,10 +1530,10 @@ class SUPER_Shortcodes {
         if(!empty($settings['theme_style']) && $settings['theme_style']=='super-style-one') $settings['enable_adaptive_placeholders'] = '';
         if( (empty($settings['enable_adaptive_placeholders'])) ) {
             if( !empty( $atts['default_placeholder'] ) ) {
-                $result .= ' placeholder="1' . esc_attr($atts['default_placeholder']) . '"';
+                $result .= ' placeholder="' . esc_attr($atts['default_placeholder']) . '"';
             }else{
                 if( !empty( $atts['placeholder'] ) ) {
-                    $result .= ' placeholder="2' . esc_attr($atts['placeholder']) . '"';
+                    $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '"';
                 }
             }
         }
