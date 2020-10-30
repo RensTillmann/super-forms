@@ -1,8 +1,7 @@
-Oct 30, 2020 - Version 1.8.5
+Oct 30, 2020 - Version 1.8.6
 - Fix: When using the option `Send activation email` we should also do a check on the `wp-login.php` form to make sure user can't login before they confirmed their email address with the activation code
 - Improved: Naming convention changed for setting `Send activation email` because it is conflicting with the `User status` setting. Renamed to `Send email confirmation/verification email`. Also updated the options to reflect this convention
-
-When using the option `Send activation email` we should also do a check on the `wp-login.php` form to make sure user can't login before they confirmed their email address with the activation code
+- Fix: PHP Notice
 
 Aug 27, 2020 - Version 1.8.2
 - Added: Prefix `super` to `close` classname for zero conflict policy

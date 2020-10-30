@@ -13,7 +13,7 @@
 
 With this Add-on you can `register` or `login` users through your Super Forms.
 
-You can also choose to only allow specific user role(s) to login. And specify what role a new registered user should get. Of course the Lost password form is also available which allows users to enter their email address to receive a new password. As an option you can select to send an activation email after registration or instantly let users login after their registration. Redirect to any page (for instance a dashboard).
+You can also choose to only allow specific user role(s) to login. And specify what role a new registered user should get. Of course the Lost password form is also available which allows users to enter their email address to receive a new password. As an option you can select to send an verification email after registration or instantly let users login after their registration. Redirect to any page (for instance a dashboard).
 Click here to read more about this Add-on.
 
 ## Quick start
@@ -43,7 +43,7 @@ Now select the roles that are allowed to login, or leave black to allow all role
 
 Define the URL where the login page is located on your site.
 
-In case you enable the option to send an activation email to the user, you must make sure you added the `Activation Code` element to your login form. This is where the user will enter the activation code to verify their account.
+In case you enable the option to send an verification email to the user, you must make sure you added the `Activation Code` element to your login form. This is where the user will enter the verification code to verify their account.
 
 !> **Important:** Your form must have a password field exactly named `user_pass` or the user won't be able to login. Also make sure to exclude the password field from being saved in Contact Entries, and Exclude it from E-mails. There is no need to send the password, and it can only cause a security risk. However Super Forms gives you this possibility, you are free to do with the data as you please.
 
@@ -61,7 +61,9 @@ From the `Actions` option choose `Register a new user`.
 
 You should now see all settings that relate to registering a new user. Configure them as you see fit.
 
-In case you enable the option to send an activation email to the user, you must make sure you added the `Activation Code` element to your login form. This is where the user will enter the activation code to verify their account. It is also important to setup the correct `Login page URL` or the user wouldn't be redirected to the login form correctly through the tag `{register_login_url}`.
+In case you enable the option to send an verification email to the user, you must make sure you added the `Activation Code` element to your login form. This is where the user will enter the verification code to verify their account. It is also important to setup the correct `Login page URL` or the user wouldn't be redirected to the login form correctly through the tag `{register_login_url}`.
+
+It is also possible to manually approve registrations. If this is the case you will want to change the `User login status after registration` from `Active (default)` to `Pending`. Please understand that this isn't the same thing as the email verification.
 
 ?> **Important:** Your form must contain a password field exactly named `user_pass` or a random password will be generated instead. Also make sure to exclude the password field from being saved in Contact Entries, and Exclude it from E-mails. There is no need to send the password, and it can only cause a security risk. However Super Forms gives you this possibility, you are free to do with the data as you please.
 
