@@ -886,8 +886,7 @@
         };
 
         // @since 4.9.6 - secrets
-        var i,
-            localSecrets = [], 
+        var localSecrets = [], 
             globalSecrets = [],
             nodes = document.querySelectorAll('.super-local-secrets > ul > li');
         for(i=0; i<nodes.length; i++){
@@ -1186,7 +1185,6 @@
             }
         });
         $doc.on('change keyup blur', '.super-secrets input[name="secretName"]', function () {
-            debugger;
             var value = this.value.replace(/\s+/gi, '_');
             value = value.replace(/ /g, "_");
             value = value.replace(/\//g, "");
