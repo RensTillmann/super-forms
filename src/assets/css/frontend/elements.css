@@ -1472,7 +1472,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   width: 33px;
   height: 33px;
   text-align: center;
-  line-height: 30px;
+  line-height: 33px;
 }
 
 .super-icon-inside .super-icon {
@@ -1489,7 +1489,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   width: 33px;
   height: 33px;
   text-align: center;
-  line-height: 30px;
+  line-height: 33px;
 }
 
 .super-focus {
@@ -4064,7 +4064,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-medium .super-icon {
   width: 33px;
   height: 33px;
-  line-height: 30px;
+  line-height: 33px;
 }
 .super-field-size-medium .super-slider .super-field-wrapper {
   height: 33px;
@@ -4307,7 +4307,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-large .super-icon {
   width: 43px;
   height: 43px;
-  line-height: 40px;
+  line-height: 43px;
 }
 .super-field-size-large .super-slider .super-field-wrapper {
   height: 43px;
@@ -4551,7 +4551,7 @@ ul.super-multipart-steps .super-multipart-step .super-multipart-step-name, ul.su
 .super-field-size-huge .super-icon-outside .super-icon, .super-field-size-huge .super-icon-inside .super-icon {
   width: 53px;
   height: 53px;
-  line-height: 50px;
+  line-height: 53px;
 }
 .super-field-size-huge .super-slider .super-field-wrapper {
   height: 53px;

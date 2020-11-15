@@ -255,6 +255,7 @@
                 $tabs = array(
                     'builder' => esc_html__( 'Builder', 'super-forms' ),
                     'translations' => esc_html__( 'Translations', 'super-forms' ),
+                    'secrets' => esc_html__( 'Secrets', 'super-forms' ),
                     //'triggers' => esc_html__( 'Triggers', 'super-forms' )
                 );
                 $tabs = apply_filters( 'super_create_form_tabs', $tabs );
@@ -277,7 +278,7 @@
                         // super_create_form_`code`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
-                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
+                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'secrets'=>array('local'=>$localSecrets, 'global'=>$globalSecrets), 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
                         echo '</div>';
                         $tabs_content .= ob_get_contents();
                         ob_end_clean();
