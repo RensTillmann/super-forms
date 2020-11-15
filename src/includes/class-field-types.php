@@ -487,7 +487,9 @@ class SUPER_Field_Types {
             'state' => esc_html__( 'State/Province', 'super-forms' ),
             'postal_code' => esc_html__( 'Postal code', 'super-forms' ),
             'country' => esc_html__( 'Country name', 'super-forms' ),
-            'municipality' => esc_html__( 'Municipality', 'super-forms' )
+            'municipality' => esc_html__( 'Municipality', 'super-forms' ),
+            'lat' => esc_html__( 'Latitude', 'super-forms' ),
+            'lng' => esc_html__( 'Longitude', 'super-forms' )
         );
         $return = '';
         if( ( isset( $data[$id] ) ) && ( $data[$id]!='' ) ) {
@@ -499,7 +501,7 @@ class SUPER_Field_Types {
                     $return .= '<select class="super-previously-created" name="field" data-value="' . $data[$id][$i]['field'] . '"></select>';
                     $type = $data[$id][$i]['type'];
                     $return .= '<select name="type" data-value="' . $type . '">';
-                        $return .= '<option value="">- retrieve method -</option>';
+                        $return .= '<option value="">- '.esc_html__('retrieve method', 'super-forms').' -</option>';
                         $return .= '<option value="long"' . ($type=='long' ? ' selected="selected"' : '') . '>'.esc_html__('Long name (default)', 'super-forms').'</option>';
                         $return .= '<option value="short"' . ($type=='short' ? ' selected="selected"' : '') . '>'.esc_html__('Short name', 'super-forms').'</option>';
                     $return .= '</select>';
@@ -513,6 +515,7 @@ class SUPER_Field_Types {
                     $return .= '<input type="hidden" name="key" value="' . $k . '" />';
                     $return .= '<select class="super-previously-created" name="field" data-value=""></select>';
                     $return .= '<select name="type" data-value="">';
+                        $return .= '<option value="">- '.esc_html__('retrieve method', 'super-forms').' -</option>';
                         $return .= '<option value="long">'.esc_html__('Long name (default)', 'super-forms').'</option>';
                         $return .= '<option value="short">'.esc_html__('Short name', 'super-forms').'</option>';
                     $return .= '</select>';
