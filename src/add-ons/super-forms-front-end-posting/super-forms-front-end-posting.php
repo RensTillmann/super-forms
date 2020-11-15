@@ -954,6 +954,16 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                 continue;
                             }
                         }
+                        // Check if string is JSON
+                        if(strpos($v, '{') === 0){
+                                $originalValue = $v;
+                                $v = stripslashes($v);
+                                $v = json_decode($v, true);
+                                if ($v === null && json_last_error() !== JSON_ERROR_NONE) {
+                                        // Not valid JSON data
+                                        $v = $originalValue;
+                                }
+                        }
                         update_post_meta( $post_id, $k, $v );
                     }
 

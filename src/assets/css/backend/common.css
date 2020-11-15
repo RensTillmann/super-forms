@@ -97,7 +97,7 @@
 .sfui-btn {
     height: 30px;
     line-height: 30px;
-    padding: 0px 15px 0px 15px;
+    padding: 0px 0px 0px 0px;
     margin: 10px 10px 10px 0px;
     background-color: red;
     color: white;
@@ -113,20 +113,29 @@
     clear: inherit;
 }
 .sfui-btn.sfui-icon {
-    padding-left: 45px;
+    display: flex;
+    align-items: center;
+    padding: 0px 10px 0px 10px;
+}
+.sfui-btn.sfui-icon > span {
+  padding:0px 0px 0px 10px;
 }
 .sfui-btn:hover {
     opacity:0.7;
 }
 .sfui-btn i {
-    border-right: 1px solid white;
-    width: 30px;
-    height: 30px;
-    text-align:center;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    line-height: 30px;
+    /* border-right: 1px solid white; */
+    /* width: 30px; */
+    /* height: 30px; */
+    /* text-align:center; */
+    /* position: absolute; */
+    /* top: 0px; */
+    /* left: 0px; */
+    /* line-height: 30px; */
+    /* margin-right: 10px; */
+    /* display: flex; */
+    /* align-items: center; */
+    /* padding: 0px 0px 0px 0px; */
 }
 
 
@@ -139,6 +148,9 @@
 .sfui-notice.sfui-red {
     background-color: #ffd6d6;
     color: #c11919;
+}
+.sfui-btn.sfui-grey {
+    background-color: #7f7f7f;
 }
 .sfui-notice.sfui-yellow {
     background-color: #ffeab3;

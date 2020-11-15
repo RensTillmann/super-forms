@@ -4,8 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Oct 23, 2020 - Version 4.9.532
+## Nov 15, 2020 - Version 4.9.540
 
+- **Added:** [Secrets](secrets.md) to savely store sensitive data on server side, but still be able to retrieve it conditionally and use it in the form settings
+- **Fix:** Problem with datepicker connected to a datepicker that allows a user to choose multiple dates automatically clearing the field value upon selecting dates
 - **Fix:** Issue when adaptive placeholders are being used, but are empty, would cause it to be prefixed with numbers "1" or "2"
 - **Fix:** JS error when not using adaptive placeholders
 

@@ -1423,7 +1423,7 @@ if(!class_exists('SUPER_WooCommerce')) :
 				$array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
 					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
-					'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_user_role', $settings['settings'], 'active' ),
+					'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_user_role', $settings['settings'], '' ),
 					'type' => 'select',
 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
 					'filter' => true,

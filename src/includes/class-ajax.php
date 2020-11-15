@@ -1736,6 +1736,10 @@ class SUPER_Ajax {
         }
         $id = absint( $id );
 
+        // @since 4.9.6 - secrets
+        $localSecrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
+        $globalSecrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
+
         $formElements = wp_slash($formElements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
         $formSettings = wp_slash($formSettings); // This is required to keep Custom CSS {content: '\x123';} working
         // @since 4.7.0 - translations
@@ -1778,6 +1782,9 @@ class SUPER_Ajax {
             add_post_meta( $id, '_super_form_settings', $formSettings );
             add_post_meta( $id, '_super_elements', $formElements );
 
+            // @since 4.9.6 - secrets
+            add_post_meta( $id, '_super_local_secrets', $localSecrets );
+
             // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
 
@@ -1805,6 +1812,9 @@ class SUPER_Ajax {
             }
             update_post_meta( $id, '_super_form_settings', $formSettings );
             update_post_meta( $id, '_super_elements', $formElements );
+            
+            // @since 4.9.6 - secrets
+            update_post_meta( $id, '_super_local_secrets', $localSecrets );
 
             // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
@@ -1826,6 +1836,10 @@ class SUPER_Ajax {
             // @since 4.7.0 - translations
             add_post_meta( $backup_id, '_super_translations', $translationSettings );
         }
+
+        // @since 4.9.6 - secrets
+        update_option( 'super_global_secrets', $globalSecrets );
+
         echo $id;
         die();
 
@@ -2528,11 +2542,13 @@ class SUPER_Ajax {
             $response_data['contact_entry_id'] = $contact_entry_id;
 
             // @since 3.4.0 - save custom contact entry status
-            $entry_status = sanitize_text_field( $_POST['entry_status'] );
-            if($entry_status!=''){
-                $settings['contact_entry_custom_status'] = $entry_status;
+            if(!empty($_POST['entry_status'])){
+                $entry_status = sanitize_text_field( $_POST['entry_status'] );
+                if($entry_status!=''){
+                    $settings['contact_entry_custom_status'] = $entry_status;
+                }
             }
-            if( (isset($settings['contact_entry_custom_status'])) && ($settings['contact_entry_custom_status']!='') ) {
+            if(!empty($settings['contact_entry_custom_status'])){
                 add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
             }
 

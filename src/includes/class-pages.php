@@ -79,9 +79,117 @@ class SUPER_Pages {
         <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
         <?php
     }
+    
+    /**
+     * Handle TAB outputs for secrets tab
+     * Secrets can be used to store and retrieve data on server side
+     * This can be useful if you do not want to place sensitive data in the form source code
+     * A good usecase would be if you are conditionally sending to a specific email address
+     * In that case you might not want to add the email address in the HTML source code (to avoid SPAM)
+     * You can define a secret for each email address, which would be linked to a specific tag name e.g: {$secret_XXXXX}
+     * This tag can then be used anywhere in your form settings
+     * (secrets will only work upon form submission, it will not work on page load, this is the whole purpose of secrets really)
+     * You can define local secrets and global secrets, local secrets can only be used on the current form, while global secrets can be used on any form you create.
+     * This includes forms you created in the past, and forms you will create in the future.
+     */
+    public static function secrets_tab($atts) {
+        extract($atts);
+        echo '<div class="super-secrets">';
+            echo '<div class="sfui-notice sfui-yellow">';
+                echo '<strong>' . esc_html__('What are secrets?', 'super-forms') . '</strong> ';
+                echo '<br />' . esc_html__( 'Secrets are values that you can retrieve with the use of tags prefixed with a @ sign e.g: {@secret_email} or {@my_secret_name}. This allows you to not expose it\'s value in the HTML source code (client side). A good use case to use secrets would be when you do not want to expose any email addresses when you are conditionally directing form submission to specific email addresses based on what a user filled out in the form. Normally you would do this with a variable field (hidden field) but this would expose the email address to the client (in the source code). You can also use secrets inside your form elements such as dropdown values, but they will not be converted to the actual value upon page load. This way you can still retrieve the underlaying secret conditionally by just calling the dropdown {tag} inside your form settings. Of course you could also use the secret {@tag} directly inside your form settings.', 'super-forms');
+            echo '</div>';
+            echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>' . esc_html__('Tip', 'super-forms') . ':</strong> ';
+                echo esc_html__( 'It is best practice to use local secrets unless you have a specific use case that requires the use for global secrets.', 'super-forms');
+            echo '</div>';
+            echo '<div class="super-local-secrets">';
+                echo '<h3>' . esc_html__( 'Local secrets', 'super-forms' ) . '</h3>';
+                echo '<div class="sfui-notice sfui-desc">';
+                    echo '<strong>' . esc_html__('Info', 'super-forms') . ':</strong> ';
+                    echo esc_html__( 'Local secrets can only be used in this form only', 'super-forms' );
+                echo '</div>';
+                echo '<ul>';
+                    if( (is_array($secrets['local'])) && (!empty($secrets['local'])) ) {
+                        foreach($secrets['local'] as $k => $v){
+                            echo '<li>';
+                                echo '<span class="super-secret-tag">{@' . $v['name'] . '}</span>';
+                                echo '<input value="' . $v['name'] . '" type="text" name="secretName" placeholder="' . esc_html__('Local secret name', 'super-forms') . '" />';
+                                echo '<input value="' . $v['value'] . '" type="text" name="secretValue" placeholder="' . esc_html__('Local secret value', 'super-forms') . '" />';
+                                echo '<span class="super-delete-secret sfui-btn sfui-icon sfui-red">';
+                                    echo '<i class="fas fa-trash"></i>';
+                                echo '</span>';
+                                echo '<span class="super-add-secret sfui-btn sfui-icon sfui-grey">';
+                                    echo '<i class="fas fa-plus"></i>';
+                                echo '</span>';
+                            echo '</li>';
+                        }
+                    }else{
+                        echo '<li>';
+                            echo '<span class="super-secret-tag"></span>';
+                            echo '<input type="text" name="secretName" placeholder="' . esc_html__('Local secret name', 'super-forms') . '" />';
+                            echo '<input type="text" name="secretValue" placeholder="' . esc_html__('Local secret value', 'super-forms') . '" />';
+                            echo '<span class="super-delete-secret sfui-btn sfui-icon sfui-red">';
+                                echo '<i class="fas fa-trash"></i>';
+                            echo '</span>';
+                            echo '<span class="super-add-secret sfui-btn sfui-icon sfui-grey">';
+                                echo '<i class="fas fa-plus"></i>';
+                            echo '</span>';
+                        echo '</li>';
+                    }
+                echo '</ul>';
+            echo '</div>';
+            echo '<div class="super-global-secrets">';
+                echo '<h3>' . esc_html__( 'Global secrets', 'super-forms' ) . '</h3>';
+                echo '<div class="sfui-notice sfui-desc">';
+                    echo '<strong>' . esc_html__('Info', 'super-forms') . ':</strong> ';
+                    echo esc_html__( 'Global secrets can be used in all your forms. Make sure to not alter any existing secrets or it could possibly impact previously created forms that are using global secrets.', 'super-forms' );
+                echo '</div>';
+                echo '<ul>';
+                    if( (is_array($secrets['global'])) && (!empty($secrets['global'])) ) {
+                        foreach($secrets['global'] as $k => $v){
+                            echo '<li>';
+                                echo '<span class="super-secret-tag">{@' . $v['name'] . '}</span>';
+                                echo '<input value="' . $v['name'] . '" disabled type="text" name="secretName" placeholder="' . esc_html__('Global secret name', 'super-forms') . '" />';
+                                echo '<input value="' . $v['value'] . '" disabled type="text" name="secretValue" placeholder="' . esc_html__('Global secret value', 'super-forms') . '" />';
+                                echo '<span class="super-delete-secret sfui-btn sfui-icon sfui-red">';
+                                    echo '<i class="fas fa-trash"></i>';
+                                echo '</span>';
+                                echo '<span class="super-edit-secret sfui-btn sfui-icon sfui-green">';
+                                    echo '<i class="fas fa-pencil-alt"></i>';
+                                echo '</span>';
+                                echo '<span class="super-add-secret sfui-btn sfui-icon sfui-grey">';
+                                    echo '<i class="fas fa-plus"></i>';
+                                echo '</span>';
+                            echo '</li>';
+                        }
+                    }else{
+                        echo '<li>';
+                            echo '<span class="super-secret-tag"></span>';
+                            echo '<input disabled type="text" name="secretName" placeholder="' . esc_html__('Global secret name', 'super-forms') . '" />';
+                            echo '<input disabled type="text" name="secretValue" placeholder="' . esc_html__('Global secret value', 'super-forms') . '" />';
+                            echo '<span class="super-delete-secret sfui-btn sfui-icon sfui-red">';
+                                echo '<i class="fas fa-trash"></i>';
+                            echo '</span>';
+                            echo '<span class="super-edit-secret sfui-btn sfui-icon sfui-green">';
+                                echo '<i class="fas fa-pencil-alt"></i>';
+                            echo '</span>';
+                            echo '<span class="super-add-secret sfui-btn sfui-icon sfui-grey">';
+                                echo '<i class="fas fa-plus"></i>';
+                            echo '</span>';
+                        echo '</li>';
+                    }
+                echo '</ul>';
+            echo '</div>';
+            echo '<span class="super-update-secrets sfui-btn sfui-icon sfui-green">';
+                echo '<i class="fas fa-save"></i>';
+                echo '<span>' . esc_html__( 'Update all', 'super-forms' ) . '<span>';
+            echo '</span>';
+        echo '</div>';
+    }
 
     /**
-     * Handle TAB outputs on code page (edit raw form code)
+     * Handle TAB outputs for code tab (edit raw form code)
      */
     public static function code_tab($atts) {
         extract($atts);
@@ -106,7 +214,7 @@ class SUPER_Pages {
             echo '<textarea></textarea>';
             echo '<span class="super-update-raw-code sfui-btn sfui-icon sfui-green">';
                 echo '<i class="fas fa-save"></i>';
-                echo esc_html__( 'Update all', 'super-forms' );
+                echo '<span>' . esc_html__( 'Update all', 'super-forms' ) . '<span>';
             echo '</span>';
         echo '</div>';
 
@@ -332,6 +440,10 @@ class SUPER_Pages {
         
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($form_id);
+
+        // @since 4.9.6 - secrets
+        $localSecrets = get_post_meta($form_id, '_super_local_secrets', true);
+        $globalSecrets = get_option( 'super_global_secrets' );
 
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );

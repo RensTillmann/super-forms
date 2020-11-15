@@ -884,6 +884,26 @@
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
         };
+
+        // @since 4.9.6 - secrets
+        var localSecrets = [], 
+            globalSecrets = [],
+            nodes = document.querySelectorAll('.super-local-secrets > ul > li');
+        for(i=0; i<nodes.length; i++){
+            localSecrets.push({
+                name: nodes[i].querySelector('input[name="secretName"]').value,
+                value: nodes[i].querySelector('input[name="secretValue"]').value
+            });
+        }
+        nodes = document.querySelectorAll('.super-global-secrets > ul > li');
+        for(i=0; i<nodes.length; i++){
+            globalSecrets.push({
+                name: nodes[i].querySelector('input[name="secretName"]').value,
+                value: nodes[i].querySelector('input[name="secretValue"]').value
+            });
+        }
+        params.localSecrets = localSecrets;
+        params.globalSecrets = globalSecrets;
         params = SUPER.save_form_params_filter(params);
         params = $.param(params);
         xhttp.send(params);
@@ -1125,6 +1145,78 @@
                 $('.super-preview-elements').removeClass('super-transfering');
             }
         }, 300); // check every 3 milli seconds
+
+
+        // @since 4.9.6 - Secrets
+        $doc.on('click', '.super-add-secret', function(){
+            var clone = this.closest('li').cloneNode(true);
+            // Empty field
+            clone.querySelector('input[name="secretName"]').value = '';
+            clone.querySelector('input[name="secretValue"]').value = '';
+            clone.querySelector('.super-secret-tag').innerHTML = '&nbsp;';
+            this.closest('ul').appendChild(clone);
+            if(this.closest('.super-global-secrets')){
+                var node = this.closest('li');
+                var nodes = node.querySelectorAll('input');
+                for(var i=0; i<nodes.length; i++){
+                    nodes[i].disabled = true;
+                }
+            }
+        });
+        $doc.on('click', '.super-delete-secret', function(){
+            // Only delete if there are more than 1 items
+            if(this.closest('ul').children.length>1){
+                // Confirm if deleting a global secret
+                if(this.closest('.super-global-secrets')){
+                    var $delete = confirm(super_create_form_i18n.confirm_deletion);
+                    if ($delete === true) {
+                        this.closest('li').remove();
+                    }
+                }else{
+                    this.closest('li').remove();
+                }
+            }
+        });
+        $doc.on('click', '.super-edit-secret', function(){
+            var node = this.closest('li');
+            var nodes = node.querySelectorAll('input');
+            for(var i=0; i<nodes.length; i++){
+                nodes[i].disabled = false;
+            }
+        });
+        $doc.on('change keyup blur', '.super-secrets input[name="secretName"]', function () {
+            var value = this.value.replace(/\s+/gi, '_');
+            value = value.replace(/ /g, "_");
+            value = value.replace(/\//g, "");
+            value = value.replace(/[^a-zA-Z0-9-_.]+/g, "");
+            value = value.replace(/\.+/g, "_");
+            value = value.replace(/[--]+/g, "-");
+            value = value.replace(/[__]+/g, "_");
+            this.value = value;
+            // Update the {@tag}
+            if(value===''){
+                this.closest('li').querySelector('.super-secret-tag').innerHTML = '';
+            }else{
+                this.closest('li').querySelector('.super-secret-tag').innerHTML = '{@'+value+'}';
+            }
+            // Check if exact same secret name exists, if so notify user visually about it
+            var nodes = document.querySelectorAll('.super-secrets input[name="secretName"]');
+            var duplicateFound = false;
+            for(var i=0; i<nodes.length; i++){
+                if(nodes[i]===this) continue;
+                if(nodes[i].value === value){
+                    nodes[i].classList.add('super-error');
+                    duplicateFound = true;
+                }else{
+                    nodes[i].classList.remove('super-error');
+                }
+            }
+            if(duplicateFound){
+                alert(super_create_form_i18n.alert_duplicate_secret_names);
+            }else{
+                this.classList.remove('super-error');
+            }
+        });
 
         // @since 4.9.0 - update form code manually
         $doc.on('click', '.super-update-raw-code', function () {
@@ -2397,7 +2489,7 @@
 
         $doc.on('click', '.super-create-form .super-actions .super-save', function () {
             if($('.super-tab-code.super-active').length){
-                alert(super_create_form_i18n.alert_save_not_allowed);
+                alert(super_create_form_i18n.alert_save_not_allowed_code_tab);
                 return false;
             }
             var $this = $(this);

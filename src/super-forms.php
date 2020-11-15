@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.532
+ * Version:     4.9.540
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.532';
+        public $version = '4.9.540';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1822,6 +1822,7 @@ if(!class_exists('SUPER_Forms')) :
             if($current_screen->id==='super-forms_page_super_create_form'){
                 add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
                 add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
+                add_action( 'super_create_form_secrets_tab', array( 'SUPER_Pages', 'secrets_tab' ), 10, 1 );
                 add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
                 add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
             }
@@ -2421,8 +2422,9 @@ if(!class_exists('SUPER_Forms')) :
                             'confirm_load_form' => esc_html__( 'This will delete your current progress. Before you proceed, please confirm that you want to delete all elements and insert this example form!', 'super-forms' ),
                             'alert_select_form' => esc_html__( 'You did not select a form!', 'super-forms' ),
                             'alert_save' => esc_html__( 'Before you can preview it, you need to save your form!', 'super-forms' ),
-                            'alert_save_not_allowed' => esc_html__( 'You are not allowed to save the form while the "Code" tab is opened!', 'super-forms' ),
+                            'alert_save_not_allowed_code_tab' => esc_html__( 'You are not allowed to save the form while the "Code" tab is opened!', 'super-forms' ),
                             'alert_duplicate_field_names' => esc_html__( 'You have duplicate field names. Please make sure each field has a unique name!', 'super-forms' ),
+                            'alert_duplicate_secret_names' => esc_html__( 'You have duplicate secret names. Please make sure each secret has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => esc_html__( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
                             'alert_empty_field_name' => esc_html__( 'Unique field name may not be empty!', 'super-forms' ),
                             'deleting' => esc_html__( 'Deleting...', 'super-forms' ),
