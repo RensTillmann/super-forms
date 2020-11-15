@@ -24,6 +24,7 @@
   - [Conditional Validation](conditional-validation.md)
 
 - Features
+  - [Secrets](secrets.md)
   - [File uploads](file-uploads.md)
   - [Translation System](build-in-translation-system.md)
   - [Tags system](tags-system.md)

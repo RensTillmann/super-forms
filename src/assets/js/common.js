@@ -1370,6 +1370,7 @@ function SUPERreCaptcha(){
 
 
         while (($match = $regex.exec(args.value)) !== null) {
+            if($match[0]==='{}') continue;
             $array[$i] = $match[1];
             $i++;
         }
@@ -1593,19 +1594,26 @@ function SUPERreCaptcha(){
                         if($parent.classList.contains('super-hidden')){
                             if($parent.dataset.conditionalVariableAction=='enabled'){
                                 $text_field = false;
-                                $new_value = $element.value.toString().split(';');
-                                if($value_n===0){
-                                    $new_value = $new_value[0];
+                                // Check contains semicolon as seperator, but also check if it doesn't contain a double quote,
+                                // because this would indicate that the user is trying to create a serialized array,
+                                // to update for instance meta data for a third party plugin
+                                if($element.value.indexOf('"')!==-1){
+                                    $value = $element.value;
                                 }else{
-                                    $new_value = $new_value[($value_n-1)];
-                                }
-                                if(typeof $new_value==='undefined'){
-                                    $new_value = '';
-                                }
-                                if($value_type=='int'){
-                                    $value = parseFloat($new_value);
-                                }else{
-                                    $value = $new_value;
+                                    $new_value = $element.value.toString().split(';');
+                                    if($value_n===0){
+                                        $new_value = $new_value[0];
+                                    }else{
+                                        $new_value = $new_value[($value_n-1)];
+                                    }
+                                    if(typeof $new_value==='undefined'){
+                                        $new_value = '';
+                                    }
+                                    if($value_type=='int'){
+                                        $value = parseFloat($new_value);
+                                    }else{
+                                        $value = $new_value;
+                                    }
                                 }
                             }
                         }
@@ -1932,7 +1940,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.left = "9999px";
         pdfPageContainer.style.top = "-9999px";
         // ------- for debugging only: ----
-        //debugger;
+        // debugger;
         //pdfPageContainer.style.zIndex = "9999999999";
         //pdfPageContainer.style.left = "0px";
         //pdfPageContainer.style.top = "0px";
@@ -4647,7 +4655,9 @@ function SUPERreCaptcha(){
                     administrative_area_level_2: 'municipality',
                     administrative_area_level_1: 'state',
                     country: 'country',
-                    postal_code: 'postal_code'
+                    postal_code: 'postal_code',
+                    lat: 'lat',
+                    lng: 'lng'
                 };
                 var street_data = {
                     number: {
@@ -4674,7 +4684,19 @@ function SUPERreCaptcha(){
                 var $attribute;
                 var $val;
                 var $address;
+                
+                place.address_components.push({
+                    long_name: lat,
+                    short_name: lat,
+                    types: ["lat"]
+                });
+                place.address_components.push({
+                    long_name: lng,
+                    short_name: lng,
+                    types: ["lng"]
+                });
                 for (var i = 0; i < place.address_components.length; i++) {
+                    debugger;
                     var item = place.address_components[i];
                     var long = item.long_name;
                     var short = item.short_name;
@@ -4692,11 +4714,36 @@ function SUPERreCaptcha(){
                     $attribute = $(field).data('map-'+mapping[types[0]]);
                     if(typeof $attribute !=='undefined'){
                         $attribute = $attribute.split('|');
-                        if($attribute[1]==='') $attribute[1] = 'long';
-                        $val = place.address_components[i][$attribute[1]+'_name'];
                         inputField = SUPER.field(args.form, $attribute[0]);
-                        inputField.value = $val;
-                        if($val===''){
+                        if(inputField){
+                            if($attribute[1]==='') $attribute[1] = 'long';
+                            $val = place.address_components[i][$attribute[1]+'_name'];
+                            inputField.value = $val;
+                            if($val===''){
+                                inputField.closest('.super-shortcode').classList.remove('super-filled');
+                            }else{
+                                inputField.closest('.super-shortcode').classList.add('super-filled');
+                            }
+                            SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                        }
+                    }
+                }
+
+                // @since 3.5.0 - combine street name and number
+                $attribute = $(field).data('map-street_name_number');
+                if( typeof $attribute !=='undefined' ) {
+                    $attribute = $attribute.split('|');
+                    inputField = SUPER.field(args.form, $attribute[0]);
+                    if(inputField){
+                        $address = '';
+                        if( street_data.name[$attribute[1]]!=='' ) $address += street_data.name[$attribute[1]];
+                        if( $address!=='' ) {
+                            $address += ' '+street_data.number[$attribute[1]];
+                        }else{
+                            $address += street_data.number[$attribute[1]];
+                        }
+                        inputField.value = $address;
+                        if($address===''){
                             inputField.closest('.super-shortcode').classList.remove('super-filled');
                         }else{
                             inputField.closest('.super-shortcode').classList.add('super-filled');
@@ -4705,46 +4752,27 @@ function SUPERreCaptcha(){
                     }
                 }
 
-                // @since 3.5.0 - combine street name and number
-                $attribute = $(field).data('map-street_name_number');
-                if( typeof $attribute !=='undefined' ) {
-                    $attribute = $attribute.split('|');
-                    $address = '';
-                    if( street_data.name[$attribute[1]]!=='' ) $address += street_data.name[$attribute[1]];
-                    if( $address!=='' ) {
-                        $address += ' '+street_data.number[$attribute[1]];
-                    }else{
-                        $address += street_data.number[$attribute[1]];
-                    }
-                    inputField = SUPER.field(args.form, $attribute[0]);
-                    inputField.value = $address;
-                    if($address===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-
                 // @since 3.5.1 - combine street number and name
                 $attribute = $(field).data('map-street_number_name');
                 if( typeof $attribute !=='undefined' ) {
                     $attribute = $attribute.split('|');
-                    $address = '';
-                    if( street_data.number[$attribute[1]]!=='' ) $address += street_data.number[$attribute[1]];
-                    if( $address!=='' ) {
-                        $address += ' '+street_data.name[$attribute[1]];
-                    }else{
-                        $address += street_data.name[$attribute[1]];
-                    }
                     inputField = SUPER.field(args.form, $attribute[0]);
-                    inputField.value = $address;
-                    if($address===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
+                    if(inputField){
+                        $address = '';
+                        if( street_data.number[$attribute[1]]!=='' ) $address += street_data.number[$attribute[1]];
+                        if( $address!=='' ) {
+                            $address += ' '+street_data.name[$attribute[1]];
+                        }else{
+                            $address += street_data.name[$attribute[1]];
+                        }
+                        inputField.value = $address;
+                        if($address===''){
+                            inputField.closest('.super-shortcode').classList.remove('super-filled');
+                        }else{
+                            inputField.closest('.super-shortcode').classList.add('super-filled');
+                        }
+                        SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             });
         });

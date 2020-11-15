@@ -553,7 +553,7 @@ class SUPER_Common {
                 $str = '{'.$str.'}';   
             } 
         }
-        $re = '/\{(.*?)\}/';
+        $re = '/{([^"\']*?)}/m';
         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
         foreach($matches as $mk => $mv){
             $values = explode(";", $mv[1]);
@@ -1697,6 +1697,23 @@ class SUPER_Common {
                         $value = $product->get_attribute( $meta_key );
                         return $value;
                     }
+                }
+            }
+            
+            // @since 4.9.6 - local/global secrets
+            $form_id = absint($data['hidden_form_id']['value']);
+            if($form_id!=0){
+                $localSecrets = get_post_meta( $form_id, '_super_local_secrets', true );
+                if( is_array( $localSecrets ) ) {
+                    foreach( $localSecrets as $v){
+                        $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                    }
+                }
+            }
+            $globalSecrets = get_option( 'super_global_secrets' );
+            if( is_array( $globalSecrets ) ) {
+                foreach( $globalSecrets as $k => $v ) {
+                    $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                 }
             }
 

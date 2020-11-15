@@ -2633,3 +2633,39 @@
     padding: 0px 0px 30px 0px;
     font-size: 16px;
 }
+
+
+.super-local-secrets > ul,
+.super-global-secrets > ul {
+    width:100%;
+    margin:0;
+    float: left;
+}
+.super-local-secrets > ul > li,
+.super-global-secrets > ul > li {
+    margin:0;
+    display: flex;
+    width:100%;
+    align-items:center;
+}
+.super-local-secrets > ul > li > input,
+.super-global-secrets > ul > li > input {
+    margin-right:10px;
+    height:30px;
+    flex-grow: 1;
+}
+.super-global-secrets > ul > li > input[disabled] {
+    cursor: not-allowed;
+}
+.super-secret-tag {
+    border:1px dashed #939393;
+    padding:5px 10px 5px 10px;
+    background-color:#ececec;
+    margin-right:10px;
+    color:#2b2b2b;
+    font-weight:500;
+}
+.super-secrets input.super-error {
+    border:1px solid #ff3939;
+    background-color:#ffecec;
+}
