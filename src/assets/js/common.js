@@ -3937,14 +3937,10 @@ function SUPERreCaptcha(){
         // Only if not header and not footer, because these are printed on every single page
         if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
             var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-            //if((tmpPosTop) < 0 || tmpPosTop > (args.scrollAmount)){
             if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
                 return true; //continue;
             }
         }
-        //if(args.currentPage>1){
-        //    tmpPosTop += headerBottomBodyTopMargin;
-        //}
         var posWidth = (pos.width/scale)*convertFromPixel;
         var posHeight = (pos.height/scale)*convertFromPixel;
         var posLeft = ((pos.left-9999)/scale)*convertFromPixel;
@@ -4020,13 +4016,11 @@ function SUPERreCaptcha(){
     // PDF render text
     SUPER.render_pdf_text = function(args){
         // If so add a text node on the exact position
-        var i, nodes, formWidth, formHeight, pdfPageWidth, pdfPageHeight, scale,
+        var i, nodes, formWidth, pdfPageWidth, scale,
             lineHeight = 1.194,
             drawRectangle = false, // true,
             renderingMode = 'invisible', // fill,
-            headerBottomBodyTopMargin, tmpPosTop,
-            charSpace, topLineHeight, oneLineHeight, posWidth, posHeight, posLeft, posTop, pos, marginTop, paddingTop, paddingBottom, paddingRight, paddingLeft, paddingTop,
-            resume, value, el, fontSize, fontSizePoint,
+            resume, el,
             // Loop over all elements and see if the element is included in the PDF
             pdfPageContainer = document.querySelector('.super-pdf-page-container'),
             //pdfHeader = pdfPageContainer.querySelector('.super-pdf-header'),
@@ -4034,8 +4028,7 @@ function SUPERreCaptcha(){
             //pdfFooter = pdfPageContainer.querySelector('.super-pdf-footer'),
             convertToPixel = 1,
             convertFromPixel = 1,
-            charSpaceMultiplier = 0.00135,
-            ptsPerInch = 72;
+            charSpaceMultiplier = 0.00135;
 
         // Convert unit to pixel
         if(args.pdfSettings.unit=='pt') convertToPixel = 1.333333333333333;
@@ -4055,32 +4048,17 @@ function SUPERreCaptcha(){
         var topLineHeightDivider = 1;
         if(args.pdfSettings.unit=='px') topLineHeightDivider = 2;
         var m = args.pdfSettings.margins;
-        var headerMargins = {
-            top: parseFloat(m.header.top)*convertToPixel,
-            right: parseFloat(m.header.right)*convertToPixel,
-            bottom: parseFloat(m.header.bottom)*convertToPixel,
-            left: parseFloat(m.header.left)*convertToPixel,
-        };
         var bodyMargins = {
             top: parseFloat(m.body.top)*convertToPixel,
             right: parseFloat(m.body.right)*convertToPixel,
             bottom: parseFloat(m.body.bottom)*convertToPixel,
             left: parseFloat(m.body.left)*convertToPixel,
         };
-        var footerMargins = {
-            top: parseFloat(m.footer.top)*convertToPixel,
-            right: parseFloat(m.footer.right)*convertToPixel,
-            bottom: parseFloat(m.footer.bottom)*convertToPixel,
-            left: parseFloat(m.footer.left)*convertToPixel,
-        };
-        headerBottomBodyTopMargin = headerMargins.bottom+bodyMargins.top;
-            
+        
         // Determine scale
         formWidth = args.form0.clientWidth;
-        formHeight = args.form0.clientHeight;
         formWidth = formWidth + bodyMargins.left + bodyMargins.right;
         pdfPageWidth = args.pdf.internal.pageSize.getWidth()*convertToPixel;
-        pdfPageHeight = args.pdf.internal.pageSize.getHeight();
         scale = formWidth / pdfPageWidth;
 
         args.pdf.setFont('Helvetica');
@@ -4696,7 +4674,6 @@ function SUPERreCaptcha(){
                     types: ["lng"]
                 });
                 for (var i = 0; i < place.address_components.length; i++) {
-                    debugger;
                     var item = place.address_components[i];
                     var long = item.long_name;
                     var short = item.short_name;

@@ -158,6 +158,7 @@
                             $connected_min_days = parseInt($this.dataset.connectedMinDays, 10);
                             min_date = Date.parseExact(original_selectedDate, $parse_format).add({ days: $connected_min_days }).toString($format);
                             $($connected_date).datepicker('option', 'minDate', min_date );
+                            var maxPicks =($this.dataset.maxpicks ? parseInt($this.dataset.maxpicks, 10) : 1);
                             if(maxPicks<=1){
                                 if($connected_date.value===''){
                                     $connected_date.value = min_date;
