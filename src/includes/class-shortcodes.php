@@ -151,7 +151,7 @@ class SUPER_Shortcodes {
         if(!empty($entry_data_value)){
             $atts['value'] = $entry_data_value;
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings );
+        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
         // Add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']);
 
@@ -1938,6 +1938,7 @@ class SUPER_Shortcodes {
                                 }
                                 // First check how many columns there are
                                 // This way we can correctly close the column system
+                                $initialColumnsFound = (empty($GLOBALS['super_column_found']) ? 0 : $GLOBALS['super_column_found']);
                                 $GLOBALS['super_column_found'] = 0;
                                 foreach( $tab_inner as $iv ) {
                                     if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
@@ -1954,6 +1955,8 @@ class SUPER_Shortcodes {
                                         $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                 }
+                                // Restore amount of columns found
+                                $GLOBALS['super_column_found'] = $initialColumnsFound;
                             }
                             unset($GLOBALS['super_grid_system']);
                             if($builder) $result .= '</div>';
@@ -2046,6 +2049,7 @@ class SUPER_Shortcodes {
                                     }
                                     // First check how many columns there are
                                     // This way we can correctly close the column system
+                                    $initialColumnsFound = (empty($GLOBALS['super_column_found']) ? 0 : $GLOBALS['super_column_found']);
                                     $GLOBALS['super_column_found'] = 0;
                                     foreach( $tab_inner as $iv ) {
                                         if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
@@ -2062,6 +2066,8 @@ class SUPER_Shortcodes {
                                             $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                         }
                                     }
+                                    // Restore amount of columns found
+                                    $GLOBALS['super_column_found'] = $initialColumnsFound;
                                 }
                                 unset($GLOBALS['super_grid_system']);
                                 if($builder) $result .= '</div>';

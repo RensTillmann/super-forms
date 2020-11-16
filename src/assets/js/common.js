@@ -6312,6 +6312,8 @@ function SUPERreCaptcha(){
                         if(multiPartForm){
                             // We found a form, check if it contains a multi-part, if so then make it active
                             var nodes = multiPartForm.querySelectorAll('.super-multipart');
+                            // If there are not enough multi-parts default to the first one
+                            if(nodes.length < multiPart) multiPart = "1";
                             for(var i = 0; i < nodes.length; i++){
                                 if(multiPart==(i+1)){
                                     nodes[i].classList.add('super-active');

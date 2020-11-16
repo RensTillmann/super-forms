@@ -96,8 +96,7 @@ class SUPER_Pages {
         extract($atts);
         echo '<div class="super-secrets">';
             echo '<div class="sfui-notice sfui-yellow">';
-                echo '<strong>' . esc_html__('What are secrets?', 'super-forms') . '</strong> ';
-                echo '<br />' . esc_html__( 'Secrets are values that you can retrieve with the use of tags prefixed with a @ sign e.g: {@secret_email} or {@my_secret_name}. This allows you to not expose it\'s value in the HTML source code (client side). A good use case to use secrets would be when you do not want to expose any email addresses when you are conditionally directing form submission to specific email addresses based on what a user filled out in the form. Normally you would do this with a variable field (hidden field) but this would expose the email address to the client (in the source code). You can also use secrets inside your form elements such as dropdown values, but they will not be converted to the actual value upon page load. This way you can still retrieve the underlaying secret conditionally by just calling the dropdown {tag} inside your form settings. Of course you could also use the secret {@tag} directly inside your form settings.', 'super-forms');
+                echo '<strong>' . esc_html__('Not sure what secrets are?', 'super-forms') . ':</strong> <a href="https://renstillmann.github.io/super-forms/#/secrets" target="_blank">' . esc_html__( 'Read the documentation here!', 'super-forms' ) . '</a>';
             echo '</div>';
             echo '<div class="sfui-notice sfui-desc">';
                 echo '<strong>' . esc_html__('Tip', 'super-forms') . ':</strong> ';
@@ -181,10 +180,6 @@ class SUPER_Pages {
                     }
                 echo '</ul>';
             echo '</div>';
-            echo '<span class="super-update-secrets sfui-btn sfui-icon sfui-green">';
-                echo '<i class="fas fa-save"></i>';
-                echo '<span>' . esc_html__( 'Update all', 'super-forms' ) . '<span>';
-            echo '</span>';
         echo '</div>';
     }
 

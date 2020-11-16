@@ -2600,6 +2600,7 @@ class SUPER_Ajax {
                                     $final_entry_data[$k] = $v;
                                 }
                             }else{
+                                if(!empty($v['value'])) $v['value'] = SUPER_Common::email_tags( $v['value'], $data, $settings );
                                 $final_entry_data[$k] = $v;
                             }
                         }
