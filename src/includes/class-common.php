@@ -1106,7 +1106,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false ) {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;
         $current_user = wp_get_current_user();
@@ -1701,19 +1701,21 @@ class SUPER_Common {
             }
             
             // @since 4.9.6 - local/global secrets
-            $form_id = absint($data['hidden_form_id']['value']);
-            if($form_id!=0){
-                $localSecrets = get_post_meta( $form_id, '_super_local_secrets', true );
-                if( is_array( $localSecrets ) ) {
-                    foreach( $localSecrets as $v){
-                        $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+            if($skipSecrets===false){
+                $form_id = absint($data['hidden_form_id']['value']);
+                if($form_id!=0){
+                    $localSecrets = get_post_meta( $form_id, '_super_local_secrets', true );
+                    if( is_array( $localSecrets ) ) {
+                        foreach( $localSecrets as $v){
+                            $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                        }
                     }
                 }
-            }
-            $globalSecrets = get_option( 'super_global_secrets' );
-            if( is_array( $globalSecrets ) ) {
-                foreach( $globalSecrets as $k => $v ) {
-                    $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                $globalSecrets = get_option( 'super_global_secrets' );
+                if( is_array( $globalSecrets ) ) {
+                    foreach( $globalSecrets as $k => $v ) {
+                        $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                    }
                 }
             }
 

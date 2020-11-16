@@ -11,7 +11,7 @@ Secrets are values (or data) which you can store locally or globally.
 
 You can retrieve these secrets inside your form settings with the use of tags prefixed with a `@` sign e.g: `{@secret_email}` or `{@my_secret_name}` and so on.
 
-It's also possible to use these secrets inside your fields. The difference with normal [{tags} (Tags system)](tags-system.md) being that they will not be replaced with their underlaying value upon page load. This prevents it value from being exposed to the client via the source code.
+It's also possible to use these secrets inside your fields. The difference with normal [{tags} (Tags system)](tags-system.md) being that they will not be replaced with their underlaying value upon page load. This prevents it's value from being exposed to the client via the source code.
 
 ## When to use secrets?
 
