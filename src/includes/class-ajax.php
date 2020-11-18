@@ -1077,7 +1077,15 @@ class SUPER_Ajax {
             $array[$v['name']] = $v['value'];
         }
         if($array['smtp_enabled']=='enabled'){
-            global $phpmailer;
+            // @since 4.9.551 - WordPress changed the location of PHPMailer apperantly...
+            if ( version_compare( $wp_version, '5.5', '<' ) ) {
+                require_once(ABSPATH . WPINC . "/class-phpmailer.php");
+                require_once(ABSPATH . WPINC . "/class-smtp.php");
+                require_once(ABSPATH . WPINC . "/class-pop3.php");
+                $phpmailer = new PHPMailer();
+            }else{
+                global $phpmailer;
+            }
             $phpmailer->isSMTP();
             $phpmailer->Host = $array['smtp_host'];
             $phpmailer->Port = $array['smtp_port'];
