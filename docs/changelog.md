@@ -4,7 +4,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 18, 2020 - Version 4.9.551
+## Nov 18, 2020 - Version 4.9.552
 
 - **Fix:** WordPress moved PHPMailer class into different location from v5.5 and above. Causing issues for those that had SMTP enabled in super forms.
 
