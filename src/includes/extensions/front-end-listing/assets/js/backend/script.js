@@ -235,6 +235,7 @@
 
     // When checkbox is clicked
     SUPER.frontEndListing.checkbox = function(e, el){
+        debugger;
         e = e || window.event;
         var targ = e.target || e.srcElement;
         if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug

@@ -273,7 +273,7 @@ if(!class_exists('SUPER_Forms')) :
             // build-SUPER_FORMS_BUNDLE_END
 
             include_once( 'elementor/elementor-super-forms-extension.php' );
-            //add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
+            add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
 
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             

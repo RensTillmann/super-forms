@@ -282,7 +282,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 </div>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_title']==true ? ' super-active' : ''); ?>" data-name="show_title">
-                                <span<?php echo ($list['show_title']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Title" column</span>
                                     <input class="super-tooltip" name="name" value="<?php echo $list['show_title']['name']; ?>" type="text" title="Column name" data-title="Column name" />
                                     <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_title']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
@@ -291,7 +291,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_status']==true ? ' super-active' : ''); ?>" data-name="show_status">
-                                <span<?php echo ($list['show_status']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Status" column</span>
                                     <input class="super-tooltip" name="name" value="<?php echo $list['show_status']['name']; ?>" type="text" title="Column name" data-title="Column name" />
                                     <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_status']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
@@ -300,7 +300,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['show_date']==true ? ' super-active' : ''); ?>" data-name="show_date">
-                                <span<?php echo ($list['show_date']==true ? ' class="super-active"' : ''); ?> onclick="SUPER.frontEndListing.checkbox(event, this)">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
                                     <span>Show "Date created" column</span>
                                     <input class="super-tooltip" name="name" value="<?php echo $list['show_date']['name']; ?>" type="text" title="Column name" data-title="Column name" />
                                     <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_date']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
@@ -309,7 +309,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 </span>
                             </div>
                             <div class="super-checkbox<?php echo ($list['custom_columns']==true ? ' super-active' : ''); ?>" data-name="custom_columns">
-                                <span<?php echo ($list['custom_columns']==true ? ' class="super-active"' : ''); ?>  onclick="SUPER.frontEndListing.checkbox(event, this)">Show the following "Custom" columns</span>
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show the following "Custom" columns</span>
                                 <div class="super-sub-settings">
                                     <ul>
                                         <?php
@@ -435,7 +435,9 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 ?>
             </ul>
             <div class="create-listing">
-                <span class="super-create-listing" onclick="SUPER.frontEndListing.addListing(this)"><?php echo esc_html__( 'Add List', 'super-forms' ); ?></span>
+                <span class="super-create-listing sfui-btn sfui-icon sfui-green" onclick="SUPER.frontEndListing.addListing(this)">
+                    <i class="fas fa-plus"></i><span><?php echo esc_html__( 'Add List', 'super-forms' ); ?><span>
+                </span>
             </div>
             <?php
         }
