@@ -1680,7 +1680,7 @@ function SUPERreCaptcha(){
             // When debugging is enabled download file instantly without submitting the form
             if(args.pdfArgs.pdfSettings.debug==="true"){
                 // Direct download of PDF
-                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename).then(function() {
+                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename, {returnPromise: true}).then(function() {
                     // Close loading overlay
                     SUPER.close_loading_overlay(args.loadingOverlay);
                 }, function() {

@@ -183,41 +183,6 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   display:block;
 }
 
-.super-create-listing {
-    box-shadow: initial;
-    border: 0;
-    border-radius: initial;
-    background-color: #69BA00;
-    overflow: initial;
-    color: white;
-    height: 30px!important;
-    line-height: 30px!important;
-    padding: 0px 15px 0px 15px!important;
-    float: initial;
-    font-size: 12px!important;
-    position: relative;
-    cursor: pointer;
-    font-weight: 100;
-    width: auto!important;
-    -webkit-transition: all 0.3s ease;
-    -moz-transition: all 0.3s ease;
-    transition: all 0.3s ease;
-    margin: 0px 6px 0px 0px;
-    background-color: #69BA00;
-}
-.super-create-listing:hover {
-    opacity:0.7;
-}
-.super-create-listing:after {
-    content: '\f067';
-    font-family: 'Font awesome 5 free';
-    font-weight:900;
-    padding:0px 0px 0px 10px;
-}
-
-
-
-
 .front-end-listing-list * {
   float:left;
   width:100%;
