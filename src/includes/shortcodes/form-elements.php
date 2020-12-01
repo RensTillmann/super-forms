@@ -2864,7 +2864,13 @@ $array['form_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, ''),
                         'label' => $label,
                         'description'=>$description,
-                        'placeholder' => SUPER_Shortcodes::placeholder($attributes, ''),
+                        'placeholder' => SUPER_Shortcodes::placeholder( $attributes, '' ),
+                        'placeholderFilled' => SUPER_Shortcodes::placeholderFilled( $attributes, '' ),
+                        'value' => array(
+                            'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
+                            'name' => esc_html__( 'Default value', 'super-forms' ), 
+                            'desc' => esc_html__( 'Set a default time for this field (leave blank for none)', 'super-forms' )
+                        ),
                         'current_time' => array(
                             'default'=> ( !isset( $attributes['current_time'] ) ? '' : $attributes['current_time'] ),
                             'type' => 'checkbox', 
