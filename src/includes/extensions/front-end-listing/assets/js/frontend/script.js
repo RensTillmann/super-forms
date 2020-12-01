@@ -135,33 +135,32 @@
     };
  
     // Delete entry
-    SUPER.frontEndListing.deleteEntry = function(el){
+    SUPER.frontEndListing.deleteEntry = function(el, list_id){
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
-
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 ){
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                // Success:
                 if (this.status == 200) {
-                    // Success:
                 }
                 // Complete:
+                if (typeof callback === "function") { 
+                }
             }
         };
         xhttp.onerror = function () {
-          console.log(this);
-          console.log("** An error occurred during the transaction");
+            console.log(this);
+            console.log("** An error occurred during the transaction");
         };
-        // eslint-disable-next-line no-undef
-        xhttp.open("POST", ajaxurl, true);
+        xhttp.open("POST", super_front_end_listing_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-        var params = JSON.stringify({
-            super_ajax : 'true',
-            action: 'delete_entry',
+        var params = {
+            action: 'super_frontend_listing_delete_entry',
             entry_id: entry_id,
-            // eslint-disable-next-line no-undef
-            wp_root: super_front_end_listing_i18n.wp_root
-        });
+            list_id: list_id
+        };
+        params = jQuery.param(params);
         xhttp.send(params);
     };
 

@@ -97,6 +97,8 @@ class SUPER_Ajax {
             'api_auth'                      => false,
             'api_submit_feedback'           => false,
 
+            'frontend_listing_delete_entry' => false,
+
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
             add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -105,6 +107,74 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+    }
+
+    public static function frontend_listing_delete_entry(){
+        $entry_id = absint($_POST['entry_id']);
+        $list_id = absint($_POST['list_id']);
+        // First check if entry exists
+        $entry = get_post($entry_id);
+        var_dump($entry_id);
+        var_dump($list_id);
+        //$entry->post_author;
+        //$entry->post_parent;
+        //$entry = get_post($entry_id);
+        $formSettings = get_post_meta($entry->post_parent, '_super_form_settings', true);
+        //var_dump($formSettings);
+        if(!isset($formSettings['_listings'][$list_id])){
+            // The list does not exist
+            echo 'The list does not exist';
+            die();
+        }
+
+        // Set default values if they don't exist
+        $listSettings = SUPER_Front_End_Listing::get_default_listing_settings($settings['_listings'][$list_id]);
+        var_dump($listSettings);
+        die();
+        
+        // If the entry exists, check which form it belongs to.
+
+        // Get the form settings and check if user is allowed to delete any entry
+        // Also check if user is allowed to delete their own entries
+        // It's important (for security reasons, to first check against the last setting, in case developer of form forgot to delete the other setting)
+        // Basically the latter is the master and thus leading
+        
+
+        
+        //$current_user_id = get_current_user_id();
+        //if( $current_user_id!=0 ) {
+        //    // Only if user is logged in
+        //    // We also check if user is allowed to delete entries
+        //    //
+
+        //}
+
+        //global $wpdb;
+        //$form_id = absint($_POST['form_id']);
+
+        //// Only delete selected backup
+        //if( isset($_POST['backup_id']) ) {
+        //    wp_delete_post( absint($_POST['backup_id']), true );
+        //    die();
+        //}
+
+        //// Delete form backups
+        //$args = array( 
+        //    'post_parent' => $form_id,
+        //    'post_type' => 'super_form',
+        //    'post_status' => 'backup',
+        //    'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+        //);
+        //$backups = get_posts( $args );
+        //if(is_array($backups) && count($backups) > 0) {
+        //    foreach( $backups as $v ) {
+        //        wp_delete_post( $v->ID, true );
+        //    }
+        //}
+        //die();            
+
+
+        die();
     }
 
     public static function api_get_auth(){

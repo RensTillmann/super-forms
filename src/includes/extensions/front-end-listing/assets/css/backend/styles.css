@@ -214,7 +214,7 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
 .front-end-listing-list .super-checkbox > span {
   padding:10px 0px 12px 25px;
 }
-.front-end-listing-list .super-checkbox > span.super-active {
+.front-end-listing-list .super-checkbox.super-active > span {
   padding-bottom:5px;
 }
 .front-end-listing-list .super-radio > span i {
@@ -226,21 +226,16 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   width:auto; 
   width:200px;
 }
-.front-end-listing-list .super-checkbox > span input {
+.front-end-listing-list .super-checkbox[data-name*="show_"] .super-sub-settings input {
   float:left;
   width:auto; 
   width:150px;
   font-weight:initial;
   margin:-3px 10px 0px 0px;
-  display:none;
 }
-.front-end-listing-list .super-checkbox > span input:nth-child(4),
-.front-end-listing-list .super-checkbox > span input:nth-child(5) {
+.front-end-listing-list .super-checkbox[data-name*="show_"] .super-sub-settings input:nth-child(3),
+.front-end-listing-list .super-checkbox[data-name*="show_"] .super-sub-settings input:nth-child(4) {
   width:60px;
-}
-
-.front-end-listing-list .super-checkbox > span.super-active input {
-  display:block;
 }
 .front-end-listing-list .super-radio > span input {
   width:auto;
@@ -259,7 +254,8 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   padding-left: 25px;
 }
 .front-end-listing-list .super-active > .super-sub-settings {
-  display:block;
+  display: flex;
+  flex-wrap: wrap;
 }
 .front-end-listing-list .super-sub-settings .super-text {
   width: auto;
