@@ -1,3 +1,6 @@
+Dec 01, 2020 - Version 2.1.9
+- Improved: `{tag}` regular expression, so that values in a HTML element like `{something like this / and this}` are not being detected as valid `{tags}`
+
 Oct 22, 2020 - Version 2.1.8
 - Improved: CSS alignment for calculator label
 

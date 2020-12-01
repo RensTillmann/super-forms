@@ -244,7 +244,7 @@
                 max = el.dataset.maxlength,
                 workDays,
                 weekends,
-                regex = /{([^"']*?)}/g,
+                regex = /{([^\\\/\s"'+]*?)}/g,
                 range = el.dataset.range,
                 maxPicks =(el.dataset.maxpicks ? parseInt(el.dataset.maxpicks, 10) : 1),
                 firstDay = el.dataset.firstDay,
@@ -264,6 +264,10 @@
                 parseFormat = [
                     jsformat
                 ];
+            // Check if range is valid value, if not set to default one
+            if(range.indexOf(':')===-1){
+                range = '-100:+5';
+            }
             
             // yy = short year
             // yyyy = long year
@@ -489,19 +493,26 @@
                 showOtherMonths: showOtherMonths,
                 selectOtherMonths: selectOtherMonths
             };
-            if(maxPicks>1){
-                options.maxPicks = maxPicks;
-                $(el).multiDatesPicker(options);
-            }else{
-                $(el).datepicker(options);
-            }
-
-            // @since 4.9.3 - Datepicker localization (language and format)
-            if(localization!==''){
-                if(typeof $.datepicker.regional[localization] !== 'undefined'){
-                    $.datepicker.regional[localization].yearSuffix = '';
-                    $(el).datepicker( "option", $.datepicker.regional[localization] );
+            
+            // Do a try catch because otherwise user might be locked out from the builder page if they made a mistake in entering for instance the "range" (yearRange)
+            try {
+                if(maxPicks>1){
+                    options.maxPicks = maxPicks;
+                    $(el).multiDatesPicker(options);
+                }else{
+                    $(el).datepicker(options);
                 }
+                // @since 4.9.3 - Datepicker localization (language and format)
+                if(localization!==''){
+                    if(typeof $.datepicker.regional[localization] !== 'undefined'){
+                        $.datepicker.regional[localization].yearSuffix = '';
+                        $(el).datepicker( "option", $.datepicker.regional[localization] );
+                    }
+                }
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.log(error);
+                alert(error);
             }
 
             $(el).parent().find('.super-icon').css('cursor','pointer');
@@ -1058,12 +1069,12 @@
                 array,
                 match,
                 number,
-                regex = /{([^"']*?)}/g,
+                regex = /{([^\\\/\s"'+]*?)}/g,
                 oldv,
                 duplicate_dynamically;
 
             function return_replace_names(value, new_count, replace_names){
-                regex = /{([^"']*?)}/g;
+                regex = /{([^\\\/\s"'+]*?)}/g;
                 while ((vv = regex.exec(value)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if (vv.index === regex.lastIndex) {
