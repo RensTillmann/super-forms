@@ -140,14 +140,13 @@ function SUPERreCaptcha(){
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         if(changedField[0]) changedField = changedField[0];
 
-        var p,
-            parent = changedField.closest('.super-shortcode');
-
+        var p, parent;
         for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
             if(p.classList.contains('super-form')) break;
             if( (p.classList.contains('super-column') || p.classList.contains('super-duplicate-column-fields')) && (p.style.display === 'none') ) return true;
         }
-        if( (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
+        parent = changedField.closest('.super-shortcode');
+        if( parent && (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
         }
         
@@ -710,7 +709,7 @@ function SUPERreCaptcha(){
         string_value = value.toString();
         bracket = "{";
         if(string_value.indexOf(bracket) != -1){
-            regex = /{([^"']*?)}/g;
+            regex = /{([^\\\/\s"'+]*?)}/g;
             name = regex.exec(value);
             name = name[1];
             element = SUPER.field(form, name);
@@ -782,7 +781,7 @@ function SUPERreCaptcha(){
         return $shortcode_field_value;
     };
     SUPER.conditional_logic.loop = function(args){
-        args.regex = /{([^"']*?)}/g;
+        args.regex = /{([^\\\/\s"'+]*?)}/g;
         var v,
             $v,
             $this,
@@ -793,7 +792,7 @@ function SUPERreCaptcha(){
             $action,
             $conditions,
             $total,
-            $regex = /{([^"']*?)}/g,
+            $regex = /{([^\\\/\s"'+]*?)}/g,
             $shortcode_field_value,
             $shortcode_field_and_value,
             $continue,
@@ -1064,7 +1063,7 @@ function SUPERreCaptcha(){
                                     $show_wrappers[key].style.display = 'block';
                                     // Make sure signatures resizes/refreshes after becoming visible
                                     if(typeof SUPER.refresh_signatures === 'function'){
-                                        SUPER.refresh_signatures('', args.form);
+                                        SUPER.refresh_signatures('', $show_wrappers[key]);
                                     }
                                     // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
                                     if($show_wrappers[key].classList.contains('super-slider')){
@@ -1366,7 +1365,7 @@ function SUPERreCaptcha(){
             key,
             $values,
             $element,
-            $regex = /{([^"']*?)}/g;
+            $regex = /{([^\\\/\s"'+]*?)}/g;
 
 
         while (($match = $regex.exec(args.value)) !== null) {
@@ -1940,7 +1939,6 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.left = "9999px";
         pdfPageContainer.style.top = "-9999px";
         // ------- for debugging only: ----
-        // debugger;
         //pdfPageContainer.style.zIndex = "9999999999";
         //pdfPageContainer.style.left = "0px";
         //pdfPageContainer.style.top = "0px";
@@ -2854,7 +2852,7 @@ function SUPERreCaptcha(){
             action = (args.submitButton.querySelector('.super-button-name') ? args.submitButton.querySelector('.super-button-name').dataset.action : ''),
             url = (typeof args.submitButton.dataset.href !== 'undefined' ? decodeURIComponent(args.submitButton.dataset.href) : undefined) ,
             proceed = SUPER.before_submit_button_click_hook(args.event, args.submitButton),
-            regex = /{([^"']*?)}/g,
+            regex = /{([^\\\/\s"'+]*?)}/g,
             array = [],
             error = false,
             name,
@@ -4292,7 +4290,7 @@ function SUPERreCaptcha(){
                     $lat = $coordinates[0];
                     $lng = $coordinates[1];
                     // If {tag} was found
-                    var regex = /{([^"']*?)}/g;
+                    var regex = /{([^\\\/\s"'+]*?)}/g;
                     if(regex.exec($lat)!==null){
                         $field_name = $lat.replace('{','').replace('}','');                       
                         $lat = SUPER.field(args.form, $field_name).dataset.lat;
@@ -4979,7 +4977,7 @@ function SUPERreCaptcha(){
         }else{
             $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
         }
-        $regex = /{([^"']*?)}/g;
+        $regex = /{([^\\\/\s"'+]*?)}/g;
         Object.keys($html_fields).forEach(function(key) {
             var $counter = 0;
             $target = $html_fields[key];
@@ -4995,7 +4993,7 @@ function SUPERreCaptcha(){
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
             var $skipUpdate = true;
-            $regex = /{([^"']*?)}/g;
+            $regex = /{([^\\\/\s"'+]*?)}/g;
             if($regex.exec($html)){
                 $skipUpdate = false;
             }
@@ -5059,7 +5057,7 @@ function SUPERreCaptcha(){
                     $html = $html.split($original).join($rows);
                 }
                 $array = [];
-                $regex = /{([^"']*?)}/g;
+                $regex = /{([^\\\/\s"'+]*?)}/g;
                 while (($match = $regex.exec($html)) !== null) {
                     $array[$counter] = $match[1];
                     $counter++;
@@ -5088,7 +5086,7 @@ function SUPERreCaptcha(){
         var $match,
             $target = args.form.querySelector('form'),
             $actiontags = ($target ? $target.dataset.actiontags : ''),
-            $regex = /{([^"']*?)}/g,
+            $regex = /{([^\\\/\s"'+]*?)}/g,
             $array = [],
             $counter = 0,
             $values,

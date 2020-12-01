@@ -1903,7 +1903,15 @@ class SUPER_Common {
             // Return
             return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
         }else{
-            global $phpmailer;
+            // @since 4.9.551 - WordPress changed the location of PHPMailer apperantly...
+            if ( version_compare( $wp_version, '5.5', '<' ) ) {
+                require_once(ABSPATH . WPINC . "/class-phpmailer.php");
+                require_once(ABSPATH . WPINC . "/class-smtp.php");
+                require_once(ABSPATH . WPINC . "/class-pop3.php");
+                $phpmailer = new PHPMailer();
+            }else{
+                global $phpmailer;
+            }
 
             // Set mailer to use SMTP
             $phpmailer->isSMTP();

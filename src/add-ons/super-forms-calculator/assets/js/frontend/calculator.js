@@ -58,7 +58,7 @@
 				dataFields = wrapper.dataset.fields;
 				superMath = wrapper.dataset.superMath;
 				if( superMath!='' ) {
-					regex = /{([^"']*?)}/g;
+					regex = /{([^\\\/\s"'+]*?)}/g;
 					array = [];
 					i = 0;
 					match;
