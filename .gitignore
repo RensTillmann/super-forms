@@ -3,6 +3,7 @@ dist
 build/tmp
 dist/uploads/php/files/*.*
 .map
+.crt
 sales-pages
 usd20190002.txt
 usd20190003.txt

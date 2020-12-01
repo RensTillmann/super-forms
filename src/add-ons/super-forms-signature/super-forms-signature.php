@@ -418,7 +418,7 @@ if(!class_exists('SUPER_Signature')) :
             // Get the value for from entry data
             $entry_data_value = SUPER_Shortcodes::get_entry_data_value( $tag, '', $atts['name'], $entry_data );
             if(!isset($atts['value'])) $atts['value'] = '';
-            if(!empty($entry_data_value)){
+            if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
                 $atts['value'] = $entry_data_value;
             }
             if($formProgress===false && $atts['disallowEdit']==='true' && $atts['value']!==''){

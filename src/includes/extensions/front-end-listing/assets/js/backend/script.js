@@ -235,20 +235,9 @@
 
     // When checkbox is clicked
     SUPER.frontEndListing.checkbox = function(e, el){
-        debugger;
-        e = e || window.event;
-        var targ = e.target || e.srcElement;
-        if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
-        console.log(targ.tagName);
-        if(targ.tagName==='INPUT'){
-            return false;
-        }
-        console.log(targ);
-        if(el.classList.contains('super-active')){
-            el.classList.remove('super-active');
+        if(el.parentNode.classList.contains('super-active')){
             el.parentNode.classList.remove('super-active');
         }else{
-            el.classList.add('super-active');
             el.parentNode.classList.add('super-active');
         }
     };

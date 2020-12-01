@@ -2407,7 +2407,6 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
-                            'wp_root' => ABSPATH,
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),

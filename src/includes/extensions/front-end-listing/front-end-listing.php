@@ -218,13 +218,14 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             return $tabs;
         }
         public static function add_tab_content($atts){
-            //array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content )
             $tooltips = array(
                 esc_html__( 'Give this listing a name', 'super-forms' ),
                 esc_html__('Paste shortcode on any page', 'super-forms' ),
                 esc_html__('Change Settings', 'super-forms' ),
                 esc_html__('Delete Listing', 'super-forms' )
             );
+            /*
+            //array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content )
             $shortcode = '[form-not-saved-yet]';
             $form_id = absint($atts['form_id']);
             ?>
@@ -262,104 +263,338 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         </div>
                         <div class="super-setting super-tooltip" onclick="SUPER.frontEndListing.toggleSettings(this)" title="<?php echo esc_attr($tooltips[2]); ?>" data-title="<?php echo esc_attr($tooltips[2]); ?>"></div>
                         <div class="super-delete super-tooltip" onclick="SUPER.frontEndListing.deleteListing(this)" title="<?php echo esc_attr($tooltips[3]); ?>" data-title="<?php echo esc_attr($tooltips[3]); ?>"></div>
-                        <div class="super-settings">
-                            <div class="super-radio" data-name="display_based_on">
-                                <span <?php echo ($list['display_based_on']=='this_form' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="this_form">Only display entries based on this Form</span>
-                                <span <?php echo ($list['display_based_on']=='all_forms' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="all_forms">Display entries based on all forms</span>
-                                <span <?php echo ($list['display_based_on']=='specific_forms' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="specific_forms">Display entries based on the following Form ID's:<br /><input type="text" name="form_ids" placeholder="123,124" value="<?php echo sanitize_text_field($list['form_ids']); ?>" /><i>(seperate each ID with a comma)</i></span>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['date_range']!==false ? ' super-active' : ''); ?>" data-name="date_range">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Only display entries within the following date range:</span>
-                                <div class="super-sub-settings">
-                                    <div class="super-text">
-                                        <span>From: <i>(or leave blank for no minimum date)</i></span>
-                                        <input type="date" name="from" value="<?php echo (!empty($list['from']) ? sanitize_text_field($list['from']) : ''); ?>" />
-                                    </div>
-                                    <div class="super-text">
-                                        <span>Till: <i>(or leave blank for no maximum date)</i></span>
-                                        <input type="date" name="till" value="<?php echo (!empty($list['till']) ? sanitize_text_field($list['till']) : ''); ?>" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['show_title']==true ? ' super-active' : ''); ?>" data-name="show_title">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
-                                    <span>Show "Title" column</span>
-                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_title']['name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_title']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_title']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_title']['position']); ?>" type="number" title="Column position" data-title="Column position" />
-                                </span>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['show_status']==true ? ' super-active' : ''); ?>" data-name="show_status">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
-                                    <span>Show "Status" column</span>
-                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_status']['name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_status']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_status']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_status']['position']); ?>" type="number" title="Column position" data-title="Column position" />
-                                </span>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['show_date']==true ? ' super-active' : ''); ?>" data-name="show_date">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">
-                                    <span>Show "Date created" column</span>
-                                    <input class="super-tooltip" name="name" value="<?php echo $list['show_date']['name']; ?>" type="text" title="Column name" data-title="Column name" />
-                                    <input class="super-tooltip" name="placeholder" value="<?php echo $list['show_date']['placeholder']; ?>" type="text" title="Filter placeholder" data-title="Filter placeholder" />
-                                    <input class="super-tooltip" name="width" value="<?php echo absint($list['show_date']['width']); ?>" type="number" title="Column width (px)" data-title="Column width (px)" />
-                                    <input class="super-tooltip" name="position" value="<?php echo absint($list['show_date']['position']); ?>" type="number" title="Column position" data-title="Column position" />
-                                </span>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['custom_columns']==true ? ' super-active' : ''); ?>" data-name="custom_columns">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Show the following "Custom" columns</span>
-                                <div class="super-sub-settings">
-                                    <ul>
-                                        <?php
-                                        $columns = $list['columns'];
+                    <?php
+                }
+                ?>
+            </ul>
+            <div class="create-listing">
+                <span class="super-create-listing sfui-btn sfui-icon sfui-green" onclick="SUPER.frontEndListing.addListing(this)">
+                    <i class="fas fa-plus"></i><span><?php echo esc_html__( 'Add List', 'super-forms' ); ?><span>
+                </span>
+            </div>
+            <?php
+            */
+        }
+        public static function add_tab_content($atts){
+            $html = '<div class="super_transient"></div>';
+            $slug = 'frontend_listing';
+            $pdf = array();
+            if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
+                $pdf = $atts['settings']['_'.$slug];
+            }
+            if(!is_array($pdf)) $pdf = array();
+            $defaults = array(
+                'generate' => '',
+                //'debug' => '',
+                //'filename' => esc_html__( 'form', 'super-forms' ).'.pdf',
+                //'emailLabel' => 'PDF '.esc_html__( 'File', 'super-forms' ).':',
+                //'adminEmail' => 'true',
+                //'confirmationEmail' => 'true',
+                //'excludeEntry' => '',
+                //'textRendering' => 'true',
+                //'downloadBtn' => 'true',
+                //'downloadBtnText' => esc_html__( 'Download Summary', 'super-forms' ),
+                //'generatingText' => esc_html__( 'Generating PDF file...', 'super-forms' ),
+                //'orientation' => 'portrait',
+                //'format' => 'a4',
+                //'unit' => 'mm',
+                //'customFormat' => '',
+                //'renderScale' => 3,
+                //'margins' => array(
+                //    // 5 mm default for a4
+                //    'header' => array(
+                //        'top' => 5,
+                //        'right' => 5,
+                //        'bottom' => 5,
+                //        'left' => 5
+                //    ),
+                //    'body' => array(
+                //        'top' => 0,
+                //        'right' => 5,
+                //        'bottom' => 0,
+                //        'left' => 5
+                //    ),
+                //    'footer' => array(
+                //        'top' => 5,
+                //        'right' => 5,
+                //        'bottom' => 5,
+                //        'left' => 5
+                //    )
+                //)
+            );
+            //$pdf = wp_parse_args( $pdf, $defaults );
+            //$response = wp_remote_post(
+            //    SUPER_API_ENDPOINT . '/settings/transient',
+            //    array(
+            //        'method' => 'POST',
+            //        'timeout' => 45,
+            //        'data_format' => 'body',
+            //        'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
+            //        'body' => json_encode(array(
+            //            'transient_key' => 'GeltOsu18mZGzkelLWv2',
+            //            'home_url' => get_home_url(),
+            //            'admin_url' => admin_url()
+            //        ))
+            //    )
+            //);
+            //if ( is_wp_error( $response ) ) {
+            //    $html .= $response->get_error_message();
+            //}else{
+            //    // Just an API error/notice/success message or HTML payload
+            //    $body = $response['body'];
+            //    $response = $response['response'];
+            //    $transient = set_transient( 'super_transient', array('check'=>true), 0);
+            //    if($response['code']==200 && strpos($body, '{') === 0){
+            //        $object = json_decode($body);
+            //        if($object->status==200){
+            //            $html = $object->body;
+            //        }
+            //    }
+            //}
+            //echo $html;
+            // Hiding/Showing elements in PDF
+            // Header/Footer usage notice
+            
+            // Enable Front-end Listing
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="enable" value="true"' . ($pdf['enable']=='true' ? ' checked="checked"' : '') . ' />';
+                    echo '<span>' . esc_html__( 'Enable Front-end Listing for this form', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+
+            // When enabled, we display the list with Front-end listings
+            echo '<div class="sfui-repeater">';
+                // Item
+                echo '<div class="sfui-repeater-item">';
+                    echo '<div class="sfui-inline">';
+                        echo '<div class="sfui-setting">';
+                            echo '<div class="sfui-title">';
+                                echo esc_html__( 'List Name', 'super-forms' );
+                            echo '</div>';
+                            echo '<label>';
+                                echo '<input type="text" name="name" value="' . $list['name'] . '" />';
+                                echo '<span>' . $tooltips[0] . '</span>';
+                            echo '</label>';
+                        echo '</div>';
+                        echo '<div class="sfui-setting">';
+                            echo '<div class="sfui-title">';
+                                echo esc_html__( 'Shortcode', 'super-forms' );
+                            echo '</div>';
+                            echo '<label>';
+                                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value="' . $shortcode. '" />';
+                                echo '<span>' . $tooltips[1] . '</span>';
+                            echo '</label>';
+                        echo '</div>';
+                        echo '<div class="sfui-btn sfui-round super-tooltip" title="' . esc_attr($tooltips[2]) . '" data-title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.toggleBtn(event, this, \'_'.$slug.'\', \'toggleListingSettings\')">';
+                        echo '<div class="sfui-btn sfui-round super-tooltip" title="' . esc_attr($tooltips[3]) . '" data-title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.toggleBtn(event, this, \'_'.$slug.'\', \'deleteListing\')">';
+                    echo '</div>';
+
+
+                    echo '<div class="sfui-setting-group">';
+                        // Display based on
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="radio" name="display_based_on" value="this_form"' . ($pdf['display_based_on']==='this_form' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries based on this form', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="radio" name="display_based_on" value="all_forms"' . ($pdf['display_based_on']==='all_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on all forms', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($pdf['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    /*echo '<input type="text" name="form_ids" placeholder="123,124" value="<?php echo sanitize_text_field($list['form_ids']); ?>" /><i>(seperate each ID with a comma)</i></span>*/
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($pdf['form_ids']) . '" />';
+                                            echo '<span>(' . esc_html__( 'seperated by comma\'s', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+
+                            echo '</label>';
+                        echo '</div>';
+                        // Entries within date range
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="checkbox" name="date_range" value="true"' . ($pdf['date_range']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'From', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no minimum date', 'super-forms' ) . ')</i></span>';
+                                            echo '<input type="date" name="date_range_from" value="' . sanitize_text_field($pdf['date_range_from']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Till', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
+                                            echo '<input type="date" name="date_range_till" value="' . sanitize_text_field($pdf['date_range_till']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Show title column
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="checkbox" name="show_title" value="true"' . ($pdf['show_title']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "Title" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="title_column_name" value="' . sanitize_text_field($pdf['title_column_name']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="title_column_placeholder" value="' . sanitize_text_field($pdf['title_column_placeholder']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="title_column_width" value="' . sanitize_text_field($pdf['title_column_width']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="title_column_position" value="' . sanitize_text_field($pdf['title_column_position']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Show status column
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="checkbox" name="show_status" value="true"' . ($pdf['show_status']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "status" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="status_column_name" value="' . sanitize_text_field($pdf['status_column_name']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="status_column_placeholder" value="' . sanitize_text_field($pdf['status_column_placeholder']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="status_column_width" value="' . sanitize_text_field($pdf['status_column_width']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="status_column_position" value="' . sanitize_text_field($pdf['status_column_position']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Show date column
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="checkbox" name="show_date" value="true"' . ($pdf['show_date']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "date" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="date_column_name" value="' . sanitize_text_field($pdf['date_column_name']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="date_column_placeholder" value="' . sanitize_text_field($pdf['date_column_placeholder']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="date_column_width" value="' . sanitize_text_field($pdf['date_column_width']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
+                                            echo '<input type="number" name="date_column_position" value="' . sanitize_text_field($pdf['date_column_position']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Custom columns
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($pdf['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-repeater">';
+                                        $columns = $list['custom_columns']['columns'];
                                         foreach( $columns as $ck => $cv ) {
                                             if( !isset($cv['filter']) ) {
                                                 $cv['filter'] = 'text'; // Default filter to 'text'
                                             }
-                                            ?>   
-                                            <li>
-                                                <span class="sort-up" onclick="SUPER.frontEndListing.sortColumn(this, 'up')"></span>
-                                                <span class="sort-down" onclick="SUPER.frontEndListing.sortColumn(this, 'down')"></span>
-                                                <div class="super-text">
-                                                    <span>Column name:</span>
-                                                    <input type="text" name="name" value="<?php echo $cv['name']; ?>" />
-                                                </div>
-                                                <div class="super-text">
-                                                    <span>Map to the following field <i>(enter a field name)</i>:</span>
-                                                    <input type="text" name="field_name" value="<?php echo $cv['field_name']; ?>" />
-                                                </div>
-                                                <div class="super-text">
-                                                    <span>Column width <i>(in px)</i>:</span>
-                                                    <input type="number" name="width" value="<?php echo $cv['width']; ?>" />
-                                                </div>
-
-                                                <div class="super-text">
-                                                    <span>Filter method:</span>
-                                                    <select name="filter" onchange="SUPER.frontEndListing.showFilterItems(this)">
-                                                        <option<?php echo ($cv['filter']=='none' ? ' selected="selected"' : ''); ?> value="none"><?php echo esc_html__( 'No filter', 'super-forms' ); ?></option>
-                                                        <option<?php echo ($cv['filter']=='text' ? ' selected="selected"' : ''); ?> value="text"><?php echo esc_html__( 'Text field (default)', 'super-forms' ); ?></option>
-                                                        <option<?php echo ($cv['filter']=='dropdown' ? ' selected="selected"' : ''); ?> value="dropdown"><?php echo esc_html__( 'Dropdown', 'super-forms' ); ?></option>
-                                                    </select>
-                                                </div>
-                                                <div class="super-text super-filter-items"<?php echo ($cv['filter']!=='dropdown' ? ' style="display:none;"' : ''); ?>>
-                                                    <span>Filter options <i>(put each on a new line)</i>:</span>
-                                                    <textarea name="filter_items" placeholder="<?php echo esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms' ); ?>"><?php echo (isset($cv['filter_items']) ? $cv['filter_items'] : ''); ?></textarea>
-                                                </div>
-
-                                                <span class="super-add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>
-                                                <span class="super-delete-column" onclick="SUPER.frontEndListing.deleteColumn(this)"></span>
-                                            </li>
-                                            <?php
+                                            echo '<span class="sfui-sort-up" onclick="SUPER.ui.sortRepeaterItem(this, \'up\')"></span>';
+                                            echo '<span class="sfui-sort-down" onclick="SUPER.ui.sortRepeaterItem(this, \'down\')"></span>';
+                                            echo '<div class="sfui-setting">';
+                                                echo '<label>';
+                                                    echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . ':</span>';
+                                                    echo '<input type="text" name="name" value="' . sanitize_text_field($cv['name']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                            echo '<div class="sfui-setting">';
+                                                echo '<label>';
+                                                    echo '<span>' . esc_html__( 'Map to the following field', 'super-forms' ) . ' <i>(' . esc_html__( 'enter a field name', 'super-forms') .')</i>:</span>';
+                                                    echo '<input type="text" name="field_name" value="' . sanitize_text_field($cv['field_name']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                            echo '<div class="sfui-setting">';
+                                                echo '<label>';
+                                                    echo '<span>' . esc_html__( 'Column width', 'super-forms' ) . ' <i>(' . esc_html__( 'in', 'super-forms') .' px)</i>:</span>';
+                                                    echo '<input type="number" name="width" value="' . sanitize_text_field($cv['width']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                            echo '<div class="sfui-setting">';
+                                                echo '<div class="sfui-title">';
+                                                    echo esc_html__( 'Filter method', 'super-forms' ) . ':';
+                                                echo '</div>';
+                                                echo '<label>';
+                                                    echo '<select name="filter">';
+                                                        echo '<option '.($cv['filter']=='none' ? ' selected="selected"' : '').' value="none">'.esc_html__( 'No filter', 'super-forms' ).'</option>';
+                                                        echo '<option '.($cv['filter']=='text' ? ' selected="selected"' : '').' value="text">'.esc_html__( 'Text field (default)', 'super-forms' ).'</option>';
+                                                        echo '<option '.($cv['filter']=='dropdown' ? ' selected="selected"' : '').' value="dropdown">'.esc_html__( 'Dropdown', 'super-forms' ).'</option>';
+                                                    echo '</select>';
+                                                echo '</label>';
+                                                echo '<div class="sfui-sub-settings">';
+                                                    echo '<div class="sfui-setting">';
+                                                        echo '<label>';
+                                                            echo '<span>' . esc_html__( 'Filter options', 'super-forms' ) . ' <i>(' . esc_html__( 'put each on a new line', 'super-forms') .')</i>:</span>';
+                                                            echo '<textarea name="filter_items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2") . '">' . $cv['filter_items'] . '</textarea>';
+                                                        echo '</label>';
+                                                    echo '</div>';
+                                                echo '</div>';
+                                            echo '</div>';
+                                            echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.addRepeaterItem(this)"></span>';
+                                            echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.deleteRepeaterItem(this)"></span>';
+                                            //echo '<span class="super-add-column" onclick="SUPER.frontEndListing.addColumn(this)"></span>';
+                                            //echo '<span class="super-delete-column" onclick="SUPER.frontEndListing.deleteColumn(this)"></span>';
                                         }
-                                        ?>
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</div>';
+                        echo '</div>';
 
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="super-checkbox<?php echo ($list['edit_any']!==false ? ' super-active' : ''); ?>" data-name="edit_any">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to edit any entry</span>
+
+
+                            <div class="super-checkbox<?php echo ($list['edit_any']['value']==='true' ? ' super-active' : ''); ?>" data-name="edit_any">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)" class="super-toggler">Allow the following users to edit any entry</span>
                                 <div class="super-sub-settings">
 				    <div class="super-radio" data-name="method">
 					<span <?php echo ($list['edit_any']['method']=='modal' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="modal"><?php echo esc_html__( 'Open form in a modal (default)', 'super-forms' ); ?></span>
@@ -367,53 +602,59 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 				    </div>
                                     <div class="super-text">
                                         <span>User roles:</span>
-                                        <input type="text" name="user_roles" />
+                                        <input type="text" name="user_roles" value="<?php echo $list['edit_any']['user_roles']; ?>" />
                                     </div>
                                     <div class="super-text">
                                         <span>User ID's:</span>
-                                        <input type="text" name="user_ids" />
+                                        <input type="text" name="user_ids" value="<?php echo $list['edit_any']['user_ids']; ?>" />
                                     </div>
                                 </div>
                             </div>
-                            <div class="super-checkbox" data-name="edit_own">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to edit their own entries</span>
+                            <div class="super-checkbox<?php echo ($list['edit_own']['value']==='true' ? ' super-active' : ''); ?>" data-name="edit_own">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)" class="super-toggler">Allow the following users to edit their own entries</span>
+                                <div class="super-sub-settings">
+				    <div class="super-radio" data-name="method">
+					<span <?php echo ($list['edit_own']['method']=='modal' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="modal"><?php echo esc_html__( 'Open form in a modal (default)', 'super-forms' ); ?></span>
+					<span <?php echo ($list['edit_own']['method']=='url' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="url"><?php echo esc_html__( 'Open via form page (Form Location must be configured for your forms)', 'super-forms' ); ?></span>
+				    </div>
+                                    <div class="super-text">
+                                        <span>User roles:</span>
+                                        <input type="text" name="user_roles" value="<?php echo $list['edit_own']['user_roles']; ?>" />
+                                    </div>
+                                    <div class="super-text">
+                                        <span>User ID's:</span>
+                                        <input type="text" name="user_ids" value="<?php echo $list['edit_own']['user_ids']; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="super-checkbox<?php echo ($list['delete_any']['value']==='true' ? ' super-active' : ''); ?>" data-name="delete_any">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)" class="super-toggler">Allow the following users to delete any entry</span>
                                 <div class="super-sub-settings">
                                     <div class="super-text">
                                         <span>User roles:</span>
-                                        <input type="text" name="user_roles" />
+                                        <input type="text" name="user_roles" value="<?php echo $list['delete_any']['user_roles']; ?>" />
                                     </div>
                                     <div class="super-text">
                                         <span>User ID's:</span>
-                                        <input type="text" name="user_ids" />
+                                        <input type="text" name="user_ids" value="<?php echo $list['delete_any']['user_ids']; ?>" />
                                     </div>
                                 </div>
                             </div>
-                            <div class="super-checkbox" data-name="delete_any">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to delete any entry</span>
+                            <div class="super-checkbox<?php echo ($list['delete_own']['value']==='true' ? ' super-active' : ''); ?>" data-name="delete_own">
+                                <span onclick="SUPER.frontEndListing.checkbox(event, this)" class="super-toggler">Allow the following users to delete their own entries</span>
                                 <div class="super-sub-settings">
                                     <div class="super-text">
                                         <span>User roles:</span>
-                                        <input type="text" name="user_roles" />
+                                        <input type="text" name="user_roles" value="<?php echo $list['delete_own']['user_roles']; ?>" />
                                     </div>
                                     <div class="super-text">
                                         <span>User ID's:</span>
-                                        <input type="text" name="user_ids" />
+                                        <input type="text" name="user_ids" value="<?php echo $list['delete_own']['user_ids']; ?>" />
                                     </div>
                                 </div>
                             </div>
-                            <div class="super-checkbox" data-name="delete_own">
-                                <span onclick="SUPER.frontEndListing.checkbox(event, this)">Allow the following users to delete their own entries</span>
-                                <div class="super-sub-settings">
-                                    <div class="super-text">
-                                        <span>User roles:</span>
-                                        <input type="text" name="user_roles" />
-                                    </div>
-                                    <div class="super-text">
-                                        <span>User ID's:</span>
-                                        <input type="text" name="user_ids" />
-                                    </div>
-                                </div>
-                            </div>
+
                             <div class="super-radio" data-name="pagination">
                                 <span <?php echo ($list['pagination']=='pages' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="pages" class="super-active">Show pagination</span>
                                 <span <?php echo ($list['pagination']=='load_more' ? 'class="super-active" ' : ''); ?>onclick="SUPER.frontEndListing.radio(this)" data-value="load_more">Show "Load More" button</span>
@@ -430,58 +671,292 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                             </div>
                         </div>
                     </li>
-                    <?php
-                }
-                ?>
-            </ul>
-            <div class="create-listing">
-                <span class="super-create-listing sfui-btn sfui-icon sfui-green" onclick="SUPER.frontEndListing.addListing(this)">
-                    <i class="fas fa-plus"></i><span><?php echo esc_html__( 'Add List', 'super-forms' ); ?><span>
-                </span>
-            </div>
-            <?php
+
+
+
+
+
+                    echo '</div>';
+
+                echo '</div>';
+            echo '</div>';
+
+
+            // Filename
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'PDF filename', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="filename" value="' . $pdf['filename'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // E-mail label
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'E-mail label', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="emailLabel" value="' . $pdf['emailLabel'] . '" />';
+                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Attach to admin E-mail
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Attach to confirmation E-mail
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Attach to contact entry
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="excludeEntry" value="true"' . ($pdf['excludeEntry']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Direct download link
+            echo '<div class="sfui-setting">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="downloadBtn" value="true"' . ($pdf['downloadBtn']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Download button text
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Download button text', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="downloadBtnText" value="' . $pdf['downloadBtnText'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Generating text
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Generating text', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="text" name="generatingText" value="' . $pdf['generatingText'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Page orientation:
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Page orientation', 'super-forms' );
+                echo '</div>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="radio" name="orientation" value="portrait"' . ($pdf['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
+                echo '</label>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Unit 
+            // Possible values are "pt" (points), "mm", "cm", "in" or "px".
+            $units = array('mm', 'pt', 'cm', 'in', 'px');
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Unit', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<select name="unit">';
+                        foreach($units as $v){
+                            echo '<option value="' . $v . '"'.($v==$pdf['unit'] ? ' selected="selected"' : '') .'>' . ($v=='mm' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+                        }
+                    echo '</select>';
+                echo '</label>';
+            echo '</div>';
+            // Page format:
+            $formats = array();
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'a'.$i;
+            }
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'b'.$i;
+            }
+            $i = 0;
+            for($i=0; $i < 10; $i++){
+                $formats[] = 'c'.$i;
+            }
+            $formats = array_merge($formats, array('dl', 'letter', 'government-letter', 'legal', 'junior-legal', 'ledger', 'tabloid', 'credit-card'));
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title">';
+                    echo esc_html__( 'Page format', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<select name="format">';
+                        foreach($formats as $v){
+                            echo '<option value="' . $v . '"'.($v==$pdf['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+                        }
+                    echo '</select>';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Custom page format in units defined above e.g:', 'super-forms' ) . ' 210,297</span>';
+                    echo '<input type="text" name="customFormat" value="' . $pdf['customFormat'] . '" />';
+                    echo '<span>(' . esc_html__( 'optional, leave blank for none', 'super-forms' ) . ')</span>';
+                echo '</label>';
+            echo '</div>';
+            // Body margins
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'Body margins (in units declared above)', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.body.top" value="' . $pdf['margins']['body']['top'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.body.right" value="' . $pdf['margins']['body']['right'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.body.bottom" value="' . $pdf['margins']['body']['bottom'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.body.left" value="' . $pdf['margins']['body']['left'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Header margins
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'Header margins (in units declared above)', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a header make sure define one element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.header.top" value="' . $pdf['margins']['header']['top'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.header.right" value="' . $pdf['margins']['header']['right'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.header.bottom" value="' . $pdf['margins']['header']['bottom'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.header.left" value="' . $pdf['margins']['header']['left'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Footer margins
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'Footer margins (in units declared above)', 'super-forms' );
+                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a footer make sure to define one element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
+                echo '</div>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.footer.top" value="' . $pdf['margins']['footer']['top'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.footer.right" value="' . $pdf['margins']['footer']['right'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.footer.bottom" value="' . $pdf['margins']['footer']['bottom'] . '" />';
+                echo '</label>';
+                echo '<label>';
+                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
+                    echo '<input type="number" min="0" name="margins.footer.left" value="' . $pdf['margins']['footer']['left'] . '" />';
+                echo '</label>';
+            echo '</div>';
+            // Render text (make PDF searchable)
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'PDF Text rendering', 'super-forms' );
+                echo '</div>';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                    echo '<input type="checkbox" name="textRendering" value="true"' . ($pdf['textRendering']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
+                echo '</label>';
+            echo '</div>';
+            // Render scale (quality)
+            echo '<div class="sfui-setting">';
+                echo '<div class="sfui-title" style="flex-basis: 290px;">';
+                    echo esc_html__( 'PDF render scale', 'super-forms' );
+                echo '</div>';
+                echo '<label>';
+                    echo '<input type="number" min="0" max="20" step="0.1" name="renderScale" value="' . $pdf['renderScale'] . '" />';
+                    echo '<span>' . esc_html__( 'the recommended render scale is 3', 'super-forms' ) . '</span>';
+                echo '</label>';
+                echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>'.esc_html__('Info', 'super-forms').':</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
+                echo '</div>';
+            echo '</div>';
         }
 
         // Get default listing settings
         public static function get_default_listing_settings($list) {
-            if( empty($list['edit_method']) ) $list['edit_method'] = 'modal';
-            if( empty($list['display_based_on']) ) $list['display_based_on'] = 'this_form';
-            if( empty($list['form_ids']) ) $list['form_ids'] = '';
-
-            if( empty($list['date_range']) || (!is_array($list['date_range'])) ) $list['date_range'] = array();
-            if( empty($list['date_range']['from']) ) $list['date_range']['from'] = '';
-            if( empty($list['date_range']['till']) ) $list['date_range']['till'] = '';
-	   
-            if( empty($list['show_title']) || (!is_array($list['show_title'])) ) $list['show_title'] = array();
-            if( empty($list['show_title']['name']) ) $list['show_title']['name'] = esc_html__( 'Title', 'super-forms' );
-            if( empty($list['show_title']['placeholder']) ) $list['show_title']['placeholder'] = esc_html__( 'Filter by title', 'super-forms' );
-            if( empty($list['show_title']['position']) ) $list['show_title']['position'] = 1;
-            if( empty($list['show_title']['width']) ) $list['show_title']['width'] = 150;
-
-            if( empty($list['show_status']) || (!is_array($list['show_status'])) ) $list['show_status'] = array();
-            if( empty($list['show_status']['name']) ) $list['show_status']['name'] = esc_html__( 'Status', 'super-forms' );
-            if( empty($list['show_status']['placeholder']) ) $list['show_status']['placeholder'] = esc_html__( '- choose status -', 'super-forms' );
-            if( empty($list['show_status']['position']) ) $list['show_status']['position'] = 2;
-            if( empty($list['show_status']['width']) ) $list['show_status']['width'] = 150;
-	    
-            if( empty($list['show_date']) || (!is_array($list['show_date'])) ) $list['show_date'] = array();
-            if( empty($list['show_date']['name']) ) $list['show_date']['name'] = esc_html__( 'Date created', 'super-forms' );
-            if( empty($list['show_date']['placeholder']) ) $list['show_date']['placeholder'] = esc_html__( 'Filter by date', 'super-forms' );
-            if( empty($list['show_date']['position']) ) $list['show_date']['position'] = 3;
-            if( empty($list['show_date']['width']) ) $list['show_date']['width'] = 150;
-
-            if( empty($list['custom_columns']) ) $list['custom_columns'] = false;
-            if( empty($list['columns']) || (!is_array($list['columns'])) ) $list['columns'] = array(
-                array(
-                    'name' => 'E-mail',
-                    'field_name' => 'email',
-                    'width' => 150
+            if(empty($list['edit_method'])) $list['edit_method'] = 'modal';
+            if(empty($list['display_based_on'])) $list['display_based_on'] = 'this_form';
+            if(empty($list['form_ids'])) $list['form_ids'] = '';
+            if(empty($list['date_range'])) $list['date_range'] = array('value'=>'false', 'from'=>'', 'till'=>'');
+            if(empty($list['show_title'])) $list['show_title'] = array(
+                'value'=>'true',
+                'name'=>esc_html__( 'Title', 'super-forms' ),
+                'placeholder'=>esc_html__( 'Filter by title', 'super-forms' ),
+                'position'=>1,
+                'width'=>150
+            );
+            if(empty($list['show_status'])) $list['show_status'] = array(
+                'value'=>'true',
+                'name'=>esc_html__( 'Status', 'super-forms' ),
+                'placeholder'=>esc_html__( '- choose status -', 'super-forms' ),
+                'position'=>2,
+                'width'=>150
+            );
+            if(empty($list['show_date'])) $list['show_date'] = array(
+                'value'=>'true',
+                'name' => esc_html__( 'Date created', 'super-forms' ),
+                'placeholder' => esc_html__( 'Filter by date', 'super-forms' ),
+                'position' => 3,
+                'width' => 150
+            );
+            if(empty($list['custom_columns']) ) $list['custom_columns'] = array(
+                'value'=>'true',
+                'columns' => array(
+                    array(
+                        'name' => 'E-mail',
+                        'field_name' => 'email',
+                        'width' => 150
+                    )
                 )
             );
 	    
-            if( empty($list['edit_any']) ) $list['edit_any'] = array();
-            if( empty($list['edit_any']['method']) ) $list['edit_any']['method'] = 'modal';
-
+            // Edit permissions
+            if( empty($list['edit_any']) ) $list['edit_any'] = array(
+                'value'=>'true',
+                'method'=>'modal',
+                'user_roles'=>'administrator',
+                'user_ids'=>''
+            );
+            if( empty($list['edit_own']) ) $list['edit_own'] = array(
+                'value'=>'false',
+                'method'=>'modal',
+                'user_roles'=>'',
+                'user_ids'=>''
+            );
+            // Delete permissions
+            if( empty($list['delete_any']) ) $list['delete_any'] = array(
+                'value'=>'true',
+                'user_roles'=>'administrator',
+                'user_ids'=>''
+            );
+            if( empty($list['delete_own']) ) $list['delete_own'] = array(
+                'value'=>'false',
+                'user_roles'=>'',
+                'user_ids'=>''
+            );
             if( empty($list['pagination']) ) $list['pagination'] = 'page';
             if( empty($list['limit']) ) $list['limit'] = 25;
             return $list;
@@ -561,8 +1036,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 $name,
                 array( 
                     'get_home_url' => get_home_url(),
-                    'ajaxurl' => $ajax_url,
-                    'wp_root' => ABSPATH
+                    'ajaxurl' => $ajax_url
                 )
             );
             wp_enqueue_script( $handle );
@@ -583,7 +1057,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
             $columns = array();
             // Check if "Title" column is enabled
-            if( $list['show_title']!==true ) {
+            if( $list['show_title']['value']==='true' ) {
                 $columns['post_title'] = array(
                     'position' => absint($list['show_title']['position']),
                     'name' => $list['show_title']['name'],
@@ -595,7 +1069,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 );
             }
             // Check if "Status" column is enabled
-            if( $list['show_status']==true ) {
+            if( $list['show_status']['value']==='true' ) {
                 $items = array();
                 foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
                     $items[$k] = $v['name']; 
@@ -612,7 +1086,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 );
             }
             // Check if "Date" column is enabled
-            if( $list['show_date']==true ) {
+            if( $list['show_date']['value']==='true' ) {
                 // Always put default date column at the end
                 $columns['post_date'] = array(
                     'position' => absint($list['show_date']['position']),
@@ -626,8 +1100,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             }
 
             // Add custom columns if enabled
-            if($list['custom_columns']==true){
-                $columns = array_merge($columns, $list['columns']);      
+            if($list['custom_columns']['value']==='true'){
+                $columns = array_merge($columns, $list['custom_columns']['columns']);      
             }
 
             // For now these are the columns:
@@ -854,10 +1328,10 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                         }
                                         $actions = '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
                                     }else{
-                                        $actions = '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this)"></span>';
+                                        $actions = '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
                                     }
-                                    $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this)"></span>';
-                                    $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this)"></span>';
+                                    $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
+                                    $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
                                     $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
                                 $result .= ' </div>';
 
@@ -895,9 +1369,37 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                             if(isset($data[$column_key])){
                                                 // Check if it has a value, if so print it
                                                 if(isset($data[$column_key]['value'])){
-                                                    $result .= $data[$column_key]['value'];
+                                                    if ( strpos( $data[$column_key]['value'], 'data:image/png;base64,') !== false ) {
+                                                        // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
+                                                        // otherwise the signature will not be displayed
+                                                        $result .= '<img src="' . esc_url( $data[$column_key]['value'], array( 'data' ) ) . '" />';
+                                                    }else{
+                                                        $result .= esc_html($data[$column_key]['value']);
+                                                    }
                                                 }else{
                                                     // If not then it must be a special field, for instance file uploads
+                                                    if($data[$column_key]['type']==='files'){
+                                                        if(isset($data[$column_key]['files'])){
+                                                            $files = $data[$column_key]['files'];
+                                                            foreach($files as $fk => $fv){
+                                                                $url = $fv['url'];
+                                                                if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
+                                                                    $url = wp_get_attachment_url( $fv['attachment'] );
+                                                                }
+                                                                if(!empty($url)){
+                                                                    $result .= '<a target="_blank" href="' . esc_url( $url ) . '">';
+                                                                }
+                                                                $result .= esc_html( $fv['value'] ); // The filename
+                                                                if(!empty($url)){
+                                                                    $result .= '</a>';
+                                                                }
+                                                                $result .= '<br />';
+                                                            }
+                                                        }else{
+                                                            $result .= esc_html__( 'No files uploaded', 'super-forms' );
+                                                        }
+
+                                                    }
                                                 }
                                             }else{
                                                 // No data found for this entry
