@@ -1078,6 +1078,7 @@ class SUPER_Ajax {
         }
         if($array['smtp_enabled']=='enabled'){
             // @since 4.9.551 - WordPress changed the location of PHPMailer apperantly...
+            global $wp_version;
             if ( version_compare( $wp_version, '5.5', '<' ) ) {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");
@@ -2358,7 +2359,7 @@ class SUPER_Ajax {
                                     $folderPath = $folderResult['folderPath'];
                                     $folderName = $folderResult['folderName'];
                                     $value['value'] = SUPER_Common::email_tags( $value['value'], $data, $settings );
-                                    $value['emailLabel'] = SUPER_Common::email_tags( $value['emailLabel'], $data, $settings );
+                                    $value['label'] = SUPER_Common::email_tags( $value['label'], $data, $settings );
                                     $fileName = $value['value'];
                                     $fileLocation = trailingslashit($folderPath) . $fileName;
                                     // Write $imgData into the image file
