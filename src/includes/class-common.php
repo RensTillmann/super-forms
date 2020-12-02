@@ -1904,6 +1904,7 @@ class SUPER_Common {
             return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
         }else{
             // @since 4.9.551 - WordPress changed the location of PHPMailer apperantly...
+            global $wp_version;
             if ( version_compare( $wp_version, '5.5', '<' ) ) {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");

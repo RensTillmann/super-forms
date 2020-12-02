@@ -1912,13 +1912,29 @@ function SUPERreCaptcha(){
 
         var formId = form.querySelector('input[name="hidden_form_id"]').value;
 
-        // Firstly clone the form, so we can display a "fake" form
+
+        // Add form placeholder (fake form)
         var placeholder = form.cloneNode(true);
+        placeholder.id = placeholder.id+'-placeholder';
         placeholder.classList.add('super-pdf-placeholder');
         args.placeholder = placeholder;
-        var headerClone = form.cloneNode(true);
-        var footerClone = form.cloneNode(true);
         form.parentNode.insertBefore(placeholder, form.nextSibling);
+
+        // Remove responsiveness classes, so that mobile and desktop PDF look identical
+        var clonedForm = form.cloneNode(true);
+        var newClassName = '';
+        //var oldClassName = clonedForm.className;
+        for(var i=0; i<clonedForm.classList.length; i++){
+            // e.g: super-first-responsiveness, super-window-first-responsiveness
+            if(clonedForm.classList[i].indexOf('responsiveness')===-1){
+                newClassName += clonedForm.classList[i]+' ';
+            }
+        }
+        // Update classname
+        clonedForm.className = newClassName;
+        args.form0.className = newClassName;
+        var headerClone = clonedForm.cloneNode(true);
+        var footerClone = clonedForm.cloneNode(true);
         
         // PDF page container
         var pdfPageContainer = document.createElement('div');
@@ -1939,6 +1955,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.left = "9999px";
         pdfPageContainer.style.top = "-9999px";
         // ------- for debugging only: ----
+        //debugger;
         //pdfPageContainer.style.zIndex = "9999999999";
         //pdfPageContainer.style.left = "0px";
         //pdfPageContainer.style.top = "0px";
