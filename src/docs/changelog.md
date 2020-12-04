@@ -4,6 +4,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 04, 2020 - Version 4.9.556
+
+- **Fix:** When using double quotes in radio/checkbox/dropdown Labels (when using custom HTML for instance) make sure any backslashes are not saved
 
 ## Dec 02, 2020 - Version 4.9.555
 
