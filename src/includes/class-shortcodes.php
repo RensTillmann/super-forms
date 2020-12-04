@@ -2881,9 +2881,6 @@ class SUPER_Shortcodes {
         if( $atts['value']!=='' ) {
             $result .= ' value="' . $atts['value'] . '"';
         }
-        if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
-            $result .= ' data-entry-value="' . $entry_data_value . '"';
-        }
 
         // @since 2.2.0   - search / populate with contact entry data
         if( $atts['enable_search']=='true' ) {
