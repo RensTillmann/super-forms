@@ -2152,7 +2152,7 @@
                     $fields.i18n = $element_data.i18n;
                 }
             }
-            $element_data = JSON.stringify($fields);
+            $element_data = JSON.stringify($fields).replace(/\\+"/g, '\\"');
             $element.children('textarea[name="element-data"]').val($element_data);
             return $element;
         };
