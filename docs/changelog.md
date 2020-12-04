@@ -4,9 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Dec 01, 2020 - Version 4.9.554
+
+## Dec 02, 2020 - Version 4.9.555
 
 - **Added:** `Default value` setting for `Timepicker` element, this way you can set a default time upon page load
+- **Improved:** PDF Generation will now be identical between mobile and desktop, no longer applies bigger font size, and or responsiveness
 - **Improved:** `{tag}` regular expression, so that values in a HTML element like `{something like this / and this}` are not being detected as valid `{tags}`
 - **Fix:** JS error when using signature element in combination with any top level conditional logic
 - **Fix:** WordPress moved PHPMailer class into different location from v5.5 and above. Causing issues for those that had SMTP enabled in super forms.
