@@ -30,10 +30,6 @@
 .super-rtl .super-field.super-calculator.super-align-center .super-field-wrapper {
 	float: initial;
 }
-.super-preview-elements .super-calculator,
-.super-calculator {
-    display: flex!important;
-}
 .super-calculator .super-field-wrapper {
     align-items: center;
     display:flex!important;
