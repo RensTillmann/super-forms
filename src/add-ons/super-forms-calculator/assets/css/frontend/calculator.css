@@ -61,4 +61,8 @@
 .super-calculator .super-field-wrapper.super-icon-right .super-calculator-wrapper {
     padding-right:5px;
 }
+.super-shortcode.super-field.super-calculator {
+    display:flex;
+}
+
 

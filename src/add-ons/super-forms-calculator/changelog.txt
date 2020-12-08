@@ -1,4 +1,4 @@
-Dec 08, 2020 - Version 2.2.0
+Dec 08, 2020 - Version 2.2.1
 
 - Fix: Conditional logic wasn't working due to new CSS rule `display:fex!important;`
 
