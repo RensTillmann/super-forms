@@ -4,6 +4,17 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 10, 2020 - Version 4.9.557
+
+- **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
+  - `geocode`: return only geocoding results, rather than business results. Generally, you use this request to disambiguate results where the location specified may be indeterminate.
+  - `address`: return only geocoding results with a precise address. Generally, you use this request when you know the user will be looking for a fully specified address.
+  - `establishment`: return only business results.
+  - `(regions)`: return any result matching the following types: locality, sublocality, postal_code, country, administrative_area_level_1, administrative_area_level_2
+  - `(cities)`: type collection instructs the Places service to return results that match locality or administrative_area_level_3
+- **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to restrict results by countrie(s) e.g: fr,nl,de (to restrict results by France, Netherlands and Germany)
+- **Fix:** Multi-part thinking there was still a field that required validation when in fact the field had become conditionally hidden while after the field had thrown a validation error. This caused the form being unable to submit.
+
 ## Dec 04, 2020 - Version 4.9.556
 
 - **Fix:** When using double quotes in radio/checkbox/dropdown Labels (when using custom HTML for instance) make sure any backslashes are not saved
