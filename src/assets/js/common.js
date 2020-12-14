@@ -33,6 +33,45 @@ SUPER.reCaptchaverifyCallback = function($response, $version, $element){
     // Set data attribute on recaptcha containing response so we can verify this upon form submission
     $element.attr('data-response', $response);
 };
+SUPER.add_error_status_parent_layout_element = function($, el){
+    var index;
+    // Add error class to Multi-part
+    index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+    if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+        el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
+    }
+    // Add error class to TABS
+    if(el.closest('.super-tabs')){
+        index = $(el.closest('.super-tabs-content')).index();
+        if(el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
+            el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.add('super-error');
+        }
+    }
+    // Add error class to Accordion
+    if(el.closest('.super-accordion-item')){
+        el.closest('.super-accordion-item').classList.add('super-error');
+    }
+};
+SUPER.remove_error_status_parent_layout_element = function($, el){
+    var index;
+    if( el.closest('.super-multipart') && !el.closest('.super-multipart').querySelector('.super-error-active')){
+        index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+        if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
+            el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
+        }
+    }
+    // Remove error class from TABS
+    if( el.closest('.super-tabs-content') && !el.closest('.super-tabs-content').querySelector('.super-error-active')){
+        index = $(el.closest('.super-tabs-content')).index();
+        if(el.closest('.super-tabs') && el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
+            el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.remove('super-error');
+        }
+    }
+    // Remove error class from Accordion if no more errors where found
+    if( el.closest('.super-accordion-item') && !el.closest('.super-accordion-item').querySelector('.super-error-active')){
+        el.closest('.super-accordion-item').classList.remove('super-error');
+    }
+};
 function SUPERreCaptchaRender(){
     var $ = jQuery;
     $('.super-shortcode.super-field.super-recaptcha:not(.super-rendered)').each(function(){
@@ -1044,6 +1083,18 @@ function SUPERreCaptcha(){
                                 $validation_error = true;
                             });
                         }else{
+                            Object.keys($hide_wrappers).forEach(function(key) {
+                                if($hide_wrappers[key].classList.contains('super-error-active')){
+                                    $hide_wrappers[key].classList.remove('super-error-active');
+                                }
+                                var $innerNodes = $hide_wrappers[key].querySelectorAll('.super-error-active');
+                                Object.keys($innerNodes).forEach(function(ikey) {
+                                    $innerNodes[ikey].classList.remove('super-error-active');
+                                });
+                                // Check if parent is multi-part, tab, accordion, if so remove error class if no errors found
+                                // Remove error class from Multi-part if no more errors where found
+                                SUPER.remove_error_status_parent_layout_element($, $hide_wrappers[key]);
+                            });
                             if($action=='readonly'){
                                 // Hide wrappers
                                 Object.keys($hide_wrappers).forEach(function(key) {
@@ -2007,7 +2058,7 @@ function SUPERreCaptcha(){
         // Make all TABs visible
         // Make all accordions visible
         var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
-        for(var i=0; i < nodes.length; i++){
+        for( i=0; i < nodes.length; i++){
             if(nodes[i].classList.contains('super-active')){
                 nodes[i].classList.add('super-active-origin');         
             }else{
@@ -2582,7 +2633,6 @@ function SUPERreCaptcha(){
             field_value,
             value2,
             counter,
-            index,
             checked,
             custom_regex = (args.el.parentNode.querySelector('.super-custom-regex') ? args.el.parentNode.querySelector('.super-custom-regex').value : undefined), // @since 1.2.5 - custom regex
             mayBeEmpty = (typeof args.el.dataset.mayBeEmpty !== 'undefined' ? args.el.dataset.mayBeEmpty : 'false'),
@@ -2805,46 +2855,11 @@ function SUPERreCaptcha(){
         if(typeof args.validation !== 'undefined' && !allowEmpty && args.el.value==='') error = true;
         if(error){
             SUPER.handle_errors(args.el);
-            // Add error class to Multi-part
-            index = $(args.el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-            if(args.el.closest('.super-form') && args.el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
-                args.el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
-            }
-            // Add error class to TABS
-            if(args.el.closest('.super-tabs')){
-                index = $(args.el.closest('.super-tabs-content')).index();
-                if(args.el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
-                    args.el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.add('super-error');
-                }
-            }
-            // Add error class to Accordion
-            if(args.el.closest('.super-accordion-item')){
-                args.el.closest('.super-accordion-item').classList.add('super-error');
-            }
+            SUPER.add_error_status_parent_layout_element($, args.el);
         }else{
             if(args.el.closest('.super-field')) args.el.closest('.super-field').classList.remove('super-error-active');
         }
-        // Remove error class from Multi-part if no more errors where found
-        if( args.el.closest('.super-multipart') && 
-            !args.el.closest('.super-multipart').querySelector('.super-error-active')){
-                index = $(args.el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-                if(args.el.closest('.super-form') && args.el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
-                    args.el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
-                }
-        }
-        // Remove error class from TABS
-        if( args.el.closest('.super-tabs-content') && 
-            !args.el.closest('.super-tabs-content').querySelector('.super-error-active')){
-                index = $(args.el.closest('.super-tabs-content')).index();
-                if(args.el.closest('.super-tabs') && args.el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index]){
-                    args.el.closest('.super-tabs').querySelectorAll('.super-tabs-tab')[index].classList.remove('super-error');
-                }
-        }
-        // Remove error class from Accordion if no more errors where found
-        if( args.el.closest('.super-accordion-item') && 
-            !args.el.closest('.super-accordion-item').querySelector('.super-error-active')){
-                args.el.closest('.super-accordion-item').classList.remove('super-error');
-        }
+        SUPER.remove_error_status_parent_layout_element($, args.el);
         return error;
     };
 
@@ -4628,13 +4643,34 @@ function SUPERreCaptcha(){
     };
 
     SUPER.google_maps_api.initAutocomplete = function(args){
-        var inputField,
+        var i, x, s, obj, field, inputField,
             items = args.form.querySelectorAll('.super-address-autopopulate:not(.super-autopopulate-init)');
         
         Object.keys(items).forEach(function(key) {
-            var field = items[key];
+            field = items[key];
             field.classList.add('super-autopopulate-init');
-            var autocomplete = new google.maps.places.Autocomplete( field, {types: ['geocode']} );
+            obj = {};
+            var autocomplete = new google.maps.places.Autocomplete( field );
+            s = $(field).data('countries'); // Could be empty or a comma seperated string e.g: fr,nl,de
+            if(s){
+                x = s.split(',');
+                obj.countries = [];
+                for(i=0; i<x.length; i++){
+                    obj.countries.push(x[i].trim());
+                }
+                autocomplete.setComponentRestrictions({
+                    country: obj.countries, // e.g: ["us", "pr", "vi", "gu", "mp"],
+                });
+            }
+            s = $(field).data('types'); // Could be empty or a comma seperated string e.g: fr,nl,de
+            if(s){
+                x = s.split(',');
+                obj.types = [];
+                for(i=0; i<x.length; i++){
+                    obj.types.push(x[i].trim());
+                }
+                autocomplete.setTypes(obj.types);
+            }
             autocomplete.addListener( 'place_changed', function () {
                 // Set text field to the formatted address
                 var place = autocomplete.getPlace();
