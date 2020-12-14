@@ -2796,17 +2796,20 @@ class SUPER_Shortcodes {
         }
 
         // @since 3.0.0 - google places autocomplete/fill address based on user input
-        $address_auto_populate_mappings = '';
+        $address_auto_complete_attr = '';
         $address_auto_populate_class = '';
         if( !isset( $atts['enable_address_auto_complete'] ) ) $atts['enable_address_auto_complete'] = '';
         if( $atts['enable_address_auto_complete']=='true' ) {
             $address_auto_populate_class = ' super-address-autopopulate';
+            // @since 4.9.557 - Check if we need to filter by countrie(s) or  return by specific type
+            if( !empty( $atts['address_api_types'] ) ) $address_auto_complete_attr .= ' data-types="' . $atts['address_api_types'] . '"';
+            if( !empty( $atts['address_api_countries'] ) ) $address_auto_complete_attr .= ' data-countries="' . $atts['address_api_countries'] . '"';
             // Check if we need to auto populate fields with the retrieved data
             if( !isset( $atts['enable_address_auto_populate'] ) ) $atts['enable_address_auto_populate'] = '';
             if( $atts['enable_address_auto_populate']=='true' ) {
                 //onFocus="geolocate()"
                 foreach($atts['address_auto_populate_mappings'] as $k => $v){
-                    if( $v['field']!='' ) $address_auto_populate_mappings .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
+                    if( $v['field']!='' ) $address_auto_complete_attr .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
                 }
             }
             if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
@@ -2985,7 +2988,8 @@ class SUPER_Shortcodes {
         }
         
         // @since 3.0.0 - add data attributes to map google places data to specific fields
-        if( $address_auto_populate_mappings!='' ) $result .= $address_auto_populate_mappings;
+        // @since 4.9.557 - Check if we need to display in specific language, filter by countrie(s), return by specific type
+        if( !empty($address_auto_complete_attr) ) $result .= $address_auto_complete_attr;
         
         // @since 3.6.0 - disable autocomplete when either auto suggest or keyword functionality is enabled
         if( !empty($atts['enable_auto_suggest']) ) $atts['autocomplete'] = 'true';
