@@ -635,6 +635,7 @@ $array['form_elements'] = array(
                             'parent'=>'enable_address_auto_complete',
                             'filter_value'=>'true',
                             'required'=>true,
+                            'allow_empty' => true,
                         ),
                         'address_api_countries' => array(
                             'name' => esc_html__( 'Restrict result by countrie(s)', 'super-forms' ),
