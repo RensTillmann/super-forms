@@ -2351,6 +2351,8 @@ class SUPER_Ajax {
                             if(isset($value['datauristring'])){
                                 try {
                                     $imgData = str_replace( ' ', '+', $value['datauristring']);
+                                    // Delete datauristring because it is quite large and we don't want to store it into the database under contact entry meta data!
+                                    unset($value['datauristring']);
                                     $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
                                     $imgData = base64_decode( $imgData );
                                     // Path where the image is going to be saved

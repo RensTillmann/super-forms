@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 15, 2020 - Version 4.9.558
+
+- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
+
 ## Dec 10, 2020 - Version 4.9.557
 
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
