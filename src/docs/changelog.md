@@ -4,8 +4,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Dec 15, 2020 - Version 4.9.558
+## Dec 15, 2020 - Version 4.9.559
 
+- **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
 - **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
 
 ## Dec 10, 2020 - Version 4.9.557
