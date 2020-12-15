@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.7.0
+ * Version:     1.7.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.7.0';
+        public $version = '1.7.1';
 
 
         /**
@@ -347,8 +347,14 @@ if(!class_exists('SUPER_WooCommerce')) :
         */
         public static function populate_checkout_field_values( $value, $input ) {
             global $woocommerce;
-            // Billing & Shipping
             $data = $woocommerce->session->get('_super_form_data', array() );
+            $custom_fields = SUPER_Forms()->session->get( '_super_wc_custom_fields' );
+            foreach($custom_fields as $k => $v){
+                if($v['name']===$input){
+                    return SUPER_Common::email_tags( $v['value'], $data );
+                }
+            }
+            // Billing & Shipping
             if( (isset($data[$input])) && (isset($data[$input]['value'])) ) return $data[$input]['value'];
             // If form contained no field name that is used on checkout page see if there is a custom mapped one from the settings
             $fields = $woocommerce->session->get('_super_form_woocommerce_populate_checkout_fields', array() );
