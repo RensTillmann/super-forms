@@ -1,3 +1,9 @@
+Dec 15, 2020 - Version 1.7.1
+- Fix: When defining `Add custom checkout fields(s)` the field name required
+to be in the form in order for it to work, this is now solved so that you can
+have a different field name on checkout and still retrieve the value from the
+form via tags
+
 May 13, 2020 - Version 1.7.0
 - Added: Option to update registered user role after payment completed (for `Register & Login Add-on` only)
 - Update: hooks from main plugin
