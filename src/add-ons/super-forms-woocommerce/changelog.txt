@@ -1,3 +1,7 @@
+Dec 17, 2020 - Version 1.7.2
+- Fix: `{loop_value}` not being replaced if value was empty when `WooCommerce Checkout`
+Add-on is used in combination with the `Send email after order completed`
+
 Dec 15, 2020 - Version 1.7.1
 - Fix: When defining `Add custom checkout fields(s)` the field name required
 to be in the form in order for it to work, this is now solved so that you can
