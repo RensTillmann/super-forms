@@ -2727,9 +2727,6 @@
 .sfui-setting.sfui-vertical > .sfui-sub-settings {
     margin:0px 0px 0px 0px;
 }
-.sfui-sub-settings {
-
-}
 .sfui-setting textarea,
 .sfui-setting input,
 .sfui-setting select {
@@ -2752,5 +2749,6 @@
     padding:0px 0px 0px 0px;
     text-align:center;
 }
-
-
+.sfui-sub-settings:not(.sfui-active) {
+    display:none;
+}
