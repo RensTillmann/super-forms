@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Email Templates
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra email template to choose from
- * Version:     1.1.2
+ * Version:     1.1.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.1.2';
+        public $version = '1.1.3';
 
         
         /**
@@ -158,8 +158,6 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                 
                 // Filters since 1.0.0
                 add_filter( 'super_settings_after_email_template_filter', array( $this, 'add_settings' ), 10, 2 );
-                add_filter( 'super_before_sending_email_body_filter', array( $this, 'create_new_body' ), 50, 2 );
-                add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'create_new_confirm_body' ), 50, 2 );
 
                 // Filters since 1.0.2
                 add_action( 'init', array( $this, 'update_plugin' ) );
@@ -168,7 +166,10 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) ); 
 
             }
-            
+            // Following filters must be called outside "admin" scope, because some Add-ons will trigger outside of it
+            // For instance with the WooCommerce Checkout Add-on whenever the Order status changed to "completed" it should fire the below filters
+            add_filter( 'super_before_sending_email_body_filter', array( $this, 'create_new_body' ), 50, 2 );
+            add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'create_new_confirm_body' ), 50, 2 );
         }
 
 
