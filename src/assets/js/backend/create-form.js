@@ -11,41 +11,122 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
     SUPER.ui = {
-        // Update form settings
-        updateSettings: function(e, el, setting){
+        // Show/Hide sub settings
+        showHideSubsettings: function(el){
             var i,
-                tab = el.closest('.super-tab-content'),
-                nodes = tab.querySelectorAll('[name]'),
-                formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
-                data = {},
-                value = '',
-                names;
+                nodes,
+                filter,
+                value,
+                node,
+                tab;
 
+            if(el){
+                tab = el.closest('.super-tab-content');
+            }else{
+                tab = document.querySelector('.super-tabs-content');
+            }
+            nodes = tab.querySelectorAll('.sfui-sub-settings');
             for(i=0; i < nodes.length; i++){
-                value = nodes[i].value;
-                if(nodes[i].type==='checkbox') value = nodes[i].checked;
-                if(nodes[i].type==='radio') value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value; 
-                if(value===true) value = "true"; 
-                if(value===false) value = "false"; 
-                names = nodes[i].name.split('.');
-                if(names.length>1){
-                    if(typeof data[names[0]] === 'undefined'){
-                        data[names[0]] = {};
-                    }
-                    if(names.length>2){
-                        if(typeof data[names[0]][names[1]] === 'undefined'){
-                            data[names[0]][names[1]] = {};
+                if(!nodes[i].dataset.f) continue;
+                value = '';
+                filter = nodes[i].dataset.f.split(';');
+                node = tab.querySelectorAll('[name="'+filter[0]+'"]');
+                if(node.length>=1){
+                    // Radio or checkbox?
+                    if(node[0].type==='checkbox' || node[0].type==='radio'){
+                        value = (tab.querySelector('[name="'+filter[0]+'"]:checked') ? tab.querySelector('[name="'+filter[0]+'"]:checked').value : '');
+                        nodes[i].classList.remove('sfui-active');
+                        if(filter[1]===value){
+                            nodes[i].classList.add('sfui-active');
                         }
-                        data[names[0]][names[1]][names[2]] = value;
-                    }else{
-                        data[names[0]][names[1]] = value;
+                        continue;
                     }
-                }else{
-                    data[nodes[i].name] = value;
+                    if(node[0].type==='select-one'){
+                        value = node[0].options[node[0].selectedIndex].value;
+                        console.log('ok, ', value, filter[1]);
+                        nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
+                        if(filter[1].split(',').indexOf(value)!==-1){
+                            console.log('ok 2, ', value, filter[1]);
+                        //if(filter[1]===value){
+                            nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
+                        }
+                        continue;
+                    }
                 }
             }
-            formSettings[setting] = data;
-            document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
+        },
+        // Update form settings
+        updateSettings: function(e, el, setting){
+            SUPER.ui.showHideSubsettings(el);
+
+            //data-f="display_based_on;specific_forms"
+
+            //// Display possible sub settings
+            //subSettings = el.querySelectorAll('.sfui-sub-settings');
+            //if(subSettings.length===1){
+            //    if(node.checked===true){
+            //        subSettings[0].classList.add('sfui-active');
+            //    }else{
+            //        subSettings[0].classList.remove('sfui-active');
+            //    }
+            //}
+            //if(subSettings.length>1){
+            //    //subSettings[0].classList.remove('sfui-active');
+            //    // Multiple subsettings, conditionally show/hide
+            //}
+
+            //var i,
+            //    tab = el.closest('.super-tab-content'),
+            //    nodes = tab.querySelectorAll('[name]'),
+            //    formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
+            //    data = {},
+            //    value = '',
+            //    names,
+            //    subSettings;
+
+            //for(i=0; i < nodes.length; i++){
+            //    value = nodes[i].value;
+            //    if(nodes[i].type==='checkbox') value = (nodes[i].checked ? nodes[i].checked : '');
+            //    if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+            //    if(value===true) value = "true"; 
+            //    if(value===false) value = "false"; 
+            //    name = nodes[i].name;
+            //    subSettings = el.querySelectorAll('.sfui-sub-settings');
+            //    if(subSettings.length===1){
+            //        if(value==="true"){
+            //            subSettings[0].classList.add('sfui-active');
+            //        }else{
+            //            subSettings[0].classList.remove('sfui-active');
+            //        }
+            //    }
+            //    if(subSettings.length>1){
+            //        // Multiple subsettings, conditionally show/hide
+            //    }
+            //    
+            //    //value = nodes[i].value;
+            //    //if(nodes[i].type==='checkbox') value = (nodes[i].checked ? nodes[i].checked : '');
+            //    //if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+            //    //if(value===true) value = "true"; 
+            //    //if(value===false) value = "false"; 
+            //    //names = nodes[i].name.split('.');
+            //    //if(names.length>1){
+            //    //    if(typeof data[names[0]] === 'undefined'){
+            //    //        data[names[0]] = {};
+            //    //    }
+            //    //    if(names.length>2){
+            //    //        if(typeof data[names[0]][names[1]] === 'undefined'){
+            //    //            data[names[0]][names[1]] = {};
+            //    //        }
+            //    //        data[names[0]][names[1]][names[2]] = value;
+            //    //    }else{
+            //    //        data[names[0]][names[1]] = value;
+            //    //    }
+            //    //}else{
+            //    //    data[nodes[i].name] = value;
+            //    //}
+            //}
+            //formSettings[setting] = data;
+            //document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
         }
     };
     SUPER.update_form_elements = function(string){
@@ -1061,6 +1142,8 @@
 
 
     jQuery(document).ready(function ($) {
+
+        SUPER.ui.showHideSubsettings();
 
         $('body.wp-admin').addClass('folded');
 

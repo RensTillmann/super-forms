@@ -284,9 +284,34 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             $defaults = array(
                 'enable' => 'false',
                 'name' => esc_html__( 'Entries', 'super-forms' ),
-                'title_column_placeholder' => esc_html__( 'Title', 'super-forms' ),
-                'status_column_placeholder' => esc_html__( 'Status', 'super-forms' ),
-                'date_column_placeholder' => esc_html__( 'Date', 'super-forms' ),
+                'display_based_on' => 'this_form',
+                'form_ids' => '',
+                'date_range' => array(
+                    'enabled' => 'false',
+                    'from' => '',
+                    'till' => ''
+                ),
+                'title_column' => array(
+                    'enabled' => 'true',
+                    'placeholder' => esc_html__( 'Title', 'super-forms' ),
+                    'name' => 'Title',
+                    'width' => '',
+                    'position' => '',
+                ),
+                'status_column' => array(
+                    'enabled' => 'true',
+                    'placeholder' => esc_html__( 'Status', 'super-forms' ),
+                    'name' => 'Status',
+                    'width' => '',
+                    'position' => '',
+                ),
+                'date_column' => array(
+                    'enabled' => 'true',
+                    'placeholder' => esc_html__( 'Date', 'super-forms' ),
+                    'name' => 'Date',
+                    'width' => '',
+                    'position' => '',
+                ),
 
                 'edit_own' => array(
                     'enabled' => 'false',
@@ -301,27 +326,6 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                     'user_ids' => ''
                 ),
 
-
-                'display_based_on' => 'this_form',
-                'form_ids' => '',
-                'date_range' => 'false',
-                'date_range_from' => '',
-                'date_range_till' => '',
-
-                'show_title' => 'true',
-                'title_column_name' => 'Title',
-                'title_column_width' => '',
-                'title_column_position' => '',
-
-                'show_status' => 'true',
-                'status_column_name' => 'Status',
-                'status_column_width' => '',
-                'status_column_position' => '',
-
-                'show_date' => 'true',
-                'date_column_name' => 'Date',
-                'date_column_width' => '',
-                'date_column_position' => '',
 
                 'custom_columns' => array(
                     'enabled' => 'false',
@@ -417,7 +421,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             echo '</div>';
 
             // When enabled, we display the list with Front-end listings
-            echo '<div class="sfui-repeater">';
+            echo '<div class="sfui-repeater" data-k="lists">';
                 // Repeater Item
                 echo '<div class="sfui-repeater-item">';
                     echo '<div class="sfui-inline">';
@@ -454,8 +458,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                                 echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($s['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline">';
-                                    /*echo '<input type="text" name="form_ids" placeholder="123,124" value="<?php echo sanitize_text_field($list['form_ids']); ?>" /><i>(seperate each ID with a comma)</i></span>*/
+                                echo '<div class="sfui-sub-settings sfui-inline" data-f="display_based_on;specific_forms">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($s['form_ids']) . '" />';
@@ -469,18 +472,18 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         // Entries within date range
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="date_range" value="true"' . ($s['date_range']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline">';
+                                echo '<input type="checkbox" name="date_range.enabled" value="true"' . ($s['date_range']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings sfui-inline" data-f="date_range.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'From', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no minimum date', 'super-forms' ) . ')</i></span>';
-                                            echo '<input type="date" name="date_range_from" value="' . sanitize_text_field($s['date_range_from']) . '" />';
+                                            echo '<input type="date" name="date_range.from" value="' . sanitize_text_field($s['date_range']['from']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Till', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
-                                            echo '<input type="date" name="date_range_till" value="' . sanitize_text_field($s['date_range_till']) . '" />';
+                                            echo '<input type="date" name="date_range.till" value="' . sanitize_text_field($s['date_range']['till']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -489,30 +492,30 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         // Show title column
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="show_title" value="true"' . ($s['show_title']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "Title" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline">';
+                                echo '<input type="checkbox" name="title_column.enabled" value="true"' . ($s['title_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "Title" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings sfui-inline" data-f="title_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="title_column_name" value="' . sanitize_text_field($s['title_column_name']) . '" />';
+                                            echo '<input type="text" name="title_column.name" value="' . sanitize_text_field($s['title_column']['name']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="title_column_placeholder" value="' . sanitize_text_field($s['title_column_placeholder']) . '" />';
+                                            echo '<input type="text" name="title_column.placeholder" value="' . sanitize_text_field($s['title_column']['placeholder']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="title_column_width" value="' . sanitize_text_field($s['title_column_width']) . '" />';
+                                            echo '<input type="number" name="title_column.width" value="' . sanitize_text_field($s['title_column']['width']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="title_column_position" value="' . sanitize_text_field($s['title_column_position']) . '" />';
+                                            echo '<input type="number" name="title_column.position" value="' . sanitize_text_field($s['title_column']['position']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -521,30 +524,30 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         // Show status column
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="show_status" value="true"' . ($s['show_status']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "status" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline">';
+                                echo '<input type="checkbox" name="status_column.enabled" value="true"' . ($s['status_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "status" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings sfui-inline" data-f="status_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="status_column_name" value="' . sanitize_text_field($s['status_column_name']) . '" />';
+                                            echo '<input type="text" name="status_column.name" value="' . sanitize_text_field($s['status_column']['name']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="status_column_placeholder" value="' . sanitize_text_field($s['status_column_placeholder']) . '" />';
+                                            echo '<input type="text" name="status_column.placeholder" value="' . sanitize_text_field($s['status_column']['placeholder']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="status_column_width" value="' . sanitize_text_field($s['status_column_width']) . '" />';
+                                            echo '<input type="number" name="status_column.width" value="' . sanitize_text_field($s['status_column']['width']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="status_column_position" value="' . sanitize_text_field($s['status_column_position']) . '" />';
+                                            echo '<input type="number" name="status_column.position" value="' . sanitize_text_field($s['status_column']['position']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -553,30 +556,30 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         // Show date column
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="show_date" value="true"' . ($s['show_date']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "date" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline">';
+                                echo '<input type="checkbox" name="date_column.enabled" value="true"' . ($s['date_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "date" column', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings sfui-inline" data-f="date_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="date_column_name" value="' . sanitize_text_field($s['date_column_name']) . '" />';
+                                            echo '<input type="text" name="date_column.name" value="' . sanitize_text_field($s['date_column']['name']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="date_column_placeholder" value="' . sanitize_text_field($s['date_column_placeholder']) . '" />';
+                                            echo '<input type="text" name="date_column.placeholder" value="' . sanitize_text_field($s['date_column']['placeholder']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="date_column_width" value="' . sanitize_text_field($s['date_column_width']) . '" />';
+                                            echo '<input type="number" name="date_column.width" value="' . sanitize_text_field($s['date_column']['width']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="date_column_position" value="' . sanitize_text_field($s['date_column_position']) . '" />';
+                                            echo '<input type="number" name="date_column.position" value="' . sanitize_text_field($s['date_column']['position']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -586,8 +589,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                                 echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($s['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings">';
-                                    echo '<div class="sfui-repeater">';
+                                echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
+                                    echo '<div class="sfui-repeater" data-k="columns">';
                                         // Repeater Item
                                         echo '<div class="sfui-repeater-item">';
                                             echo '<div class="sfui-inline sfui-vertical">';
@@ -621,20 +624,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                             echo '<span>';
                                                                 echo esc_html__( 'Filter method', 'super-forms' ) . ':';
                                                             echo '</span>';
-                                                            echo '<select name="filter">';
+                                                            echo '<select name="filter" onChange="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
                                                                 echo '<option '.($cv['filter']=='none' ? ' selected="selected"' : '').' value="none">'.esc_html__( 'No filter', 'super-forms' ).'</option>';
                                                                 echo '<option '.($cv['filter']=='text' ? ' selected="selected"' : '').' value="text">'.esc_html__( 'Text field (default)', 'super-forms' ).'</option>';
                                                                 echo '<option '.($cv['filter']=='dropdown' ? ' selected="selected"' : '').' value="dropdown">'.esc_html__( 'Dropdown', 'super-forms' ).'</option>';
                                                             echo '</select>';
-                                                        echo '</label>';
-                                                        echo '<div class="sfui-sub-settings">';
-                                                            echo '<div class="sfui-setting sfui-vertical">';
-                                                                echo '<label>';
-                                                                    echo '<span>' . esc_html__( 'Filter options', 'super-forms' ) . ' <i>(' . esc_html__( 'put each on a new line', 'super-forms') .')</i>:</span>';
-                                                                    echo '<textarea name="filter_items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2") . '">' . $cv['filter_items'] . '</textarea>';
-                                                                echo '</label>';
+                                                            echo '<div class="sfui-sub-settings" data-f="filter;dropdown">';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label>';
+                                                                        echo '<span>' . esc_html__( 'Filter options', 'super-forms' ) . ' <i>(' . esc_html__( 'put each on a new line', 'super-forms') .')</i>:</span>';
+                                                                        echo '<textarea name="filter_items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2") . '">' . $cv['filter_items'] . '</textarea>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
                                                             echo '</div>';
-                                                        echo '</div>';
+                                                        echo '</label>';
                                                     echo '</div>';
                                                     echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.addRepeaterItem(this)"></span>';
                                                     echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.deleteRepeaterItem(this)"></span>';
@@ -649,59 +652,58 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         // Allow editing any entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="edit_any" value="true"' . ($s['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings">';
+                                echo '<input type="checkbox" name="edit_any.enabled" value="true"' . ($s['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="edit_any.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                            echo '<input type="radio" name="method" value="modal"' . ($s['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="edit_any.method" value="modal"' . ($s['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                            echo '<input type="radio" name="method" value="url"' . ($s['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="edit_any.method" value="url"' . ($s['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>:</span>';
-                                            echo '<input type="text" name="user_roles" value="' . sanitize_text_field($s['edit_any']['user_roles']) . '" />';
+                                            echo '<input type="text" name="edit_any.user_roles" value="' . sanitize_text_field($s['edit_any']['user_roles']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>:</span>';
-                                            echo '<input type="text" name="user_ids" value="' . sanitize_text_field($s['edit_any']['user_ids']) . '" />';
+                                            echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($s['edit_any']['user_ids']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
-                                            
                         // Allow editing own entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="checkbox" name="edit_own" value="true"' . ($s['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings">';
+                                echo '<input type="checkbox" name="edit_own.enabled" value="true"' . ($s['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="edit_own.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                            echo '<input type="radio" name="method" value="modal"' . ($s['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="edit_own.method" value="modal"' . ($s['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                            echo '<input type="radio" name="method" value="url"' . ($s['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="edit_own.method" value="url"' . ($s['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>:</span>';
-                                            echo '<input type="text" name="user_roles" value="' . sanitize_text_field($s['edit_own']['user_roles']) . '" />';
+                                            echo '<input type="text" name="edit_own.user_roles" value="' . sanitize_text_field($s['edit_own']['user_roles']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>:</span>';
-                                            echo '<input type="text" name="user_ids" value="' . sanitize_text_field($s['edit_own']['user_ids']) . '" />';
+                                            echo '<input type="text" name="edit_own.user_ids" value="' . sanitize_text_field($s['edit_own']['user_ids']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
