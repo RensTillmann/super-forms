@@ -2749,6 +2749,32 @@
     padding:0px 0px 0px 0px;
     text-align:center;
 }
-.sfui-sub-settings:not(.sfui-active) {
+.sfui-inline .sfui-setting label > i {
+    font-style:italic;
+    font-weight:normal;
+}
+.sfui-repeater-item .sfui-inline .sfui-btn {
+    margin: 10px 10px 10px 0px;
+}
+.sfui-sub-settings:not(.sfui-active),
+.sfui-setting-group:not(.sfui-active) {
     display:none;
+}
+.sfui-btn {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:0px 10px 0px 10px;
+    background-color:#7F7F7F;
+}
+.sfui-btn.sfui-icon .fas,
+.sfui-btn.sfui-icon .fa {
+}
+.sfui-btn.sfui-icon span {
+}
+.sfui-btn.sfui-red {
+    background-color:#F5234B;
+}
+.sfui-btn.sfui-round {
+    border-radius:100%;
 }

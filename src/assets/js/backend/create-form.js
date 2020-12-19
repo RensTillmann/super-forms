@@ -11,6 +11,25 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
     SUPER.ui = {
+        btn: function(e, el, setting, action){
+            if(action==='toggleListingSettings'){
+                alert('toggleListingSettings');
+                var node = el.closest('.sfui-repeater-item').querySelector('.sfui-setting-group');
+                if(node.classList.contains('sfui-active')){
+                    node.classList.remove('sfui-active');
+                }else{
+                    node.classList.add('sfui-active');
+                }
+            }
+            if(action==='addRepeaterItem'){
+                alert('addRepeaterItem');
+            }
+            if(action==='deleteRepeaterItem'){
+                alert('deleteRepeaterItem');
+            }
+            //SUPER.ui.btn(event, this, '_frontend_listing', 'toggleListingSettings')
+        },
+         
         // Show/Hide sub settings
         showHideSubsettings: function(el){
             var i,

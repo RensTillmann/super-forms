@@ -426,25 +426,20 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                 echo '<div class="sfui-repeater-item">';
                     echo '<div class="sfui-inline">';
                         echo '<div class="sfui-setting">';
-                            echo '<div class="sfui-title">';
-                                echo esc_html__( 'List Name', 'super-forms' );
-                            echo '</div>';
                             echo '<label>';
                                 echo '<input type="text" name="name" value="' . $s['name'] . '" />';
-                                echo '<span>' . $tooltips[0] . '</span>';
+                                echo '<i>' . $tooltips[0] . '</i>';
                             echo '</label>';
                         echo '</div>';
                         echo '<div class="sfui-setting">';
-                            echo '<div class="sfui-title">';
-                                echo esc_html__( 'Shortcode', 'super-forms' );
-                            echo '</div>';
                             echo '<label>';
                                 echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value="' . $shortcode. '" />';
-                                echo '<span>' . $tooltips[1] . '</span>';
+                                echo '<i>' . $tooltips[1] . '</i>';
                             echo '</label>';
                         echo '</div>';
-                        echo '<div class="sfui-btn sfui-round super-tooltip" title="' . esc_attr($tooltips[2]) . '" data-title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.toggleBtn(event, this, \'_'.$slug.'\', \'toggleListingSettings\')"></div>';
-                        echo '<div class="sfui-btn sfui-round super-tooltip" title="' . esc_attr($tooltips[3]) . '" data-title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.toggleBtn(event, this, \'_'.$slug.'\', \'deleteListing\')"></div>';
+                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'toggleListingSettings\')"><i class="fas fa-cogs"></i></div>';
+                        echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add list', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                     echo '</div>';
 
                     echo '<div class="sfui-setting-group">';
@@ -633,14 +628,14 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                                     echo '<label>';
                                                                         echo '<span>' . esc_html__( 'Filter options', 'super-forms' ) . ' <i>(' . esc_html__( 'put each on a new line', 'super-forms') .')</i>:</span>';
-                                                                        echo '<textarea name="filter_items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2") . '">' . $cv['filter_items'] . '</textarea>';
+                                                                        echo '<textarea name="filter_items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms') . '">' . $cv['filter_items'] . '</textarea>';
                                                                     echo '</label>';
                                                                 echo '</div>';
                                                             echo '</div>';
                                                         echo '</label>';
                                                     echo '</div>';
-                                                    echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.addRepeaterItem(this)"></span>';
-                                                    echo '<span class="sfui-btn sfui-round" onclick="SUPER.ui.deleteRepeaterItem(this)"></span>';
+echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                                                 }
                                             echo '</div>';
                                         echo '</div>';

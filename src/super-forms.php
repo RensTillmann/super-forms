@@ -1008,7 +1008,7 @@ if(!class_exists('SUPER_Forms')) :
                     $contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data', true );
                     if( is_array($contact_entry_data) ) {
                         foreach( $contact_entry_data as $k => $v ) {
-                            if( $v['type']=='files' ) {
+                            if( isset($v['type']) && ($v['type']=='files') ) {
                                 if( isset( $v['files'] ) ) {
                                     foreach( $v['files'] as $fk => $fv ) {
                                         if(!empty($fv['path'])){
