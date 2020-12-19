@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 19, 2020 - Version 4.9.560
+
+- **Fix:** When using connected datepickers in combination with a custom `Localization` e.g `Czech` and a min/max connected date, the connection would not function due to difference in date formats
+
 ## Dec 15, 2020 - Version 4.9.559
 
 - **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
