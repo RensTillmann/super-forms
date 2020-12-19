@@ -264,6 +264,41 @@
                 parseFormat = [
                     jsformat
                 ];
+
+                // If localization is being used, use this date format instead
+                // Make sure to convert to correct format before using, plus update data attribute
+                if(localization!==''){
+                    if(typeof $.datepicker.regional[localization] !== 'undefined'){
+                        format = $.datepicker.regional[localization].dateFormat;
+                        var jsformat = format;
+                        jsformat = jsformat.replace('DD', 'dddd');
+                        var regex = /MM/i;
+                        if(regex.test(jsformat)){
+                            jsformat = jsformat.replace('MM', 'MMMM');
+                        }else{
+                            regex = /M/i;
+                            if(regex.test(jsformat)){
+                                jsformat = jsformat.replace('M', 'MMM');
+                            }
+                        }
+                        jsformat = jsformat.replace('mm', 'MM');
+                        regex = /yy/i;
+                        if(regex.test(jsformat)){
+                            jsformat = jsformat.replace('yy', 'yyyy');
+                        }else{
+                            regex = /y/i;
+                            if(regex.test(jsformat)){
+                                jsformat = jsformat.replace('y', 'yy');
+                            }
+                        }
+                        parseFormat = [
+                            jsformat
+                        ];
+                        el.dataset.format = format;
+                        el.dataset.jsformat = jsformat;
+                    }
+                }
+
             // Check if range is valid value, if not set to default one
             if(range.indexOf(':')===-1){
                 range = '-100:+5';
