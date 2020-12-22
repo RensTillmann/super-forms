@@ -3158,7 +3158,7 @@
                     {
                         selector: '#collapse-menu',
                         event: 'click',
-                        description: '<h1>Open the the WordPres menu</h1>'
+                        description: '<h1>Open the WordPres menu</h1>'
                     },
                     {
                         selector: '.wp-submenu a[href*="page=super_demos"]',
