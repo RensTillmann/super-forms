@@ -388,13 +388,11 @@ h1.super-thanks-title
       font-size: 12px
       &:after
         content: unicode("f057")
-        position: absolute
-        right: 5px
-        top: 5px
         font-size: 15px
         color: #2e8a90
         height: 15px
         line-height: 15px
+        margin-right: 5px
       &:hover:after
         color: #246569
   .super-shortcode-field,#{$formFields}
@@ -425,7 +423,7 @@ h1.super-thanks-title
   .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 1px 25px 1px 10px
+    padding: 1px 0px 1px 10px
     margin: 6px 0px 6px 6px
     line-height: 1.2
     &:after
@@ -439,7 +437,7 @@ h1.super-thanks-title
   .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 6px 25px 6px 10px
+    padding: 6px 0px 6px 10px
     margin: 6px 0px 6px 6px
     line-height: 1.2
     &:after
@@ -453,7 +451,7 @@ h1.super-thanks-title
   .super-shortcode-field,#{$formFields}
     margin: 0px 0px 0px 0px
   > div > span
-    padding: 11px 30px 11px 15px
+    padding: 11px 0px 11px 15px
     margin: 6px 0px 6px 6px
     line-height: 1.2
     &:after
@@ -590,6 +588,9 @@ h1.super-thanks-title
       padding-bottom: 0
       background: none !important
       cursor: text
+.super-keyword-tag
+  display: flex
+  align-items: center
 
 .super-style-one
   &.super-field-size-medium .super-dropdown-ui.super-autosuggest-tags-list, &.super-field-size-large .super-dropdown-ui.super-autosuggest-tags-list, &.super-field-size-huge .super-dropdown-ui.super-autosuggest-tags-list
@@ -916,6 +917,40 @@ h1.super-thanks-title
 .super-focus
   .super-adaptive-placeholder
     z-index: 3600
+
+/* Placeholder overflow / text wrap/white-sace
+.super-focus
+  .super-adaptive-placeholder
+    span
+      overflow: hidden
+.super-field:not(.super-focus):not(.super-filled)
+  .super-adaptive-placeholder
+    padding-right: 20px
+    height: 100%
+    overflow: hidden
+.super-textarea:not(.super-focus):not(.super-filled)
+  .super-adaptive-placeholder
+    padding-right: 20px
+    padding-top: 10px
+    height: 100%
+    align-items: flex-start
+    overflow: hidden
+.super-textarea
+  .super-adaptive-placeholder
+    span
+      white-space: normal
+.super-field
+  .super-adaptive-placeholder
+    span
+      overflow: hidden
+.super-focus .super-adaptive-placeholder,
+.super-filled .super-adaptive-placeholder
+  span
+    max-width: calc(100% - 25px)
+.super-textarea.super-focus
+  .super-adaptive-placeholder 
+    span
+      white-space: nowrap
 
 /* Default Theme & Size
 .super-focus:not(.super-focus-dropdown) .super-adaptive-placeholder,
@@ -3901,23 +3936,24 @@ ul.super-multipart-steps .super-multipart-step
       color: black
       padding-left: 35px
 
+.super-field.super-auto-suggest .super-overlap .super-dropdown-ui .super-item.super-active
+  display: flex!important
+  padding-left: 6px
+
 .super-overlap
   .super-item.super-active:before
     content: unicode("f00d")
     font-size: 12px
     +fontAwesome(900)
-    width: 20px
-    height: 20px
-    line-height: 18px
+    width: 15px
+    height: 15px
+    line-height: 15px
     text-align: center
-    position: absolute
-    left: 0px
-    top: 0px
+    position: initial
     border: 1px solid red
     background-color: red
     color: white
-    top: 5px
-    left: 5px
+    margin-right: 10px
 
 .super-field-size-large
   .super-overlap .super-item.super-active:before
@@ -4788,9 +4824,15 @@ ul.super-multipart-steps .super-multipart-step
   justify-content: flex-start
   align-items: flex-end
   > div
+    display: flex
+    align-items: flex-end
     flex-grow: 0
     overflow-y: auto
     height: 100%
+    > span
+      padding-right: 10px
+      &:after
+        margin-left: 5px
   .super-keyword-filter
     flex-grow: 1
     min-width: 100px
