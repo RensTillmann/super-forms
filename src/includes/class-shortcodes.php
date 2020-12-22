@@ -3031,9 +3031,6 @@ class SUPER_Shortcodes {
                 $result .= ' data-method="' . esc_attr($atts['keywords_retrieve_method']) . '"';
                 $result .= ' data-split-method="' . esc_attr($atts['keyword_split_method']) . '"';
                 $result .= ' sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
-                if( !empty( $atts['placeholder'] ) ) {
-                    $result .= ' placeholder="' . esc_attr($atts['placeholder']) . '" data-placeholder="' . esc_attr($atts['placeholder']) . '"';
-                }
                 $result .= ' />';
             $result .= '</div>';
 

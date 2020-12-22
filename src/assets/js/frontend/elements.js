@@ -37,6 +37,7 @@
                 decimal: $decimal_seperator,
                 precision: $decimals
             });
+            $(this).maskMoney('mask', this.dataset.defaultValue);
         });
     };
 
@@ -264,6 +265,41 @@
                 parseFormat = [
                     jsformat
                 ];
+
+                // If localization is being used, use this date format instead
+                // Make sure to convert to correct format before using, plus update data attribute
+                if(localization!==''){
+                    if(typeof $.datepicker.regional[localization] !== 'undefined'){
+                        format = $.datepicker.regional[localization].dateFormat;
+                        var jsformat = format;
+                        jsformat = jsformat.replace('DD', 'dddd');
+                        var regex = /MM/i;
+                        if(regex.test(jsformat)){
+                            jsformat = jsformat.replace('MM', 'MMMM');
+                        }else{
+                            regex = /M/i;
+                            if(regex.test(jsformat)){
+                                jsformat = jsformat.replace('M', 'MMM');
+                            }
+                        }
+                        jsformat = jsformat.replace('mm', 'MM');
+                        regex = /yy/i;
+                        if(regex.test(jsformat)){
+                            jsformat = jsformat.replace('yy', 'yyyy');
+                        }else{
+                            regex = /y/i;
+                            if(regex.test(jsformat)){
+                                jsformat = jsformat.replace('y', 'yy');
+                            }
+                        }
+                        parseFormat = [
+                            jsformat
+                        ];
+                        el.dataset.format = format;
+                        el.dataset.jsformat = jsformat;
+                    }
+                }
+
             // Check if range is valid value, if not set to default one
             if(range.indexOf(':')===-1){
                 range = '-100:+5';
@@ -1500,14 +1536,14 @@
                         itemsToShow.push(nodes[i]);
                         regex = RegExp([value].join('|'), 'gi');
                         stringBold = text.replace(regex, '<span>$&</span>');
-                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                        stringBold = stringBold.replace(/ /g, '\u00a0');
                         nodes[i].innerHTML = stringBold;
                     }else{
                         itemsToHide.push(nodes[i]);
                     }
                 }
                 [].forEach.call(itemsToShow, function (el) {
-                    el.style.display = 'block';
+                    el.style.display = 'flex';
                 });
                 [].forEach.call(itemsToHide, function (el) {
                     el.style.display = 'none';
@@ -1595,8 +1631,8 @@
                         words = [value]; 
                         regex = RegExp(words.join('|'), 'gi');
                         replacement = '<span>$&</span>';
-                        stringBold = nodes[i].innerText.replace(regex, replacement);
-                        stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                        stringBold = nodes[i].dataset.searchValue.replace(regex, replacement);
+                        stringBold = stringBold.replace(/ /g, '\u00a0');
                         nodes[i].innerHTML = stringBold;
                         nodes[i].classList.add('super-active');
                     }else{
@@ -2430,7 +2466,7 @@
                 field = target.closest('.super-field'),
                 tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
                 keywordField = wrapper.querySelector('.super-shortcode-field'),
-                max = parseInt(keywordField.dataset.maxlength, 10),
+                max = (keywordField.dataset.maxlength ? parseInt(keywordField.dataset.maxlength, 10) : 0),
                 nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
 
             if(method=='free'){
@@ -2443,7 +2479,7 @@
                     if(keywordField.value.split(',').indexOf(tag)===-1){
                         if(typeof duplicates[tag]==='undefined'){
                             counter++;
-                            if(counter<=max){
+                            if(max===0 || counter<=max){
                                 if(splitMethod!='comma') tag = tag.replace(/ /g,'');
                                 if( (tag!=='') && (tag.length>1) ) {
                                     html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
@@ -2603,7 +2639,7 @@
         app.delegate(document, eventType, elements, function (e, target) {
             if (eventType == 'click') {
                 if (!app.inPath(e, 'super-focus')) {
-                    var i, nodes = document.querySelectorAll('.super-focus');
+                    var i, nodes = document.querySelectorAll('.super-keyword-tags.super-focus');
                     for(i=0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-focus');
                     }

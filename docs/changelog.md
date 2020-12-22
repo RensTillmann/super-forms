@@ -4,12 +4,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Dec 15, 2020 - Version 4.9.559
-
-- **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
-- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
-
-## Dec 10, 2020 - Version 4.9.557
+## Dec 22, 2020 - Version 4.9.570
 
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
   - `geocode`: return only geocoding results, rather than business results. Generally, you use this request to disambiguate results where the location specified may be indeterminate.
@@ -18,11 +13,20 @@
   - `(regions)`: return any result matching the following types: locality, sublocality, postal_code, country, administrative_area_level_1, administrative_area_level_2
   - `(cities)`: type collection instructs the Places service to return results that match locality or administrative_area_level_3
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to restrict results by countrie(s) e.g: fr,nl,de (to restrict results by France, Netherlands and Germany)
+- **Improved:** `Keyword field` style improvements
+- **Improved:** [Auto suggest](auto-suggest.md) style improvements
+- **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
+- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
+- **Fix:** When filtering [Auto suggest](auto-suggest.md) make sure to preserve any spaces in the search results
+- **Fix:** Firefox adaptive placeholders focus automatically getting unfocussed
+- **Fix:** When using `Currency` field with a `Default value` make sure the masked is applied upon page load
+- **Fix:** When using connected datepickers in combination with a custom `Localization` e.g `Czech` and a min/max connected date, the connection would not function due to difference in date formats
 - **Fix:** Multi-part thinking there was still a field that required validation when in fact the field had become conditionally hidden while after the field had thrown a validation error. This caused the form being unable to submit.
 
-## Dec 04, 2020 - Version 4.9.556
+## Dec 08, 2020 - Version 4.9.556
 
 - **Fix:** When using double quotes in radio/checkbox/dropdown Labels (when using custom HTML for instance) make sure any backslashes are not saved
+- **Fix:** Calculator Add-on conditional logic wasn't working due to new CSS rule `display:fex!important;`
 
 ## Dec 02, 2020 - Version 4.9.555
 
@@ -34,7 +38,7 @@
 
 ## Nov 16, 2020 - Version 4.9.550
 
-- **Added:** [Secrets](secrets.md) to savely store sensitive data on server side, but still be able to retrieve it conditionally and use it in the form settings
+- **Added:** [Secrets](secrets.md) to safely store sensitive data on server side, but still be able to retrieve it conditionally and use it in the form settings
 - **Fix:** When using Accordion or TAB element and using columns inside the column was not correctly closed in some scenario's
 - **Fix:** When using a `Global secret` inside a Hidden fields default value, it would be converted to the underlaying value upon page load
 - **Fix:** Problem with datepicker connected to a datepicker that allows a user to choose multiple dates automatically clearing the field value upon selecting dates
