@@ -1083,10 +1083,14 @@ class SUPER_Ajax {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");
                 require_once(ABSPATH . WPINC . "/class-pop3.php");
-                $phpmailer = new PHPMailer();
+				$phpmailer = new PHPMailer();
             }else{
-                global $phpmailer;
+				require_once(ABSPATH . WPINC . "/PHPMailer/PHPMailer.php");
+          		require_once(ABSPATH . WPINC . "/PHPMailer/SMTP.php");
+          		require_once(ABSPATH . WPINC . "/class-pop3.php");
+				$phpmailer = new \PHPMailer\PHPMailer\PHPMailer();
             }
+
             $phpmailer->isSMTP();
             $phpmailer->Host = $array['smtp_host'];
             $phpmailer->Port = $array['smtp_port'];

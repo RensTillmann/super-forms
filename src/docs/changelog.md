@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 24, 2020 - Version 4.9.571
+
+- **Fix:** Issue with SMTP on older PHP versions due to WordPress moving the class to a different location
+
 ## Dec 22, 2020 - Version 4.9.570
 
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:

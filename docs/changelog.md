@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Dec 24, 2020 - Version 4.9.571
+
+- **Fix:** Issue with SMTP on older PHP versions due to WordPress moving the class to a different location
+
 ## Dec 22, 2020 - Version 4.9.570
 
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
@@ -16,7 +20,7 @@
 - **Improved:** `Keyword field` style improvements
 - **Improved:** [Auto suggest](auto-suggest.md) style improvements
 - **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
-- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
+- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximum Text/Blob size
 - **Fix:** When filtering [Auto suggest](auto-suggest.md) make sure to preserve any spaces in the search results
 - **Fix:** Firefox adaptive placeholders focus automatically getting unfocussed
 - **Fix:** When using `Currency` field with a `Default value` make sure the masked is applied upon page load
