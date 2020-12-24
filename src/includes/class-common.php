@@ -510,8 +510,8 @@ class SUPER_Common {
                 if($operator==='<=' && $v1<=$v2) $show = true;
                 if($operator==='>' && $v1>$v2) $show = true;
                 if($operator==='<' && $v1<$v2) $show = true;
-                if($operator==='??' && (strpos($v1, $v2))) $show = true;
-                if($operator==='!??' && (!strpos($v1, $v2))) $show = true;
+                if($operator==='??' && (strpos($v1, $v2)!==FALSE)) $show = true;
+                if($operator==='!??' && (!strpos($v1, $v2)===FALSE)) $show = true;
                 if($show){
                     $show_counter++;
                 }
@@ -1909,9 +1909,12 @@ class SUPER_Common {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");
                 require_once(ABSPATH . WPINC . "/class-pop3.php");
-                $phpmailer = new PHPMailer();
+				$phpmailer = new PHPMailer();
             }else{
-                global $phpmailer;
+				require_once(ABSPATH . WPINC . "/PHPMailer/PHPMailer.php");
+          		require_once(ABSPATH . WPINC . "/PHPMailer/SMTP.php");
+          		require_once(ABSPATH . WPINC . "/class-pop3.php");
+				$phpmailer = new \PHPMailer\PHPMailer\PHPMailer();
             }
 
             // Set mailer to use SMTP
