@@ -97,7 +97,7 @@ class SUPER_Ajax {
             'api_auth'                      => false,
             'api_submit_feedback'           => false,
 
-            'frontend_listing_delete_entry' => false,
+            'listing_delete_entry' => false,
 
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -109,7 +109,7 @@ class SUPER_Ajax {
         }
     }
 
-    public static function frontend_listing_delete_entry(){
+    public static function listing_delete_entry(){
         $entry_id = absint($_POST['entry_id']);
         $list_id = absint($_POST['list_id']);
         // First check if entry exists
@@ -128,7 +128,7 @@ class SUPER_Ajax {
         }
 
         // Set default values if they don't exist
-        $listSettings = SUPER_Front_End_Listing::get_default_listing_settings($settings['_listings'][$list_id]);
+        $listSettings = SUPER_Listing::get_default_listing_settings($settings['_listings'][$list_id]);
         var_dump($listSettings);
         die();
         
