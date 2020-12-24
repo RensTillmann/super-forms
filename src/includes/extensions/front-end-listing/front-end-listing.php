@@ -3,16 +3,16 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Front_End_Listing')) :
+if(!class_exists('SUPER_Listing')) :
 
 
     /**
-     * Main SUPER_Front_End_Listing Class
+     * Main SUPER_Listing Class
      *
-     * @class SUPER_Front_End_Listing
+     * @class SUPER_Listing
      * @version 1.0.0
      */
-    final class SUPER_Front_End_Listing {
+    final class SUPER_Listing {
     
         
         /**
@@ -28,12 +28,12 @@ if(!class_exists('SUPER_Front_End_Listing')) :
          *
          *  @since      1.0.0
         */
-        public $add_on_slug = 'front-end-listing';
+        public $add_on_slug = 'listing';
         public $add_on_name = 'Front-end Listing';
 
         
         /**
-         * @var SUPER_Front_End_Listing The single instance of the class
+         * @var SUPER_Listing The single instance of the class
          *
          *  @since      1.0.0
         */
@@ -41,13 +41,13 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         
         /**
-         * Main SUPER_Front_End_Listing Instance
+         * Main SUPER_Listing Instance
          *
-         * Ensures only one instance of SUPER_Front_End_Listing is loaded or can be loaded.
+         * Ensures only one instance of SUPER_Listing is loaded or can be loaded.
          *
          * @static
-         * @see SUPER_Front_End_Listing()
-         * @return SUPER_Front_End_Listing - Main instance
+         * @see SUPER_Listing()
+         * @return SUPER_Listing - Main instance
          *
          *  @since      1.0.0
         */
@@ -60,13 +60,13 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         
         /**
-         * SUPER_Front_End_Listing Constructor.
+         * SUPER_Listing Constructor.
          *
          *  @since      1.0.0
         */
         public function __construct(){
             $this->init_hooks();
-            do_action('super_front_end_listing_loaded');
+            do_action('super_listing_loaded');
         }
 
         
@@ -117,7 +117,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             add_action( 'init', array( $this, 'register_shortcodes' ) );
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_create_form_tabs', array( $this, 'add_tab' ), 10, 1 );
-                add_action( 'super_create_form_front_end_listing_tab', array( $this, 'add_tab_content' ) );
+                add_action( 'super_create_form_listing_tab', array( $this, 'add_tab_content' ) );
                 // add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'init', array( $this, 'update_plugin' ) );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
@@ -186,10 +186,10 @@ if(!class_exists('SUPER_Front_End_Listing')) :
 
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
-            $styles['super-front-end-listing'] = array(
+            $styles['super-listing'] = array(
                 'src'     => $assets_path . 'css/backend/styles.css',
                 'deps'    => '',
-                'version' => SUPER_Front_End_Listing()->version,
+                'version' => SUPER_Listing()->version,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -200,7 +200,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         }
         public static function add_script($scripts){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
-            $scripts['super-front-end-listing'] = array(
+            $scripts['super-listing'] = array(
                 'src'     => $assets_path . 'js/backend/script.js',
                 'deps'    => array( 'super-common' ),
                 'version' => SUPER_VERSION,
@@ -214,7 +214,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
         }
 
         public static function add_tab($tabs){
-            $tabs['front_end_listing'] = esc_html__( 'Front-end Listing', 'super-forms' );
+            $tabs['listing'] = esc_html__( 'Listings', 'super-forms' );
             return $tabs;
         }
         public static function add_tab_content($atts){
@@ -229,7 +229,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             //array( 'form_id'=>$form_id, 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content )
             $form_id = absint($atts['form_id']);
             ?>
-            <ul class="front-end-listing-list">
+            <ul class="super-listing-list">
                 <?php
                 // If no listings where found just add a default list
                 if( !isset($atts['settings']['_listings']) ) $atts['settings']['_listings'] = array();
@@ -274,8 +274,9 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             </div>
             <?php
             */
-            $html = '<div class="super_transient"></div>';
-            $slug = 'frontend_listing';
+            //$html = '<div class="super_transient"></div>';
+            echo '<div class="super_transient"></div>';
+            $slug = 'listing';
             $s = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
                 $s = $atts['settings']['_'.$slug];
@@ -414,7 +415,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
             
             // Enable Front-end Listing
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="enable" value="true"' . ($s['enable']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable Front-end Listing for this form', 'super-forms' ) . '</span>';
                 echo '</label>';
@@ -437,36 +438,36 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                 echo '<i>' . $tooltips[1] . '</i>';
                             echo '</label>';
                         echo '</div>';
-                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'toggleListingSettings\')"><i class="fas fa-cogs"></i></div>';
-                        echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add list', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.btn(event, this, \'toggleListingSettings\')"><i class="fas fa-cogs"></i></div>';
+                        echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add list', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                     echo '</div>';
 
                     echo '<div class="sfui-setting-group">';
                         // Display based on
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="radio" name="display_based_on" value="this_form"' . ($s['display_based_on']==='this_form' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries based on this form', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="radio" name="display_based_on" value="all_forms"' . ($s['display_based_on']==='all_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on all forms', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
-                                echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($s['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="display_based_on;specific_forms">';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($s['form_ids']) . '" />';
-                                            echo '<span>(' . esc_html__( 'seperated by comma\'s', 'super-forms' ) . '</span>';
-                                        echo '</label>';
+                        echo '<form class="sfui-setting">';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="radio" name="display_based_on" value="this_form"' . ($s['display_based_on']==='this_form' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries based on this form', 'super-forms' ) . '</span>';
+                                echo '</label>';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="radio" name="display_based_on" value="all_forms"' . ($s['display_based_on']==='all_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on all forms', 'super-forms' ) . '</span>';
+                                echo '</label>';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($s['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
+                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="display_based_on;specific_forms">';
+                                        echo '<div class="sfui-setting">';
+                                            echo '<label>';
+                                                echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($s['form_ids']) . '" />';
+                                                echo '<span>(' . esc_html__( 'seperated by comma\'s', 'super-forms' ) . '</span>';
+                                            echo '</label>';
+                                        echo '</div>';
                                     echo '</div>';
-                                echo '</div>';
 
-                            echo '</label>';
-                        echo '</div>';
+                                echo '</label>';
+                        echo '</form>';
                         // Entries within date range
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="date_range.enabled" value="true"' . ($s['date_range']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings sfui-inline" data-f="date_range.enabled;true">';
                                     echo '<div class="sfui-setting">';
@@ -486,7 +487,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         echo '</div>';
                         // Show title column
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="title_column.enabled" value="true"' . ($s['title_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "Title" column', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings sfui-inline" data-f="title_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
@@ -518,7 +519,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         echo '</div>';
                         // Show status column
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="status_column.enabled" value="true"' . ($s['status_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "status" column', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings sfui-inline" data-f="status_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
@@ -550,7 +551,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         echo '</div>';
                         // Show date column
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="date_column.enabled" value="true"' . ($s['date_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "date" column', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings sfui-inline" data-f="date_column.enabled;true">';
                                     echo '<div class="sfui-setting">';
@@ -582,7 +583,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                         echo '</div>';
                         // Custom columns
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($s['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
                                     echo '<div class="sfui-repeater" data-k="columns">';
@@ -619,7 +620,7 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                             echo '<span>';
                                                                 echo esc_html__( 'Filter method', 'super-forms' ) . ':';
                                                             echo '</span>';
-                                                            echo '<select name="filter" onChange="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                                            echo '<select name="filter" onChange="SUPER.ui.updateSettings(event, this)">';
                                                                 echo '<option '.($cv['filter']=='none' ? ' selected="selected"' : '').' value="none">'.esc_html__( 'No filter', 'super-forms' ).'</option>';
                                                                 echo '<option '.($cv['filter']=='text' ? ' selected="selected"' : '').' value="text">'.esc_html__( 'Text field (default)', 'super-forms' ).'</option>';
                                                                 echo '<option '.($cv['filter']=='dropdown' ? ' selected="selected"' : '').' value="dropdown">'.esc_html__( 'Dropdown', 'super-forms' ).'</option>';
@@ -634,8 +635,8 @@ if(!class_exists('SUPER_Front_End_Listing')) :
                                                             echo '</div>';
                                                         echo '</label>';
                                                     echo '</div>';
-echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'_'.$slug.'\', \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                                                 }
                                             echo '</div>';
                                         echo '</div>';
@@ -646,16 +647,16 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
 
                         // Allow editing any entries
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="edit_any.enabled" value="true"' . ($s['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings" data-f="edit_any.enabled;true">';
                                     echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="radio" name="edit_any.method" value="modal"' . ($s['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="radio" name="edit_any.method" value="url"' . ($s['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
@@ -676,16 +677,16 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                         echo '</div>';
                         // Allow editing own entries
                         echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="edit_own.enabled" value="true"' . ($s['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings" data-f="edit_own.enabled;true">';
                                     echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="radio" name="edit_own.method" value="modal"' . ($s['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="radio" name="edit_own.method" value="url"' . ($s['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
@@ -842,7 +843,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
 
         // Return data for script handles.
         public static function register_shortcodes(){
-            add_shortcode( 'super_listing', array( 'SUPER_Front_End_Listing', 'super_listing_func' ) );
+            add_shortcode( 'super_listing', array( 'SUPER_Listing', 'super_listing_func' ) );
         }
 
         // The form shortcode that will generate the list/table with all Contact Entries
@@ -906,9 +907,9 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
 
 
             // Enqueue scripts and styles
-            $handle = 'super-front-end-listing';
+            $handle = 'super-listing';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Front_End_Listing()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Listing()->version, false );  
             wp_localize_script(
                 $handle,
                 $name,
@@ -918,9 +919,9 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                 )
             );
             wp_enqueue_script( $handle );
-            // wp_enqueue_script( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            // wp_enqueue_script( 'super-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
             
-            wp_enqueue_style( 'super-front-end-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Front_End_Listing()->version );
+            wp_enqueue_style( 'super-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Listing()->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
             // Get the settings for this specific list based on it's index
@@ -1112,7 +1113,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                             $actions = '<span class="super-edit"></span>';
                             $actions .= '<span class="super-view"></span>';
                             $actions .= '<span class="super-delete"></span>';
-                            $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
+                            $result .= apply_filters( 'super_listing_actions_filter', $actions, $entry );
                         $result .= ' </div>';
 
                         foreach( $columns as $k => $v ) {
@@ -1210,7 +1211,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                                     }
                                     $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
                                     $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
-                                    $result .= apply_filters( 'super_front_end_listing_actions_filter', $actions, $entry );
+                                    $result .= apply_filters( 'super_listing_actions_filter', $actions, $entry );
                                 $result .= ' </div>';
 
                                 foreach( $columns as $ck => $cv ) {
@@ -1432,10 +1433,10 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
         public static function add_settings( $array, $settings ) {
             
             // // First reminder settings
-            // $array['front_end_listing'] = array(        
+            // $array['listing'] = array(        
             //     'name' => esc_html__( 'Front-end Listing', 'super-forms' ),
             //     'label' => esc_html__( 'Front-end Listing', 'super-forms' ),
-            //     'html' => array( '<style>.super-settings .front-end-listing-html-notice {display:none;}</style>', '<p class="front-end-listing-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > Front-end Listing%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#front-end-listing">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+            //     'html' => array( '<style>.super-settings .super-listing-html-notice {display:none;}</style>', '<p class="super-listing-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > Front-end Listing%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . admin_url() . 'admin.php?page=super_settings#super-listing">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
             //     'fields' => array(
             //         'email_reminder_amount' => array(
             //             'hidden' => true,
@@ -1514,7 +1515,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
             //             'filter_value'=>'offset'
             //         )
             //     );
-            //     $array['front_end_listing']['fields'] = array_merge($array['front_end_listing']['fields'], $reminder_settings);
+            //     $array['listing']['fields'] = array_merge($array['listing']['fields'], $reminder_settings);
 
 
             //     $fields = $array['confirmation_email_settings']['fields'];
@@ -1551,7 +1552,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
             //         'parent'=>'email_reminder_'.$x,
             //         'filter_value'=>'true'
             //     );
-            //     $array['front_end_listing']['fields'] = array_merge($array['front_end_listing']['fields'], $new_fields);
+            //     $array['listing']['fields'] = array_merge($array['listing']['fields'], $new_fields);
             //     $x++;
             // }
 
@@ -1574,14 +1575,14 @@ endif;
 
 
 /**
- * Returns the main instance of SUPER_Front_End_Listing to prevent the need to use globals.
+ * Returns the main instance of SUPER_Listing to prevent the need to use globals.
  *
- * @return SUPER_Front_End_Listing
+ * @return SUPER_Listing
  */
-if(!function_exists('SUPER_Front_End_Listing')){
-    function SUPER_Front_End_Listing() {
-        return SUPER_Front_End_Listing::instance();
+if(!function_exists('SUPER_Listing')){
+    function SUPER_Listing() {
+        return SUPER_Listing::instance();
     }
     // Global for backwards compatibility.
-    $GLOBALS['SUPER_Front_End_Listing'] = SUPER_Front_End_Listing();
+    $GLOBALS['SUPER_Listing'] = SUPER_Listing();
 }

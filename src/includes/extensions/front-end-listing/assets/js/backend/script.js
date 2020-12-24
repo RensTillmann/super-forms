@@ -93,7 +93,7 @@
         data.formSettings = JSON.parse(data.formSettings);
         data.formSettings._listings = {};
         // Loop through all the listings
-        var list = document.querySelectorAll('.front-end-listing-list > li');
+        var list = document.querySelectorAll('.super-listing-list > li');
         for (var key = 0; key < list.length; key++) {
             data.formSettings._listings[key] = {};
             data.formSettings._listings[key].name = list[key].querySelector('input[name="name"]').value;
@@ -140,7 +140,7 @@
             if(list[key].querySelector('[data-name="custom_columns"]').classList.contains('super-active')){
                 data.formSettings._listings[key].custom_columns = true;
                 data.formSettings._listings[key].columns = {};
-                var columns = document.querySelectorAll('.front-end-listing-list div[data-name="custom_columns"] li');
+                var columns = document.querySelectorAll('.super-listing-list div[data-name="custom_columns"] li');
                 for (var ckey = 0; ckey < columns.length; ckey++) {
                     data.formSettings._listings[key].columns[ckey] = {};
                     data.formSettings._listings[key].columns[ckey].name = columns[ckey].querySelector('input[name="name"]').value;
@@ -211,9 +211,9 @@
 
     // Create Listing
     SUPER.frontEndListing.addListing = function(){
-        var target_element = document.querySelector('.front-end-listing-list');
+        var target_element = document.querySelector('.super-listing-list');
         var source = target_element.firstElementChild;
-        var list = document.querySelector('.front-end-listing-list');
+        var list = document.querySelector('.super-listing-list');
         var node = source.cloneNode(true);
         // Change shortcode
         var form_id = document.querySelector('.super-header input[name="form_id"]').value;

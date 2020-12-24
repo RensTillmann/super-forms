@@ -11,23 +11,29 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
     SUPER.ui = {
-        btn: function(e, el, setting, action){
+        btn: function(e, el, action){
             if(action==='toggleListingSettings'){
-                alert('toggleListingSettings');
                 var node = el.closest('.sfui-repeater-item').querySelector('.sfui-setting-group');
                 if(node.classList.contains('sfui-active')){
                     node.classList.remove('sfui-active');
                 }else{
                     node.classList.add('sfui-active');
                 }
+                return false;
             }
             if(action==='addRepeaterItem'){
-                alert('addRepeaterItem');
+                var clone = el.closest('.sfui-repeater-item').cloneNode(true);
+                el.closest('.sfui-repeater').appendChild(clone);
+                e.preventDefault();
+                return false;
             }
             if(action==='deleteRepeaterItem'){
-                alert('deleteRepeaterItem');
+                // Do not delete last item
+                if(el.closest('.sfui-repeater').querySelectorAll(':scope > .sfui-repeater-item').length>1){
+                    el.closest('.sfui-repeater-item').remove();
+                }
+                return false;
             }
-            //SUPER.ui.btn(event, this, '_frontend_listing', 'toggleListingSettings')
         },
          
         // Show/Hide sub settings
@@ -49,6 +55,10 @@
                 if(!nodes[i].dataset.f) continue;
                 value = '';
                 filter = nodes[i].dataset.f.split(';');
+                tab = nodes[i].closest('.super-tab-content');
+                if(nodes[i].closest('.sfui-repeater-item')){
+                    tab = nodes[i].closest('.sfui-repeater-item');
+                }
                 node = tab.querySelectorAll('[name="'+filter[0]+'"]');
                 if(node.length>=1){
                     // Radio or checkbox?
@@ -75,8 +85,13 @@
             }
         },
         // Update form settings
-        updateSettings: function(e, el, setting){
+        updateSettings: function(e, el){
             SUPER.ui.showHideSubsettings(el);
+            // Update form settings
+            SUPER.update_form_settings(true);
+
+            //var settingKey = el.closest('.super-tab-content').classList[1];
+            //settingKey = settingKey.replace('.super-tab-', '');
 
             //data-f="display_based_on;specific_forms"
 
@@ -188,8 +203,11 @@
                 $settings[$name] = $value;
             }
         });
-        // Tab settings
+        // PDF settings
         $settings = SUPER.get_tab_settings($settings, 'pdf');
+        // Front-end Listing settings
+        $settings = SUPER.get_tab_settings($settings, 'listing');
+        // Stripe settings
         //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
@@ -198,37 +216,53 @@
         return $settings;
     };
     SUPER.get_tab_settings = function(settings, slug){
+        debugger;
         var i,
             tab = document.querySelector('.super-tab-content.super-tab-'+slug),
             nodes = tab.querySelectorAll('[name]:not(.sfui-exclude)'),
             data = {},
+            subData = {},
+            repeaterKey,
             value = '',
             names;
         if(tab.querySelector('.super_transient')){
             for(i=0; i < nodes.length; i++){
+                debugger;
                 value = nodes[i].value;
                 if(nodes[i].type==='checkbox') value = nodes[i].checked;
-                if(nodes[i].type==='radio') value = tab.querySelector('[name="'+nodes[i].name+'"]:checked').value;
+                if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
                 names = nodes[i].name.split('.');
+                debugger;
+                subData = data;
+                if(nodes[i].closest('.sfui-repeater')){
+                    debugger;
+                    repeaterKey = nodes[i].closest('.sfui-repeater').dataset.k;
+                    if(typeof data[repeaterKey] === 'undefined'){
+                        data[repeaterKey] = {};
+                    }
+                    debugger;
+                    subData = data[repeaterKey];
+                }
                 if(names.length>1){
-                    if(typeof data[names[0]] === 'undefined'){
-                        data[names[0]] = {};
+                    if(typeof subData[names[0]] === 'undefined'){
+                        subData[names[0]] = {};
                     }
                     if(names.length>2){
-                        if(typeof data[names[0]][names[1]] === 'undefined'){
-                            data[names[0]][names[1]] = {};
+                        if(typeof subData[names[0]][names[1]] === 'undefined'){
+                            subData[names[0]][names[1]] = {};
                         }
-                        data[names[0]][names[1]][names[2]] = value;
+                        subData[names[0]][names[1]][names[2]] = value;
                     }else{
-                        data[names[0]][names[1]] = value;
+                        subData[names[0]][names[1]] = value;
                     }
                 }else{
-                    data[nodes[i].name] = value;
+                    subData[nodes[i].name] = value;
                 }
             }
-            settings['_'+slug] = data;
+            debugger;
+            settings['_'+slug] = subData;
         }
         return settings;
     }

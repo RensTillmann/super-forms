@@ -124,7 +124,7 @@
         // Load iframe
         var iframe = document.createElement('iframe');
         // eslint-disable-next-line no-undef
-        iframe.src = super_front_end_listing_i18n.get_home_url+'?super-fel-id='+entry_id;
+        iframe.src = super_listing_i18n.get_home_url+'?super-fel-id='+entry_id;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = '0px';
@@ -153,10 +153,10 @@
             console.log(this);
             console.log("** An error occurred during the transaction");
         };
-        xhttp.open("POST", super_front_end_listing_i18n.ajaxurl, true);
+        xhttp.open("POST", super_listing_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         var params = {
-            action: 'super_frontend_listing_delete_entry',
+            action: 'super_listing_delete_entry',
             entry_id: entry_id,
             list_id: list_id
         };
