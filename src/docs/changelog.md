@@ -4,6 +4,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 04, 2020 - Version 4.9.572
+
+- **Fix:** Builder UI scrolling bug in Firefox browser causing a continues scroll
+- **Fix:** When selecting default items for `Dropdown` element it would still display the placeholder instead of the actual selected item
+- **Fix:** US States element contained some incorrectly sorted items by alphabet
+
 ## Dec 24, 2020 - Version 4.9.571
 
 - **Fix:** Issue with SMTP on older PHP versions due to WordPress moving the class to a different location

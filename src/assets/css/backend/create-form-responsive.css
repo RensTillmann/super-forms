@@ -89,7 +89,7 @@
         max-height: inherit!important;
     }
 }
-@media only screen and (min-width: 480px) and (max-width: 1145px) {
+@media only screen and (min-width: 0px) and (max-width: 1145px) {
     .super-switch-forms {
         margin-bottom: 5px;
     }
@@ -257,7 +257,7 @@
 }
 @media only screen and (min-width: 1000px) and (max-width: 1679px) {
     .super-element > .super-elements-container > .super-element {
-        width: 50%;
+        width: 33%;
     }
 }
 

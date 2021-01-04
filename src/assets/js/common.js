@@ -5325,7 +5325,7 @@ function SUPERreCaptcha(){
                             if($new_placeholder===''){
                                 $new_placeholder += $(this).html();
                             }else{
-                                $new_placeholder += ','+$(this).html();
+                                $new_placeholder += ', '+$(this).html();
                             }
                         }
                     });
@@ -5626,6 +5626,9 @@ function SUPERreCaptcha(){
                 innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
                 for (ii = 0; ii < innerNodes.length; ii++) { 
                     innerNodes[ii].classList.add('super-active');
+                }
+                if(innerNodes.length){
+                    field.classList.add('super-filled');
                 }
                 if(typeof default_value === 'undefined') default_value = '';
                 option = field.querySelector('.super-dropdown-ui .super-item:not(.super-placeholder)[data-value="'+default_value+'"]:not(.super-placeholder)');

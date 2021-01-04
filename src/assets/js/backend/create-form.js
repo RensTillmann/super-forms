@@ -1063,6 +1063,7 @@
     jQuery(document).ready(function ($) {
 
         $('body.wp-admin').addClass('folded');
+        init_form_settings_container_heights();
 
         var $doc = $(document),
             $super_hints,
@@ -1120,6 +1121,7 @@
             }
             // Remember which TAB was active for the last time
             SUPER.set_session_data('_super_builder_last_active_panel', $(this).parent().index());
+            init_form_settings_container_heights();
             return false;
         });
 
