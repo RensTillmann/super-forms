@@ -274,6 +274,7 @@ class SUPER_Shortcodes {
                     // Check if this should be remembered as the default value set via settings
                     if( ($v['checked']=='true' || $v['checked']==1) ) {
                         $class .= 'super-default-selected';
+                        $selected_items[] = $v['value'];
                     }
                     if( empty($selected_values) ) {
                         if( ($v['checked']=='true' || $v['checked']==1) ) {
@@ -1122,7 +1123,6 @@ class SUPER_Shortcodes {
                 $atts['placeholder'] = implode(', ', $placeholder);
             }
         }
-
         if(empty($atts['value'])){
             $atts['value'] = implode( ',', $selected_items );
         }
@@ -3287,6 +3287,13 @@ class SUPER_Shortcodes {
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+        
+        // @since   4.7.7 - make sure we do not lose the default placeholder
+        // This is required for dynamic columns
+        $atts['default_placeholder'] = $atts['placeholder'];
+        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+        $items = $get_items['items'];
+        $atts = $get_items['atts'];
 
         $result = self::opening_tag( $tag, $atts );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -3296,19 +3303,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
-        // @since   4.7.7 - make sure we do not lose the default placeholder
-        // This is required for dynamic columns
-        $atts['default_placeholder'] = $atts['placeholder'];
-        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
-        $items = $get_items['items'];
-        $atts = $get_items['atts'];
-
         $result .= '<input type="hidden" class="super-shortcode-field';
         $result .= $distance_calculator_class;
         $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
         $result .= '"';
         $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
+
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
