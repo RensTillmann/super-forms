@@ -479,6 +479,10 @@ class SUPER_Field_Types {
     // address_auto_complete
     public static function address_auto_populate( $id, $field, $data ) {
         $mappings = array(
+            'name' => esc_html__( 'Name of place', 'super-forms' ),
+            'formatted_phone_number' => esc_html__( 'The Place\'s phone number, formatted according to the number\'s regional convention.', 'super-forms' ),
+            'international_phone_number' => esc_html__( 'The Place\'s phone number in international format', 'super-forms' ),
+            'website' => esc_html__( 'The authoritative website for this Place, such as a business\' homepage', 'super-forms' ),
             'street_number' => esc_html__( 'Street number', 'super-forms' ),
             'street_name' => esc_html__( 'Street name', 'super-forms' ),
             'street_name_number' => esc_html__( 'Street name + nr', 'super-forms' ),

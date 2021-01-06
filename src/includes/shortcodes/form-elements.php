@@ -647,11 +647,11 @@ $array['form_elements'] = array(
                             'required'=>true,
                         ),
                         'enable_address_auto_populate' => array(
-                            'desc' => esc_html__( 'Auto populate address fields', 'super-forms' ), 
+                            'desc' => esc_html__( 'Auto populate data with fields', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_address_auto_populate'] ) ? '' : $attributes['enable_address_auto_populate'] ),
                             'type' => 'checkbox', 
                             'values' => array(
-                                'true' => esc_html__( 'Enable address auto populate', 'super-forms' ),
+                                'true' => esc_html__( 'Map data with form fields', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'enable_address_auto_complete',
