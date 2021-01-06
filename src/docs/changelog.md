@@ -4,7 +4,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 04, 2020 - Version 4.9.572
+
+## Jan 06, 2021 - Version 4.9.573
+
+- **Added:** Option for google autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
+- **Improved:** When using google autocomplete the code will now determine what data is being used in your form, and strip out any unnecessary data from the API request which could considerably reduce costs
+
+## Jan 04, 2021 - Version 4.9.572
 
 - **Fix:** Builder UI scrolling bug in Firefox browser causing a continues scroll
 - **Fix:** When selecting default items for `Dropdown` element it would still display the placeholder instead of the actual selected item

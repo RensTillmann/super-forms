@@ -1924,8 +1924,10 @@
             if ($minimized === 'undefined') $minimized = 'no';
             if ($minimized == 'yes') {
                 $this.attr('data-minimized', 'no').removeClass('super-minimized');
+                $(this).tooltipster('content', 'Minimize');
             } else {
                 $this.attr('data-minimized', 'yes').addClass('super-minimized');
+                $(this).tooltipster('content', 'Maximize');
             }
             SUPER.init_resize_element_labels();
             SUPER.init_drag_and_drop();
