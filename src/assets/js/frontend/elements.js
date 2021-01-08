@@ -37,7 +37,12 @@
                 decimal: $decimal_seperator,
                 precision: $decimals
             });
-            $(this).maskMoney('mask', this.dataset.defaultValue);
+            if(this.dataset.defaultValue!==''){
+                $(this).maskMoney('mask', this.dataset.defaultValue);
+                $(this).parents('.super-currency').addClass('super-filled');
+            }else{
+                $(this).parents('.super-currency').removeClass('super-filled');
+            }
         });
     };
 
