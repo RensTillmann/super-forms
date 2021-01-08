@@ -3294,12 +3294,13 @@ function SUPERreCaptcha(){
     };
     SUPER.after_field_change_blur_hook = function(args){
         if( typeof args.el !== 'undefined' ) {
-            if(args.el.value===''){
-                if(args.el.closest('.super-shortcode')) {
+            if(args.el.closest('.super-shortcode')){
+                args.el.closest('.super-shortcode').classList.remove('super-focus');
+                if(args.el.value===''){
                     args.el.closest('.super-shortcode').classList.remove('super-filled');
+                }else{
+                    args.el.closest('.super-shortcode').classList.add('super-filled');
                 }
-            }else{
-                if(args.el.closest('.super-shortcode')) args.el.closest('.super-shortcode').classList.add('super-filled');
             }
         }
         args.form = SUPER.get_frontend_or_backend_form(args);

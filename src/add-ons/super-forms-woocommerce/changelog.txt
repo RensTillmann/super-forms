@@ -1,3 +1,7 @@
+Jan 08, 2021 - Version 1.7.3
+- Added: Option to update contact entry status after woocommerce order was
+completed
+
 Dec 17, 2020 - Version 1.7.2
 - Fix: `{loop_value}` not being replaced if value was empty when `WooCommerce Checkout`
 Add-on is used in combination with the `Send email after order completed`

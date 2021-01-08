@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.7.2
+ * Version:     1.7.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.7.2';
+        public $version = '1.7.3';
 
 
         /**
@@ -514,7 +514,9 @@ if(!class_exists('SUPER_WooCommerce')) :
 
                 $_super_entry_id = $woocommerce->session->get( '_super_entry_id', array() );
                 if( isset($_super_entry_id['entry_id']) ) {
+                    update_post_meta( $order_id, '_super_entry_id', $_super_entry_id['entry_id'] );
                     update_post_meta( $_super_entry_id['entry_id'], '_super_contact_entry_wc_order_id', $order_id );
+                    $woocommerce->session->set( '_super_entry_id', array() );
                 }
             }
         }
@@ -527,6 +529,7 @@ if(!class_exists('SUPER_WooCommerce')) :
         */
         public function order_status_changed( $order_id, $old_status, $new_status ) {
             if( $new_status=='completed' ) {
+                $contact_entry_id = get_post_meta( $order_id, '_super_entry_id', true );
                 $_super_wc_post = get_post_meta( $order_id, '_super_wc_post', true );
                 if ( !empty( $_super_wc_post ) ) { // @since 1.0.2 - check if not empty
                     $my_post = array(
@@ -534,8 +537,6 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'post_status' => $_super_wc_post['status'],
                     );
                     wp_update_post( $my_post );
-
-
                 }
 
                 // Update user login status and role
@@ -564,9 +565,12 @@ if(!class_exists('SUPER_WooCommerce')) :
                 if (method_exists('SUPER_Common','get_form_settings')) {
                     $form_settings = SUPER_Common::get_form_settings($form_id);
                 }else{
-                    $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+                    $form_settings = get_post_meta(absint($form_id), '_super_form_settings', true);
                 }
-
+                // Update contact entry status after succesfull payment
+                if( !empty($form_settings['woocommerce_completed_entry_status']) ) {
+                    update_post_meta( $contact_entry_id, '_super_contact_entry_status', $form_settings['woocommerce_completed_entry_status'] );
+                }
                 if( !empty($form_settings['woocommerce_completed_email']) ) {
                     
                     $global_settings = get_option( 'super_settings' );
@@ -1280,6 +1284,13 @@ if(!class_exists('SUPER_WooCommerce')) :
          *  @since      1.0.0
         */
         public static function add_settings( $array, $settings ) {
+			$statuses = SUPER_Settings::get_entry_statuses();
+			$new_statuses = array();
+			foreach($statuses as $k => $v) {
+				$new_statuses[$k] = $v['name'];
+			}
+			$statuses = $new_statuses;
+			unset($new_statuses);
             $array['woocommerce_checkout'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
@@ -1409,6 +1420,19 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true',
                     ),
+
+
+					'woocommerce_completed_entry_status' => array(
+						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
+						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
+						'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_entry_status', $settings['settings'], 'completed' ),
+						'type' => 'select',
+						'values' => $statuses,
+						'filter' => true,
+						'parent' => 'woocommerce_checkout',
+						'filter_value' => 'true',
+					),
+
 
                     // @since 1.3.8 - option to send email after payment completed
                     'woocommerce_completed_email' => array(

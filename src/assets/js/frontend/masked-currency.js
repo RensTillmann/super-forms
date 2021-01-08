@@ -220,7 +220,7 @@
                                 var integerPart = value.slice(0, decimalPointIndex),
                                     decimalPart = value.slice(decimalPointIndex + 1);
                                 value = integerPart + settings.decimal + decimalPart +
-                                    new Array((settings.precision + 1) - decimalPart.length).join(0);
+                                    new Array((settings.precision + 1) - (decimalPart.length - settings.format.length)).join(0);
                             }
                         } else if (decimalPointIndex > 0) {
                             // if the precision is 0, discard the decimal part
