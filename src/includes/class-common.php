@@ -637,6 +637,23 @@ class SUPER_Common {
         $data = get_post_meta( absint($contact_entry_id), '_super_contact_entry_data', true );
         if(!empty($data)){
             unset($data['hidden_form_id']);
+            $data['hidden_contact_entry_id'] = array(
+                'name' => 'hidden_contact_entry_id',
+                'value' => $contact_entry_id,
+                'type' => 'entry_id'
+            );
+            $entry_status = get_post_meta( absint($contact_entry_id), '_super_contact_entry_status', true );
+            $data['hidden_contact_entry_status'] = array(
+                'name' => 'hidden_contact_entry_status',
+                'value' => $entry_status,
+                'type' => 'var'
+            );
+            $entry_title = get_the_title(absint($contact_entry_id));
+            $data['hidden_contact_entry_title'] = array(
+                'name' => 'hidden_contact_entry_title',
+                'value' => $entry_title,
+                'type' => 'var'
+            );
             if(!empty($skip)){
                 $skip_fields = explode( "|", $skip );
                 foreach($skip_fields as $field_name){
@@ -645,11 +662,6 @@ class SUPER_Common {
                     }
                 }
             }
-            $data['hidden_contact_entry_id'] = array(
-                'name' => 'hidden_contact_entry_id',
-                'value' => $contact_entry_id,
-                'type' => 'entry_id'
-            );
         }
         return $data;
     }

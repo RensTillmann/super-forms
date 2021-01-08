@@ -789,6 +789,27 @@ class SUPER_Ajax {
             if( isset($entry[0])) {
                 $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                 unset($data['hidden_form_id']);
+                $entry_status = get_post_meta( absint($entry[0]->ID), '_super_contact_entry_status', true );
+                // If entry status is empty, return the post status instead
+                if(empty($entry_status)){
+                    $entry_status = get_post_status($entry[0]->ID);
+                }
+                $data['hidden_contact_entry_status'] = array(
+                    'name' => 'hidden_contact_entry_status',
+                    'value' => $entry_status,
+                    'type' => 'var'
+                );
+                $data['hidden_contact_entry_id'] = array(
+                    'name' => 'hidden_contact_entry_id',
+                    'value' => $entry[0]->ID,
+                    'type' => 'entry_id'
+                );
+                $entry_title = get_the_title($entry[0]->ID);
+                $data['hidden_contact_entry_title'] = array(
+                    'name' => 'hidden_contact_entry_title',
+                    'value' => $entry_title,
+                    'type' => 'var'
+                );
                 // @since 3.2.0 - skip specific fields from being populated
                 $skip = sanitize_text_field($_POST['skip']);
                 $skip_fields = explode( "|", $skip );
@@ -796,13 +817,6 @@ class SUPER_Ajax {
                     if( isset($data[$field_name]) ) {
                         unset($data[$field_name]);
                     }
-                }
-                if( isset($entry[0])) {
-                    $data['hidden_contact_entry_id'] = array(
-                        'name' => 'hidden_contact_entry_id',
-                        'value' => $entry[0]->ID,
-                        'type' => 'entry_id'
-                    );
                 }
             }
             echo json_encode($data);
@@ -1256,7 +1270,7 @@ class SUPER_Ajax {
                     $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
                 }
                 if( $global_settings['contact_entry_add_id']=='true' ) {
-                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                    $contact_entry_title = $contact_entry_title . $contact_entry_id;
                 }
                 $contact_entry = array(
                     'ID' => $contact_entry_id,
@@ -2653,11 +2667,11 @@ class SUPER_Ajax {
                     if($contact_entry_title==''){
                         $contact_entry_title = $contact_entry_id;
                     }else{
-                        $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                        $contact_entry_title = $contact_entry_title . $contact_entry_id;
                     }
                 }
             }else{
-                $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
+                $contact_entry_title = $contact_entry_title . $contact_entry_id;
             }
 
             $contact_entry = array(
