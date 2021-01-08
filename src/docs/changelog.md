@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 08, 2021 - Version 4.9.574
+
+- **Added:** Option for [Contact entry search](contact-entry-search.md) to return contact entry status, ID and Title by adding fields named `hidden_contact_entry_status`, `hidden_contact_entry_id` or `hidden_contact_entry_title`
+
 ## Jan 08, 2021 - Version 4.9.573
 
 - **Added:** `WooCommerce Checkout Add-on` option to update Contact Entry status after WooCommerce order completed
