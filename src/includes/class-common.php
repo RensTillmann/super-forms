@@ -1714,12 +1714,14 @@ class SUPER_Common {
             
             // @since 4.9.6 - local/global secrets
             if($skipSecrets===false){
-                $form_id = absint($data['hidden_form_id']['value']);
-                if($form_id!=0){
-                    $localSecrets = get_post_meta( $form_id, '_super_local_secrets', true );
-                    if( is_array( $localSecrets ) ) {
-                        foreach( $localSecrets as $v){
-                            $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                if(isset($data) && isset($data['hidden_form_id'])){
+                    $form_id = absint($data['hidden_form_id']['value']);
+                    if($form_id!=0){
+                        $localSecrets = get_post_meta( $form_id, '_super_local_secrets', true );
+                        if( is_array( $localSecrets ) ) {
+                            foreach( $localSecrets as $v){
+                                $value = str_replace( '{@' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            }
                         }
                     }
                 }

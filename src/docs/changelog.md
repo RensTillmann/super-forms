@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 11, 2021 - Version 4.9.575
+
+- **Improved:** Google address autocomplete now also returns `City` if mapped as `postal_town` and or `sublocality_leve_1` see: [Maps JavaScript API documentation](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform) for more info
+- **Fix:** PHP Notice
+
 ## Jan 08, 2021 - Version 4.9.574
 
 - **Added:** Option for [Contact entry search](contact-entry-search.md) to return contact entry status, ID and Title by adding fields named `hidden_contact_entry_status`, `hidden_contact_entry_id` or `hidden_contact_entry_title`
@@ -11,7 +16,7 @@
 ## Jan 08, 2021 - Version 4.9.573
 
 - **Added:** `WooCommerce Checkout Add-on` option to update Contact Entry status after WooCommerce order completed
-- **Added:** Option for google autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
+- **Added:** Option for google address autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
 - **Improved:** When using google autocomplete the code will now determine what data is being used in your form, and strip out any unnecessary data from the API request which could considerably reduce costs
 - **Improved:** Focus/Filled status for currency field
 - **Fix:** JavaScript error on currency field when `Number format` contained space(s)

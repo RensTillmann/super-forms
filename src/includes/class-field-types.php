@@ -487,7 +487,7 @@ class SUPER_Field_Types {
             'street_name' => esc_html__( 'Street name', 'super-forms' ),
             'street_name_number' => esc_html__( 'Street name + nr', 'super-forms' ),
             'street_number_name' => esc_html__( 'Street nr + name', 'super-forms' ),
-            'city' => esc_html__( 'City name', 'super-forms' ),
+            'city' => esc_html__( 'City name', 'super-forms' ), // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
             'state' => esc_html__( 'State/Province', 'super-forms' ),
             'postal_code' => esc_html__( 'Postal code', 'super-forms' ),
             'country' => esc_html__( 'Country name', 'super-forms' ),

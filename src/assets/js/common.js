@@ -4656,7 +4656,9 @@ function SUPERreCaptcha(){
             var mapping = {
                 street_number: 'street_number',
                 route: 'street_name',
-                locality: 'city',
+                locality: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+                postal_town: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+                sublocality_level_1: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
                 administrative_area_level_2: 'municipality',
                 administrative_area_level_1: 'state',
                 country: 'country',
