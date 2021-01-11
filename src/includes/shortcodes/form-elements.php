@@ -647,11 +647,11 @@ $array['form_elements'] = array(
                             'required'=>true,
                         ),
                         'enable_address_auto_populate' => array(
-                            'desc' => esc_html__( 'Auto populate address fields', 'super-forms' ), 
+                            'desc' => esc_html__( 'Auto populate data with fields', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_address_auto_populate'] ) ? '' : $attributes['enable_address_auto_populate'] ),
                             'type' => 'checkbox', 
                             'values' => array(
-                                'true' => esc_html__( 'Enable address auto populate', 'super-forms' ),
+                                'true' => esc_html__( 'Map data with form fields', 'super-forms' ),
                             ),
                             'filter'=>true,
                             'parent'=>'enable_address_auto_complete',
@@ -733,7 +733,7 @@ $array['form_elements'] = array(
                     'name' => esc_html__( 'Contact entry search (populate form with data)', 'super-forms' ),
                     'fields' => array(
                         'enable_search' => array(
-                            'label' => sprintf( esc_html__( 'By default it will search for contact entries based on their title.%sA filter hook can be used to retrieve different data.', 'super-forms' ), '<br />' ),
+                            'label' => sprintf( esc_html__( 'Search contact entries based on their title. By default all entry data will be populated unless defined otherwise in the "Fields to skip" setting below. To retrieve the contact entry status you can add a field named: %2$shidden_contact_entry_status%3$s (which will be populated with the current status of the entry). To retrieve the entry ID you can name the field: %2$shidden_contact_entry_id%3$s. To retrieve the entry Title you can name the field: %2$shidden_contact_entry_title%3$s', 'super-forms' ), '<br />', '<strong style="color:red;">', '</strong>' ),
                             'desc' => esc_html__( 'Wether or not to use the contact entry search feature', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_search'] ) ? '' : $attributes['enable_search'] ),
                             'type' => 'checkbox', 
