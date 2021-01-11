@@ -22,7 +22,7 @@ class SUPER_Common {
     
     // @since 4.7.7 - US states (currently used by dropdown element only)
     public static function us_states(){
-        return array('Alabama'=>'AL','Alaska'=>'AK','Arizona'=>'AZ','Arkansas'=>'AR','California'=>'CA','Colorado'=>'CO','Connecticut'=>'CT','Delaware'=>'DE','District of Columbia'=>'DC','Florida'=>'FL','Georgia'=>'GA','Hawaii'=>'HI','Idaho'=>'ID','Illinois'=>'IL','Indiana'=>'IN','Iowa'=>'IA','Kansas'=>'KS','Kentucky'=>'KY','Louisiana'=>'LA','Maine'=>'ME','Montana'=>'MT','Nebraska'=>'NE','Nevada'=>'NV','New Hampshire'=>'NH','New Jersey'=>'NJ','New Mexico'=>'NM','New York'=>'NY','North Carolina'=>'NC','North Dakota'=>'ND','Ohio'=>'OH','Oklahoma'=>'OK','Oregon'=>'OR','Maryland'=>'MD','Massachusetts'=>'MA','Michigan'=>'MI','Minnesota'=>'MN','Mississippi'=>'MS','Missouri'=>'MO','Pennsylvania'=>'PA','Rhode Island'=>'RI','South Carolina'=>'SC','South Dakota'=>'SD','Tennessee'=>'TN','Texas'=>'TX','Utah'=>'UT','Vermont'=>'VT','Virginia'=>'VA','Washington'=>'WA','West Virginia'=>'WV','Wisconsin'=>'WI','Wyoming'=>'WY');
+        return array( 'Alabama'=>'AL', 'Alaska'=>'AK', 'Arizona'=>'AZ', 'Arkansas'=>'AR', 'California'=>'CA', 'Colorado'=>'CO', 'Connecticut'=>'CT', 'Delaware'=>'DE', 'District of Columbia'=>'DC', 'Florida'=>'FL', 'Georgia'=>'GA', 'Hawaii'=>'HI', 'Idaho'=>'ID', 'Illinois'=>'IL', 'Indiana'=>'IN', 'Iowa'=>'IA', 'Kansas'=>'KS', 'Kentucky'=>'KY', 'Louisiana'=>'LA', 'Maine'=>'ME', 'Maryland'=>'MD', 'Massachusetts'=>'MA', 'Michigan'=>'MI', 'Minnesota'=>'MN', 'Mississippi'=>'MS', 'Missouri'=>'MO', 'Montana'=>'MT', 'Nebraska'=>'NE', 'Nevada'=>'NV', 'New Hampshire'=>'NH', 'New Jersey'=>'NJ', 'New Mexico'=>'NM', 'New York'=>'NY', 'North Carolina'=>'NC', 'North Dakota'=>'ND', 'Ohio'=>'OH', 'Oklahoma'=>'OK', 'Oregon'=>'OR', 'Pennsylvania'=>'PA', 'Rhode Island'=>'RI', 'South Carolina'=>'SC', 'South Dakota'=>'SD', 'Tennessee'=>'TN', 'Texas'=>'TX', 'Utah'=>'UT', 'Vermont'=>'VT', 'Virginia'=>'VA', 'Washington'=>'WA', 'West Virginia'=>'WV', 'Wisconsin'=>'WI', 'Wyoming'=>'WY');
     }
     // @since 4.7.7 - Countries (currently used by dropdown element only)
     public static function countries(){
@@ -510,8 +510,8 @@ class SUPER_Common {
                 if($operator==='<=' && $v1<=$v2) $show = true;
                 if($operator==='>' && $v1>$v2) $show = true;
                 if($operator==='<' && $v1<$v2) $show = true;
-                if($operator==='??' && (strpos($v1, $v2))) $show = true;
-                if($operator==='!??' && (!strpos($v1, $v2))) $show = true;
+                if($operator==='??' && (strpos($v1, $v2)!==FALSE)) $show = true;
+                if($operator==='!??' && (!strpos($v1, $v2)===FALSE)) $show = true;
                 if($show){
                     $show_counter++;
                 }
@@ -637,6 +637,23 @@ class SUPER_Common {
         $data = get_post_meta( absint($contact_entry_id), '_super_contact_entry_data', true );
         if(!empty($data)){
             unset($data['hidden_form_id']);
+            $data['hidden_contact_entry_id'] = array(
+                'name' => 'hidden_contact_entry_id',
+                'value' => $contact_entry_id,
+                'type' => 'entry_id'
+            );
+            $entry_status = get_post_meta( absint($contact_entry_id), '_super_contact_entry_status', true );
+            $data['hidden_contact_entry_status'] = array(
+                'name' => 'hidden_contact_entry_status',
+                'value' => $entry_status,
+                'type' => 'var'
+            );
+            $entry_title = get_the_title(absint($contact_entry_id));
+            $data['hidden_contact_entry_title'] = array(
+                'name' => 'hidden_contact_entry_title',
+                'value' => $entry_title,
+                'type' => 'var'
+            );
             if(!empty($skip)){
                 $skip_fields = explode( "|", $skip );
                 foreach($skip_fields as $field_name){
@@ -645,11 +662,6 @@ class SUPER_Common {
                     }
                 }
             }
-            $data['hidden_contact_entry_id'] = array(
-                'name' => 'hidden_contact_entry_id',
-                'value' => $contact_entry_id,
-                'type' => 'entry_id'
-            );
         }
         return $data;
     }
@@ -1909,9 +1921,12 @@ class SUPER_Common {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");
                 require_once(ABSPATH . WPINC . "/class-pop3.php");
-                $phpmailer = new PHPMailer();
+				$phpmailer = new PHPMailer();
             }else{
-                global $phpmailer;
+				require_once(ABSPATH . WPINC . "/PHPMailer/PHPMailer.php");
+          		require_once(ABSPATH . WPINC . "/PHPMailer/SMTP.php");
+          		require_once(ABSPATH . WPINC . "/class-pop3.php");
+				$phpmailer = new \PHPMailer\PHPMailer\PHPMailer();
             }
 
             // Set mailer to use SMTP

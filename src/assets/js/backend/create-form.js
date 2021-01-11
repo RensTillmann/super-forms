@@ -1199,6 +1199,7 @@
         SUPER.ui.showHideSubsettings();
 
         $('body.wp-admin').addClass('folded');
+        init_form_settings_container_heights();
 
         var $doc = $(document),
             $super_hints,
@@ -1256,6 +1257,7 @@
             }
             // Remember which TAB was active for the last time
             SUPER.set_session_data('_super_builder_last_active_panel', $(this).parent().index());
+            init_form_settings_container_heights();
             return false;
         });
 
@@ -2058,8 +2060,10 @@
             if ($minimized === 'undefined') $minimized = 'no';
             if ($minimized == 'yes') {
                 $this.attr('data-minimized', 'no').removeClass('super-minimized');
+                $(this).tooltipster('content', 'Minimize');
             } else {
                 $this.attr('data-minimized', 'yes').addClass('super-minimized');
+                $(this).tooltipster('content', 'Maximize');
             }
             SUPER.init_resize_element_labels();
             SUPER.init_drag_and_drop();
@@ -3294,7 +3298,7 @@
                     {
                         selector: '#collapse-menu',
                         event: 'click',
-                        description: '<h1>Open the the WordPres menu</h1>'
+                        description: '<h1>Open the WordPres menu</h1>'
                     },
                     {
                         selector: '.wp-submenu a[href*="page=super_demos"]',

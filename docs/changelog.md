@@ -4,6 +4,28 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 08, 2021 - Version 4.9.574
+
+- **Added:** Option for [Contact entry search](contact-entry-search.md) to return contact entry status, ID and Title by adding fields named `hidden_contact_entry_status`, `hidden_contact_entry_id` or `hidden_contact_entry_title`
+
+## Jan 08, 2021 - Version 4.9.573
+
+- **Added:** `WooCommerce Checkout Add-on` option to update Contact Entry status after WooCommerce order completed
+- **Added:** Option for google autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
+- **Improved:** When using google autocomplete the code will now determine what data is being used in your form, and strip out any unnecessary data from the API request which could considerably reduce costs
+- **Improved:** Focus/Filled status for currency field
+- **Fix:** JavaScript error on currency field when `Number format` contained space(s)
+
+## Jan 04, 2021 - Version 4.9.572
+
+- **Fix:** Builder UI scrolling bug in Firefox browser causing a continues scroll
+- **Fix:** When selecting default items for `Dropdown` element it would still display the placeholder instead of the actual selected item
+- **Fix:** US States element contained some incorrectly sorted items by alphabet
+
+## Dec 24, 2020 - Version 4.9.571
+
+- **Fix:** Issue with SMTP on older PHP versions due to WordPress moving the class to a different location
+
 ## Dec 22, 2020 - Version 4.9.570
 
 - **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
@@ -16,7 +38,7 @@
 - **Improved:** `Keyword field` style improvements
 - **Improved:** [Auto suggest](auto-suggest.md) style improvements
 - **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
-- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximu Text/Blob size
+- **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximum Text/Blob size
 - **Fix:** When filtering [Auto suggest](auto-suggest.md) make sure to preserve any spaces in the search results
 - **Fix:** Firefox adaptive placeholders focus automatically getting unfocussed
 - **Fix:** When using `Currency` field with a `Default value` make sure the masked is applied upon page load
