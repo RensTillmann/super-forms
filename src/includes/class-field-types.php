@@ -101,7 +101,7 @@ class SUPER_Field_Types {
                     $v = array_merge($v, $field['default'][$k]);
                 }
                 $return .= '<div class="super-multi-items super-tab-item">';
-                    if($translating!=='true'){
+                    if($translating!==true){
                         $return .= '<div class="super-sorting">';
                             $return .= '<span class="up"><i class="fas fa-arrow-up"></i></span>';
                             $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
@@ -109,7 +109,7 @@ class SUPER_Field_Types {
                     }
                     $return .= '<input type="text" placeholder="' . esc_html__( 'Title', 'super-forms' ) . '" value="' . esc_attr( $v['title'] ) . '" name="title">';
                     $return .= '<textarea placeholder="' . esc_html__( 'Description', 'super-forms' ) . '" name="desc">' . esc_attr( $v['desc'] ) . '</textarea>';
-                    if($translating!=='true'){
+                    if($translating!==true){
                         $return .= '<i class="super-add super-add-item fas fa-plus"></i>';
                         $return .= '<i class="super-delete fas fa-trash-alt"></i>';
                         if( !isset( $v['image'] ) ) $v['image'] = '';
@@ -232,7 +232,7 @@ class SUPER_Field_Types {
                 }
                 $return .= '<div class="super-multi-items super-dropdown-item">';
                     if( !isset( $v['checked'] ) ) $v['checked'] = 'false';
-                    if($translating!=='true'){
+                    if($translating!==true){
                         $return .= '<input data-prev="'.$v['checked'].'" ' . ($id=='radio_items' || $id=='autosuggest_items' ? 'type="radio"' : 'type="checkbox"') . ( ($v['checked']==1 || $v['checked']=='true') ? ' checked="checked"' : '' ) . '">';
                         $return .= '<div class="super-sorting">';
                             $return .= '<span class="up"><i class="fas fa-arrow-up"></i></span>';
@@ -240,9 +240,9 @@ class SUPER_Field_Types {
                         $return .= '</div>';
                     }
                     $return .= '<input type="text" placeholder="' . esc_html__( 'Label', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['label'] ) ) . '" name="label">';
-                    $return .= '<input type="text" ' . ($translating=='true' ? 'disabled="disabled" ' : '') . 'placeholder="' . esc_html__( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
+                    $return .= '<input type="text" ' . ($translating===true ? 'disabled="disabled" ' : '') . 'placeholder="' . esc_html__( 'Value', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['value'] ) ) . '" name="value">';
                     
-                    if($translating!=='true'){
+                    if($translating!==true){
                         $return .= '<i class="super-add super-add-item fas fa-plus"></i>';
                         $return .= '<i class="super-delete fas fa-trash-alt"></i>';
 
@@ -480,7 +480,8 @@ class SUPER_Field_Types {
     public static function address_auto_populate( $id, $field, $data ) {
         $mappings = array(
             'name' => esc_html__( 'Name of place', 'super-forms' ),
-            'formatted_phone_number' => esc_html__( 'The Place\'s phone number, formatted according to the number\'s regional convention.', 'super-forms' ),
+            'formatted_address' => esc_html__( 'The Place\'s full address', 'super-forms' ),
+            'formatted_phone_number' => esc_html__( 'The Place\'s phone number, formatted according to the number\'s regional convention', 'super-forms' ),
             'international_phone_number' => esc_html__( 'The Place\'s phone number in international format', 'super-forms' ),
             'website' => esc_html__( 'The authoritative website for this Place, such as a business\' homepage', 'super-forms' ),
             'street_number' => esc_html__( 'Street number', 'super-forms' ),

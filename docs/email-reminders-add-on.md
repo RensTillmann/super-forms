@@ -1,4 +1,4 @@
-# Email Reminders Add-on
+# E-mail Reminders Add-on
 
 * [Download Link](#download-link)
 * [Demo Form](#demo-form)
@@ -14,7 +14,7 @@
 
 A live demo can be found here: [http://f4d.nl/super-forms/documentation/email-reminders/](http://f4d.nl/super-forms/documentation/email-reminders/)
 
-And a 1-click installable form is avilable via your WordPress menu: `Super Forms` > `Demos` > `Email Reminder`
+And a 1-click installable form is avilable via your WordPress menu: `Super Forms` > `Demos` > `E-mail Reminder`
 
 ## Description
 
@@ -39,7 +39,7 @@ Send email reminders before and after a specific date (either form submission da
 
 ## Setup Guide
 
-All settings for your email reminders can be found under each form via `Form Settings` > `Email Reminders`.
+All settings for your email reminders can be found under each form via `Form Settings` > `E-mail Reminders`.
 
 See below for some example use cases:
 

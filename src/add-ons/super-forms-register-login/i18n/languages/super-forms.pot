@@ -57,11 +57,11 @@ msgid "Activation Code"
 msgstr ""
 
 #: super-forms-register-login.php:864
-msgid "Activation Email Body"
+msgid "Activation E-mail Body"
 msgstr ""
 
 #: super-forms-register-login.php:855
-msgid "Activation Email Subject"
+msgid "Activation E-mail Subject"
 msgstr ""
 
 #: super-forms-register-login.php:336
@@ -85,11 +85,11 @@ msgid "Allowed user role(s)"
 msgstr ""
 
 #: super-forms-register-login.php:776
-msgid "Approved Email Body"
+msgid "Approved E-mail Body"
 msgstr ""
 
 #: super-forms-register-login.php:767
-msgid "Approved Email Subject"
+msgid "Approved E-mail Subject"
 msgstr ""
 
 #: super-forms-register-login.php:812
@@ -214,11 +214,11 @@ msgid "Login page URL"
 msgstr ""
 
 #: super-forms-register-login.php:983
-msgid "Lost Password Email Body"
+msgid "Lost Password E-mail Body"
 msgstr ""
 
 #: super-forms-register-login.php:974
-msgid "Lost Password Email Subject"
+msgid "Lost Password E-mail Subject"
 msgstr ""
 
 #. Description of the plugin
@@ -419,7 +419,7 @@ msgid "User Status"
 msgstr ""
 
 #: super-forms-register-login.php:1298
-msgid "Username or Email address already exists, please try again"
+msgid "Username or E-mail address already exists, please try again"
 msgstr ""
 
 #: super-forms-register-login.php:967

@@ -271,10 +271,10 @@
     .super-header .super-actions>label,
     .super-header p,
     .super-header .super-actions span,
-    .super-element-settings .field-name,
-    .super-form-settings .field-name,
-    .super-element-settings .field-input .super-checkbox,
-    .super-form-settings .field-input .super-checkbox,
+    .super-element-settings .super-field-name,
+    .super-form-settings .super-field-name,
+    .super-element-settings .super-field-input .super-checkbox,
+    .super-form-settings .super-field-input .super-checkbox,
     .super-preview-elements .super-element .super-element-header .super-title,
     .super-preview-elements .super-element .super-element-header .super-title input,
     .super-element-settings .super-field select,
@@ -290,8 +290,8 @@
     }
     .super-element>.super-elements-container>.super-element,
     .super-element.super-layout-elements>.super-elements-container>.super-element span,
-    .super-element-settings .field-label,
-    .super-form-settings .field-label {
+    .super-element-settings .super-field-label,
+    .super-form-settings .super-field-label {
         font-size: 12px;
     }
     .super-header .super-get-form-shortcodes,
