@@ -2813,6 +2813,7 @@ class SUPER_Shortcodes {
                 }
             }
             if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
+            $address_auto_complete_attr .= ' data-api-key="' . $atts['address_api_key'] . '"';
             wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
         }
 

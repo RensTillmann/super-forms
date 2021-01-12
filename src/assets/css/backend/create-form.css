@@ -1313,7 +1313,7 @@
     position: relative;
 }
 
-.super-element-settings .field-name, .super-form-settings .field-name {
+.super-element-settings .super-field-name, .super-form-settings .field-name {
     position: relative;
     font-size: 12px;
     font-weight: bold;
@@ -1322,7 +1322,7 @@
     width: 100%;
 }
 
-.super-element-settings .field-name>i, .super-form-settings .field-name>i {
+.super-element-settings .super-field-name>i, .super-form-settings .field-name>i {
     font-weight: normal;
     font-style: normal;
     font-size: 12px;
@@ -1350,7 +1350,7 @@
     content: '\f059';
 }
 
-.super-element-settings .field-label, .super-form-settings .field-label {
+.super-element-settings .super-field-label, .super-form-settings .field-label {
     font-size: 10px;
     padding: 0px 0px 5px 0px;
 }
@@ -1360,26 +1360,26 @@
     margin-bottom: 20px;
 }
 
-.super-element-settings .field-input, .super-form-settings .field-input {
+.super-element-settings .super-field-input, .super-form-settings .field-input {
     float: left;
     width: 100%;
 }
 
-.super-element-settings .field-input .super-checkbox, .super-form-settings .field-input .super-checkbox {
+.super-element-settings .super-field-input .super-checkbox, .super-form-settings .field-input .super-checkbox {
     font-size: 12px;
     float: left;
 }
 
-.super-element-settings .field-input .super-checkbox *, .super-form-settings .field-input .super-checkbox * {
+.super-element-settings .super-field-input .super-checkbox *, .super-form-settings .field-input .super-checkbox * {
     float: left;
 }
 
-.super-element-settings .field-input .super-checkbox label, .super-form-settings .field-input .super-checkbox label {
+.super-element-settings .super-field-input .super-checkbox label, .super-form-settings .field-input .super-checkbox label {
     width: 100%;
     margin: 0px 0px 5px 0px;
 }
 
-.super-element-settings .field-input .super-checkbox input, .super-form-settings .field-input .super-checkbox input {
+.super-element-settings .super-field-input .super-checkbox input, .super-form-settings .field-input .super-checkbox input {
     width: 16px;
     height: 16px;
     margin: 0px 5px 0px 0px;
@@ -1468,11 +1468,11 @@
     width: 182px;
 }
 
-.super-element-settings .field-input .super-icon-field .super-icon-list {
+.super-element-settings .super-field-input .super-icon-field .super-icon-list {
     margin: 5px 0px 0px 4px;
 }
 
-.super-element-settings .field-input .super-icon-field .super-icon-list i {
+.super-element-settings .super-field-input .super-icon-field .super-icon-list i {
     border: 1px solid #D8D8D8;
     display: inline-block;
     width: 26px;
@@ -1487,21 +1487,21 @@
     border-radius: 3px;
 }
 
-.super-element-settings .field-input .super-icon-field .super-icon-list i:hover {
+.super-element-settings .super-field-input .super-icon-field .super-icon-list i:hover {
     border: 1px solid #636363;
 }
 
-.super-element-settings .field-input .super-icon-field .super-icon-list i.super-active, .super-element-settings .field-input .super-icon-field .super-icon-list i.super-active:hover {
+.super-element-settings .super-field-input .super-icon-field .super-icon-list i.super-active, .super-element-settings .field-input .super-icon-field .super-icon-list i.super-active:hover {
     border: 1px solid #0073AA;
     background-color: #0073AA;
     color: white;
 }
 
-.super-element-settings .field-input>textarea {
+.super-element-settings .super-field-input>textarea {
     font-size: 12px;
 }
 
-.super-element-settings .field-input>textarea.multi-items-json {
+.super-element-settings .super-field-input>textarea.multi-items-json {
     display: none;
 }
 
@@ -1884,42 +1884,42 @@
     display: none;
 }
 
-.field-input .browse-images, .field-input .browse-files {
+.super-field-input .browse-images, .field-input .browse-files {
     float: left;
     width: 100%;
 }
 
-.field-input .browse-images .image-preview, .field-input .browse-files .file-preview {
+.super-field-input .browse-images .image-preview, .field-input .browse-files .file-preview {
     float: left;
     width: 100%;
     margin: 10px 0px 0px 0px;
 }
 
-.field-input .browse-images .image-preview>li, .field-input .browse-files .file-preview>li {
+.super-field-input .browse-images .image-preview>li, .field-input .browse-files .file-preview>li {
     border: 1px solid #dedede;
     float: left;
     text-align: center;
     margin: 0px 15px 15px 0px;
 }
 
-.field-input .browse-images .image-preview>li>.image, .field-input .browse-files .file-preview>li>.image {
+.super-field-input .browse-images .image-preview>li>.image, .field-input .browse-files .file-preview>li>.image {
     width: 100%;
     display: inline-block;
 }
 
-.field-input .browse-images .image-preview .image, .field-input .browse-files .file-preview .image {
+.super-field-input .browse-images .image-preview .image, .field-input .browse-files .file-preview .image {
     text-align: center;
     max-width: 100px;
 }
 
-.field-input .browse-images .image-preview .image img, .field-input .browse-files .file-preview .image img {
+.super-field-input .browse-images .image-preview .image img, .field-input .browse-files .file-preview .image img {
     max-height: 100px;
     max-width: 100px;
     clear: both;
     padding: 5px;
 }
 
-.field-input .browse-images .image-preview>li>a, .field-input .browse-files .file-preview>li>a {
+.super-field-input .browse-images .image-preview>li>a, .field-input .browse-files .file-preview>li>a {
     display: block;
     font-size: 12px;
     padding: 3px 25px;
@@ -1928,7 +1928,7 @@
     text-decoration: underline;
 }
 
-.field-input .browse-images .image-preview>li>a.super-delete, .field-input .browse-files .file-preview>li>a.super-delete {
+.super-field-input .browse-images .image-preview>li>a.super-delete, .field-input .browse-files .file-preview>li>a.super-delete {
     text-decoration: none;
     margin-top: 5px;
     border: 1px solid #dedede;
@@ -1937,12 +1937,12 @@
     border-bottom: 0;
 }
 
-.field-input .browse-images .image-preview>li>a.super-delete:after, .field-input .browse-files .file-preview>li>a.super-delete:after {
+.super-field-input .browse-images .image-preview>li>a.super-delete:after, .field-input .browse-files .file-preview>li>a.super-delete:after {
     content: '\f1f8';
     padding: 0px 0px 0px 5px;
 }
 
-.field-input .browse-images .image-preview>li>a.super-delete:hover, .field-input .browse-files .file-preview>li>a.super-delete:hover {
+.super-field-input .browse-images .image-preview>li>a.super-delete:hover, .field-input .browse-files .file-preview>li>a.super-delete:hover {
     color: red;
 }
 

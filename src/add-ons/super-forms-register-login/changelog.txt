@@ -72,7 +72,7 @@ Jun 8, 2017 - Version 1.2.4
 - Added: option to allow users to use a custom activation code, for instance generated with the unique random number with a hidden field (not secure though)
 
 May 9, 2017 - Version 1.2.3
-- Fix: Email function updated based on new super forms version
+- Fix: E-mail function updated based on new super forms version
 - Changed: Removed suffix on css/js files (normally used for debug mode, not required)
 
 May 2, 2017 - Version 1.2.2

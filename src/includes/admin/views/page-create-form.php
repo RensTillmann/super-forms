@@ -353,10 +353,10 @@
                                             }
                                             echo '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
                                             echo '>';
-                                                if( isset( $v['name'] ) ) echo '<div class="field-name">' . $v['name'] . '</div>';
+                                                if( isset( $v['name'] ) ) echo '<div class="super-field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
-                                                if( isset( $v['label'] ) ) echo '<div class="field-label">' . nl2br($v['label']) . '</div>';
-                                                echo '<div class="field-input">';
+                                                if( isset( $v['label'] ) ) echo '<div class="super-field-label">' . nl2br($v['label']) . '</div>';
+                                                echo '<div class="super-field-input">';
                                                     if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                                     echo call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
                                                 echo '</div>';

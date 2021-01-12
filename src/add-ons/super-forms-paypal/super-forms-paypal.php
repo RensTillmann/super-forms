@@ -2084,7 +2084,7 @@ if (!class_exists('SUPER_PayPal')):
 					$message .= '<input type="hidden" name="image_url" value="">';
 				}
 
-				// Your PayPal ID or an email address associated with your PayPal account. Email addresses must be confirmed.
+				// Your PayPal ID or an email address associated with your PayPal account. E-mail addresses must be confirmed.
 				$message .= '<input type="hidden" name="business" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_merchant_email'], $data, $settings)) . '">';
 				
 				// The URL to which PayPal posts information about the payment, in the form of Instant Payment Notification messages.
@@ -2448,7 +2448,7 @@ if (!class_exists('SUPER_PayPal')):
 					),
 					'paypal_merchant_email' => array(
 						'name' => esc_html__( 'PayPal merchant email (to receive payments)', 'super-forms' ),
-						'desc' => esc_html__( 'Your PayPal ID or an email address associated with your PayPal account. Email addresses must be confirmed.', 'super-forms' ),
+						'desc' => esc_html__( 'Your PayPal ID or an email address associated with your PayPal account. E-mail addresses must be confirmed.', 'super-forms' ),
 						'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 						'default' => SUPER_Settings::get_value(0, 'paypal_merchant_email', $settings['settings'], '' ),
 						'type' => 'text',
@@ -2937,7 +2937,7 @@ if (!class_exists('SUPER_PayPal')):
 							'filter_value' => 'true',
 						),
 						'paypal_email' => array(
-							'name' => esc_html__( 'Email address', 'super-forms' ),
+							'name' => esc_html__( 'E-mail address', 'super-forms' ),
 							'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
 							'default' => SUPER_Settings::get_value(0, 'paypal_email', $settings['settings'], '' ),
 							'type' => 'text',
