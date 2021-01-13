@@ -1415,15 +1415,18 @@ class SUPER_Shortcodes {
         if(empty($atts['error'])) {
             $atts['error'] = esc_html__( 'Field is required!', 'super-forms' );
         }
+        if(empty($atts['emptyError'])) { // if empty fall back to the validation error message
+            $atts['emptyError'] = $atts['error'];
+        }
         if( empty( $atts['error_position'] ) ) $atts['error_position'] = 'bottom-right';
         if($position=='top'){
             if($atts['error_position']=='top-left' || $atts['error_position']=='top-right'){
-                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div>';
+                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div><div class="super-empty-error-msg">' . stripslashes($atts['emptyError']) . '</div>';
             }
         }
         if($position=='bottom'){
             if($atts['error_position']=='bottom-left' || $atts['error_position']=='bottom-right'){
-                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div>';
+                return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div><div class="super-empty-error-msg">' . stripslashes($atts['emptyError']) . '</div>';
             }
         }
     }   
