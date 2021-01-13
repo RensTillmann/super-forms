@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 13, 2021 - Version 4.9.581
+
+- **Added:** Option to set seperate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
+  - [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
+
 ## Jan 12, 2021 - Version 4.9.580
 
 - **Added:** Option to map the so called `Formatted address (full address)` for Google address autocomplete

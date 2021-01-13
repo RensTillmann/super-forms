@@ -170,6 +170,7 @@ return $import_fonts."
 ".$s.".super-radio.display-vertical .super-field-wrapper label,
 ".$s.".super-checkbox.display-vertical .super-field-wrapper label,
 ".$s.".super-error-msg,
+".$s.".super-empty-error-msg,
 ".$s.".super-field .super-field-wrapper .super-shortcode-field,
 ".$s.".super-field .super-field-wrapper .super-keyword-filter,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags,
@@ -258,6 +259,7 @@ return $import_fonts."
 ".$rs1.".super-radio.display-vertical .super-field-wrapper label,
 ".$rs1.".super-checkbox.display-vertical .super-field-wrapper label,
 ".$rs1.".super-error-msg,
+".$rs1.".super-empty-error-msg,
 ".$rs1.".super-field .super-field-wrapper .super-shortcode-field,
 ".$rs1.".super-field .super-field-wrapper .super-keyword-filter,
 ".$rs1.".super-field .super-field-wrapper .super-autosuggest-tags,
@@ -567,7 +569,8 @@ return $import_fonts."
 ".$s.".super-initialized .super-multipart.super-active > * {
     opacity:1;
 }
-".$s.".super-error-msg {
+".$s.".super-error-msg,
+".$s.".super-empty-error-msg {
     color: ".$v['theme_error_font'].";
 }
 ".$s.".super-msg.super-error {
