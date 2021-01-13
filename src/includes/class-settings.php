@@ -2922,7 +2922,7 @@ class SUPER_Settings {
                         <div class="image-field browse-files" data-file-type="text/html" data-multiple="false">
                             <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
                             <ul class="file-preview"></ul>
-                            <input type="hidden" name="import-file" class="element-field">
+                            <input type="hidden" name="import-file" class="super-element-field">
                             </div>
                         </div>
                         <div class="super-field-input">

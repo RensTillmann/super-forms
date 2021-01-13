@@ -68,7 +68,7 @@
     SUPER.get_form_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $settings = {};
-        $('.super-create-form .super-form-settings .element-field').each(function () {
+        $('.super-create-form .super-form-settings .super-element-field').each(function () {
             var $this = $(this);
             var $hidden = false;
 
@@ -1913,7 +1913,7 @@
             $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $new_field_name + '"');
             $element_data_field.val($element_data);
             if ($parent.hasClass('editing')) {
-                $('.super-elements-container .super-field .element-field[name="name"]').val($new_field_name);
+                $('.super-elements-container .super-field .super-element-field[name="name"]').val($new_field_name);
             }
             SUPER.regenerate_element_inner();
         });
@@ -2032,7 +2032,7 @@
         SUPER.update_element_check_errors = function () {
             var $error = false;
             // First check for empty required fields
-            $('.super-element-settings .element-field[required="true"]').each(function () {
+            $('.super-element-settings .super-element-field[required="true"]').each(function () {
                 var $this = $(this);
                 if ($this.val() === '') {
                     var $hidden = false;
@@ -2095,7 +2095,8 @@
             for (i = 0; i < nodes.length; ++i) {
                 if(!nodes[i].classList.contains('super-hidden')){
                     // Find element field
-                    elementField = nodes[i].querySelector('.element-field');
+                    elementField = nodes[i].querySelector('.super-element-field');
+                    if(typeof elementField==='undefined') continue;
                     value = elementField.value;
                     if(elementField.type=='radio'){
                         radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
@@ -2131,11 +2132,11 @@
         SUPER.update_element_name_required = function ($fields, $button) {
             if ((typeof $fields.name !== 'undefined') && ($fields.name === '')) {
                 $button.removeClass('super-loading');
-                $('.super-element-settings .element-field[name="name"]').css('border', '1px solid #ff9898').css('background-color', '#ffefef');
+                $('.super-element-settings .super-element-field[name="name"]').css('border', '1px solid #ff9898').css('background-color', '#ffefef');
                 alert(super_create_form_i18n.alert_empty_field_name);
                 return false;
             }
-            $('.super-element-settings .element-field[name="name"]').css('border', '').css('background-color', '');
+            $('.super-element-settings .super-element-field[name="name"]').css('border', '').css('background-color', '');
 
         };
         // Update the currently editing field element data
@@ -2323,7 +2324,7 @@
         $doc.on('click', '.super-checkbox input[type="checkbox"]', function () {
             var i, selected = '', counter = 0,
                 parent = this.closest('.super-checkbox'),
-                field = parent.parentNode.querySelector('.element-field'),
+                field = parent.parentNode.querySelector('.super-element-field'),
                 nodes = parent.querySelectorAll('input[type="checkbox"]');
             if(!field) return;
             

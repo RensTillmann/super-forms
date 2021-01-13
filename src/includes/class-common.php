@@ -1652,6 +1652,8 @@ class SUPER_Common {
             // (but only once, so we will skip this next time)
             if( is_array( $settings ) ) {
                 foreach( $settings as $k => $v ) {
+                    if(is_array($v)) continue;
+                    $value = strval($value);
                     $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
                     // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
                     // Only execute if replacing took place

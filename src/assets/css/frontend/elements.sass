@@ -4421,6 +4421,7 @@ ul.super-multipart-steps .super-multipart-step
   padding: 0px 10px 0px 0px
   font-size: 0.7rem
 .super-accordion-content
+  height: 0
   border-style: solid
   border-width: 0
   font-size: 0.8rem
@@ -4428,20 +4429,25 @@ ul.super-multipart-steps .super-multipart-step
   float: left
   width: 100%
   visibility: hidden
-  height: 0.005rem
   overflow: hidden
-  .super-padding
+  > .super-padding
     padding: 10px
+    > .super-element-inner
+      display: none
+
 .super-accordion-item.super-active
   > .super-accordion-header, > .super-accordion-content
     +boxShadow2(3px 3px 6px #ddd, -3px 3px 6px #ddd)
-    max-height: 99999999px
   > .super-accordion-header:before
     +transform(rotate(90deg) !important)
-  .super-accordion-content
+  > .super-accordion-content
+    height: auto
     overflow: initial
     visibility: visible
-    height: auto
+    > .super-padding
+      > .super-element-inner
+        display: block
+
 .display-grid
   .super-field-wrapper
     flex-flow: row wrap
