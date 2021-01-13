@@ -1313,7 +1313,7 @@
     position: relative;
 }
 
-.super-element-settings .super-field-name, .super-form-settings .field-name {
+.super-element-settings .super-field-name, .super-form-settings .super-field-name {
     position: relative;
     font-size: 12px;
     font-weight: bold;
@@ -1322,7 +1322,7 @@
     width: 100%;
 }
 
-.super-element-settings .super-field-name>i, .super-form-settings .field-name>i {
+.super-element-settings .super-field-name>i, .super-form-settings .super-field-name>i {
     font-weight: normal;
     font-style: normal;
     font-size: 12px;
