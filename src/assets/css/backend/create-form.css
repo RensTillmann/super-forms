@@ -1350,7 +1350,7 @@
     content: '\f059';
 }
 
-.super-element-settings .super-field-label, .super-form-settings .field-label {
+.super-element-settings .super-field-label, .super-form-settings .super-field-label {
     font-size: 10px;
     padding: 0px 0px 5px 0px;
 }
@@ -1360,26 +1360,26 @@
     margin-bottom: 20px;
 }
 
-.super-element-settings .super-field-input, .super-form-settings .field-input {
+.super-element-settings .super-field-input, .super-form-settings .super-field-input {
     float: left;
     width: 100%;
 }
 
-.super-element-settings .super-field-input .super-checkbox, .super-form-settings .field-input .super-checkbox {
+.super-element-settings .super-field-input .super-checkbox, .super-form-settings .super-field-input .super-checkbox {
     font-size: 12px;
     float: left;
 }
 
-.super-element-settings .super-field-input .super-checkbox *, .super-form-settings .field-input .super-checkbox * {
+.super-element-settings .super-field-input .super-checkbox *, .super-form-settings .super-field-input .super-checkbox * {
     float: left;
 }
 
-.super-element-settings .super-field-input .super-checkbox label, .super-form-settings .field-input .super-checkbox label {
+.super-element-settings .super-field-input .super-checkbox label, .super-form-settings .super-field-input .super-checkbox label {
     width: 100%;
     margin: 0px 0px 5px 0px;
 }
 
-.super-element-settings .super-field-input .super-checkbox input, .super-form-settings .field-input .super-checkbox input {
+.super-element-settings .super-field-input .super-checkbox input, .super-form-settings .super-field-input .super-checkbox input {
     width: 16px;
     height: 16px;
     margin: 0px 5px 0px 0px;
@@ -1491,7 +1491,7 @@
     border: 1px solid #636363;
 }
 
-.super-element-settings .super-field-input .super-icon-field .super-icon-list i.super-active, .super-element-settings .field-input .super-icon-field .super-icon-list i.super-active:hover {
+.super-element-settings .super-field-input .super-icon-field .super-icon-list i.super-active, .super-element-settings .super-field-input .super-icon-field .super-icon-list i.super-active:hover {
     border: 1px solid #0073AA;
     background-color: #0073AA;
     color: white;
@@ -1884,42 +1884,42 @@
     display: none;
 }
 
-.super-field-input .browse-images, .field-input .browse-files {
+.super-field-input .browse-images, .super-field-input .browse-files {
     float: left;
     width: 100%;
 }
 
-.super-field-input .browse-images .image-preview, .field-input .browse-files .file-preview {
+.super-field-input .browse-images .image-preview, .super-field-input .browse-files .file-preview {
     float: left;
     width: 100%;
     margin: 10px 0px 0px 0px;
 }
 
-.super-field-input .browse-images .image-preview>li, .field-input .browse-files .file-preview>li {
+.super-field-input .browse-images .image-preview>li, .super-field-input .browse-files .file-preview>li {
     border: 1px solid #dedede;
     float: left;
     text-align: center;
     margin: 0px 15px 15px 0px;
 }
 
-.super-field-input .browse-images .image-preview>li>.image, .field-input .browse-files .file-preview>li>.image {
+.super-field-input .browse-images .image-preview>li>.image, .super-field-input .browse-files .file-preview>li>.image {
     width: 100%;
     display: inline-block;
 }
 
-.super-field-input .browse-images .image-preview .image, .field-input .browse-files .file-preview .image {
+.super-field-input .browse-images .image-preview .image, .super-field-input .browse-files .file-preview .image {
     text-align: center;
     max-width: 100px;
 }
 
-.super-field-input .browse-images .image-preview .image img, .field-input .browse-files .file-preview .image img {
+.super-field-input .browse-images .image-preview .image img, .super-field-input .browse-files .file-preview .image img {
     max-height: 100px;
     max-width: 100px;
     clear: both;
     padding: 5px;
 }
 
-.super-field-input .browse-images .image-preview>li>a, .field-input .browse-files .file-preview>li>a {
+.super-field-input .browse-images .image-preview>li>a, .super-field-input .browse-files .file-preview>li>a {
     display: block;
     font-size: 12px;
     padding: 3px 25px;
@@ -1928,7 +1928,7 @@
     text-decoration: underline;
 }
 
-.super-field-input .browse-images .image-preview>li>a.super-delete, .field-input .browse-files .file-preview>li>a.super-delete {
+.super-field-input .browse-images .image-preview>li>a.super-delete, .super-field-input .browse-files .file-preview>li>a.super-delete {
     text-decoration: none;
     margin-top: 5px;
     border: 1px solid #dedede;
@@ -1937,12 +1937,12 @@
     border-bottom: 0;
 }
 
-.super-field-input .browse-images .image-preview>li>a.super-delete:after, .field-input .browse-files .file-preview>li>a.super-delete:after {
+.super-field-input .browse-images .image-preview>li>a.super-delete:after, .super-field-input .browse-files .file-preview>li>a.super-delete:after {
     content: '\f1f8';
     padding: 0px 0px 0px 5px;
 }
 
-.super-field-input .browse-images .image-preview>li>a.super-delete:hover, .field-input .browse-files .file-preview>li>a.super-delete:hover {
+.super-field-input .browse-images .image-preview>li>a.super-delete:hover, .super-field-input .browse-files .file-preview>li>a.super-delete:hover {
     color: red;
 }
 
