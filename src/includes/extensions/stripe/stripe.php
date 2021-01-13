@@ -1418,7 +1418,7 @@ if(!class_exists('SUPER_Stripe')) :
                 );
                 // Only add receipt email if E-mail address was set
                 if(!empty($settings['stripe_email'])){
-                    $data['stripe_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ); // Email address that the receipt for the resulting payment will be sent to.
+                    $data['stripe_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ); // E-mail address that the receipt for the resulting payment will be sent to.
                 }
                 if( $payment_method=='sepa_debit' ) {
                     $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
@@ -1431,7 +1431,7 @@ if(!class_exists('SUPER_Stripe')) :
                 //    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
                 //    'description' => $description,
                 //    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
-                //    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // Email address that the receipt for the resulting payment will be sent to.
+                //    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // E-mail address that the receipt for the resulting payment will be sent to.
                 //    // Shipping information for this PaymentIntent.
                 //    'shipping' => array(
                 //        'address' => array(

@@ -506,6 +506,7 @@ if(!class_exists('SUPER_Signature')) :
                                 )
                             ),
 	                        'error' => $error,
+	                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
 	                    ),
 	                ),
 	                'advanced' => array(

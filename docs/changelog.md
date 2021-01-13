@@ -4,27 +4,22 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 08, 2021 - Version 4.9.574
+## Jan 12, 2021 - Version 4.9.580
 
+- **Added:** Option to map the so called `Formatted address (full address)` for Google address autocomplete
 - **Added:** Option for [Contact entry search](contact-entry-search.md) to return contact entry status, ID and Title by adding fields named `hidden_contact_entry_status`, `hidden_contact_entry_id` or `hidden_contact_entry_title`
-
-## Jan 08, 2021 - Version 4.9.573
-
 - **Added:** `WooCommerce Checkout Add-on` option to update Contact Entry status after WooCommerce order completed
-- **Added:** Option for google autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
+- **Added:** Option for google address autocomplete to return `The place's name`, `Formatted phone number`, `International phone number` and `Website of the business`
+- **Improved:** Google address autocomplete now also returns `City` if mapped as `postal_town` and or `sublocality_leve_1` see: [Maps JavaScript API documentation](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform) for more info
+- **Improved:** When translating form make sure to only display settings that the main language field uses
 - **Improved:** When using google autocomplete the code will now determine what data is being used in your form, and strip out any unnecessary data from the API request which could considerably reduce costs
 - **Improved:** Focus/Filled status for currency field
 - **Fix:** JavaScript error on currency field when `Number format` contained space(s)
-
-## Jan 04, 2021 - Version 4.9.572
-
 - **Fix:** Builder UI scrolling bug in Firefox browser causing a continues scroll
 - **Fix:** When selecting default items for `Dropdown` element it would still display the placeholder instead of the actual selected item
 - **Fix:** US States element contained some incorrectly sorted items by alphabet
-
-## Dec 24, 2020 - Version 4.9.571
-
 - **Fix:** Issue with SMTP on older PHP versions due to WordPress moving the class to a different location
+- **Fix:** PHP Notice
 
 ## Dec 22, 2020 - Version 4.9.570
 
@@ -404,7 +399,7 @@ and Contact Entry
   - Passed all JavaScript files through `JShint` excluding third party libraries3
   - Escaping all Translatable strings
 - **Added:** Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
-- **Added:** Option to define a so called `specifier` to position the counter for `Email Labels` when using Dynamic Columns, example:
+- **Added:** Option to define a so called `specifier` to position the counter for `E-mail Labels` when using Dynamic Columns, example:
   - `Product %d quantity:` would be converted into `Product 3 quantity:`
   - `Product %d price:` would be converted into `Product 3 price:`
 - **Added:** Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
@@ -442,7 +437,7 @@ and Contact Entry
 ## Apr 22, 2019 - Version 4.6.0
 
 - **Improved:** Update plugin checker system
-- **NEW:** Email Reminders Add-on
+- **NEW:** E-mail Reminders Add-on
 - **Added:** Option to retrieve timestamp with {tag;timestamp} for datepicker elements
 - **Added:** Option for dropdowns and checkboxes etc. to filter based on post status for retrieve method `post_type`
 - **Added:** reCAPTCHA v3 support
@@ -545,7 +540,7 @@ and Contact Entry
 - **Improved:** Decode email header function
 - **Fixed:** Multi-item element not remembering default selected options correctly
 - **Fixed:** IE bug fixes
-- **Fixed:** Emails where being stripped from + characters, which is a valid email address
+- **Fixed:** E-mails where being stripped from + characters, which is a valid email address
 - **Fixed:** Navigate through global settings and remove slashes from the values, to fix escaped quote issues in emails
 
 ## Jul 29, 2018 - Version 4.3.0
@@ -855,7 +850,7 @@ and Contact Entry
 
 ## Apr 17, 2017 - Version 2.9.0
 
-- **Added:** Form setup wizard (easy for selecting theme and setting other common options like: Email To: and Subject: settings)
+- **Added:** Form setup wizard (easy for selecting theme and setting other common options like: E-mail To: and Subject: settings)
 - **Added:** Toggle switch (on/off) field
 - **Added:** Tags/keyword option for text field
 - **Added:** Option to auto populate form with data based on last contact entry from a logged in user.
@@ -1377,7 +1372,7 @@ and Contact Entry
 - **Fixed:** When conditional logic used on an element inside a column that is placed inside a multipart it fails to display the multipart
 - **Fixed:** Submit button sometimes not correctly aligned
 - **Added:** New filter hook - super_form_styles_filter
-- **Added:** New predefined element (Email address)
+- **Added:** New predefined element (E-mail address)
 
 ## January 14, 2016 - Version 1.0.7
 

@@ -1,4 +1,4 @@
-# Email Templates Add-on
+# E-mail Templates Add-on
 
 **Download link:**
 

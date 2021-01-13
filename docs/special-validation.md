@@ -18,7 +18,7 @@ Only allow input field to contain letters, and nothing else
 This is the most used validation method, it will simply check if the field was entered or not.<br />
 This allows you to make a field a so called **Required field***.
 
-## Email address
+## E-mail address
 
 This validation method checks if the entered email address was a possible valid
 

@@ -76,7 +76,7 @@ $array['form_elements'] = array(
                     'group' => 'form_elements',
                     'data' => array(
                         'name' => esc_html__( 'email', 'super-forms' ),
-                        'email' => esc_html__( 'Email address', 'super-forms' ) . ':',
+                        'email' => esc_html__( 'E-mail address', 'super-forms' ) . ':',
                         'placeholder' => esc_html__( 'Your E-mail Address', 'super-forms' ),
                         'placeholderFilled' => esc_html__( 'E-mail Address', 'super-forms' ),
                         'type' => 'email',
@@ -472,6 +472,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'auto_suggest' => array(
@@ -949,6 +950,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,  
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     )
                 ),
                 'advanced' => array(
@@ -1215,7 +1217,8 @@ $array['form_elements'] = array(
                         'validation' => $validation_empty,
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
-                        'error' => $error
+                        'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     )
                 ),
 
@@ -1464,6 +1467,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,  
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     )
                 ),
                 'advanced' => array(
@@ -1621,6 +1625,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,  
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     )
                 ),
                 'advanced' => array(
@@ -1714,6 +1719,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty_no_filter,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -1859,7 +1865,8 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
 
-                        'error' => $error
+                        'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -1960,6 +1967,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -2102,6 +2110,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -2258,6 +2267,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -2401,6 +2411,7 @@ $array['form_elements'] = array(
                             'steps'=>1,
                         ),
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     )
                 ),
                 'advanced' => array(
@@ -2512,6 +2523,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                         'localization' => array(
                             'name' => esc_html__( 'Choose a localization (for language and format)', 'super-forms' ), 
                             'label' => esc_html__( 'English / Western formatting is the default', 'super-forms' ), 
@@ -2944,6 +2956,7 @@ $array['form_elements'] = array(
                         'may_be_empty' => $allow_empty,
                         'may_be_empty_conditions' => $allow_empty_conditions,
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -3015,6 +3028,7 @@ $array['form_elements'] = array(
                         'tooltip' => $tooltip,
                         'validation' => $validation_not_empty,
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -3107,6 +3121,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(
@@ -3183,6 +3198,7 @@ $array['form_elements'] = array(
                         'conditional_validation_value' => $conditional_validation_value,
                         'conditional_validation_value2' => $conditional_validation_value2, // @since 3.6.0
                         'error' => $error,
+                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                     ),
                 ),
                 'advanced' => array(

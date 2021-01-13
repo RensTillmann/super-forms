@@ -2911,21 +2911,21 @@ class SUPER_Settings {
                 '<div class="super-export-import-single-form">',
 
                     '<div class="super-field">
-                        <div class="field-name">' . esc_html__( 'Export form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="super-field-name">' . esc_html__( 'Export form settings and elements', 'super-forms' ) . ':</div>
                         <span class="super-button super-export super-clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
                     </div>',
 
                     '<div class="super-field">
-                        <div class="field-name">' . esc_html__( 'Import form settings and elements', 'super-forms' ) . ':</div>
-                        <div class="field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
-                        <div class="field-input">
+                        <div class="super-field-name">' . esc_html__( 'Import form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="super-field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
+                        <div class="super-field-input">
                         <div class="image-field browse-files" data-file-type="text/html" data-multiple="false">
                             <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
                             <ul class="file-preview"></ul>
                             <input type="hidden" name="import-file" class="element-field">
                             </div>
                         </div>
-                        <div class="field-input">
+                        <div class="super-field-input">
                             <div class="super-checkbox">
                                 <label>
                                     <input type="checkbox" name="import-settings">' . esc_html__( 'Import settings', 'super-forms' ) . '

@@ -250,20 +250,24 @@ h1.super-thanks-title
     padding: 0px 0px 5px 0px
 
 .super-field
-  &.top-right > .super-error-msg
+  &.top-right > .super-error-msg,
+  &.top-right > .super-empty-error-msg
     float: right
     text-align: right
     padding: 0px 0px 5px 0px
-  &.top-left > .super-error-msg
+  &.top-left > .super-error-msg,
+  &.top-left > .super-empty-error-msg
     float: left
     width: 100%
     clear: both
     text-align: left
     padding: 0px 0px 5px 0px
-  &.bottom-right > .super-error-msg
+  &.bottom-right > .super-error-msg,
+  &.bottom-right > .super-empty-error-msg
     float: right
     text-align: right
-  &.bottom-left > .super-error-msg
+  &.bottom-left > .super-error-msg,
+  &.bottom-left > .super-empty-error-msg
     width: 100%
     float: left
     text-align: left
@@ -1463,7 +1467,8 @@ textarea
     max-width: inherit !important
 
 .super-field
-  > .super-error-msg
+  > .super-error-msg,
+  > .super-empty-error-msg
     +borderRadius(0px)
     +boxSizing(border-box)  
     font-size: 12px
@@ -1477,11 +1482,15 @@ textarea
     line-height: 14px
     text-align: right
     display: none
-  &.super-recaptcha > .super-error-msg
+  &.super-recaptcha > .super-error-msg,
+  &.super-recaptcha > .super-empty-error-msg
     width: 100%
 
-.super-field.super-error-active
+.super-field.super-error-active.super-filled
   > .super-error-msg
+    display: block
+.super-field.super-error-active:not(.super-filled)
+  > .super-empty-error-msg
     display: block
 
 .super-checkbox .super-item input, .super-radio .super-item input

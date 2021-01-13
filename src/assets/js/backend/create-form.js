@@ -313,9 +313,9 @@
 
         if (typeof value === 'undefined') value = field.val();
         // Update element style
-        var input = field.parents('.field-input');
+        var input = field.parents('.super-field-input');
         if (typeof input !== 'undefined') {
-            var _styles = field.parents('.field-input').data('styles');
+            var _styles = field.parents('.super-field-input').data('styles');
             if (typeof _styles !== 'undefined') {
                 Object.keys(_styles).forEach(function (selector) {
                     var editing = $('.super-preview-elements .super-element.editing'),
@@ -728,12 +728,12 @@
         $('.super-element-settings .super-elements-container .multi-items-json').each(function () {
             $items = [];
             $this = $(this);
-            $parent = $this.parents('.field-input:eq(0)');
+            $parent = $this.parents('.super-field-input:eq(0)');
             $field_name = $this.parents('.super-elements-container:eq(0)').find('input[name="name"]').val();
 
             // Only proceed if not hidden
             $field = $this.parents('.super-field:eq(0)');
-            if ($field.hasClass('hidden')) return true;
+            if ($field.hasClass('super-hidden')) return true;
 
             // Loop over all the items
             $parent.find('.super-multi-items').each(function () {
@@ -2223,13 +2223,13 @@
                 radios,
                 value,
                 defaultValue,
-                allow_empty,
+                allowEmpty,
                 fields = {},
                 elementField;
 
             nodes = document.querySelectorAll('.super-element-settings .super-field');
             for (i = 0; i < nodes.length; ++i) {
-                if(!nodes[i].classList.contains('hidden')){
+                if(!nodes[i].classList.contains('super-hidden')){
                     // Find element field
                     elementField = nodes[i].querySelector('.element-field');
                     value = elementField.value;
@@ -2242,16 +2242,19 @@
                             }
                         }
                     }
+                    defaultValue = undefined;
+                    if(elementField.closest('.super-field-input')) defaultValue = elementField.closest('.super-field-input').dataset.default;
                     if( (value!=='') && (value!=defaultValue) ) {
-                        if($(elementField).parents('.field-input:eq(0)').find('.super-multi-items').length){
+                        if($(elementField).parents('.super-field-input:eq(0)').find('.super-multi-items').length){
                             fields[elementField.name] = $.parseJSON(value);
                         }else{
                             fields[elementField.name] = value;
                         }
                     }else{
                         if( value==='' ) {
-                            allow_empty = $(elementField).parents('.field-input:eq(0)').attr('data-allow-empty');
-                            if( typeof allow_empty !== 'undefined' ) {
+                            allowEmpty = undefined;
+                            if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
+                            if( typeof allowEmpty !== 'undefined' ) {
                                 fields[elementField.name] = value;
                             }
                         } 
@@ -2479,7 +2482,7 @@
         });
 
         $doc.on('click', '.super-multi-items .super-sorting span.up i', function () {
-            var $parent = $(this).parents('.field-input:eq(0)');
+            var $parent = $(this).parents('.super-field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if ($count > 1) {
                 var $this = $(this).parents('.super-multi-items:eq(0)');
@@ -2494,7 +2497,7 @@
         });
 
         $doc.on('click', '.super-multi-items .super-sorting span.down i', function () {
-            var $parent = $(this).parents('.field-input:eq(0)');
+            var $parent = $(this).parents('.super-field-input:eq(0)');
             var $count = $parent.find('.super-multi-items').length;
             if ($count > 1) {
                 var $this = $(this).parents('.super-multi-items:eq(0)');
@@ -2519,7 +2522,7 @@
 
         $doc.on('click', '.super-multi-items.super-dropdown-item input[type="radio"]', function () {
             var $prev = $(this).attr('data-prev');
-            $(this).parents('.field-input:eq(0)').find('input[type="radio"]').prop('checked', false).attr('data-prev', 'false');
+            $(this).parents('.super-field-input:eq(0)').find('input[type="radio"]').prop('checked', false).attr('data-prev', 'false');
             if ($prev == 'true') {
                 $(this).prop('checked', false).attr('data-prev', 'false');
             } else {
@@ -3069,7 +3072,7 @@
                         },
                         showNext: false,
                         selector: '.super-element.super-form-elements .super-elements-container .super-shortcode-email',
-                        description: '<h1>Let\'s drag the "Email Address" field on to your "Canvas"</h1>',
+                        description: '<h1>Let\'s drag the "E-mail Address" field on to your "Canvas"</h1>',
                     },
                     {
                         onBeforeStart: function () {
@@ -3183,7 +3186,7 @@
                         selector: '.super-element.super-element-settings .super-element-settings-tabs > select',
                         event: 'change',
                         showNext: false,
-                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the Email Address element that we added to our form, is a <a target="_blank" href="' + $git + 'text">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="' + $git + 'validation?id=email-address">Email address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
+                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the E-mail Address element that we added to our form, is a <a target="_blank" href="' + $git + 'text">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="' + $git + 'validation?id=email-address">E-mail address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
                     },
                     {
                         selector: '.super-element.super-element-settings',
@@ -3673,7 +3676,7 @@
         $doc.on('click', '.super-element-settings .super-checkbox input[type="checkbox"]', function () {
             var editing = $('.super-element.editing'),
                 parent = editing.children('.super-element-inner').children('.super-tabs'),
-                field = $(this).parents('.field-input:eq(0)').children('input[name="tab_show_prev_next"]'),
+                field = $(this).parents('.super-field-input:eq(0)').children('input[name="tab_show_prev_next"]'),
                 show = field.val();
             // If location of TABs need to become vertical then add the proper class
             if (show == 'true') {
@@ -3734,7 +3737,7 @@
         // @IMPORTANT - must be executed at the very last, before life updates are being done to the canvas
         $doc.on('click', '.super-multi-items .super-delete', function () {
             var $this = $(this);
-            var $parent = $this.parents('.field-input:eq(0)');
+            var $parent = $this.parents('.super-field-input:eq(0)');
             if ($parent.find('.super-multi-items').length <= 2) {
                 $parent.find('.super-delete').css('visibility', 'hidden');
             } else {

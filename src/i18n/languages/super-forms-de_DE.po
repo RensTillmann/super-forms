@@ -1618,7 +1618,7 @@ msgstr ""
 
 #: includes/class-settings.php:187 includes/class-settings.php:218
 #: includes/class-settings.php:399 includes/class-settings.php:429
-msgid "Company Email Address"
+msgid "Company E-mail Address"
 msgstr ""
 
 #: includes/class-settings.php:194 includes/class-settings.php:405
@@ -2224,7 +2224,7 @@ msgid "ERROR_LOG - Output to error log as configured in php.ini"
 msgstr ""
 
 #: includes/class-settings.php:1023 includes/class-settings.php:1024
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr ""
 
 #: includes/class-settings.php:1027
@@ -2245,7 +2245,7 @@ msgid "The content type to use for this email.%sExample: UTF-8 or ISO-8859-1"
 msgstr ""
 
 #: includes/class-settings.php:1052 includes/class-settings.php:1053
-msgid "Email attachments"
+msgid "E-mail attachments"
 msgstr ""
 
 #: includes/class-settings.php:1056
@@ -2261,7 +2261,7 @@ msgid "Attachments for confirmation emails:"
 msgstr ""
 
 #: includes/class-settings.php:1082 includes/class-settings.php:1083
-msgid "Email template"
+msgid "E-mail template"
 msgstr ""
 
 #: includes/class-settings.php:1086
@@ -3255,7 +3255,7 @@ msgstr ""
 #, php-format
 msgid ""
 "Put each on a new line.%1$sExample:%1$sfieldname|Field "
-"label%1$semail|Email%1$sphonenumber|Phonenumber"
+"label%1$semail|E-mail%1$sphonenumber|Phonenumber"
 msgstr ""
 
 #: includes/class-settings.php:2625
@@ -4102,7 +4102,7 @@ msgid "Form Elements"
 msgstr ""
 
 #: includes/shortcodes/form-elements.php:71
-msgid "Email Address"
+msgid "E-mail Address"
 msgstr ""
 
 #: includes/shortcodes/form-elements.php:78
@@ -4111,7 +4111,7 @@ msgstr ""
 
 #: includes/shortcodes/form-elements.php:79
 #: includes/shortcodes/predefined-arrays.php:48
-msgid "Email address"
+msgid "E-mail address"
 msgstr "E-Mail Adresse"
 
 #: includes/shortcodes/form-elements.php:80
