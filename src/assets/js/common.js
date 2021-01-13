@@ -6877,7 +6877,7 @@ function SUPERreCaptcha(){
             $nodes = $('.super-elements-container .super-field.super-filter[data-filtervalue], .super-settings .super-field.super-filter[data-filtervalue]');
             $nodes.addClass('super-hidden');
         }else{
-            $name = $this.find('.element-field').attr('name');
+            $name = $this.find('.super-element-field').attr('name');
             $nodes =  $('.super-elements-container .super-field[data-parent="'+$name+'"], .super-settings .super-field[data-parent="'+$name+'"]');
         }
         $nodes.each(function(){
@@ -6894,10 +6894,10 @@ function SUPERreCaptcha(){
             if($container.length===0){
                 $container = $this.parents('.super-settings:eq(0)');
             }
-            $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]');
+            $parent = $container.find('.super-element-field[name="'+$this.data('parent')+'"]');
             // If is radio button
             if($parent.attr('type')=='radio'){
-                $parent = $container.find('.element-field[name="'+$this.data('parent')+'"]:checked');
+                $parent = $container.find('.super-element-field[name="'+$this.data('parent')+'"]:checked');
             }
             $value = $parent.val();
             if(typeof $value==='undefined') $value = '';
