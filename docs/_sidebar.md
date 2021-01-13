@@ -78,8 +78,8 @@
     - [User Lockout](password-protect-user-lockout-hide-add-on)
     - [Register & Login](register-login-add-on)
     - [Popups](popups-add-on)
-    - [Email Templates](email-templates-add-on)
-    - [Email Reminders](email-reminders-add-on)
+    - [E-mail Templates](email-templates-add-on)
+    - [E-mail Reminders](email-reminders-add-on)
 
 - [FAQ](faq.md)
 

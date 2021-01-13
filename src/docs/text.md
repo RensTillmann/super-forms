@@ -20,7 +20,7 @@ The text field element is used for many purposes, in this guide we will explain 
 **General Settings:**
 
 * **Unique Field Name**
-* **Email Label**
+* **E-mail Label**
 * **Field Label**
 * **Field Description**
 * **Placeholder**
@@ -45,7 +45,7 @@ The text field element is used for many purposes, in this guide we will explain 
 * **Minimum Number Allowed**
 * **Field Width**
 * **Wrapper Width**
-* **Exclude From Email**
+* **Exclude From E-mail**
 * **Exclude From Contact Entry**
 * **Error Message Positioning**
 * **Custom TAB Index**

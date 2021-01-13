@@ -1,7 +1,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Super Forms - Email Templates\n"
+"Project-Id-Version: Super Forms - E-mail Templates\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-05-24 17:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -49,35 +49,35 @@ msgid "Body colors"
 msgstr ""
 
 #: super-forms-email-templates.php:278
-msgid "Email copyright"
+msgid "E-mail copyright"
 msgstr ""
 
 #: super-forms-email-templates.php:233
-msgid "Email logo"
+msgid "E-mail logo"
 msgstr ""
 
 #: super-forms-email-templates.php:289
-msgid "Email social icons"
+msgid "E-mail social icons"
 msgstr ""
 
 #: super-forms-email-templates.php:260
-msgid "Email subtitle"
+msgid "E-mail subtitle"
 msgstr ""
 
 #: super-forms-email-templates.php:269
-msgid "Email subtitle (confirm)"
+msgid "E-mail subtitle (confirm)"
 msgstr ""
 
 #: super-forms-email-templates.php:230
-msgid "Email Template 1"
+msgid "E-mail Template 1"
 msgstr ""
 
 #: super-forms-email-templates.php:242
-msgid "Email title"
+msgid "E-mail title"
 msgstr ""
 
 #: super-forms-email-templates.php:251
-msgid "Email title (confirm)"
+msgid "E-mail title (confirm)"
 msgstr ""
 
 #: super-forms-email-templates.php:279
@@ -115,7 +115,7 @@ msgid "Put each social icon on a new line"
 msgstr ""
 
 #. Name of the plugin
-msgid "Super Forms - Email Templates"
+msgid "Super Forms - E-mail Templates"
 msgstr ""
 
 #: super-forms-email-templates.php:234

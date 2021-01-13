@@ -527,6 +527,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                             'tooltip' => $tooltip,
                             'validation' => $validation_empty,
                             'error' => $error,  
+	                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
                         )
                     ),
                     'advanced' => array(

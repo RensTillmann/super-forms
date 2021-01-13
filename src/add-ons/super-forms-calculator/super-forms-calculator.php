@@ -646,6 +646,7 @@ if(!class_exists('SUPER_Calculator')) :
                                 )
                             ),
 	                        'error' => $error,
+	                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
 	                    ),
 	                ),
 	                'advanced' => array(

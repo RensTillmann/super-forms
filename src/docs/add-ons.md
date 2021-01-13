@@ -15,5 +15,5 @@
 - [Password Protect & User Lockout & Hide Add-on](password-protect-user-lockout-hide-add-on)
 - [Register & Login Add-on](register-login-add-on)
 - [Popups Add-on](popups-add-on)
-- [Email Templates Add-on](email-templates-add-on)
-- [Email Reminders Add-on](email-reminders-add-on)
+- [E-mail Templates Add-on](email-templates-add-on)
+- [E-mail Reminders Add-on](email-reminders-add-on)

@@ -757,7 +757,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'allow_empty' => true,
                     ),
                     'register_activation_subject' => array(
-                        'name' => esc_html__( 'Verification Email Subject', 'super-forms' ),
+                        'name' => esc_html__( 'Verification E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Verify your account', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_activation_subject', $settings['settings'], esc_html__( 'Verify your account', 'super-forms' ) ),
                         'filter' => true,
@@ -766,7 +766,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'allow_empty' => true,
                     ),
                     'register_activation_email' => array(
-                        'name' => esc_html__( 'Activation Email Body', 'super-forms' ),
+                        'name' => esc_html__( 'Activation E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message. You can use {activation_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your activation code. You need this code to verify your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
@@ -874,7 +874,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'allow_empty' => true,
                     ),
                     'register_reset_password_subject' => array(
-                        'name' => esc_html__( 'Lost Password Email Subject', 'super-forms' ),
+                        'name' => esc_html__( 'Lost Password E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your new password. You can use {user_login}', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_reset_password_subject', $settings['settings'], esc_html__( 'Your new password', 'super-forms' ) ),
                         'filter' => true,
@@ -883,7 +883,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'allow_empty' => true,
                     ),
                     'register_reset_password_email' => array(
-                        'name' => esc_html__( 'Lost Password Email Body', 'super-forms' ),
+                        'name' => esc_html__( 'Lost Password E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
@@ -942,7 +942,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'filter_value' => 'pending,blocked'
                     ),
                     'register_approve_subject' => array(
-                        'name' => esc_html__( 'Approved Email Subject', 'super-forms' ),
+                        'name' => esc_html__( 'Approved E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your account has been approved', 'super-forms' ),
                         'default' => SUPER_Settings::get_value( 0, 'register_approve_subject', $settings['settings'], esc_html__( 'Account has been approved', 'super-forms' ) ),
                         'filter' => true,
@@ -951,7 +951,7 @@ if(!class_exists('SUPER_Register_Login')) :
                         'allow_empty' => true,
                     ),
                     'register_approve_email' => array(
-                        'name' => esc_html__( 'Approved Email Body', 'super-forms' ),
+                        'name' => esc_html__( 'Approved E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
                         'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
@@ -1279,7 +1279,7 @@ if(!class_exists('SUPER_Register_Login')) :
                     }
 
                     if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
-                        $msg = esc_html__( 'Username or Email address already exists, please try again', 'super-forms' );
+                        $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,

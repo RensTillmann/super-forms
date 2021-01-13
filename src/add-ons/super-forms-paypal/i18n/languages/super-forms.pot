@@ -145,7 +145,7 @@ msgid "Draft"
 msgstr ""
 
 #: super-forms-paypal.php:2643
-msgid "Email address"
+msgid "E-mail address"
 msgstr ""
 
 #: super-forms-paypal.php:2453
@@ -685,5 +685,5 @@ msgstr ""
 #: super-forms-paypal.php:2154
 msgid ""
 "Your PayPal ID or an email address associated with your PayPal account. "
-"Email addresses must be confirmed."
+"E-mail addresses must be confirmed."
 msgstr ""

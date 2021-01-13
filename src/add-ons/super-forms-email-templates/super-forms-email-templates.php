@@ -1,14 +1,14 @@
 <?php
 /**
- * Super Forms - Email Templates
+ * Super Forms - E-mail Templates
  *
- * @package   Super Forms - Email Templates
+ * @package   Super Forms - E-mail Templates
  * @author    feeling4design
  * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * @copyright 2019 by feeling4design
  *
  * @wordpress-plugin
- * Plugin Name: Super Forms - Email Templates
+ * Plugin Name: Super Forms - E-mail Templates
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra email template to choose from
  * Version:     1.1.3
@@ -48,7 +48,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *  @since      1.0.1
         */
         public $add_on_slug = 'email-templates';
-        public $add_on_name = 'Email Templates';
+        public $add_on_name = 'E-mail Templates';
 
         
         /**
@@ -228,10 +228,10 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *  @since      1.0.0
         */
         public static function add_settings( $array, $settings ) {
-			$array['email_template']['fields']['email_template']['values']['email_template_1'] = esc_html__( 'Email Template 1', 'super-forms' );
+			$array['email_template']['fields']['email_template']['values']['email_template_1'] = esc_html__( 'E-mail Template 1', 'super-forms' );
 			$new_fields = array(
 	        	'email_template_1_logo' => array(
-	                'name' => esc_html__( 'Email logo', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail logo', 'super-forms' ),
 	                'desc' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_logo', $settings['settings'], '' ),
 	                'type' => 'image',
@@ -240,7 +240,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'filter_value' => 'email_template_1', 
 	            ),
 	            'email_template_1_title' => array(
-	                'name' => esc_html__( 'Email title', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail title', 'super-forms' ),
 	                'desc' => esc_html__( 'A title to display below your logo', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_title', $settings['settings'], esc_html__( 'Your title', 'super-forms' ) ),
 	                'filter' => true,
@@ -249,7 +249,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
             	),
             	'email_template_1_confirm_title' => array(
-	                'name' => esc_html__( 'Email title (confirm)', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail title (confirm)', 'super-forms' ),
 	                'desc' => esc_html__( 'A title to display below your logo (used for confirmation emails)', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_title', $settings['settings'], esc_html__( 'Your title', 'super-forms' ) ),
 	                'filter' => true,
@@ -258,7 +258,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_subtitle' => array(
-	                'name' => esc_html__( 'Email subtitle', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail subtitle', 'super-forms' ),
 	                'desc' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_subtitle', $settings['settings'], esc_html__( 'Your subtitle', 'super-forms' ) ),
 	                'filter' => true,
@@ -267,7 +267,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_confirm_subtitle' => array(
-	                'name' => esc_html__( 'Email subtitle (confirm)', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail subtitle (confirm)', 'super-forms' ),
 	                'desc' => esc_html__( 'A subtitle to display before the email body (used for confirmation emails)', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_confirm_subtitle', $settings['settings'], esc_html__( 'Your subtitle', 'super-forms' ) ),
 	                'filter' => true,
@@ -276,7 +276,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_copyright' => array(
-	                'name' => esc_html__( 'Email copyright', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail copyright', 'super-forms' ),
 	                'desc' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_copyright', $settings['settings'], esc_html__( '&copy; Someone, somewhere 2016', 'super-forms' ) ),
 	                'placeholder' => esc_html__( '&copy; Someone, somewhere 2015', 'super-forms' ),
@@ -287,7 +287,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
                     'allow_empty' => true,
 	            ),
 	            'email_template_1_socials' => array(
-	                'name' => esc_html__( 'Email social icons', 'super-forms' ),
+	                'name' => esc_html__( 'E-mail social icons', 'super-forms' ),
                     'desc' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
 	                'label' => sprintf( esc_html__( 'Put each on a new line, seperate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 	                'default' => SUPER_Settings::get_value( 0, 'email_template_1_socials', $settings['settings'], 'url_facebook_page|url_social_icon|Facebook' ),
