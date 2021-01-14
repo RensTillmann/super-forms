@@ -1388,6 +1388,7 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
+        if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.target === 'undefined') args.target = null;
         if(typeof args.value !== 'undefined' && args.bwc){
@@ -3251,6 +3252,22 @@ function SUPERreCaptcha(){
                 SUPER[name](args);
             }
         }
+        // Replace {tags} for any fields with default value that contains tags
+        var form = SUPER.get_frontend_or_backend_form(args);
+        var defaultValues = form.querySelectorAll('.super-replace-tags .super-shortcode-field');
+        if(typeof defaultValues !== 'undefined'){
+            for(var i = 0; i<defaultValues.length; i++){
+                var oldValue = defaultValues[i].value;
+                defaultValues[i].value = SUPER.update_variable_fields.replace_tags({form: form, value: defaultValues[i].value, defaultValues: true});
+                var newValue = defaultValues[i].value;
+                // If values changed
+                if(oldValue!=newValue){
+                    SUPER.after_field_change_blur_hook({el: defaultValues[i]});
+                }
+                defaultValues[i].closest('.super-replace-tags').classList.remove('super-replace-tags');
+            }
+        }
+
         args.callback(args);
     };
 

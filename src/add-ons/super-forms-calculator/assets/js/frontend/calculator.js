@@ -307,7 +307,7 @@
             }else{
 				amount = amount.toFixed(decimals);
 			}
-			
+
 			$field = target.parentNode.querySelector('.super-shortcode-field');
 			// Only if value was changed
 			if($field.value!==amount){
