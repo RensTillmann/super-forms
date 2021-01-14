@@ -383,6 +383,7 @@
                         found = (days.indexOf(day.toString()) > -1);
                         if(found){
                             if(typeof exclDaysOverride !== 'undefined'){
+                                regex = /{([^\\\/\s"'+]*?)}/g;
                                 exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
                                 exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
                                 date = ('0' + dt.getDate()).slice(-2);
@@ -429,6 +430,7 @@
                         }
                     }
                     if(typeof exclDates !== 'undefined'){
+                        regex = /{([^\\\/\s"'+]*?)}/g;
                         exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDates});
                         exclDatesReplaced = exclDatesReplaced.split("\n");
                         date = ('0' + dt.getDate()).slice(-2);
