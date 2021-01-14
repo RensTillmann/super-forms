@@ -4,10 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 13, 2021 - Version 4.9.582
+## Jan 13, 2021 - Version 4.9.583
 
 - **Added:** Option to set seperate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
   - [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
+- **Fix:** Bug with `Date` element when setting `Allow user to choose a maximum of X dates` to anything higher than `1` causing it to switch to current month e.g when choosing 2 dates in month `Feb`, it would switch back to month `Jan`
 - **Fix:** Issue with dragging elements in Accordion element
 - **Fix:** Back-end settings CSS fix
 

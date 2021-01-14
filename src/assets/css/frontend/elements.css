@@ -2657,6 +2657,15 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
+.super-datepicker-dialog a {
+  color: #444444;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+}
+.super-datepicker-dialog a:hover {
+  background-color: #f1f3f4;
+}
 .super-datepicker-dialog .ui-datepicker-header {
   position: relative;
   height: 30px;
@@ -2769,15 +2778,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   user-select: none;
   outline: 0;
 }
-.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td:hover, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td:hover {
-  background-color: #f1f3f4;
-}
-.super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-disabled:hover, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-disabled:hover {
-  background: none;
-}
 .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td a, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(2n) td span, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td a, .super-datepicker-dialog .ui-datepicker-calendar tr:nth-child(1n) td span {
-  color: #444444;
-  width: 40px;
   height: 40px;
   display: flex;
   justify-content: center;
@@ -2802,40 +2803,22 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   cursor: not-allowed;
 }
 
-.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight.ui-datepicker-current-day, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight.ui-datepicker-current-day, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight {
-  color: #185abc;
+.super-datepicker-singledates .ui-datepicker-today a {
+  color: white;
+  background-color: #1a73e8;
+}
+.super-datepicker-singledates .ui-datepicker-current-day a {
+  color: #444444;
   background-color: #d2e3fc;
-}
-.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today {
-  color: white;
-  background-color: #1a73e8;
-}
-.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today:hover, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today:hover {
-  background-color: #1a73e8;
-}
-.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today.ui-state-disabled, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today.ui-state-disabled {
-  opacity: 0.5;
-}
-.super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today a, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today span, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today a, .super-datepicker-multidates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today span {
-  color: white;
 }
 
-.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-current-day, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-state-highlight, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-current-day, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-state-highlight {
-  color: #185abc;
+.super-datepicker-multidates .ui-datepicker-today a {
+  color: white;
+  background-color: #1a73e8;
+}
+.super-datepicker-multidates .ui-state-highlight a {
+  color: #444444;
   background-color: #d2e3fc;
-}
-.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today {
-  color: white;
-  background-color: #1a73e8;
-}
-.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today:hover, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today:hover {
-  background-color: #1a73e8;
-}
-.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today.ui-state-disabled, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today.ui-state-disabled {
-  opacity: 0.5;
-}
-.super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today a, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(2n) td.ui-datepicker-today span, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today a, .super-datepicker-singledates .ui-datepicker-calendar tr:nth-child(1n) td.ui-datepicker-today span {
-  color: white;
 }
 
 .ui-timepicker-wrapper.super-timepicker-dialog {
