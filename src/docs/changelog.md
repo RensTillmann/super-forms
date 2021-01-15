@@ -4,10 +4,15 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 13, 2021 - Version 4.9.581
+## Jan 14, 2021 - Version 4.9.584
 
+- **Added:** Option to add field {tags} inside the `Default value` setting, which would populate it on page load with the value from that field value. Previously you could only use predefined tags.
+- **Added:** `Calculator Add-on` option to directly retrieve [predefined tags](https://webrehab.zendesk.com/hc/en-gb/articles/360016934317#h_01EVVEFFDD34J8V4FM6W4ZPC6N) inside math, e.g: to retrieve current year, month or price of current WooCommerce product etc.
 - **Added:** Option to set seperate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
   - [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
+- **Fix:** Bug with `Date` element when setting `Allow user to choose a maximum of X dates` to anything higher than `1` causing it to switch to current month e.g when choosing 2 dates in month `Feb`, it would switch back to month `Jan`
+- **Fix:** Issue with dragging elements in Accordion element
+- **Fix:** Back-end settings CSS fix
 
 ## Jan 12, 2021 - Version 4.9.580
 

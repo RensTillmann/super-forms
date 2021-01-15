@@ -363,13 +363,8 @@
                 el.dataset.mathAge = '0';
             }
 
-            var multiDatesClassName = '',
-                singleDatesClassName = '';
-            if(maxPicks>1){
-                multiDatesClassName = 'super-datepicker-multidates';
-            }else{
+            var multiDatesClassName = 'super-datepicker-multidates',
                 singleDatesClassName = 'super-datepicker-singledates';
-            }
             var options = {
                 onClose: function( selectedDate ) {
                     SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
@@ -388,6 +383,7 @@
                         found = (days.indexOf(day.toString()) > -1);
                         if(found){
                             if(typeof exclDaysOverride !== 'undefined'){
+                                regex = /{([^\\\/\s"'+]*?)}/g;
                                 exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
                                 exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
                                 date = ('0' + dt.getDate()).slice(-2);
@@ -434,6 +430,7 @@
                         }
                     }
                     if(typeof exclDates !== 'undefined'){
+                        regex = /{([^\\\/\s"'+]*?)}/g;
                         exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDates});
                         exclDatesReplaced = exclDatesReplaced.split("\n");
                         date = ('0' + dt.getDate()).slice(-2);
@@ -486,11 +483,12 @@
                     return [];
                 },
                 beforeShow: function(input, inst) {
+                    var maxPicks = (inst.settings.maxPicks ? inst.settings.maxPicks : 1);
                     widget = $(inst).datepicker('widget');
                     widget[0].classList.add('super-datepicker-dialog');
-                    if(multiDatesClassName!=='') widget[0].classList.add(multiDatesClassName);
-                    if(singleDatesClassName!=='') widget[0].classList.add(singleDatesClassName);
                     if(maxPicks<=1){
+                        widget[0].classList.remove(multiDatesClassName);
+                        widget[0].classList.add(singleDatesClassName);
                         $('.super-datepicker[data-connected-min="'+$(this).attr('name')+'"]').each(function(){
                             if($(this).val()!==''){
                                 connectedMinDays = $(this).data('connected-min-days');
@@ -498,6 +496,9 @@
                                 $(el).datepicker('option', 'minDate', minDate );
                             }
                         });
+                    }else{
+                        widget[0].classList.add(multiDatesClassName);
+                        widget[0].classList.remove(singleDatesClassName);
                     }
                     $('.super-datepicker[data-connected-max="'+$(this).attr('name')+'"]').each(function(){
                         if($(this).val()!==''){
@@ -540,6 +541,25 @@
                 if(maxPicks>1){
                     options.maxPicks = maxPicks;
                     $(el).multiDatesPicker(options);
+                    // @since 4.9.583 - Fixes issue where the month would change back to January after selecting a second date or more
+                    $.datepicker._selectDateOverload = $.datepicker._selectDate;
+                    $.datepicker._selectDate = function (id, dateStr) {
+                        var target = $(id);
+                        var inst = this._getInst(target[0]);
+                        inst.inline = true;
+                        $.datepicker._selectDateOverload(id, dateStr);
+                        inst.inline = false;
+                        if (target[0].multiDatesPicker != null) {
+                            target[0].multiDatesPicker.changed = false;
+                        } else {
+                            target.multiDatesPicker.changed = false;
+                        }
+                        this._updateDatepicker(inst);
+                        // Close datepicker if it isn't a so called Multi-datepicker, or when maxPicks is set to 1
+                        if(typeof inst.settings.maxPicks==='undefined' || inst.settings.maxPicks<=1 ){
+                            $(target).datepicker('hide');
+                        }
+                    };
                 }else{
                     $(el).datepicker(options);
                 }

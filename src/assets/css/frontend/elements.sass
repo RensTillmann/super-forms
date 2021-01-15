@@ -2259,6 +2259,11 @@ textarea
   border: solid 1px #cdcdcd
   background-color: white
   +boxSizing(border-box)
+  a
+    color: #444444
+    +borderRadius(50px)
+    &:hover
+      background-color: #f1f3f4
   .ui-datepicker-header
     position: relative
     height: 30px
@@ -2342,13 +2347,7 @@ textarea
           background: none
           +borderRadius(50px)
           +userSelect(none)
-          &:hover
-            background-color: #f1f3f4
-          &.ui-state-disabled:hover
-            background: none
           a,span
-            color: #444444
-            width: 40px
             height: 40px
             display: flex
             justify-content: center
@@ -2362,46 +2361,25 @@ textarea
               background: none
               cursor: not-allowed
 
-.super-datepicker-multidates
-  .ui-datepicker-calendar
-    tr
-      &:nth-child(2n),
-      &:nth-child(1n)
-        td
-          &.ui-state-highlight.ui-datepicker-current-day,
-          &.ui-state-highlight
-            color: #185abc
-            background-color: #d2e3fc
-          &.ui-datepicker-today
-            color: white
-            background-color: #1a73e8
-            &:hover
-              background-color: #1a73e8
-            &.ui-state-disabled
-              opacity: 0.5
-            a,span
-              color: white
-
 .super-datepicker-singledates
-  .ui-datepicker-calendar
-    tr
-      &:nth-child(2n),
-      &:nth-child(1n)
-        td
-          &.ui-datepicker-current-day,
-          &.ui-state-highlight
-            color: #185abc
-            background-color: #d2e3fc
-          &.ui-datepicker-today
-            color: white
-            background-color: #1a73e8
-            &:hover
-              background-color: #1a73e8
-            &.ui-state-disabled
-              opacity: 0.5
-            a,span
-              color: white
-          
+  .ui-datepicker-today
+    a
+      color: white
+      background-color: #1a73e8
+  .ui-datepicker-current-day
+    a
+      color: #444444
+      background-color: #d2e3fc
+.super-datepicker-multidates
+  .ui-datepicker-today
+    a
+      color: white
+      background-color: #1a73e8
+  .ui-state-highlight
+    a
+      color: #444444
+      background-color: #d2e3fc
+
 .ui-timepicker-wrapper.super-timepicker-dialog
   overflow-y: auto
   height: 150px
@@ -4421,6 +4399,7 @@ ul.super-multipart-steps .super-multipart-step
   padding: 0px 10px 0px 0px
   font-size: 0.7rem
 .super-accordion-content
+  height: 0
   border-style: solid
   border-width: 0
   font-size: 0.8rem
@@ -4428,20 +4407,25 @@ ul.super-multipart-steps .super-multipart-step
   float: left
   width: 100%
   visibility: hidden
-  height: 0.005rem
   overflow: hidden
-  .super-padding
+  > .super-padding
     padding: 10px
+    > .super-element-inner
+      display: none
+
 .super-accordion-item.super-active
   > .super-accordion-header, > .super-accordion-content
     +boxShadow2(3px 3px 6px #ddd, -3px 3px 6px #ddd)
-    max-height: 99999999px
   > .super-accordion-header:before
     +transform(rotate(90deg) !important)
-  .super-accordion-content
+  > .super-accordion-content
+    height: auto
     overflow: initial
     visibility: visible
-    height: auto
+    > .super-padding
+      > .super-element-inner
+        display: block
+
 .display-grid
   .super-field-wrapper
     flex-flow: row wrap

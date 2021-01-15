@@ -12,7 +12,7 @@
         $doc.on('click', '.super-checkbox input[type="checkbox"]',function(){
             var $this = $(this);
             var $parent = $this.parents('.super-checkbox:eq(0)');
-            var $field = $parent.parent().children('.element-field');
+            var $field = $parent.parent().children('.super-element-field');
             var $selected = '';
             var $counter = 0;
             $parent.find('input[type="checkbox"]').each(function(){
@@ -314,7 +314,7 @@
             $this.html(super_settings_i18n.save_loading);
             $('.save .message').removeClass('error').removeClass('super-success');
             var $data = [];
-            $('.super-fields .element-field').each(function(){
+            $('.super-fields .super-element-field').each(function(){
                 var $this = $(this);
                 var $hidden = false;
                 $this.parents('.super-field.super-filter').each(function(){

@@ -1339,6 +1339,15 @@ class SUPER_Shortcodes {
         if($atts['grouped']==1) $result .= ' super-grouped ';
         if($atts['grouped']==2) $result .= ' super-grouped super-grouped-end ';
 
+        // If default value contains {tags} we will replace them on page load via javascript
+        if(!empty($atts['value'])){
+            $regex = '/\{(.*?)\}/';
+            preg_match_all($regex, $atts['value'], $matches, PREG_SET_ORDER, 0);
+            if(count($matches)>0){
+                $class .= ' super-replace-tags';
+            }
+        }
+
         // @since 1.9 - custom wrapper class
         if($tag=='spacer'){
             if( !isset( $atts['class'] ) ) $atts['class'] = '';     
