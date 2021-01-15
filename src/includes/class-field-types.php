@@ -135,7 +135,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
         }
         return $return;
     }
@@ -151,7 +151,7 @@ class SUPER_Field_Types {
     // @since 3.4.0 - field to reset submission counter
     public static function reset_submission_count( $id, $field ) {
         $return  = '<div class="input">';
-            $return .= '<input type="number" id="field-' . $id . '" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
+            $return .= '<input type="number" id="field-' . $id . '" name="' . $id . '" class="super-element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
             $return .= '<span class="super-button super-reset-submission-counter super-delete">' . esc_html__( 'Reset Submission Counter', 'super-forms' ) . '</span>';
         $return .= '</div>';
         return $return;
@@ -164,7 +164,7 @@ class SUPER_Field_Types {
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
-            $return .= '<select id="field-'.$id.'" name="'.$id.'" data-value="'.$field['default'].'" class="element-field previously-created-fields '.$multiple.'"'.$multiple.$filter.'>';
+            $return .= '<select id="field-'.$id.'" name="'.$id.'" data-value="'.$field['default'].'" class="super-element-field previously-created-fields '.$multiple.'"'.$multiple.$filter.'>';
             foreach($field['values'] as $k => $v ) {
                 $selected = '';
                 if($field['default']==$k){
@@ -184,7 +184,7 @@ class SUPER_Field_Types {
         if(isset($field['multiple'])) $multiple = ' multiple';
         if(isset($field['filter'])) $filter = ' filter';
         $return  = '<div class="input">';
-            $return .= '<select id="field-'.$id.'" name="'.$id.'" class="element-field previously-created-product-fields '.$multiple.'"'.$multiple.$filter.'>';
+            $return .= '<select id="field-'.$id.'" name="'.$id.'" class="super-element-field previously-created-product-fields '.$multiple.'"'.$multiple.$filter.'>';
             foreach($field['values'] as $k => $v ) {
                 $selected = '';
                 if($field['default']==$k){
@@ -272,7 +272,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
         }
         return $return;
     }
@@ -301,7 +301,7 @@ class SUPER_Field_Types {
             $return .= '</li>';
         }
         $return .= '</ul>';
-        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
+        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="super-element-field" />';
         $return .= '</div>';
         return $return;
     }
@@ -347,7 +347,7 @@ class SUPER_Field_Types {
             }
         }
         $return .= '</ul>';
-        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
+        $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="super-element-field" />';
         $return .= '</div>';
         return $return;
     }
@@ -367,7 +367,7 @@ class SUPER_Field_Types {
     //Number slider
     public static function slider($id, $field){
         $return  = '<div class="slider-field">';
-        $return .= '<input type="text" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" data-steps="'.$field['steps'].'" data-min="'.$field['min'].'" data-max="'.$field['max'].'" class="element-field" />';
+        $return .= '<input type="text" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" data-steps="'.$field['steps'].'" data-min="'.$field['min'].'" data-max="'.$field['max'].'" class="super-element-field" />';
         $return .= '</div>';
         return $return;
     }
@@ -385,7 +385,7 @@ class SUPER_Field_Types {
             if( isset( $field['maxlength'] ) ) {
                 $return .= ( $field['maxlength'] > 0 ? 'maxlength="' . $field['maxlength'] . '"' : '' );
             }
-            $return .= 'name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
+            $return .= 'name="' . $id . '" class="super-element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
         $return .= '</div>';
         if( isset( $field['info'] ) ) $return .= '<p>' . $field['info'] . '</p>';
         return $return;
@@ -409,7 +409,7 @@ class SUPER_Field_Types {
             $return .= '<input type="text"';
             // get first part of placeholder
             $return .= ( $placeholders[0]!='' ? 'placeholder="' . $placeholders[0] . '"' : '' );
-            $return .= 'name="' . $id . '_1" class="element-field" value="' . esc_attr( stripslashes( $defaults[0] ) ) . '" />';
+            $return .= 'name="' . $id . '_1" class="super-element-field" value="' . esc_attr( stripslashes( $defaults[0] ) ) . '" />';
 
             $return .= '<select name="' . $id . '_2">';
             $return .= '<option' . ($defaults[1]=='==' ? ' selected="selected"' : '') . ' value="==">== (' . esc_html__( 'Equal', 'super-forms' ) . '</option>';
@@ -418,9 +418,9 @@ class SUPER_Field_Types {
             $return .= '<input type="text"';
             // get second part of placeholder
             $return .= ( $placeholders[1]!='' ? 'placeholder="' . $placeholders[1] . '"' : '' );
-            $return .= 'name="' . $id . '_3" class="element-field" value="' . esc_attr( stripslashes( $defaults[2] ) ) . '" />';
+            $return .= 'name="' . $id . '_3" class="super-element-field" value="' . esc_attr( stripslashes( $defaults[2] ) ) . '" />';
 
-            $return .= '<input type="hidden" name="' . $id . '" class="element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
+            $return .= '<input type="hidden" name="' . $id . '" class="super-element-field" value="' . esc_attr( stripslashes( $field['default'] ) ) . '" />';
         $return .= '</div>';
         return $return;
     }
@@ -435,7 +435,7 @@ class SUPER_Field_Types {
                 $return .= '<label><input type="checkbox" value="' . $k . '" ' . ($field['default']==$k ? 'checked="checked"' : '') . '>' . $v . '</label>';
             }
             $return .= '</div>';
-            $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="element-field" />';
+            $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['default'] ) . '" id="field-' . $id . '" class="super-element-field" />';
         $return .= '</div>';
         return $return;
     }
@@ -453,7 +453,7 @@ class SUPER_Field_Types {
             if(isset($field['maxlength'])){
                 $return .= ($field['maxlength'] > 0 ? 'maxlength="' . $field['maxlength'] . '"' : '');
             }
-            $return .= 'name="'.$id.'" class="element-field" value="' . esc_attr( $field['default'] ) . '" />';
+            $return .= 'name="'.$id.'" class="super-element-field" value="' . esc_attr( $field['default'] ) . '" />';
         $return .= '</div>';
         return $return;
     }
@@ -472,7 +472,7 @@ class SUPER_Field_Types {
             $return .= ($field['required']==true ? 'required="true" ' : '');
         }
         $value = esc_textarea(wp_unslash($field['default']));
-        $return .= 'rows="' . $field['rows'] . '" class="element-field">' . $value . '</textarea>';
+        $return .= 'rows="' . $field['rows'] . '" class="super-element-field">' . $value . '</textarea>';
         return $return;
     }
     
@@ -528,7 +528,7 @@ class SUPER_Field_Types {
             }
         }
         if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
-        $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+        $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
 
@@ -609,7 +609,7 @@ class SUPER_Field_Types {
             $return .= '</div>';
         }
         if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
-        $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+        $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
 
@@ -709,7 +709,7 @@ class SUPER_Field_Types {
                 $return .= '</div>';
         }
         if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
-        $return .= '<textarea name="' . $id . '" class="element-field multi-items-json">' . $field['default'] . '</textarea>';
+        $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
     
@@ -722,7 +722,7 @@ class SUPER_Field_Types {
             if(isset($field['required'])){
                 $return .= ($field['required']==true ? 'required="true"' : '');
             }
-            $return .= 'name="'.$id.'" data-format="H:i" data-step="5" class="element-field super-timepicker" value="'.esc_attr($field['default']).'" />';
+            $return .= 'name="'.$id.'" data-format="H:i" data-step="5" class="super-element-field super-timepicker" value="'.esc_attr($field['default']).'" />';
         $return .= '</div>';
         return $return;
     }
@@ -743,7 +743,7 @@ class SUPER_Field_Types {
                     $class = ' super-active';
                 }
                 $return .= '<div class="super-image-select-option' . $class . '">';
-                    $return .= '<input type="radio"' . $selected . ' value="' . esc_attr( $k ) . '" id="field-' . $id . '" name="' . $id . '" class="element-field"' . $filter . '>';
+                    $return .= '<input type="radio"' . $selected . ' value="' . esc_attr( $k ) . '" id="field-' . $id . '" name="' . $id . '" class="super-element-field"' . $filter . '>';
                     $return .= '<span class="super-image-select-option-icon"><i class="' . $v['icon'] . '"></i></span>';
                     $return .= '<span class="super-image-select-option-title">' . esc_html( $v['title'] ) . '</span>';
                 $return .= '</div>';
@@ -761,7 +761,7 @@ class SUPER_Field_Types {
         if( isset( $field['multiple'] ) ) $multiple = ' multiple';
         if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">';
-            $return .= '<select id="field-' . $id . '" name="' . $id . '" class="element-field ' . $multiple . '"' . $multiple . $filter . '>';
+            $return .= '<select id="field-' . $id . '" name="' . $id . '" class="super-element-field ' . $multiple . '"' . $multiple . $filter . '>';
             foreach( $field['values'] as $k => $v ) {
                 $selected = '';
                 if( ( isset( $field['multiple'] ) ) && ( $field['default']!='' ) ) {
@@ -785,7 +785,7 @@ class SUPER_Field_Types {
     public static function color($id, $field){
         $return  = '<div class="super-color-picker-container">';
             $return .= '<div class="super-color-picker">';
-                $return .= '<input type="text" id="field-'.$id.'" name="'.$id.'" class="element-field" value="'.esc_attr($field['default']).'" />';
+                $return .= '<input type="text" id="field-'.$id.'" name="'.$id.'" class="super-element-field" value="'.esc_attr($field['default']).'" />';
             $return .= '</div>';
         $return .= '</div>';
         return $return;
@@ -798,7 +798,7 @@ class SUPER_Field_Types {
             $return .= '<div class="super-color-picker-container">';
                 if(isset($v['label'])) $return .= '<div class="super-color-picker-label">'.$v['label'].'</div>';
                 $return .= '<div class="super-color-picker">';
-                    $return .= '<input type="text" id="field-'.$k.'" name="'.$k.'" class="element-field" value="'.esc_attr($v['default']).'" />';
+                    $return .= '<input type="text" id="field-'.$k.'" name="'.$k.'" class="super-element-field" value="'.esc_attr($v['default']).'" />';
                 $return .= '</div>';
             $return .= '</div>';
         }
@@ -831,7 +831,7 @@ class SUPER_Field_Types {
             $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' super-active' : '') . '"></i>';
         }
         $return .= '</div>';
-        $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="element-field" />';
+        $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['default']).'" id="field-'.$id.'" class="super-element-field" />';
         $return .= '</div>';
         return $return;
     
