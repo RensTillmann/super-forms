@@ -4,6 +4,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 18, 2021 - Version 4.9.590
+
+- **Added:** `MailChimp Add-on` option to unsubscribe users by setting `Send the Mailchimp confirmation email` to `No` and setting `Subscriber status after submitting the form` to `Unsubscribed`
+- **Improved:** Form loading speed when using many HTML elements that contain many {tags}. Super Forms now remembers tag values and will not re-process these if they haven't changed since. This speeds up the loading speed significantly for forms that are using many HTML elements with many {tags}
+- **Fix:** When using multiple google address autocomplete elements in a form they would conflict with eachother.
+
 ## Jan 14, 2021 - Version 4.9.584
 
 - **Added:** Option to add field {tags} inside the `Default value` setting, which would populate it on page load with the value from that field value. Previously you could only use predefined tags.
