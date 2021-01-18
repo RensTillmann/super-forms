@@ -1386,6 +1386,9 @@ function SUPERreCaptcha(){
         }
     };
 
+    // @since 4.9.590 - increases form loading speed significantly when using many HTML elements that contain {tags}
+    SUPER.fieldValues = [];
+
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
         if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
@@ -1440,10 +1443,19 @@ function SUPERreCaptcha(){
                     return args.value;
                 }
             }
-
+            
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
             $old_name = $name;
             $options = $name.toString().split(';');
+
+            // @since 4.9.590
+            // Try to grab tag from local storage if it is stored, otherwise grab it new
+            // (increases form loading speed significantly when using many HTML elements that contain {tags})
+            // When a field is changed/updated it will be unset (reset)
+            if(typeof SUPER.fieldValues[$old_name] !== 'undefined'){
+                return SUPER.fieldValues[$old_name];
+            }
+
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
@@ -1705,6 +1717,10 @@ function SUPERreCaptcha(){
                 }
             }
         }
+        // @since 4.9.590
+        // Update the fieldValues array
+        // (increases form loading speed significantly when using many HTML elements that contain {tags})
+        SUPER.fieldValues[$old_name] = args.value;
         return args.value;
     };
 
@@ -3296,20 +3312,8 @@ function SUPERreCaptcha(){
         return final_form;
     };
 
-    SUPER.after_dropdown_change_hook = function(args){
+    SUPER.update_focus_filled_after_change = function(args){
         args.form = SUPER.get_frontend_or_backend_form(args);
-        var $functions = super_common_i18n.dynamic_functions.after_dropdown_change_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name](args);
-            }
-        });
-        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args);
-        }
-        SUPER.save_form_progress(args);
-    };
-    SUPER.after_field_change_blur_hook = function(args){
         if( typeof args.el !== 'undefined' ) {
             if(args.el.closest('.super-shortcode')){
                 args.el.closest('.super-shortcode').classList.remove('super-focus');
@@ -3318,9 +3322,17 @@ function SUPERreCaptcha(){
                 }else{
                     args.el.closest('.super-shortcode').classList.add('super-filled');
                 }
+                // @since 4.9.590 - unset remembered values, which speeds things up
+                if(typeof SUPER.fieldValues[args.el.name] !== 'undefined'){ delete SUPER.fieldValues[args.el.name]; }
+                if(typeof SUPER.fieldValues[args.el.name+';label'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';label']; }
+                if(typeof SUPER.fieldValues[args.el.name+';var'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';var']; }
+                if(typeof SUPER.fieldValues[args.el.name+';int'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';int']; }
             }
         }
-        args.form = SUPER.get_frontend_or_backend_form(args);
+        return args;
+    }
+    SUPER.after_field_change_blur_hook = function(args){
+        args = SUPER.update_focus_filled_after_change(args);
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
@@ -3332,8 +3344,21 @@ function SUPERreCaptcha(){
         }
         SUPER.save_form_progress(args);
     };
+    SUPER.after_dropdown_change_hook = function(args){
+        args = SUPER.update_focus_filled_after_change(args);
+        var $functions = super_common_i18n.dynamic_functions.after_dropdown_change_hook;
+        jQuery.each($functions, function(key, value){
+            if(typeof SUPER[value.name] !== 'undefined') {
+                SUPER[value.name](args);
+            }
+        });
+        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
+            SUPER.auto_step_multipart(args);
+        }
+        SUPER.save_form_progress(args);
+    };
     SUPER.after_radio_change_hook = function(args){
-        args.form = SUPER.get_frontend_or_backend_form(args);
+        args = SUPER.update_focus_filled_after_change(args);
         var $functions = super_common_i18n.dynamic_functions.after_radio_change_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
@@ -3346,7 +3371,7 @@ function SUPERreCaptcha(){
         SUPER.save_form_progress(args);
     };
     SUPER.after_checkbox_change_hook = function(args){
-        args.form = SUPER.get_frontend_or_backend_form(args);
+        args = SUPER.update_focus_filled_after_change(args);
         var $functions = super_common_i18n.dynamic_functions.after_checkbox_change_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
@@ -4676,7 +4701,8 @@ function SUPERreCaptcha(){
         });
     };
     SUPER.google_maps_api.initAutocompleteCallback = function(args){
-        var i, x, s, obj = {}, inputField, autocomplete = new google.maps.places.Autocomplete(args.el);
+        var i, x, s, obj = {}, inputField, autocomplete = [];
+            autocomplete[args.el.name] = new google.maps.places.Autocomplete(args.el);
         var mapping = {
             street_number: 'street_number',
             route: 'street_name',
@@ -4721,7 +4747,10 @@ function SUPERreCaptcha(){
         if($returnInternationalPhoneNumber) fields.push('international_phone_number');
         if($returnWebsite) fields.push('website');
 
-        autocomplete.setFields(fields);
+        var thisAutocomplete = autocomplete[args.el.name];
+        thisAutocomplete.setFields(fields);
+        thisAutocomplete.el = args.el;
+        thisAutocomplete.form = args.form;
 
         s = $(args.el).data('countries'); // Could be empty or a comma seperated string e.g: fr,nl,de
         if(s){
@@ -4730,7 +4759,7 @@ function SUPERreCaptcha(){
             for(i=0; i<x.length; i++){
                 obj.countries.push(x[i].trim());
             }
-            autocomplete.setComponentRestrictions({
+            thisAutocomplete.setComponentRestrictions({
                 country: obj.countries, // e.g: ["us", "pr", "vi", "gu", "mp"],
             });
         }
@@ -4741,13 +4770,13 @@ function SUPERreCaptcha(){
             for(i=0; i<x.length; i++){
                 obj.types.push(x[i].trim());
             }
-            autocomplete.setTypes(obj.types);
+            thisAutocomplete.setTypes(obj.types);
         }
-        autocomplete.addListener( 'place_changed', function () {
+        thisAutocomplete.addListener( 'place_changed', function () {
             // Set text field to the formatted address
-            var place = autocomplete.getPlace();
-            args.el.value = place.formatted_address;
-            SUPER.calculate_distance({el: args.el});
+            var place = thisAutocomplete.getPlace();
+            thisAutocomplete.el.value = place.formatted_address;
+            SUPER.calculate_distance({el: thisAutocomplete.el});
 
             var street_data = {
                 number: {
@@ -4763,13 +4792,15 @@ function SUPERreCaptcha(){
             // @since 3.2.0 - add address latitude and longitude for ACF google map compatibility
             var lat = place.geometry.location.lat();
             var lng = place.geometry.location.lng();
-            args.el.dataset.lat = lat;
-            args.el.dataset.lng = lng;
+            thisAutocomplete.el.dataset.lat = lat;
+            thisAutocomplete.el.dataset.lng = lng;
 
             // @since 3.5.0 - trigger / update google maps in case {tags} have been used
+            args.el = thisAutocomplete.el;
+            args.form = thisAutocomplete.form;
             SUPER.google_maps_init(args);
 
-            $(args.el).trigger('keyup');
+            $(thisAutocomplete.el).trigger('keyup');
             var $attribute;
             var $val;
             var $address;
@@ -4800,10 +4831,10 @@ function SUPERreCaptcha(){
                         street_data.name.long = long;
                         street_data.name.short = short;
                     }
-                    $attribute = $(args.el).data('map-'+mapping[types[0]]);
+                    $attribute = $(thisAutocomplete.el).data('map-'+mapping[types[0]]);
                     if(typeof $attribute !=='undefined'){
                         $attribute = $attribute.split('|');
-                        inputField = SUPER.field(args.form, $attribute[0]);
+                        inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                         if(inputField){
                             if($attribute[1]==='') $attribute[1] = 'long';
                             $val = place.address_components[i][$attribute[1]+'_name'];
@@ -4820,10 +4851,10 @@ function SUPERreCaptcha(){
             }
 
             // Name of the place
-            $attribute = $(args.el).data('map-name');
+            $attribute = $(thisAutocomplete.el).data('map-name');
             if(typeof $attribute !=='undefined'){
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.name;
@@ -4838,10 +4869,10 @@ function SUPERreCaptcha(){
             }
 
             // Formatted address of the place
-            $attribute = $(args.el).data('map-formatted_address');
+            $attribute = $(thisAutocomplete.el).data('map-formatted_address');
             if(typeof $attribute !=='undefined'){
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.formatted_address;
@@ -4856,10 +4887,10 @@ function SUPERreCaptcha(){
             }
 
             // Formatted phone number
-            $attribute = $(args.el).data('map-formatted_phone_number');
+            $attribute = $(thisAutocomplete.el).data('map-formatted_phone_number');
             if(typeof $attribute !=='undefined'){
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.formatted_phone_number;
@@ -4874,10 +4905,10 @@ function SUPERreCaptcha(){
             }
 
             // International phone number
-            $attribute = $(args.el).data('map-international_phone_number');
+            $attribute = $(thisAutocomplete.el).data('map-international_phone_number');
             if(typeof $attribute !=='undefined'){
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.international_phone_number;
@@ -4892,10 +4923,10 @@ function SUPERreCaptcha(){
             }
 
             // Busniness website
-            $attribute = $(args.el).data('map-website');
+            $attribute = $(thisAutocomplete.el).data('map-website');
             if(typeof $attribute !=='undefined'){
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.website;
@@ -4910,10 +4941,10 @@ function SUPERreCaptcha(){
             }
 
             // @since 3.5.0 - combine street name and number
-            $attribute = $(args.el).data('map-street_name_number');
+            $attribute = $(thisAutocomplete.el).data('map-street_name_number');
             if( typeof $attribute !=='undefined' ) {
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     $address = '';
                     if( street_data.name[$attribute[1]]!=='' ) $address += street_data.name[$attribute[1]];
@@ -4933,10 +4964,10 @@ function SUPERreCaptcha(){
             }
 
             // @since 3.5.1 - combine street number and name
-            $attribute = $(args.el).data('map-street_number_name');
+            $attribute = $(thisAutocomplete.el).data('map-street_number_name');
             if( typeof $attribute !=='undefined' ) {
                 $attribute = $attribute.split('|');
-                inputField = SUPER.field(args.form, $attribute[0]);
+                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                 if(inputField){
                     $address = '';
                     if( street_data.number[$attribute[1]]!=='' ) $address += street_data.number[$attribute[1]];
