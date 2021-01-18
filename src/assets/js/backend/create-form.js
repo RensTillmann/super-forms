@@ -215,54 +215,82 @@
         }
         return $settings;
     };
-    SUPER.get_tab_settings = function(settings, slug){
-        debugger;
-        var i,
-            tab = document.querySelector('.super-tab-content.super-tab-'+slug),
-            nodes = tab.querySelectorAll('[name]:not(.sfui-exclude)'),
-            data = {},
-            subData = {},
-            repeaterKey,
-            value = '',
-            names;
-        if(tab.querySelector('.super_transient')){
-            for(i=0; i < nodes.length; i++){
-                debugger;
-                value = nodes[i].value;
-                if(nodes[i].type==='checkbox') value = nodes[i].checked;
-                if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+    SUPER.processRepeaterItems = function(args){
+        var i, k = args.node.dataset.k, nodes = args.node.querySelectorAll(':scope > .sfui-repeater-item');
+        for(i=0; i<nodes.length; i++){
+            // Check if key consist of multiple levels
+            var keys = k.split('.');
+            if(keys.length>1){
+                if(typeof args.data[keys[0]] === 'undefined') args.data[keys[0]] = {};
+                if(typeof args.data[keys[0]][keys[1]] === 'undefined') args.data[keys[0]][keys[1]] = {};
+                if(typeof args.data[keys[0]][keys[1]][i] === 'undefined') args.data[keys[0]][keys[1]][i] = {};
+            }else{
+                if(typeof args.data[k] === 'undefined') args.data[k] = {};
+                if(typeof args.data[k][i] === 'undefined') args.data[k][i] = {};
+            }
+            var x, fields = nodes[i].querySelectorAll('[name]');
+            for(x=0; x<fields.length; x++){
+                var parentRepeater = fields[x].closest('.sfui-repeater');
+                if(parentRepeater && parentRepeater!==args.node){
+                    // is inner repeater, must process it
+                    if(keys.length>1){
+                        args.data[keys[0]][keys[1]][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[keys[0]][keys[1]][i]});
+                    }else{
+                        args.data[k][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[k][i]});
+                    }
+                    continue;
+                }
+                // is direct inner field, must add it to the data
+                var value = fields[x].value;
+                if(fields[x].type==='checkbox') value = fields[x].checked;
+                if(fields[x].type==='radio') value = (args.tab.querySelector('[name="'+fields[x].name+'"]:checked') ? args.tab.querySelector('[name="'+fields[x].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
-                names = nodes[i].name.split('.');
-                debugger;
-                subData = data;
-                if(nodes[i].closest('.sfui-repeater')){
-                    debugger;
-                    repeaterKey = nodes[i].closest('.sfui-repeater').dataset.k;
-                    if(typeof data[repeaterKey] === 'undefined'){
-                        data[repeaterKey] = {};
-                    }
-                    debugger;
-                    subData = data[repeaterKey];
-                }
+                var names = fields[x].name.split('.');
                 if(names.length>1){
-                    if(typeof subData[names[0]] === 'undefined'){
-                        subData[names[0]] = {};
-                    }
-                    if(names.length>2){
-                        if(typeof subData[names[0]][names[1]] === 'undefined'){
-                            subData[names[0]][names[1]] = {};
-                        }
-                        subData[names[0]][names[1]][names[2]] = value;
+                    if(keys.length>1){
+                        var subData = args.data[keys[0]][keys[1]][i];
                     }else{
+                        var subData = args.data[k][i];
+                    }
+                    if(typeof subData[names[0]] === 'undefined') subData[names[0]] = {};
+                    if(names.length===2){
                         subData[names[0]][names[1]] = value;
+                    }else{
+                        if(names.length===3){
+                            if(typeof subData[names[0]][names[1]] === 'undefined') subData[names[0]][names[1]] = {};
+                            subData[names[0]][names[1]][names[2]] = value;
+                        }else{
+                            if(names.length===4){
+                                if(typeof subData[names[0]][names[1]][names[2]] === 'undefined') subData[names[0]][names[1]][names[2]] = {};
+                                subData[names[0]][names[1]][names[2]][names[3]] = value;
+                            }
+                        }
+                    }
+                    if(keys.length>1){
+                        args.data[keys[0]][keys[1]][i] = subData;
+                    }else{
+                        args.data[k][i] = subData;
                     }
                 }else{
-                    subData[nodes[i].name] = value;
+                    if(keys.length>1){
+                        args.data[keys[0]][keys[1]][i][names[0]] = value;
+                    }else{
+                        args.data[k][i][names[0]] = value;
+                    }
                 }
             }
-            debugger;
-            settings['_'+slug] = subData;
+        }
+        return args.data;
+    };
+    SUPER.get_tab_settings = function(settings, slug){
+        var i, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
+        if(tab.querySelector('.super_transient')){
+            var i, nodes = tab.querySelectorAll(':scope > .sfui-repeater');
+            for(i=0; i<nodes.length; i++){
+                data = SUPER.processRepeaterItems({tab: tab, node: nodes[i], depth: 0, data: data});
+            }
+            settings['_'+slug] = data;
         }
         return settings;
     }
