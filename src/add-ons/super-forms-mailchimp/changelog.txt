@@ -1,4 +1,4 @@
-Jan 18, 2021 - Version 1.5.7
+Jan 19, 2021 - Version 1.5.8
 - Added: Option to define what status the member should get after submitting
 the form, this allows you to create a form that will `Unsubscribe` a user
 

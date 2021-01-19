@@ -4,10 +4,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 18, 2021 - Version 4.9.590
+## Jan 19, 2021 - Version 4.9.600
 
+- **Added:** Option to prevent saving contact entry if a contact entry with the same title already exists, more info here:
+  - [Prevent/disallow duplicate contact entry titles](https://webrehab.zendesk.com/hc/en-gb/articles/360017147758)
 - **Added:** `MailChimp Add-on` option to unsubscribe users by setting `Send the Mailchimp confirmation email` to `No` and setting `Subscriber status after submitting the form` to `Unsubscribed`
 - **Improved:** Form loading speed when using many HTML elements that contain many {tags}. Super Forms now remembers tag values and will not re-process these if they haven't changed since. This speeds up the loading speed significantly for forms that are using many HTML elements with many {tags}
+- **Fix:** When `Enable form POST method` is enabled in combination with `Enable custom parameter string for POST method` do not store `Thank you message` into a session, otherwise it would be displayed twice when user navigates to a different page.
 - **Fix:** When using multiple google address autocomplete elements in a form they would conflict with eachother.
 
 ## Jan 14, 2021 - Version 4.9.584
