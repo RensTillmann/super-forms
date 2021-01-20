@@ -7370,7 +7370,7 @@ function SUPERreCaptcha(){
         });
 
         var timeout = null;
-        $doc.on('keyup', '.super-text .super-shortcode-field[data-search="true"]', function(){ 
+        $doc.on('keyup paste', '.super-text .super-shortcode-field[data-search="true"]', function(){ 
             var field = this;
             if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
