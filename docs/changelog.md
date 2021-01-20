@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 20, 2021 - Version 4.9.601
+
+- **Improved:** Contact entry search will also trigger when "copy/pasting" text into the input field on mobile devices
+
 ## Jan 19, 2021 - Version 4.9.600
 
 - **Added:** Option to prevent saving contact entry if a contact entry with the same title already exists, more info here:
