@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 22, 2021 - Version 4.9.602
+
+- **Fix:** Typo `from` should be `form`, causing issues with PDF generator when using `Currency` field together with `Calculator` element
+
 ## Jan 20, 2021 - Version 4.9.601
 
 - **Improved:** Contact entry search will also trigger when "copy/pasting" text into the input field on mobile devices
