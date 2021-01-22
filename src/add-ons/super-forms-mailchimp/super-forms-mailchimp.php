@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.5.8
+ * Version:     1.5.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.8';
+        public $version = '1.5.9';
 
         
         /**
@@ -311,7 +311,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     );
                 }else{
                     // Otherwise display any other error response
-                    if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
+                    if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='unsubscribed' && $obj['status']!=='pending' ) {
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . json_encode($obj)
