@@ -794,9 +794,12 @@
 
         // @since 4.0.0 - see if we need to skip this validation when user choose to disable validation check on unique field names
         if (allowDuplicateNames===false) {
+            debugger;
             for (i = 0; i < fields.length; ++i) {
                 duplicateFields = SUPER.fieldsByName(document.querySelector('.super-preview-elements'), fields[i].name)
+                debugger;
                 if (duplicateFields && duplicateFields.length > 1) {
+                    debugger;
                     for (ii = 0; ii < duplicateFields.length; ++ii) {
                         duplicateFields[ii].closest('.super-element').classList.add('error');
                         error = true;
@@ -1836,6 +1839,7 @@
         });
 
         $doc.on('click', '.super-element-actions .super-duplicate', function () {
+            debugger;
             var $parent = $(this).parents('.super-element:eq(0)');
             $parent.find('.tooltip').remove();
             var $new = $parent.clone();
@@ -1845,13 +1849,21 @@
 
             // @since 3.7.0 - automatically rename duplicated fields for more user-friendly work flow
             $new.find('.super-shortcode-field').each(function () {
+                debugger;
                 var $old_name = $(this).attr('name');
                 var $new_field_name = SUPER.generate_new_field_name();
-                $(this).attr('name', $new_field_name);
+                if($old_name==='files[]'){
+                    // This is a file upload element
+                    $old_name = $(this).parent().find('.super-active-files').attr('name');
+                    $(this).parent().find('.super-active-files').attr('name', $new_field_name);
+                }else{
+                    $(this).attr('name', $new_field_name);
+                }
                 var $parent = $(this).parents('.super-element:eq(0)');
                 $parent.find('.super-title > input').val($new_field_name);
                 var $element_data_field = $parent.children('textarea[name="element-data"]');
                 var $element_data = $element_data_field.val();
+                debugger;
                 $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $new_field_name + '"');
                 $element_data_field.val($element_data);
             });
@@ -1895,9 +1907,16 @@
 
         // @since 3.7.0 - change unique field name on the fly
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
+            debugger;
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
-            var $old_name = $parent.find('.super-shortcode-field').attr('name');
+            var $field = $parent.find('.super-shortcode-field');
+            var $old_name = $field.attr('name');
+            if($old_name==='files[]'){
+                // This is a file upload element
+                var $field = $parent.find('.super-active-files');
+                $old_name = $field.attr('name');
+            }
             var $new_field_name = $this.val();
             $new_field_name = $this.val().replace(/\s+/gi, '_');
             $new_field_name = $new_field_name.replace(/ /g, "_");
@@ -1907,7 +1926,7 @@
             $new_field_name = $new_field_name.replace(/[--]+/g, "-");
             $new_field_name = $new_field_name.replace(/[__]+/g, "_");
             $this.val($new_field_name);
-            $parent.find('.super-shortcode-field').attr('name', $new_field_name);
+            $field.attr('name', $new_field_name);
             var $element_data_field = $parent.children('textarea[name="element-data"]');
             var $element_data = $element_data_field.val();
             $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $new_field_name + '"');

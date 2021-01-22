@@ -35,7 +35,10 @@ $extensions = array(
     'default'=> (!isset($attributes['extensions']) ? 'jpg|jpeg|png|gif|pdf' : $attributes['extensions']),
     'type' => 'textarea', 
     'name' => esc_html__( 'Allowed Extensions (seperated by pipes)', 'super-forms' ),
-    'desc' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
+    'desc' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf',
+    'filter'=>true,
+    'parent'=>'type',
+    'filter_value'=>'normal'
 );
 $special_validations = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 

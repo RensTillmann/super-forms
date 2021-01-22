@@ -1521,6 +1521,12 @@
             $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload').trigger('click');
         });
         $doc.on('click', '.super-fileupload-delete', function(){
+            debugger;
+            if(this.closest('.super-file').classList.contains('super-audio')){
+                SUPER.recorder.replaceAudio({
+                    audio: this.closest('.super-file').querySelector('audio')
+                });
+            }
             var $this = $(this);
             var $parent = $this.parents('.super-fileupload-files:eq(0)');
             var $wrapper = $parent.parents('.super-field-wrapper:eq(0)');

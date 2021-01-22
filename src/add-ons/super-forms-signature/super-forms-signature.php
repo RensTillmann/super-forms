@@ -372,6 +372,7 @@ if(!class_exists('SUPER_Signature')) :
                     'icon' => 'pencil',
                 );
             }
+            $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
             $atts = wp_parse_args( $atts, $defaults );
 
             // @since Super Forms 4.7.0 - translation

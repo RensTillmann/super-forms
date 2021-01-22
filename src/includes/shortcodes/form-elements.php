@@ -2392,6 +2392,38 @@ $array['form_elements'] = array(
                         'description'=>$description,
                         'placeholder' => SUPER_Shortcodes::placeholder($attributes,'Upload your documents...'),
                         'tooltip' => $tooltip,
+                        'type' => array(
+                            'name'=>esc_html__( 'Type of upload', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['type']) ? 'normal' : $attributes['type']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'normal' => esc_html__( 'Normal file uploads', 'super-forms' ),
+                                'audio-plus-video' => esc_html__( 'Microphone+Camera', 'super-forms' ),
+                                'audio' => esc_html__( 'Microphone', 'super-forms' ),
+                                'screen' => esc_html__( 'Full Screen', 'super-forms' ),
+                                'audio-plus-screen' => esc_html__( 'Microphone+Screen', 'super-forms' ),
+                            ),
+                        ),
+                        'filename' => array(
+                            'name'=>esc_html__( 'Filename', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['filename']) ? 'recording' : $attributes['filename']),
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'audio'
+                        ),
+                        'filetype' => array(
+                            'name'=>esc_html__( 'File type', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['filetype']) ? 'mp3' : $attributes['filetype']),
+                            'type'=>'select', 
+                            'values'=>array(
+                                'mp3' => 'MP3 (audio only)', // 'audio/mp3'
+                                'wav' => 'Wav (audio only)' // 'audio/wav'
+                                //'webm' => 'Webm'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'audio'
+                        ),
                         'extensions' => $extensions,
                         'filesize' => array(
                             'name'=>'Max file size in MB',

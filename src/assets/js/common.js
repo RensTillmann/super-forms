@@ -325,6 +325,7 @@ function SUPERreCaptcha(){
                 filesContainer : $(this).find(".super-fileupload-files"),
                 dropZone : $(this).parent('.super-field-wrapper'),
                 add: function(e, data) {
+                    debugger;
                     var uploadErrors = [];
                     if(data.originalFiles[0].size > ($(this).data('file-size')*1000000) ) {
                         $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files').children('div[data-name="'+data.originalFiles[0].name+'"]').remove();
@@ -354,7 +355,8 @@ function SUPERreCaptcha(){
                     }
                 });
             }).on('fileuploadadd', function (e, data) {
-                $(this).removeClass('finished');
+                debugger;
+                $(this).removeClass('super-finished');
                 $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div.error').remove();
                 data.context = $('<div/>').appendTo($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files'));
                 var el = $(this);
@@ -2565,7 +2567,7 @@ function SUPERreCaptcha(){
                 minfiles = 0;
             }
             if( ( minfiles===0 ) && ( nodes[i].parentNode.querySelectorAll('.super-fileupload-files > div').length===0 ) ) {
-                nodes[i].parentNode.querySelector('.super-fileupload').classList.add('finished');
+                nodes[i].parentNode.querySelector('.super-fileupload').classList.add('super-finished');
             }
         }
         nodes = args.form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
@@ -2593,11 +2595,11 @@ function SUPERreCaptcha(){
                 clearInterval(interval);
             }else{
                 // Let's check if there are any errors with one of the files
-                // If so we do not want to submit the form, we prevent this by not adding the "finished" class
+                // If so we do not want to submit the form, we prevent this by not adding the "super-finished" class
                 if(wrapper.find('.super-fileupload-files > div.error').length==0){
                     // There are no errors, let's check if the total list equals to the total files that were successfully uploaded
                     if(wrapper.find('.super-fileupload-files > div').length == wrapper.find('.super-fileupload-files > div.super-uploaded').length){
-                        $(this).addClass('finished');
+                        $(this).addClass('super-finished');
                     }
                 }
             }
@@ -2609,10 +2611,10 @@ function SUPERreCaptcha(){
                 if( SUPER.has_hidden_parent(shortcode_field[0])===false ) {
                     total_file_uploads++;
                 }else{
-                    shortcode_field.removeClass('finished');
+                    shortcode_field.removeClass('super-finished');
                 }
             });
-            if($(args.form).find('.super-fileupload.finished').length == total_file_uploads){
+            if($(args.form).find('.super-fileupload.super-finished').length == total_file_uploads){
                 clearInterval(interval);
                 SUPER.init_fileupload_fields();
                 $(args.form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
@@ -3502,6 +3504,7 @@ function SUPERreCaptcha(){
             $files;
 
         $form.find('.super-shortcode-field').each(function(){
+            debugger;
             var $this = $(this),
                 $hidden = false,
                 $parent = $this.parents('.super-shortcode:eq(0)'),
@@ -3525,6 +3528,30 @@ function SUPERreCaptcha(){
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
+                debugger;
+                if($this.hasClass('super-recording')){
+                    debugger;
+                    console.log($this);
+                    $parent = $this.parents('.super-field-wrapper:eq(0)');
+                    $field = $this;
+                    $data[$field.attr('name')] = {
+                        'label':$field.data('email'),
+                        'type':'files',
+                        'exclude':$field.data('exclude'),
+                        'exclude_entry':$field.data('exclude-entry'),
+                        'files': [{
+                            'name':$field.attr('name'),
+                            'value':$file.attr('data-name'),
+                            'blob':blob,
+                            'filename':blob.name,
+                            'label':$field.data('email'),
+                            'exclude':$field.data('exclude'),
+                            'exclude_entry':$field.data('exclude-entry'),
+                            'excludeconditional':$field.data('excludeconditional'),
+                        }]
+                    };
+                }
+
                 if($this.hasClass('super-fileupload')){
                     $parent = $this.parents('.super-field-wrapper:eq(0)');
                     $field = $parent.find('.super-active-files');                
@@ -3549,6 +3576,7 @@ function SUPERreCaptcha(){
                         };
                     });
                 }else{
+                    debugger;
                     $data[$this.attr('name')] = { 
                         'name':$this.attr('name'),
                         'value':$this.val(),
@@ -3610,6 +3638,7 @@ function SUPERreCaptcha(){
                         }
                     }
 
+                    debugger;
                     if( $super_field.hasClass('super-dropdown') ) {
                         $i = 0;
                         $new_value = '';
@@ -3689,6 +3718,7 @@ function SUPERreCaptcha(){
                             $data[$this.attr('name')].entry_value = $new_value; 
                         }
                     }
+                    debugger;
                     if( $super_field.hasClass('super-checkbox') || $super_field.hasClass('super-radio') ) {
                         $i = 0;
                         $new_value = '';
@@ -3769,6 +3799,7 @@ function SUPERreCaptcha(){
                             $data[$this.attr('name')].entry_value = $new_value; 
                         }
                     }
+                    debugger;
                 }
             }
         });
@@ -6046,7 +6077,7 @@ function SUPERreCaptcha(){
                         });
                         element.value = files;
                         field.querySelector('.super-fileupload-files').innerHTML = html;
-                        field.querySelector('.super-fileupload').classList.add('finished');
+                        field.querySelector('.super-fileupload').classList.add('super-finished');
                     }else{
                         field.querySelector('.super-fileupload-files').innerHTML = '';
                         field.querySelector('.super-progress-bar').removeAttribute('style');

@@ -789,7 +789,8 @@ class SUPER_Common {
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'set_keyword_tags_width' ),
                     array( 'name' => 'rating' ),
-                    array( 'name' => 'init_signature' ) // This should actually be called by the signature add-on, but it has been like this since the start.
+                    array( 'name' => 'init_recorder' ),
+                    array( 'name' => 'init_signature' ), // This should actually be called by the signature add-on, but it has been like this since the start.
                 ),
             )
         );

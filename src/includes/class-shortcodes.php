@@ -3531,10 +3531,30 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
+
+        $result = '';
+        $type = $atts['type'];
+        if($type==='audio'){ // audio, file
+            $dir = SUPER_PLUGIN_FILE . 'includes/extensions/recorder/';
+            if( SUPER_Forms()->is_request('ajax') ){
+                $url = $dir . 'super-recorder.min.js';
+                $js = wp_remote_fopen($url);
+                ob_start();
+                ?>
+                <script type="text/javascript">
+                <![CDATA[
+                <?php echo $js; ?>
+                ]]>
+                </script>
+                <?php
+                $result .= ob_get_clean();
+            }else{
+                wp_enqueue_script( 'super-recorder', $dir . 'super-recorder.min.js', array( 'super-common' ), SUPER_Forms()->version );
+            }
+        }
 
         $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
         wp_enqueue_script( 'jquery-ui-widget' );
@@ -3542,8 +3562,28 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'jquery-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         wp_enqueue_script( 'jquery-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         wp_enqueue_script( 'jquery-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        $result = self::opening_tag( $tag, $atts );
+        $classes = '';
+        if($type==='audio'){ // audio, file
+            $classes = ' super-audio';
+        }
+        $result .= self::opening_tag( $tag, $atts, $classes );
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        
+        if($type==='audio'){ // audio, file
+            $result .= '<div class="super-recording" data-filetype="'.esc_attr($atts['filetype']).'" data-filename="'.esc_attr($atts['filename']).'">';
+                $result .= '<span class="super-start-recording"></span>';
+                $result .= '<div><audio controls autoplay playsinline></audio></div>';
+            $result .= '</div>';
+            //$result .= '<input type="hidden" class="super-shortcode-field"';
+            //$result .= ' name="' . esc_attr($atts['name']) . '"';
+            //$result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
+            //$entry_data_value = SUPER_Shortcodes::get_entry_data_value( $tag, '', $atts['name'], $entry_data );
+            //if(!isset($atts['value'])) $atts['value'] = '';
+            //if(!empty($entry_data_value)){
+            //    $atts['value'] = $entry_data_value;
+            //}
+            //$result .= ' />';
+        }
         
         // @since 1.2.8
         if( !isset( $atts['image'] ) ) $atts['image'] = '';
@@ -3554,19 +3594,23 @@ class SUPER_Shortcodes {
 
         $result .= '<div class="super-fileupload-button' . (($atts['enable_image_button']=='true' && $atts['image']!='')  ? ' super-fileupload-image' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
         $style = '';
-        if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
-        $extensions = explode('|', $atts['extensions']);
-        foreach($extensions as $k => $v){
-            $extensions[$v] = $v;
-            unset($extensions[$k]);
-        }
-        foreach($extensions as $k => $v){
-            $upercase = strtoupper($v);
-            if( (ctype_lower($v)) && (!isset($extensions[$upercase])) ) {
-               $extensions[$upercase] = $upercase;
+        if($type==='audio'){ // audio, file
+            $extensions = $atts['filetype']; // e.g: mp3, wav, webm
+        }else{
+            if( !isset( $atts['extensions'] ) ) $atts['extensions'] = 'jpg|jpeg|png|gif|pdf';
+            $extensions = explode('|', $atts['extensions']);
+            foreach($extensions as $k => $v){
+                $extensions[$v] = $v;
+                unset($extensions[$k]);
             }
+            foreach($extensions as $k => $v){
+                $upercase = strtoupper($v);
+                if( (ctype_lower($v)) && (!isset($extensions[$upercase])) ) {
+                   $extensions[$upercase] = $upercase;
+                }
+            }
+            $extensions = implode('|', $extensions);
         }
-        $extensions = implode('|', $extensions);
 
         if( !isset( $atts['width'] ) ) $atts['width'] = 0;
         if( $atts['width']!=0 ) $style .= 'width:' . $atts['width'] . 'px;';
@@ -3604,6 +3648,9 @@ class SUPER_Shortcodes {
         $atts['placeholder'] = '';
 
         $class = '';
+        if($type!=='normal'){
+            $class .= ' super-recorder';
+        }
         $files = '';
         // @since   2.9.0 - autopopulate with last entry data
         if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
@@ -3617,7 +3664,7 @@ class SUPER_Shortcodes {
                         $file_headers = @get_headers($file);
                         if($file_headers && (strpos($file_headers[0], '404'))==false) {
                             // File exists, let's add it to the list
-                            $class = ' finished'; // Required in order for the file upload to know if all files are uploaded to the server
+                            $class .= ' super-finished'; // Required in order for the file upload to know if all files are uploaded to the server
                             $files .= '<div data-name="' . esc_attr($v['value']) . '" class="super-uploaded"';
                             $files .= ' data-url="' . esc_attr($v['url']) . '"';
                             $files .= ' data-thumburl="' . esc_attr($v['thumburl']) . '">';
@@ -3630,7 +3677,7 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= '<input class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        $result .= '<input class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-type="' . esc_attr($type) . '" data-file-size="' . esc_attr($atts['filesize']) . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . esc_attr($extensions) . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
@@ -3642,6 +3689,8 @@ class SUPER_Shortcodes {
         $result .= '<div class="super-fileupload-files">';
             $result .= $files;
         $result .= '</div>';
+
+
         $result .= '</div>';
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';

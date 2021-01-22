@@ -5063,3 +5063,57 @@ ul.super-multipart-steps .super-multipart-step
         padding: 10px 38px 10px 38px
         height: initial
         line-height: initial
+
+
+.super-start-recording
+  width: 54px
+  height: 54px
+  font-size: 0
+  background-color: #D30000
+  border: solid 5px #E46363
+  border-radius: 35px
+  display: flex
+  margin: 0px
+  cursor: pointer
+  margin-right: 20px
+  align-items: center
+  justify-content: center
+  &:hover
+    opacity: 0.8
+  &:after 
+    font-size: 14px
+    color: white
+    content: unicode("f3c9")
+    +fontAwesome(900)
+.super-recording
+  width: 100%
+  display: flex
+  padding-top: 10px
+  align-items: center
+  audio
+    outline: none
+.super-is-recording
+  animation-name: pulse
+  animation-duration: 1.5s
+  animation-iteration-count: infinite
+  animation-timing-function: linear
+  background-color: #D30000
+  border: solid 5px #E46363
+.super-file.super-audio
+  .super-fileupload-button
+    display: none
+  .super-fileupload-files 
+    margin-left: 80px
+    margin-top: 5px
+
+@keyframes pulse
+  0%
+    +boxShadow(0px 0px 5px 5px rgba(255,0,0,.2))
+  40%
+    +boxShadow(0px 0px 5px 9px rgba(255,0,0,.3))
+  60%
+    +boxShadow(0px 0px 5px 12px rgba(255,0,0,.4))
+  100%
+    +boxShadow(0px 0px 5px 5px rgba(255,0,0,.2))
+
+
