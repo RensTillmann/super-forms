@@ -4195,7 +4195,7 @@ function SUPERreCaptcha(){
         var pdfHeaderForm = document.querySelector('.super-pdf-header .super-form');
         SUPER.after_field_change_blur_hook({el: undefined, form: pdfHeaderForm});
         var pdfFooterForm = document.querySelector('.super-pdf-footer .super-form');
-        SUPER.after_field_change_blur_hook({el: undefined, from: pdfFooterForm});
+        SUPER.after_field_change_blur_hook({el: undefined, form: pdfFooterForm});
 
         // Scroll to the "fake" page
         form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
