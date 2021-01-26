@@ -4,11 +4,32 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 26, 2021 - Version 4.9.603
+
+- **Improved:** Time picker element now uses WP core `current_time()` function when `Return current time as default value` is enabled to get time with the GMT offset in the WordPress option.
+
+## Jan 22, 2021 - Version 4.9.602
+
+- **Fix:** Typo `from` should be `form`, causing issues with PDF generator when using `Currency` field together with `Calculator` element
+
+## Jan 20, 2021 - Version 4.9.601
+
+- **Improved:** Contact entry search will also trigger when "copy/pasting" text into the input field on mobile devices
+
+## Jan 19, 2021 - Version 4.9.600
+
+- **Added:** Option to prevent saving contact entry if a contact entry with the same title already exists, more info here:
+  - [Prevent/disallow duplicate contact entry titles](https://webrehab.zendesk.com/hc/en-gb/articles/360017147758)
+- **Added:** `MailChimp Add-on` option to unsubscribe users by setting `Send the Mailchimp confirmation email` to `No` and setting `Subscriber status after submitting the form` to `Unsubscribed`
+- **Improved:** Form loading speed when using many HTML elements that contain many {tags}. Super Forms now remembers tag values and will not re-process these if they haven't changed since. This speeds up the loading speed significantly for forms that are using many HTML elements with many {tags}
+- **Fix:** When `Enable form POST method` is enabled in combination with `Enable custom parameter string for POST method` do not store `Thank you message` into a session, otherwise it would be displayed twice when user navigates to a different page.
+- **Fix:** When using multiple google address autocomplete elements in a form they would conflict with eachother.
+
 ## Jan 14, 2021 - Version 4.9.584
 
 - **Added:** Option to add field {tags} inside the `Default value` setting, which would populate it on page load with the value from that field value. Previously you could only use predefined tags.
 - **Added:** `Calculator Add-on` option to directly retrieve [predefined tags](https://webrehab.zendesk.com/hc/en-gb/articles/360016934317#h_01EVVEFFDD34J8V4FM6W4ZPC6N) inside math, e.g: to retrieve current year, month or price of current WooCommerce product etc.
-- **Added:** Option to set seperate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
+- **Added:** Option to set separate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
   - [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
 - **Fix:** Bug with `Date` element when setting `Allow user to choose a maximum of X dates` to anything higher than `1` causing it to switch to current month e.g when choosing 2 dates in month `Feb`, it would switch back to month `Jan`
 - **Fix:** Issue with dragging elements in Accordion element

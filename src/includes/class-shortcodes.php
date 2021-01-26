@@ -3840,7 +3840,7 @@ class SUPER_Shortcodes {
         // @since 1.3 - Return the current date as default value
         if( !isset( $atts['current_time'] ) ) $atts['current_time'] = '';
         if( $atts['current_time']=='true' ) {
-            $atts['value'] = date($atts['format']);
+            $atts['value'] = current_time($atts['format']);
         }
 
         // Get default value

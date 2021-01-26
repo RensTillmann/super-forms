@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.5.6
+ * Version:     1.5.9
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.6';
+        public $version = '1.5.9';
 
         
         /**
@@ -193,6 +193,7 @@ if(!class_exists('SUPER_Mailchimp')) :
         public function remove_mailchimp_data($data, $atts){
             unset($data['mailchimp_interests']);
             unset($data['mailchimp_send_confirmation']);
+            unset($data['mailchimp_subscriber_status']);
             unset($data['mailchimp_list_id']);
             foreach($data as $k => $v){
                 if(substr($k, 0, 24)==='mailchimp_custom_fields_') {
@@ -310,7 +311,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     );
                 }else{
                     // Otherwise display any other error response
-                    if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='pending' ) {
+                    if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='unsubscribed' && $obj['status']!=='pending' ) {
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . json_encode($obj)
@@ -434,6 +435,15 @@ if(!class_exists('SUPER_Mailchimp')) :
                 $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
                 $result .= '<input class="super-shortcode-field" type="hidden" value="1" name="mailchimp_send_confirmation" data-exclude="2" />';
                 $result .= '</div>';
+            }else{
+                $atts['label'] = '';
+                $atts['description'] = '';
+                $atts['icon'] = '';
+                $classes = ' hidden';
+                $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
+                if( empty($atts['subscriber_status'] ) ) $atts['subscriber_status'] = 'subscribed';
+                $result .= '<input class="super-shortcode-field" type="hidden" value="'.esc_attr($atts['subscriber_status']).'" name="mailchimp_subscriber_status" data-exclude="2" />';
+                $result .= '</div>';
             }
             if( $show_hidden_field==true ) {
                 $atts['label'] = '';
@@ -520,6 +530,20 @@ if(!class_exists('SUPER_Mailchimp')) :
                                     'no' => esc_html__( 'No', 'super-forms' ), 
                                     'yes' => esc_html__( 'Yes', 'super-forms' ), 
                                 ),
+                                'filter' => true,
+                            ),                            
+                            'subscriber_status' => array(
+                                'name' => esc_html__( 'Subscriber status after submitting the form', 'super-forms' ),
+                                'label' => esc_html__( 'Normally you would want to subscribe a user, but it\'s also possible to unsubscribe a user if they are already subscribed if they are already subscribed.', 'super-forms' ),
+                                'type' => 'select',
+                                'default'=> (!isset($attributes['subscriber_status']) ? 'subscribed' : $attributes['subscriber_status']),
+                                'values' => array(
+                                    'subscribed' => esc_html__( 'Subscribed (default)', 'super-forms' ), 
+                                    'unsubscribed' => esc_html__( 'Unsubscribed', 'super-forms' )
+                                ),
+                                'filter' => true,
+                                'parent' => 'send_confirmation',
+                                'filter_value' => 'no'
                             ),                            
                             'email' => SUPER_Shortcodes::email($attributes, $default='Interests'),
                             'label' => $label,
@@ -697,9 +721,14 @@ if(!class_exists('SUPER_Mailchimp')) :
                 }
 
                 if( (!empty($data['mailchimp_send_confirmation']['value'])) && ($data['mailchimp_send_confirmation']['value']==1 )) {
-                    $user_data['status'] = 'pending';
+                    $user_data['status'] = 'pending'; // When user needs to confirm their E-mail address, we want to set status to pending
                 }else{
-                    $user_data['status'] = 'subscribed';
+                    // Use the status defined on the field
+                    if(empty($data['mailchimp_subscriber_status']['value'])) {
+                        $data['mailchimp_subscriber_status'] = 'subscribed';
+                    }
+                    // Can be `subscribed` or `unsubscribed`
+                    $user_data['status'] = $data['mailchimp_subscriber_status']['value'];
                 }
 
                 // Find out if we have some selected interests

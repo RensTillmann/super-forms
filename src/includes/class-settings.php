@@ -1109,7 +1109,7 @@ class SUPER_Settings {
                         'yes' => esc_html__('Save as Contact Entry', 'super-forms' ),
                         'no' => esc_html__('Do not save data', 'super-forms' ),
                     )
-                ),
+                ), 
                 // @since 4.5.0 - do not save empty values for contact entries
                 'contact_entry_exclude_empty' => array(
                     'name' => esc_html__( 'Do not save empty values', 'super-forms' ),
@@ -1174,7 +1174,7 @@ class SUPER_Settings {
                 ),
                 'contact_entry_title' => array(
                     'name' => esc_html__('Enter a custom entry title', 'super-forms' ),
-                    'desc' => esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),
+                    'label' => esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),
                     'default' => self::get_value( $default, 'contact_entry_title', $settings, esc_html__( 'Contact entry', 'super-forms' ) ),
                     'filter'=>true,
                     'parent'=>'enable_custom_entry_title',
@@ -1188,6 +1188,47 @@ class SUPER_Settings {
                         'true' => esc_html__( 'Append entry ID after the custom title', 'super-forms' ),
                     ),
                     'parent' => 'enable_custom_entry_title',
+                    'filter_value' => 'true'
+                ),
+                // @since 4.9.600 - prevent submitting form when entry title already exists
+                'contact_entry_unique_title' => array(
+                    'default' => self::get_value( $default, 'contact_entry_unique_title', $settings, '' ),
+                    'type' => 'checkbox',
+                    'filter'=>true,
+                    'values' => array(
+                        'true' => esc_html__( 'Prevent submitting form when entry title already exists', 'super-forms' ),
+                    ),
+                    'parent' => 'enable_custom_entry_title',
+                    'filter_value' => 'true'
+                ),
+                'contact_entry_unique_title_compare' => array(
+                    'name' => esc_html__( 'Compare duplicate contact entry title against:', 'super-forms' ),
+                    'default' => self::get_value( $default, 'contact_entry_unique_title_compare', $settings, 'form' ),
+                    'type'=>'select',
+                    'values'=>array(
+                        'form' => esc_html__( 'Compare against current form entries only (default)', 'super-forms' ),
+                        'global' => esc_html__( 'Compare against all entries (all forms)', 'super-forms' ),
+                        'ids' => esc_html__( 'Compare against entries from the following form ID\'s (specific forms only)', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'contact_entry_unique_title',
+                    'filter_value' => 'true'
+                ),
+                'contact_entry_unique_title_form_ids' => array(
+                    'name' => esc_html__('Enter form ID\'s to compare duplicate entry title against', 'super-forms' ),
+                    'label' => esc_html__( 'Seperate each form ID by a comma.', 'super-forms' ) . ' ' . esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),
+                    'default' => self::get_value( $default, 'contact_entry_unique_title_form_ids', $settings, '' ),
+                    'filter'=>true,
+                    'parent'=>'contact_entry_unique_title_compare',
+                    'filter_value'=>'ids'
+                ),
+                'contact_entry_unique_title_msg' => array(
+                    'name' => esc_html__('Duplicate entry title error message', 'super-forms' ),
+                    'label' => esc_html__('This message will be displayed to the user if an entry with the same title already exists based on above configuration', 'super-forms' ),
+                    'type'=>'textarea',
+                    'default' => self::get_value( $default, 'contact_entry_unique_title_msg', $settings, esc_html__( 'Could not submit the form because a contact entry with the exact same title already exists!', 'super-forms' ) ),
+                    'filter'=>true,
+                    'parent' => 'contact_entry_unique_title',
                     'filter_value' => 'true'
                 ),
 
@@ -1215,8 +1256,7 @@ class SUPER_Settings {
                 ),
                 'retrieve_last_entry_form' => array(
                     'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
-                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ),
-                    'desc' => esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
+                    'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ) . ' ' . esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'retrieve_last_entry_form', $settings, '' ),
                     'filter'=>true,
                     'parent' => 'retrieve_last_entry_data',
@@ -1275,7 +1315,7 @@ class SUPER_Settings {
                 ),
                 'form_thanks_title' => array(
                     'name' => esc_html__( 'Thanks Title', 'super-forms' ),
-                    'desc' => esc_html__( 'A custom thank you title shown after a user completed the form.', 'super-forms' ),
+                    'label' => esc_html__( 'A custom thank you title shown after a user completed the form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_thanks_title', $settings, esc_html__( 'Thank you!', 'super-forms' ) ),
                     'filter'=>true,
                     'parent' => 'form_show_thanks_msg',
@@ -1284,7 +1324,7 @@ class SUPER_Settings {
                 ),
                 'form_thanks_description' => array(
                     'name' => esc_html__( 'Thanks Description', 'super-forms' ),
-                    'desc' => esc_html__( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
+                    'label' => esc_html__( 'A custom thank you description shown after a user completed the form.', 'super-forms' ),
                     'default' => self::get_value( $default, 'form_thanks_description', $settings, esc_html__( 'We will reply within 24 hours.', 'super-forms' ) ),
                     'type'=>'textarea',
                     'filter'=>true,
@@ -1294,7 +1334,7 @@ class SUPER_Settings {
                 ),
                 'form_preload' => array(
                     'name' => esc_html__( 'Preloader (form loading icon)', 'super-forms' ),
-                    'desc' => esc_html__( 'Custom use of preloader for the form.', 'super-forms' ),
+                    'label' => esc_html__( 'Custom use of preloader for the form.', 'super-forms' ),
                     'type'=>'select',
                     'default' => self::get_value( $default, 'form_preload', $settings, '1' ),
                     'values'=>array(
