@@ -361,7 +361,7 @@
 
         // @since 1.4.0 - update conditional logic based on the updated calculator field
         $.each(updatedCalculatorFields, function( index, field ) {
-			SUPER.after_field_change_blur_hook({el: field, form: form});
+            SUPER.after_field_change_blur_hook({el: field, form: form});
         });
 	
 	};

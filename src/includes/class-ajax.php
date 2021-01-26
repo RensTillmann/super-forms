@@ -2625,10 +2625,65 @@ class SUPER_Ajax {
 
         $contact_entry_id = null;
         if( $settings['save_contact_entry']=='yes' ) {
+            // Check if we prevent saving duplicate entry titles
+            // Return error message to user
+            $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
+            if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
+            if( $settings['enable_custom_entry_title']=='true' ) {
+                if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
+                if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
+                $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
+                if($settings['contact_entry_add_id']=='true'){
+                    if($contact_entry_title==''){
+                        $contact_entry_title = $contact_entry_id;
+                    }else{
+                        $contact_entry_title = $contact_entry_title . $contact_entry_id;
+                    }
+                }
+            }else{
+                $contact_entry_title = $contact_entry_title . $contact_entry_id;
+            }
+            // @since 4.9.600 - check if entry title already exists
+            if(!empty($settings['contact_entry_unique_title']) && $settings['contact_entry_unique_title']==='true'){
+                if(empty($settings['contact_entry_unique_title_compare'])) $settings['contact_entry_unique_title_compare'] = 'form';
+                global $wpdb;
+                $total = 0;
+                if($settings['contact_entry_unique_title_compare']==='form'){
+                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_parent = '%d' AND post_title = '%s'", $form_id, $contact_entry_title);
+                    $total = $wpdb->get_var($query);
+                }elseif($settings['contact_entry_unique_title_compare']==='global'){
+                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_title = '%s'", $contact_entry_title);
+                    $total = $wpdb->get_var($query);
+                }elseif($settings['contact_entry_unique_title_compare']==='ids'){
+                    if(empty($settings['contact_entry_unique_title_form_ids'])) $settings['contact_entry_unique_title_form_ids'] = '';
+                    $ids = $settings['contact_entry_unique_title_form_ids'];
+                    $ids = sanitize_text_field($ids);
+                    $ids = explode(',', $ids);
+                    $form_ids = array();
+                    foreach($ids as $k => $v){
+                        $v = trim($v);
+                        if(empty($v)) continue;
+                        $form_ids[$k] = absint($v);
+                    }
+                    unset($ids);
+                    $form_ids_placeholder = implode( ', ', array_fill( 0, count( $form_ids ), '%d' ) );
+                    $prepare_values  = array_merge( $form_ids, array( $contact_entry_title ) );
+                    $query = $wpdb->prepare("SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_parent IN ($form_ids_placeholder) AND post_title = '%s'", $prepare_values);
+                    $total = $wpdb->get_var($query);
+                }
+                if($total>0){
+                    SUPER_Common::output_message(
+                        $error = true,
+                        $msg = esc_html(SUPER_Common::email_tags( $settings['contact_entry_unique_title_msg'], $data, $settings ))
+                    );
+                }
+            }
+
             $post = array(
+                'post_title' => $contact_entry_title,
                 'post_status' => 'super_unread',
                 'post_type' => 'super_contact_entry' ,
-                'post_parent' => $data['hidden_form_id']['value'] // @since 1.7 - save the form ID as the parent
+                'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
             );
 
             // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
@@ -2725,30 +2780,6 @@ class SUPER_Ajax {
         if( $settings['save_contact_entry']=='yes' ){
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
             add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
-
-            // @since 1.2.6     - custom contact entry titles
-            $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
-            if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
-            if( $settings['enable_custom_entry_title']=='true' ) {
-                if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
-                if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
-                $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
-                if($settings['contact_entry_add_id']=='true'){
-                    if($contact_entry_title==''){
-                        $contact_entry_title = $contact_entry_id;
-                    }else{
-                        $contact_entry_title = $contact_entry_title . $contact_entry_id;
-                    }
-                }
-            }else{
-                $contact_entry_title = $contact_entry_title . $contact_entry_id;
-            }
-
-            $contact_entry = array(
-                'ID' => $contact_entry_id,
-                'post_title' => $contact_entry_title,
-            );
-            wp_update_post( $contact_entry );
 
             /** 
              *  Hook after inserting contact entry
@@ -3373,7 +3404,14 @@ class SUPER_Ajax {
                 }
             }
             if( (!empty($settings['form_post_option'])) && ($save_msg==true) ) {
-                SUPER_Forms()->session->set( 'super_msg', $session_data );
+                // Only store the message into a session if the form is submitted as a normal POST request.
+                // This will not be the case when `custom parameter string for POST method` is enabled.
+                // In this case we do not want to store the thank you message into a session because if we
+                // navigate to a different page it would show the thank you message again to the user while
+                // it was already displayed to the user
+                if( $settings['form_post_custom']!=='true' ) {
+                    SUPER_Forms()->session->set( 'super_msg', $session_data );
+                }
             }
             if($save_msg==false) $msg = '';
 

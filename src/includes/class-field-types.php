@@ -49,6 +49,9 @@ class SUPER_Field_Types {
                     if( isset( $fv['name'] ) ) {
                         echo '<h2>' . $fv['name'] . '</h2>';
                     }
+                    if( isset( $fv['label'] ) ) {
+                        echo '<div class="field-description">' . $fv['label'] . '</div>';
+                    }
                     if( isset( $fv['desc'] ) ) {
                         echo '<div class="field-description">' . $fv['desc'] . '</div>';
                     }
