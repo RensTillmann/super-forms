@@ -179,7 +179,7 @@ if(!class_exists('SUPER_Listing')) :
         */
         public static function add_dynamic_function( $functions ) {
             $functions['save_form_params_filter'][] = array(
-                'name' => 'add_listings'
+                'name' => 'add_listing'
             );
             return $functions;
         }
@@ -231,7 +231,7 @@ if(!class_exists('SUPER_Listing')) :
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
                 $lists = $atts['settings']['_'.$slug]['lists'];
             }
-            if(!is_array($lists)) {
+            if(count($lists)==0) {
                 $lists[] = array(
                     'name' => esc_html__( 'Entries', 'super-forms' ),
                     'display_based_on' => 'this_form',
@@ -332,7 +332,6 @@ if(!class_exists('SUPER_Listing')) :
             echo '<div class="sfui-repeater" data-k="lists">';
             // Repeater Item
             foreach($lists as $k => $v){
-                //var_dump($v);
                 //// Set default values if they don't exist
                 //$list = self::get_default_listing_settings($list);
                 echo '<div class="sfui-repeater-item">';
@@ -707,19 +706,14 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
 
             // Sanitize the ID
             $form_id = absint($id);
-
-            // Check if the post exists
-            if ( FALSE === get_post_status( $form_id ) ) {
-                // The post does not exist
-                $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with Form ID: %d', 'super-forms' ), $form_id);
-                return $result;
-            }else{
-                // Check if the post is a super_form post type
-                $post_type = get_post_type($form_id);
-                if( $post_type!='super_form' ) {
-                        $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with Form ID: %d', 'super-forms' ), $form_id);
-                        return $result;
-                }
+            $post_status = get_post_status($form_id);
+            $post_type = get_post_type($form_id);
+            $found = false;
+            if($post_status==='publish' && $post_type==='super_form'){
+                $found = true;
+            }
+            if($found===false){ // Form does not exists
+                return '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with Form ID: %d', 'super-forms' ), $form_id);
             }
 
             $settings = SUPER_Common::get_form_settings($form_id);
@@ -777,13 +771,14 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
 
             // Get the settings for this specific list based on it's index
             $list_id = absint($atts['list'])-1;
-            if(!isset($settings['_listings'][$list_id])){
+            $lists = $settings['_listing']['lists'];
+            if(!isset($lists[$list_id])){
                 // The list does not exist
                 $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with ID: %d', 'super-forms' ), $list_id);
                 return $result;
             }
             // Set default values if they don't exist
-            $list = self::get_default_listing_settings($settings['_listings'][$list_id]);
+            $list = self::get_default_listing_settings($lists[$list_id]);
 
             $columns = array();
             // Check if "Title" column is enabled
@@ -830,7 +825,7 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
             }
 
             // Add custom columns if enabled
-            if($list['custom_columns']['value']==='true'){
+            if($list['custom_columns']['enabled']==='true'){
                 $columns = array_merge($columns, $list['custom_columns']['columns']);      
             }
 

@@ -2625,6 +2625,20 @@ class SUPER_Ajax {
 
         $contact_entry_id = null;
         if( $settings['save_contact_entry']=='yes' ) {
+            // First save the entry simply because we need the ID
+            $post = array(
+                'post_title' => $contact_entry_title,
+                'post_status' => 'super_unread',
+                'post_type' => 'super_contact_entry' ,
+                'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
+            );
+            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
+            $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
+            if( $post_author!=false ) {
+                $post['post_author'] = absint($post_author);
+            }
+            $contact_entry_id = wp_insert_post($post); 
+            
             // Check if we prevent saving duplicate entry titles
             // Return error message to user
             $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
@@ -2643,6 +2657,13 @@ class SUPER_Ajax {
             }else{
                 $contact_entry_title = $contact_entry_title . $contact_entry_id;
             }
+            // Update title
+            $post = array(
+                'ID' => $contact_entry_id,
+                'post_title' => $contact_entry_title,
+            );
+            wp_update_post($post);
+
             // @since 4.9.600 - check if entry title already exists
             if(!empty($settings['contact_entry_unique_title']) && $settings['contact_entry_unique_title']==='true'){
                 if(empty($settings['contact_entry_unique_title_compare'])) $settings['contact_entry_unique_title_compare'] = 'form';
@@ -2679,20 +2700,6 @@ class SUPER_Ajax {
                 }
             }
 
-            $post = array(
-                'post_title' => $contact_entry_title,
-                'post_status' => 'super_unread',
-                'post_type' => 'super_contact_entry' ,
-                'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
-            );
-
-            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
-            $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
-            if( $post_author!=false ) {
-                $post['post_author'] = absint($post_author);
-            }
-
-            $contact_entry_id = wp_insert_post($post); 
             $response_data['contact_entry_id'] = $contact_entry_id;
 
             // @since 3.4.0 - save custom contact entry status

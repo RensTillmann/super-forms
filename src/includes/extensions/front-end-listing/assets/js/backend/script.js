@@ -89,7 +89,7 @@
 
     SUPER.frontEndListing = {};
 
-    SUPER.add_listings = function(data){
+    SUPER.add_listing = function(data){
         data.formSettings = JSON.parse(data.formSettings);
         data.formSettings._listings = {};
         // Loop through all the listings
