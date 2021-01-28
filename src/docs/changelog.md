@@ -4,17 +4,49 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 26, 2021 - Version 4.9.603
-
-- **Improved:** Time picker element now uses WP core `current_time()` function when `Return current time as default value` is enabled to get time with the GMT offset in the WordPress option.
-
-## Jan 22, 2021 - Version 4.9.602
+## Jan 28, 2021 - Version 4.9.700
 
 - **Fix:** Typo `from` should be `form`, causing issues with PDF generator when using `Currency` field together with `Calculator` element
-
-## Jan 20, 2021 - Version 4.9.601
-
+- **Improved:** Time picker element now uses WP core `current_time()` function when `Return current time as default value` is enabled to get time with the GMT offset in the WordPress option.
 - **Improved:** Contact entry search will also trigger when "copy/pasting" text into the input field on mobile devices
+- **Added:** Back-end translations
+  - Afrikaans
+  - Arabic
+  - Bengali (Bangladesh)
+  - Czech
+  - Danish
+  - Dutch
+  - French (Canada)
+  - French (France)
+  - German
+  - Gujarati
+  - Hindi
+  - Hungarian
+  - Indonesian
+  - Italian
+  - Japanese
+  - Javanese
+  - Kannada
+  - Korean
+  - Marathi
+  - Norwegian (Nynorsk)
+  - Persian
+  - Polish
+  - Portugese (Portugal)
+  - Punjabi
+  - Russian
+  - Spanish (Spain)
+  - Swahili
+  - Swedish
+  - Tamil
+  - Telugu
+  - Thai
+  - Turkish
+  - Urdu
+  - Vietnamese
+  - 香港中文版
+  - 繁體中文
+  - 简体中文
 
 ## Jan 19, 2021 - Version 4.9.600
 
