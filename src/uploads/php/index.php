@@ -23,7 +23,7 @@ require('UploadHandler.php');
 
 $accept_file_types = filter_input(INPUT_POST, 'accept_file_types', FILTER_SANITIZE_STRING);
 $accept_file_types = explode('|', $accept_file_types);
-$strip = array('.*', 'php', 'phtml', 'php3', 'php5', 'phps', 'shtml', 'asa', 'cer');
+$strip = array('.*', 'php', 'phtml', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'php9', 'php10', 'phps', 'shtml', 'asa', 'cer');
 foreach($accept_file_types as $k => $v){
 	$extension = strtolower($accept_file_types[$k]);
 	if (in_array($extension, $strip)) {
