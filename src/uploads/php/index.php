@@ -20,15 +20,13 @@ define( 'NGG_DISABLE_RESOURCE_MANAGER', true );
 
 error_reporting(E_ALL | E_STRICT);
 require('UploadHandler.php');
-
 $accept_file_types = filter_input(INPUT_POST, 'accept_file_types', FILTER_SANITIZE_STRING);
 $accept_file_types = explode('|', $accept_file_types);
-$strip = array('.*', 'php', 'phtml', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'php9', 'php10', 'phps', 'shtml', 'asa', 'cer');
+$strip = array('php', 'phtml', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'php9', 'php10', 'phps', 'shtml', 'asa', 'cer');
 foreach($accept_file_types as $k => $v){
-	$extension = strtolower($accept_file_types[$k]);
-	if (in_array($extension, $strip)) {
+	if((in_array(strtolower($v), $strip)) || (!ctype_alnum($v))) {
 	    unset($accept_file_types[$k]);
-	}
+    }
 }
 $accept_file_types = implode('|', $accept_file_types);
 $max_file_size = filter_input(INPUT_POST, 'max_file_size', FILTER_VALIDATE_INT);
