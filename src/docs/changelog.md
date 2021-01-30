@@ -4,7 +4,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 29, 2021 - Version 4.9.701
+## Jan 30, 2021 - Version 4.9.702
 
 - **Fix:** Fix typo
 
