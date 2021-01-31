@@ -1270,7 +1270,7 @@ class SUPER_Ajax {
                     $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
                 }
                 if( $global_settings['contact_entry_add_id']=='true' ) {
-                    $contact_entry_title = $contact_entry_title . $contact_entry_id;
+                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
                 }
                 $contact_entry = array(
                     'ID' => $contact_entry_id,
@@ -2586,7 +2586,7 @@ class SUPER_Ajax {
                     }
                 }
             }else{
-                $contact_entry_title = $contact_entry_title . $contact_entry_id;
+                $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
             }
             // Update title
             $post = array(
