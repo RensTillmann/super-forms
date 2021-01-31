@@ -4,9 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 30, 2021 - Version 4.9.702
+## Jan 30, 2021 - Version 4.9.703
 
-- **Fix:** Fix typo
+- **Fix:** Arbitrary File Upload to Remote Code Execution
+- **Fix:** When saving contact entry with default title, make sure there is a space between the entry ID and the title
 
 ## Jan 28, 2021 - Version 4.9.700
 
