@@ -1340,7 +1340,7 @@ class SUPER_Ajax {
                     $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
                 }
                 if( $global_settings['contact_entry_add_id']=='true' ) {
-                    $contact_entry_title = $contact_entry_title . $contact_entry_id;
+                    $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
                 }
                 $contact_entry = array(
                     'ID' => $contact_entry_id,
@@ -2637,8 +2637,8 @@ class SUPER_Ajax {
             if( $post_author!=false ) {
                 $post['post_author'] = absint($post_author);
             }
-            $contact_entry_id = wp_insert_post($post); 
-            
+            $contact_entry_id = wp_insert_post($post);
+
             // Check if we prevent saving duplicate entry titles
             // Return error message to user
             $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
@@ -2655,7 +2655,7 @@ class SUPER_Ajax {
                     }
                 }
             }else{
-                $contact_entry_title = $contact_entry_title . $contact_entry_id;
+                $contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
             }
             // Update title
             $post = array(
