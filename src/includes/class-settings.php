@@ -1214,6 +1214,16 @@ class SUPER_Settings {
                     'parent' => 'contact_entry_unique_title',
                     'filter_value' => 'true'
                 ),
+                'contact_entry_unique_title_trashed' => array(
+                    'default' => self::get_value( $default, 'contact_entry_unique_title_trashed', $settings, '' ),
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Also compare against trashed contact entries', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'contact_entry_unique_title',
+                    'filter_value' => 'true'
+                ),
                 'contact_entry_unique_title_form_ids' => array(
                     'name' => esc_html__('Enter form ID\'s to compare duplicate entry title against', 'super-forms' ),
                     'label' => esc_html__( 'Seperate each form ID by a comma.', 'super-forms' ) . ' ' . esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),

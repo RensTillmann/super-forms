@@ -2558,7 +2558,6 @@ class SUPER_Ajax {
 
             // First save the entry simply because we need the ID
             $post = array(
-                'post_title' => $contact_entry_title,
                 'post_status' => 'super_unread',
                 'post_type' => 'super_contact_entry' ,
                 'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
@@ -2600,11 +2599,18 @@ class SUPER_Ajax {
                 if(empty($settings['contact_entry_unique_title_compare'])) $settings['contact_entry_unique_title_compare'] = 'form';
                 global $wpdb;
                 $total = 0;
+                if(empty($settings['contact_entry_unique_title_trashed'])) $settings['contact_entry_unique_title_trashed'] = '';
+                // By default we do not compare against trashed entries
+                $trash_compare = "post_status != 'trash' AND ";
+                if($settings['contact_entry_unique_title_trashed']==='true'){
+                    // If user also wishes to compare against trashed entries
+                    $trash_compare = '';
+                }
                 if($settings['contact_entry_unique_title_compare']==='form'){
-                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_parent = '%d' AND post_title = '%s'", $form_id, $contact_entry_title);
+                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_parent = '%d' AND post_title = '%s'", $form_id, $contact_entry_title);
                     $total = $wpdb->get_var($query);
                 }elseif($settings['contact_entry_unique_title_compare']==='global'){
-                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_title = '%s'", $contact_entry_title);
+                    $query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_title = '%s'", $contact_entry_title);
                     $total = $wpdb->get_var($query);
                 }elseif($settings['contact_entry_unique_title_compare']==='ids'){
                     if(empty($settings['contact_entry_unique_title_form_ids'])) $settings['contact_entry_unique_title_form_ids'] = '';
@@ -2620,10 +2626,11 @@ class SUPER_Ajax {
                     unset($ids);
                     $form_ids_placeholder = implode( ', ', array_fill( 0, count( $form_ids ), '%d' ) );
                     $prepare_values  = array_merge( $form_ids, array( $contact_entry_title ) );
-                    $query = $wpdb->prepare("SELECT COUNT(ID) FROM $wpdb->posts WHERE post_status != 'trash' AND post_type = 'super_contact_entry' AND post_parent IN ($form_ids_placeholder) AND post_title = '%s'", $prepare_values);
+                    $query = $wpdb->prepare("SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_parent IN ($form_ids_placeholder) AND post_title = '%s'", $prepare_values);
                     $total = $wpdb->get_var($query);
                 }
-                if($total>0){
+                if($total>1){ // If 2 entries found, it means the current created entry has the same title as an already existing entry
+                    wp_delete_post( $contact_entry_id, true );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = esc_html(SUPER_Common::email_tags( $settings['contact_entry_unique_title_msg'], $data, $settings ))

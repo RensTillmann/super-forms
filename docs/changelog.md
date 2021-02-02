@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 02, 2021 - Version 4.9.704
+
+- **Added:** When `Prevent submitting form when entry title already exists` is enabled there is an extra option called `Also compare against trashed contact entries` which allows you to also check against possible trashed contact entries
+- **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator under `Advanced` tab
+
 ## Jan 30, 2021 - Version 4.9.703
 
 - **Fix:** Arbitrary File Upload to Remote Code Execution

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Calculator
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.2.2
+ * Version:     2.2.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Calculator')) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.2.2';
+        public $version = '2.2.3';
 
 
         /**
@@ -672,6 +672,7 @@ if(!class_exists('SUPER_Calculator')) :
                                 'values'=>array(
                                     '.' => esc_html__( '. (dot)', 'super-forms' ),
                                     ',' => esc_html__( ', (comma)', 'super-forms' ), 
+                                    ' ' => esc_html__( '(space)', 'super-forms' ), 
                                 ),
                                 'i18n'=>true
                             ),
@@ -684,6 +685,7 @@ if(!class_exists('SUPER_Calculator')) :
                                     '' => esc_html__( 'None (empty)', 'super-forms' ),
                                     '.' => esc_html__( '. (dot)', 'super-forms' ),
                                     ',' => esc_html__( ', (comma)', 'super-forms' ), 
+                                    ' ' => esc_html__( '(space)', 'super-forms' ), 
                                 ),
                                 'i18n'=>true
                             ),
