@@ -1,4 +1,8 @@
-Jan 14, 2020 - Version 2.2.2
+Feb 02, 2021 - Version 2.2.3
+- Added: Option to use a space as Decimal and/or Thousand seperater under
+`Advanced` tab
+
+Jan 14, 2021 - Version 2.2.2
 - Added: Option to directly retrieve predefined tags inside math, e.g: to retrieve current year, or month, or price of current WooCommerce product
 
 Dec 08, 2020 - Version 2.2.1
