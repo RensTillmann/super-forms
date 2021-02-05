@@ -5220,7 +5220,14 @@ function SUPERreCaptcha(){
             if( $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
                 $html = $target.dataset.original;
             }else{
+                if(!$target.parentNode.querySelector('textarea')){
+                    return true;
+                }
                 $html = $target.parentNode.querySelector('textarea').value;
+            }
+            // If empty skip
+            if($html===''){
+                return true;
             }
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
