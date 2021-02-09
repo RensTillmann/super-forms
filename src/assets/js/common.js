@@ -1422,7 +1422,6 @@ function SUPERreCaptcha(){
             $element,
             $regex = /{([^\\\/\s"'+]*?)}/g;
 
-
         while (($match = $regex.exec(args.value)) !== null) {
             if($match[0]==='{}') continue;
             $array[$i] = $match[1];
@@ -1453,7 +1452,12 @@ function SUPERreCaptcha(){
             // (increases form loading speed significantly when using many HTML elements that contain {tags})
             // When a field is changed/updated it will be unset (reset)
             if(typeof SUPER.fieldValues[$old_name] !== 'undefined'){
-                return SUPER.fieldValues[$old_name];
+                if($array.length===1){
+                    return SUPER.fieldValues[$old_name];
+                }else{
+                    args.value = args.value.replace('{'+$old_name+'}', SUPER.fieldValues[$old_name]);
+                    continue;
+                }
             }
 
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
