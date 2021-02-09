@@ -143,9 +143,12 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
-                }
-                // Complete:
-                if (typeof callback === "function") { 
+                    if(this.responseText==='1'){
+                        // Delete entry
+                        el.closest('.super-entry').remove();
+                    }else{
+                        alert('No permission');
+                    }
                 }
             }
         };
