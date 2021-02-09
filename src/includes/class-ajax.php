@@ -112,25 +112,77 @@ class SUPER_Ajax {
     public static function listing_delete_entry(){
         $entry_id = absint($_POST['entry_id']);
         $list_id = absint($_POST['list_id']);
-        // First check if entry exists
         $entry = get_post($entry_id);
-        var_dump($entry_id);
-        var_dump($list_id);
-        //$entry->post_author;
-        //$entry->post_parent;
-        //$entry = get_post($entry_id);
         $formSettings = get_post_meta($entry->post_parent, '_super_form_settings', true);
-        //var_dump($formSettings);
-        if(!isset($formSettings['_listings'][$list_id])){
+        $lists = $formSettings['_listing']['lists'];
+        if(!isset($lists[$list_id])){
             // The list does not exist
-            echo 'The list does not exist';
             die();
         }
-
         // Set default values if they don't exist
-        $listSettings = SUPER_Listing::get_default_listing_settings($settings['_listings'][$list_id]);
-        var_dump($listSettings);
+        $listSettings = SUPER_Listing::get_default_listing_settings($lists[$list_id]);
+        // First check if user is logged in
+        // Obviously only logged in user are allowed to delete entries
+        // Let's check if the user is logged in
+        $current_user_id = get_current_user_id();
+        if( $current_user_id==0 ) {
+            // User is not logged in
+            die();
+        }
+        // Check if logged in user is allowed to delete any entry (all entries)
+        if($listSettings['delete_any']['value']==='true'){
+            $roles = $listSettings['delete_any']['user_roles'];
+            if($roles!==''){
+                // Compare against roles
+                $allowed_roles = explode(',', $roles);
+                $allowed = false;
+                global $current_user;
+                $user = get_userdata( $current_user_id );
+                $user_roles = $user->roles;
+                foreach( $user_roles as $v ) {
+                    if( in_array( $v, $allowed_roles ) ) {
+                        $allowed = true;
+                    }
+                }
+                if( $allowed==false ) {
+                    // User is not allowed because doesn\'t have proper role to delete entries
+                    die();
+                }
+            }
+            $ids = $listSettings['delete_any']['user_ids'];
+            if($ids!==''){
+                // Compare against ID's
+                $ids = explode(',', $ids);
+                if( !in_array( $current_user_id, $ids ) ) {
+                    // User is not allowed because ID is not in allowed list
+                    die();
+                }
+            }
+        }
+        // Delete the entry
+        wp_delete_post(absint($entry_id));
+        echo '1'; // return 1 if successfully deleted entry
         die();
+
+        // ["delete_any"]=>
+        //   array(3) {
+        //     ["value"]=>
+        //     string(4) "true"
+        //     ["user_roles"]=>
+        //     string(13) "administrator"
+        //     ["user_ids"]=>
+        //     string(0) ""
+        //   }
+        // ["delete_own"]=>
+        //   array(3) {
+        //     ["value"]=>
+        //     string(5) "false"
+        //     ["user_roles"]=>
+        //     string(0) ""
+        //     ["user_ids"]=>
+        //     string(0) ""
+        //   }
+
         
         // If the entry exists, check which form it belongs to.
 
