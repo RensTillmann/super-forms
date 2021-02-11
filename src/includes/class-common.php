@@ -1175,7 +1175,7 @@ class SUPER_Common {
                    }
                }
             }
-            
+ 
             // Make sure all variables are set
             if(!isset($post_id)) $post_id = '';
             if(!isset($post_title)) $post_title = '';
@@ -1698,6 +1698,26 @@ class SUPER_Common {
                     $meta_key = str_replace('}', '', $meta_key);
                     $value = get_post_meta( $post->ID, $meta_key, true ); 
                     return $value;
+                }
+                // We possibly are looking for post terms (taxonomy)
+                //$term_list = wp_get_post_terms( $post_id, 'category', array( 'fields' => 'all' ) );
+                if ( strpos( $value, '{post_term_slugs') !== false ) {
+                    $taxonomy = str_replace('{post_term_slugs_', '', $value);
+                    $taxonomy = str_replace('}', '', $taxonomy);
+                    $return = wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'slugs' ) );
+                    if( is_wp_error( $return ) ) { return ''; } return implode(", ", $return);
+                }
+                if ( strpos( $value, '{post_term_names') !== false ) {
+                    $taxonomy = str_replace('{post_term_names_', '', $value);
+                    $taxonomy = str_replace('}', '', $taxonomy);
+                    $return = wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'names' ) );
+                    if( is_wp_error( $return ) ) { return ''; } return implode(", ", $return);
+                }
+                if ( strpos( $value, '{post_term_ids') !== false ) {
+                    $taxonomy = str_replace('{post_term_ids_', '', $value);
+                    $taxonomy = str_replace('}', '', $taxonomy);
+                    $return = wp_get_post_terms( $post_id, $taxonomy, array( 'fields' => 'ids' ) );
+                    if( is_wp_error( $return ) ) { return ''; } return implode(", ", $return);
                 }
             }
             

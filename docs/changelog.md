@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 11, 2021 - Version 4.9.707
+
+- **Fix:** JavaScript error when using Google Map in combination with PDF Generator Add-on
+- **Added:** Predefined tags `{post_term_names_****}`, `{post_term_slugs_****}`, `{post_term_ids_****}`. This way you can retrieve specific terms based on taxonomy. For instance to retrieve category names of a post you could use `{post_term_names_category}`
+
 ## Feb 11, 2021 - Version 4.9.706
 
 - **Fix:** Undo code that would speed up form loading time when using a lot of HTML elements with tags, however this code caused issues when using variable fields. Temporarily disabled / undo the code until we find a work-around or alternative
