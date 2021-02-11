@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 11, 2021 - Version 4.9.706
+
+- **Fix:** Undo code that would speed up form loading time when using a lot of HTML elements with tags, however this code caused issues when using variable fields. Temporarily disabled / undo the code until we find a work-around or alternative
+
 ## Feb 09, 2021 - Version 4.9.705
 
 - **Fix:** A recent speed improvement in the code caused issues with variable fields that contains more than one {tag} as value. Only the first {tag} would be replaced with a value, skipping any other {tags}.

@@ -1386,9 +1386,6 @@ function SUPERreCaptcha(){
         }
     };
 
-    // @since 4.9.590 - increases form loading speed significantly when using many HTML elements that contain {tags}
-    SUPER.fieldValues = [];
-
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
         if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
@@ -1446,20 +1443,6 @@ function SUPERreCaptcha(){
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
             $old_name = $name;
             $options = $name.toString().split(';');
-
-            // @since 4.9.590
-            // Try to grab tag from local storage if it is stored, otherwise grab it new
-            // (increases form loading speed significantly when using many HTML elements that contain {tags})
-            // When a field is changed/updated it will be unset (reset)
-            if(typeof SUPER.fieldValues[$old_name] !== 'undefined'){
-                if($array.length===1){
-                    return SUPER.fieldValues[$old_name];
-                }else{
-                    args.value = args.value.replace('{'+$old_name+'}', SUPER.fieldValues[$old_name]);
-                    continue;
-                }
-            }
-
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
@@ -1721,10 +1704,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-        // @since 4.9.590
-        // Update the fieldValues array
-        // (increases form loading speed significantly when using many HTML elements that contain {tags})
-        SUPER.fieldValues[$old_name] = args.value;
         return args.value;
     };
 
@@ -3326,11 +3305,6 @@ function SUPERreCaptcha(){
                 }else{
                     args.el.closest('.super-shortcode').classList.add('super-filled');
                 }
-                // @since 4.9.590 - unset remembered values, which speeds things up
-                if(typeof SUPER.fieldValues[args.el.name] !== 'undefined'){ delete SUPER.fieldValues[args.el.name]; }
-                if(typeof SUPER.fieldValues[args.el.name+';label'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';label']; }
-                if(typeof SUPER.fieldValues[args.el.name+';var'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';var']; }
-                if(typeof SUPER.fieldValues[args.el.name+';int'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';int']; }
             }
         }
         return args;
