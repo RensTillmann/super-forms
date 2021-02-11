@@ -1857,12 +1857,12 @@ function SUPERreCaptcha(){
         //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
         //         disableDefaultUI: false
         //     });
-        //     var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+        //     var children = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelectorAll(':scope > div');
         //     for(var x=0; x < children.length; x++){
         //         children[x].style.width = '';
         //         if(children[x].classList.contains('super-google-map-directions')){
         //             children[x].style.overflowY = 'scroll';
-        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelector('super-google-map-'+$form_id).offsetHeight+'px';
         //         }
         //     }
         // }
@@ -2088,7 +2088,7 @@ function SUPERreCaptcha(){
                 SUPER.google_maps_api.allMaps[formId][i].setOptions({
                     disableDefaultUI: true
                 });
-                nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
                 for(var x=0; x < nodes.length; x++){
                     nodes[x].style.width = '100%';
                     if(nodes[x].classList.contains('super-google-map-directions')){
@@ -4332,6 +4332,7 @@ function SUPERreCaptcha(){
                     disableDefaultUI: ('true' === $disableDefaultUI),
                     //mapTypeId: \'terrain\'
                 });
+                SUPER.google_maps_api.allMaps[$form_id][key]['super_el'] = $maps[key];
                 //SUPER.google_maps_api.allMaps[formId][i].setOptions({
                 //});
 
@@ -4444,7 +4445,7 @@ function SUPERreCaptcha(){
                 var directionsRenderer = new google.maps.DirectionsRenderer({
                     draggable: true,
                     map: SUPER.google_maps_api.allMaps[$form_id][key],
-                    panel: ($directionsPanel=='true' ? document.querySelector('.super-google-map-'+$form_id).parentNode.querySelector('.super-google-map-directions') : null)
+                    panel: ($directionsPanel=='true' ? SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelector('.super-google-map-directions') : null)
                     // panel: document.getElementById('right-panel')
                 });
                 //directionsRenderer.setMap($map);
@@ -6882,7 +6883,7 @@ function SUPERreCaptcha(){
             ///// First disable the UI on the map for nicer print of the map
             ///// And make map fullwidth and directions fullwidth
             ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-            ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            ///    nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
             ///    for(var x=0; x < nodes.length; x++){
             ///        nodes[x].style.width = '100%';
             ///        if(nodes[x].classList.contains('super-google-map-directions')){
