@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 12, 2021 - Version 4.9.708
+
+- **Added:** New `Retrieve method` called `Current Page or Post terms` for dropdown, radio, checkboxes to retrieve specific taxonomy terms based on the current page/post the form is on
+
 ## Feb 11, 2021 - Version 4.9.707
 
 - **Fix:** JavaScript error when using Google Map in combination with PDF Generator Add-on

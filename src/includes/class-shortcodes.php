@@ -938,7 +938,52 @@ class SUPER_Shortcodes {
                 }
             }
         }
-
+        
+        // dropdown - post_terms
+        // checkbox - post_terms
+        // radio - post_terms
+        // text - autosuggest - post_terms
+        // text - keywords - post_terms
+        if($atts[$prefix.'retrieve_method']=='post_terms') {
+            if( empty( $atts[$prefix.'retrieve_method_taxonomy'] ) ) $atts[$prefix.'retrieve_method_taxonomy'] = 'category';
+            if( empty( $atts[$prefix.'retrieve_method_post_terms_label'] ) ) $atts[$prefix.'retrieve_method_post_terms_label'] = 'names';
+            if( empty( $atts[$prefix.'retrieve_method_post_terms_value'] ) ) $atts[$prefix.'retrieve_method_post_terms_value'] = 'slugs';
+            $args = array(
+                'taxonomy' => $atts[$prefix.'retrieve_method_taxonomy'],
+                'terms_label' => $atts[$prefix.'retrieve_method_post_terms_label'],
+                'terms_value' => $atts[$prefix.'retrieve_method_post_terms_value'],
+            );
+            // We possibly are looking for post terms (taxonomy)
+            global $post;
+            if( isset( $post ) ) {
+                $terms = wp_get_post_terms( $post->ID, $args['taxonomy'], array( 'fields' => 'all' ) );
+                $items = array();
+                foreach( $terms as $v ) {
+                    $data_label = $v->name;
+                    $data_value = $v->slug;
+                    if($atts[$prefix.'retrieve_method_post_terms_label']=='slugs') $data_label = $v->slug;
+                    if($atts[$prefix.'retrieve_method_post_terms_label']=='ids') $data_label = $v->term_id;
+                    if($atts[$prefix.'retrieve_method_post_terms_value']=='names') $data_value = $v->name;
+                    if($atts[$prefix.'retrieve_method_post_terms_value']=='ids') $data_value = $v->term_id;
+                    if($tag=='text') {
+                        if($prefix=='keywords_'){
+                            // text - keywords - taxonomy
+                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($data_label) . '"><span class="super-wp-tag">' . $data_label . '</span></li>';
+                        }else{
+                            // text - autosuggest - taxonomy
+                            $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '">' . $data_label . '</li>'; 
+                        }
+                    }   
+                    // dropdown - taxonomy
+                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '">' . $data_label . '</li>'; 
+                    // checkbox - taxonomy
+                    if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($data_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input' . ( !in_array($data_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" /><div>' . $data_label . '</div></label>';
+                    // radio - taxonomy
+                    if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$data_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><input type="radio" value="' . esc_attr( $data_value ) . '" /><div>' . $data_label . '</div></label>';
+                    $items_values[] = $data_value;
+                }
+            }
+        }
 
         // dropdown - author
         // checkbox - author
@@ -4853,6 +4898,7 @@ class SUPER_Shortcodes {
         $values['csv'] = esc_html__( 'CSV file', 'super-forms' );
         $values['author'] = esc_html__( 'Current Author meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
         $values['post_meta'] = esc_html__( 'Current Page or Post meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
+        $values['post_terms'] = esc_html__( 'Current Page or Post terms (based on specified taxonomy slug)', 'super-forms' ); // @since 4.0.0 - retrieve current author data
         $values['db_table'] = esc_html__( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
         $array['name'] = esc_html__( 'Retrieve method', 'super-forms' );
         $array['desc'] = esc_html__( 'Select a method for retrieving items', 'super-forms' );
@@ -4937,6 +4983,38 @@ class SUPER_Shortcodes {
             'filter'=>true,
             'parent'=>$parent,
             'filter_value'=>'db_table'
+        );
+    }
+    public static function sf_retrieve_method_post_terms_label($value, $parent){
+        return array(
+            'required' => true,
+            'name' => esc_html__( 'Choose terms label to return', 'super-forms' ), 
+            'type' => 'select',
+            'values' => array(
+                'names' => esc_html__( 'Names (default)', 'super-forms' ),
+                'slugs' => esc_html__( 'Slugs', 'super-forms' ),
+                'ids' => esc_html__( 'ID\'s', 'super-forms' ),
+            ),
+            'default'=> ( !isset( $value ) ? 'names' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_terms'
+        );
+    }
+    public static function sf_retrieve_method_post_terms_value($value, $parent){
+        return array(
+            'required' => true,
+            'name' => esc_html__( 'Choose terms value to return', 'super-forms' ), 
+            'type' => 'select',
+            'values' => array(
+                'names' => esc_html__( 'Names', 'super-forms' ),
+                'slugs' => esc_html__( 'Slugs (default)', 'super-forms' ),
+                'ids' => esc_html__( 'ID\'s', 'super-forms' ),
+            ),
+            'default'=> ( !isset( $value ) ? 'slugs' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'post_terms'
         );
     }
     public static function sf_retrieve_method_author_field($value, $parent){
@@ -5039,7 +5117,7 @@ class SUPER_Shortcodes {
             'default'=> ( !isset( $value ) ? 'category' : $value ),
             'filter'=>true,
             'parent'=>$parent,
-            'filter_value'=>'taxonomy'
+            'filter_value'=>'taxonomy,post_terms'
         );
     }
     public static function sf_retrieve_method_product_attribute($value, $parent){
