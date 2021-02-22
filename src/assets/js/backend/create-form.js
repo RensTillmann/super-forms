@@ -2263,7 +2263,11 @@
                             '1/4': 'super_one_fourth',
                             '1/5': 'super_one_fifth'
                         };
-                        $element.attr('class', 'super-element drop-here ' + $sizes[$fields.size] + ' editing');
+                        if ($fields.align_elements !== ''){
+                            $element.attr('class', 'super-element ' + $sizes[$fields.size] + ' super-column drop-here super-builder-align-inner-elements-' + $fields.align_elements + ' ui-sortable-handle editing');
+                        }else{
+                            $element.attr('class', 'super-element ' + $sizes[$fields.size] + ' super-column drop-here ui-sortable-handle editing');
+                        }
                         $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);
                     }
                     SUPER.regenerate_element_inner();

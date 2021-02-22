@@ -1,3 +1,7 @@
+Feb 22, 2020 - Version 1.8.7
+- Fix: Compatibility with latest WordPress version, E-mail verification broke,
+due to `action` POST parameter no longer available in latest WP version
+
 Oct 30, 2020 - Version 1.8.6
 - Fix: When using the option `Send activation email` we should also do a check on the `wp-login.php` form to make sure user can't login before they confirmed their email address with the activation code
 - Improved: Naming convention changed for setting `Send activation email` because it is conflicting with the `User status` setting. Renamed to `Send email confirmation/verification email`. Also updated the options to reflect this convention

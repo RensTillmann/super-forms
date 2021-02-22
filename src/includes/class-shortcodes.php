@@ -1271,6 +1271,10 @@ class SUPER_Shortcodes {
         }else{
             unset($data['minimized']);
         }
+        
+        if(!empty($data['align_elements'])){
+            $class .= ' super-builder-align-inner-elements-' . $data['align_elements'];
+        }
 
         $result = '';
         
@@ -2227,6 +2231,9 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
        
         if($atts['invisible']=='true') $atts['invisible'] = ' super-invisible';
+        if(!empty($atts['align_elements'])){
+            $atts['align_elements'] = ' super-align-inner-elements-' . $atts['align_elements'];
+        }
 
         // @since   1.3   - background color
         $styles = '';
@@ -2356,7 +2363,7 @@ class SUPER_Shortcodes {
 
         if( empty($atts['margin']) ) $atts['margin'] = '';
 
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= self::conditional_attributes( $atts );
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
