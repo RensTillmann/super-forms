@@ -4,6 +4,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 16, 2021 - Version 4.9.709
+
+- **Added:** New option for column element `Align inner elements` which allows you to center, left, right align directly inner elements
+
 ## Feb 12, 2021 - Version 4.9.708
 
 - **Added:** New `Retrieve method` called `Current Page or Post terms` for dropdown, radio, checkboxes to retrieve specific taxonomy terms based on the current page/post the form is on
