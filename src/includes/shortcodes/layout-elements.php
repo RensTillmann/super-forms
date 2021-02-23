@@ -108,6 +108,7 @@ $array['layout_elements'] = array(
                         ),
                         'invisible' => array(
                             'name' => esc_html__( 'Make column invisible', 'super-forms' ),
+                            'label' => esc_html__( 'Please note that elements inside a hidden column will still be submitted as data by default', 'super-forms' ),
                             'default' => (!isset($attributes['invisible']) ? '' : $attributes['invisible']),
                             'type' => 'select',
                             'values' => array(
@@ -115,9 +116,20 @@ $array['layout_elements'] = array(
                                 'true' => 'Yes',
                             )
                         ),
+                        'align_elements' => array(
+                            'name' => esc_html__( 'Align inner elements', 'super-forms' ),
+                            'default' => (!isset($attributes['align_elements']) ? '' : $attributes['align_elements']),
+                            'type' => 'select',
+                            'values' => array(
+                                '' => esc_html__( 'Default', 'super-forms' ),
+                                'center' => esc_html__( 'Center', 'super-forms' ),
+                                'left' => esc_html__( 'Left', 'super-forms' ),
+                                'right' => esc_html__( 'Right', 'super-forms' )
+                            )
+                        ),
                         'duplicate' => array(
                             'name' =>esc_html__( 'Enable Add More', 'super-forms' ),
-                            'desc' =>esc_html__( 'Let users duplicate the fields inside this column', 'super-forms' ),
+                            'label' =>esc_html__( 'Let users duplicate the fields inside this column', 'super-forms' ),
                             'default' => ( !isset( $attributes['duplicate'] ) ? '' : $attributes['duplicate'] ),
                             'type' => 'select',
                             'values' =>array(
@@ -128,7 +140,7 @@ $array['layout_elements'] = array(
                         ),
                         'duplicate_limit' => array(
                             'name' => esc_html__( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
-                            'desc' => esc_html__( 'The total of times a user can click the "+" icon', 'super-forms' ), 
+                            'label' => esc_html__( 'The total of times a user can click the "+" icon', 'super-forms' ), 
                             'type' => 'slider', 
                             'default' => ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
                             'min' => 0,
@@ -141,7 +153,7 @@ $array['layout_elements'] = array(
 
                         // @since 1.3
                         'duplicate_dynamically' => array(
-                            'desc' => esc_html__( 'When enabled this will update conditional logic, {tags} and variable fields dynamically', 'super-forms' ), 
+                            'label' => esc_html__( 'When enabled this will update conditional logic, {tags} and variable fields dynamically', 'super-forms' ), 
                             'default' => ( !isset( $attributes['duplicate_dynamically'] ) ? 'true' : $attributes['duplicate_dynamically'] ),
                             'type' => 'checkbox', 
                             'values' => array(
@@ -154,14 +166,14 @@ $array['layout_elements'] = array(
 
                         'label' => array(
                             'name' => esc_html__( 'Column Label', 'super-forms' ),
-                            'desc' => esc_html__( 'This makes it easier to keep track of your sections when building forms', 'super-forms' ),
+                            'label' => esc_html__( 'This makes it easier to keep track of your sections when building forms', 'super-forms' ),
                             'default' => ( !isset( $attributes['label'] ) ? 'Column' : $attributes['label'] )
                         ),
 
                         // @since 1.9
                         'class' => array(
                             'name' => esc_html__( 'Custom class', 'super-forms' ),
-                            'desc' => '(' . esc_html__( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
+                            'label' => '(' . esc_html__( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
                             'default' => ( !isset( $attributes['class'] ) ? '' : $attributes['class'] ),
                             'type' => 'text',
                         )

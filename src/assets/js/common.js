@@ -1386,9 +1386,6 @@ function SUPERreCaptcha(){
         }
     };
 
-    // @since 4.9.590 - increases form loading speed significantly when using many HTML elements that contain {tags}
-    SUPER.fieldValues = [];
-
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
         if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
@@ -1422,7 +1419,6 @@ function SUPERreCaptcha(){
             $element,
             $regex = /{([^\\\/\s"'+]*?)}/g;
 
-
         while (($match = $regex.exec(args.value)) !== null) {
             if($match[0]==='{}') continue;
             $array[$i] = $match[1];
@@ -1447,15 +1443,6 @@ function SUPERreCaptcha(){
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
             $old_name = $name;
             $options = $name.toString().split(';');
-
-            // @since 4.9.590
-            // Try to grab tag from local storage if it is stored, otherwise grab it new
-            // (increases form loading speed significantly when using many HTML elements that contain {tags})
-            // When a field is changed/updated it will be unset (reset)
-            if(typeof SUPER.fieldValues[$old_name] !== 'undefined'){
-                return SUPER.fieldValues[$old_name];
-            }
-
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
@@ -1717,10 +1704,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-        // @since 4.9.590
-        // Update the fieldValues array
-        // (increases form loading speed significantly when using many HTML elements that contain {tags})
-        SUPER.fieldValues[$old_name] = args.value;
         return args.value;
     };
 
@@ -1874,12 +1857,12 @@ function SUPERreCaptcha(){
         //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
         //         disableDefaultUI: false
         //     });
-        //     var children = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+        //     var children = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelectorAll(':scope > div');
         //     for(var x=0; x < children.length; x++){
         //         children[x].style.width = '';
         //         if(children[x].classList.contains('super-google-map-directions')){
         //             children[x].style.overflowY = 'scroll';
-        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i].__gm.Na.offsetHeight+'px';
+        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelector('super-google-map-'+$form_id).offsetHeight+'px';
         //         }
         //     }
         // }
@@ -2105,7 +2088,7 @@ function SUPERreCaptcha(){
                 SUPER.google_maps_api.allMaps[formId][i].setOptions({
                     disableDefaultUI: true
                 });
-                nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+                nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
                 for(var x=0; x < nodes.length; x++){
                     nodes[x].style.width = '100%';
                     if(nodes[x].classList.contains('super-google-map-directions')){
@@ -3322,11 +3305,6 @@ function SUPERreCaptcha(){
                 }else{
                     args.el.closest('.super-shortcode').classList.add('super-filled');
                 }
-                // @since 4.9.590 - unset remembered values, which speeds things up
-                if(typeof SUPER.fieldValues[args.el.name] !== 'undefined'){ delete SUPER.fieldValues[args.el.name]; }
-                if(typeof SUPER.fieldValues[args.el.name+';label'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';label']; }
-                if(typeof SUPER.fieldValues[args.el.name+';var'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';var']; }
-                if(typeof SUPER.fieldValues[args.el.name+';int'] !== 'undefined'){ delete SUPER.fieldValues[args.el.name+';int']; }
             }
         }
         return args;
@@ -4354,6 +4332,7 @@ function SUPERreCaptcha(){
                     disableDefaultUI: ('true' === $disableDefaultUI),
                     //mapTypeId: \'terrain\'
                 });
+                SUPER.google_maps_api.allMaps[$form_id][key]['super_el'] = $maps[key];
                 //SUPER.google_maps_api.allMaps[formId][i].setOptions({
                 //});
 
@@ -4466,7 +4445,7 @@ function SUPERreCaptcha(){
                 var directionsRenderer = new google.maps.DirectionsRenderer({
                     draggable: true,
                     map: SUPER.google_maps_api.allMaps[$form_id][key],
-                    panel: ($directionsPanel=='true' ? document.querySelector('.super-google-map-'+$form_id).parentNode.querySelector('.super-google-map-directions') : null)
+                    panel: ($directionsPanel=='true' ? SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelector('.super-google-map-directions') : null)
                     // panel: document.getElementById('right-panel')
                 });
                 //directionsRenderer.setMap($map);
@@ -5220,7 +5199,14 @@ function SUPERreCaptcha(){
             if( $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
                 $html = $target.dataset.original;
             }else{
+                if(!$target.parentNode.querySelector('textarea')){
+                    return true;
+                }
                 $html = $target.parentNode.querySelector('textarea').value;
+            }
+            // If empty skip
+            if($html===''){
+                return true;
             }
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
@@ -6897,7 +6883,7 @@ function SUPERreCaptcha(){
             ///// First disable the UI on the map for nicer print of the map
             ///// And make map fullwidth and directions fullwidth
             ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-            ///    nodes = SUPER.google_maps_api.allMaps[formId][i].__gm.Na.parentNode.querySelectorAll(':scope > div');
+            ///    nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
             ///    for(var x=0; x < nodes.length; x++){
             ///        nodes[x].style.width = '100%';
             ///        if(nodes[x].classList.contains('super-google-map-directions')){

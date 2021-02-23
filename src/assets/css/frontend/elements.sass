@@ -5063,3 +5063,46 @@ ul.super-multipart-steps .super-multipart-step
         padding: 10px 38px 10px 38px
         height: initial
         line-height: initial
+
+// Front-end center elements
+.super-column
+  &.super-align-inner-elements-left,
+  &.super-align-inner-elements-center,
+  &.super-align-inner-elements-right
+    display: flex
+    justify-content: center
+    flex-direction: column
+    > .super-shortcode.super-field
+        width: auto!important
+.super-align-inner-elements-left
+  > .super-shortcode.super-field
+    margin-right: auto
+.super-align-inner-elements-center
+  > .super-shortcode.super-field
+    margin-left: auto
+    margin-right: auto
+.super-align-inner-elements-right
+  > .super-shortcode.super-field
+    margin-left: auto
+
+// Backend center elements
+.super-column
+  &.super-builder-align-inner-elements-left,
+  &.super-builder-align-inner-elements-center,
+  &.super-builder-align-inner-elements-right
+    > .super-element-inner > .super-element > .super-element-inner
+      display: flex
+      justify-content: center
+      flex-direction: column
+      > .super-shortcode.super-field
+        width: auto!important
+.super-column.super-builder-align-inner-elements-left
+  > .super-element-inner > .super-element > .super-element-inner > .super-shortcode.super-field
+    margin-right: auto
+.super-column.super-builder-align-inner-elements-center
+  > .super-element-inner > .super-element > .super-element-inner > .super-shortcode.super-field
+    margin-left: auto
+    margin-right: auto
+.super-column.super-builder-align-inner-elements-right
+  > .super-element-inner > .super-element > .super-element-inner > .super-shortcode.super-field
+    margin-left: auto

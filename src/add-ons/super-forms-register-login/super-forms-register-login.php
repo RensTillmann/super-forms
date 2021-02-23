@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Register & Login
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.8.6
+ * Version:     1.8.7
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.8.6';
+        public $version = '1.8.7';
 
 
         /**
@@ -313,7 +313,7 @@ if(!class_exists('SUPER_Register_Login')) :
             }else{
                 // Check if user has not activated their account yet
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
-                if(isset($_POST['action']) && $_POST['action']!=='super_send_email'){
+                if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_send_email')){
                     if( $status!=1 && $status!=='' ) {
                         remove_action('authenticate', 'wp_authenticate_username_password', 20);
                         $user = new WP_Error( 'account_not_active', esc_html__( 'You haven\'t verified your email address yet. Please check your email!' ) );
@@ -1389,7 +1389,7 @@ if(!class_exists('SUPER_Register_Login')) :
                             $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings, $user );
                         }else{
                             $urlparts = parse_url(home_url());
-                            $from = 'no-replyy@' . $urlparts['host']; // returns domain name
+                            $from = 'no-reply@' . $urlparts['host']; // returns domain name
                         }
                         if(!empty($settings['header_from_name'])){
                             $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings, $user );
