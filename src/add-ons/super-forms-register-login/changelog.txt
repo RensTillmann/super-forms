@@ -1,4 +1,4 @@
-Feb 22, 2020 - Version 1.8.7
+Feb 22, 2021 - Version 1.8.7
 - Fix: Compatibility with latest WordPress version, E-mail verification broke,
 due to `action` POST parameter no longer available in latest WP version
 
