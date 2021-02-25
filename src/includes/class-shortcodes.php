@@ -1777,6 +1777,8 @@ class SUPER_Shortcodes {
                 $enclosure = '"';
                 if( !empty( $atts['conditional_variable_delimiter'] ) ) $delimiter = $atts['conditional_variable_delimiter'];
                 if( !empty( $atts['conditional_variable_enclosure'] ) ) $enclosure = stripslashes($atts['conditional_variable_enclosure']);
+                if(strlen($delimiter)!==1) $delimiter = ',';
+                if(strlen($enclosure)!==1) $enclosure = '"';
                 $file = get_attached_file($atts['conditional_variable_csv']);
                 $rows = array();
                 $conditions = array();
