@@ -19,6 +19,7 @@
                 }else{
                     node.classList.add('sfui-active');
                 }
+                e.preventDefault();
                 return false;
             }
             if(action==='addRepeaterItem'){
@@ -32,6 +33,7 @@
                 if(el.closest('.sfui-repeater').querySelectorAll(':scope > .sfui-repeater-item').length>1){
                     el.closest('.sfui-repeater-item').remove();
                 }
+                e.preventDefault();
                 return false;
             }
         },
