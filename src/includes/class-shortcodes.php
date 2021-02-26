@@ -1300,7 +1300,7 @@ class SUPER_Shortcodes {
                         $label = $data['label'];
                     } 
                     $result .= '<span>'.$label.'</span>';
-                    $result .= '<input type="text" value="'.$label.'" />';
+                    $result .= '<input type="text" value="'.esc_attr($label).'" />';
                     $result .= '</div>';
                 }
                 if($tag=='column'){
@@ -1610,8 +1610,7 @@ class SUPER_Shortcodes {
                 $result .= ' max="' . esc_attr($atts['maxlength']) . '" data-maxlength="' . esc_attr($atts['maxlength']) . '"';
             }
             $result .= ' min="' . esc_attr($atts['minlength']) . '" data-minlength="' . esc_attr($atts['minlength']) . '"';
-        }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {
-            
+        }elseif( ($tag=='dropdown') || ($tag=='checkbox') || ($tag=='radio') ) {    
             // @since 1.2.7
             if( !empty($atts['admin_email_value']) && $atts['admin_email_value']!='value' ) {
                 $result .= ' data-admin-email-value="' . esc_attr($atts['admin_email_value']) . '"';
@@ -1636,7 +1635,7 @@ class SUPER_Shortcodes {
             }
 
         }else{
-            if($tag=='date'){
+            if($tag=='date' || $tag=='time'){
                 if( $atts['maxlength']!='' ) {
                     $result .= ' data-maxlength="' . esc_attr($atts['maxlength']) . '"';
                 }
@@ -2585,7 +2584,7 @@ class SUPER_Shortcodes {
             $atts['value'] = $atts['maxnumber'];
         }
 
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-steps="' . $atts['steps'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '" data-steps="' . $atts['steps'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -2651,15 +2650,15 @@ class SUPER_Shortcodes {
 
         $result .= '<div class="super-toggle-switch ' . ( $toggle_active ? 'super-active' : '' ) . '">';
             $result .= '<div class="super-toggle-group">';
-                $result .= '<label class="super-toggle-on" data-value="' . $atts['on_value'] . '"><span>' . $atts['on_label'] . '</span></label>';
-                $result .= '<label class="super-toggle-off" data-value="' . $atts['off_value'] . '"><span>' . $atts['off_label'] . '</span></label>';
+                $result .= '<label class="super-toggle-on" data-value="' . esc_attr($atts['on_value']) . '"><span>' . $atts['on_label'] . '</span></label>';
+                $result .= '<label class="super-toggle-off" data-value="' . esc_attr($atts['off_value']) . '"><span>' . $atts['off_label'] . '</span></label>';
                 $result .= '<span class="super-toggle-handle"></span>';
             $result .= '</div>';
         $result .= '</div>';
 
         if( !isset($atts['class']) ) $atts['class'] = '';
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="hidden"';
-        $result .= ' name="' . $atts['name'] . '" value="' . ( $toggle_active ? $atts['on_value'] : $atts['off_value'] ) . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . ( $toggle_active ? esc_attr($atts['on_value']) : esc_attr($atts['off_value']) ) . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -2722,7 +2721,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         $result .= '</div>';
@@ -2764,7 +2763,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="text"';
 
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-steps="' . $atts['steps'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -2804,7 +2803,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="tel"';
-        $result .= ' name="' . $atts['name'] . '" value="' . $atts['value'] . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
+        $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '" data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-currency="' . $atts['currency'] . '" data-format="' . $atts['format'] . '"';
 
         // @since 4.2.0 - custom threshold to trigger hooks
         if( !empty($atts['threshold']) ) {
@@ -2814,7 +2813,7 @@ class SUPER_Shortcodes {
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
-        $result .= '<input type="hidden" value="' . str_replace($atts['thousand_separator'], "", $atts['value']) . '" />';
+        $result .= '<input type="hidden" value="' . esc_attr(str_replace($atts['thousand_separator'], "", $atts['value'])) . '" />';
         
         // @since 4.9.3 - Adaptive placeholders
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
@@ -2949,7 +2948,7 @@ class SUPER_Shortcodes {
 
         $result .= ' name="' . $atts['name'] . '"';
         if( $atts['value']!=='' ) {
-            $result .= ' value="' . $atts['value'] . '"';
+            $result .= ' value="' . esc_attr($atts['value']) . '"';
         }
 
         // @since 2.2.0   - search / populate with contact entry data
@@ -3375,7 +3374,7 @@ class SUPER_Shortcodes {
         $result .= ($atts['class']!='' ? ' ' . $atts['class'] : '');
         $result .= '"';
         $result .= ($atts['enable_distance_calculator']=='true' ? $data_attributes : '');
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . esc_attr($atts['value']) . '"';
 
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
@@ -3486,7 +3485,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . implode(',',$selected_items) . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . esc_attr(implode(',',$selected_items)) . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -3572,7 +3571,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . $atts['value'] . '"';
+        $result .= ' name="' . esc_attr( $atts['name'] ) . '" value="' . esc_attr($atts['value']) . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -3884,7 +3883,6 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-        
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3908,7 +3906,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
+        $result .= ' value="' . esc_attr($atts['value']) . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
         
@@ -3946,7 +3944,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= '<input class="super-shortcode-field super-star-rating" type="hidden"';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
+        $result .= ' value="' . esc_attr($atts['value']) . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -3977,7 +3975,7 @@ class SUPER_Shortcodes {
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $multiple = ' multiple';
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
+        $result .= ' value="' . esc_attr($atts['value']) . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -4039,7 +4037,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
         $result .= '<input class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="password"';
-        $result .= ' value="' . $atts['value'] . '" name="' . $atts['name'] . '"';
+        $result .= ' value="' . esc_attr($atts['value']) . '" name="' . $atts['name'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
 
@@ -4096,7 +4094,7 @@ class SUPER_Shortcodes {
 
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
-        $result .= ' value="' . $atts['value'] . '" data-default-value="' . $atts['value'] . '" data-absolute-default="' . $atts['value'] . '"';
+        $result .= ' value="' . esc_attr($atts['value']) . '" data-default-value="' . esc_attr($atts['value']) . '" data-absolute-default="' . esc_attr($atts['value']) . '"';
         if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
         if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
         if( !empty($atts['exclude_entry']) ) $result .= ' data-exclude-entry="' . $atts['exclude_entry'] . '"';
@@ -5744,7 +5742,7 @@ class SUPER_Shortcodes {
                             $result .= '<div class="super-dropdown-placeholder"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $default_language['flag'] . '" /></div>';
                             $result .= '<ul class="super-dropdown-items">';
                                 foreach($translations as $tk => $tv){
-                                    $result .= '<li class="super-item' . ($tv['flag']==$default_language['flag'] ? ' super-active' : '') . '" data-value="' . $tk . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $tv['flag'] . '" /></li>';
+                                    $result .= '<li class="super-item' . ($tv['flag']==$default_language['flag'] ? ' super-active' : '') . '" data-value="' . esc_attr($tk) . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $tv['flag'] . '" /></li>';
                                 }
                             $result .= '</ul>';
                         $result .= '</div>';
@@ -5901,7 +5899,7 @@ class SUPER_Shortcodes {
         
         // @since 4.6.0 - add nonce field
         $super_ajax_nonce = wp_create_nonce( 'super_submit_' . $form_id );
-        $result .= '<input type="hidden" name="super_ajax_nonce" value="' . $super_ajax_nonce . '" />';
+        $result .= '<input type="hidden" name="super_ajax_nonce" value="' . esc_attr($super_ajax_nonce) . '" />';
 
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
@@ -5910,7 +5908,7 @@ class SUPER_Shortcodes {
         $result = apply_filters( 'super_form_before_first_form_element_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
         $result .= '<div class="super-shortcode super-field super-hidden">';
-        $result .= '<input class="super-shortcode-field" type="hidden" value="' . $form_id . '" name="hidden_form_id" />';
+        $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($form_id) . '" name="hidden_form_id" />';
         $result .= '</div>';
 
         // Grab all form elements
@@ -5929,7 +5927,7 @@ class SUPER_Shortcodes {
             preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
             if(empty($matches)){
                 $result .= '<div class="super-shortcode super-field super-hidden">';
-                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . $contact_entry_id . '" name="hidden_contact_entry_id" />';
+                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
                 $result .= '</div>';
             }
         }
