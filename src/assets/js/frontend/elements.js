@@ -635,7 +635,9 @@
             // Only if timepicker is a function
             if (typeof $.fn.timepicker !== 'function') return false;
             var $this = $(this),
-                $is_rtl = $this.closest('.super-form').hasClass('super-rtl'),
+                form = SUPER.get_frontend_or_backend_form({el: this}),
+                regex = /{([^\\\/\s"'+]*?)}/g,
+                $is_rtl = form.classList.contains('super-rtl'),
                 $orientation = 'l',
                 format = $this.data('format'),
                 step = $this.data('step'),
@@ -649,17 +651,41 @@
 
             if(min==='') min = '00:00';
             if(max==='') max = '23:59';
+            if(typeof min !== 'undefined') {
+                min = min.toString();
+                min = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: min});
+                if(min.indexOf(':')===-1){
+                    if(min !== parseInt(min, 10)){
+                        min = parseInt(min, 10);
+                        var prevMin = min - (min % (step*60));
+                        min = prevMin + 1800;
+                    }
+                }
+            }
+            if(typeof max !== 'undefined') {
+                max = max.toString();
+                max = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: max});
+                if(max.indexOf(':')===-1){
+                    if(max !== parseInt(max, 10)){
+                        max = parseInt(max, 10);
+                        var prevMax = max - (max % (step*60));
+                        max = prevMax + 1800;
+                    }
+                }
+            }
             if((range!=='') && (typeof range !== 'undefined')){
                 range = range.split('\n');
                 $.each(range, function(key, value ) {
                     finalrange.push(value.split('|'));
                 });
             }
-            $form_id = $this.closest('.super-form').attr('id');
-            $form_size = $this.closest('.super-form').data('field-size');
+            $form_id = form.id;
+            $form_size = form.dataset.fieldSize;
             if($is_rtl===true){
                 $orientation = 'r';
             }
+
+
             $this.timepicker({
                 className: $form_id+' super-timepicker-dialog super-field-size-'+$form_size,
                 timeFormat: format,

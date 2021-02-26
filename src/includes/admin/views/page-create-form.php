@@ -187,8 +187,8 @@
             <input type="text" name="title" class="form-name super-tooltip" title="<?php echo esc_attr__( 'Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . $form_id . '"]\' />';
-                echo '<input type="hidden" name="form_id" value="' . $form_id . '" />';
+                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . absint($form_id) . '"]\' />';
+                echo '<input type="hidden" name="form_id" value="' . absint($form_id) . '" />';
             }else{
                 echo '<input type="hidden" name="form_id" value="" />';
                 echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Please save your form first!', 'super-forms' ) . '" value="[form-not-saved-yet]" />';

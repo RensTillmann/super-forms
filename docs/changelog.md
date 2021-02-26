@@ -4,34 +4,21 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 16, 2021 - Version 4.9.709
+## Feb 26, 2021 - Version 4.9.711
+
+- **Added:** Option to use `{tags}` for `Time picker` settings `The time that should appear first in the dropdown list (Minimum Time)` and `The time that should appear last in the dropdown list (Maximum Time)` which makes it possible to retrieve a "manipulated" timestamp which could for instance be set 6 hours in the future based on the current time. This can be used in combination with the `Calculator Add-on` demo form available here: [Dynamic time picker that is always 6 hours in the future](https://webrehab.zendesk.com/hc/en-gb/articles/360018108338)
+
+## Feb 26, 2021 - Version 4.9.710
 
 - **Added:** New option for column element `Align inner elements` which allows you to center, left, right align directly inner elements
-
-## Feb 12, 2021 - Version 4.9.708
-
 - **Added:** New `Retrieve method` called `Current Page or Post terms` for dropdown, radio, checkboxes to retrieve specific taxonomy terms based on the current page/post the form is on
-
-## Feb 11, 2021 - Version 4.9.707
-
-- **Fix:** JavaScript error when using Google Map in combination with PDF Generator Add-on
 - **Added:** Predefined tags `{post_term_names_****}`, `{post_term_slugs_****}`, `{post_term_ids_****}`. This way you can retrieve specific terms based on taxonomy. For instance to retrieve category names of a post you could use `{post_term_names_category}`
-
-## Feb 11, 2021 - Version 4.9.706
-
-- **Fix:** Undo code that would speed up form loading time when using a lot of HTML elements with tags, however this code caused issues when using variable fields. Temporarily disabled / undo the code until we find a work-around or alternative
-
-## Feb 09, 2021 - Version 4.9.705
-
-- **Fix:** A recent speed improvement in the code caused issues with variable fields that contains more than one {tag} as value. Only the first {tag} would be replaced with a value, skipping any other {tags}.
-
-## Feb 02, 2021 - Version 4.9.704
-
 - **Added:** When `Prevent submitting form when entry title already exists` is enabled there is an extra option called `Also compare against trashed contact entries` which allows you to also check against possible trashed contact entries
 - **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator under `Advanced` tab
-
-## Jan 30, 2021 - Version 4.9.703
-
+- **Improved:** Add missing escaped attributes
+- **Fix:** JavaScript error when using Google Map in combination with PDF Generator Add-on
+- **Fix:** Undo code that would speed up form loading time when using a lot of HTML elements with tags, however this code caused issues when using variable fields. Temporarily disabled / undo the code until we find a work-around or alternative
+- **Fix:** A recent speed improvement in the code caused issues with variable fields that contains more than one {tag} as value. Only the first {tag} would be replaced with a value, skipping any other {tags}.
 - **Fix:** Arbitrary File Upload to Remote Code Execution
 - **Fix:** When saving contact entry with default title, make sure there is a space between the entry ID and the title
 
