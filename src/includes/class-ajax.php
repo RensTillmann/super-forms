@@ -932,7 +932,7 @@ class SUPER_Ajax {
         }
         
         // Delete old files
-        $file_location = '/u/f/super-contact-entries-*.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         $files = glob($source);
         foreach($files as $v){
@@ -941,7 +941,7 @@ class SUPER_Ajax {
             }
         }
         // Save new file
-        $file_location = '/u/f/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -1353,7 +1353,7 @@ class SUPER_Ajax {
         $export = '<html>'.maybe_serialize($export);
         $filename = $title.'-super-forms-export.html';
         $filename = sanitize_file_name($filename);
-        $file_location = '/u/f/'.$filename;
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/' . $filename;
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         file_put_contents($source, $export);
         echo SUPER_PLUGIN_FILE . $file_location;
@@ -1457,7 +1457,7 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function export_forms() {
-        $file_location = '/u/f/super-forms-export.html';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-forms-export.html';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         ini_set('max_execution_time', 0);
         global $wpdb;
@@ -1653,7 +1653,7 @@ class SUPER_Ajax {
         }
 
         // Delete old files
-        $file_location = '/u/f/super-contact-entries-*.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         $files = glob($source);
         foreach($files as $v){
@@ -1662,7 +1662,7 @@ class SUPER_Ajax {
             }
         }
         // Save new file
-        $file_location = '/u/f/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -2372,7 +2372,7 @@ class SUPER_Ajax {
                                     $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
                                     $imgData = base64_decode( $imgData );
                                     // Path where the image is going to be saved
-                                    $folder = SUPER_PLUGIN_DIR . '/u/f';
+                                    $folder = SUPER_PLUGIN_DIR . '/' . SUPER_PHP_UPLOAD_DIR;
                                     $folderResult = SUPER_Common::generate_random_folder($folder);
                                     $folderPath = $folderResult['folderPath'];
                                     $folderName = $folderResult['folderName'];
@@ -2399,7 +2399,7 @@ class SUPER_Ajax {
                             // Exclude files that are being uploaded for the first time
                             // They will be in the "u" directory
                             $file = $value['url'];
-                            if(!strpos($file, 'u/f')) {
+                            if(!strpos($file, SUPER_PHP_UPLOAD_DIR)) {
                                 $file_headers = @get_headers($file);
                                 if($file_headers && $file_headers[0] != '404') {
                                     continue;
@@ -2414,7 +2414,7 @@ class SUPER_Ajax {
                             if( ($file=='') || ($folder=='') ) continue;
 
                             // Get source file
-                            $sourcePath = SUPER_PLUGIN_DIR . '/u/f/' . $folder . '/' . $file;
+                            $sourcePath = SUPER_PLUGIN_DIR . '/'.SUPER_PHP_UPLOAD_DIR.'/' . $folder . '/' . $file;
                             $sourcePath = urldecode( $sourcePath );
                             // Determine location to store the file
                             $wp_upload_dir = wp_upload_dir();

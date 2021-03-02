@@ -168,6 +168,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_API_VERSION', $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
             $this->define( 'SUPER_FORMS_UPLOAD_DIR', apply_filters( 'super_forms_upload_dir_filter', str_replace(ABSPATH, '', WP_CONTENT_DIR) . '/uploads/superforms' ) );
+            $this->define( 'SUPER_PHP_UPLOAD_DIR', 'u/f' );
             
         }
 
