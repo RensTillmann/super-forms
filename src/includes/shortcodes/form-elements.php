@@ -644,12 +644,28 @@ $array['form_elements'] = array(
                         ),
                         'address_api_countries' => array(
                             'name' => esc_html__( 'Restrict result by countrie(s)', 'super-forms' ),
-                            'label' => esc_html__( 'Countries must be passed as a two character, ISO 3166-1 Alpa-2 compatible country code. You can filter by up to 5 countries. Seperated by comma. For example: fr,nl,de would restrict your results to places within France, Netherlands and Germany. While us,pr,vi,gu,mp would restrict your results to places within the United States and its unincorporated organized territories.', 'super-forms' ),
+                            'label' => esc_html__( 'Only search for results within the provided countries. Countries must be passed as a two character, ISO 3166-1 Alpa-2 compatible country code. You can filter by up to 5 countries. Seperated by comma. For example: fr,nl,de would restrict your results to places within France, Netherlands and Germany. While us,pr,vi,gu,mp would restrict your results to places within the United States and its unincorporated organized territories.', 'super-forms' ),
                             'default'=> ( !isset( $attributes['address_api_countries'] ) ? '' : $attributes['address_api_countries'] ),
                             'filter'=>true,
                             'parent'=>'enable_address_auto_complete',
                             'filter_value'=>'true',
                             'required'=>true,
+                        ),
+                        'address_api_region' => array(
+                            'name' => esc_html__( 'Region', 'super-forms' ),
+                            'label' => esc_html__( 'This will prioritize search result within the provided region. The region parameter accepts Unicode region subtag identifiers which (generally) have a one-to-one mapping to country code Top-Level Domains (ccTLDs). Most Unicode region identifiers are identical to ISO 3166-1 codes, with some notable exceptions. For example, Great Britain\'s ccTLD is "uk" (corresponding to the domain .co.uk) while its region identifier is "GB".', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['address_api_region'] ) ? '' : $attributes['address_api_region'] ),
+                            'filter'=>true,
+                            'parent'=>'enable_address_auto_complete',
+                            'filter_value'=>'true'
+                        ),
+                        'address_api_language' => array(
+                            'name' => esc_html__( 'Language', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'List of supported language codes: %sSupported Languages%s', 'super-forms' ), '<a href="https://developers.google.com/maps/faq?hl=nl#languagesupport">', '</a>'),
+                            'default'=> ( !isset( $attributes['address_api_language'] ) ? 'en' : $attributes['address_api_language'] ),
+                            'filter'=>true,
+                            'parent'=>'enable_address_auto_complete',
+                            'filter_value'=>'true'
                         ),
                         'enable_address_auto_populate' => array(
                             'desc' => esc_html__( 'Auto populate data with fields', 'super-forms' ), 
