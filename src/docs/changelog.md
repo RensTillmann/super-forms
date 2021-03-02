@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 02, 2021 - Version 4.9.712
+
+- **Added:** Options to define the `region` and `language` for the Googla Maps API. This will affect the `Google Map` element, `Address autocomplete` and `Distance calculation` features
+- **Fix:** Some hosts use a firewall rule that didn't allow to upload files due to it being uploaded inside a folder called `uploads` and `files` (uploads/php/files). This is now changed to (u/f) which solves a 403 error returned by the host
+
 ## Feb 26, 2021 - Version 4.9.711
 
 - **Added:** Option to use `{tags}` for `Time picker` settings `The time that should appear first in the dropdown list (Minimum Time)` and `The time that should appear last in the dropdown list (Maximum Time)` which makes it possible to retrieve a "manipulated" timestamp which could for instance be set 6 hours in the future based on the current time. This can be used in combination with the `Calculator Add-on` demo form available here: [Dynamic time picker that is always 6 hours in the future](https://webrehab.zendesk.com/hc/en-gb/articles/360018108338)

@@ -4665,13 +4665,17 @@ function SUPERreCaptcha(){
     };
 
     SUPER.google_maps_api.initAutocomplete = function(args){
-        var field, items = args.form.querySelectorAll('.super-address-autopopulate:not(.super-autopopulate-init)');
+        var url, field, items = args.form.querySelectorAll('.super-address-autopopulate:not(.super-autopopulate-init)');
         Object.keys(items).forEach(function(key) {
             field = items[key];
             field.classList.add('super-autopopulate-init');
             args.el = field;
             if(typeof google === 'undefined'){
-                $.getScript( '//maps.googleapis.com/maps/api/js?key='+field.dataset.apiKey+'&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', function() {
+                url = '//maps.googleapis.com/maps/api/js?';
+                if(field.dataset.apiRegion!=='') url += 'region='+field.dataset.apiRegion+'&';
+                if(field.dataset.apiLanguage!=='') url += 'language='+field.dataset.apiLanguage+'&';
+                url += 'key='+field.dataset.apiKey+'&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init'
+                $.getScript( url, function() {
                     SUPER.google_maps_api.initAutocompleteCallback(args);
                 });
             }else{

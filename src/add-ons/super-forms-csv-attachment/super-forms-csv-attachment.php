@@ -252,7 +252,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                         }
                     }
                 }
-                $file_location = '/uploads/php/files/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
+                $file_location = '/u/f/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
                 $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
                 if( file_exists( $source ) ) {
                     SUPER_Common::delete_file( $source );

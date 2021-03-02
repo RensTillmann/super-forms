@@ -2877,9 +2877,39 @@ class SUPER_Shortcodes {
                     if( $v['field']!='' ) $address_auto_complete_attr .= ' data-map-' . $v['key'] . '="' . $v['field'] . '|' . $v['type'] . '"';
                 }
             }
-            if( !isset( $atts['address_api_key'] ) ) $atts['address_api_key'] = '';
-            $address_auto_complete_attr .= ' data-api-key="' . $atts['address_api_key'] . '"';
-            wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+            // If API key is empty, try to grab it from global settings
+            if(empty($atts['address_api_key'])){
+                $global_settings = SUPER_Common::get_global_settings();
+                if( !empty($global_settings['form_google_places_api']) ) {
+                    $atts['address_api_key'] = $global_settings['form_google_places_api'];
+                }
+            }
+            if(empty($atts['address_api_language'])){
+                $global_settings = SUPER_Common::get_global_settings();
+                if( !empty($global_settings['google_maps_api_language']) ) {
+                    $atts['address_api_language'] = $global_settings['google_maps_api_language'];
+                }
+            }
+            if(empty($atts['address_api_region'])){
+                $global_settings = SUPER_Common::get_global_settings();
+                if( !empty($global_settings['google_maps_api_region']) ) {
+                    $atts['address_api_region'] = $global_settings['google_maps_api_region'];
+                }
+            }
+            $url = '//maps.googleapis.com/maps/api/js?';
+            if( !empty( $atts['address_api_key'] ) ) {
+                $address_auto_complete_attr .= ' data-api-key="' . $atts['address_api_key'] . '"';
+            }
+            if( !empty( $atts['address_api_language'] ) ) {
+                $address_auto_complete_attr .= ' data-api-language="' . $atts['address_api_language'] . '"';
+                $url .= 'language='.$atts['address_api_language'].'&';
+            }
+            if( !empty( $atts['address_api_region'] ) ) {
+                $address_auto_complete_attr .= ' data-api-region="' . $atts['address_api_region'] . '"';
+                $url .= 'region='.$atts['address_api_region'].'&';
+            }
+            $url .= 'key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+            wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
         }
 
         // @since   1.2.4 - auto suggest feature
@@ -3683,7 +3713,7 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= '<input class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'uploads/php/"';
+        $result .= '<input class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'u/"';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
@@ -4428,7 +4458,15 @@ class SUPER_Shortcodes {
 
         $map_styles = 'min-height:' . $atts['min_height'] . 'px;';
         if(empty($atts['api_key'])) $atts['api_key'] = '';
-        wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+        $url = '//maps.googleapis.com/maps/api/js?';
+        if( !empty( $atts['api_region'] ) ){
+            $url .= 'region='.$atts['api_region'].'&';
+        }
+        if( !empty( $atts['api_language'] ) ){
+            $url .= 'language='.$atts['api_language'].'&';
+        }
+        $url .= 'key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+        wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
 
         // Add field attributes if {tags} are being used
         $field_names = array();
