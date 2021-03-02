@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.709
+ * Version:     4.9.712
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.709';
+        public $version = '4.9.712';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -168,6 +168,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_API_VERSION', $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
             $this->define( 'SUPER_FORMS_UPLOAD_DIR', apply_filters( 'super_forms_upload_dir_filter', str_replace(ABSPATH, '', WP_CONTENT_DIR) . '/uploads/superforms' ) );
+            $this->define( 'SUPER_PHP_UPLOAD_DIR', 'u/f' );
             
         }
 
@@ -1222,8 +1223,8 @@ if(!class_exists('SUPER_Forms')) :
             if( $post_type=='super_contact_entry') {
                 $from = ( isset( $_GET['sffrom'] ) && $_GET['sffrom'] ) ? $_GET['sffrom'] : '';
                 $to = ( isset( $_GET['sfto'] ) && $_GET['sfto'] ) ? $_GET['sfto'] : '';
-                echo '<input autocomplete="false" type="text" name="sffrom" placeholder="Date From" value="' . $from . '" />';
-                echo '<input autocomplete="false" type="text" name="sfto" placeholder="Date To" value="' . $to . '" />';
+                echo '<input autocomplete="false" type="text" name="sffrom" placeholder="Date From" value="' . esc_attr($from) . '" />';
+                echo '<input autocomplete="false" type="text" name="sfto" placeholder="Date To" value="' . esc_attr($to) . '" />';
             }
         }
 
@@ -1563,9 +1564,16 @@ if(!class_exists('SUPER_Forms')) :
                 }
                 // @since 3.1.0 - google maps API places library
                 if( !empty($settings['form_google_places_api']) ) {
-                    wp_enqueue_script( 'google-maps-api', '//maps.googleapis.com/maps/api/js?key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init', array( 'super-common' ), SUPER_VERSION, false );
+                    $url = '//maps.googleapis.com/maps/api/js?';
+                    if( !empty( $settings['google_maps_api_region'] ) ){
+                        $url .= 'region='.$settings['google_maps_api_region'].'&';
+                    }
+                    if( !empty( $settings['google_maps_api_language'] ) ){
+                        $url .= 'language='.$settings['google_maps_api_language'].'&';
+                    }
+                    $url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+                    wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
                 }
-
 
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
                 wp_enqueue_script( 'jquery-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );

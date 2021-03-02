@@ -602,6 +602,17 @@ $array['html_elements'] = array(
                             'desc' => esc_html__( 'Required to do API calls to retrieve data', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['api_key'] ) ? '' : $attributes['api_key'] ),
                         ),
+                        'api_region' => array(
+                            'name' => esc_html__( 'Region', 'super-forms' ),
+                            'label' => esc_html__( 'The region code to use. This alters the map\'s behavior based on a given country or territory. The region parameter accepts Unicode region subtag identifiers which (generally) have a one-to-one mapping to country code Top-Level Domains (ccTLDs). Most Unicode region identifiers are identical to ISO 3166-1 codes, with some notable exceptions. For example, Great Britain\'s ccTLD is "uk" (corresponding to the domain .co.uk) while its region identifier is "GB".', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['api_region'] ) ? '' : $attributes['api_region'] ),
+                        ),
+                        'api_language' => array(
+                            'name' => esc_html__( 'Language', 'super-forms' ),
+                            'label' => sprintf( esc_html__( 'The language to use. This affects the names of controls, copyright notices, driving directions, and control labels, as well as the responses to service requests. List of supported language codes: %sSupported Languages%s', 'super-forms' ), '<a href="https://developers.google.com/maps/faq?hl=nl#languagesupport">', '</a>'),
+                            'default'=> ( !isset( $attributes['api_language'] ) ? 'en' : $attributes['api_language'] ),
+                        ),
+
                         // Address Marker location
                         'address' => array(
                             'name' => esc_html__( 'Map address (location)', 'super-forms' ), 

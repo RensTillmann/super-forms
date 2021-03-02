@@ -657,18 +657,16 @@ class SUPER_Ajax {
     */
     public static function calculate_distance() {
         global $wpdb;
-   
         $units = sanitize_text_field($_POST['units']);
-        $q = '';
-        if($units=='imperial') $q = '&units=imperial';
-   
+        $url = 'https://maps.googleapis.com/maps/api/directions/json?';
         $origin = sanitize_text_field($_POST['origin']);
         $destination = sanitize_text_field($_POST['destination']);
-        $url = 'https://maps.googleapis.com/maps/api/directions/json?gl=uk' . $q . '&origin=' . $origin . '&destination=' . $destination;
-
+        $url .= 'origin=' . $origin . '&destination=' . $destination;
         $global_settings = SUPER_Common::get_global_settings();
         if( !empty($global_settings['form_google_places_api']) ) $url .= '&key=' . $global_settings['form_google_places_api'];
-        
+        if( !empty($global_settings['google_maps_api_language']) ) $url .= '&language=' . $global_settings['google_maps_api_language'];
+        if( !empty($global_settings['google_maps_api_region']) ) $url .= '&region=' . $global_settings['google_maps_api_region'];
+        if($units=='imperial') $url .= '&units=imperial';
         $response = wp_remote_get( $url, array('timeout'=>60) );
         if ( is_wp_error( $response ) ) {
             $error_message = $response->get_error_message();
@@ -1056,7 +1054,7 @@ class SUPER_Ajax {
         }
         
         // Delete old files
-        $file_location = '/uploads/php/files/super-contact-entries-*.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         $files = glob($source);
         foreach($files as $v){
@@ -1065,7 +1063,7 @@ class SUPER_Ajax {
             }
         }
         // Save new file
-        $file_location = '/uploads/php/files/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -1477,7 +1475,7 @@ class SUPER_Ajax {
         $export = '<html>'.maybe_serialize($export);
         $filename = $title.'-super-forms-export.html';
         $filename = sanitize_file_name($filename);
-        $file_location = '/uploads/php/files/'.$filename;
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/' . $filename;
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         file_put_contents($source, $export);
         echo SUPER_PLUGIN_FILE . $file_location;
@@ -1581,7 +1579,7 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function export_forms() {
-        $file_location = '/uploads/php/files/super-forms-export.html';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-forms-export.html';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         ini_set('max_execution_time', 0);
         global $wpdb;
@@ -1777,7 +1775,7 @@ class SUPER_Ajax {
         }
 
         // Delete old files
-        $file_location = '/uploads/php/files/super-contact-entries-*.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         $files = glob($source);
         foreach($files as $v){
@@ -1786,7 +1784,7 @@ class SUPER_Ajax {
             }
         }
         // Save new file
-        $file_location = '/uploads/php/files/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
         $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
         if( file_exists( $source ) ) {
             SUPER_Common::delete_file( $source );
@@ -2496,7 +2494,7 @@ class SUPER_Ajax {
                                     $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
                                     $imgData = base64_decode( $imgData );
                                     // Path where the image is going to be saved
-                                    $folder = SUPER_PLUGIN_DIR . '/uploads/php/files';
+                                    $folder = SUPER_PLUGIN_DIR . '/' . SUPER_PHP_UPLOAD_DIR;
                                     $folderResult = SUPER_Common::generate_random_folder($folder);
                                     $folderPath = $folderResult['folderPath'];
                                     $folderName = $folderResult['folderName'];
@@ -2521,9 +2519,9 @@ class SUPER_Ajax {
 
                             // Before we proceed check if the file already exists, if so, do nothing
                             // Exclude files that are being uploaded for the first time
-                            // They will be in the "uploads/php" directory
+                            // They will be in the "u" directory
                             $file = $value['url'];
-                            if(!strpos($file, 'uploads/php/files')) {
+                            if(!strpos($file, SUPER_PHP_UPLOAD_DIR)) {
                                 $file_headers = @get_headers($file);
                                 if($file_headers && $file_headers[0] != '404') {
                                     continue;
@@ -2538,7 +2536,7 @@ class SUPER_Ajax {
                             if( ($file=='') || ($folder=='') ) continue;
 
                             // Get source file
-                            $sourcePath = SUPER_PLUGIN_DIR . '/uploads/php/files/' . $folder . '/' . $file;
+                            $sourcePath = SUPER_PLUGIN_DIR . '/'.SUPER_PHP_UPLOAD_DIR.'/' . $folder . '/' . $file;
                             $sourcePath = urldecode( $sourcePath );
                             // Determine location to store the file
                             $wp_upload_dir = wp_upload_dir();

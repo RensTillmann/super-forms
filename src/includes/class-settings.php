@@ -1407,10 +1407,24 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'form_recaptcha_v3_secret', $settings, '' ),
                 ),
 
+                // Google Maps API
                 'form_google_places_api' => array(
                     'hidden' => true,
-                    'name' => '<a href="https://console.developers.google.com/" target="_blank">'.esc_html__( 'Google API key', 'super-forms' ).'</a>',
+                    'name' => '<a href="https://console.developers.google.com/" target="_blank">'.esc_html__( 'Google Maps API - Key', 'super-forms' ).'</a>',
+                    'label' => esc_html__( 'The API key will be used for the Google Map element, Address Autocomplete and other features related to the Google Maps API', 'super-forms' ).'</a>',
                     'default' => self::get_value( $default, 'form_google_places_api', $settings, '' ),
+                ),
+                'google_maps_api_language' => array(
+                    'hidden' => true,
+                    'name' => esc_html__( 'Google Maps API - Language', 'super-forms' ),
+                    'label' => sprintf( esc_html__( 'The language to use. This affects the names of controls, copyright notices, driving directions, and control labels, as well as the responses to service requests. List of supported language codes: %sSupported Languages%s', 'super-forms' ), '<a href="https://developers.google.com/maps/faq?hl=nl#languagesupport">', '</a>'),
+                    'default'=> ( !isset( $attributes['google_maps_api_language'] ) ? 'en' : $attributes['google_maps_api_language'] ),
+                ),
+                'google_maps_api_region' => array(
+                    'hidden' => true,
+                    'name' => esc_html__( 'Google Maps API - Region', 'super-forms' ),
+                    'label' => esc_html__( 'The region code to use. This alters the map\'s behavior based on a given country or territory. The region parameter accepts Unicode region subtag identifiers which (generally) have a one-to-one mapping to country code Top-Level Domains (ccTLDs). Most Unicode region identifiers are identical to ISO 3166-1 codes, with some notable exceptions. For example, Great Britain\'s ccTLD is "uk" (corresponding to the domain .co.uk) while its region identifier is "GB".', 'super-forms' ),
+                    'default'=> ( !isset( $attributes['google_maps_api_region'] ) ? '' : $attributes['google_maps_api_region'] ),
                 ),
                 
                 // @since 2.2.0 - Custom form post method
