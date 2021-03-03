@@ -140,6 +140,54 @@ if(!class_exists('SUPER_Listing')) :
 
         }
 
+        public static function getStandardColumns(){
+            return array(
+                'title' => array(
+                    'name' => esc_html__( 'Title', 'super-forms' ),
+                    'meta_key' => 'post_title'
+                ),
+                'status' => array(
+                    'name' => esc_html__( 'Status', 'super-forms' ),
+                    'meta_key' => 'entry_status'
+                ),
+                'date' => array(
+                    'name' => esc_html__( 'Date', 'super-forms' ),
+                    'meta_key' => 'post_date'
+                ),
+                'author_username' => array(
+                    'name' => esc_html__( 'Author username', 'super-forms' ),
+                    'meta_key' => 'username'
+                ),
+                'author_firstname' => array(
+                    'name' => esc_html__( 'Author first name', 'super-forms' ),
+                    'meta_key' => 'firstname'
+                ),
+                'author_lastname' => array(
+                    'name' => esc_html__( 'Author last name', 'super-forms' ),
+                    'meta_key' => 'lastname'
+                ),
+                'author_fullname' => array(
+                    'name' => esc_html__( 'Author full name', 'super-forms' ),
+                    'meta_key' => 'fullname'
+                ),
+                'author_nickname' => array(
+                    'name' => esc_html__( 'Author nickname', 'super-forms' ),
+                    'meta_key' => 'nickname'
+                ),
+                'author_display' => array(
+                    'name' => esc_html__( 'Author display name', 'super-forms' ),
+                    'meta_key' => 'display'
+                ),
+                'author_email' => array(
+                    'name' => esc_html__( 'Author E-mail', 'super-forms' ),
+                    'meta_key' => 'email'
+                ),
+                'author_id' => array(
+                    'name' => esc_html__( 'Author ID', 'super-forms' ),
+                    'meta_key' => 'id'
+                )
+            );
+        }
         // Use custom template to load / display forms
         // When "Edit" entry button is clicked it will be loaded inside the modal through an iframe
         public static function form_blank_page_template( $template ) {
@@ -224,6 +272,7 @@ if(!class_exists('SUPER_Listing')) :
                 esc_html__('Change Settings', 'super-forms' ),
                 esc_html__('Delete Listing', 'super-forms' )
             );
+
             $form_id = absint($atts['form_id']);
             echo '<div class="super_transient"></div>';
             $slug = 'listing';
@@ -233,73 +282,6 @@ if(!class_exists('SUPER_Listing')) :
             }
             if(count($lists)==0) {
                 $lists[] = self::get_default_listing_settings(array());
-                // $lists[] = array(
-                //     'name' => esc_html__( 'Entries', 'super-forms' ),
-                //     'display_based_on' => 'this_form',
-                //     'form_ids' => '',
-                //     'date_range' => array(
-                //         'enabled' => 'false',
-                //         'from' => '',
-                //         'till' => ''
-                //     ),
-                //     'title_column' => array(
-                //         'enabled' => 'true',
-                //         'placeholder' => esc_html__( 'Title', 'super-forms' ),
-                //         'name' => 'Title',
-                //         'width' => '',
-                //         'position' => '',
-                //     ),
-                //     'status_column' => array(
-                //         'enabled' => 'true',
-                //         'placeholder' => esc_html__( 'Status', 'super-forms' ),
-                //         'name' => 'Status',
-                //         'width' => '',
-                //         'position' => '',
-                //     ),
-                //     'date_column' => array(
-                //         'enabled' => 'true',
-                //         'placeholder' => esc_html__( 'Date', 'super-forms' ),
-                //         'name' => 'Date',
-                //         'width' => '',
-                //         'position' => '',
-                //     ),
-                //     'edit_any' => array(
-                //         'enabled' => 'true',
-                //         'method' => 'modal',
-                //         'user_roles' => 'administrator',
-                //         'user_ids' => ''
-                //     ),
-                //     'edit_own' => array(
-                //         'enabled' => 'false',
-                //         'method' => 'modal',
-                //         'user_roles' => '',
-                //         'user_ids' => ''
-                //     ),
-                //     'delete_any' => array(
-                //         'enabled' => 'true',
-                //         'user_roles' => 'administrator',
-                //         'user_ids' => '',
-                //         'permanent' => 'false'
-                //     ),
-                //     'delete_own' => array(
-                //         'enabled' => 'false',
-                //         'user_roles' => '',
-                //         'user_ids' => '',
-                //         'permanent' => 'false'
-                //     ),
-                //     'custom_columns' => array(
-                //         'enabled' => 'false',
-                //         'columns' => array(
-                //             array(
-                //                 'filter' => 'none', // none, text, dropdown
-                //                 'name' => '',
-                //                 'field_name' => '',
-                //                 'width' => '',
-                //                 'filter_items' => ''
-                //             )
-                //         ),
-                //     )
-                // );
             }
             //$response = wp_remote_post(
             //    SUPER_API_ENDPOINT . '/settings/transient',
@@ -381,7 +363,7 @@ if(!class_exists('SUPER_Listing')) :
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                     echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($v['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
                                     echo '<div class="sfui-sub-settings sfui-inline" data-f="display_based_on;specific_forms">';
-                                        echo '<div class="sfui-setting">';
+                                        echo '<div class="sfui-setting sfui-vertical">';
                                             echo '<label>';
                                                 echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($v['form_ids']) . '" />';
                                                 echo '<span>(' . esc_html__( 'seperated by comma\'s', 'super-forms' ) . '</span>';
@@ -396,13 +378,13 @@ if(!class_exists('SUPER_Listing')) :
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="date_range.enabled" value="true"' . ($v['date_range']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
                                 echo '<div class="sfui-sub-settings sfui-inline" data-f="date_range.enabled;true">';
-                                    echo '<div class="sfui-setting">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'From', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no minimum date', 'super-forms' ) . ')</i></span>';
                                             echo '<input type="date" name="date_range.from" value="' . sanitize_text_field($v['date_range']['from']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
-                                    echo '<div class="sfui-setting">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
                                         echo '<label>';
                                             echo '<span>' . esc_html__( 'Till', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
                                             echo '<input type="date" name="date_range.till" value="' . sanitize_text_field($v['date_range']['till']) . '" />';
@@ -411,102 +393,63 @@ if(!class_exists('SUPER_Listing')) :
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
-                        // Show title column
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="title_column.enabled" value="true"' . ($v['title_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "Title" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="title_column.enabled;true">';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="title_column.name" value="' . sanitize_text_field($v['title_column']['name']) . '" />';
-                                        echo '</label>';
+
+                        $standardColumns = self::getStandardColumns();
+                        foreach($standardColumns as $sk => $sv){
+                            echo '<div class="sfui-setting">';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="checkbox" name="'.$sk.'_column.enabled" value="true"' . ($v[$sk.'_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "'.$sv['name'].'" column', 'super-forms' ) . ':</span>';
+                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="'.$sk.'_column.enabled;true">';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
+                                                echo '<input type="text" name="'.$sk.'_column.name" value="' . sanitize_text_field($v[$sk.'_column']['name']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
+                                                echo '<input type="text" name="'.$sk.'_column.placeholder" value="' . sanitize_text_field($v[$sk.'_column']['placeholder']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
+                                        if(in_array($sk, array('title', 'status', 'date'))){
+                                            // Do not show for title, status, date columns
+                                            echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '</div>';
+                                        }else{
+                                            echo '<div class="sfui-setting sfui-vertical">';
+                                                echo '<label>';
+                                                    echo '<span>';
+                                                        echo esc_html__( 'Link', 'super-forms' ) . ':';
+                                                    echo '</span>';
+                                                    echo '<select name="'.$sk.'_column.link" onChange="SUPER.ui.updateSettings(event, this)">';
+                                                        echo '<option ' . ($v[$sk.'_column']['link']=='none' ? ' selected="selected"' : '') . ' value="none">' . esc_html__( 'None', 'super-forms' ) . '</option>';
+                                                        echo '<option ' . ($v[$sk.'_column']['link']=='author_posts' ? ' selected="selected"' : '') . ' value="author_posts">' . esc_html__( 'The author page', 'super-forms' ) . '</option>';
+                                                        echo '<option ' . ($v[$sk.'_column']['link']=='edit_user' ? ' selected="selected"' : '') . ' value="edit_user">' . esc_html__( 'URL to edit user page', 'super-forms' ) . '</option>';
+                                                        echo '<option ' . ($v[$sk.'_column']['link']=='email' ? ' selected="selected"' : '') . ' value="email">' . esc_html__( 'Link to E-mail address (mailto:)', 'super-forms' ) . '</option>';
+                                                        // get_author_posts_url()
+                                                        // get_edit_profile_url()
+                                                        // get_edit_user_link()
+                                                    echo '</select>';
+                                                echo '</label>';
+                                            echo '</div>';
+                                        }
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
+                                                echo '<input type="number" name="'.$sk.'_column.width" value="' . sanitize_text_field($v[$sk.'_column']['width']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span>' . esc_html__( 'Column order', 'super-forms' ) . '</span>';
+                                                echo '<input type="number" name="'.$sk.'_column.order" value="' . sanitize_text_field($v[$sk.'_column']['order']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
                                     echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="title_column.placeholder" value="' . sanitize_text_field($v['title_column']['placeholder']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="title_column.width" value="' . sanitize_text_field($v['title_column']['width']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="title_column.position" value="' . sanitize_text_field($v['title_column']['position']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Show status column
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="status_column.enabled" value="true"' . ($v['status_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "status" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="status_column.enabled;true">';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="status_column.name" value="' . sanitize_text_field($v['status_column']['name']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="status_column.placeholder" value="' . sanitize_text_field($v['status_column']['placeholder']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="status_column.width" value="' . sanitize_text_field($v['status_column']['width']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="status_column.position" value="' . sanitize_text_field($v['status_column']['position']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Show date column
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="date_column.enabled" value="true"' . ($v['date_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show "date" column', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="date_column.enabled;true">';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="date_column.name" value="' . sanitize_text_field($v['date_column']['name']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="date_column.placeholder" value="' . sanitize_text_field($v['date_column']['placeholder']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="date_column.width" value="' . sanitize_text_field($v['date_column']['width']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label>';
-                                            echo '<span>' . esc_html__( 'Column position', 'super-forms' ) . '</span>';
-                                            echo '<input type="number" name="date_column.position" value="' . sanitize_text_field($v['date_column']['position']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
+                                echo '</label>';
+                            echo '</div>';
+                        }
                         // Custom columns
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -537,12 +480,6 @@ if(!class_exists('SUPER_Listing')) :
                                                     echo '</div>';
                                                     echo '<div class="sfui-setting sfui-vertical">';
                                                         echo '<label>';
-                                                            echo '<span>' . esc_html__( 'Column width', 'super-forms' ) . ' <i>(' . esc_html__( 'in', 'super-forms') .' px)</i>:</span>';
-                                                            echo '<input type="number" name="width" value="' . sanitize_text_field($cv['width']) . '" />';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                    echo '<div class="sfui-setting sfui-vertical">';
-                                                        echo '<label>';
                                                             echo '<span>';
                                                                 echo esc_html__( 'Filter method', 'super-forms' ) . ':';
                                                             echo '</span>';
@@ -561,8 +498,20 @@ if(!class_exists('SUPER_Listing')) :
                                                             echo '</div>';
                                                         echo '</label>';
                                                     echo '</div>';
-echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                                    echo '<div class="sfui-setting sfui-vertical">';
+                                                        echo '<label>';
+                                                            echo '<span>' . esc_html__( 'Column width', 'super-forms' ) . ' <i>(' . esc_html__( 'in', 'super-forms') .' px)</i>:</span>';
+                                                            echo '<input type="number" name="width" value="' . sanitize_text_field($cv['width']) . '" />';
+                                                        echo '</label>';
+                                                    echo '</div>';
+                                                    echo '<div class="sfui-setting sfui-vertical">';
+                                                        echo '<label>';
+                                                            echo '<span>' . esc_html__( 'Column order', 'super-forms' ) . '</span>';
+                                                            echo '<input type="number" name="order" value="' . absint($cv['order']) . '" />';
+                                                        echo '</label>';
+                                                    echo '</div>';
+                                                    echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                                                    echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                                                 echo '</div>';
                                             echo '</div>';
                                         }
@@ -571,6 +520,26 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                             echo '</label>';
                         echo '</div>';
 
+                        // Allow display any entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="display_any.enabled" value="true"' . ($v['display_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Allow the following users to display any entries (logged in users will always be able to view their own entries)', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="display_any.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="display_any.user_roles" value="' . sanitize_text_field($v['display_any']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span>' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="display_any.user_ids" value="' . sanitize_text_field($v['display_any']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
                         // Allow editing any entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -698,24 +667,88 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                 'till'=>''
             );
             if(empty($list['title_column'])) $list['title_column'] = array(
-                'enabled'=>'true',
-                'name'=>esc_html__( 'Title', 'super-forms' ),
-                'placeholder'=>esc_html__( 'Filter by title', 'super-forms' ),
-                'position'=>1,
-                'width'=>150
+                'enabled' => 'true',
+                'name' => esc_html__( 'Title', 'super-forms' ),
+                'placeholder' => esc_html__( 'Filter by title', 'super-forms' ),
+                'order' => 1,
+                'width' => 150
             );
             if(empty($list['status_column'])) $list['status_column'] = array(
                 'enabled'=>'true',
                 'name'=>esc_html__( 'Status', 'super-forms' ),
                 'placeholder'=>esc_html__( '- choose status -', 'super-forms' ),
-                'position'=>2,
-                'width'=>150
+                'order' => 2,
+                'width' => 150
             );
             if(empty($list['date_column'])) $list['date_column'] = array(
-                'enabled'=>'true',
+                'enabled' => 'true',
                 'name' => esc_html__( 'Date created', 'super-forms' ),
                 'placeholder' => esc_html__( 'Filter by date', 'super-forms' ),
-                'position' => 3,
+                'order' => 3,
+                'width' => 150
+            );
+            if(empty($list['author_username_column'])) $list['author_username_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Username', 'super-forms' ),
+                'placeholder' => esc_html__( 'Username', 'super-forms' ),
+                'link' => 'none',
+                'order' => 4,
+                'width' => 150
+            );
+            if(empty($list['author_firstname_column'])) $list['author_firstname_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'First name', 'super-forms' ),
+                'placeholder' => esc_html__( 'First name', 'super-forms' ),
+                'link' => 'none',
+                'order' => 5,
+                'width' => 150
+            );
+            if(empty($list['author_lastname_column'])) $list['author_lastname_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Last name', 'super-forms' ),
+                'placeholder' => esc_html__( 'Last name', 'super-forms' ),
+                'link' => 'none',
+                'order' => 6,
+                'width' => 150
+            );
+            if(empty($list['author_fullname_column'])) $list['author_fullname_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Full name', 'super-forms' ),
+                'placeholder' => esc_html__( 'Full name', 'super-forms' ),
+                'link' => 'none',
+                'order' => 7,
+                'width' => 150
+            );
+            if(empty($list['author_nickname_column'])) $list['author_nickname_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Nickname', 'super-forms' ),
+                'placeholder' => esc_html__( 'Nickname', 'super-forms' ),
+                'link' => 'none',
+                'order' => 8,
+                'width' => 150
+            );
+            if(empty($list['author_display_column'])) $list['author_display_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Display name', 'super-forms' ),
+                'placeholder' => esc_html__( 'Display name', 'super-forms' ),
+                'link' => 'none',
+                'order' => 9,
+                'width' => 150
+            );
+            if(empty($list['author_email_column'])) $list['author_email_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'E-mail', 'super-forms' ),
+                'placeholder' => esc_html__( 'E-mail', 'super-forms' ),
+                'link' => 'none',
+                'order' => 10,
+                'width' => 150
+            );
+            if(empty($list['author_id_column'])) $list['author_id_column'] = array(
+                'enabled' => 'false',
+                'name' => esc_html__( 'Author ID', 'super-forms' ),
+                'placeholder' => esc_html__( 'Author ID', 'super-forms' ),
+                'link' => 'none',
+                'order' => 11,
                 'width' => 150
             );
             if(empty($list['custom_columns']) ) $list['custom_columns'] = array(
@@ -726,9 +759,16 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                         'name' => 'E-mail',
                         'field_name' => 'email',
                         'width' => 150,
-                        'filter_items' => ''
+                        'filter_items' => '',
+                        'order' => 5
                     )
                 ),
+            );
+            // Display permissions
+            if( empty($list['display_any']) ) $list['display_any'] = array(
+                'enabled'=>'true',
+                'user_roles'=>'administrator',
+                'user_ids'=>''
             );
             // Edit permissions
             if( empty($list['edit_any']) ) $list['edit_any'] = array(
@@ -851,54 +891,50 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
             // Set default values if they don't exist
             $list = self::get_default_listing_settings($lists[$list_id]);
 
-            $columns = array();
-            // Check if "Title" column is enabled
-            if( $list['title_column']['enabled']==='true' ) {
-                $columns['post_title'] = array(
-                    'position' => absint($list['title_column']['position']),
-                    'name' => $list['title_column']['name'],
-                    'width' => absint($list['title_column']['width']),
-                    'filter' => array(
-                        'field_type' => 'text',
-                        'placeholder' => $list['title_column']['placeholder']
-                    )
-                );
-            }
-            // Check if "Status" column is enabled
-            if( $list['status_column']['enabled']==='true' ) {
-                $items = array();
-                foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
-                    $items[$k] = $v['name']; 
+            $columns = array(); 
+            $standardColumns = self::getStandardColumns();
+            foreach($standardColumns as $sk => $sv){
+                if( $list[$sk.'_column']['enabled']==='true' ) {
+                    if($sk=='entry_status'){
+                        $items = array();
+                        foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
+                            $items[$k] = $v['name']; 
+                        }
+                        $columns[$sv['meta_key']] = array(
+                            'order' => absint($list[$sk.'_column']['order']),
+                            'name' => $list[$sk.'_column']['name'],
+                            'width' => absint($list[$sk.'_column']['width']),
+                            'filter' => array(
+                                'field_type' => 'dropdown',
+                                'placeholder' => $list[$sk.'_column']['placeholder'],
+                                'items' => $items
+                            )
+                        );
+                    }else{
+                        $columns[$sv['meta_key']] = array(
+                            'order' => absint($list[$sk.'_column']['order']),
+                            'name' => $list[$sk.'_column']['name'],
+                            'width' => absint($list[$sk.'_column']['width']),
+                            'filter' => array(
+                                'field_type' => 'text',
+                                'placeholder' => $list[$sk.'_column']['placeholder']
+                            )
+                        );
+                        // If link available
+                        if(isset($list[$sk.'_column']['link'])){
+                            $columns[$sv['meta_key']]['link'] = $list[$sk.'_column']['link'];
+                        }
+                    }
                 }
-                $columns['entry_status'] = array(
-                    'position' => absint($list['status_column']['position']),
-                    'name' => $list['status_column']['name'],
-                    'width' => absint($list['status_column']['width']),
-                    'filter' => array(
-                        'field_type' => 'dropdown',
-                        'placeholder' => $list['status_column']['placeholder'],
-                        'items' => $items
-                    )
-                );
-            }
-            // Check if "Date" column is enabled
-            if( $list['date_column']['enabled']==='true' ) {
-                // Always put default date column at the end
-                $columns['post_date'] = array(
-                    'position' => absint($list['date_column']['position']),
-                    'name' => $list['date_column']['name'],
-                    'width' => absint($list['date_column']['width']),
-                    'filter' => array(
-                        'field_type' => 'datepicker',
-                        'placeholder' => $list['date_column']['placeholder']
-                    )
-                );
             }
 
             // Add custom columns if enabled
             if($list['custom_columns']['enabled']==='true'){
                 $columns = array_merge($columns, $list['custom_columns']['columns']);      
             }
+
+            // Now re-order all columns based on order number
+            array_multisort(array_column($columns, 'order'), SORT_ASC, $columns);
 
             // For now these are the columns:
             // billing_company|Entity
@@ -937,6 +973,54 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                 $where .= " AND post_parent = '" . absint($form_id) . "'";
             }
 
+            // Filters by listing settings
+            $allowDisplayAny = false;
+            if(!empty($list['display_any'])) {
+                if($list['display_any']['enabled']==='true'){
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['display_any']['user_roles'])) && (empty($list['display_any']['user_ids'])) ){
+                        $allowDisplayAny = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['display_any']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['display_any']['user_roles'])) && (empty($list['display_any']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowDisplayAny = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['display_any']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['display_any']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowDisplayAny = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                foreach( $current_user->roles as $v ) {
+                                    if( in_array( $v, $allowed_roles ) ) {
+                                        $allowed_ids = preg_replace('/\s+/', '', $list['display_any']['user_ids']);
+                                        $allowed_ids = explode(",", $allowed_ids);
+                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                            $allowDisplayAny = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if($allowDisplayAny===true){
+                // Display all entries
+            }else{
+                // Only display entries based on the current logged in user
+                $where .= ' AND post_author = "' . absint( $current_user->ID ) . '"';
+            }
+
             // Filters by user
             $filters = '';
             // Check if filtering based on post_title
@@ -953,6 +1037,10 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                  if( !empty($filters) ) $filters .= ' AND';
                  $filters .= ' entry_status.meta_value = "' . sanitize_text_field( $_GET['entry_status'] ) . '"';
                  //add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
+            }
+            // Check if filtering based on post_author
+            if( !empty($_GET['post_author']) ) {
+                $filters .= ' post_author LIKE "%' . sanitize_text_field( $_GET['post_author'] ) . '%"';
             }
             if( !empty($filters) ) {
                 $where .= ' AND (' . $filters . ')';
@@ -994,10 +1082,21 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
             $results_found = $wpdb->get_var($count_query);
 
             $query = "
-            SELECT ID, post_author, post_title, post_date, meta.meta_value AS data, entry_status.meta_value AS status
+            SELECT 
+            post.ID AS post_id, post.post_author AS post_author, post.post_title AS post_title, post.post_date AS post_date,
+            meta.meta_value AS contact_entry_data,
+            entry_status.meta_value AS status,
+            first_name.meta_value AS first_name,
+            last_name.meta_value AS last_name,
+            nickname.meta_value AS nickname,
+            author.user_login AS username, author.user_email AS email, author.display_name AS display_name
             FROM $wpdb->posts AS post 
             INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
             LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+            LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
+            LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
+            LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
+            LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
             WHERE post_type = 'super_contact_entry'$where
             ORDER BY post_date DESC
             LIMIT $limit
@@ -1107,8 +1206,8 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                         $global_settings = SUPER_Common::get_global_settings();
                         $statuses = SUPER_Settings::get_entry_statuses($global_settings);
                         foreach($entries as $entry){
-                            $data = unserialize($entry->data);
-                            $result .= '<div class="super-entry" data-id="' . $entry->ID . '">';
+                            $data = unserialize($entry->contact_entry_data);
+                            $result .= '<div class="super-entry" data-id="' . $entry->post_id . '">';
                                 $result .= '<div class="super-col super-check"></div>';
                                 $result .= '<div class="super-col super-actions">';
                                     $actions = '';
@@ -1322,13 +1421,39 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                                     $column_key = ( isset($cv['field_name']) ? $cv['field_name'] : $ck );
 
                                     $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
+                                        $authorData = get_userdata($entry->post_author);
+                                        if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
+                                            if($cv['link']=='author_posts'){
+                                                $result .= '<a href="'.get_author_posts_url($entry->post_author).'">';
+                                            }elseif($cv['link']=='edit_user'){
+                                                $result .= '<a href="'.get_edit_user_link($entry->post_author).'">';
+                                            }elseif($cv['link']=='email'){
+                                                $result .= '<a href="mailto:'.$authorData->user_email.'">';
+                                            }
+                                        }
                                         if($column_key=='post_title'){
                                             $result .= $entry->post_title;
+                                        }elseif($authorData && $column_key=='username'){
+                                            $result .= $authorData->user_login;
+                                        }elseif($authorData && $column_key=='firstname'){
+                                            $result .= $authorData->user_firstname;
+                                        }elseif($authorData && $column_key=='lastname'){
+                                            $result .= $authorData->user_lastname;
+                                        }elseif($authorData && $column_key=='fullname'){
+                                            $result .= $authorData->user_firstname.' '.$authorData->user_lastname;
+                                        }elseif($authorData && $column_key=='nickname'){
+                                            $result .= $authorData->nickname;
+                                        }elseif($authorData && $column_key=='display'){
+                                            $result .= $authorData->display_name;
+                                        }elseif($authorData && $column_key=='email'){
+                                            $result .= $authorData->user_email;
+                                        }elseif($authorData && $column_key=='id'){
+                                            $result .= $authorData->ID;
                                         }elseif($column_key=='entry_status'){
                                             if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
                                                 $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
                                             }else{
-                                                $post_status = get_post_status($entry->ID);
+                                                $post_status = get_post_status($entry->post_id);
                                                 if($post_status=='super_read'){
                                                     $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
                                                 }else{
@@ -1379,6 +1504,9 @@ echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr
                                                 // No data found for this entry
                                                 $result .= '';
                                             }
+                                        }
+                                        if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
+                                            $result .= '</a>';
                                         }
                                     $result .= '</div>';
                                 }
