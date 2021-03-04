@@ -1089,7 +1089,8 @@ if(!class_exists('SUPER_Listing')) :
             first_name.meta_value AS first_name,
             last_name.meta_value AS last_name,
             nickname.meta_value AS nickname,
-            author.user_login AS username, author.user_email AS email, author.display_name AS display_name
+            author.user_login AS username, author.user_email AS email, author.display_name AS display_name,
+            SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:8:\"option_2\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue
             FROM $wpdb->posts AS post 
             INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
             LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
