@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Signature
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
- * Version:     1.6.2
+ * Version:     1.6.3
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Signature')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.6.2';
+        public $version = '1.6.3';
 
 
         /**
@@ -365,6 +365,7 @@ if(!class_exists('SUPER_Signature')) :
                 $defaults = array(
                     'name' => 'subtotal',
                     'thickness' => 2,
+                    'color' => '#000000',
                     'disallowEdit' => 'true',
                     'bg_size' => 150,
                     'width' => 0,
@@ -383,6 +384,7 @@ if(!class_exists('SUPER_Signature')) :
             if(empty($atts['width'])) $atts['width'] = 0;
             if(empty($atts['height'])) $atts['height'] = 100;
             if(empty($atts['thickness'])) $atts['thickness'] = 2;
+            if(empty($atts['color'])) $atts['color'] = '#000000';
 
             $result = '';
             if( SUPER_Signature()->is_request('ajax') ){
@@ -414,6 +416,7 @@ if(!class_exists('SUPER_Signature')) :
 	        $result .= '<textarea style="display:none;" class="super-shortcode-field"';
 	        $result .= ' name="' . esc_attr($atts['name']) . '"';
 	        $result .= ' data-thickness="' . esc_attr($atts['thickness']) . '"';
+	        $result .= ' data-color="' . esc_attr($atts['color']) . '"';
             $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
             // Get the value for from entry data
             $entry_data_value = SUPER_Shortcodes::get_entry_data_value( $tag, '', $atts['name'], $entry_data );
@@ -479,6 +482,11 @@ if(!class_exists('SUPER_Signature')) :
 	                        'label' => $label,
 	                        'description'=>$description,
 	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=1, $max=20, $steps=1, $name=esc_html__( 'Line Thickness', 'super-forms' ), $desc=esc_html__( 'The thickness of the signature when drawing', 'super-forms' ) ),
+                            'color' => array(
+                                'name' => esc_html__( 'Line color', 'super-forms' ),
+                                'default' => (!isset($attributes['color']) ? '' : $attributes['color']),
+                                'type' => 'color'
+                            ),
                             'disallowEdit' => array(
                                 'default'=> (!isset($attributes['disallowEdit']) ? 'true' : $attributes['disallowEdit']),
                                 'type'=>'checkbox', 
