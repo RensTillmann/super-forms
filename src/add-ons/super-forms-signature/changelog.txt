@@ -1,3 +1,7 @@
+Mar 04, 2020 - Version 1.6.3
+- Added: Option to set signature line color
+- Fix: Changing signature line thickness not working
+
 Oct 22, 2020 - Version 1.6.2
 - Fix: Issue with PDF generator displaying "Your browser does not support signing" text
 

@@ -4,6 +4,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 04, 2021 - Version 4.9.713
+
+- **Added:** `Signature Add-on` Option to set signature line color
+- **Fix:** `Signature Add-on` Changing signature line thickness not working
+
 ## Mar 02, 2021 - Version 4.9.712
 
 - **Added:** Options to define the `region` and `language` for the Googla Maps API. This will affect the `Google Map` element, `Address autocomplete` and `Distance calculation` features

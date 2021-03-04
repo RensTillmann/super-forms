@@ -11,23 +11,24 @@
 			var $signatureLines = $this.find('.super-signature-lines');
 			if(!$canvas.children('canvas').length){
 				$canvas.signature({
-					thickness: $field.data('thickness'),
-					change: function(event) { 
-						var $target = $(event.target);
-						if( $target.signature('isEmpty')==false ) {
-							if( !$this.hasClass('super-filled') ) {
-								$this.addClass('super-filled');
-							}
-							var $signature = $canvas[0].children;
-							var $image_data_url = $signature[0].toDataURL("image/png");
-							var $lines = $target.signature('toJSON');
-							$field.val($image_data_url);
-							$signatureLines.val($lines);
-						}else{
-							$this.removeClass('super-filled');
-						}
-						SUPER.after_field_change_blur_hook({el: $field[0]});
-					}
+                    thickness: $field.data('thickness'),
+                    color: $field.data('color'),
+                    change: function(event) {
+                        var $target = $(event.target);
+                        if( $target.signature('isEmpty')==false ) {
+                            if( !$this.hasClass('super-filled') ) {
+                                $this.addClass('super-filled');
+                            }
+                            var $signature = $canvas[0].children;
+                            var $image_data_url = $signature[0].toDataURL("image/png");
+                            var $lines = $target.signature('toJSON');
+                            $field.val($image_data_url);
+                            $signatureLines.val($lines);
+                        }else{
+                            $this.removeClass('super-filled');
+                        }
+                        SUPER.after_field_change_blur_hook({el: $field[0]});
+                    }
 				});
 				$canvas.signature('clear');
 			}
@@ -88,8 +89,12 @@
 			}
 			var jsonLength = JSON.parse(json).lines.length;
 			var disallowedit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowedit;
-			//var thickness = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness;
-			//$(canvasWrapper).signature({thickness: thickness});
+			var thickness = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness;
+			var color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
+			$(canvasWrapper).signature({
+                thickness: thickness,
+                color: color
+            });
 			$(canvasWrapper).signature('draw', json);
 			if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
 				$(canvasWrapper).signature('disable');
