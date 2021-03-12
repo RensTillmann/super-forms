@@ -34,18 +34,20 @@
   font-size:16px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
-  box-sizing: border-box;  
+  box-sizing: border-box;
 }
 .super-fel .super-header {
   border-bottom:1px solid #aaa;
   margin-bottom:20px;
+  display: flex;
+  align-items: center;
 }
 .super-fel .super-header .super-select-all,
 .super-fel .super-header .super-csv-export,
 .super-fel .super-header .super-settings {
-  float:left;
   width:auto;
-  padding:5px 10px 5px 40px;
+  display: flex;
+  align-items: center;
 }
 .super-fel .super-header .super-csv-export,
 .super-fel .super-header .super-settings {
@@ -59,10 +61,10 @@
   width:20px;
   height:20px;
   display:block;
-  position:absolute;
   left:9px;
   top:9px;
   border-radius:3px;
+  margin: 0px 10px 0px 0px;
 }
 .super-fel .super-columns {
   padding-left:40px;
@@ -175,14 +177,20 @@
 }
 .super-fel .super-pagination {
   padding-top:10px;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  float: right;
+  width: auto;
 }
 .super-fel .super-pagination > * {
   width:auto;
-  float:right;
+  float: initial;
 }
 .super-fel .super-pagination .super-pages,
 .super-fel .super-pagination .super-results {
   margin-right:10px;
+  margin-left:10px;
 }
 .super-nav .super-page,
 .super-pagination .super-prev,
@@ -207,7 +215,7 @@
   color: #4c4c4c;
 }
 .super-pagination .super-prev {
-  margin: 4px 2px 4px 25px;
+  margin: 4px 2px 4px 0px;
 }
 .super-pagination .super-next {
   margin: 4px 25px 4px 2px;
@@ -336,4 +344,3 @@
   background-color:#0000003d;
   z-index: -2;
 }
-

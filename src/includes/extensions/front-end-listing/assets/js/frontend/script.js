@@ -52,48 +52,117 @@
     };
 
     SUPER.frontEndListing = {};
+    
+    // Get current query string
+    SUPER.frontEndListing.getQueryString = function(el, skip){
+        debugger;
+        var i, nodes, col, inputField, value, columnName, limit = 25, queryString = [];
+        // Get the current limit from the pagination (if any otherwise default to 25)
+        if(typeof document.querySelector('.super-pagination .super-limit') !== 'undefined' ){
+            limit = document.querySelector('.super-pagination .super-limit').value;
+        }
+        queryString.push('limit='+limit);
 
-    // When search button is clicked filter entries
-    SUPER.frontEndListing.search = function(event, el){
-        event.preventDefault();
-        var query_string = [];
-        // Regenerate query string
-        // Loop through all filters and grab the value and the column name
-        // Then append each of them
-        var columns = getParents(el, '.super-fel')[0].querySelectorAll('.super-columns .super-col-wrap');
-        for (var key = 0; key < columns.length; key++) {
-            // Check if this column can be filtered if so add it to the array
-            // But only if value isn't empty
-            var value = ( columns[key].querySelector('.super-col-filter input') ? columns[key].querySelector('.super-col-filter input').value : columns[key].querySelector('.super-col-filter select').value );
-            if( value!=='' ) {
-                var column_name = columns[key].dataset.name;
-                query_string.push(column_name+'='+value);
+        // If we are searching, then we skip the column search inputs, and just use the current one
+        if(skip!=='search'){
+            debugger;
+            // Loop through all filters and grab the value and the column name
+            // Then append each of them
+            nodes = getParents(el, '.super-fel')[0].querySelectorAll('.super-columns .super-col-wrap');
+            for (i = 0; i < nodes.length; i++) {
+                // Check if this column can be filtered if so add it to the array
+                // But only if value isn't empty
+                value = nodes[i].querySelector('.super-col-filter input') ? nodes[i].querySelector('.super-col-filter input').value : nodes[i].querySelector('.super-col-filter select').value;
+                if( value!=='' ) {
+                    columnName = nodes[i].dataset.name;
+                    queryString.push('fc='+columnName);
+                    queryString.push('fv='+value);
+                }
+            }
+        }else{
+            debugger;
+            col = el.closest('.super-col-wrap');
+            inputField = col.querySelector('input');
+            if(inputField.value!==''){
+                columnName = col.dataset.name;
+                queryString.push('fc='+columnName);
+                queryString.push('fv='+inputField.value);
             }
         }
-        // Get the current limit from the pagination (if any otherwise default to 25)
-        var $limit = 25;
-        if(typeof document.querySelector('.super-pagination .super-limit') !== 'undefined' ){
-            $limit = document.querySelector('.super-pagination .super-limit').value;
+
+        // Get current active sort (if any)
+        nodes = getParents(el, '.super-fel')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
+        console.log(nodes);
+        for (i = 0; i < nodes.length; i++) {
+            if(nodes[i].classList.contains('super-active')){
+                queryString.push('sc='+nodes[i].closest('.super-col-wrap').dataset.name);
+                if(nodes[i].classList.contains('super-sort-down')){
+                    queryString.push('sm=d');
+                }else{
+                    queryString.push('sm=a');
+                }
+                break;
+            }
         }
+
         // Load the page with query strings and make sure to start at page 1
         // Except when a page change was issued
+        debugger;
         var page = 1;
-        if( el.classList.contains('super-page') ) {
-            page = el.innerText; // Update to correct page
+        if( el.classList.contains('super-switcher') ){
+            page = parseInt(el.value, 10);
+        }else{
+            if( el.classList.contains('super-next') ){
+                page = parseInt(el.closest('.super-pagination').querySelector('.super-switcher').value, 10) + 1;
+            }
+            if( el.classList.contains('super-prev') ){
+                page = parseInt(el.closest('.super-pagination').querySelector('.super-switcher').value, 10) - 1;
+            }
+            if( el.classList.contains('super-page') ) {
+                page = parseInt(el.innerText, 10); // Update to correct page
+            }
+            if( el.classList.contains('super-switcher') ) {
+                page = parseInt(el.value, 10); // Update to correct page
+            }
         }
-        if( el.classList.contains('super-switcher') ) {
-            page = el.value; // Update to correct page
-        }
-        window.location.href = window.location.href.split('?')[0]+'?page='+page+'&limit='+$limit+'&'+query_string.join("&");
+        debugger;
+        if(page<1) page = 1;
+        queryString.push('sfp='+page);
+        return queryString;
     };
 
-    // When search button is clicked filter entries
+    // When page is being changed
+    SUPER.frontEndListing.changePage = function(event, el){
+        event.preventDefault();
+        var queryString = SUPER.frontEndListing.getQueryString(el, 'page');
+        window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
+    };
+    // When limit dropdown is changed
+    SUPER.frontEndListing.limit = function(event, el){
+        event.preventDefault();
+        var queryString = SUPER.frontEndListing.getQueryString(el, 'limit');
+        window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
+    };
+    // When search button is clicked
+    SUPER.frontEndListing.search = function(event, el){
+        event.preventDefault();
+        var queryString = SUPER.frontEndListing.getQueryString(el, 'search');
+        window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
+    };
+    // When sort button is clicked
     SUPER.frontEndListing.sort = function(el, method){
-        console.log(method);
-        console.log(el);
+        var queryString = SUPER.frontEndListing.getQueryString(el, 'sort');
+        // Add sort
+        if(method==='down'){
+            method = 'd';
+        }else{
+            method = 'a';
+        }
         var parent = getParents(el, '.super-col-wrap')
-        var column_name = parent[0].dataset.name;
-        console.log(column_name);
+        var columnName = parent[0].dataset.name;
+        queryString.push('sc='+columnName); // Sort column
+        queryString.push('sm='+method); // Sort method
+        window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
     };
 
     // When switch to page is changed
