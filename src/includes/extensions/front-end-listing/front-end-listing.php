@@ -895,31 +895,32 @@ if(!class_exists('SUPER_Listing')) :
             $standardColumns = self::getStandardColumns();
             foreach($standardColumns as $sk => $sv){
                 if( $list[$sk.'_column']['enabled']==='true' ) {
+                    $columns[$sv['meta_key']] = array(
+                        'order' => absint($list[$sk.'_column']['order']),
+                        'name' => $list[$sk.'_column']['name'],
+                        'width' => absint($list[$sk.'_column']['width']),
+                        'filter' => array(
+                            'field_type' => 'text',
+                            'placeholder' => $list[$sk.'_column']['placeholder']
+                        )
+                    );
+                    if($sk=='date'){ // entry post_date
+                        $columns[$sv['meta_key']]['filter'] = array(
+                            'field_type' => 'datepicker',
+                            'placeholder' => $list[$sk.'_column']['placeholder']
+                        );
+                    }
                     if($sk=='entry_status'){
                         $items = array();
                         foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
                             $items[$k] = $v['name']; 
                         }
-                        $columns[$sv['meta_key']] = array(
-                            'order' => absint($list[$sk.'_column']['order']),
-                            'name' => $list[$sk.'_column']['name'],
-                            'width' => absint($list[$sk.'_column']['width']),
-                            'filter' => array(
-                                'field_type' => 'dropdown',
-                                'placeholder' => $list[$sk.'_column']['placeholder'],
-                                'items' => $items
-                            )
+                        $columns[$sv['meta_key']]['filter'] = array(
+                            'field_type' => 'dropdown',
+                            'placeholder' => $list[$sk.'_column']['placeholder'],
+                            'items' => $items
                         );
                     }else{
-                        $columns[$sv['meta_key']] = array(
-                            'order' => absint($list[$sk.'_column']['order']),
-                            'name' => $list[$sk.'_column']['name'],
-                            'width' => absint($list[$sk.'_column']['width']),
-                            'filter' => array(
-                                'field_type' => 'text',
-                                'placeholder' => $list[$sk.'_column']['placeholder']
-                            )
-                        );
                         // If link available
                         if(isset($list[$sk.'_column']['link'])){
                             $columns[$sv['meta_key']]['link'] = $list[$sk.'_column']['link'];
@@ -959,18 +960,104 @@ if(!class_exists('SUPER_Listing')) :
             // );
             // $columns = array_merge($columns, $custom_columns);
 
+            // Filters by user
+            $filters = '';
+
             $limit = absint($list['limit']);
             // Check if custom limit was choosen by the user
             if( isset($_GET['limit']) ) {
                 $limit = absint($_GET['limit']);
             }
+
+            // Check if we need to filter on a column
+            $fc = ''; // Filter column
+            if( !empty($_GET['fc']) ) {
+                $fc = sanitize_text_field($_GET['fc']);
+            }
+            $fv = ''; // Filter value
+            if( !empty($_GET['fv']) ) {
+                $fv = sanitize_text_field($_GET['fv']);
+            }
+
+            $filter_by_entry_data = "";
+            // Now first check if this is a custom column
+            // Custom column always starts with underscore
+            if(!empty($fc) && $fc[0]=='_'){
+                $fc = substr($fc, 1);
+                // If so, it means that we need to filter the contact entry data
+                if($list['custom_columns']['enabled']==='true'){
+                    $customColumns = $list['custom_columns']['columns'];
+                    foreach($customColumns as $cv){
+                        if($cv['field_name']==$fc){
+                            $filter_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:8:\"$fc\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue";
+                            break;
+                        }
+                    }
+                }
+            }else{
+                // Filter by default column
+                if(!empty($fc)){
+                    if($fc=='post_date'){
+                        $filters .= " $fc LIKE '$fv%'"; // Only filter starting with
+                    }else{
+                        $filters .= " $fc LIKE '%$fv%'"; // Filter globally
+                    }
+                }
+            }
+
+            // Check if custom sort was choosen by the user
+            $sc = 'post_date'; // sort column (defaults to 'post_date')
+            if( !empty($_GET['sc']) ) {
+                $sc = sanitize_text_field($_GET['sc']);
+            }
+
+            $order_by_entry_data = "";
+            // Now first check if this is a custom column
+            // Custom column always starts with underscore
+            if($sc[0]=='_'){
+                $sc = substr($sc, 1);
+                // If so, it means that we need to filter the contact entry data
+                if($list['custom_columns']['enabled']==='true'){
+                    $customColumns = $list['custom_columns']['columns'];
+                    foreach($customColumns as $cv){
+                        if($cv['field_name']==$sc){
+                            $order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:8:\"$sc\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue";
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Sort method, either `a` (ASC) or `d` (DESC)` (defaults to ASC)
+            $sm = 'ASC'; 
+            if( (!empty($_GET['sm'])) && ($_GET['sm']=='d') ){
+                $sm = 'DESC';
+            }
+            $order_by = "$sc $sm";
+            if(!empty($order_by_entry_data)){
+                $order_by = "orderValue $sm";
+            }
+
             $offset = 0; // If page is 1, offset is 0, If page is 2 offset is 1 etc.
-            $paged = (get_query_var('page')) ? get_query_var('page') : 1;
-            $offset = $limit*($paged-1);
+            $currentPage = 1;
+            if( !empty($_GET['sfp']) ) {
+                $currentPage = absint($_GET['sfp']);
+            }
+            var_dump($currentPage);
+            var_dump($limit);
+            var_dump($currentPage-1);
+            $offset = $limit*($currentPage-1);
+            var_dump($offset);
 
             $where = '';
             if( $list['display_based_on']=='this_form' ) {
                 $where .= " AND post_parent = '" . absint($form_id) . "'";
+            }
+            
+            // Filter by entry data
+            $having = '';
+            if(!empty($filter_by_entry_data)){
+                $having .= " HAVING filterValue LIKE '%$fv%'";
             }
 
             // Filters by listing settings
@@ -1021,8 +1108,6 @@ if(!class_exists('SUPER_Listing')) :
                 $where .= ' AND post_author = "' . absint( $current_user->ID ) . '"';
             }
 
-            // Filters by user
-            $filters = '';
             // Check if filtering based on post_title
             if( !empty($_GET['post_title']) ) {
                 $filters .= ' post_title LIKE "%' . sanitize_text_field( $_GET['post_title'] ) . '%"';
@@ -1071,14 +1156,22 @@ if(!class_exists('SUPER_Listing')) :
             // ORDER BY post_date DESC 
             // LIMIT 500
 
-            $count_query = "
-            SELECT COUNT(ID)
-            FROM $wpdb->posts AS post 
-            INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
-            LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
-            WHERE post_type = 'super_contact_entry'$where
-            ORDER BY post_date DESC
-            ";
+            $count_query = "SELECT COUNT(post_id) AS total
+            FROM (
+                SELECT post.ID AS post_id, post.post_author AS post_author, post.post_title AS post_title, post.post_date AS post_date, meta.meta_value AS contact_entry_data, entry_status.meta_value AS status, first_name.meta_value AS first_name, last_name.meta_value AS last_name, nickname.meta_value AS nickname, author.user_login AS username, author.user_email AS email, author.display_name AS display_name 
+                $order_by_entry_data
+                $filter_by_entry_data 
+                FROM $wpdb->posts AS post 
+                INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
+                LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+                LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
+                LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
+                LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
+                LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
+                WHERE post_type = 'super_contact_entry'
+                $where
+                $having
+            ) a";
             $results_found = $wpdb->get_var($count_query);
 
             $query = "
@@ -1089,8 +1182,9 @@ if(!class_exists('SUPER_Listing')) :
             first_name.meta_value AS first_name,
             last_name.meta_value AS last_name,
             nickname.meta_value AS nickname,
-            author.user_login AS username, author.user_email AS email, author.display_name AS display_name,
-            SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:8:\"option_2\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue
+            author.user_login AS username, author.user_email AS email, author.display_name AS display_name
+            $order_by_entry_data
+            $filter_by_entry_data
             FROM $wpdb->posts AS post 
             INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
             LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
@@ -1098,24 +1192,24 @@ if(!class_exists('SUPER_Listing')) :
             LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
             LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
             LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
-            WHERE post_type = 'super_contact_entry'$where
-            ORDER BY post_date DESC
+            WHERE post_type = 'super_contact_entry'
+            $where
+            $having
+            ORDER BY $order_by
             LIMIT $limit
             OFFSET $offset
             ";
+            var_dump($query);
             $entries = $wpdb->get_results($query);
 
             $result = '';
             $result .= '<div class="super-fel">';
                 $result .= '<div class="super-header">';
                     $result .= '<div class="super-select-all">';
-                        $result .= 'Select All';
-                    $result .= '</div>';
-                    $result .= '<div class="super-settings">';
-                        $result .= 'Settings';
+                        $result .= esc_html__( 'Select All', 'super-forms' );
                     $result .= '</div>';
                     $result .= '<div class="super-csv-export">';
-                        $result .= 'CSV Export';
+                        $result .= esc_html__( 'CSV Export', 'super-forms' );
                     $result .= '</div>';
                 $result .= '</div>';
                 $result .= '<div class="super-fel-wrap">';
@@ -1147,30 +1241,33 @@ if(!class_exists('SUPER_Listing')) :
                             }
 
                             // Check if a filter was set for this column
-                            $filtervalue = '';
-                            if( !empty($_GET[$column_name]) ) {
-                                $filtervalue = sanitize_text_field($_GET[$column_name]);
+                            $filterColumnName = (!empty($_GET['fc']) ? sanitize_text_field($_GET['fc']) : '');
+                            $filterValue = (!empty($_GET['fv']) ? sanitize_text_field($_GET['fv']) : '');
+                            $inputValue = '';
+                            if($filterColumnName==$column_name){
+                                $inputValue = $filterValue;
                             }
-
                             $result .= '<div class="super-col-wrap" data-name="' . $column_name . '"' . $styles . '>';
                                 $result .= '<span class="super-col-name">' . $v['name'] . '</span>';
+                                $result .= '<div class="super-col-sort">';
+                                    $result .= '<span class="super-sort-down" onclick="SUPER.frontEndListing.sort(this, \'up\')">↓</span>';
+                                    $result .= '<span class="super-sort-up" onclick="SUPER.frontEndListing.sort(this, \'down\')">↑</span>';
+                                $result .= '</div>';
+                                var_dump($v['filter']);
                                 if( isset($v['filter']) && is_array($v['filter']) ) {
-                                    $result .= '<div class="super-col-sort">';
-                                        $result .= '<span class="super-sort-down" onclick="SUPER.frontEndListing.sort(this, \'up\')">↓</span>';
-                                        $result .= '<span class="super-sort-up" onclick="SUPER.frontEndListing.sort(this, \'down\')">↑</span>';
-                                    $result .= '</div>';
                                     $result .= '<div class="super-col-filter">';
+                                        var_dump($v['filter']['field_type']);
                                         if($v['filter']['field_type']=='text'){
-                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" name="' . $k . '" type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
+                                            $result .= '<input value="' . $inputValue . '" autocomplete="new-password" name="' . $k . '" type="text" placeholder="' . $v['filter']['placeholder'] . '" />';
                                             $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                         }
                                         if($v['filter']['field_type']=='datepicker'){
-                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" name="' . $k . '" type="date" placeholder="' . $v['filter']['placeholder'] . '"  onchange="SUPER.frontEndListing.search(event, this)" />';
+                                            $result .= '<input value="' . $inputValue . '" autocomplete="new-password" name="' . $k . '" type="date" placeholder="' . $v['filter']['placeholder'] . '"  onchange="SUPER.frontEndListing.search(event, this)" />';
                                         }
                                         if($v['filter']['field_type']=='dropdown'){
                                             $result .= '<select name="' . $k . '" placeholder="' . $v['filter']['placeholder'] . '" onchange="SUPER.frontEndListing.search(event, this)">';
                                                 foreach( $v['filter']['items'] as $value => $name ) {
-                                                    $result .= '<option value="' . $value . '"' . ( $filtervalue==$value ? ' selected="selected"' : '' ) . '>' . $name . '</option>';
+                                                    $result .= '<option value="' . $value . '"' . ( $inputValue==$value ? ' selected="selected"' : '' ) . '>' . $name . '</option>';
                                                 }
                                             $result .= '</select>';
                                         }
@@ -1180,18 +1277,18 @@ if(!class_exists('SUPER_Listing')) :
                                     $result .= '<div class="super-col-filter">';
                                         if( !isset($v['filter']) ) $v['filter'] = 'text';
                                         if( $v['filter']=='text' ) {
-                                            $result .= '<input value="' . $filtervalue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr__( 'Filter...', 'super-forms' ) . '" />';
+                                            $result .= '<input value="' . $inputValue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr__( 'Filter...', 'super-forms' ) . '" />';
                                             $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                         }
                                         if( $v['filter']=='dropdown' ) {
                                             $result .= '<select name="' . $k . '" onchange="SUPER.frontEndListing.search(event, this)">';
-                                                $result .= '<option value=""' . ( empty($filtervalue) ? ' selected="selected"' : '' ) . '>' . esc_html__( '- filter -', 'super-forms' ) . '</option>';
+                                                $result .= '<option value=""' . ( empty($inputValue) ? ' selected="selected"' : '' ) . '>' . esc_html__( '- filter -', 'super-forms' ) . '</option>';
                                                 $filter_items = explode("\n", $v['filter_items']);
                                                 foreach( $filter_items as $value ) {
                                                     $value = explode('|', $value);
                                                     $label = (isset($value[1]) ? $value[1] : 'undefined');
                                                     $value = (isset($value[0]) ? $value[0] : 'undefined');
-                                                    $result .= '<option value="' . $value . '"' . ( $filtervalue==$value ? ' selected="selected"' : '' ) . '>' . $label . '</option>';
+                                                    $result .= '<option value="' . $value . '"' . ( $inputValue==$value ? ' selected="selected"' : '' ) . '>' . $label . '</option>';
                                                 }
                                             $result .= '</select>';
                                         }
@@ -1518,8 +1615,32 @@ if(!class_exists('SUPER_Listing')) :
                 $result .= '</div>';
 
                 $result .= '<div class="super-pagination">';
-                    
-                    $result .= '<select class="super-limit" onchange="SUPER.frontEndListing.search(event, this)">';
+                    $result .= '<span class="super-pages">' . esc_html__( 'Page', 'super-forms' ) . '</span>';
+                    if($currentPage>1){
+                        $result .= '<span class="super-prev" onclick="SUPER.frontEndListing.changePage(event, this)"></span>';
+                    }
+                    $result .= '<select class="super-switcher" onchange="SUPER.frontEndListing.changePage(event, this)">';
+                        $totalPages = ceil($results_found/$limit);
+                        if($totalPages <= 0) $totalPages = 1;
+                        $i = 0;
+                        while( $i < $totalPages ) {
+                            $i++;
+                            $result .= '<option' . ($currentPage==$i ? ' selected="selected"' : '') . '>' . $i . '</option>';
+                        }
+                    $result .= '</select>';
+                    if($currentPage<$totalPages){
+                        $result .= '<span class="super-next" onclick="SUPER.frontEndListing.changePage(event, this)"></span>';
+                    }
+                    $result .= '<span class="super-results">';
+                        $result .= $results_found . ' ';
+                        if($results_found==1){
+                            $result .= esc_html__( 'result', 'super-forms' );
+                        }else{
+                            $result .= esc_html__( 'results', 'super-forms' );
+                        }
+                    $result .= '</span>';
+                    $result .= '<select class="super-limit" onchange="SUPER.frontEndListing.limit(event, this)">';
+                        $result .= '<option ' . ($limit==1 ? 'selected="selected" ' : '') . 'value="1">1</option>';
                         $result .= '<option ' . ($limit==10 ? 'selected="selected" ' : '') . 'value="10">10</option>';
                         $result .= '<option ' . ($limit==25 ? 'selected="selected" ' : '') . 'value="25">25</option>';
                         $result .= '<option ' . ($limit==50 ? 'selected="selected" ' : '') . 'value="50">50</option>';
@@ -1527,71 +1648,56 @@ if(!class_exists('SUPER_Listing')) :
                         $result .= '<option ' . ($limit==300 ? 'selected="selected" ' : '') . 'value="300">300</option>';
                     $result .= '</select>';
 
-                    $result .= '<span class="super-results">' . $results_found . ' results</span>';
+                    // >> $result .= '<div class="super-nav">';
+                    // >>     $url = esc_url(strtok($_SERVER["REQUEST_URI"], '?'));
+                    // >>     $totalPages = ceil($results_found/$limit);
+                    // >>     
+                    // >>     // Previous 2 pages
+                    // >>     if( $currentPage-2 > 1 ) {
+                    // >>         $i = $currentPage-2;
+                    // >>         $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     }
+                    // >>     if( $currentPage-1 > 1 ) {
+                    // >>         $i = $currentPage-1;
+                    // >>         $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     }
+                    // >>     
+                    // >>     // Current page
+                    // >>     $i = $currentPage;
+                    // >>     $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     
+                    // >>     // Next 2 pages
+                    // >>     if( $currentPage+1 < $totalPages ) {
+                    // >>         $i = $currentPage+1;
+                    // >>         $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     }
+                    // >>     if( $currentPage+2 < $totalPages ) {
+                    // >>         $i = $currentPage+2;
+                    // >>         $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     }
 
-                    $result .= '<span class="super-next"></span>';
-                    $result .= '<div class="super-nav">';
-                        $url = esc_url(strtok($_SERVER["REQUEST_URI"], '?'));
-                        $total_pages = ceil($results_found/$limit);
-                        
-                        // Previous 2 pages
-                        if( $paged-2 > 1 ) {
-                            $i = $paged-2;
-                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        }
-                        if( $paged-1 > 1 ) {
-                            $i = $paged-1;
-                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        }
-                        
-                        // Current page
-                        $i = $paged;
-                        $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        
-                        // Next 2 pages
-                        if( $paged+1 < $total_pages ) {
-                            $i = $paged+1;
-                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        }
-                        if( $paged+2 < $total_pages ) {
-                            $i = $paged+2;
-                            $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        }
+                    // >>     // if($currentPage>1){
+                    // >>     //     // Pages to show before
 
-                        // if($paged>1){
-                        //     // Pages to show before
+                    // >>     // }
+                    // >>     // if($currentPage==1){
+                    // >>     //     // Only show pages after
 
-                        // }
-                        // if($paged==1){
-                        //     // Only show pages after
+                    // >>     // }
+                    // >>     // $pages = 5
 
-                        // }
-                        // $pages = 5
+                    // >>       // Display page 3 (5-2)
+                    // >>      // Display page 4 (5-1)
+                    // >>     // Display page 5 
+                    // >>      // Display page 6 (5+1)
+                    // >>       // Display page 7 (5+2)
 
-                          // Display page 3 (5-2)
-                         // Display page 4 (5-1)
-                        // Display page 5 
-                         // Display page 6 (5+1)
-                          // Display page 7 (5+2)
-
-                        // $i = 0;
-                        // while( $i < $total_pages ) {
-                        //     $i++;
-                        //     $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($paged==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
-                        // }
-                    $result .= '</div>';
-                    $result .= '<span class="super-prev"></span>';
-
-                    $result .= '<select class="super-switcher" onchange="SUPER.frontEndListing.search(event, this)">';
-                        $i = 0;
-                        if($total_pages==0) $total_pages = 1;
-                        while( $i < $total_pages ) {
-                            $i++;
-                            $result .= '<option' . ($paged==$i ? ' selected="selected"' : '') . '>' . $i . '</option>';
-                        }
-                    $result .= '</select>';
-
-                    $result .= '<span class="super-pages">Pages</span>';
+                    // >>     // $i = 0;
+                    // >>     // while( $i < $totalPages ) {
+                    // >>     //     $i++;
+                    // >>     //     $result .= '<a href="' . $url . '?page=' . $i . '" class="super-page' . ($currentPage==$i ? ' super-active' : '') . '" onclick="SUPER.frontEndListing.search(event, this)">' . $i . '</a>';
+                    // >>     // }
+                    // >> $result .= '</div>';
 
                 $result .= '</div>';
             $result .= '</div>';
