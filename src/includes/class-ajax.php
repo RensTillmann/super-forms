@@ -1194,26 +1194,7 @@ class SUPER_Ajax {
                                 'type' => $column_type
                             );
                             continue;
-                        }
-                        if( $column_type=='var' ) {
-                            $entries[$row]['data'][$column_name] = array(
-                                'name' => $column_name,
-                                'label' => $column_label,
-                                'value' => $v,
-                                'type' => $column_type
-                            );
-                            continue;
-                        }
-                        if( $column_type=='text' ) {
-                            $entries[$row]['data'][$column_name] = array(
-                                'name' => $column_name,
-                                'label' => $column_label,
-                                'value' => $v,
-                                'type' => $column_type
-                            );
-                            continue;
-                        }
-                        if( $column_type=='file' ) {
+                        }elseif( $column_type=='file' ) {
                             $files = explode( ",", $v );   
                             $entries[$row]['data'][$column_name] = array(
                                 'name' => $column_name,
@@ -1228,6 +1209,14 @@ class SUPER_Ajax {
                                     'value' => $v,
                                 );
                             }
+                            continue;
+                        }else{
+                            $entries[$row]['data'][$column_name] = array(
+                                'name' => $column_name,
+                                'label' => $column_label,
+                                'value' => $v,
+                                'type' => $column_type
+                            );
                             continue;
                         }
                         $entries[$row][$column_type] = $v;

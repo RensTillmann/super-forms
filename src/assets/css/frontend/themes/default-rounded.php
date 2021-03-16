@@ -17,7 +17,7 @@ return "
 ".$s.".sp-replacer.super-forms,
 ".$s.".sp-replacer.super-forms .sp-preview-inner,
 ".$s.".sp-replacer.super-forms .sp-preview,
-".$s.".super-checkbox .super-field-wrapper label:before,
+".$s.".super-checkbox .super-field-wrapper .super-item > .super-before,
 ".$s.".super-field .super-field-wrapper .super-autosuggest-tags > div > span,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item,
 ".$s.".super-field.super-text.super-keyword-tags.super-string-found .super-field-wrapper .super-dropdown-ui .super-item span.super-wp-tag,
@@ -26,7 +26,7 @@ return "
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
-".$s.".super-checkbox .super-field-wrapper label:after {
+".$s.".super-checkbox .super-field-wrapper .super-item > .super-after {
 	-webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;

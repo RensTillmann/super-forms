@@ -129,7 +129,7 @@ $formFieldsFocus: 'input[type="text"]:focus,input[type="number"]:focus,input[typ
 .super-active:not(.fab):before, 
 .super-rating-star, 
 .super-fileupload-button i, 
-.super-dropdown-arrow:after, 
+.super-dropdown-arrow > .super-after, 
 .super-active .image:before, 
 .super-entered-keywords > span:after, 
 .super-toggle-prefix-question:after, 
@@ -1576,15 +1576,15 @@ textarea
   display: none !important
 
 .super-checkbox .super-item
-  &:before, &:after
+  > .super-before, > .super-after
     +boxSizing(inherit)
 
 .super-radio .super-item
-  &:before, &:after
+  > .super-before, > .super-after
     +boxSizing(inherit)
 
 .super-checkbox .super-item
-  &:before
+  > .super-before, > .super-after
     content: ''
     position: absolute
     left: 0px
@@ -1593,7 +1593,7 @@ textarea
     height: 17px
     border: 2px solid #4EB1B6
     display: block
-  &:after
+  > .super-after
     content: ''
     position: absolute
     left: 0px
@@ -1609,11 +1609,11 @@ textarea
     top: 12px
     left: 4px
     display: none
-  &.super-active:after
+  &.super-active > .super-after
     display: block
 
 .super-radio .super-item
-  &:before
+  > .super-before
     content: ''
     position: absolute
     left: 0px
@@ -1623,7 +1623,7 @@ textarea
     border: 2px solid #4EB1B6
     display: block
     +borderRadius(15px)
-  &:after
+  > .super-after
     content: ''
     position: absolute
     left: 0px
@@ -1640,7 +1640,7 @@ textarea
     top: 12px
     left: 4px
     display: none
-  &.super-active:after
+  &.super-active > .super-after
     display: block
 
 .super-field.super-quantity
@@ -1952,20 +1952,22 @@ textarea
 .super-field
   .super-dropdown-arrow
     position: absolute
-    right: 10px
+    right: 0px
     top: 0px
-    height: 30px
-    width: 20px
+    height: 100%
+    width: 30px
     text-align: center
     z-index: 0
     cursor: pointer
     pointer-events: none
+    display: flex
+    align-items: center
+    justify-content: center
   .super-icon-inside.super-icon-right .super-dropdown-arrow
-    right: 40px
+    right: 30px
   &.super-focus-dropdown .super-dropdown-arrow
     display: none
-  .super-dropdown-arrow:after
-    content: unicode("f0d7")
+  .super-dropdown-arrow > .super-after
     font-size: 18px
     line-height: 35px
   .super-dropdown-ui
@@ -3038,7 +3040,7 @@ ul.super-multipart-steps .super-multipart-step
       padding-left: 0
       padding-right: 15px
     .super-dropdown-arrow
-      left: 10px
+      left: 0px
       right: initial
     .super-icon-inside.super-icon-right
       .super-dropdown-arrow
@@ -3051,12 +3053,12 @@ ul.super-multipart-steps .super-multipart-step
       &.super-grouped-end
         padding-right: 15px
         padding-left: 0px
-  .super-checkbox .super-item:before, .super-radio .super-item:before
+  .super-checkbox .super-item > .super-before, .super-radio .super-item > .super-before
     left: inherit
     right: 0px
   .display-vertical .super-item
     padding: 5px 25px 0px 0px
-  .super-item:after
+  .super-item > .super-after
     left: inherit!important
     right: 4px
   .super-fileupload-button
@@ -3257,26 +3259,26 @@ ul.super-multipart-steps .super-multipart-step
 .super-checkbox
   &.display-horizontal .super-icon-left .super-item
     padding: 8px 0px 8px 30px
-  &.display-vertical .super-item:before,
-  &.display-horizontal .super-item:before
+  &.display-vertical .super-item > .super-before,
+  &.display-horizontal .super-item > .super-before
     top: 50%
     margin-top: -9px
 
 .super-radio
-  &.display-vertical .super-item:before,
-  &.display-horizontal .super-item:before
+  &.display-vertical .super-item > .super-before,
+  &.display-horizontal .super-item > .super-before
     top: 50%
     margin-top: -9px
 
 .super-checkbox
-  &.display-vertical .super-item:after,
-  &.display-horizontal .super-item:after
+  &.display-vertical .super-item > .super-after,
+  &.display-horizontal .super-item > .super-after
     top: 50%
     margin-top: -5px
 
 .super-radio
-  &.display-vertical .super-item:after,
-  &.display-horizontal .super-item:after
+  &.display-vertical .super-item > .super-after,
+  &.display-horizontal .super-item > .super-after
     top: 50%
     margin-top: -5px
 
@@ -3322,8 +3324,6 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-item
     padding: 0px 15px 0px 0px
   .super-field
-    .super-dropdown-arrow
-      top: -4px
     &.super-slider
       margin-top: 10px
   .super-slider .slider
@@ -3340,14 +3340,14 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-field-size-medium
   .super-item
-    &:before, &:after
+    > .super-before, > .super-after
       width: 18px
       height: 18px
-  .super-item:after
+  .super-item > .super-after
     width: 10px
     height: 10px
   .display-vertical .super-item
-    &:after
+    > .super-after
       top: 8px
       left: 4px
     padding-left: 25px
@@ -3368,23 +3368,23 @@ ul.super-multipart-steps .super-multipart-step
     .display-horizontal .super-item.super-has-image
       padding: 0px 0px 16px 25px
   .super-checkbox
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -9px
   .super-radio
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -9px
   .super-checkbox
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -5px
   .super-radio
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -5px
   .super-toggle-switch
@@ -3423,22 +3423,22 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-icon-outside.super-icon-right
     padding-right: 45px
     padding-left: 0px
-  .display-vertical .super-icon-left .super-item:before
+  .display-vertical .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .display-vertical .super-icon-left .super-item:before
+    .display-vertical .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+  .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+    .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .display-horizontal .super-icon-left .super-item:after
+  .display-horizontal .super-icon-left .super-item > .super-after
     left: 4px
   &.super-rtl
-    .display-horizontal .super-icon-left .super-item:after
+    .display-horizontal .super-icon-left .super-item > .super-after
       left: inherit
       right: 4px
   .super-field.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui
@@ -3521,8 +3521,6 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-item
     padding: 0px 15px 0px 0px
   .super-field
-    .super-dropdown-arrow
-      top: 2px
     &.super-slider
       margin-top: 10px
   .super-slider .slider
@@ -3539,16 +3537,16 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-field-size-large
   .super-item
-    &:before, &:after
+    > .super-before, > .super-after
       width: 22px
       height: 22px
-  .super-item:after
+  .super-item > .super-after
     width: 14px
     height: 14px
     top: 4px
     left: 4px
   .display-vertical .super-item
-    &:after
+    > .super-after
       top: 8px
       left: 4px
     padding-left: 35px
@@ -3571,23 +3569,23 @@ ul.super-multipart-steps .super-multipart-step
     .display-horizontal .super-item.super-has-image
       padding: 0px 35px 25px 0px
   .super-checkbox
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -11px
   .super-radio
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -11px
   .super-checkbox
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -7px
   .super-radio
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -7px
   .super-toggle-switch
@@ -3626,22 +3624,22 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-icon-outside.super-icon-right
     padding-right: 55px
     padding-left: 0px
-  .display-vertical .super-icon-left .super-item:before
+  .display-vertical .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .display-vertical .super-icon-left .super-item:before
+    .display-vertical .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+  .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+    .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .display-horizontal .super-icon-left .super-item:after
+  .display-horizontal .super-icon-left .super-item > .super-after
     left: 4px
   &.super-rtl
-    .display-horizontal .super-icon-left .super-item:after
+    .display-horizontal .super-icon-left .super-item > .super-after
       left: inherit
       right: 4px
   .super-field.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui
@@ -3729,8 +3727,6 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-item
     padding: 0px 25px 0px 0px
   .super-field
-    .super-dropdown-arrow
-      top: 6px
     &.super-slider
       margin-top: 10px
   .super-slider .slider
@@ -3749,16 +3745,16 @@ ul.super-multipart-steps .super-multipart-step
 
 .super-field-size-huge
   .super-item
-    &:before, &:after
+    > .super-before, > .super-after
       width: 26px
       height: 26px
-  .super-item:after
+  .super-item > .super-after
     width: 18px
     height: 18px
     top: 4px
     left: 4px
   .display-vertical .super-item
-    &:after
+    > .super-after
       top: 8px
       left: 4px
     padding: 10px 0px 10px 38px
@@ -3781,23 +3777,23 @@ ul.super-multipart-steps .super-multipart-step
     .display-horizontal .super-item.super-has-image
       padding: 0px 0px 35px 38px
   .super-checkbox
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -14px
   .super-radio
-    &.display-vertical .super-item:before,
-    &.display-horizontal .super-item:before
+    &.display-vertical .super-item > .super-before,
+    &.display-horizontal .super-item > .super-before
       top: 50%
       margin-top: -14px
   .super-checkbox
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -10px
   .super-radio
-    &.display-vertical .super-item:after,
-    &.display-horizontal .super-item:after
+    &.display-vertical .super-item > .super-after,
+    &.display-horizontal .super-item > .super-after
       top: 50%
       margin-top: -10px
   .super-toggle-switch
@@ -3838,22 +3834,22 @@ ul.super-multipart-steps .super-multipart-step
   &.super-rtl .super-icon-outside.super-icon-right
     padding-right: 65px
     padding-left: 0px
-  .display-vertical .super-icon-left .super-item:before
+  .display-vertical .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .display-vertical .super-icon-left .super-item:before
+    .display-vertical .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+  .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
     left: 0px
   &.super-rtl
-    .super-checkbox .super-icon-left .super-item:before, .super-radio .super-icon-left .super-item:before
+    .super-checkbox .super-icon-left .super-item > .super-before, .super-radio .super-icon-left .super-item > .super-before
       left: inherit
       right: 0px
-  .display-horizontal .super-icon-left .super-item:after
+  .display-horizontal .super-icon-left .super-item > .super-after
     left: 4px
   &.super-rtl
-    .display-horizontal .super-icon-left .super-item:after
+    .display-horizontal .super-icon-left .super-item > .super-after
       left: inherit
       right: 4px
   .super-field.super-focus-dropdown .super-icon-outside.super-icon-left .super-dropdown-ui
@@ -4040,10 +4036,10 @@ ul.super-multipart-steps .super-multipart-step
 .super-first-responsiveness
   .display-vertical .super-item
     padding: 6px 0px 6px 25px
-  .display-vertical .super-item:before
+  .display-vertical .super-item > .super-before
     top: 0
     margin-top: 0
-  .display-vertical .super-item:after
+  .display-vertical .super-item > .super-after
     top: 0px
     margin-top: 4px
   .super-button-small

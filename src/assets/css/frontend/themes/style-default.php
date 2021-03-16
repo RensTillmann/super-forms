@@ -453,12 +453,12 @@ return $import_fonts."
     background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);
     background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top_focus']." 25%, ".$v['theme_field_colors_bottom_focus']." 100%);
 }
-".$s.".super-radio .super-field-wrapper label:before,
-".$s.".super-checkbox .super-field-wrapper label:before {
+".$s.".super-radio .super-field-wrapper .super-item > .super-before,
+".$s.".super-checkbox .super-field-wrapper .super-item > .super-before {
     border-color: ".$v['theme_ui_checkbox_border'].";
 }
-".$s.".super-radio .super-field-wrapper label:after,
-".$s.".super-checkbox .super-field-wrapper label:after {
+".$s.".super-radio .super-field-wrapper .super-item > .super-after,
+".$s.".super-checkbox .super-field-wrapper .super-item > .super-after {
     background-color: ".$v['theme_ui_checkbox_inner'].";
 }
 ".$s.".super-slider .super-field-wrapper .slider .dragger,
