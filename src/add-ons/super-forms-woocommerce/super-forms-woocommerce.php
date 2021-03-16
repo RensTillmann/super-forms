@@ -167,6 +167,10 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
             
             if ( $this->is_request( 'frontend' ) ) {
+                // Remove product link from cart page
+                add_filter( 'woocommerce_cart_item_permalink', array( $this, 'remove_product_link' ), 1000, 3 );
+                // Remove "Edit" link from cart page
+                add_filter( 'wc_nyp_isset_disable_edit_it_cart', array( $this, 'remove_edit_link' ), 1000, 3 );
                 // Return 404 on single product page
                 add_action( 'template_redirect', array( $this, 'return_404_single_product_page' ), 1 );
                 // Exclude products from a particular category on the shop page
@@ -186,6 +190,34 @@ if(!class_exists('SUPER_WooCommerce')) :
                 add_filter( 'woocommerce_loop_add_to_cart_args', array( $this, 'remove_ajax_class_from_loop_add_to_cart_btn' ), 1000, 2 );
             }
         }
+        // Remove product link from cart page
+        public function remove_product_link( $url, $cart_item, $cart_item_key ) {
+            $productId = $cart_item['product_id'];
+            $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return $url;
+            if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
+                return '';
+            }
+            return $url;
+        }
+        // Remove "Edit" link from cart page
+        public function remove_edit_link($remove, $cart_item, $cart_item_key){
+            $productId = $cart_item['product_id'];
+            // Based on hiding product from shop
+            $result = $this->hideProductsByIdOrSlug();
+            if($result){
+                if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
+                    return true;
+                }
+            }
+            // Based on hiding default "Add to cart" section
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                return true;
+            }
+            return $remove;
+        }
+
         // Return 404 on single product page
         public function return_404_single_product_page(){
             global $post;
