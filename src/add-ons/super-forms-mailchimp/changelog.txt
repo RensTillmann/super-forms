@@ -1,3 +1,6 @@
+Mar 16, 2021 - Version 1.6.0
+- Fix: PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated 
+
 Jan 22, 2021 - Version 1.5.9
 - Added: Option to define what status the member should get after submitting the form, this allows you to create a form that will `Unsubscribe` a user
 

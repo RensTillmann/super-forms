@@ -65,14 +65,14 @@ return "
 	border-radius:26px;
 }
 
-".$s_large.".super-checkbox .super-field-wrapper label:before,
-".$s_huge.".super-checkbox .super-field-wrapper label:before {
+".$s_large.".super-checkbox .super-field-wrapper .super-item > .super-before,
+".$s_huge.".super-checkbox .super-field-wrapper .super-item > .super-before {
 	-webkit-border-radius:4px;
 	-moz-border-radius:4px;
 	border-radius:4px;
 }
-".$s_large.".super-checkbox .super-field-wrapper label:after,
-".$s_huge.".super-checkbox .super-field-wrapper label:after {
+".$s_large.".super-checkbox .super-field-wrapper .super-item > .super-after,
+".$s_huge.".super-checkbox .super-field-wrapper .super-item > .super-after {
 	-webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;

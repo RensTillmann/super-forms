@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.7.3
+ * Version:     1.8.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.7.3';
+        public $version = '1.8.0';
 
 
         /**
@@ -166,8 +166,272 @@ if(!class_exists('SUPER_WooCommerce')) :
                 add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
             }
             
+            if ( $this->is_request( 'frontend' ) ) {
+                // Remove product link from cart page
+                add_filter( 'woocommerce_cart_item_permalink', array( $this, 'remove_product_link' ), 1000, 3 );
+                // Remove "Edit" link from cart page
+                add_filter( 'wc_nyp_isset_disable_edit_it_cart', array( $this, 'remove_edit_link' ), 1000, 3 );
+                // Return 404 on single product page
+                add_action( 'template_redirect', array( $this, 'return_404_single_product_page' ), 1 );
+                // Exclude products from a particular category on the shop page
+                add_action( 'pre_get_posts', array( $this, 'exclude_products_from_shop' ) );
+                // Exclude products from WooCommerce shortcodes
+                add_filter( 'woocommerce_shortcode_products_query', array( $this, 'exclude_products_from_wc_shortcodes' ), 10, 3 );
+                // Remove add to cart form
+                add_action( 'wp', array( $this, 'remove_single_product_title_rating_price_excerpt' ), 10);      
+                // Replace add to cart with form
+                add_action( 'woocommerce_single_product_summary', array( $this, 'replace_add_to_cart_btn_section_with_form' ), 20 );
+                // Replace loop add to cart URL
+                add_filter( 'woocommerce_product_add_to_cart_url', array( $this, 'replace_loop_add_to_cart_url' ), 1000, 2 );
+                // Replace loop add to cart text
+                add_filter( 'woocommerce_product_single_add_to_cart_text', array( $this, 'replace_loop_add_to_cart_text' ), 1000, 2 );
+                add_filter( 'woocommerce_product_add_to_cart_text', array( $this, 'replace_loop_add_to_cart_text' ), 1000, 2 );
+                // Remove ajax class from add to cart button
+                add_filter( 'woocommerce_loop_add_to_cart_args', array( $this, 'remove_ajax_class_from_loop_add_to_cart_btn' ), 1000, 2 );
+            }
+        }
+        // Remove product link from cart page
+        public function remove_product_link( $url, $cart_item, $cart_item_key ) {
+            $productId = $cart_item['product_id'];
+            $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return $url;
+            if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
+                return '';
+            }
+            return $url;
+        }
+        // Remove "Edit" link from cart page
+        public function remove_edit_link($remove, $cart_item, $cart_item_key){
+            $productId = $cart_item['product_id'];
+            // Based on hiding product from shop
+            $result = $this->hideProductsByIdOrSlug();
+            if($result){
+                if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
+                    return true;
+                }
+            }
+            // Based on hiding default "Add to cart" section
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                return true;
+            }
+            return $remove;
         }
 
+        // Return 404 on single product page
+        public function return_404_single_product_page(){
+            global $post;
+            if(!$post) return true;
+            $productId = $post->ID;
+            $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return true;
+            if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
+                include( get_query_template( '404' ) );
+                exit;
+            }
+        }
+        // Exclude products from a particular category on the shop page
+        public function exclude_products_from_shop( $q ) {
+            $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return true;
+            if(count($result['ids'])!==0){
+                $q->set( 'post__not_in', $result['ids'] ); // Replace 70 and 53 with your products IDs. Separate each ID with a comma.
+            }
+            if(count($result['slugs'])!==0){
+                $tax_query = (array) $q->get( 'tax_query' );
+                $tax_query[] = array(
+                    'taxonomy' => 'product_cat',
+                    'field' => 'slug',
+                    'terms' => $result['slugs'],
+                    'operator' => 'NOT IN'
+                );
+                $q->set( 'tax_query', $tax_query );
+            }
+        }
+        // Exclude products from WooCommerce shortcodes
+        public function exclude_products_from_wc_shortcodes($query_args, $attr, $type){
+            $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return true;
+            if(count($result['ids'])!==0){
+                $query_args['post__not_in'] = $result['ids'];
+            }
+            if(count($result['slugs'])!==0){
+                $query_args['tax_query'][] = array(
+                    'taxonomy' => 'product_cat',
+                    'field' => 'slug',
+                    'terms' => $result['slugs'],
+                    'operator' => 'NOT IN'
+                );
+            }
+            return $query_args;
+        }
+        // Remove add to cart form
+        public function remove_single_product_title_rating_price_excerpt() {
+            global $post;
+            if(!$post) return true;
+            $productId = $post->ID;
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                // Optionally remove title, rating, price, excerpt?
+                if($result['remove_title']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_title', 5 );
+                if($result['remove_rating']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating', 10 );
+                if($result['remove_price']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
+                if($result['remove_excerpt']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
+            }
+        }
+        // Replace add to cart with form
+        public function replace_add_to_cart_btn_section_with_form() {
+            global $product;
+            if(!$product) return true;
+            $productId = $product->get_id();
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                echo do_shortcode('[super_form id="' . $result['form_id'] . '"]');
+                // Remove single product page add to cart form
+                remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+                remove_action( 'woocommerce_simple_add_to_cart', 'woocommerce_simple_add_to_cart', 30 );
+                remove_action( 'woocommerce_grouped_add_to_cart', 'woocommerce_grouped_add_to_cart', 30 );
+                remove_action( 'woocommerce_variable_add_to_cart', 'woocommerce_variable_add_to_cart', 30 );
+                remove_action( 'woocommerce_external_add_to_cart', 'woocommerce_external_add_to_cart', 30 );
+                remove_action( 'woocommerce_single_variation', 'woocommerce_single_variation', 10 );
+                remove_action( 'woocommerce_single_variation', 'woocommerce_single_variation_add_to_cart_button', 20 );
+            }
+        }
+        // Replace loop add to cart URL
+        public function replace_loop_add_to_cart_url($url, $product) {
+            return $product->get_permalink();
+        }
+        // Replace loop add to cart text
+        public function replace_loop_add_to_cart_text($text, $product) {
+            $productId = $product->get_id();
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                return __( 'View product', 'super-forms' );
+            }
+            return $text;
+        }
+        // Remove ajax class from add to cart button
+        public function remove_ajax_class_from_loop_add_to_cart_btn( $args, $product ) {
+            $productId = $product->get_id();
+            $result = $this->productMatchByIdOrSlug($productId);
+            if($result['match']){
+                $args['class'] = str_replace('ajax_add_to_cart', '', $args['class']);
+            }
+            return $args;
+        }
+        public function productMatchByIdOrSlug($productId){
+            $settings = $this->globalWooCommerceSettings();
+            $key = array_search($productId, array_column($settings['ids'], 'product_id'));
+            $match = false;
+            $formId = 0;
+            if($key!==false){
+                $formId = $settings['ids'][$key]['form_id'];
+                $match = true;
+            }else{
+                // Loop over possible slugs
+                foreach($settings['slugs'] as $k => $v){
+                    if(has_term($v['slug'], 'product_cat', $productId)){
+                        $formId = $v['form_id'];
+                        $match = true;
+                        break;
+                    }
+                }
+            }
+            return array(
+                'match' => $match,
+                'form_id' => $formId,
+                'remove_title' => $settings['remove_title'],
+                'remove_rating' => $settings['remove_rating'],
+                'remove_price' => $settings['remove_price'],
+                'remove_excerpt' => $settings['remove_excerpt']
+            );
+        }
+        public function globalWooCommerceSettings(){
+            $globalSettings = SUPER_Common::get_global_settings();
+            $formProductSlugs = '';
+            if(empty($globalSettings['wc_remove_single_product_page_title'])) $globalSettings['wc_remove_single_product_page_title'] = 'false';
+            if(empty($globalSettings['wc_remove_single_product_page_rating'])) $globalSettings['wc_remove_single_product_page_rating'] = 'false';
+            if(empty($globalSettings['wc_remove_single_product_page_price'])) $globalSettings['wc_remove_single_product_page_price'] = 'false';
+            if(empty($globalSettings['wc_remove_single_product_page_excerpt'])) $globalSettings['wc_remove_single_product_page_excerpt'] = 'false';
+            if(!empty($globalSettings['wc_replace_add_to_cart_btn'])){
+                $formProductSlugs = $globalSettings['wc_replace_add_to_cart_btn'];
+                $formProductSlugs = str_replace(' ', '', $formProductSlugs);
+                $formProductSlugs = explode("\n", $formProductSlugs);
+                // Cleanup
+                foreach($formProductSlugs as $k => $v){
+                    if(empty($v)) unset($formProductSlugs[$k]);
+                }
+                // Remove none ID values:
+                $ids = array();
+                foreach($formProductSlugs as $k => $v){
+                    $v = explode('|', $v);
+                    if(!empty($v[1]) && absint($v[1])!==0 ){
+                        $ids[] = array(
+                           'form_id' => $v[0],
+                           'product_id' => $v[1]
+                        );
+                    }
+                }
+                // Remove none Slug values:
+                $slugs = array();
+                foreach($formProductSlugs as $k => $v){
+                    $v = explode('|', $v);
+                    if(!empty($v[1]) && absint($v[1])===0 ){
+                        $slugs[] = array(
+                           'form_id' => $v[0],
+                           'slug' => $v[1]
+                        );
+                    }
+                }
+                return array(
+                    'ids' => $ids,
+                    'slugs' => $slugs,
+                    'remove_title' => $globalSettings['wc_remove_single_product_page_title'],
+                    'remove_rating' => $globalSettings['wc_remove_single_product_page_rating'],
+                    'remove_price' => $globalSettings['wc_remove_single_product_page_price'],
+                    'remove_excerpt' => $globalSettings['wc_remove_single_product_page_excerpt']
+                );
+            }else{
+                return array(
+                    'ids' => array(),
+                    'slugs' => array(),
+                    'remove_title' => $globalSettings['wc_remove_single_product_page_title'],
+                    'remove_rating' => $globalSettings['wc_remove_single_product_page_rating'],
+                    'remove_price' => $globalSettings['wc_remove_single_product_page_price'],
+                    'remove_excerpt' => $globalSettings['wc_remove_single_product_page_excerpt']
+                );
+            }
+        }
+        public function hideProductsByIdOrSlug(){
+            $globalSettings = SUPER_Common::get_global_settings();
+            $idSlugs = '';
+            if(!empty($globalSettings['wc_hide_products_by_id_or_slug'])){
+                $idSlugs = $globalSettings['wc_hide_products_by_id_or_slug'];
+                $idSlugs = str_replace(' ', '', $idSlugs);
+                $idSlugs = explode("\n", $idSlugs);
+                // Cleanup
+                foreach($idSlugs as $k => $v){
+                    if(empty($v)) unset($idSlugs[$k]);
+                }
+                // Remove none ID values:
+                $ids = array();
+                foreach($idSlugs as $k => $v){
+                    if(absint($v)===0) continue;
+                    $ids[] = $v;
+                }
+                // Remove none Slug values:
+                $slugs = array();
+                foreach($idSlugs as $k => $v){
+                    if(absint($v)!==0) continue;
+                    $slugs[] = $v;
+                }
+                return array(
+                    'ids' => $ids,
+                    'slugs' => $slugs
+                );
+            }
+            return false;
+        }
 
         /**
          * Load Localisation files.
@@ -1291,10 +1555,79 @@ if(!class_exists('SUPER_WooCommerce')) :
 			}
 			$statuses = $new_statuses;
 			unset($new_statuses);
+            $array['woocommerce_checkout_global'] = array(
+                'hidden' => true,
+                'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'fields' => array(
+                    // Hide products from shop by product ID or Category Slug
+                    // This will also disallow products from being added into the cart via normal WooCommerce behaviour
+                    // This allows the product to only be added via a Super Forms submission
+                    'wc_hide_products_by_id_or_slug' => array(
+                        'name' => esc_html__( 'Hide products from the shop', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When configured, the product(s) will not be listend on the Archive pages (shop, category, tag and search pages). This way the product can only be ordered by submitting the form.%1$s%1$sPut each product ID and or Category slug on a new line. For example:%1$s%1$s3245%1$s3246%1$s3247%1$sbooks%1$scars%1$scomputers', 'super-forms' ), '<br />' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_hide_products_by_id_or_slug', $settings['settings'], '' ),
+                        'type'=>'textarea'
+                    ),
+                    // Replace the default "Add to cart" area on the single product page with a form. 
+                    // This will also replace the "Add to cart" button on Archive pages with a "View Product" button so the user is navigated to the single product page
+                    // and able to fill out the form.
+                    // This setting will obviously become obsolete for products you are hiding in above settings
+                    'wc_replace_add_to_cart_btn' => array(
+                        'name' => esc_html__( 'Replace the default "Add to cart" area', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When configured, the single product page "Add to cart" section will be replaced with the defined form. It will also replace the "Add to cart" button with a "View Product" button on all Archive pages (shop, category, tag and search pages).%1$s%1$sThis setting will obviously become obsolete for products you are hiding from your shop in the above setting.%1$s%1$sDefine each on a new line formatted like so:%1$s%1$sFORM_ID|PRODUCT_ID%1$sFORM_ID|CATEGORY_SLUG', 'super-forms' ), '<br />' ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_replace_add_to_cart_btn', $settings['settings'], '' ),
+                        'type'=>'textarea',
+                        'placeholder'=> esc_html__( "FORM_ID|PRODUCT_ID\nFORM_ID|CATEGORY_SLUG", 'super-forms' ),
+                    ),
+                    // Optionally delete, title, price, rating, excerpt from product page and only display the form
+                    'wc_remove_single_product_page_title' => array(
+                        'name' => esc_html__( 'Remove title from single product page', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the title of the product will also be removed', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_title', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Remove title from single product page', 'super-forms' ),
+                        ),
+                    ),
+                    'wc_remove_single_product_page_rating' => array(
+                        'name' => esc_html__( 'Remove rating from single product page', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the rating of the product will also be removed', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_rating', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Remove rating from single product page', 'super-forms' ),
+                        ),
+                    ),
+                    'wc_remove_single_product_page_price' => array(
+                        'name' => esc_html__( 'Remove price from single product page', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the price of the product will also be removed', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_price', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Remove price from single product page', 'super-forms' ),
+                        ),
+                    ),
+                    'wc_remove_single_product_page_excerpt' => array(
+                        'name' => esc_html__( 'Remove short description from single product page', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the short description of the product will also be removed', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_excerpt', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Remove short description from single product page', 'super-forms' ),
+                        ),
+                    ),
+                )
+            );
             $array['woocommerce_checkout'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
                 'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'html' => array(
+                    sprintf( esc_html__( '%s%sNote:%s if you only want users to be able to order products via this form you can configure the products in question to be excluded from your regular shop. Alternatively you can also define to replace the product "Add to cart" area with your form. You can define those settings here: %sSuper Forms > Settings > WooCommerce Checkout%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#woocommerce-checkout-global">', '</a>', '</div>' ),
+                   sprintf( esc_html__( '%s%sDocumentation:%s %sSingle product checkout with a fixed quantity and price%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/articles/360018449398"">', '</a>', '</div>' )
+               
+                ),
                 'fields' => array(
                     'woocommerce_checkout' => array(
                         'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout', $settings['settings'], '' ),
