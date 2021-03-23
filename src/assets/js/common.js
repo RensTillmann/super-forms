@@ -3299,7 +3299,6 @@ function SUPERreCaptcha(){
         args.form = SUPER.get_frontend_or_backend_form(args);
         if( typeof args.el !== 'undefined' ) {
             if(args.el.closest('.super-shortcode')){
-                args.el.closest('.super-shortcode').classList.remove('super-focus');
                 if(args.el.value===''){
                     args.el.closest('.super-shortcode').classList.remove('super-filled');
                 }else{

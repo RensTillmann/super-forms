@@ -486,7 +486,14 @@ class SUPER_Pages {
             $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
             if(is_array($data)){
                 foreach($data as $k => $v){
-                    if((isset($v['type'])) && (($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='text') || ($v['type']=='field') || ($v['type']=='barcode') || ($v['type']=='files'))){
+                    if( (isset($v['type'])) && (
+                        ($v['type']=='varchar') || 
+                        ($v['type']=='var') || 
+                        ($v['type']=='text') || 
+                        ($v['type']=='google_address') || 
+                        ($v['type']=='field') || 
+                        ($v['type']=='barcode') || 
+                        ($v['type']=='files')) ) {
                         $data['fields'][] = $v;
                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
                         $data['form_id'][] = $v;
@@ -637,7 +644,7 @@ class SUPER_Pages {
                                                             echo '<input type="text" disabled="disabled" value="' . esc_html__( 'No files uploaded', 'super-forms' ) . '" />';
                                                             echo '</span></td></tr>';
                                                         }
-                                                    }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') ) {
+                                                    }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') || ($v['type']=='google_address') ) {
                                                         if( !isset($v['value']) ) $v['value'] = '';
                                                         if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
                                                             echo '<tr class="super-signature"><th align="right">' . esc_html( $v['label'] );
