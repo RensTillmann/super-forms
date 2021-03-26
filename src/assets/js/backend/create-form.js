@@ -88,6 +88,7 @@
         },
         // Update form settings
         updateSettings: function(e, el){
+            console.log(el);
             SUPER.ui.showHideSubsettings(el);
             // Update form settings
             SUPER.update_form_settings(true);
@@ -288,6 +289,28 @@
     SUPER.get_tab_settings = function(settings, slug){
         var i, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
         if(tab.querySelector('.super_transient')){
+            var i, nodes = tab.querySelectorAll(':scope > .sfui-setting > label > [name]');
+            //var x, fields = nodes[i].querySelectorAll('[name]');
+            for(i=0; i<nodes.length; i++){
+                // is direct inner field, must add it to the data
+                var value = nodes[i].value;
+                if(nodes[i].type==='checkbox') value = nodes[i].checked;
+                if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+                if(value===true) value = "true"; 
+                if(value===false) value = "false"; 
+                data[nodes[i].name] = value;
+                var p = nodes[i].closest('.sfui-setting');
+                if(p){
+                    debugger;
+                    var sub = p.querySelector('.sfui-sub-settings');
+                    if(sub){
+                        var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
+                        for(x=0; x<xnodes.length; x++){
+                            data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
+                        }
+                    }
+                }
+            }
             var i, nodes = tab.querySelectorAll(':scope > .sfui-repeater');
             for(i=0; i<nodes.length; i++){
                 data = SUPER.processRepeaterItems({tab: tab, node: nodes[i], depth: 0, data: data});

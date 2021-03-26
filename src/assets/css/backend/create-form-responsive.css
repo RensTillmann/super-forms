@@ -259,6 +259,12 @@
     .super-element > .super-elements-container > .super-element {
         width: 33%;
     }
+    .super-builder .super-preview {
+        width: calc(100% - 410px);
+    }
+    .super-elements {
+        width:410px!important;
+    }
 }
 
 /* For large screens make font bigger, otherwise it's barely readable */
