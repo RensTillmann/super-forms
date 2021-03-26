@@ -653,14 +653,14 @@ if(!class_exists('SUPER_Forms')) :
             echo '</div>';    
             // Enable Form to PDF generation
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="generate" value="true"' . ($pdf['generate']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
             // Enable debug mode
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="debug" value="true"' . ($pdf['debug']=='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span>' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
                 echo '</label>';
@@ -687,25 +687,25 @@ if(!class_exists('SUPER_Forms')) :
             echo '</div>';
             // Attach to admin E-mail
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
             // Attach to confirmation E-mail
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
             // Attach to contact entry
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="excludeEntry" value="true"' . ($pdf['excludeEntry']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
             // Direct download link
             echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="downloadBtn" value="true"' . ($pdf['downloadBtn']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
@@ -732,10 +732,10 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<div class="sfui-title">';
                     echo esc_html__( 'Page orientation', 'super-forms' );
                 echo '</div>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="radio" name="orientation" value="portrait"' . ($pdf['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
                 echo '</label>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';
@@ -859,7 +859,7 @@ if(!class_exists('SUPER_Forms')) :
                 echo '<div class="sfui-title" style="flex-basis: 290px;">';
                     echo esc_html__( 'PDF Text rendering', 'super-forms' );
                 echo '</div>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this, \'_'.$slug.'\')">';
+                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                     echo '<input type="checkbox" name="textRendering" value="true"' . ($pdf['textRendering']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
                 echo '</label>';
             echo '</div>';

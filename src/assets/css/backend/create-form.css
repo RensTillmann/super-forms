@@ -71,7 +71,7 @@
     margin-bottom: 40px;
 }
 
-#wpbody-content>.updated, 
+#wpbody-content>.updated,
 #wpbody-content>.error,
 #wpbody-content>.notice,
 #wpbody-content>* {
@@ -2625,17 +2625,6 @@
     background-color: #dfeeff;
     color: #383838;
 }
-
-.sfui-setting {
-    display: flex;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid #d0d0d0;
-    align-items: start;
-    width: 100%;
-}
-
 .sfui-setting label {
     line-height: 1.2;
     display: flex;
@@ -2659,10 +2648,8 @@
 }
 
 .sfui-setting .sfui-title {
-    font-weight: 600;
+    font-weight: 500;
     font-size: 14px;
-    padding: 0px 10px 5px 0px;
-    flex-basis: 160px;
 }
 .sfui-setting .sfui-title > span {
     color: #ff9221;
@@ -2680,11 +2667,27 @@
     padding:0px 0px 0px 0px;
     margin:0px 0px 0px 0px;
     flex-direction: column;
+    align-items: start;
+    flex-wrap: wrap;
+    width: 100%;
 }
 .sfui-repeater-item {
-    border:1px solid red;
-    margin:10px 0px;
+    border: 1px solid gainsboro;
+    border-radius: 5px;
+    padding: 0px 8px 0px 8px;
+    margin: 0px 0px 10px 0px;
 }
+.sfui-repeater-item:hover {
+    border: 1px solid #D8C88C;
+    background-color: #fff0ba7d;
+}
+.sfui-repeater-item:hover .sfui-repeater-item:hover {
+    border: 1px solid #D8C88C;
+    background-color: #fff0ba7d;
+}
+
+
+
 .sfui-inline .sfui-setting {
     flex-direction: row;
     align-items:center;
@@ -2696,26 +2699,31 @@
     padding:10px 10px 10px 0px;
     width:100%;
 }
-.sfui-setting > label > span {
-    margin:0px 10px 0px 0px!important;
-    font-weight:500;
-}
 .sfui-setting.sfui-vertical > label > span {
     padding-bottom:5px;
 }
 .sfui-sub-settings .sfui-setting {
     border-bottom:0;
 }
-.sfui-sub-settings .sfui-setting > label > span {
-    font-weight:normal;
+.sfui-setting-group > .sfui-setting {
+    border-bottom: 1px solid #d0d0d0;
+}
+.sfui-setting-group > .sfui-setting:last-child {
+    border-bottom: none;
 }
 .sfui-setting > label > input,
 .sfui-setting > label > select {
     margin:0px 5px 0px 0px!important;
 }
 .sfui-sub-settings {
-    flex-basis: 100%;
+    width: 100%;
+}
+.sfui-sub-settings .sfui-sub-settings {
     margin-left:20px;
+    border-left: 1px dashed #00000087;
+    border-bottom: 1px dashed #00000087;
+    padding: 0px 0px 0px 10px;
+    margin: 1px 0px 0px 7px;
 }
 .sfui-vertical > label {
     flex-direction: column;
@@ -2734,9 +2742,7 @@
 .sfui-setting input,
 .sfui-setting select {
     width:100%;
-}
-.sfui-inline .sfui-setting input {
-    width:50%;
+    resize:both;
 }
 .sfui-setting input[type="date"] {
     width:150px;
@@ -2781,3 +2787,4 @@
 .sfui-btn.sfui-round {
     border-radius:100%;
 }
+
