@@ -856,6 +856,9 @@ h1.super-thanks-title
       display: none
     &[data-conditional-action="hide"]
       display: block
+    &.super-column.super-conditional-visible
+      display: block
+
   input:focus, select:focus
     outline: 0
   &.preload-disabled
@@ -1642,6 +1645,13 @@ textarea
     display: none
   &.super-active > .super-after
     display: block
+
+.super-focus
+  .super-item.super-focus
+    .super-before
+      -webkit-box-shadow: 0px 0px 5px 2px #4EB1B6
+      -moz-box-shadow: 0px 0px 5px 2px #4EB1B6
+      box-shadow: 0px 0px 5px 2px #4EB1B6
 
 .super-field.super-quantity
   .super-shortcode-field,#{$formFields}

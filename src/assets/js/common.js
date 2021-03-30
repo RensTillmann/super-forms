@@ -1024,11 +1024,11 @@ function SUPERreCaptcha(){
                         $changed_wrappers = [];
                         if($trigger=='all'){
                             if($match_found==$total){
-                                if( ($action==='show') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
+                                if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
-                                if( ($action==='hide') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
+                                if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
@@ -1036,11 +1036,11 @@ function SUPERreCaptcha(){
                                     $hide_wrappers.push($wrapper);
                                 }
                             }else{
-                                if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
+                                if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
-                                if( ($action==='hide') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
+                                if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
@@ -1050,11 +1050,11 @@ function SUPERreCaptcha(){
                             }
                         }else{
                             if($match_found!==0){
-                                if( ($action==='show') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
+                                if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
-                                if( ($action==='hide') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
+                                if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
@@ -1062,11 +1062,11 @@ function SUPERreCaptcha(){
                                     $hide_wrappers.push($wrapper);
                                 }
                             }else{
-                                if( ($action==='show') && ($wrapper.style.display==='block' || $wrapper.style.display==='') ){
+                                if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $hide_wrappers.push($wrapper);
                                 }
-                                if( ($action==='hide') && ($wrapper.style.display==='none' || $wrapper.style.display==='') ){
+                                if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
                                     $changed_wrappers.push($wrapper);
                                     $show_wrappers.push($wrapper);
                                 }
@@ -1107,11 +1107,13 @@ function SUPERreCaptcha(){
                             }else{
                                 // Hide wrappers
                                 Object.keys($hide_wrappers).forEach(function(key) {
-                                    $hide_wrappers[key].style.display = 'none';
+                                    $hide_wrappers[key].classList.add('super-conditional-hidden');
+                                    $hide_wrappers[key].classList.remove('super-conditional-visible');
                                 });
                                 // Show wrappers
                                 Object.keys($show_wrappers).forEach(function(key) {
-                                    $show_wrappers[key].style.display = 'block';
+                                    $show_wrappers[key].classList.remove('super-conditional-hidden');
+                                    $show_wrappers[key].classList.add('super-conditional-visible');
                                     // Make sure signatures resizes/refreshes after becoming visible
                                     if(typeof SUPER.refresh_signatures === 'function'){
                                         SUPER.refresh_signatures('', $show_wrappers[key]);
@@ -2619,6 +2621,11 @@ function SUPERreCaptcha(){
 
     // Check for errors, validate fields
     SUPER.handle_validations = function(args){
+        if(args.el.closest('[data-conditional-action="show"]')){
+            if(args.el.closest('[data-conditional-action="show"]').classList.contains('super-conditional-hidden')){
+                return false;
+            }
+        }
         if(args.el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
         var parent = args.el.closest('.super-field'),
             result,
@@ -2864,7 +2871,7 @@ function SUPERreCaptcha(){
     };
 
     // Output errors for each field
-    SUPER.handle_errors = function(el){       
+    SUPER.handle_errors = function(el){
         if(el.closest('.super-field')) el.closest('.super-field').classList.add('super-error-active');
     };
 
@@ -3255,7 +3262,7 @@ function SUPERreCaptcha(){
         var form = SUPER.get_frontend_or_backend_form(args);
         var defaultValues = form.querySelectorAll('.super-replace-tags .super-shortcode-field');
         if(typeof defaultValues !== 'undefined'){
-            for(var i = 0; i<defaultValues.length; i++){
+            for(i = 0; i<defaultValues.length; i++){
                 var oldValue = defaultValues[i].value;
                 defaultValues[i].value = SUPER.update_variable_fields.replace_tags({form: form, value: defaultValues[i].value, defaultValues: true});
                 var newValue = defaultValues[i].value;
@@ -4444,7 +4451,7 @@ function SUPERreCaptcha(){
                 var directionsRenderer = new google.maps.DirectionsRenderer({
                     draggable: true,
                     map: SUPER.google_maps_api.allMaps[$form_id][key],
-                    panel: ($directionsPanel=='true' ? SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelector('.super-google-map-directions') : null)
+                    panel: ($directionsPanel=='true' ? SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelector('.super-google-map-directions') : null)
                     // panel: document.getElementById('right-panel')
                 });
                 //directionsRenderer.setMap($map);
@@ -6981,19 +6988,25 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.2.0 - function to return next field based on TAB index
-    SUPER.super_find_next_tab_field = function(field, form, nextTabIndex){
+    SUPER.super_find_next_tab_field = function(e, field, form, nextTabIndex){
         var nextTabIndexSmallIncrement,
             nextField,
             nextFieldSmallIncrement,
             nextCustomField,
-            customTabIndex;
+            customTabIndex,
+            incNext = 1,
+            incNextSmall = 0.001;
 
+        if(e.shiftKey){
+            incNext = -incNext;
+            incNextSmall = -incNextSmall;
+        }
         if(typeof nextTabIndex === 'undefined'){
-            nextTabIndexSmallIncrement = parseFloat(parseFloat(field.dataset.superTabIndex)+0.001).toFixed(3);
-            nextTabIndex = parseFloat(field.dataset.superTabIndex)+1;
+            nextTabIndexSmallIncrement = parseFloat(parseFloat(field.dataset.superTabIndex)+incNextSmall).toFixed(3);
+            nextTabIndex = parseFloat(field.dataset.superTabIndex)+incNext;
         }
         if(typeof field.dataset.superCustomTabIndex !== 'undefined'){
-            nextTabIndex = parseFloat(field.dataset.superCustomTabIndex)+1;
+            nextTabIndex = parseFloat(field.dataset.superCustomTabIndex)+incNext;
         }
 
         nextTabIndexSmallIncrement = parseFloat(nextTabIndexSmallIncrement);
@@ -7015,13 +7028,13 @@ function SUPERreCaptcha(){
             customTabIndex = nextField.dataset.superCustomTabIndex;
             if(typeof customTabIndex !== 'undefined') {
                 if(nextTabIndex < parseFloat(customTabIndex)){
-                    nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+                    nextField = SUPER.super_find_next_tab_field(e, field, form, nextTabIndex+incNext);
                 }
             }
         }
         if(SUPER.has_hidden_parent(nextField)){
             // Exclude conditionally
-            nextField = SUPER.super_find_next_tab_field(field, form, nextTabIndex+1);
+            nextField = SUPER.super_find_next_tab_field(e, field, form, nextTabIndex+incNext);
         }
         return nextField;
     };
@@ -7031,7 +7044,7 @@ function SUPERreCaptcha(){
         if(typeof skipNext !== 'undefined'){
             next = skipNext;
         }else{
-            next = SUPER.super_find_next_tab_field(next, form);
+            next = SUPER.super_find_next_tab_field(e, next, form);
         }
         nodes = form.querySelectorAll('.super-focus *');
         for ( i = 0; i < nodes.length; i++){
@@ -7047,6 +7060,33 @@ function SUPERreCaptcha(){
         nodes = form.querySelectorAll('.super-color .super-shortcode-field');
         for ( i = 0; i < nodes.length; i++){
             $(nodes[i]).spectrum("hide");
+        }
+        if( next.classList.contains('super-checkbox') || next.classList.contains('super-radio') ) {
+            next.classList.add('super-focus');
+            if(next.querySelector('.super-item.super-focus')){
+                var current = next.querySelector('.super-item.super-focus');
+                var nextSibling = current.nextSibling;
+                current.classList.remove('super-focus');
+                nextSibling.classList.add('super-focus');
+            }else{
+                var innerNodes = next.querySelectorAll('.super-item');
+                // Radio has active item
+                if(next.classList.contains('super-radio')){
+                    var activeFound = next.querySelector('.super-item.super-active');
+                }
+                if(activeFound){
+                    activeFound.classList.add('super-focus');
+                }else{
+                    // var innerNodes = next.querySelectorAll('.super-item');
+                    if(e.shiftKey){
+                        innerNodes[innerNodes.length-1].classList.add('super-focus');
+                    }else{
+                        innerNodes[0].classList.add('super-focus');
+                    }
+                }
+            }
+            e.preventDefault();
+            return false;
         }
         if( next.classList.contains('super-form-button') ) {
             next.classList.add('super-focus');
@@ -7212,29 +7252,45 @@ function SUPERreCaptcha(){
                 children,
                 dropdown,
                 dropdown_ui,
-                element,
                 item,
                 current,
                 placeholder,
                 nextIndex,
                 submitButton,
+                nextSibling,
                 keyCode = e.keyCode || e.which;
 
+            // 32 = space
+            if (keyCode == 32) {
+                field = document.querySelector('.super-focus');
+                if(field){
+                    form = field.closest('.super-form');
+                    // If checkbox or radio, then we check/uncheck the current focussed item
+                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
+                        if(field.querySelector('.super-focus')){
+                            field.querySelector('.super-focus').click();
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }
+            
             // 13 = enter
             if (keyCode == 13) {
                 dropdown = document.querySelector('.super-focus-dropdown');
                 if(dropdown){
                     super_update_dropdown_value(e, dropdown, 'enter');
                 }else{
-                    element = document.querySelector('.super-focus');
-                    if(element){
-                        form = element.closest('.super-form');
+                    field = document.querySelector('.super-focus');
+                    if(field){
+                        form = field.closest('.super-form');
                         // @since 3.3.0 - Do not submit form if Enter is disabled
                         if(form.dataset.disableEnter=='true'){
                             e.preventDefault();
                             return false;
                         }
-                        if( !element.classList.contains('super-textarea') ) {
+                        if( !field.classList.contains('super-textarea') ) {
                             if(!form.querySelector('.super-form-button.super-loading')){
                                 submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
                                 if(submitButton) {
@@ -7254,9 +7310,11 @@ function SUPERreCaptcha(){
                     }
                 }
             }
+            // 37 = left arrow
             // 38 = up arrow
+            // 39 = right arrow
             // 40 = down arrow
-            if ( (keyCode == 40) || (keyCode == 38) ) {
+            if ( keyCode == 37 || keyCode == 38 || keyCode == 39 || keyCode == 40 ) {
                 dropdown = document.querySelector('.super-focus-dropdown');
                 if(dropdown){
                     total = dropdown.querySelectorAll('.super-dropdown-ui .super-item').length;
@@ -7273,7 +7331,9 @@ function SUPERreCaptcha(){
                         current = dropdown.querySelector('.super-dropdown-ui .super-item.super-active');
                         if(current){
                             children = Array.prototype.slice.call( current.parentNode.children );
-                            if(keyCode == 38){
+                            // 37 = left arrow
+                            // 38 = up arrow
+                            if(keyCode == 37 || keyCode == 38){
                                 nextIndex = children.indexOf(current) - 1;
                                 if(nextIndex===0) nextIndex = total-1;
                             }else{
@@ -7296,6 +7356,51 @@ function SUPERreCaptcha(){
                     dropdown_ui.scrollTop(dropdown_ui.scrollTop() - dropdown_ui.offset().top + $(item).offset().top - 50); 
                     super_update_dropdown_value(e, dropdown);
                 }
+                field = document.querySelector('.super-focus');
+                if(field){
+                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
+                        if(field.querySelector('.super-focus')){
+                            current = field.querySelector('.super-item.super-focus');
+                            if(current){
+                                // 37 = left arrow
+                                // 38 = up arrow
+                                if(keyCode == 37 || keyCode == 38){
+                                    // prev
+                                    nextSibling = current.previousSibling;
+                                }else{
+                                    // next
+                                    nextSibling = current.nextSibling;
+                                }
+                                current.classList.remove('super-focus');
+                                if(nextSibling && nextSibling.classList.contains('super-item')){
+                                    nextSibling.classList.add('super-focus');
+                                    if(field.classList.contains('super-radio')){
+                                        nextSibling.click();
+                                    }
+                                }else{
+                                    // left, up
+                                    var innerNodes = field.querySelectorAll('.super-item');
+                                    if(keyCode == 37 || keyCode == 38){
+                                        innerNodes[innerNodes.length-1].classList.add('super-focus');
+                                        if(field.classList.contains('super-radio')){
+                                            innerNodes[innerNodes.length-1].click();
+                                        }
+                                    }else{
+                                        innerNodes[0].classList.add('super-focus');
+                                        if(field.classList.contains('super-radio')){
+                                            innerNodes[0].click();
+                                        }
+                                    }
+                                }
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+
             }
             // 37 = left arrow
             // 39 = right arrow
@@ -7320,14 +7425,15 @@ function SUPERreCaptcha(){
                     }
                 }
             }
+
             // 9 = TAB
             if (keyCode == 9) {
-                // Only possible to switch to next field if a field is already focussed
+                // Only possible to switch to prev/next field if a field is already focussed
                 field = document.querySelector('.super-field.super-focus');
                 if( field ) {
                     form = field.closest('.super-form');
                     SUPER.super_focus_next_tab_field(e, field, form);
-                }     
+                }
             }
         });
 

@@ -457,6 +457,11 @@ return $import_fonts."
 ".$s.".super-checkbox .super-field-wrapper .super-item > .super-before {
     border-color: ".$v['theme_ui_checkbox_border'].";
 }
+".$s.".super-focus .super-item.super-focus > .super-before {
+    -webkit-box-shadow: 0px 0px 5px 2px ".$v['theme_ui_checkbox_border'].";
+    -moz-box-shadow: 0px 0px 5px 2px ".$v['theme_ui_checkbox_border'].";
+    box-shadow: 0px 0px 5px 2px ".$v['theme_ui_checkbox_border'].";
+}
 ".$s.".super-radio .super-field-wrapper .super-item > .super-after,
 ".$s.".super-checkbox .super-field-wrapper .super-item > .super-after {
     background-color: ".$v['theme_ui_checkbox_inner'].";
