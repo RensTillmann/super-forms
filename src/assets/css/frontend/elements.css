@@ -1010,6 +1010,9 @@ h1.super-thanks-title {
 .super-form *[data-conditional-action=hide] {
   display: block;
 }
+.super-form *.super-column.super-conditional-visible {
+  display: block;
+}
 .super-form input:focus, .super-form select:focus {
   outline: 0;
 }
@@ -1911,6 +1914,12 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-radio .super-item.super-active > .super-after {
   display: block;
+}
+
+.super-focus .super-item.super-focus .super-before {
+  -webkit-box-shadow: 0px 0px 5px 2px #4EB1B6;
+  -moz-box-shadow: 0px 0px 5px 2px #4EB1B6;
+  box-shadow: 0px 0px 5px 2px #4EB1B6;
 }
 
 .super-field.super-quantity .super-shortcode-field, .super-field.super-quantity input[type=text], .super-field.super-quantity input[type=number], .super-field.super-quantity input[type=email], .super-field.super-quantity input[type=tel], .super-field.super-quantity input[type=url], .super-field.super-quantity input[type=password], .super-field.super-quantity input[type=search], .super-field.super-quantity textarea {
