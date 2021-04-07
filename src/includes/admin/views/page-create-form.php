@@ -227,13 +227,12 @@
                 if( $form_id==0 ) {
                     echo '<div class="super-demos-notice">';
                     echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
-                    echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                    echo '<p>' . sprintf( esc_html__( 'I know many of you have been waiting for this for a long time. Hopefully it was worth waiting for you! You can then start a 15 day trial for free! This should give you enough time to play around and to decide if this Add-on works well with your forms. Once you activated the Add-on you can enable PDF generation on your forms under the "PDF" Tab on the builder page. Please keep in mind that this Add-on is currently in BETA stage. We would love to get your feedback which you can submit via the %1$sAdd-ons%2$s page.', 'super-forms'), '<a target="_blank" href="' . esc_url(get_admin_url() . 'admin.php?page=super_addons') . '">', '</a>') . '</p>';
-                    echo '<p><a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                    echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
+                    echo '<p><a target="_blank" href="https://renstillmann.github.io/super-forms/#/pdf-generator-add-on" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                     echo '<hr />';
                     echo '<h2>' . sprintf( esc_html__( 'Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
                     echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . esc_url(get_admin_url() . 'upload.php') . '">', '</a>') . '</p>';
-                    echo '<p><a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#file-upload-settings') . '" class="button button-primary button-large">' . esc_html__( 'Change File Upload Settings', 'super-forms' ) . '</a></p>';
+                    echo '<p><a target="_blank" href="https://renstillmann.github.io/super-forms/#/file-uploads?id=secure-file-uploads" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#file-upload-settings') . '" class="button button-primary button-large">' . esc_html__( 'Change File Upload Settings', 'super-forms' ) . '</a></p>';
                     echo '</div>';
                 }
 

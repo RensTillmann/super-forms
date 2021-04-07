@@ -180,13 +180,20 @@ function SUPERreCaptcha(){
         if(changedField[0]) changedField = changedField[0];
 
         var p, parent;
-        for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
-            if(p.classList.contains('super-form')) break;
-            if( (p.classList.contains('super-column') || p.classList.contains('super-duplicate-column-fields')) && (p.style.display === 'none') ) return true;
-        }
         parent = changedField.closest('.super-shortcode');
         if( parent && (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
+        }
+
+        for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
+            if(p.classList.contains('super-form')) break;
+            if(p.dataset.conditionalAction){
+                if((p.classList.contains('super-conditional-hidden')) ||
+                   (p.dataset.conditionalAction==='hide' && p.classList.contains('super-conditional-hidden')) ||
+                   (p.dataset.conditionalAction==='show' && !p.classList.contains('super-conditional-visible'))) {
+                   return true;
+                }
+            }
         }
         
         // Also check for multi-parts if necessary
@@ -7024,6 +7031,8 @@ function SUPERreCaptcha(){
             nextField = nextCustomField;
         }
         
+        if(!nextField) return false;
+
         if(nextField.dataset.superCustomTabIndex){
             customTabIndex = nextField.dataset.superCustomTabIndex;
             if(typeof customTabIndex !== 'undefined') {
@@ -7046,6 +7055,8 @@ function SUPERreCaptcha(){
         }else{
             next = SUPER.super_find_next_tab_field(e, next, form);
         }
+        if(!next) return false;
+
         nodes = form.querySelectorAll('.super-focus *');
         for ( i = 0; i < nodes.length; i++){
             nodes[i].blur();
@@ -7099,9 +7110,9 @@ function SUPERreCaptcha(){
             keyCode = e.keyCode || e.which; 
             // 9 = TAB
             if (keyCode == 9) {
-                next.click();
-                next.classList.add('super-focus');
-                SUPER.super_focus_next_tab_field(e, next, form);
+                // temp disabled next.click();
+                // temp disabled next.classList.add('super-focus');
+                // temp disabled SUPER.super_focus_next_tab_field(e, next, form);
             }
             e.preventDefault();
             return false;
@@ -7428,12 +7439,14 @@ function SUPERreCaptcha(){
 
             // 9 = TAB
             if (keyCode == 9) {
-                // Only possible to switch to prev/next field if a field is already focussed
-                field = document.querySelector('.super-field.super-focus');
-                if( field ) {
-                    form = field.closest('.super-form');
-                    SUPER.super_focus_next_tab_field(e, field, form);
-                }
+                // if(SUPER.currentlyFocussedForm){
+                //     // Only switch to next/prev field if form is currently focussed
+                //     field = document.querySelector('.super-field.super-focus');
+                //     if(field){
+                //         form = field.closest('.super-form');
+                //         SUPER.super_focus_next_tab_field(e, field, form);
+                //     }
+                // }
             }
         });
 
