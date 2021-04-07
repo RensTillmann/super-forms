@@ -2,6 +2,25 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
 
+    // Used for form/field focus method
+    SUPER.currentlyFocussedForm = undefined; // By default no form is focussed
+    SUPER.tabCycleCounter = 0;
+    SUPER.lastFocussedField = undefined; // By default no field is focussed
+    SUPER.lastTabKey = undefined; // By default no field is focussed
+
+    SUPER.focussableFieldsByClass = '.super-text, .super-textarea, .super-quantity, .super-toggle, .super-color, .super-slider, .super-currency, .super-file, .super-date, .super-time, .super-field.super-        rating, .super-countries, .super-password, .super-dropdown, .super-checkbox, .super-radio, .super-form-button';
+    SUPER.focusNextPrevField = function(field){
+        // temp disabled console.log('focusNextPrevField()', field);
+        // temp disabled field.classList.add('super-focus');
+        // temp disabled if(field.classList.contains('super-text')){
+        // temp disabled     console.log('is a text field, focus it');
+        // temp disabled     field.querySelector('.super-shortcode-field').focus();
+        // temp disabled }
+        // temp disabled // Scroll to the field if outside viewport
+        // temp disabled //field.scrollIntoView({behavior: "auto", block: "start", inline: "nearest"});
+    };
+
+
     // Init dropdowns
     SUPER.init_dropdowns = function(){
         $('.super-dropdown-ui').each(function(){
@@ -1917,8 +1936,13 @@
                 $parent = this.closest('.super-field-wrapper');
                 $field = $parent.querySelector('.super-shortcode-field');
                 $active = $parent.querySelector('.super-item.super-active');
-                if($active) $active.classList.remove('super-active');
+                if($active){
+                    $active.classList.remove('super-active');
+                    $active.classList.remove('super-focus');
+                }
                 this.classList.add('super-active');
+                this.classList.add('super-focus');
+                this.closest('.super-field').classList.add('super-focus');
                 $validation = $field.dataset.validation;
                 $field.value = $this.value;
                 if(typeof $validation !== 'undefined' && $validation !== false){
@@ -2049,6 +2073,7 @@
                 }else{ // This is either a HTML element or something else without a field
                     if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
                 }
+                if(skip===false) return false;
             }
             if(skip){ // Only skip if no visible fields where to be found
                 multipart = form.querySelector('.super-multipart.super-active');
@@ -2582,6 +2607,78 @@
         }
     }
 
+    jQuery(document).ready(function ($) {
+        var doc = $(document);
+
+        doc.on('focus','.super-form > form', function(e){
+            console.log('form was just focussed', e);
+            console.log('what is the target tagName?', e.target.tagName);
+            if(e.target.tagName==='FORM'){
+
+                console.log('what is the current tabIndex of the form?', e.target.tabIndex);
+                console.log('was it shift+tab or regular tab?', SUPER.lastTabKey);
+
+                if(SUPER.lastTabKey){
+                    if(e.target.tabIndex===0){
+                        console.log('tabIndex was 0, update it to -1');
+                        e.target.tabIndex = -1;
+                        //var i, nodes = e.target.querySelectorAll('.super-field');
+                        //for(i=0; i<nodes.length; i++){
+                        //    nodes[i].tabIndex = 0;
+                        //}
+                    }
+                    if(SUPER.lastTabKey==='tab'){
+                        console.log('it is a regular tab press');
+                        SUPER.currentlyFocussedForm = e.target; // By default no form is focussed
+                        //SUPER.tabCycleCounter = 0;
+                        //SUPER.lastFocussedField = undefined; // By default no field is focussed
+                        //SUPER.lastTabKey = undefined; // By default no field is focussed
+                    }
+                    if(SUPER.lastTabKey==='shift+tab'){
+                        console.log('it is a shift+tab press');
+                    }
+                }else{
+                    console.log('form was focussed via click function');
+                }
+            }else{
+                console.log('the target was not the FORM... do nothing?');
+            }
+        });
+
+        doc.on('keydown', function(e){
+            if((e.keyCode || e.which) == 9){
+                console.log('tab was pressed');
+                SUPER.lastTabKey = 'tab';
+                if(e.shiftKey){
+                    console.log('shift+tab was pressed');
+                    SUPER.lastTabKey = 'shift+tab';
+                }
+                // temp disabled if(SUPER.currentlyFocussedForm){
+                // temp disabled     console.log('currentlyFocussedForm is set', SUPER.currentlyFocussedForm);
+                // temp disabled     console.log('current cycle counter is', SUPER.tabCycleCounter);
+                // temp disabled     if(e.shiftKey){
+                // temp disabled         SUPER.tabCycleCounter--;
+                // temp disabled     }else{
+                // temp disabled         SUPER.tabCycleCounter++;
+                // temp disabled     }
+                // temp disabled     console.log('new cycle counter is', SUPER.tabCycleCounter);
+                // temp disabled     document.querySelector('.entry-title').innerHTML = SUPER.tabCycleCounter;
+                // temp disabled }else{
+                // temp disabled     console.log('currentlyFocussedForm is not set', SUPER.currentlyFocussedForm);
+                // temp disabled }
+            }
+        });
+        // temp disabled doc.on('click','.super-form > form', function(e){
+        // temp disabled     console.log('clicked on the form, update lastTabKey to undefined');
+        // temp disabled     SUPER.lastTabKey = undefined;
+        // temp disabled });
+        // temp disabled doc.on('focus','.super-field', function(e){
+        // temp disabled     console.log('field was just focussed', e);
+        // temp disabled     console.log('what is the target tagName?', e.target.tagName);
+        // temp disabled });
+        //
+    });
+
     // Trigger Events
     app.triggerEvent = function (e, target, eventType) {
         // Get element actions, and check for multiple event methods
@@ -2689,16 +2786,16 @@
         var elements = app.events[eventType].join(", ");
         app.delegate(document, eventType, elements, function (e, target) {
             if (eventType == 'click') {
-                if (!app.inPath(e, 'super-focus')) {
-                    var i, nodes = document.querySelectorAll('.super-keyword-tags.super-focus');
-                    for(i=0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-focus');
-                    }
-                }
+                // temp disabled if (!app.inPath(e, 'super-focus')) {
+                // temp disabled     var i, nodes = document.querySelectorAll('.super-keyword-tags.super-focus');
+                // temp disabled     for(i=0; i < nodes.length; i++){
+                // temp disabled         nodes[i].classList.remove('super-focus');
+                // temp disabled     }
+                // temp disabled }
             }
             // Trigger event(s)
             if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
         });
     });
 
-})();
+})(jQuery);

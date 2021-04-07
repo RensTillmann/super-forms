@@ -2043,19 +2043,19 @@
                     });
                     if ($hidden === false) {
                         $error = true;
-                        $this.addClass('super-error');
+                        $this.parents('.super-field').addClass('super-error');
                     }
                 } else {
-                    $this.removeClass('super-error');
+                    $this.parents('.super-field').removeClass('super-error');
                 }
             });
             if ($error === true) {
-                var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.super-field:eq(0)');
+                var $first_error = $('.super-element-settings .super-error:eq(0)');
                 var $container = $first_error.parents('.super-elements-container');
                 $container.find('.tab-content.super-active').removeClass('super-active');
                 var $parent = $first_error.parents('.tab-content:eq(0)');
                 $parent.addClass('super-active');
-                var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight();
+                var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight(true) - 25;
                 $parent.animate({
                     scrollTop: $position
                 }, 0);

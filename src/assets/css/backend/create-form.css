@@ -780,7 +780,7 @@
 }
 
 .super-preview-elements .super-field {
-    display: block !important;
+    display: block;
     margin-bottom: 0 !important;
 }
 
@@ -853,13 +853,7 @@
 }
 
 .super-preview-elements .super-element.super-multipart {
-    visibility: visible;
-    height: auto;
-    overflow: initial;
-}
-
-.super-preview-elements .super-element.super-multipart * {
-    opacity: initial;
+    display: block;
 }
 
 .super-preview-elements .super-element:hover {
@@ -1311,6 +1305,15 @@
     font-size: 17px;
     border-bottom: 1px solid #E0E0E0;
     position: relative;
+}
+
+.super-element-settings .super-field.super-error,
+.super-form-settings .super-field.super-error {
+    border:1px solid rgb(255,155,155);
+    background-color:rgb(255,208,208);
+    padding-left:2px;
+    padding-right:2px;
+    margin-top:5px;
 }
 
 .super-element-settings .super-field-name, .super-form-settings .super-field-name {
