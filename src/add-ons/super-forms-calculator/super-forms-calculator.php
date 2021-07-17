@@ -315,16 +315,7 @@ if(!class_exists('SUPER_Calculator')) :
             $functions['before_validating_form_hook'][] = array(
                 'name' => 'init_calculator'
             );
-            $functions['after_dropdown_change_hook'][] = array(
-                'name' => 'init_calculator'
-            );
             $functions['after_field_change_blur_hook'][] = array(
-                'name' => 'init_calculator'
-            );
-            $functions['after_radio_change_hook'][] = array(
-                'name' => 'init_calculator'
-            );
-            $functions['after_checkbox_change_hook'][] = array(
                 'name' => 'init_calculator'
             );
 

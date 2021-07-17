@@ -274,7 +274,6 @@
             var oldHtml = button.html();
             button.data('old-html', oldHtml);
             button.parents('.super-form-button:eq(0)').addClass('super-loading');
-            button.html('<i class="fas fa-refresh fa-spin"></i>');
         } else {
             button.parents('.super-form-button:eq(0)').removeClass('super-loading');
             button.html(button.data('old-html'));
@@ -1365,23 +1364,8 @@
             $('.super-tabs-content .super-tab-' + $tab).addClass('super-active');
         });
 
-        // @since 4.7.0 - translations
-        // open/close dropdown when clicked on the element
-        $doc.on('click', '.super-tab-translations .super-dropdown', function (e) {
-            if (e.target.tagName === 'LI') return;
-            if (e.target.tagName === 'INPUT') return;
-            var $this = $(this);
-            if ($this.hasClass('super-active')) {
-                $this.removeClass('super-active');
-            } else {
-                $doc.find('.super-dropdown.super-active').removeClass('super-active');
-                $this.addClass('super-active');
-                // Focus text field
-                $this.find('input').focus();
-            }
-        });
         // upon choosing an item set it to active and deactivate others
-        $doc.on('click', '.super-tab-translations .super-dropdown-items .super-item', function () {
+        $doc.on('click', '.super-tab-translations .super-dropdown-list .super-item', function () {
             var $this = $(this),
                 $form_id = $('.super-header input[name="form_id"]').val(),
                 $shortcode = '[form-not-saved-yet]',
@@ -1396,7 +1380,7 @@
                 $(this).addClass('super-active');
             }
             $dropdown.children('.super-dropdown-placeholder').html($language);
-            $dropdown.removeClass('super-active');
+            $dropdown.removeClass('super-open');
             // Update shortcode accordingly
             if ($dropdown.attr('data-name') == 'language') {
                 if ($form_id !== '') {
@@ -1417,12 +1401,12 @@
             if ($value === '') {
                 // No longer filtering, show all
                 $dropdown.removeClass('super-filtering');
-                $dropdown.find('.super-dropdown-items .super-item').removeClass('super-match');
+                $dropdown.find('.super-dropdown-list .super-item').removeClass('super-match');
                 return;
             }
             // We are filtering
             $dropdown.addClass('super-filtering');
-            $dropdown.find('.super-dropdown-items .super-item').each(function () {
+            $dropdown.find('.super-dropdown-list .super-item').each(function () {
                 if ($(this).html().toLowerCase().indexOf($value) !== -1) {
                     $(this).addClass('super-match');
                 } else {
@@ -2082,48 +2066,53 @@
         };
         // Retrieve all settings and their values
         SUPER.update_element_get_fields = function () {
-            var i, ii,
+            var i, x, y,
                 nodes,
                 radios,
                 value,
                 defaultValue,
                 allowEmpty,
                 fields = {},
-                elementField;
+                elementField,
+                elementFields;
 
             nodes = document.querySelectorAll('.super-element-settings .super-field');
             for (i = 0; i < nodes.length; ++i) {
                 if(!nodes[i].classList.contains('super-hidden')){
                     // Find element field
-                    elementField = nodes[i].querySelector('.super-element-field');
-                    if(typeof elementField==='undefined') continue;
-                    value = elementField.value;
-                    if(elementField.type=='radio'){
-                        radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
-                        for (ii = 0; ii < radios.length; ++ii) {
-                            if (radios[ii].checked) {
-                                value = radios[ii].value;
-                                break;
+                    elementFields = nodes[i].querySelectorAll('.super-element-field');
+                    for (x = 0; x < elementFields.length; ++x) {
+                        elementField = elementFields[x];
+                        value = elementField.value;
+                        if(elementField.type=='radio'){
+                            radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
+                            for (y = 0; y < radios.length; ++y) {
+                                if (radios[y].checked) {
+                                    value = radios[y].value;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    defaultValue = undefined;
-                    if(elementField.closest('.super-field-input')) defaultValue = elementField.closest('.super-field-input').dataset.default;
-                    if( (value!=='') && (value!=defaultValue) ) {
-                        if($(elementField).parents('.super-field-input:eq(0)').find('.super-multi-items').length){
-                            fields[elementField.name] = $.parseJSON(value);
-                        }else{
-                            fields[elementField.name] = value;
-                        }
-                    }else{
-                        if( value==='' ) {
-                            allowEmpty = undefined;
-                            if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
-                            if( typeof allowEmpty !== 'undefined' ) {
+                        defaultValue = undefined;
+                        if(elementField.closest('.super-field-input')) defaultValue = elementField.closest('.super-field-input').dataset.default;
+                        if( (value!=='') && (value!=defaultValue) ) {
+                            if($(elementField).parents('.super-field-input:eq(0)').find('.super-multi-items').length){
+                                fields[elementField.name] = $.parseJSON(value);
+                            }else{
                                 fields[elementField.name] = value;
                             }
-                        } 
+                        }else{
+                            if( value==='' ) {
+                                allowEmpty = undefined;
+                                if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
+                                if( typeof allowEmpty !== 'undefined' ) {
+                                    fields[elementField.name] = value;
+                                }
+                            } 
+                        }
+
                     }
+
                 }
             }
             return fields;
@@ -2331,7 +2320,7 @@
                 field = parent.parentNode.querySelector('.super-element-field'),
                 nodes = parent.querySelectorAll('input[type="checkbox"]');
             if(!field) return;
-            
+
             for( i=0; i < nodes.length; i++ ) {
                 if (nodes[i].checked) {
                     if (counter === 0) {
@@ -2343,6 +2332,7 @@
                 }
             }
             field.value = selected;
+
             if(this.closest('.super-form-settings')){
                 SUPER.init_field_filter_visibility($(this.closest('.super-field')));
             }else{
@@ -2646,8 +2636,6 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    //Content-Disposition: attachment; filename=fname.ext
-                    //window.location.href = data;
                 },
                 error: function () {
                     alert(super_create_form_i18n.export_form_error);
@@ -3617,6 +3605,8 @@
             SUPER.update_multi_items();
         });
 
+        // Required for fields like Toggle element to be rendered properly
+        SUPER.init_super_responsive_form_fields({form: $('.super-preview-elements')[0]});
     });
 
     window.addEventListener('beforeunload', function (e) {
@@ -3630,5 +3620,3 @@
     });
 
 })(jQuery);
-
-

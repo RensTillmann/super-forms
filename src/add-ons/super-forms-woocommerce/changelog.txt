@@ -1,3 +1,6 @@
+Apr 09, 2021 - Version 1.8.1
+- Fix: `External/Affiliate product` URL was reset to the product permalink, this is now resolved
+
 Mar 16, 2021 - Version 1.8.0
 - Added: Option to hide products (based on ID or by category slug) from the shop so that they can only be ordered via the form
 - Added: Option to replace the default "Add to cart" area with a specific form for specific products, based on ID, or category slug

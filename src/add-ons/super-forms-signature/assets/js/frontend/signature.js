@@ -37,6 +37,7 @@
 
 	// After responsiveness changed, resize the canvas of the signature
 	SUPER.refresh_signatures = function(classes, form){
+        console.log('refresh_signatures');
 		if(typeof form === 'undefined') form = document;
 		var i,x,y, 
 			nodes = form.querySelectorAll('.super-signature-canvas');
@@ -77,19 +78,14 @@
 						newLines[x][y][1] = lines[x][y][1]/finalRatio;
 					}
 				}
-				// Check if the signature exceeds height limits
-				//if(canvasWrapperHeight < minHeight){
-					// Exceeds limit, use default json
-				//}else{
-					json = {"lines":newLines};
-					json = JSON.stringify(json);
-				//}
+                json = {"lines":newLines};
+                json = JSON.stringify(json);
 			}else{
 				// Do not resize, keep original
 			}
 			var jsonLength = JSON.parse(json).lines.length;
 			var disallowedit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowedit;
-			var thickness = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness;
+			var thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
 			var color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
 			$(canvasWrapper).signature({
                 thickness: thickness,
@@ -103,111 +99,12 @@
 					canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
 				}
 			}
-			// for(x=0; x < lines.length; x++){
-			// 	for(y=0; y < lines[x].length; y++){
-			// 		if(!newLines[x]) newLines[x] = [];
-			// 		if(!newLines[x][y]) newLines[x][y] = [];
-			// 		if(canvasWrapperWidth < canvasWidth){
-			// 			ratio = canvasWidth/canvasWrapperWidth;
-			// 			newLines[x][y][0] = lines[x][y][0]/ratio;
-			// 			newLines[x][y][1] = lines[x][y][1]/ratio;
-			// 		}else{
-			// 			ratio = canvasWrapperWidth/canvasWidth;
-			// 			newLines[x][y][0] = lines[x][y][0]*ratio;
-			// 			newLines[x][y][1] = lines[x][y][1]*ratio;
-			// 		}
-			// 		// Check if signature becomes bigger than the canvas wrapper
-			// 		width = newLines[x][y][0];
-			// 		height = newLines[x][y][1];
-			// 		if(minWidth < width) minWidth = width+2; // plus 2 for some margin
-			// 		if(minHeight < height) minHeight = height+2; // plus 2 for some margin
-			// 	}
-			// }
-			// // Check if the signature exceeds height limits
-			// if(canvasWrapperHeight >= minHeight){
-			// 	json = {"lines":newLines};
-			// 	json = JSON.stringify(json);
-			// }
-
 		}
-
-
-		// if(typeof form === 'undefined') form = document;
-		// var i,x,y, 
-		// 	nodes = form.querySelectorAll('.super-signature-canvas'),
-		// 	minWidth = 0,
-		// 	minHeight = 0,
-		// 	width = 0,
-		// 	height = 0,
-		// 	$el,
-		// 	json,
-		// 	lines,
-		// 	canvas,
-		// 	canvasWidth,
-		// 	ratio,
-		// 	newLines,
-		// 	jsonLength,
-		// 	thickness,
-		// 	disallowedit,
-		// 	clearBtn,
-		// 	field;
-
-		// for( i = 0; i < nodes.length; i++ ) {
-		// 	// Make drawing smaller by 50% (just as an example)
-		// 	field = nodes[i].parentNode.querySelector('.super-shortcode-field');
-		// 	$el = $(nodes[i]);
-		// 	$el.signature('enable');
-		// 	json = $el.signature('toJSON');
-		// 	lines = JSON.parse(json).lines;
-		// 	canvas = nodes[i].querySelector('canvas');
-		// 	canvasWidth = canvas.offsetWidth;
-		// 	ratio = (canvasWidth/nodes[i].clientWidth)*100;
-		// 	canvas.width = nodes[i].clientWidth;
-		// 	canvas.height = nodes[i].clientHeight;
-		// 	newLines = [];
-		// 	for(x=0; x < lines.length; x++){
-		// 		for(y=0; y < lines[x].length; y++){
-		// 			if(!newLines[x]) newLines[x] = [];
-		// 			if(!newLines[x][y]) newLines[x][y] = [];
-		// 			if(nodes[i].clientWidth < canvasWidth){
-		// 				ratio = canvasWidth/nodes[i].clientWidth;
-		// 				newLines[x][y][0] = lines[x][y][0]/ratio;
-		// 				newLines[x][y][1] = lines[x][y][1]/ratio;
-		// 			}else{
-		// 				ratio = nodes[i].clientWidth/canvasWidth;
-		// 				newLines[x][y][0] = lines[x][y][0]*ratio;
-		// 				newLines[x][y][1] = lines[x][y][1]*ratio;
-		// 			}
-		// 			// Check if signature becomes bigger than the canvas wrapper
-		// 			width = newLines[x][y][0];
-		// 			height = newLines[x][y][1];
-		// 			if(minWidth < width) minWidth = width; // plus 2 for some margin
-		// 			if(minHeight < height) minHeight = height; // plus 2 for some margin
-		// 		}
-		// 	}
-		// 	// Check if the signature exceeds height limits
-		// 	if(nodes[i].clientHeight >= minHeight){
-		// 		json = {"lines":newLines};
-		// 		json = JSON.stringify(json);
-		// 	}
-		// 	jsonLength = JSON.parse(json).lines.length;
-		// 	thickness = field.dataset.thickness;
-		// 	disallowedit = field.dataset.disallowedit;
-		// 	$el.signature({thickness: thickness});
-		// 	$el.signature('draw', json);
-		// 	if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
-		// 		$el.signature('disable');
-		// 		// Remove clear button
-		// 		clearBtn = nodes[i].parentNode.querySelector('.super-signature-clear');
-		// 		if(clearBtn) clearBtn.remove();
-		// 	}
-		// }
-
-
 	};
 	
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned
     SUPER.init_remove_initialized_class = function($form, $unique_field_names, $clone){
+        console.log('init_remove_initialized_class');
         if($clone.querySelector('.super-signature.super-initialized')){
 			$clone.querySelector('.super-signature.super-initialized').classList.remove('super-initialized');
 		}
@@ -215,6 +112,7 @@
 
     // @since 1.2.2 - clear signatures after form is cleared
     SUPER.init_clear_signatures = function(form){
+        console.log('init_clear_signatures');
 		$(form).find('.super-signature.super-initialized').each(function(){
 			var canvas = $(this).find('.super-signature-canvas:not(.kbw-signature-disabled)');
 			var disallow = $(this).find('.super-shortcode-field').data('disallowedit');
@@ -233,6 +131,7 @@
 
     // @since 1.2.2 - initialize dynamically added signature elements
     SUPER.init_signature_after_duplicating_column = function(form, uniqueFieldNames, clone){
+        console.log('init_signature_after_duplicating_column');
 		var i,nodes;
 		if( typeof clone !== 'undefined' ) {
 			nodes = clone.querySelectorAll('.super-signature .super-signature-canvas > canvas');

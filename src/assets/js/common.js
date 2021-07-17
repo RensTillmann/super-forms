@@ -149,6 +149,192 @@ function SUPERreCaptcha(){
         console.log($log);
     };
 
+    // Focus form
+    SUPER.focusForm = function(target){
+        if(!target) return false;
+        if(target.tagName!=='FORM'){
+            target = target.closest('form');
+        }
+        if(target){
+            target.classList.add('super-form-focussed');
+            target.tabIndex = -1;
+            SUPER.lastFocussedForm = target;
+        }
+    };
+    // Reset focussed fields
+    SUPER.resetFocussedFields = function(){
+        var i, nodes = document.querySelectorAll('.super-focus');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].classList.remove('super-focus');
+        }
+    };
+    // Focus field
+    SUPER.focusField = function(target){
+        SUPER.resetFocussedFields();
+        if(target.classList.contains('super-field')){
+            target.classList.add('super-focus');
+        }else{
+            target.closest('.super-field').classList.add('super-focus');
+        }
+    };
+    SUPER.focusNextTabField = function(e, next, form, skipNext){
+        var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = e.keyCode || e.which;
+         
+        if(typeof skipNext !== 'undefined'){
+            next = skipNext;
+        }else{
+            next = SUPER.nextTabField(e, next, form);
+        }
+        if(!next) return false;
+
+        // Only for front-end and/or live preview, but not builder mode
+        if(next.closest('.super-preview-elements')){
+            return false;
+        }
+        
+        if(next.classList.contains('super-item')){
+            next = next.closest('.super-field');
+        }
+
+        // Check if inside multi-part, and if multi-part isn't active, make it active
+        if(next.closest('.super-multipart') && !next.closest('.super-multipart').classList.contains('super-active')) {
+            if(SUPER.lastTabKey==='shift+tab'){
+                SUPER.switchMultipart(e, next, 'prev');
+            }else{
+                SUPER.switchMultipart(e, next, 'next');
+            }
+        }
+        // Check if inside TAB element, and if TAB isn't active, make it active
+        parentTabElement = next.closest('.super-tabs-content');
+        while(parentTabElement){
+            if(!parentTabElement.classList.contains('super-active')){
+                tabsElement = parentTabElement.closest('.super-tabs');
+                menuWrapper = tabsElement.querySelector('.super-tabs-menu');
+                contentsWrapper = tabsElement.querySelector('.super-tabs-contents');
+                menuNodes = menuWrapper.querySelectorAll('.super-tabs-tab');
+                contentNodes = contentsWrapper.querySelectorAll('.super-tabs-content');
+                for(i=0; i<contentNodes.length; i++){
+                    if(contentNodes[i]===parentTabElement){
+                        contentNodes[i].classList.add('super-active');
+                        menuNodes[i].classList.add('super-active');
+                    }else{
+                        contentNodes[i].classList.remove('super-active');
+                        menuNodes[i].classList.remove('super-active');
+                    }
+                }
+            }
+            parentTabElement = parentTabElement.parentNode.closest('.super-tabs-content');
+        }
+        // Check if inside Accordion element, and if Accordion isn't active, make it active
+        parentTabElement = next.closest('.super-accordion-item');
+        while(parentTabElement){
+            if(!parentTabElement.classList.contains('super-active')){
+                tabsElement = parentTabElement.closest('.super-tabs');
+                contentNodes = tabsElement.querySelectorAll('.super-accordion-item');
+                for(i=0; i<contentNodes.length; i++){
+                    contentNodes[i].classList.remove('super-active');
+                    if(contentNodes[i]===parentTabElement){
+                        contentNodes[i].classList.add('super-active');
+                    }
+                }
+            }
+            parentTabElement = parentTabElement.parentNode.closest('.super-accordion-item');
+        }
+
+        if(e.type!=='click' && keyCode != 32){
+            // Only scroll into view via tabbing, not via clicking
+            next.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+        }
+        if(keyCode != 32){
+            // If not Space key press
+            nodes = form.querySelectorAll('.super-focus');
+            for ( i = 0; i < nodes.length; i++){
+                nodes[i].classList.remove('super-focus');
+                nodes[i].classList.remove('super-open');
+                if(nodes[i].querySelector('.super-shortcode-field')){
+                    nodes[i].querySelector('.super-shortcode-field').blur();
+                }
+                if( nodes[i].classList.contains('super-button-wrap') ) {
+                    SUPER.init_button_colors( nodes[i] );
+                }
+            }
+        }
+        nodes = form.querySelectorAll('.super-open');
+        for ( i = 0; i < nodes.length; i++){
+            nodes[i].classList.remove('super-open');
+        }
+        nodes = form.querySelectorAll('.super-color .super-shortcode-field');
+        for ( i = 0; i < nodes.length; i++){
+            $(nodes[i]).spectrum("hide");
+        }
+        if( next.classList.contains('super-checkbox') || next.classList.contains('super-radio') ) {
+            next.classList.add('super-focus');
+            if( (next.querySelector('.super-item.super-focus')) && (keyCode != 32) ){
+                var current = next.querySelector('.super-item.super-focus');
+                var nextSibling = current.nextSibling;
+                current.classList.remove('super-focus');
+                nextSibling.classList.add('super-focus');
+            }else{
+                var innerNodes = next.querySelectorAll('.super-item');
+                // Radio has active item
+                if(next.classList.contains('super-radio')){
+                    var activeFound = next.querySelector('.super-item.super-active');
+                }
+                if((SUPER.lastTabKey!=='tab' && keyCode != 9) || (keyCode == 1) ){
+                    // If not TAB key press
+                    return true;
+                }
+                if(activeFound){
+                    activeFound.classList.add('super-focus');
+                }else{
+                    // var innerNodes = next.querySelectorAll('.super-item');
+                    if(e.shiftKey){
+                        innerNodes[innerNodes.length-1].classList.add('super-focus');
+                    }else{
+                        innerNodes[0].classList.add('super-focus');
+                    }
+                }
+            }
+            e.preventDefault();
+            return false;
+        }
+        if( next.classList.contains('super-form-button') ) {
+            next.classList.add('super-focus');
+            SUPER.init_button_hover_colors( next );
+            next.querySelector('.super-button-wrap').focus();
+            e.preventDefault();
+            return false;
+        }
+        if( next.classList.contains('super-color')) {
+            next.classList.add('super-focus');
+            $(next.querySelector('.super-shortcode-field')).spectrum('show');
+            e.preventDefault();
+            return false;
+        }
+        if( next.classList.contains('super-keyword-tags')) {
+            next.classList.add('super-focus');
+            next.querySelector('.super-keyword-filter').focus();
+            e.preventDefault();
+            return false;
+        }
+        if( next.classList.contains('super-dropdown') ) {
+            next.classList.add('super-focus');
+            next.classList.add('super-open');
+            if(next.querySelector('input[name="super-dropdown-search"]')){
+                next.querySelector('input[name="super-dropdown-search"]').focus();
+                e.preventDefault();
+                return false;
+            }
+        }else{
+            next.classList.add('super-focus');
+        }
+        if(next.querySelector('.super-shortcode-field')){
+            next.querySelector('.super-shortcode-field').focus();
+        }
+        e.preventDefault();
+        return false;
+    };
+
     // Only if field exists
     SUPER.field_exists = function(form, name, regex){
         return (SUPER.field(form, name, regex) ? 1 : 0);
@@ -198,15 +384,9 @@ function SUPERreCaptcha(){
         
         // Also check for multi-parts if necessary
         if(typeof includeMultiParts === 'undefined') includeMultiParts = false;
-        if(includeMultiParts){
-            for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
-                if(p.classList.contains('super-form')) break;
-                if( (p.classList.contains('super-multipart')) && (!p.classList.contains('super-active')) ) {
-                    return true;
-                }
-            }
+        if(includeMultiParts && changedField.closest('.super-multipart') && !changedField.closest('.super-multipart').classList.contains('super-active')){
+            return true;
         }
-
         return false;
     };
 
@@ -309,6 +489,8 @@ function SUPERreCaptcha(){
             $(this).find('.super-rating-star').removeClass('super-hover');
         });
         $('.super-rating-star').on('click',function(){
+            SUPER.focusForm(this);
+            SUPER.focusField(this);
             $(this).parent().find('.super-rating-star').removeClass('super-active');
             $(this).addClass('super-active');
             $(this).prevAll('.super-rating-star').addClass('super-active');
@@ -426,6 +608,7 @@ function SUPERreCaptcha(){
     // @since 3.5.0 - calculate distance (google)
     var distance_calculator_timeout = null; 
     SUPER.calculate_distance = function(args){
+        if(!args.el) return false;
         if(args.el.classList.contains('super-distance-calculator')){
             var form = SUPER.get_frontend_or_backend_form(args),
                 $method = args.el.dataset.distanceMethod,
@@ -577,7 +760,7 @@ function SUPERreCaptcha(){
     SUPER.return_dynamic_tag_value = function($parent, $value){
         if( typeof $value === 'undefined' ) return '';
         if( $value==='' ) return $value;
-        if( (typeof $parent !== 'undefined') && ( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-checkbox')) || ($parent.hasClass('super-countries')) ) ) {
+        if( (typeof $parent !== 'undefined') && ( ($parent.hasClass('super-dropdown')) || ($parent.hasClass('super-checkbox')) ) ) {
             var $values = $value.toString().split(',');
             var $new_values = '';
             $.each($values, function( index, value ) {
@@ -625,8 +808,7 @@ function SUPERreCaptcha(){
             if( (typeof $parent !== 'undefined') && (
                 $parent.classList.contains('super-checkbox') || 
                 $parent.classList.contains('super-radio') || 
-                $parent.classList.contains('super-dropdown') || 
-                $parent.classList.contains('super-countries') ) ) {
+                $parent.classList.contains('super-dropdown')) ) {
                 $checked = $shortcode_field_value.split(',');
                 $string_value = v.value.toString();
                 Object.keys($checked).forEach(function(key) {
@@ -644,8 +826,7 @@ function SUPERreCaptcha(){
             if( (typeof $parent !== 'undefined') && (
                 $parent.classList.contains('super-checkbox') || 
                 $parent.classList.contains('super-radio') || 
-                $parent.classList.contains('super-dropdown') || 
-                $parent.classList.contains('super-countries') ) ) {
+                $parent.classList.contains('super-dropdown')) ) {
                 $checked = $shortcode_field_value.split(',');
                 $string_value = v.value.toString();
                 $found = false;
@@ -689,8 +870,7 @@ function SUPERreCaptcha(){
                 if( (typeof $parent_and !== 'undefined') && ( 
                     $parent_and.classList.contains('super-checkbox') || 
                     $parent_and.classList.contains('super-radio') || 
-                    $parent_and.classList.contains('super-dropdown') || 
-                    $parent_and.classList.contains('super-countries') ) ) {
+                    $parent_and.classList.contains('super-dropdown')) ) {
                     $checked = $shortcode_field_and_value.split(',');
                     $string_value = v.value_and.toString();
                     Object.keys($checked).forEach(function(key) {
@@ -708,8 +888,7 @@ function SUPERreCaptcha(){
                 if( (typeof $parent_and !== 'undefined') && ( 
                     $parent_and.classList.contains('super-checkbox') || 
                     $parent_and.classList.contains('super-radio') || 
-                    $parent_and.classList.contains('super-dropdown') || 
-                    $parent_and.classList.contains('super-countries') ) ) {
+                    $parent_and.classList.contains('super-dropdown')) ) {
                     $checked = $shortcode_field_and_value.split(',');
                     $string_value = v.value_and.toString();
                     $found = false;
@@ -763,10 +942,10 @@ function SUPERreCaptcha(){
                 text_field = true;
                 conditionalParent = element.closest('.super-field');
                 // Check if dropdown field
-                if( (conditionalParent.classList.contains('super-dropdown')) || (conditionalParent.classList.contains('super-countries')) ){
+                if( (conditionalParent.classList.contains('super-dropdown')) ){
                     text_field = false;
                     sum = 0;
-                    selected = conditionalParent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
+                    selected = conditionalParent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)');
                     Object.keys(selected).forEach(function(key) {
                         sum += selected[key].dataset.value;
                     });
@@ -801,8 +980,8 @@ function SUPERreCaptcha(){
             var $sum = 0,
                 $selected;
             // Check if dropdown field
-            if( $parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries') ){
-                $selected = $parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
+            if( $parent.classList.contains('super-dropdown') ){
+                $selected = $parent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)');
                 Object.keys($selected).forEach(function(key) {
                     $sum += parseFloat($selected[key].dataset.value);
                 });
@@ -1516,7 +1695,7 @@ function SUPERreCaptcha(){
                         $parent = $element.closest('.super-field');
 
                         // Check if dropdown field
-                        if($parent.classList.contains('super-dropdown') || $parent.classList.contains('super-countries')){
+                        if($parent.classList.contains('super-dropdown')){
                             $text_field = false;
                             $sum = '';
 
@@ -1525,7 +1704,7 @@ function SUPERreCaptcha(){
                                 $sum = 0;
                             }
 
-                            $selected = $parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
+                            $selected = $parent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)');
                             for (key = 0; key < $selected.length; key++) {
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
@@ -1739,12 +1918,19 @@ function SUPERreCaptcha(){
             // When debugging is enabled download file instantly without submitting the form
             if(args.pdfArgs.pdfSettings.debug==="true"){
                 // Direct download of PDF
-                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename).then(function() {
+                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename, {returnPromise: true}).then(function() {
                     // Close loading overlay
-                    SUPER.close_loading_overlay(args.loadingOverlay);
+                    if(args.progressBar) args.progressBar.style.width = (100)+"%";  
+                    if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+                    args.loadingOverlay.classList.add('super-success');
+                    // Close Popup (if any)
+                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                        SUPER.init_popups.close(true);
+                    }
                 }, function() {
                     // Show error message
                     if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+                    args.loadingOverlay.classList.add('super-error');
                 });
                 return false;
             }
@@ -1860,6 +2046,12 @@ function SUPERreCaptcha(){
                 nodes[i].classList.remove('super-active-origin');
             }
         }
+        // Reset any PDF page break heights
+        var i, nodes = form.querySelectorAll('.super-pdf_page_break');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].style.height = '';
+        }
+
         // @@@@@@@@@@@@@@
         // // Re-enable the UI for Maps and resize to original width
         // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
@@ -1900,6 +2092,7 @@ function SUPERreCaptcha(){
     };
 
     SUPER.before_generate_pdf = function(args, callback){
+        //debugger;
         var form = args.form0;
 
         // Define PDF tags
@@ -1908,6 +2101,7 @@ function SUPERreCaptcha(){
             pdf_total_pages: '{pdf_total_pages}'
         };
 
+        //debugger;
         // Must hide scrollbar
         document.documentElement.classList.add('super-hide-scrollbar');
         form.classList.add('super-generating-pdf');
@@ -1921,6 +2115,7 @@ function SUPERreCaptcha(){
             newNormalizeFontStylesNodesClasses += '.super-pdf-page-container '+normalizeFontStylesNodesClassesExploded[i];
         }
 
+        //debugger;
         // Must hide elements
         var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
         // Required to render pseudo elements (html2canvas code was altered for this)
@@ -2016,9 +2211,9 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "-9999px";
         // ------- for debugging only: ----
         //debugger;
-        //pdfPageContainer.style.zIndex = "9999999999";
-        //pdfPageContainer.style.left = "0px";
-        //pdfPageContainer.style.top = "0px";
+        pdfPageContainer.style.zIndex = "9999999999";
+        pdfPageContainer.style.left = "0px";
+        pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
         pdfPageContainer.style.backgroundColor = "#ffffff";
@@ -2055,6 +2250,7 @@ function SUPERreCaptcha(){
             footerClone.querySelector('form').appendChild(footer);
         }
 
+        //debugger;
         // Resize PDF body height based on header/footer heights
         var headerFooterHeight = 0;
         headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
@@ -2063,6 +2259,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
 
+        //debugger;
         // Make all mutli-parts visible
         // Make all TABs visible
         // Make all accordions visible
@@ -2075,6 +2272,7 @@ function SUPERreCaptcha(){
             }
         }
 
+        //debugger;
         // Normalize all font sizes
         // Example of allowed font sizes are: 10px, 12.5px, 15px, 17.5px, 20px etc. (increment with 2.5px)
         // Other font sizes creates issues within the PDF
@@ -2138,6 +2336,32 @@ function SUPERreCaptcha(){
                 });
                 // we adjust height to the initial content
                 adjustHeight(el, minHeight);
+            }
+
+            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
+            var i, nodes = form.querySelectorAll('.super-pdf_page_break');
+            args.pageOrientationChanges = {};
+            for(i=0; i<nodes.length; i++){
+                var pos = nodes[i].getBoundingClientRect();
+                debugger;
+                console.log(pos.top);
+                console.log(args.scrollAmount);
+                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
+                //var belongsToPage = args.scrollAmount/pos.top;
+                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
+                var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                dynamicHeight = dynamicHeight+headerHeight;
+                nodes[i].style.height = dynamicHeight+'px';
+                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
+                if(nodes[i].classList.contains('pdf-orientation-portrait')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-landscape')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-default')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'default';
+                }
             }
 
             // Grab the total form height, this is required to know how many pages will be generated for the PDF file
@@ -2533,7 +2757,7 @@ function SUPERreCaptcha(){
                 }else{
                     // @since 2.0.0 - clear form after submitting
                     if($(args.form).data('clear')===true){
-                        SUPER.init_clear_form(args.form0);
+                        SUPER.init_clear_form({form: args.form0});
                     }
                 }
                 if(result.msg===''){
@@ -2729,9 +2953,9 @@ function SUPERreCaptcha(){
                     error = true;
                 }
             }
-            if( (parent.classList.contains('super-dropdown')) || (parent.classList.contains('super-countries')) ){
+            if(parent.classList.contains('super-dropdown')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
+                total = parent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)').length;
                 if(total < attr) error = true;
             }
             if(parent.classList.contains('super-keyword-tags')){
@@ -2754,9 +2978,9 @@ function SUPERreCaptcha(){
                 checked = parent.querySelectorAll('.super-item.super-active');
                 if(checked.length > attr) error = true;
             }
-            if( (parent.classList.contains('super-dropdown')) || (parent.classList.contains('super-countries')) ){
+            if(parent.classList.contains('super-dropdown')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)').length;
+                total = parent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)').length;
                 if(total > attr) error = true;
             }
             if(parent.classList.contains('super-keyword-tags')){
@@ -2924,7 +3148,7 @@ function SUPERreCaptcha(){
         }
 
         if(action=='clear'){
-            SUPER.init_clear_form(args.form);
+            SUPER.init_clear_form({form: args.form});
             return false;
         }
         if(action=='print'){
@@ -2974,7 +3198,6 @@ function SUPERreCaptcha(){
             }
         }
 
-        //nodes = form.querySelectorAll('.super-field .super-shortcode-field, .super-field .super-recaptcha, .super-field .super-active-files');
         nodes = SUPER.field(args.form, '', 'all');
         for ( i = 0; i < nodes.length; i++) {
             field = nodes[i];
@@ -3052,7 +3275,7 @@ function SUPERreCaptcha(){
                 loading = super_common_i18n.loading;
             }
 
-            submitButtonName.innerHTML = '<i class="fas fa-refresh fa-spin"></i>'+loading;
+            submitButtonName.innerHTML = loading;
             // Prepare arguments
             args = {
                 event: args.event,
@@ -3115,9 +3338,11 @@ function SUPERreCaptcha(){
 
             // @since 4.2.0 - disable scrolling when multi-part contains errors
             if(scroll){
-                $('html, body').animate({
-                    scrollTop: $(form).offset().top - 30 
-                }, 1000);
+                // Scroll to first error field
+                var current = multipart.querySelector('.super-error-active');
+                current.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+                // Focus first error field
+                SUPER.focusNextTabField({keyCode: 32, preventDefault: function(){}}, current, form, current);
             }
         }else{
             // @since 2.1.0
@@ -3309,61 +3534,10 @@ function SUPERreCaptcha(){
         return final_form;
     };
 
-    SUPER.update_focus_filled_after_change = function(args){
-        args.form = SUPER.get_frontend_or_backend_form(args);
-        if( typeof args.el !== 'undefined' ) {
-            if(args.el.closest('.super-shortcode')){
-                if(args.el.value===''){
-                    args.el.closest('.super-shortcode').classList.remove('super-filled');
-                }else{
-                    args.el.closest('.super-shortcode').classList.add('super-filled');
-                }
-            }
-        }
-        return args;
-    }
+    // After field value changed
     SUPER.after_field_change_blur_hook = function(args){
-        args = SUPER.update_focus_filled_after_change(args);
+        args.form = SUPER.get_frontend_or_backend_form(args);
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name](args);
-            }
-        });
-        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args);
-        }
-        SUPER.save_form_progress(args);
-    };
-    SUPER.after_dropdown_change_hook = function(args){
-        args = SUPER.update_focus_filled_after_change(args);
-        var $functions = super_common_i18n.dynamic_functions.after_dropdown_change_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name](args);
-            }
-        });
-        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args);
-        }
-        SUPER.save_form_progress(args);
-    };
-    SUPER.after_radio_change_hook = function(args){
-        args = SUPER.update_focus_filled_after_change(args);
-        var $functions = super_common_i18n.dynamic_functions.after_radio_change_hook;
-        jQuery.each($functions, function(key, value){
-            if(typeof SUPER[value.name] !== 'undefined') {
-                SUPER[value.name](args);
-            }
-        });
-        if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args);
-        }
-        SUPER.save_form_progress(args);
-    };
-    SUPER.after_checkbox_change_hook = function(args){
-        args = SUPER.update_focus_filled_after_change(args);
-        var $functions = super_common_i18n.dynamic_functions.after_checkbox_change_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
                 SUPER[value.name](args);
@@ -3594,7 +3768,7 @@ function SUPERreCaptcha(){
                     // @since 3.6.0 - replace correct data value for autosuggest fields
                     // @since 4.6.0 - replace correct data value for wc order search
                     if( $super_field.hasClass('super-auto-suggest') || $super_field.hasClass('super-wc-order-search') ) {
-                        var $value = $super_field.find('.super-field-wrapper .super-dropdown-ui > .super-active').attr('data-value');
+                        var $value = $super_field.find('.super-field-wrapper .super-dropdown-list > .super-active').attr('data-value');
                         if( typeof $value !== 'undefined' ) {
                             // Also make sure to always save the first value
                             $data[$this.attr('name')].value = $value.split(";")[0];
@@ -3604,7 +3778,7 @@ function SUPERreCaptcha(){
                     if( $super_field.hasClass('super-dropdown') ) {
                         $i = 0;
                         $new_value = '';
-                        $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-ui > .super-active');
+                        $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-list > .super-active');
                         $selected_items.each(function(){
                             if($i===0){
                                 $new_value += $(this).text();
@@ -4237,8 +4411,27 @@ function SUPERreCaptcha(){
                     }
                     // If there are more pages to be processed, go ahead
                     if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
+                        debugger;
                         args.currentPage++;
-                        args.pdf.addPage();
+                        if(typeof args.pageOrientationChanges[args.currentPage] !== 'undefined' ){
+                            if(args.pageOrientationChanges[args.currentPage]==='unchanged'){
+                                if(typeof args.lastPageOrientation === 'undefined' ){
+                                    args.lastPageOrientation = args.pdfSettings.orientation;
+                                }
+                                args.pdf.addPage(args.pdfSettings.format, args.lastPageOrientation);
+                            }else{
+                                if(args.pageOrientationChanges[args.currentPage]==='default'){
+                                    args.pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                                    args.lastPageOrientation = args.pdfSettings.orientation;
+                                }else{
+                                    args.pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
+                                    args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
+                                }
+                            }
+                        }else{
+                            args.pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                            args.lastPageOrientation = args.pdfSettings.orientation;
+                        }
                         SUPER.generate_pdf(args, callback);
                     }else{                   
                         // No more pages to generate (submit form / send email)
@@ -4840,7 +5033,7 @@ function SUPERreCaptcha(){
                             }else{
                                 inputField.closest('.super-shortcode').classList.add('super-filled');
                             }
-                            SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                            SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                         }
                     }
                 }
@@ -4860,7 +5053,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4878,7 +5071,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4896,7 +5089,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4914,7 +5107,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4932,7 +5125,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4955,7 +5148,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
 
@@ -4978,7 +5171,7 @@ function SUPERreCaptcha(){
                     }else{
                         inputField.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    SUPER.after_dropdown_change_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
                 }
             }
         });
@@ -5065,6 +5258,7 @@ function SUPERreCaptcha(){
             }
             // - After we reverted the column order, loop through all the fields and add the correct TAB indexes
             $exclusion = super_common_i18n.tab_index_exclusion;
+
             $fields = $($($this).find('.super-field:not('+$exclusion+')').get());
             $fields.each(function(key, value){
                 $(value).attr('data-super-tab-index', key);
@@ -5160,6 +5354,11 @@ function SUPERreCaptcha(){
                 }
             };
             SUPER.after_initializing_forms_hook(args);
+
+            // Trigger fake windows resize
+            var resizeEvent = window.document.createEvent('UIEvents');
+            resizeEvent.initUIEvent('resize', true, false, window, 0);
+            window.dispatchEvent(resizeEvent);
         });
 
     };
@@ -5168,6 +5367,13 @@ function SUPERreCaptcha(){
     SUPER.remove_super_form_classes = function($this, $classes){
         $.each($classes, function( k, v ) {
             $this.removeClass(v);
+        });
+    };
+
+    // Escape any user input to prepare for injection into HTML (prevents XSS)
+    SUPER.html_encode = function(value){
+        return String(value).replace(/[^\w. ]/gi, function(c){
+            return '&#'+c.charCodeAt(0)+';';
         });
     };
 
@@ -5180,9 +5386,14 @@ function SUPERreCaptcha(){
             $html_fields,
             $target,
             $html,
+            $originalHtml,
+            $splitName,
+            $newName,
             $row_str,
             $original,
             $field_name,
+            $original_field_name,
+            $rv,
             $field,
             $return,
             $rows,
@@ -5203,10 +5414,14 @@ function SUPERreCaptcha(){
         }
 
         // Continue otherwise
-        if(typeof args.el === 'undefined') {
-            $html_fields = args.form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
+        if(typeof args.foundElements !== 'undefined') {
+            $html_fields = args.foundElements;
         }else{
-            $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+            if(typeof args.el === 'undefined') {
+                $html_fields = args.form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
+            }else{
+                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+            }
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
         Object.keys($html_fields).forEach(function(key) {
@@ -5248,49 +5463,42 @@ function SUPERreCaptcha(){
             if( $html!=='' ) {
                 // @since 4.6.0 - foreach loop compatibility
                 $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
-                while (($v = $regex.exec($html)) !== null) {
+                $originalHtml = $html;
+                while (($v = $regex.exec($originalHtml)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
                     if ($v.index === $regex.lastIndex) {
                         $regex.lastIndex++;
                     }
                     $original = $v[0];
                     $field_name = $v[1];
+                    $original_field_name = $v[1];
                     $return = '';
-                    if(typeof $v[2] !== 'undefined') $return = $v[2];
+                    if($v[2]) $return = $v[2];
+                    if($return==='') continue;
+                    $i = 1;
                     $rows = '';
-                    $field = SUPER.field(args.form, $field_name);
-                    if($field){
-                        // Of course we have at least one row, so always return the first row
-                        $row = $return.split('<%counter%>').join(1);
-                        $row = $row.split('<%').join('{');
-                        $row = $row.split('%>').join('}');
-                        $rows += $row;
-                        // Loop through all the fields that have been dynamically added by the user
-                        $i=2;
-                        $found = SUPER.field_exists(args.form, $field_name + '_' + ($i));
-                        while($found){
-                            $found = SUPER.field_exists(args.form, $field_name + '_' + ($i));
-                            if($found){
-                                $row = $return.split('<%counter%>').join($i);
-                                $row_regex = /<%(.*?)%>/g;
-                                $row_str = $return;
-                                while (($v = $row_regex.exec($row_str)) !== null) {
-                                    // This is necessary to avoid infinite loops with zero-width matches
-                                    if ($v.index === $row_regex.lastIndex) {
-                                        $row_regex.lastIndex++;
-                                    }
-                                    $tag_items = $v[1].split(';');
-                                    $old_name = $tag_items[0];
-                                    if($old_name!=='counter'){
-                                        $tag_items[0] = $tag_items[0]+'_'+$i;
-                                        $new_name = $tag_items.join(';');
-                                        $row = $row.split('<%'+$v[1]+'%>').join('{'+$new_name+'}');
-                                    }
-                                }
-                                $rows += $row;
+                    while( SUPER.field(args.form, $field_name) ) {
+                        $row_regex = /<%(.*?)%>/g;
+                        $row = $return;
+                        while (($rv = $row_regex.exec($row)) !== null) {
+                            if($rv[1]==='counter'){
+                                $row = $row.replace( $rv[0], $i); 
+                                continue;
                             }
-                            $i++;
+                            if($i<2){
+                                $row = $row.replace( $rv[0], '{'+$rv[1]+'}'); 
+                                continue;
+                            }
+                            $splitName = $rv[1].split(';');
+                            $newName = $splitName[0]+'_'+$i;
+                            if($splitName.length>1){
+                                $newName += ';'+$splitName[1];
+                            }
+                            $row = $row.replace( $rv[0], '{'+$newName+'}'); 
                         }
+                        $rows += $row;
+                        $i++;
+                        $field_name = $original_field_name+'_'+$i;
                     }
                     $html = $html.split($original).join($rows);
                 }
@@ -5307,6 +5515,7 @@ function SUPERreCaptcha(){
                         args.target = $target;
                         $new_value = SUPER.update_variable_fields.replace_tags(args);
                         delete args.target;
+                        $new_value = SUPER.html_encode($new_value);
                         $html = $html.replace('{'+$values+'}', $new_value);
                     }
                 }
@@ -5484,7 +5693,7 @@ function SUPERreCaptcha(){
     SUPER.init_set_dropdown_placeholder = function($form){
         if(typeof $form === 'undefined') $form = $('.super-form');
 
-        $form.find('.super-dropdown-ui').each(function(){
+        $form.find('.super-dropdown-list').each(function(){
             var $this = $(this);
             var $field = $this.parent('.super-field-wrapper').find('.super-shortcode-field');
             var $first_item = $this.find('.super-item:eq(1)');
@@ -5600,7 +5809,7 @@ function SUPERreCaptcha(){
                     if($parent.classList.contains('super-radio')){
                         $html += ($parent.querySelector('.super-active') ? $parent.querySelector('.super-active').innerText : '');
                     }else if($parent.classList.contains('super-dropdown')){
-                        items = $parent.querySelectorAll('.super-dropdown-ui .super-active');
+                        items = $parent.querySelectorAll('.super-dropdown-list .super-active');
                         for (ii = 0; ii < items.length; ii++) { 
                             $items += ($items==='' ? items[ii].innerText : ', '+items[ii].innerText);
                         }
@@ -5631,85 +5840,90 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.0.0 - clear / reset form fields
-    SUPER.init_clear_form = function(form, clone){
+    SUPER.init_clear_form = function(args){ //form, clone){
         var field, nodes, innerNodes, el, i, ii,
             children, index, element, dropdown, dropdownItem, 
             option, switchBtn, activeItem,
             value = '',
             default_value,
-            main_form = form,
+            main_form = args.form,
             new_value = '',
             placeholder,
             new_placeholder = '';
 
-        if(typeof clone !== 'undefined') {
-            main_form = form;
-            form = clone;
+        if(typeof args.clone !== 'undefined') {
+            args.form = args.clone;
             // @since 2.7.0 - reset fields after adding column dynamically
             // Slider field
-            nodes = form.querySelectorAll('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)');
+            nodes = args.form.querySelectorAll('.super-shortcode.super-slider > .super-field-wrapper > *:not(.super-shortcode-field)');
             for (i = 0; i < nodes.length; i++) { 
                 nodes[i].remove();
             }
             // Color picker
-            nodes = form.querySelectorAll('.super-color .sp-replacer');
+            nodes = args.form.querySelectorAll('.super-color .sp-replacer');
             for (i = 0; i < nodes.length; i++) { 
                 nodes[i].remove();
             }
         }
 
         // @since 3.2.0 - remove the google autocomplete init class from fields
-        nodes = form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
+        nodes = args.form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-autopopulate-init');
         }
         // @since 3.5.0 - remove datepicker picker initialized class
         // @since 4.5.0 - remove color picker initialized class
-        nodes = form.querySelectorAll('.super-picker-initialized');
+        nodes = args.form.querySelectorAll('.super-picker-initialized');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-picker-initialized');
         }
 
         // @since 3.6.0 - remove the active class from autosuggest fields
-        nodes = form.querySelectorAll('.super-auto-suggest .super-dropdown-ui .super-item.super-active');
+        nodes = args.form.querySelectorAll('.super-auto-suggest .super-dropdown-list .super-item.super-active');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].style.display = '';
             nodes[i].classList.remove('super-active');
         }
-        nodes = form.querySelectorAll('.super-overlap');
+        nodes = args.form.querySelectorAll('.super-overlap');
         for (i = 0; i < nodes.length; i++) { 
-            nodes[i].classList.remove('super-overlap');
+            if(args.clear===false){
+                if(!nodes[i].closest('.super-wc-order-search')){
+                    nodes[i].classList.remove('super-overlap');
+                }
+            }else{
+                nodes[i].classList.remove('super-overlap');
+            }
         }
         // @since 4.8.20 - reset keyword fields
-        nodes = form.querySelectorAll('.super-keyword-tags .super-keyword-filter');
+        nodes = args.form.querySelectorAll('.super-keyword-tags .super-keyword-filter');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].style.display = 'block';
             nodes[i].value = '';
         }
-        nodes = form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags > div > span');
+        nodes = args.form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags > div > span');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].remove();
         }
-        nodes = form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags-list .super-active');
+        nodes = args.form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags-list .super-active');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].classList.remove('super-active');
         }
-        nodes = form.querySelectorAll('.super-keyword-tags .super-shortcode-field');
+        nodes = args.form.querySelectorAll('.super-keyword-tags .super-shortcode-field');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].value = '';
         }
-        nodes = form.querySelectorAll('.super-keyword-tags');
+        nodes = args.form.querySelectorAll('.super-keyword-tags');
         for (i = 0; i < nodes.length; i++) {
             field = nodes[i].querySelector('.super-keyword-filter');
             field.placeholder = field.dataset.placeholder;
         }
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
-        nodes = form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
+        nodes = args.form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
         if(nodes){
             if(nodes[0]) nodes[0].click();
         }
         // Remove all dynamic added columns
-        nodes = form.querySelectorAll('.super-duplicate-column-fields');
+        nodes = args.form.querySelectorAll('.super-duplicate-column-fields');
         for (i = 0; i < nodes.length; i++) {
             children = Array.prototype.slice.call( nodes[i].parentNode.children );
             index = children.indexOf(nodes[i]);
@@ -5717,16 +5931,24 @@ function SUPERreCaptcha(){
         }
 
         // Remove error classes and filled classes
-        nodes = form.querySelectorAll('.super-error, .super-error-active, .super-filled');
+        nodes = args.form.querySelectorAll('.super-error, .super-error-active, .super-filled');
         for (i = 0; i < nodes.length; i++) { 
-            nodes[i].classList.remove('super-error');
-            nodes[i].classList.remove('super-error-active');
-            nodes[i].classList.remove('super-filled');
+            if(args.clear===false){
+                if(!nodes[i].classList.contains('super-wc-order-search')){
+                    nodes[i].classList.remove('super-error');
+                    nodes[i].classList.remove('super-error-active');
+                    nodes[i].classList.remove('super-filled');
+                }
+            }else{
+                nodes[i].classList.remove('super-error');
+                nodes[i].classList.remove('super-error-active');
+                nodes[i].classList.remove('super-filled');
+            }
         }
 
         // Clear all fields
-        nodes = form.querySelectorAll('.super-shortcode-field');
-        for (i = 0; i < nodes.length; i++) { 
+        nodes = args.form.querySelectorAll('.super-shortcode-field');
+        for (i = 0; i < nodes.length; i++) {
             if(nodes[i].name=='hidden_form_id') continue;
             element = nodes[i];
             default_value = '';
@@ -5736,6 +5958,9 @@ function SUPERreCaptcha(){
             }
             field = element.closest('.super-field');
             if(!field) continue; // Continue to next field
+            if(args.clear===false && field.classList.contains('super-wc-order-search')){
+                continue;
+            }
 
             // If value is not empty, set filled status
             if( default_value !== "" ) {
@@ -5746,21 +5971,15 @@ function SUPERreCaptcha(){
 
             // Checkbox and Radio buttons
             if( field.classList.contains('super-checkbox') || field.classList.contains('super-radio') ){
-                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-active');
+                innerNodes = field.querySelectorAll('.super-item');
                 for (ii = 0; ii < innerNodes.length; ii++) { 
-                    innerNodes[ii].classList.remove('super-active');
-                }
-                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item input');
-                for (ii = 0; ii < innerNodes.length; ii++) { 
-                    $(innerNodes[ii]).prop('checked', false);
-                }
-                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected');
-                for (ii = 0; ii < innerNodes.length; ii++) { 
-                    innerNodes[ii].classList.add('super-active');
-                }
-                innerNodes = form.querySelectorAll('.super-field-wrapper .super-item.super-default-selected input');
-                for (ii = 0; ii < innerNodes.length; ii++) { 
-                    $(innerNodes[ii]).prop('checked', true);
+                    if(innerNodes[ii].classList.contains('super-default-selected')){
+                        innerNodes[ii].classList.add('super-active');
+                        innerNodes[ii].querySelector('input').checked = true;
+                    }else{
+                        innerNodes[ii].classList.remove('super-active');
+                        innerNodes[ii].querySelector('input').checked = false;
+                    }
                 }
             }
 
@@ -5804,11 +6023,11 @@ function SUPERreCaptcha(){
 
             // Dropdown field
             if(field.classList.contains('super-dropdown')){
-                innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                innerNodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
                 for (ii = 0; ii < innerNodes.length; ii++) { 
                     innerNodes[ii].classList.remove('super-active');
                 }
-                innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
+                innerNodes = field.querySelectorAll('.super-dropdown-list .super-item.super-default-selected');
                 for (ii = 0; ii < innerNodes.length; ii++) { 
                     innerNodes[ii].classList.add('super-active');
                 }
@@ -5816,24 +6035,24 @@ function SUPERreCaptcha(){
                     field.classList.add('super-filled');
                 }
                 if(typeof default_value === 'undefined') default_value = '';
-                option = field.querySelector('.super-dropdown-ui .super-item:not(.super-placeholder)[data-value="'+default_value+'"]:not(.super-placeholder)');
+                option = field.querySelector('.super-dropdown-list .super-item:not(.super-placeholder)[data-value="'+default_value+'"]:not(.super-placeholder)');
                 if(option){
                     field.querySelector('.super-placeholder').innerHTML = option.innerText;
                     option.classList.add('super-active');
                     element.value = default_value;
                     element.value = '';
                 }else{
-                    if(field.querySelectorAll('.super-dropdown-ui .super-item.super-active').length===0){
+                    if(field.querySelectorAll('.super-dropdown-list .super-item.super-active').length===0){
                         if( (typeof element.placeholder !== 'undefined') && (element.placeholder!=='') ) {
                             field.querySelector('.super-placeholder').innerHTML = element.placeholder;
-                            dropdownItem = field.querySelector('.super-dropdown-ui .super-item[data-value="'+element.placeholder+'"]');
+                            dropdownItem = field.querySelector('.super-dropdown-list .super-item[data-value="'+element.placeholder+'"]');
                             if(dropdownItem) dropdownItem.classList.add('super-active');
                         }else{
-                            field.querySelector('.super-placeholder').innerHTML = field.querySelector('.super-dropdown-ui .super-item').innerText;
+                            field.querySelector('.super-placeholder').innerHTML = field.querySelector('.super-dropdown-list .super-item').innerText;
                         }
                         element.value = '';
                     }else{
-                        innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        innerNodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
                         for (ii = 0; ii < innerNodes.length; ii++) { 
                             if(new_value===''){
                                 new_value += innerNodes[ii].dataset.value;
@@ -5855,41 +6074,12 @@ function SUPERreCaptcha(){
 
             // Autosuggest field
             if(field.classList.contains('super-auto-suggest')){
-                innerNodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                innerNodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
                 for (ii = 0; ii < innerNodes.length; ii++) { 
                     innerNodes[ii].classList.remove('super-active');
                 }
                 field.querySelector('.super-field-wrapper').classList.remove('super-overlap');
                 element.value = '';
-                continue;
-            }
-
-            // Countries field
-            if(field.classList.contains('super-countries')){
-                placeholder = element.placeholder;
-                dropdown = field.querySelector('.super-dropdown-ui');
-                innerNodes = dropdown.querySelectorAll('.super-item.super-active');
-                if(typeof placeholder === 'undefined' ) {
-                    option = field.querySelector('.super-dropdown-ui .super-item')[2];
-                    for (ii = 0; ii < innerNodes.length; ii++) {
-                        innerNodes[ii].classList.remove('super-active');
-                    }
-                    if(dropdown.querySelectorAll('.super-default-selected')){
-                        dropdown.querySelectorAll('.super-default-selected').classList.add('super-active');
-                    }
-                    dropdown.querySelector('.super-placeholder').dataset.value = option.dataset.value;
-                    dropdown.querySelector('.super-placeholder').innerHTML = option.innerHTML;
-                    element.value = option.dataset.value;
-                }else{
-                    for (ii = 0; ii < innerNodes.length; ii++) {
-                        innerNodes[ii].classList.remove('super-active');
-                    }
-                    el = dropdown.querySelector('.super-placeholder');
-                    el.dataset.value = '';
-                    el.innerHTML = placeholder;
-                    element.value = '';
-                }
-                field.classList.remove('super-focus');
                 continue;
             }
 
@@ -5930,12 +6120,13 @@ function SUPERreCaptcha(){
         SUPER.after_field_change_blur_hook({form: main_form});
 
         // After form cleared
-        SUPER.after_form_cleared_hook(form);
+        SUPER.after_form_cleared_hook(args.form);
     };
 
 
     // Populate form with entry data found after ajax call
-    SUPER.populate_form_with_entry_data = function(data, form){
+    SUPER.populate_form_with_entry_data = function(data, form, clear){
+        if(typeof clear === 'undefined') clear = true;
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
             html,files,element,field,stars,currentStar,placeholder,firstField,firstFieldName,
             switchBtn,activeItem,signatureDataUrl,placeholderHtml,fieldName,
@@ -5946,7 +6137,7 @@ function SUPERreCaptcha(){
         if(data!==false && data.length!==0){
         
             // First clear the form
-            SUPER.init_clear_form(form);
+            SUPER.init_clear_form({form: form, clear: clear});
 
             // Find all dynamic columns and get the first field name
             nodes = form.querySelectorAll('.super-duplicate-column-fields');
@@ -6066,7 +6257,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-auto-suggest')){
                     if(data[i].value!==''){
                         firstValue = data[i].value.split(';')[0];
-                        dropdown = field.querySelector('.super-dropdown-ui');
+                        dropdown = field.querySelector('.super-dropdown-list');
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
@@ -6087,7 +6278,7 @@ function SUPERreCaptcha(){
                         }
                         element.value = setFieldValue;
                     }else{
-                        nodes = dropdown.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        nodes = dropdown.querySelectorAll('.super-dropdown-list .super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
                             nodes[ii].classList.remove('super-active');
                         }
@@ -6098,7 +6289,7 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-dropdown')){
                     if(data[i].value!==''){
                         options = data[i].value.split(',');
-                        dropdown = field.querySelector('.super-dropdown-ui');
+                        dropdown = field.querySelector('.super-dropdown-list');
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
@@ -6118,11 +6309,11 @@ function SUPERreCaptcha(){
                         }
                         element.value = setFieldValue;
                     }else{
-                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                        nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
                             nodes[ii].classList.remove('super-active');
                         }
-                        nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-default-selected');
+                        nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-default-selected');
                         for ( ii = 0; ii < nodes.length; ii++){
                             nodes[ii].classList.add('super-active');
                         }
@@ -6194,53 +6385,6 @@ function SUPERreCaptcha(){
                     }
                     return true;
                 }
-
-                // Countries field
-                if(field.classList.contains('super-countries')){
-                    dropdown = field.querySelector('.super-dropdown-ui');
-                    items = dropdown.querySelectorAll('.super-item');
-                    if(data[i].value!==''){
-                        options = data[i].value.split(',');
-                        placeholderHtml = '';
-                        for( ii = 0; ii < items.length; ii++ ) {
-                            items[ii].classList.remove('super-active');
-                            if(options.indexOf(items[ii].dataset.value)!==-1){
-                                items[ii].classList.add('super-active');
-                                if(placeholderHtml===''){
-                                    placeholderHtml += items[ii].dataset.value;
-                                }else{
-                                    placeholderHtml += ', '+items[ii].dataset.value;
-                                }
-                            }
-                        }
-                        placeholder = dropdown.querySelector('.super-placeholder');
-                        placeholder.dataset.value = '';
-                        placeholder.innerHTML = placeholderHtml;
-                    }else{
-                        placeholder = element.placeholder;
-                        if(typeof placeholder === 'undefined' ) {
-                            for( ii = 0; ii < items.length; ii++ ) {
-                                if(items[ii].classList.contains('super-default-selected')){
-                                    items[ii].classList.add('super-active');
-                                }else{
-                                    items[ii].classList.remove('super-active');
-                                }
-                            }
-                            item = field.querySelectorAll('.super-dropdown-ui .super-item')[1];
-                            dropdown.querySelector('.super-placeholder').dataset.value = item.dataset.value;
-                            dropdown.querySelector('.super-placeholder').innerHTML = item.innerHTML;
-                            element.value = item.dataset.value;
-                        }else{
-                            for( ii = 0; ii < items.length; ii++ ) {
-                                items[ii].classList.remove('super-active');
-                            }
-                            dropdown.querySelector('.super-placeholder').dataset.value = '';
-                            dropdown.querySelector('.super-placeholder').innerHTML = placeholder;
-                            element.value = '';
-                        }
-                    }
-                    return true;
-                }
             });
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields
             Object.keys(updatedFields).forEach(function(key) {
@@ -6252,6 +6396,7 @@ function SUPERreCaptcha(){
     // Retrieve entry data through ajax
     // (this function is called when search field is changed, or when $_GET is set on page load)
     SUPER.populate_form_data_ajax = function(args){
+        if(typeof args.clear === 'undefined') args.clear = true;
         var orderId,
             value,
             skipFields,
@@ -6272,7 +6417,6 @@ function SUPERreCaptcha(){
             } 
             // We now have the order ID, let's search the order and get entry data if possible
             args.el.querySelector('.super-field-wrapper').classList.add('super-populating');
-            form.classList.add('super-populating');
             $.ajax({
                 url: super_common_i18n.ajaxurl,
                 type: 'post',
@@ -6282,11 +6426,10 @@ function SUPERreCaptcha(){
                     skip: skipFields
                 },
                 success: function (data) {
-                    SUPER.populate_form_with_entry_data(data, form);
+                    SUPER.populate_form_with_entry_data(data, form, args.clear);
                 },
                 complete: function(){
                     args.el.querySelector('.super-field-wrapper').classList.remove('super-populating');
-                    form.classList.remove('super-populating');
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     // eslint-disable-next-line no-console
@@ -6302,7 +6445,6 @@ function SUPERreCaptcha(){
             skipFields = (args.el.dataset.searchSkip ? args.el.dataset.searchSkip : '');
             if( value.length > 2 ) {
                 args.el.closest('.super-field-wrapper').classList.add('super-populating');
-                form.classList.add('super-populating');
                 $.ajax({
                     url: super_common_i18n.ajaxurl,
                     type: 'post',
@@ -6313,11 +6455,10 @@ function SUPERreCaptcha(){
                         skip: skipFields
                     },
                     success: function (data) {
-                        SUPER.populate_form_with_entry_data(data, form);
+                        SUPER.populate_form_with_entry_data(data, form, args.clear);
                     },
                     complete: function(){
                         args.el.closest('.super-field-wrapper').classList.remove('super-populating');
-                        form.classList.remove('super-populating');
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         // eslint-disable-next-line no-console
@@ -6575,7 +6716,6 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            SUPER.init_super_responsive_form_fields({form: form});
             SUPER.init_common_fields({form: form});
         });
 
@@ -6656,6 +6796,8 @@ function SUPERreCaptcha(){
                 SUPER.reposition_slider_amount_label($field[0]);
 
                 $field.on("slider:changed", function ($event, $data) {
+                    SUPER.focusForm(this);
+                    SUPER.focusField(this);
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
                     $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regex, 'g'), '$&' + ($thousand_separator || ''));
                     $amount = $wrapper.children('.amount');
@@ -6713,23 +6855,39 @@ function SUPERreCaptcha(){
     // Init Tooltips
     SUPER.init_tooltips = function(){
         if ( $.isFunction($.fn.tooltipster) ) {
-            $('.super-tooltip:not(.tooltipstered)').tooltipster({
-                contentAsHTML: true,
-                trigger: 'custom',
-                triggerOpen: {
-                    click: true,
-                    tap: true,
-                    mouseenter: true,
-                    touchstart: true
-                },
-                triggerClose: {
-                    click: true,
-                    tap: true,
-                    mouseleave: true,
-                    originClick: true,
-                    touchleave: true
+            var i, form, formId, formTheme, nodes = document.querySelectorAll('.super-tooltip:not(.tooltipstered)');
+            for(i=0; i<nodes.length; i++){
+                formId = 0;
+                form = SUPER.get_frontend_or_backend_form({el: nodes[i]});
+                if(form.querySelector('input[name="hidden_form_id"]')){
+                    formId = form.querySelector('input[name="hidden_form_id"]').value;
                 }
-            });
+                formTheme = '';
+                if(form.classList.contains('super-default-rounded')){
+                    formTheme = 'tooltip-super-default-rounded';
+                }
+                if(form.classList.contains('super-full-rounded')){
+                    formTheme = 'tooltip-super-full-rounded';
+                }
+                $(nodes[i]).tooltipster({
+                    theme: 'tooltip-super-form tooltip-super-form-'+formId+' '+formTheme,
+                    contentAsHTML: true,
+                    trigger: 'custom',
+                    triggerOpen: {
+                        click: true,
+                        tap: true,
+                        mouseenter: true,
+                        touchstart: true
+                    },
+                    triggerClose: {
+                        click: true,
+                        tap: true,
+                        mouseleave: true,
+                        originClick: true,
+                        touchleave: true
+                    }
+                });
+            }
         }
     };
 
@@ -6746,7 +6904,7 @@ function SUPERreCaptcha(){
                                 SUPER.backend_setting_changed($(this), ui.color.toString());
                             }
                         },
-                        palettes: ['#F26C68', '#444444', '#6E7177', '#FFFFFF', '#000000']
+                        palettes: ['#FFFFFF', '#000000', '#444444', '#8E8E8E', '#9A9A9A', '#CDCDCD', '#6E7177', '#F26C68', '#49B4B6' ]
                     });
                 }
             });
@@ -6893,6 +7051,50 @@ function SUPERreCaptcha(){
                 }
             }
 
+            // Check for toggle element, we will need to resize the "On/Off" options so they are equal in size
+            nodes = args.form.querySelectorAll('.super-toggle');
+            for( i=0; i<nodes.length; i++ ) {
+                // Grab on/off nodes
+                var sw = nodes[i].querySelector('.super-toggle-switch');
+                var gr = nodes[i].querySelector('.super-toggle-group');
+                var on = nodes[i].querySelector('.super-toggle-on');
+                var ha = nodes[i].querySelector('.super-toggle-handle');
+                var off = nodes[i].querySelector('.super-toggle-off');
+                // Reset width for both
+                sw.style.width = '';
+                gr.style.width = '';
+                on.style.width = '';
+                off.style.width = '';
+                ha.style.width = '';
+                // Grab the width
+                var width = 0;
+                var onWidth = on.offsetWidth+40; // padding left/right 20px
+                var offWidth = off.offsetWidth+40; // padding left/right 20px
+                var haWidth = ha.offsetWidth+4;
+                ha.style.width = haWidth+'px';
+                // Now compare, and set new width
+                width = onWidth;
+                if(onWidth < offWidth){
+                    width = offWidth;
+                }
+                sw.style.width = width+(haWidth/2)+'px';
+                gr.style.width = ((width+(haWidth/2))*2)-2+'px';
+                on.style.width = width+'px';
+                off.style.width = width+'px';
+            }
+
+            // Check for checkbox/radio slider/grid element
+            // nodes = args.form.querySelectorAll('.super-toggle');
+            // var containers = [];
+            // containers.push({
+            //     wrapper: wrapper,
+            //     dots: dots,
+            //     container: container,
+            //     carousel: carousel,
+            //     settings: customSettings
+            // });
+            // CarouselJS.redraw(fn, _, containers[key]);
+
             ///var formId = 0;
             ///if(this.querySelector('input[name="hidden_form_id"]')){
             ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
@@ -6974,6 +7176,17 @@ function SUPERreCaptcha(){
             }
             SUPER.init_field_filter_visibility($this, type);
         });
+
+        // Apply styles after chaning settings
+        // Toggle RTL styles
+        if(document.querySelector('input[name="theme_rtl"]')){
+            var theme_rtl = document.querySelector('input[name="theme_rtl"]').value;
+            if(theme_rtl==='true'){
+                document.querySelector('.super-preview-elements').classList.add('super-rtl');
+            }else{
+                document.querySelector('.super-preview-elements').classList.remove('super-rtl');
+            }
+        }
     };
 
     // @since 3.1.0 - init distance calculator fields
@@ -6994,158 +7207,6 @@ function SUPERreCaptcha(){
         }
     };
 
-    // @since 3.2.0 - function to return next field based on TAB index
-    SUPER.super_find_next_tab_field = function(e, field, form, nextTabIndex){
-        var nextTabIndexSmallIncrement,
-            nextField,
-            nextFieldSmallIncrement,
-            nextCustomField,
-            customTabIndex,
-            incNext = 1,
-            incNextSmall = 0.001;
-
-        if(e.shiftKey){
-            incNext = -incNext;
-            incNextSmall = -incNextSmall;
-        }
-        if(typeof nextTabIndex === 'undefined'){
-            nextTabIndexSmallIncrement = parseFloat(parseFloat(field.dataset.superTabIndex)+incNextSmall).toFixed(3);
-            nextTabIndex = parseFloat(field.dataset.superTabIndex)+incNext;
-        }
-        if(typeof field.dataset.superCustomTabIndex !== 'undefined'){
-            nextTabIndex = parseFloat(field.dataset.superCustomTabIndex)+incNext;
-        }
-
-        nextTabIndexSmallIncrement = parseFloat(nextTabIndexSmallIncrement);
-        nextTabIndex = parseFloat(parseFloat(nextTabIndex).toFixed(0));
-        nextFieldSmallIncrement = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndexSmallIncrement+'"]');
-        if(nextFieldSmallIncrement){
-            nextField = nextFieldSmallIncrement;
-        }else{
-            nextField = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndex+'"]');
-        }
-        nextCustomField = form.querySelector('.super-field[data-super-custom-tab-index="'+nextTabIndex+'"]');
-
-        // If custom index TAB field was found, and is not currently focussed
-        if( (nextCustomField) && (!nextCustomField.classList.contains('super-focus')) ) {
-            nextField = nextCustomField;
-        }
-        
-        if(!nextField) return false;
-
-        if(nextField.dataset.superCustomTabIndex){
-            customTabIndex = nextField.dataset.superCustomTabIndex;
-            if(typeof customTabIndex !== 'undefined') {
-                if(nextTabIndex < parseFloat(customTabIndex)){
-                    nextField = SUPER.super_find_next_tab_field(e, field, form, nextTabIndex+incNext);
-                }
-            }
-        }
-        if(SUPER.has_hidden_parent(nextField)){
-            // Exclude conditionally
-            nextField = SUPER.super_find_next_tab_field(e, field, form, nextTabIndex+incNext);
-        }
-        return nextField;
-    };
-    SUPER.super_focus_next_tab_field = function(e, next, form, skipNext){
-        var i,nodes,keyCode;
-
-        if(typeof skipNext !== 'undefined'){
-            next = skipNext;
-        }else{
-            next = SUPER.super_find_next_tab_field(e, next, form);
-        }
-        if(!next) return false;
-
-        nodes = form.querySelectorAll('.super-focus *');
-        for ( i = 0; i < nodes.length; i++){
-            nodes[i].blur();
-            if(nodes[i].closest('.super-focus')){
-                nodes[i].closest('.super-focus').classList.remove('super-focus');
-            }
-        }
-        nodes = form.querySelectorAll('.super-focus-dropdown');
-        for ( i = 0; i < nodes.length; i++){
-            nodes[i].classList.remove('super-focus-dropdown');
-        }
-        nodes = form.querySelectorAll('.super-color .super-shortcode-field');
-        for ( i = 0; i < nodes.length; i++){
-            $(nodes[i]).spectrum("hide");
-        }
-        if( next.classList.contains('super-checkbox') || next.classList.contains('super-radio') ) {
-            next.classList.add('super-focus');
-            if(next.querySelector('.super-item.super-focus')){
-                var current = next.querySelector('.super-item.super-focus');
-                var nextSibling = current.nextSibling;
-                current.classList.remove('super-focus');
-                nextSibling.classList.add('super-focus');
-            }else{
-                var innerNodes = next.querySelectorAll('.super-item');
-                // Radio has active item
-                if(next.classList.contains('super-radio')){
-                    var activeFound = next.querySelector('.super-item.super-active');
-                }
-                if(activeFound){
-                    activeFound.classList.add('super-focus');
-                }else{
-                    // var innerNodes = next.querySelectorAll('.super-item');
-                    if(e.shiftKey){
-                        innerNodes[innerNodes.length-1].classList.add('super-focus');
-                    }else{
-                        innerNodes[0].classList.add('super-focus');
-                    }
-                }
-            }
-            e.preventDefault();
-            return false;
-        }
-        if( next.classList.contains('super-form-button') ) {
-            next.classList.add('super-focus');
-            SUPER.init_button_hover_colors( next );
-            next.querySelector('.super-button-wrap').focus();
-            e.preventDefault();
-            return false;
-        }
-        if( next.classList.contains('super-next-multipart') ) {
-            keyCode = e.keyCode || e.which; 
-            // 9 = TAB
-            if (keyCode == 9) {
-                // temp disabled next.click();
-                // temp disabled next.classList.add('super-focus');
-                // temp disabled SUPER.super_focus_next_tab_field(e, next, form);
-            }
-            e.preventDefault();
-            return false;
-        }
-        if( next.classList.contains('super-color')) {
-            next.classList.add('super-focus');
-            $(next.querySelector('.super-shortcode-field')).spectrum('show');
-            e.preventDefault();
-            return false;
-        }
-        if( next.classList.contains('super-keyword-tags')) {
-            next.classList.add('super-focus');
-            next.querySelector('.super-keyword-filter').focus();
-            e.preventDefault();
-            return false;
-        }
-        if( (next.classList.contains('super-dropdown')) || (next.classList.contains('super-countries')) ) {
-            next.classList.add('super-focus');
-            next.classList.add('super-focus-dropdown');
-            if(next.querySelector('input[name="super-dropdown-search"]')){
-                next.querySelector('input[name="super-dropdown-search"]').focus();
-                e.preventDefault();
-                return false;
-            }
-        }else{
-            next.classList.add('super-focus');
-        }
-        if(next.querySelector('.super-shortcode-field')){
-            next.querySelector('.super-shortcode-field').focus();
-        }
-        e.preventDefault();
-        return false;
-    };
 
     jQuery(document).ready(function ($) {
         
@@ -7184,273 +7245,17 @@ function SUPERreCaptcha(){
                 SUPER.init_field_filter_visibility($(this), 'element_settings');
             }
         });  
-        
-        function super_update_dropdown_value(e, dropdown, key){
-            var i,nodes,value,name,max,min,total,names='',values='',counter,validation,form,
-                input = dropdown.querySelector('.super-field-wrapper > input'),
-                parent = dropdown.querySelector('.super-dropdown-ui'),
-                placeholder = parent.querySelector('.super-placeholder'),
-                selected = parent.querySelector('.super-active');
-
-            if(!parent.classList.contains('multiple')){
-                if(selected){
-                    value = selected.dataset.value;
-                    name = selected.dataset.searchValue;
-                    placeholder.innerHTML = (name);
-                    placeholder.dataset.value = value;
-                    placeholder.classList.add('super-active');
-                    nodes = parent.querySelectorAll('.super-item.super-active');
-                    for (i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                    }
-                    selected.classList.add('super-active');
-                    input.value = value;
-                }
-            }else{
-                max = input.dataset.maxlength;
-                min = input.dataset.minlength;
-                total = parent.querySelectorAll('li.super-active:not(.super-placeholder)').length;
-                if(selected.classList.contains('super-active')){
-                    if(total>1){
-                        if(total <= min) return false;
-                        selected.classList.remove('super-active');    
-                    }
-                }else{
-                    if(total >= max) return false;
-                    selected.classList.add('super-active');    
-                }
-                nodes = parent.querySelectorAll('li.super-active:not(.super-placeholder)');
-                total = nodes.length;
-                counter = 1;
-                for (i = 0; i < nodes.length; i++){
-                    if((total == counter) || (total==1)){
-                        names += nodes[i].dataset.searchValue;
-                        values += nodes[i].dataset.value;
-                    }else{
-                        names += nodes[i].dataset.searchValue+', ';
-                        values += nodes[i].dataset.value+', ';
-                    }
-                    counter++;
-                }
-                placeholder.innerHTML = names;
-                input.value = values;
-            }
-            validation = input.dataset.validation;
-            if(typeof validation !== 'undefined' && validation !== false){
-                form = input.closest('.super-form');
-                SUPER.handle_validations({el: input, form: form, validation: validation});
-            }
-            if(key=='enter') {
-                dropdown.classList.remove('super-focus-dropdown');
-                dropdown.classList.remove('super-string-found');
-            }
-            SUPER.after_dropdown_change_hook({el: input});
-            e.preventDefault();
-        }
 
         $doc.on('click', '.super-field.super-currency',function(){
             var $field = $(this);
             var $form = $field.closest('.super-form');
             $form.find('.super-focus').removeClass('super-focus');
-            $form.find('.super-focus-dropdown').removeClass('super-focus-dropdown');
             $field.addClass('super-focus');
         });
 
-        $doc.keydown(function(e){
-            var i, nodes, total,
-                field,
-                form,
-                children,
-                dropdown,
-                dropdown_ui,
-                item,
-                current,
-                placeholder,
-                nextIndex,
-                submitButton,
-                nextSibling,
-                keyCode = e.keyCode || e.which;
-
-            // 32 = space
-            if (keyCode == 32) {
-                field = document.querySelector('.super-focus');
-                if(field){
-                    form = field.closest('.super-form');
-                    // If checkbox or radio, then we check/uncheck the current focussed item
-                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
-                        if(field.querySelector('.super-focus')){
-                            field.querySelector('.super-focus').click();
-                        }
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-            }
-            
-            // 13 = enter
-            if (keyCode == 13) {
-                dropdown = document.querySelector('.super-focus-dropdown');
-                if(dropdown){
-                    super_update_dropdown_value(e, dropdown, 'enter');
-                }else{
-                    field = document.querySelector('.super-focus');
-                    if(field){
-                        form = field.closest('.super-form');
-                        // @since 3.3.0 - Do not submit form if Enter is disabled
-                        if(form.dataset.disableEnter=='true'){
-                            e.preventDefault();
-                            return false;
-                        }
-                        if( !field.classList.contains('super-textarea') ) {
-                            if(!form.querySelector('.super-form-button.super-loading')){
-                                submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
-                                if(submitButton) {
-                                    var args = {
-                                        el: undefined,
-                                        form: form,
-                                        submitButton: submitButton.parentNode,
-                                        validateMultipart: undefined,
-                                        event: e,
-                                        doingSubmit: true
-                                    };
-                                    SUPER.validate_form(args);
-                                }
-                            }
-                            e.preventDefault();
-                        }
-                    }
-                }
-            }
-            // 37 = left arrow
-            // 38 = up arrow
-            // 39 = right arrow
-            // 40 = down arrow
-            if ( keyCode == 37 || keyCode == 38 || keyCode == 39 || keyCode == 40 ) {
-                dropdown = document.querySelector('.super-focus-dropdown');
-                if(dropdown){
-                    total = dropdown.querySelectorAll('.super-dropdown-ui .super-item').length;
-                    placeholder = dropdown.querySelector('.super-dropdown-ui .super-placeholder');
-                    if(!dropdown.querySelector('.super-dropdown-ui .super-active')){
-                        item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[1];
-                        if(keyCode == 38){
-                            item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[total-1];
-                        }
-                        item.classList.add('super-active');
-                        placeholder.dataset.value = item.dataset.value;
-                        placeholder.innerHTML = item.innerHTML;
-                    }else{
-                        current = dropdown.querySelector('.super-dropdown-ui .super-item.super-active');
-                        if(current){
-                            children = Array.prototype.slice.call( current.parentNode.children );
-                            // 37 = left arrow
-                            // 38 = up arrow
-                            if(keyCode == 37 || keyCode == 38){
-                                nextIndex = children.indexOf(current) - 1;
-                                if(nextIndex===0) nextIndex = total-1;
-                            }else{
-                                nextIndex = children.indexOf(current) + 1;
-                            }
-                            item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[nextIndex];
-                            if(!item){
-                                item = dropdown.querySelectorAll('.super-dropdown-ui .super-item')[1];
-                            }
-                            nodes = dropdown.querySelectorAll('.super-dropdown-ui .super-item.super-active');
-                            for (i = 0; i < nodes.length; i++) { 
-                                nodes[i].classList.remove('super-active');
-                            }
-                            placeholder.dataset.value = item.dataset.value
-                            placeholder.innerHTML = item.innerHTML;
-                            item.classList.add('super-active');
-                        }
-                    }
-                    dropdown_ui = $(dropdown.querySelector('.super-dropdown-ui'));
-                    dropdown_ui.scrollTop(dropdown_ui.scrollTop() - dropdown_ui.offset().top + $(item).offset().top - 50); 
-                    super_update_dropdown_value(e, dropdown);
-                }
-                field = document.querySelector('.super-focus');
-                if(field){
-                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
-                        if(field.querySelector('.super-focus')){
-                            current = field.querySelector('.super-item.super-focus');
-                            if(current){
-                                // 37 = left arrow
-                                // 38 = up arrow
-                                if(keyCode == 37 || keyCode == 38){
-                                    // prev
-                                    nextSibling = current.previousSibling;
-                                }else{
-                                    // next
-                                    nextSibling = current.nextSibling;
-                                }
-                                current.classList.remove('super-focus');
-                                if(nextSibling && nextSibling.classList.contains('super-item')){
-                                    nextSibling.classList.add('super-focus');
-                                    if(field.classList.contains('super-radio')){
-                                        nextSibling.click();
-                                    }
-                                }else{
-                                    // left, up
-                                    var innerNodes = field.querySelectorAll('.super-item');
-                                    if(keyCode == 37 || keyCode == 38){
-                                        innerNodes[innerNodes.length-1].classList.add('super-focus');
-                                        if(field.classList.contains('super-radio')){
-                                            innerNodes[innerNodes.length-1].click();
-                                        }
-                                    }else{
-                                        innerNodes[0].classList.add('super-focus');
-                                        if(field.classList.contains('super-radio')){
-                                            innerNodes[0].click();
-                                        }
-                                    }
-                                }
-                                e.preventDefault();
-                                return false;
-                            }
-                        }
-                        e.preventDefault();
-                        return false;
-                    }
-                }
-
-            }
-            // 37 = left arrow
-            // 39 = right arrow
-            // TABs left/right navigation through keyboard keys
-            if( (keyCode == 37) || (keyCode == 39) ) {
-                nodes = document.querySelectorAll('.super-form .super-tabs-contents');
-                for (i = 0; i < nodes.length; i++) {
-                    field = nodes[i].closest('.super-shortcode');
-                    if(!SUPER.has_hidden_parent(field, true)){ // Also include Multi-part for this check
-                        // Only if no focussed field is found
-                        // First get the currently active TAB
-                        var activeTab = field.querySelector('.super-tabs-contents > .super-tabs-content.super-active');
-                        var focusFound = activeTab.querySelectorAll('.super-focus').length;
-                        if(focusFound) continue; // Do not go to next/prev TAB if there is a focussed field
-                        // Only if not inside other TAB element
-                        if(!field.closest('.super-tabs-contents')){
-                            // Go left
-                            if( keyCode == 37 ) nodes[i].querySelector(':scope > .super-content-prev').click();
-                            // Go right
-                            if( keyCode == 39 ) nodes[i].querySelector(':scope > .super-content-next').click();
-                        }
-                    }
-                }
-            }
-
-            // 9 = TAB
-            if (keyCode == 9) {
-                // if(SUPER.currentlyFocussedForm){
-                //     // Only switch to next/prev field if form is currently focussed
-                //     field = document.querySelector('.super-field.super-focus');
-                //     if(field){
-                //         form = field.closest('.super-form');
-                //         SUPER.super_focus_next_tab_field(e, field, form);
-                //     }
-                // }
-            }
+        $doc.keyup(function(e){
         });
-
-        $doc.on('keyup', '.super-icon-search input', function(){
+        $doc.on('keyup', '.super-icon-search input', function(e){
             var $value = $(this).val();
             var $icons = $(this).parents('.super-icon-field').children('.super-icon-list').children('i');
             if($value===''){
@@ -7505,7 +7310,6 @@ function SUPERreCaptcha(){
                 var $form = $this.closest('.super-form');
                 if( $value.length>0 ) {
                     $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
-                    $form.addClass('super-populating');
                     $.ajax({
                         url: super_common_i18n.ajaxurl,
                         type: 'post',
@@ -7525,16 +7329,15 @@ function SUPERreCaptcha(){
                                 $this.parents('.super-shortcode:eq(0)').addClass('super-focus');
                                 $this.parents('.super-shortcode:eq(0)').addClass('super-string-found');
                             }
-                            var ul = $this.parents('.super-field-wrapper:eq(0)').children('.super-dropdown-ui');
+                            var ul = $this.parents('.super-field-wrapper:eq(0)').children('.super-dropdown-list');
                             if(ul.length){
                                 ul.html(result);
                             }else{
-                                $('<ul class="super-dropdown-ui">'+result+'</ul>').appendTo($this.parents('.super-field-wrapper:eq(0)'));
+                                $('<ul class="super-dropdown-list">'+result+'</ul>').appendTo($this.parents('.super-field-wrapper:eq(0)'));
                             }
                         },
                         complete: function(){
                             $this.parents('.super-field-wrapper:eq(0)').removeClass('super-populating');
-                            $form.removeClass('super-populating');
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             // eslint-disable-next-line no-console
