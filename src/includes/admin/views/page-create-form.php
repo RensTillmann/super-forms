@@ -210,16 +210,23 @@
 
             <?php
             // Try to load the selected theme style
-            $theme_style = 'super-style-default';
-            $style_content  = '';
-            if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
-                $theme_style .= ' ' . $settings['theme_style'];
-                $style_content .= require_once( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+            // Always load the default styles
+            $style_content =  require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+            $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
+            $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
+            $class = ' super-default-squared';
+            if(!empty($settings['theme_style'])) {
+                $class = ' ' . $settings['theme_style'];
             }
-            if( isset( $settings['theme_field_size'] ) ) $theme_style .= ' super-field-size-' . $settings['theme_field_size'];
+            // @since 2.9.0 - theme field size in height
+            if( !isset( $settings['theme_field_size'] ) ) $settings['theme_field_size'] = 'medium';
+            $class .= ' super-field-size-' . $settings['theme_field_size'];
+            // @since 1.2.4     - use transparent field background
+            if( !empty( $settings['theme_field_transparent'] ) ) {
+                $class .= ' super-transparent-fields';
+            }
+            $theme_style = $class;
 
-            // Always load the default styles (these can be overwritten by the above loaded style file
-            $style_content .= require_once( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
             ?>
 
             <div class="super-preview"> 

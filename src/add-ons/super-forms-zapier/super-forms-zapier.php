@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Zapier
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Allows you to connect Super Forms with Zapier (zapier.com)
- * Version:     1.2.1
+ * Version:     1.2.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Zapier')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.2.1';
+        public $version = '1.2.2';
 
 
         /**
@@ -136,11 +136,9 @@ if(!class_exists('SUPER_Zapier')) :
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
             
             if ( $this->is_request( 'admin' ) ) {
-                
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
                 add_action( 'init', array( $this, 'update_plugin' ) );
-
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -208,6 +206,21 @@ if(!class_exists('SUPER_Zapier')) :
             if(isset($data['attachments'])){
                 $attachments = $data['attachments'];
             }
+
+            // Create array for all files with numbered indexes , so that the index on zapier is always the same
+            // because the filenames are dynamic and we can't rely on that
+            $files = array();
+            foreach($attachments as $k => $v){
+                $i = 1;
+                foreach($v as $ak => $av){
+                    $files[$i] = array(
+                        'url' => $av,
+                        'name' => $ak
+                    );
+                    $i++;
+                }
+            }
+
             $post = $data['post'];
             $settings = $data['settings'];
             $entry_id = $data['entry_id'];
@@ -221,12 +234,14 @@ if(!class_exists('SUPER_Zapier')) :
                 if(isset($settings['zapier_exclude_settings']) && $settings['zapier_exclude_settings']=='true'){
                     $body = json_encode(
                         array(
+                            'files'=>$files, 
                             'data'=>$data
                         )
                     );
                 }else{
                     $body = json_encode(
                         array(
+                            'files'=>$files, 
                             'data'=>$data, 
                             'settings'=>$settings
                         )

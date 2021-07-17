@@ -123,7 +123,7 @@ class SUPER_Field_Types {
                         $image = !empty( $image[0] ) ? $image[0] : '';
                         if( !empty( $image ) ) {
                             $return .= '<li data-file="' . $v['image'] . '">';
-                            $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
+                            $return .= '<div class="super-image"><img src="' . esc_url($image) . '"></div>';
                             $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                             $return .= '<span>px</span>';
                             $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
@@ -259,7 +259,7 @@ class SUPER_Field_Types {
                             $image = !empty( $image[0] ) ? $image[0] : '';
                             if( !empty( $image ) ) {
                                 $return .= '<li data-file="' . $v['image'] . '">';
-                                $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
+                                $return .= '<div class="super-image"><img src="' . esc_url($image) . '"></div>';
                                 $return .= '<input type="number" placeholder="' . esc_html__( 'width', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_width'] ) ) . '" name="max_width">';
                                 $return .= '<span>px</span>';
                                 $return .= '<input type="number" placeholder="' . esc_html__( 'height', 'super-forms' ) . '" value="' . esc_attr( stripslashes( $v['max_height'] ) ) . '" name="max_height">';
@@ -299,7 +299,7 @@ class SUPER_Field_Types {
         $image = !empty( $image[0] ) ? $image[0] : '';
         if( !empty( $image ) ) {
             $return .= '<li data-file="' . $field['default'] . '">';
-            $return .= '<div class="image"><img src="' . esc_url($image) . '"></div>';
+            $return .= '<div class="super-image"><img src="' . esc_url($image) . '"></div>';
             $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
             $return .= '</li>';
         }
@@ -343,7 +343,7 @@ class SUPER_Field_Types {
                 }
 
                 $return .= '<li data-file="' . $v . '">';
-                $return .= '<div class="image"><img src="' . esc_url($icon) . '"></div>';
+                $return .= '<div class="super-image"><img src="' . esc_url($icon) . '"></div>';
                 $return .= '<a href="' . esc_url($url) . '">' . $filename . '</a>';
                 $return .= '<a href="#" class="super-delete">'.esc_html__('Delete', 'super-forms').'</a>';
                 $return .= '</li>';

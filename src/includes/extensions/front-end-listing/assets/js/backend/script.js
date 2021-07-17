@@ -238,11 +238,9 @@
         e = e || window.event;
         var targ = e.target || e.srcElement;
         if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
-        console.log(targ.tagName);
         if(targ.tagName==='INPUT'){
             return false;
         }
-        console.log(targ);
         if(el.classList.contains('super-active')){
             el.classList.remove('super-active');
             el.parentNode.classList.remove('super-active');
@@ -255,9 +253,6 @@
 
     // Display filter items for custom column when dropdown method is choosen
     SUPER.frontEndListing.showFilterItems = function(el){
-        console.log(el);
-        console.log(el.parentNode);
-        console.log(el.value);
         var item = getParents(el, 'li')[0];
         if(el.value=='dropdown'){
             item.querySelector('.super-filter-items').style.display = 'block';
@@ -265,7 +260,6 @@
             item.querySelector('.super-filter-items').style.display = 'none';
         }
     };
-
 
     // $doc.on('click', '.super-create-translation', function(){
     //     // Validate

@@ -398,11 +398,10 @@
 			parent = element.closest('.super-field');
 			// Check if dropdown field
 			if( (parent.classList.contains('super-dropdown')) ||
-				(parent.classList.contains('super-auto-suggest')) ||
-				(parent.classList.contains('super-countries')) ){
+				(parent.classList.contains('super-auto-suggest'))){
 				text_field = false;
 				sum = 0;
-				selected = $(parent).find('.super-dropdown-ui .super-item.super-active:not(.super-placeholder)');
+				selected = $(parent).find('.super-dropdown-list .super-item.super-active:not(.super-placeholder)');
 				selected.each(function () {
                     new_value = $(this).data('value').toString().split(';');
                     if(value_n===0){

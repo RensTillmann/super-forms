@@ -274,7 +274,7 @@ if(!class_exists('SUPER_Forms')) :
             // build-SUPER_FORMS_BUNDLE_END
 
             include_once( 'elementor/elementor-super-forms-extension.php' );
-            //add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
+            add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
 
             register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
             
@@ -515,6 +515,7 @@ if(!class_exists('SUPER_Forms')) :
         public function hide_uploads_from_media_library_list_view($query) {
             if ( ! is_admin() )  return;
             if ( ! $query->is_main_query() ) return;
+            if ( !function_exists( 'get_current_screen' ) ) return;
             $screen = get_current_screen();
             if ( !$screen || $screen->id !== 'upload' ||  $screen->post_type !== 'attachment' ) {
                 return;
@@ -883,6 +884,7 @@ if(!class_exists('SUPER_Forms')) :
                 $shortcodes = $array[$group]['shortcodes'];
                 foreach($shortcodes as $tag => $settings){
                     if( (isset($settings['callback'])) && (isset($array[$group]['shortcodes'][$tag])) && (isset($array[$group]['shortcodes'][$tag]['atts'])) ) {
+                        if($tag==='pdf_page_break') continue;
                         $array[$group]['shortcodes'][$tag]['atts']['pdf'] = array(
                             'name' => esc_html__( 'PDF Settings', 'super-forms' ),
                             'fields' => array(
@@ -1057,28 +1059,37 @@ if(!class_exists('SUPER_Forms')) :
             foreach($matches as $k => $v){
                 $original = $v[0];
                 $field_name = $v[1];
+                $original_field_name = $v[1];
                 $return = '';
                 if( isset( $v[2] ) ) $return = $v[2];
+                if($return==='') continue;
+                $i = 1;
                 $rows = '';
-                if( isset( $data['data'][$field_name] ) ) {
-                    // Of course we have at least one row, so always return the first row
-                    $row = str_replace( '<%counter%>', 1, $return ); 
-                    $row = str_replace( '<%', '{', $row ); 
-                    $row = str_replace( '%>', '}', $row );
-                    $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
-                    $rows .= $row;
-
-                    // Loop through all the fields that have been dynamically added by the user
-                    $i=2;
-                    while( isset( $data['data'][$field_name . '_' . ($i)]) ) {
-                        $row = str_replace( '<%counter%>', $i, $return );
-                        $row = str_replace( '<%', '{', $row ); 
-                        $row = str_replace( '%>', '_'.$i.'}', $row );
-                        $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
-                        $rows .= $row;
-                        $i++;
+                while( isset( $data['data'][$field_name] ) ){
+                    $row_regex = '/<%(.*?)%>/';
+                    $row = $return;
+                    $row_match = preg_match_all($row_regex, $row, $row_matches, PREG_SET_ORDER, 0);
+                    foreach($row_matches as $rk => $rv){
+                        if($rv[1]==='counter'){
+                            $row = str_replace( $rv[0], $i, $row);
+                            continue;
+                        }
+                        if($i<2){
+                            $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
+                            continue;
+                        }
+                        $splitName = explode(';', $rv[1]);
+                        $newName = $splitName[0].'_'.$i;
+                        if(count($splitName)>1){
+                            $newName .= ';'.$splitName[1];
+                        }
+                        $row = str_replace( $rv[0], '{'.$newName.'}', $row);
                     }
+                    $rows .= $row;
+                    $i++;
+                    $field_name = $original_field_name.'_'.$i;
                 }
+                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'] );
                 $email_body = str_replace( $original, $rows, $email_body);
             }
 
@@ -1711,7 +1722,7 @@ if(!class_exists('SUPER_Forms')) :
                 array(  
 
                     // @since 3.2.0 - dynamic tab index class exclusion
-                    'tab_index_exclusion' => '.super-color,.super-calculator,.super-toggle,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.super-rating,.super-file,.super-slider,.hidden,.super-prev-multipart,.super-html',
+                    'tab_index_exclusion' => '.super-prev-multipart,.super-next-multipart,.super-calculator,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.hidden,.super-hidden,.super-html,.super-pdf_page_break',
 
                     // Loading overlay text
                     'loadingOverlay' => array(
@@ -2726,13 +2737,19 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content .= '</div>';
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
                     $form_id = absint($super_msg['data']['hidden_form_id']['value']);
-                    echo '<div class="super-form-' . $form_id . '">' . $custom_content . '</div>';
-                    $style_content  = '';
-                    $settings = $super_msg['settings'];
-                    if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
-                        $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+                    $class = ' super-default-squared';
+                    if(!empty($settings['theme_style'])) {
+                        $class = ' ' . $settings['theme_style'];
                     }
-                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    echo '<div class="super-form-' . $form_id . $class . '">' . $custom_content . '</div>';
+                    $settings = $super_msg['settings'];
+                    
+                    // Try to load the selected theme style
+                    // Always load the default styles
+                    $style_content = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
+
                     SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
                     
                     $global_settings = SUPER_Common::get_global_settings();

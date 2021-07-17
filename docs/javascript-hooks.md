@@ -4,10 +4,7 @@
 before_validating_form_hook
 after_validating_form_hook
 after_initializing_forms_hook
-after_dropdown_change_hook
 after_field_change_blur_hook
-after_radio_change_hook
-after_checkbox_change_hook
 
 // @since 1.2.8
 after_email_send_hook

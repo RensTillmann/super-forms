@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Super Forms - All In One Bundle\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-07-21 13:35+0000\n"
-"PO-Revision-Date: 2021-01-28 21:21+0000\n"
+"PO-Revision-Date: 2021-04-14 12:49+0000\n"
 "Last-Translator: \n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
@@ -1496,7 +1496,7 @@ msgstr ""
 #: super-forms.php:1670 includes/class-ajax.php:2019
 #: includes/admin/views/page-create-form.php:161
 msgid "Close"
-msgstr "Tæt"
+msgstr "Luk"
 
 #: includes/admin/views/page-create-form.php:261
 msgid "Code"
