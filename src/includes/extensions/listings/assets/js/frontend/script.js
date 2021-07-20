@@ -68,7 +68,7 @@
             debugger;
             // Loop through all filters and grab the value and the column name
             // Then append each of them
-            nodes = getParents(el, '.super-fel')[0].querySelectorAll('.super-columns .super-col-wrap');
+            nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-col-wrap');
             for (i = 0; i < nodes.length; i++) {
                 // Check if this column can be filtered if so add it to the array
                 // But only if value isn't empty
@@ -91,7 +91,7 @@
         }
 
         // Get current active sort (if any)
-        nodes = getParents(el, '.super-fel')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
+        nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
         console.log(nodes);
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].classList.contains('super-active')){
@@ -177,7 +177,7 @@
 
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
-        modal.classList.add('super-fel-modal');
+        modal.classList.add('super-listings-modal');
 
         // Resize according to the window
         SUPER.frontEndListing.resizeModal(modal);
@@ -193,7 +193,7 @@
         // Load iframe
         var iframe = document.createElement('iframe');
         // eslint-disable-next-line no-undef
-        iframe.src = super_listing_i18n.get_home_url+'?super-fel-id='+entry_id;
+        iframe.src = super_listings_i18n.get_home_url+'?super-listings-id='+entry_id;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = '0px';
@@ -225,10 +225,10 @@
             console.log(this);
             console.log("** An error occurred during the transaction");
         };
-        xhttp.open("POST", super_listing_i18n.ajaxurl, true);
+        xhttp.open("POST", super_listings_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
         var params = {
-            action: 'super_listing_delete_entry',
+            action: 'super_listings_delete_entry',
             entry_id: entry_id,
             list_id: list_id
         };
@@ -240,7 +240,7 @@
     SUPER.frontEndListing.resizeModal = function(modal){
         console.log(modal);
         if( typeof modal === 'undefined' ) {
-            modal = document.querySelector('.super-fel-modal');
+            modal = document.querySelector('.super-listings-modal');
             console.log(modal);
         }
         if( typeof modal === 'undefined' || modal == null ) {

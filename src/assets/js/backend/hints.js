@@ -750,7 +750,6 @@
                                     y1 = labelRect.top;
                                     bezX = x1;
                                     bezY = y1;
-                                    console.log("ok");
                                 }
 
                                 if (window.innerWidth < 900) {
@@ -2178,7 +2177,7 @@
         // can return a function as the exported value.
         return Kinetic;
     }));
-    ;(function() {
+    (function() {
         /**
          * Collection constructor.  Collection extends
          *  Array.  This class is used in conjunction with {@link Kinetic.Container#get}
@@ -2875,7 +2874,7 @@
             }
         };
     })();
-    ;(function() {
+    (function() {
         // calculate pixel ratio
         var canvas = Kinetic.Util.createCanvasElement(),
             context = canvas.getContext('2d'),
@@ -3080,7 +3079,7 @@
         Kinetic.Util.extend(Kinetic.HitCanvas, Kinetic.Canvas);
 
     })();
-    ;(function() {
+    (function() {
         var COMMA = ',',
             OPEN_PAREN = '(',
             CLOSE_PAREN = ')',
@@ -5848,7 +5847,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Node);
     })();
-    ;(function() {
+    (function() {
         /**
         * Grayscale Filter
         * @function
@@ -5874,7 +5873,7 @@
             }
         };
     })();
-    ;(function() {
+    (function() {
         /**
          * Brighten Filter.  
          * @function
@@ -5913,7 +5912,7 @@
         */
 
     })();
-    ;(function() {
+    (function() {
         /**
         * Invert Filter
         * @function
@@ -6492,7 +6491,7 @@
 
         Kinetic.Factory.addGetterSetter(Kinetic.Node, 'threshold', 0, null, Kinetic.Factory.afterSetFilter);
     })();
-    ;(function () {
+    (function () {
         /**
          * RGB Filter
          * @function
@@ -6575,7 +6574,7 @@
         * @returns {Integer}
         */
     })();
-    ;(function () {
+    (function () {
 
         /**
         * HSV Filter. Adjusts the hue, saturation and value
@@ -6669,7 +6668,7 @@
         */
 
     })();
-    ;(function () {
+    (function () {
 
         Kinetic.Factory.addGetterSetter(Kinetic.Node, 'hue', 0, null, Kinetic.Factory.afterSetFilter);
         /**
@@ -6761,7 +6760,7 @@
             }
         };
     })();
-    ;(function () {
+    (function () {
         /**
          * Emboss Filter.
          * Pixastic Lib - Emboss filter - v0.1.0
@@ -6943,7 +6942,7 @@
     })();
 
 
-    ;(function () {
+    (function () {
         function remap(fromValue, fromMin, fromMax, toMin, toMax) {
             // Compute the range of the data
             var fromRange = fromMax - fromMin,
@@ -7058,7 +7057,7 @@
         * @returns {Float}
         */
     })();
-    ;(function () {
+    (function () {
 
         /**
          * Posterize Filter. Adjusts the channels so that there are no more
@@ -7137,7 +7136,7 @@
         * @returns {Number}
         */
     })();
-    ;(function () {
+    (function () {
 
         /**
          * Pixelate Filter. Averages groups of pixels and redraws
@@ -7311,7 +7310,7 @@
             } while (--y);
         };
     })();
-    ;(function () {
+    (function () {
         /**
          * Solarize Filter
          * Pixastic Lib - Solarize filter - v0.1.0
@@ -7627,7 +7626,7 @@
         Kinetic.Factory.addGetterSetter(Kinetic.Node, 'kaleidoscopeAngle', 0, null, Kinetic.Factory.afterSetFilter);
 
     })();
-    ;(function() {
+    (function() {
         var BATCH_DRAW_STOP_TIME_DIFF = 500;
 
         var now = (function() {
@@ -7927,7 +7926,7 @@
             });
         };
     })(this);
-    ;(function() {
+    (function() {
         var blacklist = {
             node: 1,
             duration: 1,
@@ -8530,7 +8529,7 @@
             }
         };
     })();
-    ;(function() {
+    (function() {
         Kinetic.DD = {
             // properties
             anim: new Kinetic.Animation(function() {
@@ -8834,7 +8833,7 @@
         html.addEventListener('touchend', Kinetic.DD._endDragAfter, false);
 
     })();
-    ;(function() {
+    (function() {
         Kinetic.Util.addMethods(Kinetic.Container, {
             __init: function(config) {
                 this.children = new Kinetic.Collection();
@@ -9292,7 +9291,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Container);
     })();
-    ;(function() {
+    (function() {
         var HAS_SHADOW = 'hasShadow';
 
         function _fillFunc(context) {
@@ -11458,7 +11457,7 @@
          */
 
     })();
-    ;(function() {
+    (function() {
         Kinetic.Util.addMethods(Kinetic.BaseLayer, {
             ___init: function(config) {
                 this.nodeType = 'Layer';
@@ -11661,7 +11660,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.BaseLayer);
     })();
-    ;(function() {
+    (function() {
         // constants
         var HASH = '#',
             BEFORE_DRAW ='beforeDraw',
@@ -11920,7 +11919,7 @@
          */
         Kinetic.Collection.mapMethods(Kinetic.Layer);
     })();
-    ;(function() {
+    (function() {
 
         Kinetic.Util.addMethods(Kinetic.FastLayer, {
             ____init: function(config) {
@@ -12007,7 +12006,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.FastLayer);
     })();
-    ;(function() {
+    (function() {
         Kinetic.Util.addMethods(Kinetic.Group, {
             ___init: function(config) {
                 this.nodeType = 'Group';
@@ -12025,7 +12024,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Group);
     })();
-    ;(function() {
+    (function() {
         /**
          * Rect constructor
          * @constructor
@@ -12181,7 +12180,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Rect);
     })();
-    ;(function() {
+    (function() {
         // the 0.0001 offset fixes a bug in Chrome 27
         var PIx2 = (Math.PI * 2) - 0.0001,
             CIRCLE = 'Circle';
@@ -12350,7 +12349,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Circle);
     })();
-    ;(function() {
+    (function() {
         // the 0.0001 offset fixes a bug in Chrome 27
         var PIx2 = (Math.PI * 2) - 0.0001,
             ELLIPSE = 'Ellipse';
@@ -12667,7 +12666,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Ring);
     })();
-    ;(function() {
+    (function() {
         /**
          * Wedge constructor
          * @constructor
@@ -12851,7 +12850,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Wedge);
     })();
-    ;(function() {
+    (function() {
         /**
          * Arc constructor
          * @constructor
@@ -13051,7 +13050,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Arc);
     })();
-    ;(function() {
+    (function() {
 
         // CONSTANTS
         var IMAGE = 'Image';
@@ -13329,7 +13328,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Image);
     })();
-    ;(function() {
+    (function() {
         // constants
         var AUTO = 'auto',
             //CANVAS = 'canvas',
@@ -13883,7 +13882,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Text);
     })();
-    ;(function() {
+    (function() {
         /**
          * Line constructor.&nbsp; Lines are defined by an array of points and
          *  a tension
@@ -14583,7 +14582,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Sprite);
     })();
-    ;(function () {
+    (function () {
         /**
          * Path constructor.
          * @author Jason Follas
@@ -15285,7 +15284,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Path);
     })();
-    ;(function() {
+    (function() {
         var EMPTY_STRING = '',
             //CALIBRI = 'Calibri',
             NORMAL = 'normal';
@@ -15774,7 +15773,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.TextPath);
     })();
-    ;(function() {
+    (function() {
         /**
          * RegularPolygon constructor.&nbsp; Examples include triangles, squares, pentagons, hexagons, etc.
          * @constructor
@@ -15941,7 +15940,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.RegularPolygon);
     })();
-    ;(function() {
+    (function() {
         /**
          * Star constructor
          * @constructor
@@ -16129,7 +16128,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Star);
     })();
-    ;(function() {
+    (function() {
         // constants
         var ATTR_CHANGE_LIST = ['fontFamily', 'fontSize', 'fontStyle', 'padding', 'lineHeight', 'text'],
             CHANGE_KINETIC = 'Change.kinetic',
@@ -16466,7 +16465,7 @@
 
         Kinetic.Collection.mapMethods(Kinetic.Tag);
     })();
-    ;(function() {
+    (function() {
         /**
          * Arrow constructor
          * @constructor
@@ -16682,7 +16681,7 @@
      * @author Ariel Flesler
      * @version 2.1.2
      */
-    ;(function(factory) {
+    (function(factory) {
         if (typeof define === 'function' && define.amd) {
             // AMD
             define(['jquery'], factory);

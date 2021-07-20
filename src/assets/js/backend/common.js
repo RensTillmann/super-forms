@@ -84,7 +84,7 @@
                                     $wh += '<input type="number" placeholder="height" value="" name="max_height">';
                                     $wh += '<span>px</span>';                                    
                                 }
-                                $preview.html('<li data-file="'+$id+'"><div class="image"><img src="' + $url + '" /></div>'+$wh+'<a href="#" class="super-delete">Delete</a></li>');
+                                $preview.html('<li data-file="'+$id+'"><div class="super-image"><img src="' + $url + '" /></div>'+$wh+'<a href="#" class="super-delete">Delete</a></li>');
                             }
                         });
                         $field.val($id);
@@ -102,10 +102,10 @@
                             if ($attachment.id) {
                                 if($multiple===true){
                                     $id = $id ? $id + "," + $attachment.id : $attachment.id;
-                                    $('<li data-file="'+$attachment.id+'"><div class="image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>').appendTo($preview);
+                                    $('<li data-file="'+$attachment.id+'"><div class="super-image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>').appendTo($preview);
                                 }else{
                                     $id = $attachment.id;
-                                    $preview.html('<li data-file="'+$attachment.id+'"><div class="image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>');
+                                    $preview.html('<li data-file="'+$attachment.id+'"><div class="super-image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>');
                                 }
                             }
                         });

@@ -74,11 +74,8 @@
                     }
                     if(node[0].type==='select-one'){
                         value = node[0].options[node[0].selectedIndex].value;
-                        console.log('ok, ', value, filter[1]);
                         nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
                         if(filter[1].split(',').indexOf(value)!==-1){
-                            console.log('ok 2, ', value, filter[1]);
-                        //if(filter[1]===value){
                             nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
                         }
                         continue;
@@ -209,7 +206,7 @@
         // PDF settings
         $settings = SUPER.get_tab_settings($settings, 'pdf');
         // Front-end Listing settings
-        $settings = SUPER.get_tab_settings($settings, 'listing');
+        $settings = SUPER.get_tab_settings($settings, 'listings');
         // Stripe settings
         //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
@@ -219,10 +216,12 @@
         return $settings;
     };
     SUPER.processRepeaterItems = function(args){
-        var i, k = args.node.dataset.k, nodes = args.node.querySelectorAll(':scope > .sfui-repeater-item');
+        var i, x, k = args.node.dataset.k, nodes = args.node.querySelectorAll(':scope > .sfui-repeater-item'),
+            subData, keys, fields, value, names,
+            parentRepeater;
         for(i=0; i<nodes.length; i++){
             // Check if key consist of multiple levels
-            var keys = k.split('.');
+            keys = k.split('.');
             if(keys.length>1){
                 if(typeof args.data[keys[0]] === 'undefined') args.data[keys[0]] = {};
                 if(typeof args.data[keys[0]][keys[1]] === 'undefined') args.data[keys[0]][keys[1]] = {};
@@ -231,9 +230,9 @@
                 if(typeof args.data[k] === 'undefined') args.data[k] = {};
                 if(typeof args.data[k][i] === 'undefined') args.data[k][i] = {};
             }
-            var x, fields = nodes[i].querySelectorAll('[name]');
+            x, fields = nodes[i].querySelectorAll('[name]');
             for(x=0; x<fields.length; x++){
-                var parentRepeater = fields[x].closest('.sfui-repeater');
+                parentRepeater = fields[x].closest('.sfui-repeater');
                 if(parentRepeater && parentRepeater!==args.node){
                     // is inner repeater, must process it
                     if(keys.length>1){
@@ -244,17 +243,17 @@
                     continue;
                 }
                 // is direct inner field, must add it to the data
-                var value = fields[x].value;
+                value = fields[x].value;
                 if(fields[x].type==='checkbox') value = fields[x].checked;
                 if(fields[x].type==='radio') value = (args.tab.querySelector('[name="'+fields[x].name+'"]:checked') ? args.tab.querySelector('[name="'+fields[x].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
-                var names = fields[x].name.split('.');
+                names = fields[x].name.split('.');
                 if(names.length>1){
                     if(keys.length>1){
-                        var subData = args.data[keys[0]][keys[1]][i];
+                        subData = args.data[keys[0]][keys[1]][i];
                     }else{
-                        var subData = args.data[k][i];
+                        subData = args.data[k][i];
                     }
                     if(typeof subData[names[0]] === 'undefined') subData[names[0]] = {};
                     if(names.length===2){
@@ -287,22 +286,35 @@
         return args.data;
     };
     SUPER.get_tab_settings = function(settings, slug){
-        var i, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
+        var i, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
         if(tab.querySelector('.super_transient')){
-            var i, nodes = tab.querySelectorAll(':scope > .sfui-setting > label > [name]');
-            //var x, fields = nodes[i].querySelectorAll('[name]');
+            // First grab all settings that are not inside a repeater element
+            i, nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
             for(i=0; i<nodes.length; i++){
+                repeater = nodes[i].closest('.sfui-repeater-item');
+                if(repeater) continue; // skip if inside repater element
                 // is direct inner field, must add it to the data
-                var value = nodes[i].value;
+                value = nodes[i].value;
                 if(nodes[i].type==='checkbox') value = nodes[i].checked;
                 if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
-                data[nodes[i].name] = value;
-                var p = nodes[i].closest('.sfui-setting');
+                name = nodes[i].name;
+                names = name.split('.');
+                if(names.length>1){
+                    if(typeof data[names[0]] === 'undefined') data[names[0]] = {};
+                    if(names.length>2){
+                        if(typeof data[names[0]][names[1]] === 'undefined') data[names[0]][names[1]] = {};
+                        data[names[0]][names[1]][names[2]] = value;
+                    }else{
+                        data[names[0]][names[1]] = value;
+                    }
+                }else{
+                    data[name] = value;
+                }
+                p = nodes[i].closest('.sfui-setting');
                 if(p){
-                    debugger;
-                    var sub = p.querySelector('.sfui-sub-settings');
+                    sub = p.querySelector('.sfui-sub-settings');
                     if(sub){
                         var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
                         for(x=0; x<xnodes.length; x++){
@@ -311,11 +323,35 @@
                     }
                 }
             }
-            var i, nodes = tab.querySelectorAll(':scope > .sfui-repeater');
-            for(i=0; i<nodes.length; i++){
-                data = SUPER.processRepeaterItems({tab: tab, node: nodes[i], depth: 0, data: data});
-            }
             settings['_'+slug] = data;
+
+            // temp disabled i, nodes = tab.querySelectorAll(':scope > .sfui-setting > label > [name]');
+            // temp disabled //var x, fields = nodes[i].querySelectorAll('[name]');
+            // temp disabled for(i=0; i<nodes.length; i++){
+            // temp disabled     // is direct inner field, must add it to the data
+            // temp disabled     var value = nodes[i].value;
+            // temp disabled     if(nodes[i].type==='checkbox') value = nodes[i].checked;
+            // temp disabled     if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+            // temp disabled     if(value===true) value = "true"; 
+            // temp disabled     if(value===false) value = "false"; 
+            // temp disabled     data[nodes[i].name] = value;
+            // temp disabled     var p = nodes[i].closest('.sfui-setting');
+            // temp disabled     if(p){
+            // temp disabled         debugger;
+            // temp disabled         var sub = p.querySelector('.sfui-sub-settings');
+            // temp disabled         if(sub){
+            // temp disabled             var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
+            // temp disabled             for(x=0; x<xnodes.length; x++){
+            // temp disabled                 data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
+            // temp disabled             }
+            // temp disabled         }
+            // temp disabled     }
+            // temp disabled }
+            // temp disabled nodes = tab.querySelectorAll(':scope > .sfui-repeater');
+            // temp disabled for(i=0; i<nodes.length; i++){
+            // temp disabled     data = SUPER.processRepeaterItems({tab: tab, node: nodes[i], depth: 0, data: data});
+            // temp disabled }
+            // temp disabled settings['_'+slug] = data;
         }
         return settings;
     }
@@ -461,7 +497,6 @@
             var oldHtml = button.html();
             button.data('old-html', oldHtml);
             button.parents('.super-form-button:eq(0)').addClass('super-loading');
-            button.html('<i class="fas fa-refresh fa-spin"></i>');
         } else {
             button.parents('.super-form-button:eq(0)').removeClass('super-loading');
             button.html(button.data('old-html'));
@@ -1554,23 +1589,8 @@
             $('.super-tabs-content .super-tab-' + $tab).addClass('super-active');
         });
 
-        // @since 4.7.0 - translations
-        // open/close dropdown when clicked on the element
-        $doc.on('click', '.super-tab-translations .super-dropdown', function (e) {
-            if (e.target.tagName === 'LI') return;
-            if (e.target.tagName === 'INPUT') return;
-            var $this = $(this);
-            if ($this.hasClass('super-active')) {
-                $this.removeClass('super-active');
-            } else {
-                $doc.find('.super-dropdown.super-active').removeClass('super-active');
-                $this.addClass('super-active');
-                // Focus text field
-                $this.find('input').focus();
-            }
-        });
         // upon choosing an item set it to active and deactivate others
-        $doc.on('click', '.super-tab-translations .super-dropdown-items .super-item', function () {
+        $doc.on('click', '.super-tab-translations .super-dropdown-list .super-item', function () {
             var $this = $(this),
                 $form_id = $('.super-header input[name="form_id"]').val(),
                 $shortcode = '[form-not-saved-yet]',
@@ -1585,7 +1605,7 @@
                 $(this).addClass('super-active');
             }
             $dropdown.children('.super-dropdown-placeholder').html($language);
-            $dropdown.removeClass('super-active');
+            $dropdown.removeClass('super-open');
             // Update shortcode accordingly
             if ($dropdown.attr('data-name') == 'language') {
                 if ($form_id !== '') {
@@ -1606,12 +1626,12 @@
             if ($value === '') {
                 // No longer filtering, show all
                 $dropdown.removeClass('super-filtering');
-                $dropdown.find('.super-dropdown-items .super-item').removeClass('super-match');
+                $dropdown.find('.super-dropdown-list .super-item').removeClass('super-match');
                 return;
             }
             // We are filtering
             $dropdown.addClass('super-filtering');
-            $dropdown.find('.super-dropdown-items .super-item').each(function () {
+            $dropdown.find('.super-dropdown-list .super-item').each(function () {
                 if ($(this).html().toLowerCase().indexOf($value) !== -1) {
                     $(this).addClass('super-match');
                 } else {
@@ -2232,19 +2252,19 @@
                     });
                     if ($hidden === false) {
                         $error = true;
-                        $this.addClass('super-error');
+                        $this.parents('.super-field').addClass('super-error');
                     }
                 } else {
-                    $this.removeClass('super-error');
+                    $this.parents('.super-field').removeClass('super-error');
                 }
             });
             if ($error === true) {
-                var $first_error = $('.super-element-settings .super-error:eq(0)').parents('.super-field:eq(0)');
+                var $first_error = $('.super-element-settings .super-error:eq(0)');
                 var $container = $first_error.parents('.super-elements-container');
                 $container.find('.tab-content.super-active').removeClass('super-active');
                 var $parent = $first_error.parents('.tab-content:eq(0)');
                 $parent.addClass('super-active');
-                var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight();
+                var $position = $first_error.position().top + $parent.scrollTop() - $first_error.outerHeight(true) - 25;
                 $parent.animate({
                     scrollTop: $position
                 }, 0);
@@ -2271,48 +2291,53 @@
         };
         // Retrieve all settings and their values
         SUPER.update_element_get_fields = function () {
-            var i, ii,
+            var i, x, y,
                 nodes,
                 radios,
                 value,
                 defaultValue,
                 allowEmpty,
                 fields = {},
-                elementField;
+                elementField,
+                elementFields;
 
             nodes = document.querySelectorAll('.super-element-settings .super-field');
             for (i = 0; i < nodes.length; ++i) {
                 if(!nodes[i].classList.contains('super-hidden')){
                     // Find element field
-                    elementField = nodes[i].querySelector('.super-element-field');
-                    if(typeof elementField==='undefined') continue;
-                    value = elementField.value;
-                    if(elementField.type=='radio'){
-                        radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
-                        for (ii = 0; ii < radios.length; ++ii) {
-                            if (radios[ii].checked) {
-                                value = radios[ii].value;
-                                break;
+                    elementFields = nodes[i].querySelectorAll('.super-element-field');
+                    for (x = 0; x < elementFields.length; ++x) {
+                        elementField = elementFields[x];
+                        value = elementField.value;
+                        if(elementField.type=='radio'){
+                            radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
+                            for (y = 0; y < radios.length; ++y) {
+                                if (radios[y].checked) {
+                                    value = radios[y].value;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    defaultValue = undefined;
-                    if(elementField.closest('.super-field-input')) defaultValue = elementField.closest('.super-field-input').dataset.default;
-                    if( (value!=='') && (value!=defaultValue) ) {
-                        if($(elementField).parents('.super-field-input:eq(0)').find('.super-multi-items').length){
-                            fields[elementField.name] = $.parseJSON(value);
-                        }else{
-                            fields[elementField.name] = value;
-                        }
-                    }else{
-                        if( value==='' ) {
-                            allowEmpty = undefined;
-                            if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
-                            if( typeof allowEmpty !== 'undefined' ) {
+                        defaultValue = undefined;
+                        if(elementField.closest('.super-field-input')) defaultValue = elementField.closest('.super-field-input').dataset.default;
+                        if( (value!=='') && (value!=defaultValue) ) {
+                            if($(elementField).parents('.super-field-input:eq(0)').find('.super-multi-items').length){
+                                fields[elementField.name] = $.parseJSON(value);
+                            }else{
                                 fields[elementField.name] = value;
                             }
-                        } 
+                        }else{
+                            if( value==='' ) {
+                                allowEmpty = undefined;
+                                if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
+                                if( typeof allowEmpty !== 'undefined' ) {
+                                    fields[elementField.name] = value;
+                                }
+                            } 
+                        }
+
                     }
+
                 }
             }
             return fields;
@@ -2520,7 +2545,7 @@
                 field = parent.parentNode.querySelector('.super-element-field'),
                 nodes = parent.querySelectorAll('input[type="checkbox"]');
             if(!field) return;
-            
+
             for( i=0; i < nodes.length; i++ ) {
                 if (nodes[i].checked) {
                     if (counter === 0) {
@@ -2532,6 +2557,7 @@
                 }
             }
             field.value = selected;
+
             if(this.closest('.super-form-settings')){
                 SUPER.init_field_filter_visibility($(this.closest('.super-field')));
             }else{
@@ -2835,8 +2861,6 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
-                    //Content-Disposition: attachment; filename=fname.ext
-                    //window.location.href = data;
                 },
                 error: function () {
                     alert(super_create_form_i18n.export_form_error);
@@ -3806,6 +3830,8 @@
             SUPER.update_multi_items();
         });
 
+        // Required for fields like Toggle element to be rendered properly
+        SUPER.init_super_responsive_form_fields({form: $('.super-preview-elements')[0]});
     });
 
     window.addEventListener('beforeunload', function (e) {
@@ -3819,5 +3845,3 @@
     });
 
 })(jQuery);
-
-

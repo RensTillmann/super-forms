@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     4.9.800
+ * Version:     4.9.804
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '4.9.800';
+        public $version = '4.9.804';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -289,8 +289,6 @@ if(!class_exists('SUPER_Forms')) :
 
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
-            add_filter( 'super_shortcodes_end_filter', array( $this, 'pdf_element_settings' ), 10, 2 );
-            add_filter( 'super_form_js_filter', array( $this, 'pdf_form_js' ), 10, 2);
             
             if ( $this->is_request( 'frontend' ) ) {
 
@@ -352,9 +350,6 @@ if(!class_exists('SUPER_Forms')) :
 
                 // Actions since 4.0.0
                 add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
-
-                add_filter( 'super_create_form_tabs', array( $this, 'add_pdf_tab' ), 10, 1 );
-                add_action( 'super_create_form_pdf_tab', array( $this, 'add_pdf_tab_content' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -515,6 +510,7 @@ if(!class_exists('SUPER_Forms')) :
         public function hide_uploads_from_media_library_list_view($query) {
             if ( ! is_admin() )  return;
             if ( ! $query->is_main_query() ) return;
+            if ( !function_exists( 'get_current_screen' ) ) return;
             $screen = get_current_screen();
             if ( !$screen || $screen->id !== 'upload' ||  $screen->post_type !== 'attachment' ) {
                 return;
@@ -557,355 +553,6 @@ if(!class_exists('SUPER_Forms')) :
                 );
             }
             return $args;
-        }
-        public static function add_pdf_tab($tabs){
-            $tabs['pdf'] = esc_html__( 'PDF', 'super-forms' );
-            return $tabs;
-        }
-        public static function add_pdf_tab_content($atts){
-            $html = '<div class="super_transient"></div>';
-            $slug = 'pdf';
-            $pdf = array();
-            if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
-                $pdf = $atts['settings']['_'.$slug];
-            }
-            if(!is_array($pdf)) $pdf = array();
-            $defaults = array(
-                'generate' => '',
-                'debug' => '',
-                'filename' => esc_html__( 'form', 'super-forms' ).'.pdf',
-                'emailLabel' => 'PDF '.esc_html__( 'File', 'super-forms' ).':',
-                'adminEmail' => 'true',
-                'confirmationEmail' => 'true',
-                'excludeEntry' => '',
-                'textRendering' => 'true',
-                'downloadBtn' => 'true',
-                'downloadBtnText' => esc_html__( 'Download Summary', 'super-forms' ),
-                'generatingText' => esc_html__( 'Generating PDF file...', 'super-forms' ),
-                'orientation' => 'portrait',
-                'format' => 'a4',
-                'unit' => 'mm',
-                'customFormat' => '',
-                'renderScale' => 3,
-                'margins' => array(
-                    // 5 mm default for a4
-                    'header' => array(
-                        'top' => 5,
-                        'right' => 5,
-                        'bottom' => 5,
-                        'left' => 5
-                    ),
-                    'body' => array(
-                        'top' => 0,
-                        'right' => 5,
-                        'bottom' => 0,
-                        'left' => 5
-                    ),
-                    'footer' => array(
-                        'top' => 5,
-                        'right' => 5,
-                        'bottom' => 5,
-                        'left' => 5
-                    )
-                )
-            );
-            $pdf = wp_parse_args( $pdf, $defaults );
-            $response = wp_remote_post(
-                SUPER_API_ENDPOINT . '/settings/transient',
-                array(
-                    'method' => 'POST',
-                    'timeout' => 45,
-                    'data_format' => 'body',
-                    'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-                    'body' => json_encode(array(
-                        'transient_key' => 'GeltOsu18mZGzkelLWv2',
-                        'home_url' => get_home_url(),
-                        'admin_url' => admin_url()
-                    ))
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $html .= $response->get_error_message();
-            }else{
-                // Just an API error/notice/success message or HTML payload
-                $body = $response['body'];
-                $response = $response['response'];
-                $transient = set_transient( 'super_transient', array('check'=>true), 0);
-                if($response['code']==200 && strpos($body, '{') === 0){
-                    $object = json_decode($body);
-                    if($object->status==200){
-                        $html = $object->body;
-                    }
-                }
-            }
-            echo $html;
-            // Hiding/Showing elements in PDF
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element. Each element can be included or excluded specifically from the PDF or from the form. You can define this on a per element basis (including columns) by editing the element and navigating to "PDF Settings" section. Here you can define if the element should be only visible in the PDF or Form, or both.', 'super-forms' );
-            echo '</div>';
-            // Header/Footer usage notice
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'To use a header and footer for your PDF, you can edit any element (including columns) and navigate to "PDF Settings" section. Here you can define if the element should be used as a header or footer. Note that you can only use one header or footer element. To add multiple elements you should use a column instead.', 'super-forms' );
-            echo '</div>';    
-            // {tags} usage notice
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( '{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to be used in your header/footer.', 'super-forms' );
-            echo '</div>';    
-            // Enable Form to PDF generation
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="generate" value="true"' . ($pdf['generate']=='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span>' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Enable debug mode
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="debug" value="true"' . ($pdf['debug']=='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span>' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Filename
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'PDF filename', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<input type="text" name="filename" value="' . $pdf['filename'] . '" />';
-                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // E-mail label
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'E-mail label', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<input type="text" name="emailLabel" value="' . $pdf['emailLabel'] . '" />';
-                    echo '<span>' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Attach to admin E-mail
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="adminEmail" value="true"' . ($pdf['adminEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Attach to confirmation E-mail
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($pdf['confirmationEmail']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Attach to contact entry
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="excludeEntry" value="true"' . ($pdf['excludeEntry']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Direct download link
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="downloadBtn" value="true"' . ($pdf['downloadBtn']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Download button text
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'Download button text', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<input type="text" name="downloadBtnText" value="' . $pdf['downloadBtnText'] . '" />';
-                echo '</label>';
-            echo '</div>';
-            // Generating text
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'Generating text', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<input type="text" name="generatingText" value="' . $pdf['generatingText'] . '" />';
-                echo '</label>';
-            echo '</div>';
-            // Page orientation:
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'Page orientation', 'super-forms' );
-                echo '</div>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="radio" name="orientation" value="portrait"' . ($pdf['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
-                echo '</label>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="radio" name="orientation" value="landscape"' . ($pdf['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Unit 
-            // Possible values are "pt" (points), "mm", "cm", "in" or "px".
-            $units = array('mm', 'pt', 'cm', 'in', 'px');
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'Unit', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<select name="unit">';
-                        foreach($units as $v){
-                            echo '<option value="' . $v . '"'.($v==$pdf['unit'] ? ' selected="selected"' : '') .'>' . ($v=='mm' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
-                        }
-                    echo '</select>';
-                echo '</label>';
-            echo '</div>';
-            // Page format:
-            $formats = array();
-            $i = 0;
-            for($i=0; $i < 10; $i++){
-                $formats[] = 'a'.$i;
-            }
-            $i = 0;
-            for($i=0; $i < 10; $i++){
-                $formats[] = 'b'.$i;
-            }
-            $i = 0;
-            for($i=0; $i < 10; $i++){
-                $formats[] = 'c'.$i;
-            }
-            $formats = array_merge($formats, array('dl', 'letter', 'government-letter', 'legal', 'junior-legal', 'ledger', 'tabloid', 'credit-card'));
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title">';
-                    echo esc_html__( 'Page format', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<select name="format">';
-                        foreach($formats as $v){
-                            echo '<option value="' . $v . '"'.($v==$pdf['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
-                        }
-                    echo '</select>';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Custom page format in units defined above e.g:', 'super-forms' ) . ' 210,297</span>';
-                    echo '<input type="text" name="customFormat" value="' . $pdf['customFormat'] . '" />';
-                    echo '<span>(' . esc_html__( 'optional, leave blank for none', 'super-forms' ) . ')</span>';
-                echo '</label>';
-            echo '</div>';
-            // Body margins
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title" style="flex-basis: 290px;">';
-                    echo esc_html__( 'Body margins (in units declared above)', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.body.top" value="' . $pdf['margins']['body']['top'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.body.right" value="' . $pdf['margins']['body']['right'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.body.bottom" value="' . $pdf['margins']['body']['bottom'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.body.left" value="' . $pdf['margins']['body']['left'] . '" />';
-                echo '</label>';
-            echo '</div>';
-            // Header margins
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title" style="flex-basis: 290px;">';
-                    echo esc_html__( 'Header margins (in units declared above)', 'super-forms' );
-                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a header make sure define one element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
-                echo '</div>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.header.top" value="' . $pdf['margins']['header']['top'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.header.right" value="' . $pdf['margins']['header']['right'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.header.bottom" value="' . $pdf['margins']['header']['bottom'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.header.left" value="' . $pdf['margins']['header']['left'] . '" />';
-                echo '</label>';
-            echo '</div>';
-            // Footer margins
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title" style="flex-basis: 290px;">';
-                    echo esc_html__( 'Footer margins (in units declared above)', 'super-forms' );
-                    echo '<br /><i>' . esc_html__( 'Note: if you wish to use a footer make sure to define one element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</i>';
-                echo '</div>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Top:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.footer.top" value="' . $pdf['margins']['footer']['top'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Right:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.footer.right" value="' . $pdf['margins']['footer']['right'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Bottom:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.footer.bottom" value="' . $pdf['margins']['footer']['bottom'] . '" />';
-                echo '</label>';
-                echo '<label>';
-                    echo '<span>' . esc_html__( 'Left:', 'super-forms' ) . '</span>';
-                    echo '<input type="number" min="0" name="margins.footer.left" value="' . $pdf['margins']['footer']['left'] . '" />';
-                echo '</label>';
-            echo '</div>';
-            // Render text (make PDF searchable)
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title" style="flex-basis: 290px;">';
-                    echo esc_html__( 'PDF Text rendering', 'super-forms' );
-                echo '</div>';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="textRendering" value="true"' . ($pdf['textRendering']=='true' ? ' checked="checked"' : '') . ' /><span>' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
-                echo '</label>';
-            echo '</div>';
-            // Render scale (quality)
-            echo '<div class="sfui-setting">';
-                echo '<div class="sfui-title" style="flex-basis: 290px;">';
-                    echo esc_html__( 'PDF render scale', 'super-forms' );
-                echo '</div>';
-                echo '<label>';
-                    echo '<input type="number" min="0" max="20" step="0.1" name="renderScale" value="' . $pdf['renderScale'] . '" />';
-                    echo '<span>' . esc_html__( 'the recommended render scale is 3', 'super-forms' ) . '</span>';
-                echo '</label>';
-                echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Info', 'super-forms').':</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
-                echo '</div>';
-            echo '</div>';
-        }
-        public function pdf_form_js($js, $attr){ $form_id = $attr['id']; if(absint($form_id)!==0){ $settings = $attr['settings']; if(isset($settings['_pdf'])){ $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse(\''.json_encode($settings['_pdf']).'\');'; } } return $js; }
-        public function pdf_element_settings($array, $attr){
-            foreach($array as $group => $v){
-                $shortcodes = $array[$group]['shortcodes'];
-                foreach($shortcodes as $tag => $settings){
-                    if( (isset($settings['callback'])) && (isset($array[$group]['shortcodes'][$tag])) && (isset($array[$group]['shortcodes'][$tag]['atts'])) ) {
-                        $array[$group]['shortcodes'][$tag]['atts']['pdf'] = array(
-                            'name' => esc_html__( 'PDF Settings', 'super-forms' ),
-                            'fields' => array(
-                                'pdfOption' => array(
-                                    'name' => esc_html__( 'PDF options', 'super-forms' ), 
-                                    'label' => esc_html__( 'Change the behavior of the element when the PDF is generated.', 'super-forms' ),
-                                    'default' => ( !isset( $attr['pdfOption'] ) ? 'none' : $attr['pdfOption'] ),
-                                    'type' => 'select',
-                                    'values' => array(
-                                        'none' => esc_html__( 'Show on Form and in PDF file (default)', 'super-forms' ), 
-                                        'exclude' => esc_html__( 'Only show on Form', 'super-forms' ), 
-                                        'include' => esc_html__( 'Only show in PDF file', 'super-forms' ),
-                                        'header' => esc_html__( 'Use as PDF header', 'super-forms' ),
-                                        'footer' => esc_html__( 'Use as PDF footer', 'super-forms' )
-                                    ),
-                                    'filter' => true
-                                )
-                            )
-                        );
-                    }
-                }
-            }
-            return $array;
         }
         public function api_post_activation() {
             self::api_post('activation');
@@ -1057,28 +704,37 @@ if(!class_exists('SUPER_Forms')) :
             foreach($matches as $k => $v){
                 $original = $v[0];
                 $field_name = $v[1];
+                $original_field_name = $v[1];
                 $return = '';
                 if( isset( $v[2] ) ) $return = $v[2];
+                if($return==='') continue;
+                $i = 1;
                 $rows = '';
-                if( isset( $data['data'][$field_name] ) ) {
-                    // Of course we have at least one row, so always return the first row
-                    $row = str_replace( '<%counter%>', 1, $return ); 
-                    $row = str_replace( '<%', '{', $row ); 
-                    $row = str_replace( '%>', '}', $row );
-                    $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
-                    $rows .= $row;
-
-                    // Loop through all the fields that have been dynamically added by the user
-                    $i=2;
-                    while( isset( $data['data'][$field_name . '_' . ($i)]) ) {
-                        $row = str_replace( '<%counter%>', $i, $return );
-                        $row = str_replace( '<%', '{', $row ); 
-                        $row = str_replace( '%>', '_'.$i.'}', $row );
-                        $row = SUPER_Common::email_tags( $row, $data['data'], $data['settings'] );
-                        $rows .= $row;
-                        $i++;
+                while( isset( $data['data'][$field_name] ) ){
+                    $row_regex = '/<%(.*?)%>/';
+                    $row = $return;
+                    $row_match = preg_match_all($row_regex, $row, $row_matches, PREG_SET_ORDER, 0);
+                    foreach($row_matches as $rk => $rv){
+                        if($rv[1]==='counter'){
+                            $row = str_replace( $rv[0], $i, $row);
+                            continue;
+                        }
+                        if($i<2){
+                            $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
+                            continue;
+                        }
+                        $splitName = explode(';', $rv[1]);
+                        $newName = $splitName[0].'_'.$i;
+                        if(count($splitName)>1){
+                            $newName .= ';'.$splitName[1];
+                        }
+                        $row = str_replace( $rv[0], '{'.$newName.'}', $row);
                     }
+                    $rows .= $row;
+                    $i++;
+                    $field_name = $original_field_name.'_'.$i;
                 }
+                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'] );
                 $email_body = str_replace( $original, $rows, $email_body);
             }
 
@@ -1530,12 +1186,6 @@ if(!class_exists('SUPER_Forms')) :
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/frontend/common.js', array( 'super-common' ), SUPER_VERSION, false );  
             wp_localize_script( $handle, $name, array( 'includes_url'=>includes_url(), 'plugin_url'=>SUPER_PLUGIN_FILE ) );
             wp_enqueue_script( $handle );
-            
-            // @since 4.9.500 - PDF Generation
-            if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
-                wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
-                wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
-            }
 
             // Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
             // This is also used on the Elementor editor pages
@@ -1581,11 +1231,6 @@ if(!class_exists('SUPER_Forms')) :
                 wp_enqueue_script( 'jquery-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 
-                // @since 4.9.500 - PDF Generation
-                if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
-                    wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
-                    wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
-                }
             }
 
             // @since 1.2.8 -   super_after_enqueue_element_scripts_action
@@ -1711,7 +1356,7 @@ if(!class_exists('SUPER_Forms')) :
                 array(  
 
                     // @since 3.2.0 - dynamic tab index class exclusion
-                    'tab_index_exclusion' => '.super-color,.super-calculator,.super-toggle,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.super-rating,.super-file,.super-slider,.hidden,.super-prev-multipart,.super-html',
+                    'tab_index_exclusion' => '.super-prev-multipart,.super-next-multipart,.super-calculator,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.hidden,.super-hidden,.super-html,.super-pdf_page_break',
 
                     // Loading overlay text
                     'loadingOverlay' => array(
@@ -2625,26 +2270,6 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
                     ), 
-                    'super-html-canvas' => array(
-                        'src'     => $lib_path . 'super-html-canvas.min.js',
-                        'deps'    => array(),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue',
-                    ), 
-                    'super-pdf-gen' => array(
-                        'src'     => $lib_path . 'super-pdf-gen.min.js',
-                        'deps'    => array( 'super-html-canvas' ),
-                        'version' => SUPER_VERSION,
-                        'footer'  => false,
-                        'screen'  => array(
-                            'super-forms_page_super_create_form',
-                        ),
-                        'method'  => 'enqueue',
-                    ), 
                     'super-stripe-js-v3' => array(
                         'src'     => 'https://js.stripe.com/v3/',
                         'deps'    => array(),
@@ -2725,13 +2350,19 @@ if(!class_exists('SUPER_Forms')) :
                     $custom_content .= '</div>';
                     // @since 2.6.0 - also load the correct styles for success message even if we are on a page that hasn't loaded these styles
                     $form_id = absint($super_msg['data']['hidden_form_id']['value']);
-                    echo '<div class="super-form-' . $form_id . '">' . $custom_content . '</div>';
-                    $style_content  = '';
-                    $settings = $super_msg['settings'];
-                    if( ( isset( $settings['theme_style'] ) ) && ( $settings['theme_style']!='' ) ) {
-                        $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/' . str_replace( 'super-', '', $settings['theme_style'] ) . '.php' );
+                    $class = ' super-default-squared';
+                    if(!empty($settings['theme_style'])) {
+                        $class = ' ' . $settings['theme_style'];
                     }
-                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    echo '<div class="super-form-' . $form_id . $class . '">' . $custom_content . '</div>';
+                    $settings = $super_msg['settings'];
+                    
+                    // Try to load the selected theme style
+                    // Always load the default styles
+                    $style_content = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
+                    $style_content .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
+
                     SUPER_Forms()->form_custom_css .= apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) );
                     
                     $global_settings = SUPER_Common::get_global_settings();

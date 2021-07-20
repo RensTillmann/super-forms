@@ -1,3 +1,6 @@
+Mar 26, 2021 - Version 1.4.1
+- Fix: Make sure that PayPal receives 200 OK status code
+
 May 13, 2020 - Version 1.4.0
 - Added: Option to send custom email after payment completed
 - Added: Option to update registered user role after payment completed (for `Register & Login Add-on` only)

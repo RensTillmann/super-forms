@@ -2053,6 +2053,28 @@ class SUPER_Settings {
 
                     ),
                 ),
+                'theme_ui_dropdown_item_bg_colors' => array(
+                    'name' => esc_html__( 'Dropdown colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_ui_dropdown_item_bg'=>array(
+                            'label'=>esc_html__( 'Dropdown item background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_dropdown_item_bg', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_dropdown_item_font_focus'=>array(
+                            'label'=>esc_html__( 'Dropdown item font focus', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_dropdown_item_font_focus', $settings, '#ffffff' ),
+                        ),
+                        'theme_ui_dropdown_item_bg_focus'=>array(
+                            'label'=>esc_html__( 'Dropdown item background focus', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_dropdown_item_bg_focus', $settings, '#1E90FF' ),
+                        ),
+                        'theme_ui_dropdown_arrow'=>array(
+                            'label'=>esc_html__( 'Dropdown arrow', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_ui_dropdown_arrow', $settings, '#444444' ),
+                        ),
+                    ),
+                ),
                 'theme_ui_quantity_colors' => array(
                     'name' => esc_html__( 'Quantity button colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -2102,56 +2124,32 @@ class SUPER_Settings {
 
                 // @since 2.9.0 - keywords field
                 'theme_ui_keywords_colors' => array(
-                    'name' => esc_html__( 'Keywords colors', 'super-forms' ),
+                    'name' => esc_html__( 'Keywords/Tags colors', 'super-forms' ),
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_ui_keywords_bg'=>array(
-                            'label'=>esc_html__( 'Keyword background', 'super-forms' ),
+                            'label'=>esc_html__( 'Keyword/Tag background', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_keywords_bg', $settings, '#4EB1B6' ),
                         ),
                         'theme_ui_keywords_font'=>array(
-                            'label'=>esc_html__( 'Keyword font', 'super-forms' ),
+                            'label'=>esc_html__( 'Keyword/Tag font', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_keywords_font', $settings, '#ffffff' ),
                         ),
                         'theme_ui_keywords_icon'=>array(
-                            'label'=>esc_html__( 'Keyword icon', 'super-forms' ),
+                            'label'=>esc_html__( 'Keyword/Tag delete icon', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_keywords_icon', $settings, '#2e8a90' ),
                         ),
                         'theme_ui_keywords_icon_hover'=>array(
-                            'label'=>esc_html__( 'Keyword icon hover', 'super-forms' ),
+                            'label'=>esc_html__( 'Keyword/Tag delete icon hover', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_keywords_icon_hover', $settings, '#246569' ),
                         ),
-                    ),
-                ),
-
-                // @since 3.7.0 - autosuggest tags field
-                'theme_ui_tags_colors' => array(
-                    'name' => esc_html__( 'Tags colors', 'super-forms' ),
-                    'type'=>'multicolor',
-                    'colors'=>array(
-                        'theme_ui_tags_bg'=>array(
-                            'label'=>esc_html__( 'Tag background', 'super-forms' ),
-                            'default' => self::get_value( $default, 'theme_ui_tags_bg', $settings, '#4EB1B6' ),
-                        ),
-                        'theme_ui_tags_font'=>array(
-                            'label'=>esc_html__( 'Tag font', 'super-forms' ),
-                            'default' => self::get_value( $default, 'theme_ui_tags_font', $settings, '#ffffff' ),
-                        ),
-                        'theme_ui_tags_remove'=>array(
-                            'label'=>esc_html__( 'Tag remove icon', 'super-forms' ),
-                            'default' => self::get_value( $default, 'theme_ui_tags_remove', $settings, '#2e8a90' ),
-                        ),
-                        'theme_ui_tags_remove_hover'=>array(
-                            'label'=>esc_html__( 'Tag remove icon', 'super-forms' ),
-                            'default' => self::get_value( $default, 'theme_ui_tags_remove_hover', $settings, '#246569' ),
-                        ),
                         'theme_ui_tags_list_bg_hover'=>array(
-                            'label'=>esc_html__( 'Tag list background hover', 'super-forms' ),
+                            'label'=>esc_html__( 'Keyword/Tag list background hover', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_ui_tags_list_bg_hover', $settings, '#fdecde' ),
                         ),
                     ),
                 ),
-                
+
                 'theme_ui_slider_colors' => array(
                     'name' => esc_html__( 'Slider colors', 'super-forms' ),
                     'type'=>'multicolor', 
@@ -2171,19 +2169,19 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_field_colors_top'=>array(
-                            'label'=>'Gradient Top',
+                            'label'=>esc_html__( 'Gradient Top', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_top', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_bottom'=>array(
-                            'label'=>'Gradient Bottom',
+                            'label'=>esc_html__( 'Gradient Bottom', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_bottom', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_border'=>array(
-                            'label'=>'Border Color',
+                            'label'=>esc_html__( 'Border Color', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_border', $settings, '#cdcdcd' ),
                         ),
                         'theme_field_colors_font'=>array(
-                            'label'=>'Font Color',
+                            'label'=>esc_html__( 'Font Color', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_font', $settings, '#444444' ),
                         ),
                     ),
@@ -2194,19 +2192,19 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_field_colors_top_focus'=>array(
-                            'label'=>'Gradient Top Focus',
+                            'label'=>esc_html__( 'Gradient Top Focus', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_top_focus', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_bottom_focus'=>array(
-                            'label'=>'Gradient Bottom Focus',
+                            'label'=>esc_html__( 'Gradient Bottom Focus', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_bottom_focus', $settings, '#ffffff' ),
                         ),
                         'theme_field_colors_border_focus'=>array(
-                            'label'=>'Border Color Focus',
+                            'label'=>esc_html__( 'Border Color Focus', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_border_focus', $settings, '#4EB1B6' ),
                         ),
                         'theme_field_colors_font_focus'=>array(
-                            'label'=>'Font Color Focus',
+                            'label'=>esc_html__( 'Font Color Focus', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_field_colors_font_focus', $settings, '#444444' ),
                         ),                                               
                     ),
@@ -2225,15 +2223,15 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_rating_color'=>array(
-                            'label'=>'Rating color',
+                            'label'=>esc_html__('Rating color', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_color', $settings, '#cdcdcd' ),
                         ),
                         'theme_rating_bg'=>array(
-                            'label'=>'Rating background',
+                            'label'=>esc_html__('Rating background', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_bg', $settings, '#ffffff' ),
                         ),
                         'theme_rating_border'=>array(
-                            'label'=>'Rating border color',
+                            'label'=>esc_html__('Rating border color', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_border', $settings, '#cdcdcd' ),
                         ),
                     ),
@@ -2243,11 +2241,11 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_rating_color_hover'=>array(
-                            'label'=>'Rating color',
-                            'default' => self::get_value( $default, 'theme_rating_color_hover', $settings, '#f7f188' ),
+                            'label'=>esc_html__( 'Rating color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_rating_color_hover', $settings, '#ffc800' ),
                         ),
                         'theme_rating_bg_hover'=>array(
-                            'label'=>'Rating background',
+                            'label'=>esc_html__( 'Rating background', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_bg_hover', $settings, '#ffffff' ),
                         ),
                     ),
@@ -2257,15 +2255,128 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_rating_color_active'=>array(
-                            'label'=>'Rating color',
+                            'label'=>esc_html__( 'Rating color', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_color_active', $settings, '#f7ea00' ),
                         ),
                         'theme_rating_bg_active'=>array(
-                            'label'=>'Rating background',
+                            'label'=>esc_html__( 'Rating background', 'super-forms' ),
                             'default' => self::get_value( $default, 'theme_rating_bg_active', $settings, '#ffffff' ),
                         ),
                     ),
                 ),
+                // Accordion colors
+                'theme_accordion_colors' => array(
+                    'name' => esc_html__('Accordion Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_accordion_header'=>array(
+                            'label'=>esc_html__( 'Accordion Header', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_header', $settings, '#ffffff' ),
+                        ),
+                        'theme_accordion_title'=>array(
+                            'label'=>esc_html__( 'Accordion Title', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_title', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_desc'=>array(
+                            'label'=>esc_html__( 'Accordion Desc', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_desc', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_icon'=>array(
+                            'label'=>esc_html__( 'Accordion Icon', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_icon', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_content'=>array(
+                            'label'=>esc_html__( 'Accordion Content', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_content', $settings, '#ffffff' ),
+                        ),
+
+                        'theme_accordion_header_hover'=>array(
+                            'label'=>esc_html__( 'Accordion Header (hover)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_header_hover', $settings, '#ffffff' ),
+                        ),
+                        'theme_accordion_title_hover'=>array(
+                            'label'=>esc_html__( 'Accordion Title (hover)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_title_hover', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_desc_hover'=>array(
+                            'label'=>esc_html__( 'Accordion Desc (hover)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_desc_hover', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_icon_hover'=>array(
+                            'label'=>esc_html__( 'Accordion Icon (hover)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_icon_hover', $settings, '#444444' ),
+                        ),
+                        
+                        'theme_accordion_header_active'=>array(
+                            'label'=>esc_html__( 'Accordion Header (active)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_header_active', $settings, '#ffffff' ),
+                        ),
+                        'theme_accordion_title_active'=>array(
+                            'label'=>esc_html__( 'Accordion Title (active)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_title_active', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_desc_active'=>array(
+                            'label'=>esc_html__( 'Accordion Desc (active)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_desc_active', $settings, '#444444' ),
+                        ),
+                        'theme_accordion_icon_active'=>array(
+                            'label'=>esc_html__( 'Accordion Icon (active)', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_accordion_icon_active', $settings, '#444444' ),
+                        ),
+                    ),
+                ),                    
+
+                // Calculator colors
+                'theme_calc_colors' => array(
+                    'name' => esc_html__('Calculator Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_calc_amount_label_color'=>array(
+                            'label'=>esc_html__( 'Calculator Amount Label Color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_calc_amount_label_color', $settings, '#444444' ),
+                        ),
+                        'theme_calc_amount_currency_color'=>array(
+                            'label'=>esc_html__( 'Calculator Amount Currency Color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_calc_amount_currency_color', $settings, '#444444' ),
+                        ),
+                        'theme_calc_amount_color'=>array(
+                            'label'=>esc_html__( 'Calculator Amount Color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_calc_amount_color', $settings, '#444444' ),
+                        ),
+                        'theme_calc_amount_format_color'=>array(
+                            'label'=>esc_html__( 'Calculator Amount Format Color', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_calc_amount_format_color', $settings, '#444444' ),
+                        ),
+                    ),
+                ),                    
+                
+                // Tooltip colors
+                'theme_tooltip_colors' => array(
+                    'name' => esc_html__('Tooltip Colors', 'super-forms' ),
+                    'type'=>'multicolor', 
+                    'colors'=>array(
+                        'theme_tooltip_border'=>array(
+                            'label'=>esc_html__( 'Tooltip Border', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_tooltip_border', $settings, '#000000' ),
+                        ),
+                        'theme_tooltip_font'=>array(
+                            'label'=>esc_html__( 'Tooltip Font', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_tooltip_font', $settings, '#FFFFFF' ),
+                        ),
+                        'theme_tooltip_bg'=>array(
+                            'label'=>esc_html__( 'Tooltip Background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_tooltip_bg', $settings, '#444444' ),
+                        ),
+                        'theme_tooltip_arrow_border'=>array(
+                            'label'=>esc_html__( 'Tooltip Arrow Border', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_tooltip_arrow_border', $settings, '#000000' ),
+                        ),
+                        'theme_tooltip_arrow_bg'=>array(
+                            'label'=>esc_html__( 'Tooltip Arrow Background', 'super-forms' ),
+                            'default' => self::get_value( $default, 'theme_tooltip_arrow_bg', $settings, '#444444' ),
+                        ),
+                    ),
+                ),                    
 
                 // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
                 'theme_multipart_progress_bar' => array(

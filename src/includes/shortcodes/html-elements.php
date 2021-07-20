@@ -925,6 +925,29 @@ $array['html_elements'] = array(
                 ),
             ),
         ),
-
+        'pdf_page_break' => array(
+            'callback' => 'SUPER_Shortcodes::pdf_page_break',
+            'name' => 'PDF Page Break',
+            'icon' => 'file',
+            'atts' => array(
+                'general' => array(
+                    'name' => esc_html__( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'orientation' => array(
+                            'name'=>esc_html__( 'Page orientation for the next page', 'super-forms' ),
+                            'label'=>esc_html__( 'What should be the orientation of the next page?', 'super-forms' ),
+                            'default'=> ( !isset( $attributes['orientation']) ? '' : $attributes['orientation']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>esc_html__( 'Keep current orientation (default)', 'super-forms' ),
+                                'landscape'=>esc_html__( 'Landscape', 'super-forms' ),
+                                'portrait'=>esc_html__( 'Portrait', 'super-forms' ),
+                                'default'=>esc_html__( 'Change to the orientation defined under PDF settings', 'super-forms' )
+                            )
+                        ),
+                    ),
+                ),
+            ),
+        ),
     )
 );

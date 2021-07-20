@@ -709,7 +709,7 @@ $array['layout_elements'] = array(
                                 'default' => (!isset($attributes['tab_bgcolor_hover']) ? '' : $attributes['tab_bgcolor_hover']),
                                 '_styles' => array(
                                     ' > .super-tabs-menu > .super-tabs-tab:hover' => 'background-color',
-                                    ' > .super-accordion-item:hover > .super-accordion-content' => 'background-color'
+                                    ' > .super-accordion-item:hover .super-accordion-header' => 'background-color'
                                 )
                             ),
                             'tab_icon_color_hover' => array(
@@ -1271,22 +1271,6 @@ $array['layout_elements'] = array(
                                 'parent' => 'layout',
                                 'filter_value' => 'tabs'
                             ),
-                            'accordion_border_radius' => array(
-                                'name' => esc_html__( 'Border radius (0 = none)', 'super-forms' ), 
-                                'type' => 'slider', 
-                                'default' => ( !isset( $attributes['accordion_border_radius'] ) ? 0 : $attributes['accordion_border_radius'] ),
-                                'min' => 0,
-                                'max' => 50,
-                                'steps' => 1,
-                                '_styles' => array(
-                                    ' > .super-accordion-item:not(.super-active) > .super-accordion-header' => 'border-radius',
-                                    ' > .super-accordion-item.super-active > .super-accordion-header' => 'border-top-left-radius,border-top-right-radius',
-                                    ' > .super-accordion-item > .super-accordion-content' => 'border-bottom-left-radius,border-bottom-right-radius'
-                                ),
-                                'filter' =>true,
-                                'parent' => 'layout',
-                                'filter_value' => 'tabs,accordion'
-                            ),
                         )
                     ),
                     'hover' => array(
@@ -1439,7 +1423,7 @@ $array['layout_elements'] = array(
                                 'max' => 10,
                                 'steps' => 1,
                                 '_styles' => array(
-                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab.super-active' => 'border-top-width'
+                                    '.super-horizontal > .super-tabs-menu > .super-tabs-tab' => 'border-top-width'
                                 ),
                                 'filter' =>true,
                                 'parent' => 'layout',

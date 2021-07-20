@@ -64,7 +64,7 @@ class SUPER_Pages {
     }
     
     /**
-     * Handle TAB outputs on builder page (create form page)
+     * Handle TAB outputs on builder tab
      */
     public static function builder_tab($atts) {
         extract($atts);
@@ -75,7 +75,7 @@ class SUPER_Pages {
             echo '<p>' . esc_html__( 'Currently in translation mode for language', 'super-forms' ) . ': <span class="super-i18n-language"></span></p>';
         echo '</div>';
         ?>
-        <div class="super-preview-elements super-dropable<?php echo (!empty($settings['enable_adaptive_placeholders']) ? ' super-adaptive' : ''); ?> super-form-<?php echo $form_id; ?> <?php echo $theme_style; ?>"><?php echo $form_html; ?></div>
+        <div class="super-preview-elements super-form <?php echo $theme_style; ?> super-dropable<?php echo (!empty($settings['theme_rtl']) ? ' super-rtl' : ''); ?><?php echo (!empty($settings['enable_adaptive_placeholders']) ? ' super-adaptive' : ''); ?> super-form-<?php echo $form_id; ?>"><?php echo $form_html; ?></div>
         <style type="text/css"><?php echo apply_filters( 'super_form_styles_filter', $style_content, array( 'id'=>$form_id, 'settings'=>$settings ) ) . $settings['theme_custom_css']; ?></style>
         <?php
     }
@@ -234,7 +234,7 @@ class SUPER_Pages {
                         <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
                             <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                            <ul class="super-dropdown-items">
+                            <ul class="super-dropdown-list">
                                 <?php
                                 foreach($available_translations as $k => $v){
                                     echo '<li class="super-item" data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
@@ -247,7 +247,7 @@ class SUPER_Pages {
                         <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                             <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
                             <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                            <ul class="super-dropdown-items">
+                            <ul class="super-dropdown-list">
                                 <?php
                                 foreach($flags as $k => $v){
                                     echo '<li class="super-item" data-value="' . $k . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $k . '" />' . $v . '</li>';
@@ -279,7 +279,7 @@ class SUPER_Pages {
                                 <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                                     <div class="super-dropdown-placeholder"><?php echo $v['language']; ?></div>
                                     <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                                    <ul class="super-dropdown-items">
+                                    <ul class="super-dropdown-list">
                                         <?php
                                         foreach($available_translations as $tk => $tv){
                                             echo '<li data-value="' . $tv['language'] . '" class="super-item' . ($tv['language']==$k ? ' super-active' : '') . '">' . $tv['native_name'] . '</li>';
@@ -297,7 +297,7 @@ class SUPER_Pages {
                                 <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                                     <div class="super-dropdown-placeholder"><?php echo '<img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $v['flag'] . '" />' . $flags[$v['flag']]; ?></div>
                                     <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                                    <ul class="super-dropdown-items">
+                                    <ul class="super-dropdown-list">
                                         <?php
                                         foreach($flags as $fk => $fv){
                                             echo '<li data-value="' . $fk . '" class="super-item' . ($fk==$v['flag'] ? ' super-active' : '') . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $fk . '" />' . $fv . '</li>';
@@ -339,7 +339,7 @@ class SUPER_Pages {
                             <div class="super-dropdown" data-name="language" data-placeholder="- <?php echo $language_placeholder; ?> -">
                                 <div class="super-dropdown-placeholder">- <?php echo $language_placeholder; ?> -</div>
                                 <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                                <ul class="super-dropdown-items">
+                                <ul class="super-dropdown-list">
                                     <?php
                                     foreach($available_translations as $k => $v){
                                         echo '<li class="super-item" data-value="' . $v['language'] . '">' . $v['native_name'] . '</li>';
@@ -353,7 +353,7 @@ class SUPER_Pages {
                             <div class="super-dropdown" data-name="flag" data-placeholder="- <?php echo $flags_placeholder; ?> -">
                                 <div class="super-dropdown-placeholder">- <?php echo $flags_placeholder; ?> -</div>
                                 <div class="super-dropdown-search"><input type="text" placeholder="<?php echo esc_html__( 'Filter', 'super-forms' ); ?>..." /></div>
-                                <ul class="super-dropdown-items">
+                                <ul class="super-dropdown-list">
                                     <?php
                                     foreach($flags as $k => $v){
                                         echo '<li class="super-item" data-value="' . $k . '"><img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . $k . '" />' . $v . '</li>';

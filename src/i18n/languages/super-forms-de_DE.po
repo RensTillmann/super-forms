@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: Super Forms - Drag & Drop Form Builder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-07-21 13:35+0000\n"
-"PO-Revision-Date: 2021-01-28 21:09+0000\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2021-05-18 12:19+0000\n"
+"Last-Translator: Tillmann Rens\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.4.6; wp-5.6"
+"X-Loco-Version: 2.5.2; wp-5.7.2"
 
 #: includes/class-settings.php:2732
 msgid " version"
@@ -1088,7 +1088,7 @@ msgstr "Body Kopfzeile"
 
 #: includes/class-settings.php:243 includes/class-settings.php:453
 msgid "Body header:"
-msgstr "Body Header:"
+msgstr "Body Kopfzeile:"
 
 #: super-forms.php:759
 msgid "Body margins (in units declared above)"
@@ -6865,7 +6865,7 @@ msgstr "Betreff (Subject)"
 
 #: includes/class-settings.php:233 includes/class-settings.php:444
 msgid "Subject:"
-msgstr "Gegenstand:"
+msgstr "Betreff:"
 
 #: includes/class-settings.php:2471 includes/shortcodes/form-elements.php:3408
 msgid "Submit"

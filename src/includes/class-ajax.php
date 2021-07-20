@@ -97,7 +97,7 @@ class SUPER_Ajax {
             'api_auth'                      => false,
             'api_submit_feedback'           => false,
 
-            'listing_delete_entry' => false,
+            'listings_delete_entry' => false,
 
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
@@ -109,18 +109,18 @@ class SUPER_Ajax {
         }
     }
 
-    public static function listing_delete_entry(){
+    public static function listings_delete_entry(){
         $entry_id = absint($_POST['entry_id']);
         $list_id = absint($_POST['list_id']);
         $entry = get_post($entry_id);
         $formSettings = get_post_meta($entry->post_parent, '_super_form_settings', true);
-        $lists = $formSettings['_listing']['lists'];
+        $lists = $formSettings['_listings']['lists'];
         if(!isset($lists[$list_id])){
             // The list does not exist
             die();
         }
         // Set default values if they don't exist
-        $listSettings = SUPER_Listing::get_default_listing_settings($lists[$list_id]);
+        $listSettings = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
         // First check if user is logged in
         // Obviously only logged in user are allowed to delete entries
         // Let's check if the user is logged in
@@ -395,7 +395,8 @@ class SUPER_Ajax {
     public static function language_switcher() {
         $atts = array(
             'id' => absint($_POST['form_id']),
-            'i18n' => sanitize_text_field($_POST['i18n'])
+            'i18n' => sanitize_text_field($_POST['i18n']),
+            'parameters' => $_POST['parameters']
         );
         // @since 4.7.0 - translation RTL
         // check if the translation has enable RTL mode
@@ -879,7 +880,7 @@ class SUPER_Ajax {
             );
         }
         foreach($orders_array as $k => $v){
-            echo '<li class="super-item" style="display:block;" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . $v['label'] . '</li>';
+            echo '<li class="super-item" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . esc_html( $v['label'] ) . '</li>';
         }
         die();
     }
@@ -1810,7 +1811,7 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Loads the form preview on backedn (create form page)
+     *  Loads the form preview on backend (create form page)
      *
      *  @since      1.0.0
     */
@@ -3010,18 +3011,27 @@ class SUPER_Ajax {
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
                         }
+                        error_log('1');
+                        error_log($row);
+                        error_log($confirm_row);
                         if( isset( $v['confirm_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
                             
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
                         }
+                        error_log('2');
+                        error_log($row);
+                        error_log($confirm_row);
                         if( isset( $v['value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             
                             $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
                             $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
+                            error_log('3');
+                            error_log($row);
+                            error_log($confirm_row);
                         }
 
                     }
@@ -3410,6 +3420,7 @@ class SUPER_Ajax {
                 'confirm_attachments' => $confirm_attachments,
                 'string_attachments' => $string_attachments
             );
+            $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // If the option to delete files after form submission is enabled remove all uploaded files from the server

@@ -850,18 +850,23 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                         if(empty($k)) continue;
                         $field = explode( "|", $k );
                         // @since 1.0.3 - first check if a field with the name exists
+                        $meta_data[$field[1]] = array(
+                            'value' => '',
+                            'data' => $data[$field[0]]
+                        );
                         if( isset( $data[$field[0]]['value'] ) ) {
-                            $meta_data[$field[1]] = $data[$field[0]]['value'];
+                            $meta_data[$field[1]]['data'] = $data[$field[0]];
+                            $meta_data[$field[1]]['value'] = $data[$field[0]]['value'];
                         }else{
                             
                             // @since 1.1.2 - check if type is files
                             if( (!empty($data[$field[0]])) && ( ($data[$field[0]]['type']=='files') && (isset($data[$field[0]]['files'])) ) ) {
                                 if( count($data[$field[0]]['files']>1) ) {
                                     foreach( $data[$field[0]]['files'] as $fk => $fv ) {
-                                        if($meta_data[$field[1]]==''){
-                                            $meta_data[$field[1]] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                                        if($meta_data[$field[1]]['value']==''){
+                                            $meta_data[$field[1]]['value'] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }else{
-                                            $meta_data[$field[1]] .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                                            $meta_data[$field[1]]['value'] .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
                                         }
                                     }
                                 }elseif( count($data[$field[0]]['files'])==1) {
@@ -871,9 +876,9 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                     }else{
                                         $fValue = (!empty($cur['path']) ? $cur['path'] : 0);
                                     }
-                                    $meta_data[$field[1]] = $fValue;
+                                    $meta_data[$field[1]]['value'] = $fValue;
                                 }else{
-                                    $meta_data[$field[1]] = '';
+                                    $meta_data[$field[1]]['value'] = '';
                                 }
                                 continue;
                             }else{
@@ -883,9 +888,9 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                 // @since 1.0.3 - check if string is serialized array
                                 $unserialize = unserialize($string);
                                 if ($unserialize !== false) {
-                                    $meta_data[$field[1]] = $unserialize;
+                                    $meta_data[$field[1]]['value'] = $unserialize;
                                 }else{
-                                    $meta_data[$field[1]] = $string;
+                                    $meta_data[$field[1]]['value'] = $string;
                                 }
                             }
                         }
@@ -895,6 +900,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                         // @since 1.1.1 - Check for ACF field and check if checkbox, if checkbox save values as Associative Array
                         if (function_exists('get_field_object')) {
                             global $wpdb;
+
                             $length = strlen($k);
                             // @since 1.1.2 - Because there are major differences between ACF Pro and the regular ACF plugin we have to do different queries
                             if( class_exists('acf_pro') ) {
@@ -916,16 +922,16 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                             if($acf_field){
                                 // @since 1.1.3 - save a checkbox or select value
                                 if( ($acf_field['type']=='checkbox') || ($acf_field['type']=='select') || ($acf_field['type']=='radio') || ($acf_field['type']=='gallery') ) {
-                                    $value = explode( ",", $v );
+                                    $value = explode( ",", $v['value'] );
                                     update_field( $acf_field['key'], $value, $post_id );
                                     continue;
                                 }elseif( $acf_field['type']=='google_map' ) {
-                                    if( isset($data[$k]['geometry']) ) {
-                                        $data[$k]['geometry']['location']['address'] = $data[$k]['value'];
-                                        $value = $data[$k]['geometry']['location'];
+                                    if( isset($v['data']['geometry']) ) {
+                                        $v['data']['geometry']['location']['address'] = $v['value'];
+                                        $value = $v['data']['geometry']['location'];
                                     }else{
                                         $value = array(
-                                            'address' => $data[$k]['value'],
+                                            'address' => $v['value'],
                                             'lat' => '',
                                             'lng' => '',
                                         );
@@ -950,21 +956,21 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                                     continue;
                                 }
                                 // save a basic text value
-                                update_field( $acf_field['key'], $v, $post_id );
+                                update_field( $acf_field['key'], $v['value'], $post_id );
                                 continue;
                             }
                         }
                         // Check if string is JSON
-                        if(strpos($v, '{') === 0){
-                                $originalValue = $v;
-                                $v = stripslashes($v);
-                                $v = json_decode($v, true);
-                                if ($v === null && json_last_error() !== JSON_ERROR_NONE) {
+                        if(strpos($v['value'], '{') === 0){
+                                $originalValue = $v['value'];
+                                $v['value'] = stripslashes($v['value']);
+                                $v['value'] = json_decode($v['value'], true);
+                                if ($v['value'] === null && json_last_error() !== JSON_ERROR_NONE) {
                                         // Not valid JSON data
-                                        $v = $originalValue;
+                                        $v['value'] = $originalValue;
                                 }
                         }
-                        update_post_meta( $post_id, $k, $v );
+                        update_post_meta( $post_id, $k, $v['value'] );
                     }
 
                     // Set post format for the post if theme supports it and if it was set by the form settings or by one of the form fields

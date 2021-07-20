@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.4.0';
+		public $version = '1.4.1';
 
 		
 		/**
@@ -1055,7 +1055,7 @@ if (!class_exists('SUPER_PayPal')):
 		                                           	}
 													if( (isset($custom[2])) && ($custom[2]!=0) ) {
 														echo '<div class="misc-pub-section">';
-		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_contact_entry&id=' . $custom[0]) . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
+		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_contact_entry&id=' . $custom[2]) . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
 		                                            	echo '</div>';
 		                                           	}
 		                                           	
@@ -1434,15 +1434,15 @@ if (!class_exists('SUPER_PayPal')):
 				// The subscription has expired, either because the subscriber cancelled it or it has a fixed term (implying a fixed number of payments) and it has now expired with no further payments being due.
 				if( (isset($_POST['txn_type'])) && ($_POST['txn_type']=='subscr_eot') ) {
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
-					header("HTTP/1.1 200 OK");
-					die();
+                    http_response_code(200);
+                    exit;
 				}
 
 				// When the subscription payment has failed, not much we can do about this, and we don't have to do anything except let paypal know we received the IPN message
 				if( (isset($_POST['txn_type'])) && ($_POST['txn_type']=='subscr_failed') ) {
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
-					header("HTTP/1.1 200 OK");
-					die();
+                    http_response_code(200);
+                    exit;
 				}
 
 				// IPN message telling that the subscription is either being modified, suspended or canceled
@@ -1492,8 +1492,8 @@ if (!class_exists('SUPER_PayPal')):
 					do_action( 'super_after_paypal_ipn_subscription_changed', array( 'post_id'=>$post_id, 'txn_type'=>$_POST['txn_type'] ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
-					header("HTTP/1.1 200 OK");
-					die();
+                    http_response_code(200);
+                    exit;
 				}
 
 				// If payment status is Refunded
@@ -1510,8 +1510,8 @@ if (!class_exists('SUPER_PayPal')):
 					do_action( 'super_after_paypal_ipn_payment_refunded', array( 'post_id'=>$post_id ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
-					header("HTTP/1.1 200 OK");
-					die();
+                    http_response_code(200);
+                    exit;
 				}
 
 				// First retrieve the form settings
@@ -1556,17 +1556,8 @@ if (!class_exists('SUPER_PayPal')):
 					}
 				}
 				$req = 'cmd=_notify-validate';
-				$get_magic_quotes_exists = false;
-				if (function_exists('get_magic_quotes_gpc')) {
-					$get_magic_quotes_exists = true;
-				}
 				foreach($myPost as $key => $value) {
-					if ($get_magic_quotes_exists == true && get_magic_quotes_gpc() == 1) {
-						$value = urlencode(stripslashes($value));
-					}
-					else {
-						$value = urlencode($value);
-					}
+                    $value = urlencode($value);
 					$req.= "&$key=$value";
 				}
 				// Post the data back to PayPal.
@@ -1901,9 +1892,10 @@ if (!class_exists('SUPER_PayPal')):
 					do_action( 'super_after_paypal_ipn_payment_verified', array( 'post_id'=>$post_id, 'post'=>$_POST ) );
 
 				}
+                // Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
+                http_response_code(200);
+                exit;
 			}
-			// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
-			header("HTTP/1.1 200 OK");
 		}
 
 

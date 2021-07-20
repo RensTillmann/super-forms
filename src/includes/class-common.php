@@ -717,27 +717,9 @@ class SUPER_Common {
                     array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
                 ),
-                'after_dropdown_change_hook' => array(
-                    array( 'name' => 'conditional_logic' ),
-                    array( 'name' => 'calculate_distance' ),
-                    array( 'name' => 'google_maps_init' ),
-                    array( 'name' => 'init_replace_html_tags' ),
-                    array( 'name' => 'init_replace_post_url_tags' )
-                ),
                 'after_field_change_blur_hook' => array(
                     array( 'name' => 'conditional_logic' ),
-                    array( 'name' => 'google_maps_init' ),
-                    array( 'name' => 'init_replace_html_tags' ),
-                    array( 'name' => 'init_replace_post_url_tags' )
-                ),
-                'after_radio_change_hook' => array(
-                    array( 'name' => 'conditional_logic' ),
-                    array( 'name' => 'google_maps_init' ),
-                    array( 'name' => 'init_replace_html_tags' ),
-                    array( 'name' => 'init_replace_post_url_tags' )
-                ),
-                'after_checkbox_change_hook' => array(
-                    array( 'name' => 'conditional_logic' ),
+                    array( 'name' => 'calculate_distance' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
@@ -773,7 +755,6 @@ class SUPER_Common {
 
                 // @since 4.9.0
                 'after_init_common_fields' => array(
-                    array( 'name' => 'init_dropdowns' ),
                     array( 'name' => 'init_distance_calculators' ),
                     array( 'name' => 'init_color_pickers' ),
                     array( 'name' => 'init_carouseljs' ),
@@ -1048,7 +1029,7 @@ class SUPER_Common {
     public static function decode_textarea( $value ) {
         if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
-            return esc_html(urldecode(stripslashes($value)));
+            return esc_html(stripslashes($value));
         }
     }
     public static function decode( $value ) {
@@ -1058,7 +1039,7 @@ class SUPER_Common {
             if ( strpos( $value, 'data:image/png;base64,') !== false ) {
                 return $value;
             }else{
-                return urldecode( strip_tags( stripslashes( $value ), '<br>' ) );
+                return strip_tags( stripslashes( $value ), '<br>' );
             }
         }
         // @since 1.4 - also return integers
@@ -1200,7 +1181,6 @@ class SUPER_Common {
             // @since 3.4.0 - retrieve the lock count
             $last_entry_id = 0;
             $last_entry_status = '';
-            $user_last_entry_status = '';
             $form_submission_count = '';
             if(!isset($settings['id'])) {
                 $form_id = 0;
@@ -1246,6 +1226,29 @@ class SUPER_Common {
                 if( isset($entry[0])) {
                     $user_last_entry_id = absint($entry[0]->ID);
                     $user_last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
+                }
+            }
+            
+            // @since 4.7.7     - Get last entry status bas on currently logged in user
+            $user_last_entry_id_any_form = 0;
+            $user_last_entry_status_any_form = '';
+            if( (isset($current_user)) && ($current_user->ID>0) ) {
+                global $wpdb;
+                $entry = $wpdb->get_results(
+                    $wpdb->prepare("
+                        SELECT  ID
+                        FROM    $wpdb->posts
+                        WHERE   post_author = %d AND
+                                post_status IN ('publish','super_unread','super_read') AND 
+                                post_type = 'super_contact_entry'
+                        ORDER BY ID DESC
+                        LIMIT 1",
+                        array( $current_user->ID )
+                    )
+                );
+                if( isset($entry[0])) {
+                    $user_last_entry_id_any_form = absint($entry[0]->ID);
+                    $user_last_entry_status_any_form = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
                 }
             }
     
@@ -1488,12 +1491,20 @@ class SUPER_Common {
                 
                 // @since 4.7.7 - retrieve last entry status and ID of the logged in user
                 'user_last_entry_status' => array(
-                    esc_html__( 'Retrieves the latest Contact Entry status of the logged in user', 'super-forms' ),
+                    esc_html__( 'Retrieves the latest Contact Entry status of the logged in user based on current form ID', 'super-forms' ),
                     $user_last_entry_status
                 ),
                 'user_last_entry_id' => array(
-                    esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user', 'super-forms' ),
+                    esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user based on current form ID', 'super-forms' ),
                     $user_last_entry_id
+                ),
+                'user_last_entry_status_any_form' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry status of the logged in user for any form', 'super-forms' ),
+                    $user_last_entry_status_any_form
+                ),
+                'user_last_entry_id_any_form' => array(
+                    esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user for any form', 'super-forms' ),
+                    $user_last_entry_id_any_form
                 ),
     
             );

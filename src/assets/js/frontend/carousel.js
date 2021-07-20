@@ -58,7 +58,6 @@ var CarouselJS = {
                 html: ''    // HTML for inside the "next/forward" button (leave blank for default buttons)
             }
         },
-        
     },
 
     // "action" holds the type of action to trigger the slide e.g `next` `prev`
@@ -456,7 +455,7 @@ var CarouselJS = {
     },
 
     // Initialize CarouselJS
-    init: function() { // Returns the first visible item in the slider
+    init: function() {
         var fn = this; 
         var _ = fn.settings;
         // Search for DOM elements based on the selector
