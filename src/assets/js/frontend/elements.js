@@ -1,16 +1,194 @@
 /* globals jQuery, SUPER, super_elements_i18n */
 "use strict";
 (function($) { // Hide scope, no $ conflict
+    // Switch between multiparts (prev/next or clicking on step)
+    SUPER.switchMultipart = function(e, target, dir){
+        // First get active part
+        var i, index, validate, result, skip, progress, multipart,
+            form = target.closest('.super-form'),
+            nodes = form.querySelectorAll('.super-multipart'),
+            steps = form.querySelectorAll('.super-multipart-step'),
+            formId = form.querySelector('input[name="hidden_form_id"]').value,
+            activeMultipart = form.querySelector('.super-multipart-step.super-active'),
+            children = Array.prototype.slice.call(activeMultipart.parentNode.children),
+            total = form.querySelectorAll('.super-multipart').length,
+            currentStep = children.indexOf(activeMultipart);
 
-    // Init dropdowns
-    SUPER.init_dropdowns = function(){
-        $('.super-dropdown-ui').each(function(){
-            if($(this).children('.super-placeholder').html()===''){
-                var $first_item = $(this).find('.super-item:eq(1)');
-                $first_item.addClass('super-active');
-                $(this).children('.super-placeholder').attr('data-value',$first_item.attr('data-value')).html($first_item.html());
+        if(dir==='prev'){
+            // From first to last?
+            if(currentStep===0){
+                index = nodes.length-1;
+            }else{
+                index = currentStep-1;
             }
-        });
+        }
+        if(dir==='next'){
+            // From last to first?
+            if(total===currentStep+1){
+                index = 0;
+            }else{
+                // @since 2.0.0 - validate multi-part before going to next step
+                validate = form.querySelector('.super-multipart.super-active').dataset.validate;
+                if(validate=='true'){
+                    result = SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e});
+                    if(result!==true) return false;
+                }
+                index = currentStep+1;
+            }
+        }
+        for( i = 0; i < nodes.length; i++){
+            nodes[i].classList.remove('super-active');
+            steps[i].classList.remove('super-active');
+            if(i===index){
+                nodes[i].classList.add('super-active');
+                steps[i].classList.add('super-active');
+            }
+        }
+        
+        // Required for toggle field and other possible elements to rerender proper size
+        SUPER.init_super_responsive_form_fields({form: form});
+
+        // Update URL parameters
+        window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
+        
+        // Make sure to skip the multi-part if no visible elements are found
+        skip = SUPER.skipMultipart(target, form);
+        if(skip===true) return false;
+
+        // Update progress bar
+        progress = 100 / total;
+        progress = progress * (index+1);
+        form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+        index = 0;
+        
+        nodes = form.querySelectorAll('.super-multipart');
+        for( i = 0; i < nodes.length; i++){
+            if(!nodes[i].querySelector('.super-error-active')){
+                form.querySelectorAll('.super-multipart-steps .super-multipart-step')[index].classList.remove('super-error');
+            }
+            index++;
+        }
+        // Disable scrolling for multi-part prev/next
+        multipart = form.querySelector('.super-multipart.super-active');
+        if(typeof multipart.dataset.disableScrollPn === 'undefined'){
+            if(!e.shiftKey){
+                $('html, body').animate({
+                    scrollTop: $(form).offset().top - 30
+                }, 500);
+            }
+        }
+        // Focus first TAB index field in next multi-part
+        SUPER.focusFirstTabIndexField(e, form, multipart);
+
+    };
+    // Make sure to skip the multi-part if no visible elements are found
+    SUPER.skipMultipart = function(el, form, index, activeIndex){
+        var i, nodes, multipart, field, skip = true;
+        
+        nodes = form.querySelectorAll('.super-multipart.super-active .super-field:not(.super-button)');
+        for( i = 0; i < nodes.length; i++ ) {
+            field = nodes[i].querySelector('.super-shortcode-field');
+            if(field){ // This is a field
+                if(!SUPER.has_hidden_parent(field)) skip = false;
+            }else{ // This is either a HTML element or something else without a field
+                if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
+            }
+            if(skip===false) return false;
+        }
+        if(skip){ // Only skip if no visible fields where to be found
+            multipart = form.querySelector('.super-multipart.super-active');
+            if( (el.classList.contains('super-prev-multipart')) || (el.classList.contains('super-next-multipart')) ){
+                if(el.classList.contains('super-prev-multipart')){
+                    if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
+                }else{
+                    if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
+                }
+            }else{
+                if(index < activeIndex){
+                    if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
+                }else{
+                    if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
+                }
+            }
+        }
+        return skip;
+    };
+    SUPER.focusFirstTabIndexField = function(e, form, multipart) {
+        var fields,highestIndex,lowestIndex,index,next, disableAutofocus = multipart.dataset.disableAutofocus;
+
+        if( typeof disableAutofocus === 'undefined' ) {
+            fields = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index]');
+            highestIndex = 0;
+            fields.each(function(){
+                index = parseFloat($(this).attr('data-super-tab-index'));
+                if( index > highestIndex ) {
+                    highestIndex = index;
+                }
+            });
+            lowestIndex = highestIndex;
+            fields.each(function(){
+                index = parseFloat($(this).attr('data-super-tab-index'));
+                if( index < lowestIndex ) {
+                    lowestIndex = index;
+                }
+            });
+            next = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index="'+lowestIndex+'"]');
+            SUPER.focusNextTabField(e, next[0], form, next[0]);
+        }
+    };
+
+    // @since 3.2.0 - function to return next field based on TAB index
+    SUPER.nextTabField = function(e, field, form, nextTabIndex){
+        var nextTabIndexSmallIncrement,
+            nextField,
+            nextFieldSmallIncrement,
+            nextCustomField,
+            customTabIndex,
+            incNext = 1,
+            incNextSmall = 0.001;
+
+        if(e.shiftKey){
+            incNext = -incNext;
+            incNextSmall = -incNextSmall;
+        }
+        if(typeof nextTabIndex === 'undefined'){
+            nextTabIndexSmallIncrement = parseFloat(parseFloat(field.dataset.superTabIndex)+incNextSmall).toFixed(3);
+            nextTabIndex = parseFloat(field.dataset.superTabIndex)+incNext;
+        }
+        if(typeof field.dataset.superCustomTabIndex !== 'undefined'){
+            nextTabIndex = parseFloat(field.dataset.superCustomTabIndex)+incNext;
+        }
+
+        nextTabIndexSmallIncrement = parseFloat(nextTabIndexSmallIncrement);
+        nextTabIndex = parseFloat(parseFloat(nextTabIndex).toFixed(0));
+        nextFieldSmallIncrement = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndexSmallIncrement+'"]');
+        if(nextFieldSmallIncrement){
+            nextField = nextFieldSmallIncrement;
+        }else{
+            nextField = form.querySelector('.super-field[data-super-tab-index="'+nextTabIndex+'"]');
+        }
+        nextCustomField = form.querySelector('.super-field[data-super-custom-tab-index="'+nextTabIndex+'"]');
+
+        // If custom index TAB field was found, and is not currently focussed
+        if( (nextCustomField) && (!nextCustomField.classList.contains('super-focus')) ) {
+            nextField = nextCustomField;
+        }
+        
+        if(!nextField) return false;
+
+        if(nextField.dataset.superCustomTabIndex){
+            customTabIndex = nextField.dataset.superCustomTabIndex;
+            if(typeof customTabIndex !== 'undefined') {
+                if(nextTabIndex < parseFloat(customTabIndex)){
+                    nextField = SUPER.nextTabField(e, field, form, nextTabIndex+incNext);
+                }
+            }
+        }
+        if(SUPER.has_hidden_parent(nextField)){
+            // Exclude conditionally
+            nextField = SUPER.nextTabField(e, field, form, nextTabIndex+incNext);
+        }
+        return nextField;
     };
 
     // @since 1.3   - input mask
@@ -66,6 +244,10 @@
                         },
                         move: function(color) {
                             this.value = color.toHexString();
+                        },
+                        beforeShow: function(color){
+                            SUPER.focusForm(this);
+                            SUPER.focusField(this);
                         }
                     }).addClass('super-picker-initialized');
                 }
@@ -122,9 +304,9 @@
     // init connected datepickers
     SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
         if(selectedDate===''){
-            $this.parentNode.classList.remove('super-filled');
+            $this.closest('.super-field').classList.remove('super-filled');
         }else{
-            $this.parentNode.classList.add('super-filled');
+            $this.closest('.super-field').classList.add('super-filled');
         }
 
         var original_selectedDate = selectedDate,
@@ -170,9 +352,9 @@
                                     $connected_date.value = min_date;
                                 }
                                 if($connected_date.value===''){
-                                    $connected_date.parentNode.classList.remove('super-filled');
+                                    $connected_date.closest('.super-field').classList.remove('super-filled');
                                 }else{
-                                    $connected_date.parentNode.classList.add('super-filled');
+                                    $connected_date.closest('.super-field').classList.add('super-filled');
                                 }
                                 $parse = Date.parseExact($connected_date.value, $parse_format);
                                 if($parse!==null){
@@ -202,9 +384,9 @@
                                 $connected_date.value = max_date;
                             }
                             if($connected_date.value===''){
-                                $connected_date.parentNode.classList.remove('super-filled');
+                                $connected_date.closest('.super-field').classList.remove('super-filled');
                             }else{
-                                $connected_date.parentNode.classList.add('super-filled');
+                                $connected_date.closest('.super-field').classList.add('super-filled');
                             }
                             $parse = Date.parseExact($connected_date.value, $parse_format);
                             if($parse!==null){
@@ -703,9 +885,9 @@
         $('.super-timepicker').on('changeTime', function() {
             set_timepicker_dif($(this));
             if(this.value===''){
-                this.parentNode.classList.remove('super-filled');
+                this.closest('.super-field').classList.remove('super-filled');
             }else{
-                this.parentNode.classList.add('super-filled');
+                this.closest('.super-field').classList.add('super-filled');
             }
         });
         $('.super-timepicker').parent().find('.super-icon').on('click',function(){
@@ -842,12 +1024,12 @@
             }
         }
         if(type=='diagonal'){
-            if(typeof $color !== 'undefined'){
+            if(typeof color !== 'undefined'){
                 wrap.style.borderColor = hoverColor;
             }else{
                 wrap.style.borderColor = '';
             }
-            if(typeof $font !== 'undefined'){
+            if(typeof font !== 'undefined'){
                 btnName.style.color = fontHover;
                 if(btnNameIcon) btnNameIcon.style.color = fontHover;
             }else{
@@ -869,7 +1051,7 @@
                     btnName.style.color = fontHover;
                     if(btnNameIcon) btnNameIcon.style.color = fontHover;
                 }else{
-                    if(typeof $font !== 'undefined'){
+                    if(typeof font !== 'undefined'){
                         btnName.style.color = font;
                         if(btnNameIcon) btnNameIcon.style.color = font;
                     }else{
@@ -879,11 +1061,6 @@
                 }
             }
         }
-    };
-
-    // Function to unset focus on fields
-    SUPER.unsetFocus = function(){
-        $('.super-field.super-focus').removeClass('super-focus').blur();
     };
 
     // Retrieve amount of decimals based on a numberic value
@@ -898,6 +1075,435 @@
         SUPER.init_common_fields();
 
         var $doc = $(document);
+
+        $doc.on('focusin', function(e){
+
+            if(e.target.closest('.super-timepicker-dialog')){
+                // timepicker element was clicked
+                SUPER.focusForm(e.relatedTarget);
+                return true;
+            }
+            if(e.target.closest('.super-datepicker-dialog')){
+                // datepicker element was clicked
+                SUPER.focusForm(e.relatedTarget);
+                return true;
+            }
+            if(SUPER.lastTabKey){
+                if(e.target.tagName==='FORM' && e.target.closest('.super-form')){
+                    // Check if form is already focussed
+                    if(e.target.classList.contains('super-form-focussed')){
+                        // form is already focussed, just continue
+                        return true;
+                    }
+                    // Focus form
+                    // is a super form, lets focus it by adding super-form-focussed class
+                    SUPER.focusForm(e.target);
+                    SUPER.lastFocussedForm = e.target;
+                    var form = SUPER.lastFocussedForm;
+                    var visibleNodes = [];
+                    if(SUPER.lastTabKey==='tab'){
+                        e.target.blur();
+                        // the form became focus via regular tab, so we must focus the first field
+                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        for (i = 0; i < nodes.length; i++) {
+                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            visibleNodes.push(nodes[i]);
+                            break;
+                        }
+                        var field = visibleNodes[0];
+                        SUPER.focusNextTabField(e, field, form, field);
+                    }
+                    if(SUPER.lastTabKey==='shift+tab'){
+                        if(SUPER.firstFocussedField){
+                            // the form has focus, and the last focussed field was the first, so we do a regular shift+tab
+                            return true;
+                        }
+                        e.target.blur();
+                        // the form became focus via shift+tab, so we must focus the last field
+                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        for (i = 0; i < nodes.length; i++) {
+                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            visibleNodes.push(nodes[i]);
+                        }
+                        var field = visibleNodes[visibleNodes.length-1];
+                        SUPER.focusNextTabField(e, field, form, field);
+                    }
+                    e.preventDefault();
+                    return false;
+                }else{
+                    // Check if the element is part of the last focussed form
+                    if(SUPER.lastFocussedForm && e.target.closest('form') && e.target.closest('form')===SUPER.lastFocussedForm){
+                        // element is part of last focussed form, focus the element
+                        SUPER.focusForm(e.target);
+                        if(!e.target.classList.contains('super-placeholder')){
+                            SUPER.focusField(e.target);
+                        }
+                    }else{
+                        // element is not part of last focussed form, removing super-form-focussed class
+                        if(SUPER.lastFocussedForm){
+                            SUPER.lastFocussedForm.classList.remove('super-form-focussed');
+                            SUPER.lastFocussedForm.tabIndex = 0;
+                            // Make sure to remove focus/open classes
+                            nodes = SUPER.lastFocussedForm.querySelectorAll('.super-focus');
+                            for(i = 0; i < nodes.length; i++){
+                                nodes[i].classList.remove('super-focus');
+                                nodes[i].classList.remove('super-open');
+                            }
+                            nodes = SUPER.lastFocussedForm.querySelectorAll('.super-open');
+                            for(i = 0; i < nodes.length; i++){
+                                nodes[i].classList.remove('super-open');
+                            }
+                        }
+                    }
+                }
+            }else{
+                if(e.target.tagName==='FORM' && e.target.closest('.super-form')){
+                    SUPER.focusForm(e.target);
+                    SUPER.lastFocussedForm = e.target;
+                    SUPER.lastFocussedForm.tabIndex = -1;
+                }else{
+                    // Might be a field inside the form
+                    if(e.target.closest('.super-form')){
+                        SUPER.focusField(e.target);
+                        SUPER.focusForm(e.target.closest('form'));
+                    }
+                }
+            }
+        });
+        $doc.keydown(function(e){
+            SUPER.lastTabKey = undefined;
+            var i, nodes, total,
+                field,
+                form,
+                children,
+                dropdown,
+                dropdown_ui,
+                item,
+                current,
+                placeholder,
+                nextIndex,
+                submitButton,
+                nextSibling,
+                keyCode = e.keyCode || e.which;
+
+            // 32 = space
+            if (keyCode == 32) {
+                field = document.querySelector('.super-focus');
+                if(field){
+                    form = field.closest('.super-form');
+                    // If checkbox or radio, then we check/uncheck the current focussed item
+                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
+                        if(field.querySelector('.super-focus')){
+                            if(field.classList.contains('super-checkbox')){
+                                SUPER.simulateCheckboxItemClicked(e, field.querySelector('.super-focus'));
+                            }else{
+                                SUPER.simulateRadioItemClicked(e, field.querySelector('.super-focus'));
+                            }
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                    // If toggle
+                    if(field.classList.contains('super-toggle')){
+                        field.querySelector('.super-toggle-switch').click();
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }
+            
+            // 13 = enter
+            if (keyCode == 13) {
+                field = document.querySelector('.super-focus');
+                if(field){
+                    if(field.classList.contains('super-dropdown')){
+                        var item = field.querySelector('.super-focus');
+                        if(item) item.click();
+                        e.preventDefault();
+                        return false;
+                    }
+                    if(field.classList.contains('super-file')){
+                        field.querySelector('.super-fileupload-button').click();
+                        e.preventDefault();
+                        return false;
+                    }
+                    form = field.closest('.super-form');
+                    // @since 3.3.0 - Do not submit form if Enter is disabled
+                    if(form && form.dataset.disableEnter=='true'){
+                        e.preventDefault();
+                        return false;
+                    }
+                    if( !field.classList.contains('super-textarea') ) {
+                        if(!form.querySelector('.super-form-button.super-loading')){
+                            submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                            if(submitButton) {
+                                var args = {
+                                    el: undefined,
+                                    form: form,
+                                    submitButton: submitButton.parentNode,
+                                    validateMultipart: undefined,
+                                    event: e,
+                                    doingSubmit: true
+                                };
+                                SUPER.validate_form(args);
+                            }
+                        }
+                        e.preventDefault();
+                    }
+                }
+            }
+            // 37 = left arrow
+            // 38 = up arrow
+            // 39 = right arrow
+            // 40 = down arrow
+            if ( keyCode == 37 || keyCode == 38 || keyCode == 39 || keyCode == 40 ) {
+                field = document.querySelector('.super-focus');
+                if(field){
+                    // If toggle
+                    if(field.classList.contains('super-toggle')){
+                        field.querySelector('.super-toggle-switch').click();
+                        e.preventDefault();
+                        return false;
+                    }
+                    // Slider field
+                    if(field.classList.contains('super-slider')){
+                        var inputField = field.querySelector('.super-shortcode-field');
+                        var value = inputField.value;
+                        var steps = inputField.dataset.steps;
+                        if(keyCode == 37 || keyCode == 38){
+                            // Reverse
+                            var newValue = parseFloat(value)-parseFloat(steps);
+                        }else{
+                            var newValue = parseFloat(value)+parseFloat(steps);
+                        }
+                        SUPER.reposition_slider_amount_label(inputField, newValue);
+                        e.preventDefault();
+                        return false;
+                    }
+                    // Star rating
+                    if(field.classList.contains('super-rating')){
+                        // First find last active star
+                        var nodes = field.querySelectorAll('.super-active');
+                        if(keyCode == 37 || keyCode == 38){
+                            // Reverse
+                            if(nodes.length) nodes[nodes.length-2].click();
+                        }else{
+                            if(nodes.length){
+                                // If it isn't last star, set next star to active
+                                if(nodes[nodes.length-1].nextSibling && nodes[nodes.length-1].nextSibling.tagName==='I'){
+                                    nodes[nodes.length-1].nextSibling.click();
+                                }
+                            }else{
+                                // No active star yet
+                                field.querySelector('i.super-rating-star').click();
+                            }
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // Dropdown
+                    if(field.classList.contains('super-dropdown')){
+                        var all = field.querySelectorAll('.super-item:not(.super-placeholder)');
+                        var current = field.querySelector('.super-focus');
+                        if(!current){
+                            // If no item is focussed we grab the active item
+                            current = field.querySelector('.super-active');
+                        }
+                        if(keyCode == 37 || keyCode == 38){
+                            // go up (reverse)
+                            if(current){
+                                var prev = current.previousSibling;
+                                if(prev && !prev.classList.contains('super-placeholder')){
+                                    current.classList.remove('super-focus');
+                                    prev.classList.add('super-focus');
+                                }else{
+                                    // continue at bottom (last item)
+                                    all[0].classList.remove('super-focus');
+                                    all[all.length-1].classList.add('super-focus');
+                                }
+                            }else{
+                                // none selected yet, focus last
+                                all[all.length-1].classList.add('super-focus');
+                            }
+                        }else{
+                            // go down
+                            if(current){
+                                var next = current.nextSibling;
+                                if(next){
+                                    current.classList.remove('super-focus');
+                                    next.classList.add('super-focus');
+                                }else{
+                                    // continue at top (first item)
+                                    all[all.length-1].classList.remove('super-focus');
+                                    all[0].classList.add('super-focus');
+                                }
+                            }else{
+                                // none selected yet, focus first
+                                all[0].classList.add('super-focus');
+                            }
+                        }
+                        current = field.querySelector('.super-focus');
+                        current.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    // Checkbox / Radio
+                    if(field.classList.contains('super-checkbox') || field.classList.contains('super-radio')){
+                        if(field.querySelector('.super-focus')){
+                            current = field.querySelector('.super-item.super-focus');
+                            if(current){
+                                // 37 = left arrow
+                                // 38 = up arrow
+                                if(keyCode == 37 || keyCode == 38){
+                                    // prev
+                                    nextSibling = current.previousSibling;
+                                }else{
+                                    // next
+                                    nextSibling = current.nextSibling;
+                                }
+                                current.classList.remove('super-focus');
+                                if(nextSibling && nextSibling.classList.contains('super-item')){
+                                    nextSibling.classList.add('super-focus');
+                                    if(field.classList.contains('super-radio')){
+                                        nextSibling.click();
+                                    }
+                                }else{
+                                    // left, up
+                                    var innerNodes = field.querySelectorAll('.super-item');
+                                    if(keyCode == 37 || keyCode == 38){
+                                        innerNodes[innerNodes.length-1].classList.add('super-focus');
+                                        if(field.classList.contains('super-radio')){
+                                            innerNodes[innerNodes.length-1].click();
+                                        }
+                                    }else{
+                                        innerNodes[0].classList.add('super-focus');
+                                        if(field.classList.contains('super-radio')){
+                                            innerNodes[0].click();
+                                        }
+                                    }
+                                }
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+            }
+
+            // 37 = left arrow
+            // 39 = right arrow
+            // TABs left/right navigation through keyboard keys
+            if( (keyCode == 37) || (keyCode == 39) ) {
+                nodes = document.querySelectorAll('.super-form .super-tabs-contents');
+                for (i = 0; i < nodes.length; i++) {
+                    field = nodes[i].closest('.super-shortcode');
+                    if(!SUPER.has_hidden_parent(field, true)){ // Also include Multi-part for this check
+                        // Only if no focussed field is found
+                        // First get the currently active TAB
+                        var activeTab = field.querySelector('.super-tabs-contents > .super-tabs-content.super-active');
+                        var focusFound = activeTab.querySelectorAll('.super-focus').length;
+                        if(focusFound) continue; // Do not go to next/prev TAB if there is a focussed field
+                        // Only if not inside other TAB element
+                        if(!field.closest('.super-tabs-contents')){
+                            // Go left
+                            if( keyCode == 37 ) nodes[i].querySelector(':scope > .super-content-prev').click();
+                            // Go right
+                            if( keyCode == 39 ) nodes[i].querySelector(':scope > .super-content-next').click();
+                        }
+                    }
+                }
+            }
+
+            // 9 = TAB
+            if (keyCode == 9) {
+                SUPER.firstFocussedField = false;
+                SUPER.lastTabKey = 'tab';
+                if(e.shiftKey){
+                    SUPER.lastTabKey = 'shift+tab';
+                }
+                // Check if we have a focussed form
+                var form  = document.querySelector('.super-form-focussed')
+                if(form){
+                    // Check if we can find a currently focussed field
+                    field = form.querySelector('.super-field.super-focus');
+                    if(field){
+                        // Check if first field of form
+                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        var visibleNodes = [];
+                        for (i = 0; i < nodes.length; i++) {
+                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            visibleNodes.push(nodes[i]);
+                        }
+                        // if we shift+tab from second visible field to first visible field, we must set tabindex on form to -1
+                        if(field===visibleNodes[1]){
+                            if(SUPER.lastTabKey==='shift+tab'){
+                                form.tabIndex = -1;
+                                SUPER.focusNextTabField(e, field, form);
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                        if(field===visibleNodes[0]){
+                            // The current field is the first field in the form
+                            SUPER.firstFocussedField = true;
+                            if(SUPER.lastTabKey==='shift+tab'){
+                                // Unfocus current field
+                                SUPER.resetFocussedFields();
+                                return true;
+                            }
+                        }
+                        if(field===visibleNodes[visibleNodes.length-1]){
+                            // The current field is the last field in the form
+                            if(SUPER.lastTabKey==='tab'){
+                                // If this is the last field then we do a normal tab to get out of form focus
+                                // Unfocus current field
+                                field.classList.remove('super-focus');
+                                if( field.classList.contains('super-form-button') ) {
+                                    // Check if it's a button
+                                    SUPER.init_button_colors(field.querySelector('.super-button-wrap'));
+                                }else{
+                                    // If not a button
+                                    var innerNodes = field.querySelectorAll('.super-focus');
+                                    for ( i = 0; i < innerNodes.length; i++){
+                                        innerNodes[i].classList.remove('super-focus');
+                                    }
+                                }
+                                return true;
+                            }
+                        }
+
+                        SUPER.focusNextTabField(e, field, form);
+                        e.preventDefault();
+                        return false;
+                    }else{
+                        // No focussed field yet, let's focus the first field or last depending on tab, or shift+tab
+                        if(SUPER.lastTabKey==='tab'){
+                            SUPER.firstFocussedField = true;
+                            var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                            for (i = 0; i < nodes.length; i++) {
+                                if(SUPER.has_hidden_parent(nodes[i])) continue;
+                                SUPER.focusNextTabField(e, nodes[i], form, nodes[i]);
+                                e.preventDefault();
+                                return false;
+                                break;
+                            }
+                        }
+                        if(SUPER.lastTabKey==='shift+tab'){
+                            return true;
+                        }
+                    }
+                    e.preventDefault();
+                    return false;
+                }else{
+                    // no focussed form found, just let the TAB event execute
+                }
+            }
+        });
+
 
         // @SINCE 4.9.0 - TABS content next/prev switching
         $doc.on('click', '.super-content-prev, .super-content-next', function(e){
@@ -1048,8 +1654,14 @@
             }, $time);
         });
 
+        // Upon opening color picker
+        $doc.on('click', '.super-color', function(e){
+            SUPER.focusField(this);
+        });
+
         // @since 1.2.4
-        $doc.on('click', '.super-quantity .super-minus-button, .super-quantity .super-plus-button', function(){
+        $doc.on('click', '.super-quantity .super-minus-button, .super-quantity .super-plus-button', function(e){
+            SUPER.focusField(this);
             var $this = $(this),
                 $input_field = $this.parent().find('.super-shortcode-field'),
                 $min = parseFloat($input_field.data('minnumber')),
@@ -1088,6 +1700,7 @@
             }
             $this.toggleClass('super-active');
             $input_field.val($new_value);
+            SUPER.focusField(this);
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
 
@@ -1212,7 +1825,7 @@
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
 
             // Now reset field values to default
-            SUPER.init_clear_form(form, clone);
+            SUPER.init_clear_form({form: form, clone: clone});
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
             if($(clone).find('.super-shortcode[data-super-tab-index]').last().length){
@@ -1423,8 +2036,6 @@
                             condition.value = JSON.stringify(conditions);
                         }
                     }
-
-                    // SUPER.after_duplicate_column_fields_hook(el, $element, $counter, $column, $field_names, $field_labels);
                 }
             }
 
@@ -1468,7 +2079,7 @@
 
         // Delete dynamic column
         $doc.on('click', '.super-duplicate-column-fields .super-delete-duplicate', function(){
-            var i, nodes,
+            var i, nodes, found,
                 form = this.closest('.super-form'),
                 removedFields = {},
                 htmlFields,
@@ -1487,31 +2098,30 @@
             // Then convert it to an array and append the missing field names
             // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
             Object.keys(removedFields).forEach(function(index) {
-                htmlFields = $(form).find('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
-                htmlFields.each(function(){
-                    var $this = $(this);
-                    if(!$this.parents('.super-duplicate-column-fields:eq(0)').length){
-                        var $found = false;
-                        $.each(foundElements, function( index, el ){
-                            if(el.is($this)){
-                                $found = true;
+                nodes = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
+                for (i = 0; i < nodes.length; i++) {
+                    if(!nodes[i].closest('.super-duplicate-column-fields')){
+                        found = false;
+                        for(var x=0; x < foundElements.length; x++){
+                            if(foundElements[i] === nodes[i]){
+                                found = true;
+                                break;
                             }
-                        });
-                        if(!$found){
-                            foundElements.push($this);
+                        }
+                        if(!found){
+                            foundElements.push(nodes[i]);
                         }
                     }
-                });
+                }
             });
             // Update fields attribute and remove all {tags} which where removed/deleted from the DOM
             for (i = 0; i < foundElements.length; ++i) {
-                dataFields = foundElements[i][0].dataset.fields;
+                dataFields = foundElements[i].dataset.fields;
                 $.each(removedFields, function( index ) {
                     dataFields = dataFields.replace('{'+index+'}','');
                 });
-                foundElements[i][0].dataset.fields = dataFields;
+                foundElements[i].dataset.fields = dataFields;
             }
-            SUPER.init_replace_html_tags({el: undefined, form: form});
 
             // Because we must trigger field change, we can not delete the nodes just yet
             // Instead we make this dynamic column hidden, and then trigger field change hook
@@ -1532,6 +2142,9 @@
 
             // Now we can remove the dynamic column
             parent.remove();
+            
+            // Now we need to update the html elements
+            SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
 
             // Reload google maps
             SUPER.google_maps_api.initMaps({form: form});
@@ -1544,6 +2157,8 @@
         });
 
         $doc.on('click', '.super-fileupload-button', function(){
+            SUPER.focusForm(this);
+            SUPER.focusField(this);
             $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload').trigger('click');
         });
         $doc.on('click', '.super-fileupload-delete', function(){
@@ -1571,7 +2186,7 @@
                 regex,
                 stringBold,
                 wrapper = el.closest('.super-field-wrapper'),
-                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
+                nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item');
 
             if (autosuggestTimeout !== null) clearTimeout(autosuggestTimeout);
             autosuggestTimeout = setTimeout(function () {
@@ -1594,10 +2209,10 @@
                     }
                 }
                 [].forEach.call(itemsToShow, function (el) {
-                    el.style.display = 'flex';
+                    el.classList.add('super-match');
                 });
                 [].forEach.call(itemsToHide, function (el) {
-                    el.style.display = 'none';
+                    el.classList.remove('super-match');
                 });
                 if (itemsToShow.length>0) {
                     parent.classList.add('super-string-found');
@@ -1609,38 +2224,72 @@
         });
 
         // Focus dropdowns
-        $doc.on('click', '.super-dropdown-ui:not(.super-autosuggest-tags-list)', function(e){
+        $doc.on('click', '.super-dropdown-list:not(.super-autosuggest-tags-list)', function(e){
             var i, nodes, field = e.target.closest('.super-field');
-            if(e.target.classList.contains('super-placeholder')){
-                if(field.classList.contains('super-focus-dropdown')){
-                    field.classList.remove('super-focus');
-                    field.classList.remove('super-focus-dropdown');
-                    return false;
-                }
-            }
-            if(!field.classList.contains('super-focus-dropdown')){
+            SUPER.focusForm(field);
+            if(!field.classList.contains('super-open')){
                 nodes = document.querySelectorAll('.super-focus');
                 for(i=0; i<nodes.length; i++){
                     nodes[i].classList.remove('super-focus');
-                    nodes[i].classList.remove('super-focus-dropdown');
+                    nodes[i].classList.remove('super-open');
                 }
-                nodes = document.querySelectorAll('.super-focus-dropdown');
-                for(i=0; i<nodes.length; i++){
-                    nodes[i].classList.remove('super-focus-dropdown');
-                }
-                field.classList.add('super-focus');
-                field.classList.add('super-focus-dropdown');
+                field.classList.add('super-open');
+                SUPER.focusField(field);
                 var searchField = e.target.closest('.super-field-wrapper').querySelector('input[name="super-dropdown-search"]');
                 if(searchField) searchField.focus();
+            }else{
+                if(e.target.classList.contains('super-placeholder')){
+                    field.classList.remove('super-open');
+                }
             }
         });
         // Unfocus dropdown
         document.addEventListener('click', function(e){
-            if(!e.target.closest('.super-dropdown-ui') && !e.target.classList.contains('super-dropdown-ui')){
-                var nodes = document.querySelectorAll('.super-focus-dropdown');
-                for(var i = 0; i < nodes.length; i++){
-                    nodes[i].classList.remove('super-focus-dropdown');
+            if(e.target.closest('.super-multipart-step')) return true;
+            var i, nodes;
+            if(!e.target.closest('.super-form')){
+                // Timepicker list is outside form element because it is 
+                // appended dynamically at the bottom of the page
+                // hence we have to skip it explicitly
+                if(e.target.closest('.super-timepicker-dialog')){
+                    return true;
+                }
+                // If searching in dropdown, do not close it
+                if(e.target.closest('.super-dropdown-search')){
+                    return true;
+                }
+
+                nodes = document.querySelectorAll('.super-form-focussed');
+                for(i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-form-focussed');
+                    nodes[i].tabIndex = 0;
+                    SUPER.lastTabKey = undefined;
+                }
+                nodes = document.querySelectorAll('.super-focus');
+                for(i = 0; i < nodes.length; i++){
                     nodes[i].classList.remove('super-focus');
+                    nodes[i].classList.remove('super-open');
+                }
+                nodes = document.querySelectorAll('.super-open');
+                for(i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-open');
+                }
+                if(e.target.closest('.super-setting')){
+                    if(e.target.classList.contains('super-dropdown-placeholder')){
+                        e.target.parentNode.classList.add('super-open');
+                    }
+                }
+            }else{
+                if(!e.target.closest('.super-dropdown')){
+                    nodes = document.querySelectorAll('.super-dropdown.super-focus');
+                    for(i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-focus');
+                        nodes[i].classList.remove('super-open');
+                    }
+                    nodes = document.querySelectorAll('.super-dropdown.super-open');
+                    for(i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-open');
+                    }
                 }
             }
         });
@@ -1663,7 +2312,7 @@
             if( value==='' ) {
                 field.classList.remove('super-string-found');
             }else{
-                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item:not(.super-placeholder)');
+                nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item:not(.super-placeholder)');
                 for(i=0; i<nodes.length; i++){
                     stringValue = nodes[i].dataset.searchValue.toString();
                     stringValue_l = stringValue.toLowerCase();
@@ -1685,16 +2334,16 @@
                         stringBold = nodes[i].dataset.searchValue.replace(regex, replacement);
                         stringBold = stringBold.replace(/ /g, '\u00a0');
                         nodes[i].innerHTML = stringBold;
-                        nodes[i].classList.add('super-active');
+                        nodes[i].classList.add('super-focus');
                     }else{
                         nodes[i].innerHTML = stringValue;
-                        nodes[i].classList.remove('super-active');
+                        nodes[i].classList.remove('super-focus');
                     }
                 }
                 if( found===true ) {
-                    nodes = field.querySelectorAll('.super-dropdown-ui .super-item.super-active');
+                    nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-focus');
                     for(i=0; i<nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
+                        nodes[i].classList.remove('super-focus');
                     }
                     // If only one found, make it selected option by default
                     if(nodes.length===1){
@@ -1702,9 +2351,9 @@
                     }else{
                         field.classList.add('super-string-found');
                     }
-                    if(firstFound) firstFound.classList.add('super-active');
+                    if(firstFound) firstFound.classList.add('super-focus');
                     field.classList.add('super-focus');
-                    dropdownUI = $(field).find('.super-dropdown-ui');
+                    dropdownUI = $(field).find('.super-dropdown-list');
                     dropdownUI.scrollTop(dropdownUI.scrollTop() - dropdownUI.offset().top + $(firstFound).offset().top - 50); 
                 }else{
                     // Nothing found, clear timeout
@@ -1714,37 +2363,8 @@
             }
         });
 
-        // Focus fields
-        $doc.on('focus','.super-text .super-shortcode-field, .super-quantity .super-shortcode-field, .super-password .super-shortcode-field, .super-textarea .super-shortcode-field, .super-dropdown .super-shortcode-field, .super-countries .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field',function(){
-            SUPER.unsetFocus();
-            if( !$(this).hasClass('super-datepicker') && !$(this).hasClass('super-timepicker') ){
-                if($('.super-datepicker').length) {
-                    $('.super-datepicker').datepicker('hide');
-                }
-                if($('.super-timepicker').length) {
-                    $('.super-timepicker').timepicker('hide');
-                }
-            }else{
-                if( (!$(this).hasClass('super-focus')) && (!$(this).hasClass('super-datepicker')) ){
-                    if($(this).closest('.super-form').hasClass('super-window-first-responsiveness') || $(this).closest('.super-form').hasClass('super-window-second-responsiveness') ){
-                        $('html, body').animate({
-                            scrollTop: $(this).offset().top-20
-                        }, 0);
-                    }
-                }
-            }
-            $(this).parents('.super-field:eq(0)').addClass('super-focus'); 
-        });
-        $doc.on('blur','.super-text .super-shortcode-field, .super-quantity .super-shortcode-field, .super-password .super-shortcode-field, .super-textarea .super-shortcode-field, .super-dropdown .super-shortcode-field, .super-countries .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field',function(){
-            if( (!$(this).parents('.super-field:eq(0)').hasClass('super-wc-order-search')) && 
-                (!$(this).parents('.super-field:eq(0)').hasClass('super-auto-suggest')) && 
-                (!$(this).parents('.super-field:eq(0)').hasClass('super-keyword-tags')) ) {
-                SUPER.unsetFocus();
-            }
-        });
-    
         // On choosing item, populate form with data
-        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item', function(){
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(){
             var i, items,
                 wrapper = this.closest('.super-field-wrapper'),
                 parent = this.parentNode,
@@ -1761,10 +2381,10 @@
             field.classList.remove('super-focus');
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
-            wrapper.parentNode.classList.add('super-filled');
+            field.classList.add('super-filled');
             SUPER.after_field_change_blur_hook({el: wrapper.querySelector('.super-shortcode-field')});
             if(populate=='true'){
-                SUPER.populate_form_data_ajax({el: field});
+                SUPER.populate_form_data_ajax({el: field, clear: false});
             }
         });
         // On removing item
@@ -1779,13 +2399,13 @@
                 items[i].classList.remove('super-active');
             }
             wrapper.classList.remove('super-overlap');
-            wrapper.parentNode.classList.remove('super-filled');
+            field.classList.remove('super-filled');
             field.focus();
             SUPER.after_field_change_blur_hook({el: field});
         });
 
         // Update autosuggest
-        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-ui .super-item', function(){
+        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(){
             var $this = $(this);
             var $field = $this.parents('.super-field:eq(0)');
             var $parent = $this.parent();
@@ -1798,7 +2418,9 @@
         });
 
         // Update dropdown
-        $doc.on('click', '.super-dropdown-ui .super-item:not(.super-placeholder)', function(e){
+        $doc.on('click', '.super-dropdown .super-dropdown-list .super-item:not(.super-placeholder)', function(e){
+            SUPER.focusForm(this);
+            SUPER.focusField(this);
             var i, nodes,
                 form,
                 field = this.closest('.super-field'),
@@ -1815,70 +2437,162 @@
                 names,
                 values,
                 counter;
-
+            
             e.stopPropagation();
-            if(field.classList.contains('super-focus-dropdown')){
-                field.classList.remove('super-focus-dropdown');
-                form = SUPER.get_frontend_or_backend_form({el: this});
-                wrapper = this.closest('.super-field-wrapper');
-                input = wrapper.querySelector('.super-shortcode-field');
-                parent = this.closest('.super-dropdown-ui');
-                placeholder = parent.querySelector('.super-placeholder');
-                if(!parent.classList.contains('multiple')){
-                    value = this.dataset.value;
-                    name = this.innerHTML;
-                    placeholder.innerHTML = name;
-                    placeholder.dataset.value = value;
-                    placeholder.classList.add('super-active');
-                    nodes = parent.querySelectorAll('.super-item');
-                    for ( i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                    }
-                    this.classList.add('super-active');
-                    input.value = value;
-                    field.classList.remove('super-focus');
+            form = SUPER.get_frontend_or_backend_form({el: this});
+            wrapper = this.closest('.super-field-wrapper');
+            input = wrapper.querySelector('.super-shortcode-field');
+            parent = this.closest('.super-dropdown-list');
+            placeholder = parent.querySelector('.super-placeholder');
+            if(!parent.classList.contains('multiple')){
+                value = this.dataset.value;
+                name = this.innerHTML;
+                placeholder.innerHTML = name;
+                placeholder.dataset.value = value;
+                placeholder.classList.add('super-active');
+                nodes = parent.querySelectorAll('.super-item');
+                for ( i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-active');
+                }
+                this.classList.add('super-active');
+                if(input) input.value = value;
+                field.classList.remove('super-open');
+            }else{
+                max = (input.dataset.maxlength ? parseInt(input.dataset.maxlength, 10) : 1);
+                min = (input.dataset.minlength ? parseInt(input.dataset.minlength, 10) : 0);
+                total = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder').length;
+                if(this.classList.contains('super-active')){
+                    this.classList.remove('super-active');    
                 }else{
-                    max = input.dataset.maxlength;
-                    min = input.dataset.minlength;
-                    total = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder').length;
-                    if(this.classList.contains('super-active')){
-                        if(total>1){
-                            if(total <= min) return false;
-                            this.classList.remove('super-active');    
-                        }
+                    if(total >= max) return false;
+                    this.classList.add('super-active');    
+                    if(total+1 >= max){
+                        field.classList.remove('super-open');
+                    }
+                }
+                names = '';
+                values = '';
+                nodes = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder');
+                total = nodes.length;
+                counter = 1;
+                for ( i = 0; i < nodes.length; i++){
+                    if((total == counter) || (total==1)){
+                        names += nodes[i].innerHTML;
+                        values += nodes[i].dataset.value;
                     }else{
-                        if(total >= max) return false;
-                        this.classList.add('super-active');    
+                        names += nodes[i].innerHTML+',';
+                        values += nodes[i].dataset.value+',';
                     }
-                    names = '';
-                    values = '';
-                    nodes = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder');
-                    total = nodes.length;
-                    counter = 1;
-                    for ( i = 0; i < nodes.length; i++){
-                        if((total == counter) || (total==1)){
-                            names += nodes[i].innerHTML;
-                            values += nodes[i].dataset.value;
-                        }else{
-                            names += nodes[i].innerHTML+',';
-                            values += nodes[i].dataset.value+',';
-                        }
-                        counter++;
-                    }
-                    placeholder.innerHTML = names;
-                    input.value = values;
+                    counter++;
                 }
-                if(input.value===''){
-                    field.classList.remove('super-filled');
-                }else{
-                    field.classList.add('super-filled');
-                }
-                validation = input.dataset.validation;
-                if(typeof validation !== 'undefined' && validation !== false){
-                    SUPER.handle_validations({el: input, form: form, validation: validation});
-                }
-                SUPER.after_dropdown_change_hook({el: input});
+                placeholder.innerHTML = names;
+                if(input) input.value = values;
             }
+
+            // Switch to different language when clicked
+            if(field.closest('.super-i18n-switcher')){
+                var $this = $(this),
+                    $form = $this.closest('.super-form'),
+                    $form_id = $form.find('input[name="hidden_form_id"]').val(),
+                    $i18n = $this.attr('data-value');
+
+                $this.parent().children('.super-item').removeClass('super-active');
+                $this.addClass('super-active');
+                // Also move to placeholder
+                $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
+                
+                // Remove initialized class
+                $form.find('form').html('');
+                $form.removeClass('super-initialized');
+
+                // Get URL parameters
+                function getAllUrlParams(url) {
+                  var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+                  var obj = {};
+
+                  if (queryString) {
+                    queryString = queryString.split('#')[0];
+                    var arr = queryString.split('&');
+
+                    for (var i = 0; i < arr.length; i++) {
+                      var a = arr[i].split('=');
+                      var paramName = a[0];
+                      var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+
+                      paramName = paramName.toLowerCase();
+                      if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+
+                      if (paramName.match(/\[(\d+)?\]$/)) {
+                        var key = paramName.replace(/\[(\d+)?\]/, '');
+                        if (!obj[key]) obj[key] = [];
+
+                        if (paramName.match(/\[\d+\]$/)) {
+                          var index = /\[(\d+)\]/.exec(paramName)[1];
+                          obj[key][index] = paramValue;
+                        } else {
+                          obj[key].push(paramValue);
+                        }
+                      } else {
+                        if (!obj[paramName]) {
+                          obj[paramName] = paramValue;
+                        } else if (obj[paramName] && typeof obj[paramName] === 'string'){
+                          obj[paramName] = [obj[paramName]];
+                          obj[paramName].push(paramValue);
+                        } else {
+                          obj[paramName].push(paramValue);
+                        }
+                      }
+                    }
+                  }
+                  return obj;
+                }
+                var $queryString = window.location.search;
+                var $parameters = getAllUrlParams($queryString);
+                $.ajax({
+                    url: super_elements_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_language_switcher',
+                        form_id: $form_id,
+                        i18n: $i18n,
+                        parameters: $parameters
+                    },
+                    success: function (result) {
+                        var data = JSON.parse(result);
+                        if(data.rtl==true){
+                            $form.addClass('super-rtl');
+                        }else{
+                            $form.removeClass('super-rtl');
+                        }
+                        $form.find('form').html(data.html);
+                    },
+                    complete: function(){
+                        $form.addClass('super-initialized');
+                        SUPER.init_common_fields();
+                        SUPER.init_replace_html_tags({el: undefined, form: $form[0]});
+                        SUPER.init_super_responsive_form_fields({form: $form[0]});
+                        SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        // eslint-disable-next-line no-console
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert('Failed to process data, please try again');
+                    }
+                });
+                return true;
+            }
+
+            if(input && input.value===''){
+                field.classList.remove('super-filled');
+            }else{
+                field.classList.add('super-filled');
+            }
+            validation = input.dataset.validation;
+            if(typeof validation !== 'undefined' && validation !== false){
+                SUPER.handle_validations({el: input, form: form, validation: validation});
+            }
+
+            SUPER.after_field_change_blur_hook({el: input});
         });
 
         $doc.on('click','.super-back-to-top',function(){
@@ -1899,7 +2613,7 @@
             }
         });
 
-        $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
+        SUPER.simulateRadioItemClicked = function(e, el){
             var $form,$this,$parent,$field,$active,$validation;
             if( e.target.localName=='a' ) {
                 if(e.target.target=='_blank'){
@@ -1911,25 +2625,35 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                $form = SUPER.get_frontend_or_backend_form({el: this});
-                $this = this.querySelector('input[type="radio"]');
-                if(this.classList.contains('super-active')) return true;
-                $parent = this.closest('.super-field-wrapper');
+                var p = el.closest('.super-field');
+                $form = SUPER.get_frontend_or_backend_form({el: el});
+                SUPER.focusNextTabField(e, el, $form, el);
+                $this = el.querySelector('input[type="radio"]');
+                if(el.classList.contains('super-active')) return true;
+                $parent = el.closest('.super-field-wrapper');
                 $field = $parent.querySelector('.super-shortcode-field');
                 $active = $parent.querySelector('.super-item.super-active');
-                if($active) $active.classList.remove('super-active');
-                this.classList.add('super-active');
+                if($active){
+                    $active.classList.remove('super-active');
+                    $active.classList.remove('super-focus');
+                }
+                el.classList.add('super-active');
+                el.classList.add('super-focus');
+                el.closest('.super-field').classList.add('super-focus');
                 $validation = $field.dataset.validation;
                 $field.value = $this.value;
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                SUPER.after_radio_change_hook({el: $field});
+                SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
+        };
+        $doc.on('click', '.super-form .super-radio > .super-field-wrapper .super-item', function (e) {
+            return SUPER.simulateRadioItemClicked(e, this);
         });
 
-        $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper .super-item', function (e) {
+        SUPER.simulateCheckboxItemClicked = function(e, el){
             var $form,
                 $checked,
                 $value,
@@ -1950,20 +2674,23 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                $form = SUPER.get_frontend_or_backend_form({el: this});
-                $checkbox = this.querySelector('input[type="checkbox"]');
+                var p = el.closest('.super-field');
+                $form = SUPER.get_frontend_or_backend_form({el: el});
+                SUPER.focusNextTabField(e, el, $form, el);
+
+                $checkbox = el.querySelector('input[type="checkbox"]');
                 $parent = $checkbox.closest('.super-field-wrapper');
                 $field = $parent.querySelector('input[type="hidden"]');
                 $counter = 0;
                 $maxlength = $parent.querySelector('.super-shortcode-field').dataset.maxlength;
-                if(this.classList.contains('super-active')){
-                    this.classList.remove('super-active');
+                if(el.classList.contains('super-active')){
+                    el.classList.remove('super-active');
                 }else{
                     $checked = $parent.querySelectorAll('label.super-active');
                     if($checked.length >= $maxlength){
                         return false;
                     }
-                    this.classList.add('super-active');
+                    el.classList.add('super-active');
                 }
                 $checked = $parent.querySelectorAll('label.super-active');
                 $value = '';
@@ -1977,9 +2704,12 @@
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                SUPER.after_checkbox_change_hook({el: $field});
+                SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
+        };
+        $doc.on('click', '.super-form .super-checkbox > .super-field-wrapper .super-item', function (e) {
+            return SUPER.simulateCheckboxItemClicked(e, this);
         });
 
         $doc.on('change', '.super-form select', function () {
@@ -2000,7 +2730,7 @@
             if(typeof $validation !== 'undefined' && $validation !== false){
                 SUPER.handle_validations({el: this, form: $form, validation: $validation});
             }
-            SUPER.after_dropdown_change_hook({el: this});
+            SUPER.after_field_change_blur_hook({el: this});
         });
         
         $doc.on('mouseleave','.super-button .super-button-wrap',function(){
@@ -2011,65 +2741,6 @@
             SUPER.init_button_hover_colors( this.parentNode );
         });
         
-
-        function super_focus_first_tab_index_field(e, form, multipart) {
-            var fields,highestIndex,lowestIndex,index,next,
-                disableAutofocus = multipart.dataset.disableAutofocus;
-
-            if( typeof disableAutofocus === 'undefined' ) {
-                fields = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index]');
-                highestIndex = 0;
-                fields.each(function(){
-                    index = parseFloat($(this).attr('data-super-tab-index'));
-                    if( index > highestIndex ) {
-                        highestIndex = index;
-                    }
-                });
-                lowestIndex = highestIndex;
-                fields.each(function(){
-                    index = parseFloat($(this).attr('data-super-tab-index'));
-                    if( index < lowestIndex ) {
-                        lowestIndex = index;
-                    }
-                });
-                next = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index="'+lowestIndex+'"]');
-                SUPER.super_focus_next_tab_field(e, next[0], form, next[0]);
-            }
-        }
-
-        // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-        function super_skip_multipart(el, form, index, activeIndex){
-            var i, nodes, multipart, field, skip = true;
-            
-            nodes = form.querySelectorAll('.super-multipart.super-active .super-field:not(.super-button)');
-            for( i = 0; i < nodes.length; i++ ) {
-                field = nodes[i].querySelector('.super-shortcode-field');
-                if(field){ // This is a field
-                    if(!SUPER.has_hidden_parent(field)) skip = false;
-                }else{ // This is either a HTML element or something else without a field
-                    if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
-                }
-            }
-            if(skip){ // Only skip if no visible fields where to be found
-                multipart = form.querySelector('.super-multipart.super-active');
-                if( (el.classList.contains('super-prev-multipart')) || (el.classList.contains('super-next-multipart')) ){
-                    if(el.classList.contains('super-prev-multipart')){
-                        if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
-                    }else{
-                        if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
-                    }
-                }else{
-                    if(index < activeIndex){
-                        if(multipart.querySelector('.super-prev-multipart')) multipart.querySelector('.super-prev-multipart').click();
-                    }else{
-                        if(multipart.querySelector('.super-next-multipart')) multipart.querySelector('.super-next-multipart').click();
-                    }
-                }
-            }
-            return skip;
-        }
-
-
         // Multi Part Columns
         $doc.on('click','.super-multipart-step',function(e){
             var i, nodes,
@@ -2117,154 +2788,26 @@
             el.classList.add('super-active');
 
             // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            skip = super_skip_multipart(el, form, index, activeIndex);
+            skip = SUPER.skipMultipart(el, form, index, activeIndex);
             if(skip===true) return false;
 
             // Focus first TAB index field in next multi-part
-            super_focus_first_tab_index_field(e, form, multipart);
+            SUPER.focusFirstTabIndexField(e, form, multipart);
 
             // Update HTML element to reflect changes e.g foreach() and if statements
             SUPER.init_replace_html_tags({form: form});
+
+            // Required for toggle field and other possible elements to rerender proper size
+            SUPER.init_super_responsive_form_fields({form: form});
         });
         
-        // @since 4.7.0 - translation language switcher
-        // Open/close dropdown
-        $doc.on('click', '.super-i18n-switcher .super-dropdown', function(){
-            $(this).toggleClass('super-active');
-        });      
-        // Close when moved outside
-        $doc.on('mouseleave', '.super-i18n-switcher .super-dropdown', function(){
-            $(this).removeClass('super-active');
-        });
-        // Switch to different language when clicked
-        $doc.on('click', '.super-i18n-switcher .super-dropdown-items > .super-item', function(){
-            var $this = $(this),
-                $form = $this.closest('.super-form'),
-                $form_id = $form.find('input[name="hidden_form_id"]').val(),
-                $i18n = $this.attr('data-value');
-
-            $this.parent().children('.super-item').removeClass('super-active');
-            $this.addClass('super-active');
-            // Also move to placeholder
-            $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
-            
-            // Remove initialized class
-            $form.find('form').html('');
-            $form.removeClass('super-initialized');
-            $.ajax({
-                url: super_elements_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_language_switcher',
-                    form_id: $form_id,
-                    i18n: $i18n
-                },
-                success: function (result) {
-                    var data = JSON.parse(result);
-                    if(data.rtl==true){
-                        $form.addClass('super-rtl');
-                    }else{
-                        $form.removeClass('super-rtl');
-                    }
-                    $form.find('form').html(data.html);
-                },
-                complete: function(){
-                    $form.addClass('super-initialized');
-                    SUPER.init_common_fields();
-                    SUPER.init_replace_html_tags({el: undefined, form: $form[0]});
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    // eslint-disable-next-line no-console
-                    console.log(xhr, ajaxOptions, thrownError);
-                    alert('Failed to process data, please try again');
-                }
-            });
-            
-        });
-
-
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
-            var i,nodes,
-                index,
-                el = this,
-                form = el.closest('.super-form'),
-                form_id = form.querySelector('input[name="hidden_form_id"]').value,
-                total = form.querySelectorAll('.super-multipart').length,
-                current = form.querySelector('.super-multipart-step.super-active'),
-                children = Array.prototype.slice.call( current.parentNode.children ),
-                current_step = children.indexOf(current),
-                validate,
-                result,
-                skip,
-                progress,
-                multipart;
-
-            if(el.classList.contains('super-prev-multipart')){
-                if(current_step>0){
-                    nodes = form.querySelectorAll('.super-multipart');
-                    for( i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                        if(i==(current_step-1)) nodes[i].classList.add('super-active');
-                    }
-                    nodes = form.querySelectorAll('.super-multipart-step');
-                    for( i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                        if(i==(current_step-1)) nodes[i].classList.add('super-active');
-                    }
-                    index = current_step-1;
-                }
+            if(this.classList.contains('super-prev-multipart')){
+                SUPER.switchMultipart(e, this, 'prev');
             }else{
-                // @since 2.0.0 - validate multi-part before going to next step
-                validate = form.querySelector('.super-multipart.super-active').dataset.validate;
-                if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: form.querySelector('.super-multipart.super-active'), submitButton: el, validateMultipart: true, event: e});
-                    if(result!==true) return false;
-                }
-                if(total>current_step+1){
-                    nodes = form.querySelectorAll('.super-multipart');
-                    for( i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                        if(i==(current_step+1)) nodes[i].classList.add('super-active');
-                    }
-                    nodes = form.querySelectorAll('.super-multipart-step');
-                    for( i = 0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-active');
-                        if(i==(current_step+1)) nodes[i].classList.add('super-active');
-                    }
-                    index = current_step+1;
-                }
+                SUPER.switchMultipart(e, this, 'next');
             }
-            window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
-
-            // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            skip = super_skip_multipart(el, form);
-            if(skip===true) return false;
-
-            progress = 100 / total;
-            progress = progress * (index+1);
-            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
-            index = 0;
-           
-            nodes = form.querySelectorAll('.super-multipart');
-            for( i = 0; i < nodes.length; i++){
-                if(!nodes[i].querySelector('.super-error-active')){
-                    form.querySelectorAll('.super-multipart-steps .super-multipart-step')[index].classList.remove('super-error');
-                }
-                index++;
-            }
-            
-            // @since 4.3.0 - disable scrolling for multi-part prev/next
-            multipart = form.querySelector('.super-multipart.super-active');
-            if(typeof multipart.dataset.disableScrollPn === 'undefined'){
-                $('html, body').animate({
-                    scrollTop: $(form).offset().top - 30
-                }, 500);
-            }
-
-            // Focus first TAB index field in next multi-part
-            super_focus_first_tab_index_field(e, form, multipart);
-
         });
 
         // @since 4.9.3 - Adaptive Placeholders
@@ -2274,12 +2817,8 @@
             if(!input) continue;
 
             input.onclick = input.onfocus = function () {
-                this.closest('.super-shortcode').classList.add('super-focus');
             }
             input.onblur = function () {
-                if(!this.closest('.super-shortcode').classList.contains('super-string-found')){
-                    this.closest('.super-shortcode').classList.remove('super-focus');
-                }
             }
             input.addEventListener('keyup', function () {
                 var placeholder = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholder;
@@ -2287,7 +2826,7 @@
                 var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
                 
                 var filled = true,
-                    parent = this.closest('.super-shortcode');
+                    parent = this.closest('.super-field');
                 if(parent.classList.contains('super-currency')){
                     if($(this).maskMoney('unmasked')[0]===0){
                         filled = false;
@@ -2308,7 +2847,7 @@
                 var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
                 var filled = true,
                     input = event.target,
-                    parent = event.target.closest('.super-shortcode');
+                    parent = event.target.closest('.super-field');
 
                 if(parent.classList.contains('super-currency')){
                     if($(input).maskMoney('unmasked')[0]===0){
@@ -2331,374 +2870,370 @@
         }
     });
 
-})(jQuery);
 
-(function () {
-    "use strict"; // Minimize mutable state :)
-    // Define all the events for our elements
-    var app = {};
-    // querySelector shorthand
-    app.q = function (s) {
-        return document.querySelector(s);
-    };
-    // querySelectorAll shorthand
-    app.qa = function (s) {
-        return document.querySelectorAll(s);
-    };
-    // querySelectorAll based on parent shorthand
-    app.qap = function (s, p) {
-        // If no parent provided, default to Top element
-        if (typeof p === 'undefined') p = app.wrapper;
-        if (typeof p === 'string') p = app.wrapper.querySelector(p);
-        return p.querySelectorAll(s);
-    };
-    // Remove all elements
-    app.remove = function (e) {
-        if (typeof e === 'undefined' || !e) return true;
-        if (e.length) {
-            for (var i = 0; i < e.length; i++) {
-                e[i].remove();
-            }
-        } else {
-            e.remove();
-        }
-        return true;
-    };
-    // Remove class from elements
-    app.removeClass = function (elements, class_name) {
-        if (elements.length === 0) return true;
-        if (elements.length) {
-            for (var key = 0; key < elements.length; key++) {
-                elements[key].classList.remove(class_name);
-            }
-        } else {
-            elements.classList.remove(class_name);
-        }
-    };
-    // Add class from elements
-    app.addClass = function (elements, class_name) {
-        if (elements.length === 0) return true;
-        if (elements.length) {
-            for (var key = 0; key < elements.length; key++) {
-                elements[key].classList.add(class_name);
-            }
-        } else {
-            elements.classList.add(class_name);
-        }
-    };
-    // Get index of element based on parent node
-    app.index = function (node, class_name) {
-        var index = 0;
-        while (node.previousElementSibling) {
-            node = node.previousElementSibling;
-            // Based on specified class name
-            if (class_name) {
-                if (node.classList.contains(class_name)) {
-                    index++;
+    (function () {
+        "use strict"; // Minimize mutable state :)
+        // Define all the events for our elements
+        var app = {};
+        // querySelector shorthand
+        app.q = function (s) {
+            return document.querySelector(s);
+        };
+        // querySelectorAll shorthand
+        app.qa = function (s) {
+            return document.querySelectorAll(s);
+        };
+        // querySelectorAll based on parent shorthand
+        app.qap = function (s, p) {
+            // If no parent provided, default to Top element
+            if (typeof p === 'undefined') p = app.wrapper;
+            if (typeof p === 'string') p = app.wrapper.querySelector(p);
+            return p.querySelectorAll(s);
+        };
+        // Remove all elements
+        app.remove = function (e) {
+            if (typeof e === 'undefined' || !e) return true;
+            if (e.length) {
+                for (var i = 0; i < e.length; i++) {
+                    e[i].remove();
                 }
             } else {
-                index++;
+                e.remove();
             }
-
-        }
-        return index;
-    };
-    // Check if clicked inside element, by looping over it's "path"
-    app.inPath = function (e, class_name) {
-        if (!e.path) return false;
-        var found = false;
-        Object.keys(e.path).forEach(function (key) {
-            if (e.path[key].classList) {
-                if (e.path[key].classList.contains(class_name)) {
-                    found = true;
+            return true;
+        };
+        // Remove class from elements
+        app.removeClass = function (elements, class_name) {
+            if (elements.length === 0) return true;
+            if (elements.length) {
+                for (var key = 0; key < elements.length; key++) {
+                    elements[key].classList.remove(class_name);
                 }
+            } else {
+                elements.classList.remove(class_name);
             }
-        });
-        return found;
-    };
+        };
+        // Add class from elements
+        app.addClass = function (elements, class_name) {
+            if (elements.length === 0) return true;
+            if (elements.length) {
+                for (var key = 0; key < elements.length; key++) {
+                    elements[key].classList.add(class_name);
+                }
+            } else {
+                elements.classList.add(class_name);
+            }
+        };
+        // Get index of element based on parent node
+        app.index = function (node, class_name) {
+            var index = 0;
+            while (node.previousElementSibling) {
+                node = node.previousElementSibling;
+                // Based on specified class name
+                if (class_name) {
+                    if (node.classList.contains(class_name)) {
+                        index++;
+                    }
+                } else {
+                    index++;
+                }
 
-    app.focusField = function(e, target){
-        app.removeClass(app.qa('.super-focus'), 'super-focus');
-        target.closest('.super-field').classList.add('super-focus');
-    };
-    app.unfocusField = function(e, target){
-        app.removeClass(app.qa('.super-focus'), 'super-focus');
-        target.closest('.super-field').classList.remove('super-focus');
-    };
-    app.autosuggestTagsTimeout = null;
-    app.keywords = {
-        updateValue: function(field, tagsContainer, keywordField, filterField, wrapper){
-            var i, values=[], nodes = wrapper.querySelectorAll('.super-autosuggest-tags > div > span');
-            for(i=0; i<nodes.length; i++){
-                values.push(nodes[i].dataset.value);
             }
-            keywordField.value = values.join(',');
-            filterField.value = '';
-            filterField.focus();
-            if(!app.qap('span', tagsContainer).length){
-                field.classList.remove('super-filled');
-            }else{
-                field.classList.add('super-filled');
-            }
-            // Scroll to bottom of tags container
-            tagsContainer.scrollTop = tagsContainer.scrollHeight;
-            SUPER.after_field_change_blur_hook({el: keywordField});
-        },
-        add: function(e, target){
-            var i,
-                html = '',
-                field = target.closest('.super-field'),
-                value = target.dataset.value, // first_choice
-                searchValue = target.dataset.searchValue, // First choice
-                wrapper = target.closest('.super-field-wrapper'),
-                keywordField = wrapper.querySelector('.super-shortcode-field'),
-                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
-                tags = tagsContainer.querySelectorAll('.super-keyword-tag'),
-                filterField = wrapper.querySelector('.super-keyword-filter'),
-                maxlength = parseInt(keywordField.dataset.maxlength, 10),
-                existingTags = [];
+            return index;
+        };
+        // Check if clicked inside element, by looping over it's "path"
+        app.inPath = function (e, class_name) {
+            if (!e.path) return false;
+            var found = false;
+            Object.keys(e.path).forEach(function (key) {
+                if (e.path[key].classList) {
+                    if (e.path[key].classList.contains(class_name)) {
+                        found = true;
+                    }
+                }
+            });
+            return found;
+        };
+        // Focus field
+        app.focusField = function(e, target){
+        };
+        // Unfocus field
+        app.unfocusField = function(e, target){
+        };
 
-            // Check if limit is reached
-            if( maxlength!==0 && tags.length>=maxlength ) {
-                field.classList.add('super-filled');
+        // Keyword element functions
+        app.autosuggestTagsTimeout = null;
+        app.keywords = {
+            updateValue: function(field, tagsContainer, keywordField, filterField, wrapper){
+                var i, values=[], nodes = wrapper.querySelectorAll('.super-autosuggest-tags > div > span');
+                for(i=0; i<nodes.length; i++){
+                    values.push(nodes[i].dataset.value);
+                }
+                keywordField.value = values.join(',');
+                filterField.value = '';
+                filterField.focus();
+                if(!app.qap('span', tagsContainer).length){
+                    field.classList.remove('super-filled');
+                }else{
+                    field.classList.add('super-filled');
+                }
+                // Scroll to bottom of tags container
+                tagsContainer.scrollTop = tagsContainer.scrollHeight;
+                SUPER.after_field_change_blur_hook({el: keywordField});
+            },
+            add: function(e, target){
+                var i,
+                    html = '',
+                    field = target.closest('.super-field'),
+                    value = target.dataset.value, // first_choice
+                    searchValue = target.dataset.searchValue, // First choice
+                    wrapper = target.closest('.super-field-wrapper'),
+                    keywordField = wrapper.querySelector('.super-shortcode-field'),
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                    tags = tagsContainer.querySelectorAll('.super-keyword-tag'),
+                    filterField = wrapper.querySelector('.super-keyword-filter'),
+                    maxlength = parseInt(keywordField.dataset.maxlength, 10),
+                    existingTags = [];
+
+                // Check if limit is reached
+                if( maxlength!==0 && tags.length>=maxlength ) {
+                    field.classList.add('super-filled');
+                    field.classList.remove('super-string-found');
+                    field.classList.add('super-focus');
+                    app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
+                    return false; 
+                }
+                // Loop over allready existing tags and add their value to an array
+                for(i=0; i < tags.length; i++){
+                    existingTags.push(tags[i].dataset.value);
+                }
+                // if this tag doesn't exists yet
+                if(existingTags.indexOf(value)===-1){
+                    html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+                    tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                    target.classList.add('super-active');
+                }
+                if(!app.qap('span', tagsContainer).length){
+                    field.classList.remove('super-filled');
+                }else{
+                    field.classList.add('super-filled');
+                }
                 field.classList.remove('super-string-found');
                 field.classList.add('super-focus');
                 app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
-                return false; 
-            }
-            // Loop over allready existing tags and add their value to an array
-            for(i=0; i < tags.length; i++){
-                existingTags.push(tags[i].dataset.value);
-            }
-            // if this tag doesn't exists yet
-            if(existingTags.indexOf(value)===-1){
-                html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
-                tagsContainer.innerHTML = tagsContainer.innerHTML + html;
-                target.classList.add('super-active');
-            }
-            if(!app.qap('span', tagsContainer).length){
-                field.classList.remove('super-filled');
-            }else{
-                field.classList.add('super-filled');
-            }
-            field.classList.remove('super-string-found');
-            field.classList.add('super-focus');
-            app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
-        },
-        remove: function(e, target){
-            var wrapper = target.closest('.super-field-wrapper'),
-                keywordField = wrapper.querySelector('.super-shortcode-field'),
-                filterField = wrapper.querySelector('.super-keyword-filter'),
-                field = target.closest('.super-field'),
-                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div');
+            },
+            remove: function(e, target){
+                var wrapper = target.closest('.super-field-wrapper'),
+                    keywordField = wrapper.querySelector('.super-shortcode-field'),
+                    filterField = wrapper.querySelector('.super-keyword-filter'),
+                    field = target.closest('.super-field'),
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div');
 
-            target.remove();
-            filterField.focus();
-            app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
-        },
-        filter: function(e, target){
-            // On keyup filter any keyword tags from the list
-            var i,
-                parent = target.closest('.super-field'),
-                counter = 0,
-                html = '',
-                tag, tags,
-                duplicates = {},
-                method = target.dataset.method,
-                splitMethod = target.dataset.splitMethod,
-                itemsToShow = [],
-                itemsToHide = [],
-                value,
-                text = '',
-                searchValue,
-                regex,
-                stringBold,
-                wrapper = target.closest('.super-field-wrapper'),
-                field = target.closest('.super-field'),
-                tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
-                keywordField = wrapper.querySelector('.super-shortcode-field'),
-                max = (keywordField.dataset.maxlength ? parseInt(keywordField.dataset.maxlength, 10) : 0),
-                nodes = wrapper.querySelectorAll('.super-dropdown-ui .super-item');
+                target.remove();
+                filterField.focus();
+                app.keywords.updateValue(field, tagsContainer, keywordField, filterField, wrapper);
+            },
+            filter: function(e, target){
+                // On keyup filter any keyword tags from the list
+                var i,
+                    parent = target.closest('.super-field'),
+                    counter = 0,
+                    html = '',
+                    tag, tags,
+                    duplicates = {},
+                    method = target.dataset.method,
+                    splitMethod = target.dataset.splitMethod,
+                    itemsToShow = [],
+                    itemsToHide = [],
+                    value,
+                    text = '',
+                    searchValue,
+                    regex,
+                    stringBold,
+                    wrapper = target.closest('.super-field-wrapper'),
+                    field = target.closest('.super-field'),
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                    keywordField = wrapper.querySelector('.super-shortcode-field'),
+                    max = (keywordField.dataset.maxlength ? parseInt(keywordField.dataset.maxlength, 10) : 0),
+                    nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item');
 
-            if(method=='free'){
-                if(splitMethod=='both') tags = target.value.split(/[ ,]+/);
-                if(splitMethod=='comma') tags = target.value.split(/[,]+/);
-                if(splitMethod=='space') tags = target.value.split(/[ ]+/);
-                if(tags.length>1){
-                    tag = tags[0];
-                    // First check if already exists
-                    if(keywordField.value.split(',').indexOf(tag)===-1){
-                        if(typeof duplicates[tag]==='undefined'){
-                            counter++;
-                            if(max===0 || counter<=max){
-                                if(splitMethod!='comma') tag = tag.replace(/ /g,'');
-                                if( (tag!=='') && (tag.length>1) ) {
-                                    html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
+                if(method=='free'){
+                    if(splitMethod=='both') tags = target.value.split(/[ ,]+/);
+                    if(splitMethod=='comma') tags = target.value.split(/[,]+/);
+                    if(splitMethod=='space') tags = target.value.split(/[ ]+/);
+                    if(tags.length>1){
+                        tag = tags[0];
+                        // First check if already exists
+                        if(keywordField.value.split(',').indexOf(tag)===-1){
+                            if(typeof duplicates[tag]==='undefined'){
+                                counter++;
+                                if(max===0 || counter<=max){
+                                    if(splitMethod!='comma') tag = tag.replace(/ /g,'');
+                                    if( (tag!=='') && (tag.length>1) ) {
+                                        html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
+                                    }
                                 }
                             }
+                            duplicates[tag] = tag;
+                            tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                         }
-                        duplicates[tag] = tag;
-                        tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                        app.keywords.updateValue(field, tagsContainer, keywordField, target, wrapper);
                     }
-                    app.keywords.updateValue(field, tagsContainer, keywordField, target, wrapper);
+                }else{
+                    if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
+                    app.autosuggestTagsTimeout = setTimeout(function () {
+                        value = target.value.toString();
+                        if (value === '') {
+                            parent.classList.remove('super-string-found');
+                            parent.classList.remove('super-no-match');
+                            return false;
+                        }
+                        for (i = 0; i < nodes.length; i++) {
+                            searchValue = nodes[i].dataset.searchValue.toString();
+                            text = searchValue.split(';')[0];
+                            if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                                itemsToShow.push(nodes[i]);
+                                regex = RegExp([value].join('|'), 'gi');
+                                stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
+                                stringBold = stringBold.replace(/\r?\n|\r/g, "");
+                                nodes[i].innerHTML = stringBold;
+                            }else{
+                                itemsToHide.push(nodes[i]);
+                            }
+                        }
+                        [].forEach.call(itemsToShow, function (el) {
+                            el.style.display = 'inline-block';
+                            el.classList.add('super-active');
+                        });
+                        [].forEach.call(itemsToHide, function (el) {
+                            el.style.display = 'none';
+                            el.classList.remove('super-active');
+                        });
+                        if (itemsToShow.length>0) {
+                            parent.classList.add('super-string-found');
+                            parent.classList.add('super-focus');
+                            parent.classList.remove('super-no-match');
+                        } else {
+                            parent.classList.remove('super-string-found');
+                            parent.classList.add('super-no-match');
+                        }
+                    }, 250);
                 }
-            }else{
-                if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
-                app.autosuggestTagsTimeout = setTimeout(function () {
-                    value = target.value.toString();
-                    if (value === '') {
-                        parent.classList.remove('super-string-found');
-                        return false;
-                    }
-                    for (i = 0; i < nodes.length; i++) {
-                        searchValue = nodes[i].dataset.searchValue.toString();
-                        text = searchValue.split(';')[0];
-                        if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
-                            itemsToShow.push(nodes[i]);
-                            regex = RegExp([value].join('|'), 'gi');
-                            stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
-                            stringBold = stringBold.replace(/\r?\n|\r/g, "");
-                            nodes[i].innerHTML = stringBold;
-                        }else{
-                            itemsToHide.push(nodes[i]);
-                        }
-                    }
-                    [].forEach.call(itemsToShow, function (el) {
-                        el.style.display = 'inline-block';
-                        el.classList.add('super-active');
-                    });
-                    [].forEach.call(itemsToHide, function (el) {
-                        el.style.display = 'none';
-                        el.classList.remove('super-active');
-                    });
-                    if (itemsToShow.length>0) {
-                        parent.classList.add('super-string-found');
-                        parent.classList.add('super-focus');
-                    } else {
-                        parent.classList.remove('super-string-found');
-                    }
-                }, 250);
             }
         }
-    }
 
-    // Trigger Events
-    app.triggerEvent = function (e, target, eventType) {
-        // Get element actions, and check for multiple event methods
-        var actions, _event, _function, _currentFunc, sfevents;
-        try {
-            sfevents = JSON.parse(target.attributes.sfevents.value);
-        } catch (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
-            alert(error);
-        }
-        Object.keys(sfevents).forEach(function (key) {
-            // Check if contains comma, meaning it has multiple event methods for this function
-            _event = key.split(',');
-            if (_event.length > 1) {
-                // Seems it contains multiple events, so let's split them up and create a new sfevents object
-                Object.keys(_event).forEach(function (e_key) {
-                    sfevents[_event[e_key]] = sfevents[key];
-                });
-                delete sfevents[key];
+        // Trigger Events
+        app.triggerEvent = function (e, target, eventType) {
+            // Get element actions, and check for multiple event methods
+            var actions, _event, _function, _currentFunc, sfevents;
+            try {
+                sfevents = JSON.parse(target.attributes.sfevents.value);
+            } catch (error) {
+                // eslint-disable-next-line no-console
+                console.log(error);
+                alert(error);
             }
-        });
-        actions = sfevents[eventType];
-        if (actions) {
-            if(typeof actions === 'string'){
-                _currentFunc = app;
-                if(actions.split('.').length>1){
-                    _function = actions.split('.');
-                    for (var i = 0; i < _function.length; i++) {
-                        // Skip if function name is 'app'
-                        if (_function[i] == 'app') continue;
-                        if (_currentFunc[_function[i]]) {
-                            _currentFunc = _currentFunc[_function[i]];
+            Object.keys(sfevents).forEach(function (key) {
+                // Check if contains comma, meaning it has multiple event methods for this function
+                _event = key.split(',');
+                if (_event.length > 1) {
+                    // Seems it contains multiple events, so let's split them up and create a new sfevents object
+                    Object.keys(_event).forEach(function (e_key) {
+                        sfevents[_event[e_key]] = sfevents[key];
+                    });
+                    delete sfevents[key];
+                }
+            });
+            actions = sfevents[eventType];
+            if (actions) {
+                if(typeof actions === 'string'){
+                    _currentFunc = app;
+                    if(actions.split('.').length>1){
+                        _function = actions.split('.');
+                        for (var i = 0; i < _function.length; i++) {
+                            // Skip if function name is 'app'
+                            if (_function[i] == 'app') continue;
+                            if (_currentFunc[_function[i]]) {
+                                _currentFunc = _currentFunc[_function[i]];
+                            } else {
+                                // eslint-disable-next-line no-console
+                                console.log('Function ' + actions + '() is undefined!');
+                                break;
+                            }
+                        }
+                        _currentFunc(e, target, eventType, actions);
+                    }else{
+                        if (_currentFunc[actions]) {
+                            _currentFunc = _currentFunc[actions];
                         } else {
                             // eslint-disable-next-line no-console
                             console.log('Function ' + actions + '() is undefined!');
-                            break;
                         }
+                        _currentFunc(e, target, eventType, actions);
                     }
-                    _currentFunc(e, target, eventType, actions);
                 }else{
-                    if (_currentFunc[actions]) {
-                        _currentFunc = _currentFunc[actions];
-                    } else {
-                        // eslint-disable-next-line no-console
-                        console.log('Function ' + actions + '() is undefined!');
-                    }
-                    _currentFunc(e, target, eventType, actions);
-                }
-            }else{
-                Object.keys(actions).forEach(function (key) { // key = function name
-                    _currentFunc = app;
-                    _function = key.split('.');
-                    for (var i = 0; i < _function.length; i++) {
-                        // Skip if function name is 'app'
-                        if (_function[i] == 'app') continue;
-                        if (_currentFunc[_function[i]]) {
-                            _currentFunc = _currentFunc[_function[i]];
-                        } else {
-                            // eslint-disable-next-line no-console
-                            console.log('Function ' + key + '() is undefined!');
-                            break;
+                    Object.keys(actions).forEach(function (key) { // key = function name
+                        _currentFunc = app;
+                        _function = key.split('.');
+                        for (var i = 0; i < _function.length; i++) {
+                            // Skip if function name is 'app'
+                            if (_function[i] == 'app') continue;
+                            if (_currentFunc[_function[i]]) {
+                                _currentFunc = _currentFunc[_function[i]];
+                            } else {
+                                // eslint-disable-next-line no-console
+                                console.log('Function ' + key + '() is undefined!');
+                                break;
+                            }
                         }
-                    }
-                    _currentFunc(e, target, eventType, actions[key]);
-                });
-            }
-        }
-    };
-    // Equivalent for jQuery's .on() function
-    app.delegate = function (element, event, elements, callback) {
-        element.addEventListener(event, function (event) {
-            var target = event.target;
-            while (target && target !== this) {
-                if (target.matches(elements)) {
-                    callback(event, target);
-                    return false;
-                }
-                target = target.parentNode;
-            }
-        });
-    };
-    // Iterate over all events, and listen to any event being triggered
-    app.events = {
-        click: [
-            'body',
-            '.super-keyword-filter',
-            '.super-keyword-tags .super-item',
-            '.super-keyword-tag'
-        ],
-        mousedown: [
-            '.super-keyword-filter'
-        ],
-        onblur: [
-            '.super-keyword-filter'
-        ],
-        keyup: [
-            '.super-keyword-filter'
-        ],
-        keydown: [
-            '.super-keyword-filter'
-        ]
-    };
-    Object.keys(app.events).forEach(function (eventType) {
-        var elements = app.events[eventType].join(", ");
-        app.delegate(document, eventType, elements, function (e, target) {
-            if (eventType == 'click') {
-                if (!app.inPath(e, 'super-focus')) {
-                    var i, nodes = document.querySelectorAll('.super-keyword-tags.super-focus');
-                    for(i=0; i < nodes.length; i++){
-                        nodes[i].classList.remove('super-focus');
-                    }
+                        _currentFunc(e, target, eventType, actions[key]);
+                    });
                 }
             }
-            // Trigger event(s)
-            if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
+        };
+        // Equivalent for jQuery's .on() function
+        app.delegate = function (element, event, elements, callback) {
+            element.addEventListener(event, function (event) {
+                var target = event.target;
+                while (target && target !== this) {
+                    if (target.matches(elements)) {
+                        callback(event, target);
+                        return false;
+                    }
+                    target = target.parentNode;
+                }
+            });
+        };
+        // Iterate over all events, and listen to any event being triggered
+        app.events = {
+            click: [
+                'body',
+                '.super-keyword-filter',
+                '.super-keyword-tags .super-item',
+                '.super-keyword-tag'
+            ],
+            mousedown: [
+                '.super-keyword-filter'
+            ],
+            onblur: [
+                '.super-keyword-filter'
+            ],
+            keyup: [
+                '.super-keyword-filter'
+            ],
+            keydown: [
+                '.super-keyword-filter'
+            ]
+        };
+        Object.keys(app.events).forEach(function (eventType) {
+            var elements = app.events[eventType].join(", ");
+            app.delegate(document, eventType, elements, function (e, target) {
+                // Trigger event(s)
+                if (typeof target.attributes.sfevents !== 'undefined') app.triggerEvent(e, target, eventType);
+            });
         });
-    });
+    })(jQuery);
 
-})();
+
+})(jQuery);
+

@@ -3,16 +3,16 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Listing')) :
+if(!class_exists('SUPER_Listings')) :
 
 
     /**
-     * Main SUPER_Listing Class
+     * Main SUPER_Listings Class
      *
-     * @class SUPER_Listing
+     * @class SUPER_Listings
      * @version 1.0.0
      */
-    final class SUPER_Listing {
+    final class SUPER_Listings {
     
         
         /**
@@ -28,11 +28,11 @@ if(!class_exists('SUPER_Listing')) :
          *
          *  @since      1.0.0
         */
-        public $add_on_slug = 'listing';
+        public $add_on_slug = 'listings';
 
         
         /**
-         * @var SUPER_Listing The single instance of the class
+         * @var SUPER_Listings The single instance of the class
          *
          *  @since      1.0.0
         */
@@ -40,13 +40,13 @@ if(!class_exists('SUPER_Listing')) :
 
         
         /**
-         * Main SUPER_Listing Instance
+         * Main SUPER_Listings Instance
          *
-         * Ensures only one instance of SUPER_Listing is loaded or can be loaded.
+         * Ensures only one instance of SUPER_Listings is loaded or can be loaded.
          *
          * @static
-         * @see SUPER_Listing()
-         * @return SUPER_Listing - Main instance
+         * @see SUPER_Listings()
+         * @return SUPER_Listings - Main instance
          *
          *  @since      1.0.0
         */
@@ -59,13 +59,13 @@ if(!class_exists('SUPER_Listing')) :
 
         
         /**
-         * SUPER_Listing Constructor.
+         * SUPER_Listings Constructor.
          *
          *  @since      1.0.0
         */
         public function __construct(){
             $this->init_hooks();
-            do_action('super_listing_loaded');
+            do_action('super_listings_loaded');
         }
 
         
@@ -78,15 +78,17 @@ if(!class_exists('SUPER_Listing')) :
             add_action( 'init', array( $this, 'register_shortcodes' ) );
             if ( SUPER_Forms()->is_request( 'admin' ) ) {
                 add_filter( 'super_create_form_tabs', array( $this, 'add_tab' ), 10, 1 );
-                add_action( 'super_create_form_listing_tab', array( $this, 'add_tab_content' ) );
+                add_action( 'super_create_form_listings_tab', array( $this, 'add_tab_content' ) );
                 add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
                 add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
             }
-            if( isset($_GET['super-fel-id']) ) {
-                if(SUPER_PLUGIN_FILE){
-                    SUPER_Forms()->enqueue_fontawesome_styles();
-                    wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
-                }
+            if( isset($_GET['super-listings-id']) ) {
+                //if(SUPER_PLUGIN_FILE){
+                //    SUPER_Forms()->enqueue_fontawesome_styles();
+                //    wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
+                //}
+                add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
+                add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
                 add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX ); // We do not want to display the admin bar
                 add_filter( 'template_include', array( $this, 'form_blank_page_template' ), PHP_INT_MAX );
             }
@@ -173,10 +175,10 @@ if(!class_exists('SUPER_Listing')) :
         }
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
-            $styles['super-listing'] = array(
+            $styles['super-listings'] = array(
                 'src'     => $assets_path . 'css/backend/styles.css',
                 'deps'    => '',
-                'version' => SUPER_Listing()->version,
+                'version' => SUPER_Listings()->version,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -187,7 +189,7 @@ if(!class_exists('SUPER_Listing')) :
         }
         public static function add_script($scripts){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
-            $scripts['super-listing'] = array(
+            $scripts['super-listings'] = array(
                 'src'     => $assets_path . 'js/backend/script.js',
                 'deps'    => array( 'super-common' ),
                 'version' => SUPER_VERSION,
@@ -200,25 +202,19 @@ if(!class_exists('SUPER_Listing')) :
             return $scripts;
         }
         public static function add_tab($tabs){
-            $tabs['listing'] = esc_html__( 'Listings', 'super-forms' );
+            $tabs['listings'] = esc_html__( 'Listings', 'super-forms' );
             return $tabs;
         }
         public static function add_tab_content($atts){
-            $tooltips = array(
-                esc_html__( 'Give this listing a name', 'super-forms' ),
-                esc_html__('Paste shortcode on any page', 'super-forms' ),
-                esc_html__('Change Settings', 'super-forms' ),
-                esc_html__('Delete Listing', 'super-forms' )
-            );
-            $form_id = absint($atts['form_id']);
             echo '<div class="super_transient"></div>';
-            $slug = 'listing';
+            $form_id = absint($atts['form_id']);
+            $slug = 'listings';
             $lists = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
                 $lists = $atts['settings']['_'.$slug]['lists'];
             }
             if(count($lists)==0) {
-                $lists[] = self::get_default_listing_settings(array());
+                $lists[] = self::get_default_listings_settings(array());
             }
             //$response = wp_remote_post(
             //    SUPER_API_ENDPOINT . '/settings/transient',
@@ -266,27 +262,27 @@ if(!class_exists('SUPER_Listing')) :
             // Repeater Item
             foreach($lists as $k => $v){
                 //// Set default values if they don't exist
-                $v = self::get_default_listing_settings($v);
+                $v = self::get_default_listings_settings($v);
                 echo '<div class="sfui-repeater-item">';
                     echo '<div class="sfui-inline">';
-                        echo '<div class="sfui-setting">';
+                        echo '<div class="sfui-setting sfui-vertical">';
                             echo '<label>';
                                 echo '<input type="text" name="name" value="' . $v['name'] . '" />';
-                                echo '<i>' . $tooltips[0] . '</i>';
+                                echo '<span class="sfui-label"><i>' . esc_html__( 'Give this listing a name', 'super-forms' ) . '</i></span>';
                             echo '</label>';
                         echo '</div>';
-                        echo '<div class="sfui-setting">';
+                        echo '<div class="sfui-setting sfui-vertical">';
                             echo '<label>';
                                 // Get the correct shortcode for this list
                                 $shortcode = '['.esc_html__( 'form-not-saved-yet', 'super-forms' ).']';
-                                if( $form_id!=0 ) $shortcode = '[super_listing list=&quot;' . ($k+1) . '&quot; id=&quot;'. $form_id . '&quot;]';
+                                if( $form_id!=0 ) $shortcode = '[super_listings list=&quot;' . ($k+1) . '&quot; id=&quot;'. $form_id . '&quot;]';
                                 echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value="' . $shortcode. '" />';
-                                echo '<i>' . $tooltips[1] . '</i>';
+                                echo '<span class="sfui-label"><i>' . esc_html__('Paste shortcode on any page', 'super-forms' ) . '</i></span>';
                             echo '</label>';
                         echo '</div>';
-                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_attr($tooltips[2]) . '" onclick="SUPER.ui.btn(event, this, \'toggleListingSettings\')"><i class="fas fa-cogs"></i></div>';
+                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change Settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleListingSettings\')"><i class="fas fa-cogs"></i></div>';
                         echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add list', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr($tooltips[3]) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete Listing', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                     echo '</div>';
 
                     echo '<div class="sfui-setting-group">';
@@ -542,7 +538,7 @@ if(!class_exists('SUPER_Listing')) :
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<input type="checkbox" name="delete_any.enabled" value="true"' . ($v['delete_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="delete_any.enabled;true">';
+                                echo '<div class="sfui-sub-settings sfui-vertical" data-f="delete_any.enabled;true">';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
@@ -588,6 +584,13 @@ if(!class_exists('SUPER_Listing')) :
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
+                        // No entries message
+                        echo '<div class="sfui-setting sfui-vertical">';
+                            echo '<label>';
+                                echo '<input type="text" name="noResultsText" value="' . $v['noResultsText'] . '" />';
+                                echo '<span class="sfui-label"><i>' . esc_html__( 'Text to display when there are no results', 'super-forms' ) . '</i></span>';
+                            echo '</label>';
+                        echo '</div>';
                     echo '</div>';
                 echo '</div>';
             }
@@ -598,8 +601,9 @@ if(!class_exists('SUPER_Listing')) :
         }
 
         // Get default listing settings
-        public static function get_default_listing_settings($list) {
+        public static function get_default_listings_settings($list) {
             if(empty($list['name'])) $list['name'] = 'Listing #1';
+            if(empty($list['noResultsText'])) $list['noResultsText'] = esc_html__( 'No results...', 'super-forms' );
             if(empty($list['display_based_on'])) $list['display_based_on'] = 'this_form';
             if(empty($list['form_ids'])) $list['form_ids'] = '';
             if(empty($list['date_range'])) $list['date_range'] = array(
@@ -744,11 +748,11 @@ if(!class_exists('SUPER_Listing')) :
 
         // Return data for script handles.
         public static function register_shortcodes(){
-            add_shortcode( 'super_listing', array( 'SUPER_Listing', 'super_listing_func' ) );
+            add_shortcode( 'super_listings', array( 'SUPER_Listings', 'super_listings_func' ) );
         }
 
         // The form shortcode that will generate the list/table with all Contact Entries
-        public static function super_listing_func( $atts ) {
+        public static function super_listings_func( $atts ) {
             global $wpdb, $current_user;
 
             extract( shortcode_atts( array(
@@ -804,9 +808,9 @@ if(!class_exists('SUPER_Listing')) :
 
 
             // Enqueue scripts and styles
-            $handle = 'super-listing';
+            $handle = 'super-listings';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Listing()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Listings()->version, false );  
             wp_localize_script(
                 $handle,
                 $name,
@@ -816,21 +820,21 @@ if(!class_exists('SUPER_Listing')) :
                 )
             );
             wp_enqueue_script( $handle );
-            // wp_enqueue_script( 'super-listing', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
+            // wp_enqueue_script( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
             
-            wp_enqueue_style( 'super-listing', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Listing()->version );
+            wp_enqueue_style( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Listings()->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
             // Get the settings for this specific list based on it's index
             $list_id = absint($atts['list'])-1;
-            $lists = $settings['_listing']['lists'];
+            $lists = $settings['_listings']['lists'];
             if(!isset($lists[$list_id])){
                 // The list does not exist
                 $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with ID: %d', 'super-forms' ), $list_id);
                 return $result;
             }
             // Set default values if they don't exist
-            $list = self::get_default_listing_settings($lists[$list_id]);
+            $list = self::get_default_listings_settings($lists[$list_id]);
 
             $columns = array(); 
             $standardColumns = self::getStandardColumns();
@@ -1144,7 +1148,7 @@ if(!class_exists('SUPER_Listing')) :
             $entries = $wpdb->get_results($query);
 
             $result = '';
-            $result .= '<div class="super-fel">';
+            $result .= '<div class="super-listings">';
                 $result .= '<div class="super-header">';
                     $result .= '<div class="super-select-all">';
                         $result .= esc_html__( 'Select All', 'super-forms' );
@@ -1153,7 +1157,7 @@ if(!class_exists('SUPER_Listing')) :
                         $result .= esc_html__( 'CSV Export', 'super-forms' );
                     $result .= '</div>';
                 $result .= '</div>';
-                $result .= '<div class="super-fel-wrap">';
+                $result .= '<div class="super-listings-wrap">';
                     $result .= '<div class="super-columns">';
                         $entry = array();
                         if( isset($entries[0]) ) {
@@ -1163,7 +1167,7 @@ if(!class_exists('SUPER_Listing')) :
                             $actions = '<span class="super-edit"></span>';
                             $actions .= '<span class="super-view"></span>';
                             $actions .= '<span class="super-delete"></span>';
-                            $result .= apply_filters( 'super_listing_actions_filter', $actions, $entry );
+                            $result .= apply_filters( 'super_s_actions_filter', $actions, $entry );
                         $result .= ' </div>';
 
                         foreach( $columns as $k => $v ) {
@@ -1240,97 +1244,56 @@ if(!class_exists('SUPER_Listing')) :
                     $result .= '</div>';
 
                     $result .= '<div class="super-entries">';
-                        $result .= '<div class="super-scroll"></div>';
-                        if( !class_exists( 'SUPER_Settings' ) ) require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
-                        $global_settings = SUPER_Common::get_global_settings();
-                        $statuses = SUPER_Settings::get_entry_statuses($global_settings);
-                        foreach($entries as $entry){
-                            $data = unserialize($entry->contact_entry_data);
-                            $result .= '<div class="super-entry" data-id="' . $entry->post_id . '">';
-                                $result .= '<div class="super-col super-check"></div>';
-                                $result .= '<div class="super-col super-actions">';
-                                    $actions = '';
-
-                                    // EDIT ANY
-                                    // Check if any user or own user is allowed to edit entry
-                                    $allowEditMethod = '';
-                                    $allowEditAny = false;
-                                    if(!empty($list['edit_any'])) {
-                                        if($list['edit_any']['enabled']==='true'){
-                                            $allowEditMethod = $list['edit_any']['method'];
-                                            // Check if both roles and user ID's are empty
-                                            if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
-                                                $allowEditAny = true;
-                                            }else{
-                                                $allowed_roles = preg_replace('/\s+/', '', $list['edit_any']['user_roles']);
-                                                $allowed_roles = explode(",", $allowed_roles);
-                                                if( (!empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
-                                                    // Only compare against user roles
-                                                    foreach( $current_user->roles as $v ) {
-                                                        if( in_array( $v, $allowed_roles ) ) {
-                                                            $allowEditAny = true;
-                                                        }
-                                                    }
-                                                }else{
-                                                    if(empty($list['edit_any']['user_roles'])) {
-                                                        // Only compare against user ID
-                                                        $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
-                                                        $allowed_ids = explode(",", $allowed_ids);
-                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                            $allowEditAny = true;
-                                                        }
-                                                    }else{
-                                                        // Compare against both user roles and ids
-                                                        foreach( $current_user->roles as $v ) {
-                                                            if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
-                                                                $allowed_ids = explode(",", $allowed_ids);
-                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                    $allowEditAny = true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // EDIT OWN
-                                    $allowEditOwn = false;
-                                    if(!empty($list['edit_own'])) {
-                                        if($list['edit_own']['enabled']==='true'){
-                                            // First check if entry author ID equals logged in user ID
-                                            if(absint($current_user->ID) === absint($entry->post_author)){
-                                                $allowEditMethod = $list['edit_own']['method'];
+                        if(count($entries)===0){
+                            $result .= '<div class="super-no-results">'.$list['noResultsText'].'</div>';
+                        }else{
+                            $result .= '<div class="super-scroll"></div>';
+                            if( !class_exists( 'SUPER_Settings' ) ) require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
+                            $global_settings = SUPER_Common::get_global_settings();
+                            $statuses = SUPER_Settings::get_entry_statuses($global_settings);
+                            foreach($entries as $entry){
+                                $data = unserialize($entry->contact_entry_data);
+                                $result .= '<div class="super-entry" data-id="' . $entry->post_id . '">';
+                                    $result .= '<div class="super-col super-check"></div>';
+                                    $result .= '<div class="super-col super-actions">';
+                                        $actions = '';
+    
+                                        // EDIT ANY
+                                        // Check if any user or own user is allowed to edit entry
+                                        $allowEditMethod = '';
+                                        $allowEditAny = false;
+                                        if(!empty($list['edit_any'])) {
+                                            if($list['edit_any']['enabled']==='true'){
+                                                $allowEditMethod = $list['edit_any']['method'];
                                                 // Check if both roles and user ID's are empty
-                                                if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
-                                                    $allowEditOwn = true;
+                                                if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
+                                                    $allowEditAny = true;
                                                 }else{
-                                                    $allowed_roles = preg_replace('/\s+/', '', $list['edit_own']['user_roles']);
+                                                    $allowed_roles = preg_replace('/\s+/', '', $list['edit_any']['user_roles']);
                                                     $allowed_roles = explode(",", $allowed_roles);
-                                                    if( (!empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
+                                                    if( (!empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
                                                         // Only compare against user roles
                                                         foreach( $current_user->roles as $v ) {
                                                             if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowEditOwn = true;
+                                                                $allowEditAny = true;
                                                             }
                                                         }
                                                     }else{
-                                                        if(empty($list['edit_own']['user_roles'])) {
+                                                        if(empty($list['edit_any']['user_roles'])) {
                                                             // Only compare against user ID
-                                                            $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                                            $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
                                                             $allowed_ids = explode(",", $allowed_ids);
                                                             if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                $allowEditOwn = true;
+                                                                $allowEditAny = true;
                                                             }
                                                         }else{
                                                             // Compare against both user roles and ids
                                                             foreach( $current_user->roles as $v ) {
                                                                 if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
                                                                     $allowed_ids = explode(",", $allowed_ids);
                                                                     if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                        $allowEditOwn = true;
+                                                                        $allowEditAny = true;
                                                                     }
                                                                 }
                                                             }
@@ -1339,83 +1302,43 @@ if(!class_exists('SUPER_Listing')) :
                                                 }
                                             }
                                         }
-                                    }
-                                    // DELETE ANY
-                                    $allowDeleteAny = false;
-                                    if(!empty($list['delete_any'])) {
-                                        if($list['delete_any']['enabled']==='true'){
-                                            // Check if both roles and user ID's are empty
-                                            if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
-                                                $allowDeleteAny = true;
-                                            }else{
-                                                $allowed_roles = preg_replace('/\s+/', '', $list['delete_any']['user_roles']);
-                                                $allowed_roles = explode(",", $allowed_roles);
-                                                if( (!empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
-                                                    // Only compare against user roles
-                                                    foreach( $current_user->roles as $v ) {
-                                                        if( in_array( $v, $allowed_roles ) ) {
-                                                            $allowDeleteAny = true;
-                                                        }
-                                                    }
-                                                }else{
-                                                    if(empty($list['delete_any']['user_roles'])) {
-                                                        // Only compare against user ID
-                                                        $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
-                                                        $allowed_ids = explode(",", $allowed_ids);
-                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                            $allowDeleteAny = true;
-                                                        }
+                                        // EDIT OWN
+                                        $allowEditOwn = false;
+                                        if(!empty($list['edit_own'])) {
+                                            if($list['edit_own']['enabled']==='true'){
+                                                // First check if entry author ID equals logged in user ID
+                                                if(absint($current_user->ID) === absint($entry->post_author)){
+                                                    $allowEditMethod = $list['edit_own']['method'];
+                                                    // Check if both roles and user ID's are empty
+                                                    if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
+                                                        $allowEditOwn = true;
                                                     }else{
-                                                        // Compare against both user roles and ids
-                                                        foreach( $current_user->roles as $v ) {
-                                                            if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
-                                                                $allowed_ids = explode(",", $allowed_ids);
-                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                    $allowDeleteAny = true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // DELETE OWN
-                                    $allowDeleteOwn = false;
-                                    if(!empty($list['delete_own'])) {
-                                        if($list['delete_own']['enabled']==='true'){
-                                            // First check if entry author ID equals logged in user ID
-                                            if(absint($current_user->ID) === absint($entry->post_author)){
-                                                // Check if both roles and user ID's are empty
-                                                if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
-                                                    $allowDeleteOwn = true;
-                                                }else{
-                                                    $allowed_roles = preg_replace('/\s+/', '', $list['delete_own']['user_roles']);
-                                                    $allowed_roles = explode(",", $allowed_roles);
-                                                    if( (!empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
-                                                        // Only compare against user roles
-                                                        foreach( $current_user->roles as $v ) {
-                                                            if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowDeleteOwn = true;
-                                                            }
-                                                        }
-                                                    }else{
-                                                        if(empty($list['delete_own']['user_roles'])) {
-                                                            // Only compare against user ID
-                                                            $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
-                                                            $allowed_ids = explode(",", $allowed_ids);
-                                                            if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                $allowDeleteOwn= true;
-                                                            }
-                                                        }else{
-                                                            // Compare against both user roles and ids
+                                                        $allowed_roles = preg_replace('/\s+/', '', $list['edit_own']['user_roles']);
+                                                        $allowed_roles = explode(",", $allowed_roles);
+                                                        if( (!empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
+                                                            // Only compare against user roles
                                                             foreach( $current_user->roles as $v ) {
                                                                 if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
-                                                                    $allowed_ids = explode(",", $allowed_ids);
-                                                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                        $allowDeleteOwn= true;
+                                                                    $allowEditOwn = true;
+                                                                }
+                                                            }
+                                                        }else{
+                                                            if(empty($list['edit_own']['user_roles'])) {
+                                                                // Only compare against user ID
+                                                                $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                                                $allowed_ids = explode(",", $allowed_ids);
+                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                    $allowEditOwn = true;
+                                                                }
+                                                            }else{
+                                                                // Compare against both user roles and ids
+                                                                foreach( $current_user->roles as $v ) {
+                                                                    if( in_array( $v, $allowed_roles ) ) {
+                                                                        $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                                                        $allowed_ids = explode(",", $allowed_ids);
+                                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                            $allowEditOwn = true;
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -1424,132 +1347,216 @@ if(!class_exists('SUPER_Listing')) :
                                                 }
                                             }
                                         }
-                                    }
-                                    $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
-                                    if($allowEditAny===true || $allowEditOwn===true){
-                                        if($allowEditMethod=='url'){
-                                            $url = $settings['form_location']; 
-                                            $query = parse_url($url, PHP_URL_QUERY);
-                                            // Returns a string if the URL has parameters or NULL if not
-                                            if ($query) {
-                                                $url .= '&contact_entry_id=' . $entry->post_id;
-                                            } else {
-                                                $url .= '?contact_entry_id=' . $entry->post_id;
-                                            }
-                                            $actions .= '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
-                                        }else{
-                                            $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
-                                        }
-                                    }
-                                    if($allowDeleteOwn===true || $allowDeleteAny===true){
-                                        $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
-                                    }
-                                    $result .= apply_filters( 'super_listing_actions_filter', $actions, $entry );
-                                $result .= ' </div>';
-
-                                foreach( $columns as $ck => $cv ) {
-                                    // If a max width was defined use it on the col-wrap
-                                    $styles = '';
-                                    if( !empty( $cv['width'] ) ) {
-                                        $styles = 'width:' . $cv['width'] . 'px;';
-                                    }
-                                    if( !empty( $styles ) ) {
-                                        $styles = ' style="' . $styles . '"';
-                                    }
-
-                                    $column_key = ( isset($cv['field_name']) ? $cv['field_name'] : $ck );
-
-                                    $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
-                                        $authorData = get_userdata($entry->post_author);
-                                        if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
-                                            if($cv['link']=='author_posts'){
-                                                $result .= '<a href="'.get_author_posts_url($entry->post_author).'">';
-                                            }elseif($cv['link']=='edit_user'){
-                                                $result .= '<a href="'.get_edit_user_link($entry->post_author).'">';
-                                            }elseif($cv['link']=='email'){
-                                                $result .= '<a href="mailto:'.$authorData->user_email.'">';
-                                            }
-                                        }
-                                        if($column_key=='post_title'){
-                                            $result .= $entry->post_title;
-                                        }elseif($authorData && $column_key=='username'){
-                                            $result .= $authorData->user_login;
-                                        }elseif($authorData && $column_key=='firstname'){
-                                            $result .= $authorData->user_firstname;
-                                        }elseif($authorData && $column_key=='lastname'){
-                                            $result .= $authorData->user_lastname;
-                                        }elseif($authorData && $column_key=='fullname'){
-                                            $result .= $authorData->user_firstname.' '.$authorData->user_lastname;
-                                        }elseif($authorData && $column_key=='nickname'){
-                                            $result .= $authorData->nickname;
-                                        }elseif($authorData && $column_key=='display'){
-                                            $result .= $authorData->display_name;
-                                        }elseif($authorData && $column_key=='email'){
-                                            $result .= $authorData->user_email;
-                                        }elseif($authorData && $column_key=='id'){
-                                            $result .= $authorData->ID;
-                                        }elseif($column_key=='entry_status'){
-                                            if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
-                                                $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
-                                            }else{
-                                                $post_status = get_post_status($entry->post_id);
-                                                if($post_status=='super_read'){
-                                                    $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
+                                        // DELETE ANY
+                                        $allowDeleteAny = false;
+                                        if(!empty($list['delete_any'])) {
+                                            if($list['delete_any']['enabled']==='true'){
+                                                // Check if both roles and user ID's are empty
+                                                if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
+                                                    $allowDeleteAny = true;
                                                 }else{
-                                                    $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '">' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
-                                                }
-                                            }
-                                        }elseif($column_key=='post_date'){
-                                            $result .= date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
-                                            //echo get_the_date($entry->post_date);
-                                        }else{
-                                            // Check if this data key exists
-                                            if(isset($data[$column_key])){
-                                                // Check if it has a value, if so print it
-                                                if(isset($data[$column_key]['value'])){
-                                                    if ( strpos( $data[$column_key]['value'], 'data:image/png;base64,') !== false ) {
-                                                        // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
-                                                        // otherwise the signature will not be displayed
-                                                        $result .= '<img src="' . esc_url( $data[$column_key]['value'], array( 'data' ) ) . '" />';
+                                                    $allowed_roles = preg_replace('/\s+/', '', $list['delete_any']['user_roles']);
+                                                    $allowed_roles = explode(",", $allowed_roles);
+                                                    if( (!empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
+                                                        // Only compare against user roles
+                                                        foreach( $current_user->roles as $v ) {
+                                                            if( in_array( $v, $allowed_roles ) ) {
+                                                                $allowDeleteAny = true;
+                                                            }
+                                                        }
                                                     }else{
-                                                        $result .= esc_html($data[$column_key]['value']);
-                                                    }
-                                                }else{
-                                                    // If not then it must be a special field, for instance file uploads
-                                                    if($data[$column_key]['type']==='files'){
-                                                        if(isset($data[$column_key]['files'])){
-                                                            $files = $data[$column_key]['files'];
-                                                            foreach($files as $fk => $fv){
-                                                                $url = $fv['url'];
-                                                                if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
-                                                                    $url = wp_get_attachment_url( $fv['attachment'] );
-                                                                }
-                                                                if(!empty($url)){
-                                                                    $result .= '<a target="_blank" href="' . esc_url( $url ) . '">';
-                                                                }
-                                                                $result .= esc_html( $fv['value'] ); // The filename
-                                                                if(!empty($url)){
-                                                                    $result .= '</a>';
-                                                                }
-                                                                $result .= '<br />';
+                                                        if(empty($list['delete_any']['user_roles'])) {
+                                                            // Only compare against user ID
+                                                            $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
+                                                            $allowed_ids = explode(",", $allowed_ids);
+                                                            if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                $allowDeleteAny = true;
                                                             }
                                                         }else{
-                                                            $result .= esc_html__( 'No files uploaded', 'super-forms' );
+                                                            // Compare against both user roles and ids
+                                                            foreach( $current_user->roles as $v ) {
+                                                                if( in_array( $v, $allowed_roles ) ) {
+                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
+                                                                    $allowed_ids = explode(",", $allowed_ids);
+                                                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                        $allowDeleteAny = true;
+                                                                    }
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }else{
-                                                // No data found for this entry
-                                                $result .= '';
                                             }
                                         }
-                                        if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
-                                            $result .= '</a>';
+                                        // DELETE OWN
+                                        $allowDeleteOwn = false;
+                                        if(!empty($list['delete_own'])) {
+                                            if($list['delete_own']['enabled']==='true'){
+                                                // First check if entry author ID equals logged in user ID
+                                                if(absint($current_user->ID) === absint($entry->post_author)){
+                                                    // Check if both roles and user ID's are empty
+                                                    if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
+                                                        $allowDeleteOwn = true;
+                                                    }else{
+                                                        $allowed_roles = preg_replace('/\s+/', '', $list['delete_own']['user_roles']);
+                                                        $allowed_roles = explode(",", $allowed_roles);
+                                                        if( (!empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
+                                                            // Only compare against user roles
+                                                            foreach( $current_user->roles as $v ) {
+                                                                if( in_array( $v, $allowed_roles ) ) {
+                                                                    $allowDeleteOwn = true;
+                                                                }
+                                                            }
+                                                        }else{
+                                                            if(empty($list['delete_own']['user_roles'])) {
+                                                                // Only compare against user ID
+                                                                $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
+                                                                $allowed_ids = explode(",", $allowed_ids);
+                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                    $allowDeleteOwn= true;
+                                                                }
+                                                            }else{
+                                                                // Compare against both user roles and ids
+                                                                foreach( $current_user->roles as $v ) {
+                                                                    if( in_array( $v, $allowed_roles ) ) {
+                                                                        $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
+                                                                        $allowed_ids = explode(",", $allowed_ids);
+                                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                                                            $allowDeleteOwn= true;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
-                                    $result .= '</div>';
-                                }
-
-                            $result .= '</div>';
+                                        $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
+                                        if($allowEditAny===true || $allowEditOwn===true){
+                                            if($allowEditMethod=='url'){
+                                                $url = $settings['form_location']; 
+                                                $query = parse_url($url, PHP_URL_QUERY);
+                                                // Returns a string if the URL has parameters or NULL if not
+                                                if ($query) {
+                                                    $url .= '&contact_entry_id=' . $entry->post_id;
+                                                } else {
+                                                    $url .= '?contact_entry_id=' . $entry->post_id;
+                                                }
+                                                $actions .= '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
+                                            }else{
+                                                $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
+                                            }
+                                        }
+                                        if($allowDeleteOwn===true || $allowDeleteAny===true){
+                                            $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
+                                        }
+                                        $result .= apply_filters( 'super_listings_actions_filter', $actions, $entry );
+                                    $result .= ' </div>';
+    
+                                    foreach( $columns as $ck => $cv ) {
+                                        // If a max width was defined use it on the col-wrap
+                                        $styles = '';
+                                        if( !empty( $cv['width'] ) ) {
+                                            $styles = 'width:' . $cv['width'] . 'px;';
+                                        }
+                                        if( !empty( $styles ) ) {
+                                            $styles = ' style="' . $styles . '"';
+                                        }
+    
+                                        $column_key = ( isset($cv['field_name']) ? $cv['field_name'] : $ck );
+    
+                                        $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
+                                            $authorData = get_userdata($entry->post_author);
+                                            if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
+                                                if($cv['link']=='author_posts'){
+                                                    $result .= '<a href="'.get_author_posts_url($entry->post_author).'">';
+                                                }elseif($cv['link']=='edit_user'){
+                                                    $result .= '<a href="'.get_edit_user_link($entry->post_author).'">';
+                                                }elseif($cv['link']=='email'){
+                                                    $result .= '<a href="mailto:'.$authorData->user_email.'">';
+                                                }
+                                            }
+                                            if($column_key=='post_title'){
+                                                $result .= $entry->post_title;
+                                            }elseif($authorData && $column_key=='username'){
+                                                $result .= $authorData->user_login;
+                                            }elseif($authorData && $column_key=='firstname'){
+                                                $result .= $authorData->user_firstname;
+                                            }elseif($authorData && $column_key=='lastname'){
+                                                $result .= $authorData->user_lastname;
+                                            }elseif($authorData && $column_key=='fullname'){
+                                                $result .= $authorData->user_firstname.' '.$authorData->user_lastname;
+                                            }elseif($authorData && $column_key=='nickname'){
+                                                $result .= $authorData->nickname;
+                                            }elseif($authorData && $column_key=='display'){
+                                                $result .= $authorData->display_name;
+                                            }elseif($authorData && $column_key=='email'){
+                                                $result .= $authorData->user_email;
+                                            }elseif($authorData && $column_key=='id'){
+                                                $result .= $authorData->ID;
+                                            }elseif($column_key=='entry_status'){
+                                                if( (isset($statuses[$entry->status])) && ($entry->status!='') ) {
+                                                    $result .= '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $statuses[$entry->status]['color'] . ';background-color:' . $statuses[$entry->status]['bg_color'] . '">' . $statuses[$entry->status]['name'] . '</span>';
+                                                }else{
+                                                    $post_status = get_post_status($entry->post_id);
+                                                    if($post_status=='super_read'){
+                                                        $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '" style="background-color:#d6d6d6;">' . esc_html__( 'Read', 'super-forms' ) . '</span>';
+                                                    }else{
+                                                        $result .= '<span class="super-entry-status super-entry-status-' . $post_status . '">' . esc_html__( 'Unread', 'super-forms' ) . '</span>';
+                                                    }
+                                                }
+                                            }elseif($column_key=='post_date'){
+                                                $result .= date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
+                                                //echo get_the_date($entry->post_date);
+                                            }else{
+                                                // Check if this data key exists
+                                                if(isset($data[$column_key])){
+                                                    // Check if it has a value, if so print it
+                                                    if(isset($data[$column_key]['value'])){
+                                                        if ( strpos( $data[$column_key]['value'], 'data:image/png;base64,') !== false ) {
+                                                            // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
+                                                            // otherwise the signature will not be displayed
+                                                            $result .= '<img src="' . esc_url( $data[$column_key]['value'], array( 'data' ) ) . '" />';
+                                                        }else{
+                                                            $result .= esc_html($data[$column_key]['value']);
+                                                        }
+                                                    }else{
+                                                        // If not then it must be a special field, for instance file uploads
+                                                        if($data[$column_key]['type']==='files'){
+                                                            if(isset($data[$column_key]['files'])){
+                                                                $files = $data[$column_key]['files'];
+                                                                foreach($files as $fk => $fv){
+                                                                    $url = $fv['url'];
+                                                                    if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
+                                                                        $url = wp_get_attachment_url( $fv['attachment'] );
+                                                                    }
+                                                                    if(!empty($url)){
+                                                                        $result .= '<a target="_blank" href="' . esc_url( $url ) . '">';
+                                                                    }
+                                                                    $result .= esc_html( $fv['value'] ); // The filename
+                                                                    if(!empty($url)){
+                                                                        $result .= '</a>';
+                                                                    }
+                                                                    $result .= '<br />';
+                                                                }
+                                                            }else{
+                                                                $result .= esc_html__( 'No files uploaded', 'super-forms' );
+                                                            }
+                                                        }
+                                                    }
+                                                }else{
+                                                    // No data found for this entry
+                                                    $result .= '';
+                                                }
+                                            }
+                                            if($authorData && (!empty($cv['link']) && $cv['link']!='none')){
+                                                $result .= '</a>';
+                                            }
+                                        $result .= '</div>';
+                                    }
+                                $result .= '</div>';
+                            }
                         }
                     $result .= '</div>';
                 $result .= '</div>';
@@ -1589,6 +1596,7 @@ if(!class_exists('SUPER_Listing')) :
                     $result .= '</select>';
 
                 $result .= '</div>';
+                //}
             $result .= '</div>';
             return $result;
         }
@@ -1596,14 +1604,14 @@ if(!class_exists('SUPER_Listing')) :
 endif;
 
 /**
- * Returns the main instance of SUPER_Listing to prevent the need to use globals.
+ * Returns the main instance of SUPER_Listings to prevent the need to use globals.
  *
- * @return SUPER_Listing
+ * @return SUPER_Listings
  */
-if(!function_exists('SUPER_Listing')){
-    function SUPER_Listing() {
-        return SUPER_Listing::instance();
+if(!function_exists('SUPER_Listings')){
+    function SUPER_Listings() {
+        return SUPER_Listings::instance();
     }
     // Global for backwards compatibility.
-    $GLOBALS['SUPER_Listing'] = SUPER_Listing();
+    $GLOBALS['SUPER_Listings'] = SUPER_Listings();
 }

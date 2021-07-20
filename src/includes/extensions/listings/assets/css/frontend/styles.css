@@ -1,17 +1,17 @@
-.super-fel {
+.super-listings {
     display: block;
     float: left;
     background-color: white;
     width: calc(100% - 160px);
 }
-.super-fel-wrap {
+.super-listings-wrap {
     overflow-x: scroll;
     overflow-y: hidden;
     width: 100%;
 }
-.super-fel .super-fel-wrap .super-columns,
-.super-fel .super-fel-wrap .super-entries,
-.super-fel .super-fel-wrap .super-entries .super-entry {
+.super-listings .super-listings-wrap .super-columns,
+.super-listings .super-listings-wrap .super-entries,
+.super-listings .super-listings-wrap .super-entries .super-entry {
     width: 100%;
     display: block;
     float: left;
@@ -19,14 +19,14 @@
     white-space: nowrap;
     min-width: 100%;
 }
-.super-fel .super-fel-wrap .super-col-wrap,
-.super-fel .super-fel-wrap .super-entries .super-entry .super-col {
+.super-listings .super-listings-wrap .super-col-wrap,
+.super-listings .super-listings-wrap .super-entries .super-entry .super-col {
     float: none;
     display: inline-block;
     vertical-align: top;
 }
 
-.super-fel * {
+.super-listings * {
   width:100%;
   position:relative;
   float:left;
@@ -36,25 +36,25 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.super-fel .super-header {
+.super-listings .super-header {
   border-bottom:1px solid #aaa;
   margin-bottom:20px;
   display: flex;
   align-items: center;
 }
-.super-fel .super-header .super-select-all,
-.super-fel .super-header .super-csv-export,
-.super-fel .super-header .super-settings {
+.super-listings .super-header .super-select-all,
+.super-listings .super-header .super-csv-export,
+.super-listings .super-header .super-settings {
   width:auto;
   display: flex;
   align-items: center;
 }
-.super-fel .super-header .super-csv-export,
-.super-fel .super-header .super-settings {
+.super-listings .super-header .super-csv-export,
+.super-listings .super-header .super-settings {
   float:right;
   padding:5px 10px 5px 10px;
 }
-.super-fel .super-header .super-select-all:before,
+.super-listings .super-header .super-select-all:before,
 .super-entry .super-col.super-check:before {
   content:'';
   border:1px solid #aaa;
@@ -66,7 +66,7 @@
   border-radius:3px;
   margin: 0px 10px 0px 0px;
 }
-.super-fel .super-columns {
+.super-listings .super-columns {
   padding-left:40px;
   margin-bottom:15px;
   min-width: 100%;
@@ -76,7 +76,7 @@
 
 
 
-.super-fel .super-col-wrap {
+.super-listings .super-col-wrap {
   width: 150px;
   margin-right: 20px;
 }
@@ -126,8 +126,8 @@
 }
 .super-col-filter input,
 .super-col-filter select,
-.super-fel .super-pagination input,
-.super-fel .super-pagination select {
+.super-listings .super-pagination input,
+.super-listings .super-pagination select {
   height:30px;
   font-size:12px;
   border:1px solid #aaa;
@@ -175,7 +175,7 @@
 .super-entry .super-col.super-check:before {
   top:2px;
 }
-.super-fel .super-pagination {
+.super-listings .super-pagination {
   padding-top:10px;
   display: flex;
   align-items: center;
@@ -183,14 +183,18 @@
   float: right;
   width: auto;
 }
-.super-fel .super-pagination > * {
+.super-listings .super-pagination > * {
   width:auto;
   float: initial;
 }
-.super-fel .super-pagination .super-pages,
-.super-fel .super-pagination .super-results {
+.super-listings .super-pagination .super-pages,
+.super-listings .super-pagination .super-results {
   margin-right:10px;
   margin-left:10px;
+}
+.super-listings .super-pagination .super-switcher,
+.super-listings .super-pagination .super-limit {
+  padding-right: 30px!important;
 }
 .super-nav .super-page,
 .super-pagination .super-prev,
@@ -247,7 +251,7 @@
   color: #4c4c4c;
 }
 
-.super-fel .super-actions {
+.super-listings .super-actions {
   float: none;
   display: inline-block;
   vertical-align: top;
@@ -256,12 +260,12 @@
   font-size: 12px;
   width: 85px;
 }
-.super-fel .super-columns .super-actions {
+.super-listings .super-columns .super-actions {
   visibility:hidden;
 }
-.super-fel .super-actions .super-edit,
-.super-fel .super-actions .super-view,
-.super-fel .super-actions .super-delete {
+.super-listings .super-actions .super-edit,
+.super-listings .super-actions .super-view,
+.super-listings .super-actions .super-delete {
   text-decoration:none;
   display:inline-block;
   width:25px;
@@ -271,31 +275,31 @@
   cursor:pointer;
   color:#cecece;
 }
-.super-fel .super-actions .super-edit:hover {
+.super-listings .super-actions .super-edit:hover {
   color:#15c130;
 }
-.super-fel .super-actions .super-view:hover {
+.super-listings .super-actions .super-view:hover {
   color:#18a7e8;
 }
-.super-fel .super-actions .super-delete:hover {
+.super-listings .super-actions .super-delete:hover {
   color:#ff0000;
 }
-.super-fel .super-actions .super-edit:after,
-.super-fel .super-actions .super-view:after,
-.super-fel .super-actions .super-delete:after {
+.super-listings .super-actions .super-edit:after,
+.super-listings .super-actions .super-view:after,
+.super-listings .super-actions .super-delete:after {
   content:'\f303';
   font-family:'Font Awesome 5 Free';
   font-weight:900;
   font-size: 12px;
 }
-.super-fel .super-actions .super-view:after {
+.super-listings .super-actions .super-view:after {
   content:'\f06e';
 }
-.super-fel .super-actions .super-delete:after {
+.super-listings .super-actions .super-delete:after {
   content:'\f1f8';
 }
 
-.super-fel-modal {
+.super-listings-modal {
   top: 50%;
   left: 50%;
   position: fixed;
@@ -303,33 +307,9 @@
   -moz-box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.5);
   box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.5);
   z-index: 999999;
-  padding: 50px 20px 20px 20px;
 }
-.super-fel-modal .super-close {
-  width:25px;
-  height:25px;
-  position:absolute;
-  right:25px;
-  top:10px;
-  text-align:center;
-  border: 1px solid #dadada;
-  background-color: #ececec;
-  color: #bdbdbd;
-  cursor:pointer;
-}
-.super-fel-modal .super-close:hover {
-  border: 1px solid #b1b1b1;
-  background-color: #ececec;
-  color: #909090;
-}
-
-.super-fel-modal .super-close:after {
-  content:'\f00d';
-  font-family:'Font Awesome 5 Free';
-  font-weight: 900;
-}
-.super-fel-modal:after,
-.super-fel-modal:before {
+.super-listings-modal:after,
+.super-listings-modal:before {
   content:'';
   position:absolute;
   left:0px;
@@ -339,8 +319,43 @@
   background-color:#ffffff;
   z-index: -1;
 }
-.super-fel-modal:after {
+.super-listings-modal:after {
   position:fixed;
   background-color:#0000003d;
   z-index: -2;
+}
+.super-listings-modal .super-close {
+  border: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer;
+}
+.super-listings-modal .super-close:after {
+  content:'\f00d';
+  font-family:'Font Awesome 5 Free';
+  font-weight: 900;
+}
+.super-listings-modal .super-close:after {
+  margin-top: 1px;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+}
+.super-listings-modal .super-close:hover {
+  border: 1px solid black;
+  background-color: black;
+}
+.super-listings-modal .super-close:hover:after {
+  color: white;
 }

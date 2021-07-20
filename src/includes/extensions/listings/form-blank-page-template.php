@@ -10,10 +10,11 @@
     <link rel="profile" href="https://gmpg.org/xfn/11" />
     <?php wp_head(); ?>
 </head>
-<body <?php body_class(); ?>>
+<body <?php body_class(); ?> style="padding:3% 2% 3% 2%;">
     <?php
-    $entry_id = absint($_GET['super-fel-id']);
-    $_GET['contact_entry_id'] = $entry_id; // Must be set to populate the form with the entry data
+    $entry_id = absint($_GET['super-listings-id']);
+    // Must be set to populate the form with the entry data
+    $_GET['contact_entry_id'] = $entry_id; 
     // Check if invalid Entry ID
     if( ($entry_id==0) || (get_post_type($entry_id)!='super_contact_entry') ) {
         $html = '<div class="super-msg super-error">';

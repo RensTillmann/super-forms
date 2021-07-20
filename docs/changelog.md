@@ -4,9 +4,30 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 13, 2021 - Version 5.0.0
+
+- **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`
+- **Added:** Option to define colors for Tooltips via `Form Settings > Theme & Colors`
+- **Added:** Option to define colors for Calculator element (Calculator Add-on) via `Form Settings > Theme & Colors`
+- **Added:** `{user_last_entry_status_any_form}` tag to retrieve the latest contact entry status of the logged in user for any form
+- **Added:** `{user_last_entry_id_any_form}` tag to retrieve the latest contact entry ID of the logged in user for any form
+- **Added:** New filter hook `super_attachments_filter` to alter/add/delete the email attachments
+- **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
+- **Added:** `MailChimp Add-on` escape html in output message and replace psuedo after/before elements with normal DOM element
+- **Fix:** When switching language through language switcher, preserver URL parameters so that the form is populated with data after switching language
+- **Fix:** `Front-end Register & Login Add-on` when using language switcher, make sure the `code` parameters is preserverd (for account/email verifications)
+- **Fix:** `Front-end Posting Add-on` issue with saving google map data for ACF map field
+- **Fix:** `Signature Add-on` fix issue when clicking on canvas would create a vertical line instead of a small dot
+- **Fix:** `WooCommerce Checkout Add-on` issue with `External/Affiliate product` URL being reset to the product permalink
+- **Fix:** `Zapier Add-on` use numbered index instead of filenames as index for the array, otherwise you would not be able to map/retrieve the file within zapier interface
+
+
+
+
+
 ## Mar 16, 2021 - Version 4.9.800
-- **Added:** `WooCommerce Checkout Add-on` option under `Super Forms > Settings > WooCommerce Checkout` to exclude products the shop so that they can only be ordered via the form
-- **Added:** `WooCommerce Checkout Add-on` option under `Super Forms > Settings > WooCommerce Checkout` to replace the default "Add to cart" section with a specific form
+- **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to exclude products the shop so that they can only be ordered via the form
+- **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to replace the default "Add to cart" section with a specific form
 - **Added:** `Signature Add-on` Option to set signature line color
 - **Added:** Options to define the `region` and `language` for the Googla Maps API. This will affect the `Google Map` element, `Address autocomplete` and `Distance calculation` features
 - **Added:** Option to use `{tags}` for `Time picker` settings `The time that should appear first in the dropdown list (Minimum Time)` and `The time that should appear last in the dropdown list (Maximum Time)` which makes it possible to retrieve a "manipulated" timestamp which could for instance be set 6 hours in the future based on the current time. This can be used in combination with the `Calculator Add-on` demo form available here: [Dynamic time picker that is always 6 hours in the future](https://webrehab.zendesk.com/hc/en-gb/articles/360018108338)
@@ -14,7 +35,7 @@
 - **Added:** New `Retrieve method` called `Current Page or Post terms` for dropdown, radio, checkboxes to retrieve specific taxonomy terms based on the current page/post the form is on
 - **Added:** Predefined tags `{post_term_names_****}`, `{post_term_slugs_****}`, `{post_term_ids_****}`. This way you can retrieve specific terms based on taxonomy. For instance to retrieve category names of a post you could use `{post_term_names_category}`
 - **Added:** When `Prevent submitting form when entry title already exists` is enabled there is an extra option called `Also compare against trashed contact entries` which allows you to also check against possible trashed contact entries
-- **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator under `Advanced` tab
+- **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator via `Advanced` tab
 - **Improved:** Add missing escaped attributes
 - **Fix:** PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated 
 - **Fix:** When using google address autocomplete field, the value was not being displayed on the entry page in the back-end `Super Forms > Contact Entry`

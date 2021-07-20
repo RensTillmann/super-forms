@@ -307,8 +307,7 @@ if(!class_exists('SUPER_Mailchimp')) :
                     $errors = $obj['errors'];
                     SUPER_Common::output_message(
                         $error = true,
-                        $msg = '<strong>' . $detail . ':</strong> ' . json_encode($errors)
-                    );
+                        $msg = '<strong>' . esc_html($detail) . ':</strong> ' . esc_html(json_encode($errors)));
                 }else{
                     // Otherwise display any other error response
                     if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='unsubscribed' && $obj['status']!=='pending' ) {
@@ -406,14 +405,15 @@ if(!class_exists('SUPER_Mailchimp')) :
 		                                $output = curl_exec( $ch );
                                         $output = json_decode( $output );
                                         $result .= '<span class="super-group-title">' . esc_html($v->title) . '</span>';
+                                        $result .= '<div class="super-items-list">';
 		                                foreach( $output->interests as $ik => $iv ) {
                                             $result .= '<label class="super-item">';
-                                            $result .= '<span class="super-before"></span>';
+                                            $result .= '<span class="super-before"><span class="super-after"></span></span>';
                                             $result .= '<input type="checkbox" value="' . esc_attr( $iv->id ) . '" />';
                                             $result .= '<div>' . esc_html($iv->name) . '</div>';
-                                            $result .= '<span class="super-after"></span>';
                                             $result .= '</label>';
 		                                }
+                                        $result .= '</div>';
 		                            }
 		                            $result .= '<input class="super-shortcode-field" type="hidden"';
 		                            $result .= ' name="mailchimp_interests" value=""';

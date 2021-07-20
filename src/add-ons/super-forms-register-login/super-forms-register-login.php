@@ -520,7 +520,6 @@ if(!class_exists('SUPER_Register_Login')) :
          *  @since      1.0.0
         */
         public static function activation_code( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-            
             $return = false;
             if( ( SUPER_Forms::is_request( 'frontend' ) ) && ( isset( $_GET['code'] ) ) ) {
                 $code = sanitize_text_field( $_GET['code'] );
@@ -529,6 +528,10 @@ if(!class_exists('SUPER_Register_Login')) :
             if ( SUPER_Forms::is_request( 'admin' ) ) {
                 $code = '';
                 $return = true;
+                // If switching between language
+                if(isset($_POST['i18n']) && isset($_GET['code']) && isset($_POST['action']) && $_POST['action']==='super_language_switcher'){
+                    $code = sanitize_text_field( $_GET['code'] );
+                }
             }
             if( $return==true ) {
                 $atts['name'] = 'activation_code';

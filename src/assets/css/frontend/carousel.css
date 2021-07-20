@@ -24,13 +24,7 @@
   white-space: nowrap;
 }
 .carouseljs-track > .carouseljs-item {
-  display: inline-block;
-  list-style: none;
-  overflow: hidden;
-  /* Please do not remove/change the below line.
-   * We set it with !important on purpose because the JS calculates the width based on any paddings.
-   * The script doesn't do any check for box-sizing property */
-  box-sizing: initial!important; 
+  white-space: normal;
 }
 .carouseljs-track > .carouseljs-item * {
   max-width: 100%;
@@ -214,6 +208,3 @@
     bottom: -50px;
   }
 }
-
-
-

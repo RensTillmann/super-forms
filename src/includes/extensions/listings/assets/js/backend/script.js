@@ -93,7 +93,7 @@
         data.formSettings = JSON.parse(data.formSettings);
         data.formSettings._listings = {};
         // Loop through all the listings
-        var list = document.querySelectorAll('.super-listing-list > li');
+        var list = document.querySelectorAll('.super-listings-list > li');
         for (var key = 0; key < list.length; key++) {
             data.formSettings._listings[key] = {};
             data.formSettings._listings[key].name = list[key].querySelector('input[name="name"]').value;
@@ -140,7 +140,7 @@
             if(list[key].querySelector('[data-name="custom_columns"]').classList.contains('super-active')){
                 data.formSettings._listings[key].custom_columns = true;
                 data.formSettings._listings[key].columns = {};
-                var columns = document.querySelectorAll('.super-listing-list div[data-name="custom_columns"] li');
+                var columns = document.querySelectorAll('.super-listings-list div[data-name="custom_columns"] li');
                 for (var ckey = 0; ckey < columns.length; ckey++) {
                     data.formSettings._listings[key].columns[ckey] = {};
                     data.formSettings._listings[key].columns[ckey].name = columns[ckey].querySelector('input[name="name"]').value;
@@ -211,13 +211,13 @@
 
     // Create Listing
     SUPER.frontEndListing.addListing = function(){
-        var target_element = document.querySelector('.super-listing-list');
+        var target_element = document.querySelector('.super-listings-list');
         var source = target_element.firstElementChild;
-        var list = document.querySelector('.super-listing-list');
+        var list = document.querySelector('.super-listings-list');
         var node = source.cloneNode(true);
         // Change shortcode
         var form_id = document.querySelector('.super-header input[name="form_id"]').value;
-        node.querySelector('.super-get-form-shortcodes').value = '[super_listing list="'+(list.children.length+1)+'" id="'+form_id+'"]';
+        node.querySelector('.super-get-form-shortcodes').value = '[super_listings list="'+(list.children.length+1)+'" id="'+form_id+'"]';
         removeClass(node.querySelectorAll('.tooltipstered'), 'tooltipstered');
         var elements = node.querySelectorAll('.super-tooltip');
         for (var key = 0; key < elements.length; key++) {
@@ -235,7 +235,14 @@
 
     // When checkbox is clicked
     SUPER.frontEndListing.checkbox = function(e, el){
-        if(el.parentNode.classList.contains('super-active')){
+        e = e || window.event;
+        var targ = e.target || e.srcElement;
+        if (targ.nodeType == 3) targ = targ.parentNode; // defeat Safari bug
+        if(targ.tagName==='INPUT'){
+            return false;
+        }
+        if(el.classList.contains('super-active')){
+            el.classList.remove('super-active');
             el.parentNode.classList.remove('super-active');
         }else{
             el.parentNode.classList.add('super-active');
@@ -245,9 +252,6 @@
 
     // Display filter items for custom column when dropdown method is choosen
     SUPER.frontEndListing.showFilterItems = function(el){
-        console.log(el);
-        console.log(el.parentNode);
-        console.log(el.value);
         var item = getParents(el, 'li')[0];
         if(el.value=='dropdown'){
             item.querySelector('.super-filter-items').style.display = 'block';
@@ -255,7 +259,6 @@
             item.querySelector('.super-filter-items').style.display = 'none';
         }
     };
-
 
     // $doc.on('click', '.super-create-translation', function(){
     //     // Validate
