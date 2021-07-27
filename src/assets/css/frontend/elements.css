@@ -236,13 +236,27 @@ h1.super-thanks-title {
   padding: 20px 50px 20px 60px;
   position: relative;
   text-align: left;
+  line-height: normal;
   margin-bottom: 30px;
   font-size: 12px;
+}
+.super-msg:after {
+  content: "\f071";
+  color: #FF9A9A;
+  font-size: 25px;
+  position: absolute;
+  left: 20px;
+  height: 26px;
+  top: 50%;
+  margin-top: -15px;
+  line-height: normal;
 }
 .super-msg > h1 {
   margin: 0px;
   padding: 0px;
   font-size: 14px;
+  line-height: normal;
+  font-weight: 600;
 }
 .super-msg a {
   font-weight: bold;
@@ -267,10 +281,6 @@ h1.super-thanks-title {
 }
 .super-msg .super-close:after {
   content: "\f00d";
-}
-.super-msg.super-success:after {
-  color: #9DD2A4;
-  content: "\f058";
 }
 .super-msg.super-error {
   color: #D08080;
@@ -301,42 +311,30 @@ h1.super-thanks-title {
   background-color: #C5FFCD;
   color: #5E7F62;
 }
-.super-msg.super-success .super-close {
-  color: #5E7F62;
-}
-.super-msg.info:before {
+.super-msg.super-success:after {
+  color: #9DD2A4;
   content: "\f058";
 }
 .super-msg.super-success a {
   color: #5E7F62;
 }
-.super-msg.super-success:before {
-  color: #90C397;
+.super-msg.super-success .super-close {
+  color: #5E7F62;
 }
 .super-msg.super-info {
   border: 1px solid #DCCF6E;
   background-color: #FDF3AA;
   color: #ADA254;
 }
-.super-msg.super-info:before {
-  content: "\f05a";
+.super-msg.super-info:after {
+  color: #DCCF6E;
+  content: "\f058";
 }
 .super-msg.super-info a {
   color: #756E39;
 }
-.super-msg.super-info:before {
+.super-msg.super-info .super-close {
   color: #DCCF6E;
-}
-.super-msg:after {
-  content: "\f071";
-  color: #FF9A9A;
-  font-size: 25px;
-  position: absolute;
-  left: 20px;
-  height: 26px;
-  top: 50%;
-  margin-top: -15px;
-  line-height: normal;
 }
 
 .super-grid {
@@ -2246,6 +2244,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   justify-content: center;
   padding: 5px 25px 5px 25px !important;
+  font-size: 14px;
   line-height: normal;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -2286,6 +2285,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-loading-overlay .super-inner-text {
   width: 100%;
   text-align: center;
+  font-size: 16px;
+}
+.super-loading-overlay .super-inner-text > h1 {
+  font-size: 36px;
 }
 .super-loading-overlay.super-error .super-loading-wrapper:after, .super-loading-overlay.super-success .super-loading-wrapper:after {
   content: "\f00d";
@@ -3067,33 +3070,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-weight: 100;
 }
 
-.super-button-name {
-  font-size: 12px;
-}
-
-.super-button-massive .super-button-name {
-  font-size: 18px;
-}
-
-.super-button-huge .super-button-name {
-  font-size: 16px;
-}
-
-.super-button-big .super-button-name,
-.super-button-large .super-button-name {
-  font-size: 14px;
-}
-
-.super-button-medium .super-button-name,
-.super-button-small .super-button-name {
-  font-size: 12px;
-}
-
-.super-button-tiny .super-button-name,
-.super-button-mini .super-button-name {
-  font-size: 10px;
-}
-
 .super-multipart {
   float: left;
   width: 100%;
@@ -3291,7 +3267,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   /* Backend builder */
   /* Form initialized */
   /* Helpers */
-  /* Button sizes */
   /* Default stylings */
   /* Default size */
   /* i18n/language switcher */
@@ -3318,10 +3293,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form .super-flex-clear {
   width: 100%;
-}
-.super-form .super-button-medium .super-button-wrap {
-  padding-top: 8px;
-  padding-bottom: 8px;
 }
 .super-form .super-multipart-step.super-error:before {
   content: "";
@@ -5338,6 +5309,88 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-field-size-huge.super-rtl .super-shortcode-field {
   padding-right: 15px;
+}
+.super-form .super-button-mini {
+  font-size: 8px;
+  height: calc(34px - 15px);
+}
+.super-form .super-button-mini .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px - 6px);
+  padding-bottom: 0px;
+  padding-left: calc(14px - 6px);
+}
+.super-form .super-button-tiny {
+  font-size: 10px;
+  height: calc(34px - 10px);
+}
+.super-form .super-button-tiny .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px - 4px);
+  padding-bottom: 0px;
+  padding-left: calc(14px - 4px);
+}
+.super-form .super-button-small {
+  font-size: 12px;
+  height: calc(34px - 5px);
+}
+.super-form .super-button-small .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px - 2px);
+  padding-bottom: 0px;
+  padding-left: calc(14px - 2px);
+}
+.super-form .super-button-medium {
+  font-size: 14px;
+  height: calc(34px + 0px);
+}
+.super-form .super-button-medium .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px + 0px);
+  padding-bottom: 0px;
+  padding-left: calc(14px + 0px);
+}
+.super-form .super-button-large {
+  font-size: 16px;
+  height: calc(34px + 5px);
+}
+.super-form .super-button-large .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px + 5px);
+  padding-bottom: 0px;
+  padding-left: calc(14px + 5px);
+}
+.super-form .super-button-big {
+  font-size: 18px;
+  height: 34px;
+  height: calc(34px + 10px);
+}
+.super-form .super-button-big .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px + 10px);
+  padding-bottom: 0px;
+  padding-left: calc(14px + 10px);
+}
+.super-form .super-button-huge {
+  font-size: 20px;
+  height: 34px;
+  height: calc(34px + 20px);
+}
+.super-form .super-button-huge .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px + 15px);
+  padding-bottom: 0px;
+  padding-left: calc(14px + 15px);
+}
+.super-form .super-button-massive {
+  font-size: 22px;
+  height: calc(34px + 30px);
+}
+.super-form .super-button-massive .super-button-wrap {
+  padding-top: 0px;
+  padding-right: calc(14px + 20px);
+  padding-bottom: 0px;
+  padding-left: calc(14px + 20px);
 }
 
 /*# sourceMappingURL=elements.css.map */

@@ -105,11 +105,11 @@ if(!class_exists('SUPER_PDF_Generator')) :
             // Header/Footer usage notice
             echo '<div class="sfui-notice sfui-desc">';
                 echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'To use a header and footer for your PDF, you can edit any element (including columns) and navigate to "PDF Settings" section. Here you can define if the element should be used as a header or footer. Note that you can only use one header or footer element. To add multiple elements you should use a column instead.', 'super-forms' );
-            echo '</div>';    
+            echo '</div>';
             // {tags} usage notice
             echo '<div class="sfui-notice sfui-desc">';
                 echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( '{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to be used in your header/footer.', 'super-forms' );
-            echo '</div>';    
+            echo '</div>';
             
             // Enable PDF
             echo '<div class="sfui-setting">';

@@ -385,6 +385,52 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'query_vars', array( $this, 'query_vars' ) );
             add_filter( 'parse_request', array( $this, 'parse_request' ) );
         }
+        public static function add_custom_wc_my_account_menu_items( $menu ){
+            $global_settings = SUPER_Common::get_global_settings();
+            $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
+            foreach( $wc_my_account_menu_items as $v ) {
+                $v = explode('|', $v);
+                // form-submissions|Form Submissions|[super_listings list="1" id="54751"]|3
+                if(!isset($v[0]) || !isset($v[1]) || !isset($v[2]) ) continue;
+                // by default add menu item to the end of the current menu array
+                if(empty($v[3])) $v[3] = 0; 
+                // by default we do not set a custom URL to redirect to
+                if(empty($v[4])) $v[4] = '';
+                $menu_slug = $v[0]; 
+                add_rewrite_endpoint( $menu_slug, EP_PAGES );
+                //add_rewrite_endpoint( 'form-submissions', EP_PAGES );
+                $menu_title = $v[1];
+                $menu_content = $v[2];
+                $menu_position = absint($v[3]);
+                $menu_url = $v[4]; 
+                if(empty(trim($menu_url))){
+                    add_action( 'woocommerce_account_' . $menu_slug . '_endpoint', function() use ($menu_content) {
+                        echo do_shortcode($menu_content);
+                    });
+                }
+                $new = array( $menu_slug => $menu_title );
+                // Add new menu item between the other ones
+                $menu = array_slice( $menu, 0, $menu_position, true ) + $new + array_slice( $menu, $menu_position, NULL, true );
+            }
+            return $menu;
+        }
+        public static function add_custom_wc_my_account_menu_item_endpoint( $url, $endpoint, $value, $permalink ){
+            $global_settings = SUPER_Common::get_global_settings();
+            $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
+            foreach( $wc_my_account_menu_items as $v ) {
+                $v = explode('|', $v);
+                // form-submissions|Form Submissions|[super_listings list="1" id="54751"]|3|https://domain.com/custom-page-url
+                if(!isset($v[4])) continue;
+                $menu_slug = $v[0]; 
+                $menu_url = $v[4]; 
+                if(!empty(trim($menu_url))){
+                    if($endpoint === $menu_slug){
+                        return $menu_url;
+                    }
+                }
+            }
+            return $url;
+        }
         public static function include_extensions(){
             // Include Add-ons
             $directory = SUPER_PLUGIN_DIR . '/includes/extensions';
@@ -1460,6 +1506,18 @@ if(!class_exists('SUPER_Forms')) :
             // Init action
             do_action('super_init');
             
+            // Add WooCommerce menu items?
+            add_filter( 'woocommerce_account_menu_items', array( $this, 'add_custom_wc_my_account_menu_items' ), 10, 1 );
+            add_filter( 'woocommerce_get_endpoint_url', array( $this, 'add_custom_wc_my_account_menu_item_endpoint' ), 10, 4 );
+            $global_settings = SUPER_Common::get_global_settings();
+            $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
+            foreach( $wc_my_account_menu_items as $v ) {
+                $v = explode('|', $v);
+                // form-submissions|Form Submissions|[super_listings list="1" id="54751"]|3
+                if(!isset($v[0]) || !isset($v[1]) || !isset($v[2]) ) continue;
+                $menu_slug = $v[0]; 
+                add_rewrite_endpoint( $menu_slug, EP_PAGES );
+            }
         }
         
         

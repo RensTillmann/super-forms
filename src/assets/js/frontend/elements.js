@@ -897,7 +897,7 @@
 
     // Initialize button colors
     SUPER.init_button_colors = function( el ) {    
-        var i, nodes, type, color, light, dark, font, fontHover, wrap, btnName, btnNameIcon;
+        var i, nodes, type, color, light, dark, font, fontHover, wrap, icon, btnName, btnNameIcon;
 
         if(!el){
             nodes = document.querySelectorAll('.super-button .super-button-wrap');
@@ -913,6 +913,7 @@
             font = el.dataset.font;
             fontHover = el.dataset.fontHover;
             wrap = el.querySelector('.super-button-wrap');
+            icon = wrap.querySelector('.super-before');
             btnName = wrap.querySelector('.super-button-name');
             btnNameIcon = btnName.querySelector('i');
             if(type=='diagonal'){
@@ -922,9 +923,11 @@
                     wrap.style.borderColor = '';
                 }
                 if(typeof font !== 'undefined'){
+                    if(icon) icon.style.color = font;
                     btnName.style.color = font;
                     if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
+                    if(icon) icon.style.color = '';
                     btnName.style.color = '';
                     if(btnNameIcon) btnNameIcon.style.color = '';
                 }
@@ -938,9 +941,11 @@
                 }
                 wrap.style.backgroundColor = '';
                 if(typeof font !== 'undefined'){
+                    if(icon) icon.style.color = font;
                     btnName.style.color = font;
                     if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
+                    if(icon) icon.style.color = '';
                     btnName.style.color = '';
                     if(btnNameIcon) btnNameIcon.style.color = '';
                 }
@@ -948,6 +953,7 @@
             if(type=='2d'){
                 wrap.style.backgroundColor = color;
                 wrap.style.borderColor = light;
+                if(icon) icon.style.color = font;
                 btnName.style.color = font;
                 if(btnNameIcon) btnNameIcon.style.color = font;
             }
@@ -956,13 +962,16 @@
                 wrap.style.color = dark;
                 wrap.style.borderColor = light;
                 if(typeof fontHover !== 'undefined'){
+                    if(icon) icon.style.color = font;
                     btnName.style.color = font;
                     if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
                     if(typeof font !== 'undefined'){
+                        if(icon) icon.style.color = font;
                         btnName.style.color = font;
                         if(btnNameIcon) btnNameIcon.style.color = font;
                     }else{
+                        if(icon) icon.style.color = '';
                         btnName.style.color = '';
                         if(btnNameIcon) btnNameIcon.style.color = '';
                     }
@@ -970,6 +979,7 @@
             }
             if(type=='flat'){
                 wrap.style.backgroundColor = color;
+                if(icon) icon.style.color = font;
                 btnName.style.color = font;
                 if(btnNameIcon) btnNameIcon.style.color = font;
             }
@@ -986,16 +996,19 @@
             font = el.dataset.font,
             fontHover = el.dataset.fontHover,
             wrap = el.querySelector('.super-button-wrap'),
+            icon = wrap.querySelector('.super-before'),
             btnName = wrap.querySelector('.super-button-name'),
             btnNameIcon = btnName.querySelector('i');
         if(type=='2d'){
             wrap.style.backgroundColor = hoverColor;
             wrap.style.borderColor = hoverLight;
+            if(icon) icon.style.color = fontHover;
             btnName.style.color = fontHover;
             if(btnNameIcon) btnNameIcon.style.color = fontHover;
         }
         if(type=='flat'){
             wrap.style.backgroundColor = hoverColor;
+            if(icon) icon.style.color = fontHover;
             btnName.style.color = fontHover;
             if(btnNameIcon) btnNameIcon.style.color = fontHover;
         }
@@ -1011,13 +1024,16 @@
             }
             wrap.style.borderColor = hoverColor;
             if(typeof fontHover !== 'undefined'){
+                if(icon) icon.style.color = fontHover;
                 btnName.style.color = fontHover;
                 if(btnNameIcon) btnNameIcon.style.color = fontHover;
             }else{
                 if(typeof font !== 'undefined'){
+                    if(icon) icon.style.color = font;
                     btnName.style.color = font;
                     if(btnNameIcon) btnNameIcon.style.color = font;
                 }else{
+                    if(icon) icon.style.color = '';
                     btnName.style.color = '';
                     if(btnNameIcon) btnNameIcon.style.color = '';
                 }
@@ -1030,9 +1046,11 @@
                 wrap.style.borderColor = '';
             }
             if(typeof font !== 'undefined'){
+                if(icon) icon.style.color = fontHover;
                 btnName.style.color = fontHover;
                 if(btnNameIcon) btnNameIcon.style.color = fontHover;
             }else{
+                if(icon) icon.style.color = '';
                 btnName.style.color = '';
                 if(btnNameIcon) btnNameIcon.style.color = '';
             }
@@ -1048,13 +1066,16 @@
                 wrap.style.color = hoverDark;
                 wrap.style.borderColor = hoverLight;
                 if(typeof fontHover !== 'undefined'){
+                    if(icon) icon.style.color = fontHover;
                     btnName.style.color = fontHover;
                     if(btnNameIcon) btnNameIcon.style.color = fontHover;
                 }else{
                     if(typeof font !== 'undefined'){
+                        if(icon) icon.style.color = font;
                         btnName.style.color = font;
                         if(btnNameIcon) btnNameIcon.style.color = font;
                     }else{
+                        if(icon) icon.style.color = '';
                         btnName.style.color = '';
                         if(btnNameIcon) btnNameIcon.style.color = '';
                     }

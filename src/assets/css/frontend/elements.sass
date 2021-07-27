@@ -267,12 +267,25 @@ h1.super-thanks-title
   padding: 20px 50px 20px 60px
   position: relative
   text-align: left
+  line-height: normal
   margin-bottom: 30px
   font-size: 12px
+  &:after
+    content: unicode("f071")
+    color: #FF9A9A
+    font-size: 25px
+    position: absolute
+    left: 20px
+    height: 26px
+    top: 50%
+    margin-top: -15px
+    line-height: normal
   > h1
     margin: 0px
     padding: 0px
     font-size: 14px
+    line-height: normal
+    font-weight: 600
   a
     font-weight: bold
   .super-close
@@ -293,9 +306,6 @@ h1.super-thanks-title
       color: #D08080
     &:after
       content: unicode("f00d")
-  &.super-success:after
-    color: #9DD2A4
-    content: unicode("f058")
   &.super-error
     color: #D08080
     a
@@ -317,35 +327,24 @@ h1.super-thanks-title
     border: 1px solid #90C397
     background-color: #C5FFCD
     color: #5E7F62
-    .super-close
-      color: #5E7F62
-  &.info:before
-    content: unicode("f058")
-  &.super-success
+    &:after
+      color: #9DD2A4
+      content: unicode("f058")
     a
       color: #5E7F62
-    &:before
-      color: #90C397
+    .super-close
+      color: #5E7F62
   &.super-info
     border: 1px solid #DCCF6E
     background-color: #FDF3AA
     color: #ADA254
-    &:before
-      content: unicode("f05a")
+    &:after
+      color: #DCCF6E
+      content: unicode("f058")
     a
       color: #756E39
-    &:before
+    .super-close
       color: #DCCF6E
-  &:after
-    content: unicode("f071")
-    color: #FF9A9A
-    font-size: 25px
-    position: absolute
-    left: 20px
-    height: 26px
-    top: 50%
-    margin-top: -15px
-    line-height: normal
 
 .super-grid
   width: 100%
@@ -1748,6 +1747,7 @@ textarea
     align-items: center
     justify-content: center
     padding: 5px 25px 5px 25px!important
+    font-size: 14px
     line-height: normal
     +borderRadius(3px)
   .super-pdf-download-btn:hover
@@ -1778,6 +1778,9 @@ textarea
   .super-inner-text
     width: 100%
     text-align: center
+    font-size: 16px
+    > h1
+      font-size: 36px
   &.super-error,
   &.super-success
     .super-loading-wrapper:after
@@ -2335,27 +2338,6 @@ textarea
       text-align: center
       font-weight: 100
 
-.super-button-name
-  font-size: 12px
-.super-button-massive
-  .super-button-name
-    font-size: 18px
-.super-button-huge
-  .super-button-name
-    font-size: 16px
-.super-button-big,
-.super-button-large
-  .super-button-name
-    font-size: 14px
-.super-button-medium,
-.super-button-small
-  .super-button-name
-    font-size: 12px
-.super-button-tiny,
-.super-button-mini
-  .super-button-name
-    font-size: 10px
-
 .super-multipart
   float: left
   width: 100%
@@ -2526,11 +2508,6 @@ textarea
   /* Helpers */
   .super-flex-clear
     width: 100%
-  /* Button sizes */
-  .super-button-medium
-    .super-button-wrap
-      padding-top: 8px
-      padding-bottom: 8px
   /* Default stylings */
   .super-multipart-step.super-error:before
     content:'\f071'
@@ -4467,3 +4444,78 @@ textarea
           right: calc(11px + 5px)
       .super-shortcode-field
         padding-right: 15px
+
+  // Mini button
+  .super-button-mini
+    font-size: 8px
+    height: calc(34px - 15px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px - 6px)
+      padding-bottom: 0px
+      padding-left: calc(14px - 6px)
+  // Tiny button
+  .super-button-tiny
+    font-size: 10px
+    height: calc(34px - 10px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px - 4px)
+      padding-bottom: 0px
+      padding-left: calc(14px - 4px)
+  // Small button
+  .super-button-small
+    font-size: 12px
+    height: calc(34px - 5px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px - 2px)
+      padding-bottom: 0px
+      padding-left: calc(14px - 2px)
+  // Medium button
+  .super-button-medium
+    font-size: 14px
+    height: calc(34px + 0px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px + 0px)
+      padding-bottom: 0px
+      padding-left: calc(14px + 0px)
+  // Large button
+  .super-button-large
+    font-size: 16px
+    height: calc(34px + 5px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px + 5px)
+      padding-bottom: 0px
+      padding-left: calc(14px + 5px)
+  // Big button
+  .super-button-big
+    font-size: 18px
+    height: 34px
+    height: calc(34px + 10px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px + 10px)
+      padding-bottom: 0px
+      padding-left: calc(14px + 10px)
+  // Huge button
+  .super-button-huge
+    font-size: 20px
+    height: 34px
+    height: calc(34px + 20px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px + 15px)
+      padding-bottom: 0px
+      padding-left: calc(14px + 15px)
+  // Massive button
+  .super-button-massive
+    font-size: 22px
+    height: calc(34px + 30px)
+    .super-button-wrap
+      padding-top: 0px
+      padding-right: calc(14px + 20px)
+      padding-bottom: 0px
+      padding-left: calc(14px + 20px)

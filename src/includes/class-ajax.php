@@ -97,6 +97,7 @@ class SUPER_Ajax {
             'api_auth'                      => false,
             'api_submit_feedback'           => false,
 
+            'listings_view_entry' => true,
             'listings_delete_entry' => false,
 
         );
@@ -109,29 +110,43 @@ class SUPER_Ajax {
         }
     }
 
+    public static function listings_view_entry(){
+        require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
+        require_once( SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php' );
+        die();
+    }
     public static function listings_delete_entry(){
-        $entry_id = absint($_POST['entry_id']);
-        $list_id = absint($_POST['list_id']);
-        $entry = get_post($entry_id);
-        $formSettings = get_post_meta($entry->post_parent, '_super_form_settings', true);
-        $lists = $formSettings['_listings']['lists'];
-        if(!isset($lists[$list_id])){
-            // The list does not exist
-            die();
-        }
-        // Set default values if they don't exist
-        $listSettings = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
         // First check if user is logged in
         // Obviously only logged in user are allowed to delete entries
         // Let's check if the user is logged in
         $current_user_id = get_current_user_id();
         if( $current_user_id==0 ) {
             // User is not logged in
+            echo esc_html__( 'To delete this entry you must be logged in.', 'super-forms' );
             die();
         }
+
+        $entry_id = absint($_POST['entry_id']);
+        $form_id = absint($_POST['form_id']);
+        $list_id = absint($_POST['list_id']);
+        $settings = SUPER_Common::get_form_settings($form_id);
+        $lists = $settings['_listings']['lists'];
+        if(!isset($lists[$list_id])){
+            // The list does not exist
+            echo esc_html__( 'Permission denied, because this list does not exist', 'super-forms' );
+            die();
+        }else{
+            // Check if invalid Entry ID
+            if( ($entry_id==0) || (get_post_type($entry_id)!='super_contact_entry') ) {
+                echo esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
+            }else{
+                // Set default values if they don't exist
+                $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+            }
+        }
         // Check if logged in user is allowed to delete any entry (all entries)
-        if($listSettings['delete_any']['value']==='true'){
-            $roles = $listSettings['delete_any']['user_roles'];
+        if($list['delete_any']['value']==='true'){
+            $roles = $list['delete_any']['user_roles'];
             if($roles!==''){
                 // Compare against roles
                 $allowed_roles = explode(',', $roles);
@@ -146,15 +161,17 @@ class SUPER_Ajax {
                 }
                 if( $allowed==false ) {
                     // User is not allowed because doesn\'t have proper role to delete entries
+                    echo esc_html__( 'You do not have permission to delete this entry.', 'super-forms' );
                     die();
                 }
             }
-            $ids = $listSettings['delete_any']['user_ids'];
+            $ids = $list['delete_any']['user_ids'];
             if($ids!==''){
                 // Compare against ID's
                 $ids = explode(',', $ids);
                 if( !in_array( $current_user_id, $ids ) ) {
                     // User is not allowed because ID is not in allowed list
+                    echo esc_html__( 'You do not have permission to delete this entry.', 'super-forms' );
                     die();
                 }
             }
@@ -2853,207 +2870,9 @@ class SUPER_Ajax {
         if(!isset($settings['email_exclude_empty'])) $settings['email_exclude_empty'] = '';
         if(!isset($settings['confirm_exclude_empty'])) $settings['confirm_exclude_empty'] = '';
 
-        $email_loop = '';
-        $confirm_loop = '';
-        $attachments = array();
-        $confirm_attachments = array();
-        $string_attachments = array();
-        if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
-            foreach( $data as $k => $v ) {
-                // Skip dynamic data
-                if($k=='_super_dynamic_data') continue;
-                
-                $row = $settings['email_loop'];
-                $confirm_row = $row;
-                if( isset($settings['confirm_email_loop']) ) {
-                    $confirm_row = $settings['confirm_email_loop'];
-                }
-                // Exclude from emails
-                // 0 = Do not exclude from e-mails
-                // 1 = Exclude from confirmation email
-                // 2 = Exclude from all email
-                // 3 = Exclude from admin email
-                if( !isset( $v['exclude'] ) ) {
-                    $v['exclude'] = 0;
-                }
-                if( $v['exclude']==2 ) {
-                    // Exclude from all emails
-                    continue;
-                }
-
-                /** 
-                 *  Filter to control the email loop when something special needs to happen
-                 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
-                 *
-                 *  @param  string  $row
-                 *  @param  array   $data
-                 *
-                 *  @since      1.0.9
-                */
-                $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                $continue = false;
-                if( isset( $result['status'] ) ) {
-                    if( $result['status']=='continue' ) {
-                        if( isset( $result['string_attachments'] ) ) {
-                            $string_attachments = $result['string_attachments'];
-                        }
-                        $email_loop .= $result['row'];
-                        $continue = true;
-                    }
-                }
-                if( isset( $confirm_result['status'] ) ) {
-                    if( $confirm_result['status']=='continue' ) {
-                        if( isset( $confirm_result['string_attachments'] ) ) {
-                            $string_attachments = $confirm_result['string_attachments'];
-                        }
-                        if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
-                        }else{
-                            $confirm_loop .= $confirm_result['row'];
-                        }
-                        $continue = true;
-                    }
-                }
-                if($continue) continue;
-
-                if( isset($v['type']) && $v['type']=='files' ) {
-                    $files_value = '';
-                    if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
-                        $v['value'] = '';
-                        if( !empty( $v['label'] ) ) {
-                            // Replace %d with empty string if exists
-                            $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                        }else{
-                            $row = str_replace( '{loop_label}', '', $row );
-                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
-                        }
-                        $files_value .= esc_html__( 'User did not upload any files', 'super-forms' );
-                    }else{
-                        $v['value'] = '-';
-                        foreach( $v['files'] as $key => $value ) {
-                            // Check if user explicitely wants to remove files from {loop_fields} in emails
-                            if(!empty($settings['file_upload_remove_from_email_loop'])) {
-                                // Remove this row completely
-                                $row = ''; 
-                                $confirm_row = '';
-                            }else{
-                                if( $key==0 ) {
-                                    if( !empty( $v['label'] ) ) {
-                                        $v['label'] = str_replace('%d', '', $v['label']);
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                                        $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                                    }else{
-                                        $row = str_replace( '{loop_label}', '', $row );
-                                        $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
-                                    }
-                                }
-                                // In case the file was deleted we do not want to add a hyperlink that links to the file
-                                // In case the user explicitely choose to remove the hyperlink
-                                if( !empty($settings['file_upload_submission_delete']) || 
-                                    !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
-                                    $files_value .= $value['value'] . '<br /><br />';
-                                }else{
-                                    $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
-                                }
-                            }
-                            // Check if we should exclude the file from emails
-                            // 0 = Do not exclude from e-mails
-                            // 1 = Exclude from confirmation email
-                            // 2 = Exclude from all email
-                            // 3 = Exclude from admin email
-                            if( $v['exclude']!=2 ) {
-                                // Get either URL or Secure file path
-                                if(!empty($value['attachment'])){
-                                    $fileValue = $value['url'];
-                                }else{
-                                    // See if this was a secure file upload
-                                    if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
-                                }
-                                // 1 = Exclude from confirmation email
-                                if( $v['exclude']==1 ) {
-                                    $attachments[$value['value']] = $fileValue;
-                                }else{
-                                    // 3 = Exclude from admin email
-                                    if( $v['exclude']==3 ) {
-                                        $confirm_attachments[$value['value']] = $fileValue;
-                                    }else{
-                                        // Do not exclude
-                                        $attachments[$value['value']] = $fileValue;
-                                        $confirm_attachments[$value['value']] = $fileValue;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    $row = str_replace( '{loop_value}', $files_value, $row );
-                    $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
-                }else{
-                    if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
-                        $row = '';
-                        $confirm_row = '';
-                    }else{
-
-                        if( !empty( $v['label'] ) ) {
-                            $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                        }else{
-                            $row = str_replace( '{loop_label}', '', $row );
-                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
-                        }
-                        // @since 1.2.7
-                        if( isset( $v['admin_value'] ) ) {
-                            // @since 3.9.0 - replace comma's with HTML
-                            if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                            
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
-                        }
-                        error_log('1');
-                        error_log($row);
-                        error_log($confirm_row);
-                        if( isset( $v['confirm_value'] ) ) {
-                            // @since 3.9.0 - replace comma's with HTML
-                            if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
-                            
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
-                        }
-                        error_log('2');
-                        error_log($row);
-                        error_log($confirm_row);
-                        if( isset( $v['value'] ) ) {
-                            // @since 3.9.0 - replace comma's with HTML
-                            if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                            
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
-                            error_log('3');
-                            error_log($row);
-                            error_log($confirm_row);
-                        }
-
-                    }
-                }
-
-                // @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
-                // 0 = Do not exclude from e-mails
-                // 1 = Exclude from confirmation email
-                // 2 = Exclude from all email
-                // 3 = Exclude from admin email
-                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && empty($v['value']) )) {
-                    // Exclude from admin email loop
-                }else{
-                    $email_loop .= $row;
-                }
-                if( $v['exclude']==1 || ($settings['confirm_exclude_empty']=='true' && empty($v['value']) )) {
-                    // Exclude from confirmation email loop
-                }else{
-                    $confirm_loop .= $confirm_row;
-                }
-            }
-        }
+        $loops = SUPER_Common::retrieve_email_loop_html(array('data'=>$data, 'settings'=>$settings, 'exclude'=>array()));
+        $email_loop = $loops['email_loop'];
+        $confirm_loop = $loops['confirm_loop'];
 
         // @since 4.9.5 - override setting with global email settings
         // If we made it to here, retrieve global settings and check if any settings have "Force" enabled

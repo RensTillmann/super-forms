@@ -1,18 +1,91 @@
 <?php
-/**
- * The template for displaying forms on a blank page
- */
-?><!doctype html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="profile" href="https://gmpg.org/xfn/11" />
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?> style="padding:3% 2% 3% 2%;">
-    <?php
-    $entry_id = absint($_GET['super-listings-id']);
+// View entry
+if( isset($_POST['entry_id']) && isset($_POST['form_id']) && isset($_POST['list_id']) ) {
+    $entry_id = absint($_POST['entry_id']);
+    $form_id =  absint($_POST['form_id']);
+    $list_id =  absint($_POST['list_id']);
+    $settings = SUPER_Common::get_form_settings($form_id);
+    $lists = $settings['_listings']['lists'];
+    if(!isset($lists[$list_id])){
+        $html = '<div class="super-msg super-error">';
+            $html .= esc_html__( 'Incorrect list ID, or list no longer exists:', 'super-forms' );
+        $html .= '</div>';
+        echo $html;
+    }else{
+        // Check if invalid Entry ID
+        if( ($entry_id==0) || (get_post_type($entry_id)!='super_contact_entry') ) {
+            $html = '<div class="super-msg super-error">';
+                $html .= esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
+            $html .= '</div>';
+            echo $html;
+        }else{
+            $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+            $entry = get_post($entry_id);
+            $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
+            $allowViewAny = $allow['allowViewAny'];
+            $allowViewOwn = $allow['allowViewOwn'];
+            // VIEW OWN html can be different from VIEW ANY html
+            // this allows to have different templates between what a owner can see and what admins can see
+            if($allowViewOwn) {
+                $html_template = $list['view_own']['html_template'];
+                $listing_loop = $list['view_own']['loop_html'];
+            }
+            // If user has permission to VIEW ANY, then use that html instead
+            // this allows admins to have more information/details for a contact entry than the owner himself
+            if($allowViewAny) {
+                $html_template = $list['view_any']['html_template'];
+                $listing_loop = $list['view_any']['loop_html'];
+            } 
+            $entry_title = get_the_title($entry_id);
+            $entry_date = get_the_time('Y-m-d @ H:i:s', $entry_id);
+            $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+            $data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+            $loops = SUPER_Common::retrieve_email_loop_html(
+                array(
+                    'listing_loop' => $listing_loop,
+                    'data' => $data,
+                    'settings' => $settings,
+                    'exclude' => array()
+                )
+            );
+            $listing_loop = $loops['listing_loop'];
+            $html = str_replace( '{loop_fields}', $listing_loop, $html_template);
+            $html = str_replace( '{listing_entry_id}', $entry_id, $html);
+            $html = str_replace( '{listing_form_id}', $form_id, $html);
+            $html = str_replace( '{listing_list_id}', $list_id, $html);
+            $html = str_replace( '{listing_entry_title}', $entry_title, $html);
+            $html = str_replace( '{listing_entry_date}', $entry_date, $html);
+            echo $html;
+
+            //$entry_status = get_post_meta( absint($entry_id), '_super_contact_entry_status', true );
+            //$entry_title = get_the_title( absint($entry_id) );
+            // If entry status is empty, return the post status instead
+            //if(empty($entry_status)){ $entry_status = get_post_status($entry_id); }
+            //$data['hidden_contact_entry_status'] = array( 'name' => 'hidden_contact_entry_status', 'value' => $entry_status, 'type' => 'var');
+            //$data['hidden_contact_entry_id'] = array( 'name' => 'hidden_contact_entry_id', 'value' => $entry_id, 'type' => 'entry_id');
+            //$data['hidden_contact_entry_title'] = array( 'name' => 'hidden_contact_entry_title', 'value' => $entry_title, 'type' => 'var');
+            //$skip = sanitize_text_field($_POST['skip']);
+            //$skip_fields = explode( "|", $skip );
+            //foreach($skip_fields as $field_name){
+            //    if( isset($data[$field_name]) ) {
+            //        unset($data[$field_name]);
+            //    }
+            //}
+
+            //$email_loop = $loops['email_loop'];
+            //$confirm_loop = $loops['confirm_loop'];
+
+            //// Seems that everything is OK, continue and load the form
+            //$entry = get_post($entry_id);
+            //$form_id = $entry->post_parent; // This will hold the form ID
+            //// Now print out the form by executing the shortcode function
+            //echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
+        }
+    }
+}
+if(isset($_GET['super-listings-edit'])){
+    // Edit entry
+    $entry_id = absint($_GET['super-listings-edit']);
     // Must be set to populate the form with the entry data
     $_GET['contact_entry_id'] = $entry_id; 
     // Check if invalid Entry ID
@@ -28,7 +101,4 @@
         // Now print out the form by executing the shortcode function
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
     }
-    wp_footer();
-    ?>
-</body>
-</html>
+}

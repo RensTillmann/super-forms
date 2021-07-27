@@ -170,18 +170,21 @@
         console.log(el.value);
     };
 
-    // When edit button is clicked create a modal/popup window and load the form + it's entry data
-    SUPER.frontEndListing.editEntry = function(el){
+    // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
+    SUPER.frontEndListing.viewEntry = function(el){
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
-
+        var form_id = getParents(el, '.super-listings')[0].dataset.formId;
+        var list_id = getParents(el, '.super-listings')[0].dataset.listId;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
-
         // Resize according to the window
         SUPER.frontEndListing.resizeModal(modal);
-        
+        // Add loading icon
+        var loadingIcon = document.createElement('div');
+        loadingIcon.classList.add('super-loading');
+        modal.appendChild(loadingIcon);
         // Add close button
         var closeBtn = document.createElement('div');
         closeBtn.classList.add('super-close');
@@ -190,10 +193,73 @@
         });
         modal.appendChild(closeBtn);
 
+        //parent.classList.add('super-loading');
+        //var entry_id = parent.dataset.id;
+        //var form_id = getParents(el, '.super-listings')[0].dataset.formId;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                // Success:
+                if (this.status == 200) {
+                    var node = document.createElement('div');
+                    node.classList.add('super-listing-entry-wrapper');
+                    node.innerHTML = this.responseText;
+                    modal.appendChild(node);
+                    loadingIcon.remove();
+                }
+                // Complete:
+                parent.classList.remove('super-loading');
+            }
+        };
+        xhttp.onerror = function () {
+            console.log(this);
+            console.log("** An error occurred during the transaction");
+        };
+        xhttp.open("POST", super_listings_i18n.ajaxurl, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var params = {
+            action: 'super_listings_view_entry',
+            entry_id: entry_id,
+            form_id: form_id,
+            list_id: list_id
+        };
+        params = jQuery.param(params);
+        xhttp.send(params);
+        
+        //var iframe = document.createElement('iframe');
+        //// eslint-disable-next-line no-undef
+        //iframe.src = super_listings_i18n.get_home_url+'?super-listings-view='+entry_id+'&form-id='+form_id+'&list-id='+list_id;
+        //iframe.style.width = '100%';
+        //iframe.style.height = '100%';
+        //iframe.style.border = '0px';
+        //modal.appendChild(iframe);
+        // Print modal
+        document.body.appendChild(modal);
+    };
+    // When edit button is clicked create a modal/popup window and load the form + it's entry data
+    SUPER.frontEndListing.editEntry = function(el){
+        var parent = getParents(el, '.super-entry')[0];
+        var entry_id = parent.dataset.id;
+        // Create popup window and load the form + it's entry data
+        var modal = document.createElement('div');
+        modal.classList.add('super-listings-modal');
+        // Resize according to the window
+        SUPER.frontEndListing.resizeModal(modal);
+        // Add loading icon
+        var loadingIcon = document.createElement('div');
+        loadingIcon.classList.add('super-loading');
+        modal.appendChild(loadingIcon);
+        // Add close button
+        var closeBtn = document.createElement('div');
+        closeBtn.classList.add('super-close');
+        closeBtn.addEventListener('click', function(){
+            this.parentNode.remove();
+        });
+        modal.appendChild(closeBtn);
         // Load iframe
         var iframe = document.createElement('iframe');
         // eslint-disable-next-line no-undef
-        iframe.src = super_listings_i18n.get_home_url+'?super-listings-id='+entry_id;
+        iframe.src = super_listings_i18n.get_home_url+'?super-listings-edit='+entry_id;
         iframe.style.width = '100%';
         iframe.style.height = '100%';
         iframe.style.border = '0px';
@@ -205,20 +271,26 @@
  
     // Delete entry
     SUPER.frontEndListing.deleteEntry = function(el, list_id){
+        debugger;
         var parent = getParents(el, '.super-entry')[0];
+        parent.classList.add('super-loading');
         var entry_id = parent.dataset.id;
+        var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    debugger;
                     if(this.responseText==='1'){
                         // Delete entry
-                        el.closest('.super-entry').remove();
+                        parent.remove();
                     }else{
-                        alert('No permission');
+                        alert(this.responseText);
                     }
                 }
+                // Complete:
+                parent.classList.remove('super-loading');
             }
         };
         xhttp.onerror = function () {
@@ -230,6 +302,7 @@
         var params = {
             action: 'super_listings_delete_entry',
             entry_id: entry_id,
+            form_id: form_id,
             list_id: list_id
         };
         params = jQuery.param(params);

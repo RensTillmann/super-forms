@@ -82,7 +82,7 @@ if(!class_exists('SUPER_Listings')) :
                 add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
                 add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
             }
-            if( isset($_GET['super-listings-id']) ) {
+            if( isset($_GET['super-listings-view']) || isset($_GET['super-listings-edit']) ) {
                 //if(SUPER_PLUGIN_FILE){
                 //    SUPER_Forms()->enqueue_fontawesome_styles();
                 //    wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
@@ -94,7 +94,9 @@ if(!class_exists('SUPER_Listings')) :
             }
             add_action( 'wp_ajax_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
             add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
+
         }
+
         public static function getStandardColumns(){
             return array(
                 'title' => array(
@@ -146,6 +148,7 @@ if(!class_exists('SUPER_Listings')) :
         // Use custom template to load / display forms
         // When "Edit" entry button is clicked it will be loaded inside the modal through an iframe
         public static function form_blank_page_template( $template ) {
+            require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
             return dirname( __FILE__ ) . '/form-blank-page-template.php';
         }
         public static function load_form_inside_modal() {
@@ -245,8 +248,11 @@ if(!class_exists('SUPER_Listings')) :
             //    }
             //}
             //echo $html;
-            // Hiding/Showing elements in PDF
-            // Header/Footer usage notice
+
+            // Listing general information
+            echo '<div class="sfui-notice sfui-desc">';
+                echo '<strong>'.esc_html__('About', 'super-forms').':</strong> ' . esc_html__( 'Listings allow you to display Contact Entries in a list/table on the front-end. For each form you can have multiple listings with their own settings. You can copy paste the listings shortcode anywhere in your page to display the listing.', 'super-forms' );
+            echo '</div>';
             
             // Enable listings
             echo '<div class="sfui-setting">';
@@ -322,6 +328,209 @@ if(!class_exists('SUPER_Listings')) :
                                         echo '<label>';
                                             echo '<span class="sfui-label">' . esc_html__( 'Till', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
                                             echo '<input type="date" name="date_range.till" value="' . sanitize_text_field($v['date_range']['till']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // No entries message
+                        echo '<div class="sfui-setting sfui-vertical">';
+                            echo '<label>';
+                                echo '<span class="sfui-title">' . esc_html__( '(HTML) message to display when there are no results', 'super-forms' ) . '</span>';
+                                echo '<textarea name="noResultsMessage">' . $v['noResultsMessage'] . '</textarea>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Which users can see all entries?
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="see_any.enabled" value="true"' . ($v['see_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to see all entries (note that logged in users will always be able to see their own entries)', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="see_any.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="see_any.user_roles" value="' . sanitize_text_field($v['see_any']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="see_any.user_ids" value="' . sanitize_text_field($v['see_any']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+
+                        // Allow viewing any entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="view_any.enabled" value="true"' . ($v['view_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to view any entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="view_any.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="view_any.user_roles" value="' . sanitize_text_field($v['view_any']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="view_any.user_ids" value="' . sanitize_text_field($v['view_any']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'View template HTML', 'super-forms' ) . ' <i>(you can use custom HTML to create your own view, leave blank to use default template' . esc_html__( '', 'super-forms') .')</i></span>';
+                                            echo '<textarea name="view_any.html_template">' . $v['view_any']['html_template'] . '</textarea>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Loop fields HTML', 'super-forms' ) . ' <i>(if you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML' . esc_html__( '', 'super-forms') .')</i></span>';
+                                            echo '<textarea name="view_any.loop_html">' . $v['view_any']['loop_html'] . '</textarea>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Allow viewing own entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="view_own.enabled" value="true"' . ($v['view_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to view their own entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="view_own.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="view_own.user_roles" value="' . sanitize_text_field($v['view_own']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="view_own.user_ids" value="' . sanitize_text_field($v['view_own']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'View template HTML', 'super-forms' ) . ' <i>(you can use custom HTML to create your own view, leave blank to use default template' . esc_html__( '', 'super-forms') .')</i></span>';
+                                            echo '<textarea name="view_own.html_template">' . $v['view_own']['html_template'] . '</textarea>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Loop fields HTML', 'super-forms' ) . ' <i>(if you use {loop_fiels} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML' . esc_html__( '', 'super-forms') .')</i></span>';
+                                            echo '<textarea name="view_own.loop_html">' . $v['view_own']['loop_html'] . '</textarea>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+
+                        // Allow editing any entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="edit_any.enabled" value="true"' . ($v['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="edit_any.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="edit_any.user_roles" value="' . sanitize_text_field($v['edit_any']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($v['edit_any']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="radio" name="edit_any.method" value="modal"' . ($v['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="radio" name="edit_any.method" value="url"' . ($v['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Allow editing own entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="edit_own.enabled" value="true"' . ($v['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="edit_own.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="edit_own.user_roles" value="' . sanitize_text_field($v['edit_own']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="edit_own.user_ids" value="' . sanitize_text_field($v['edit_own']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="radio" name="edit_own.method" value="modal"' . ($v['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="radio" name="edit_own.method" value="url"' . ($v['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Allow deleting any entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="delete_any.enabled" value="true"' . ($v['delete_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete any entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings sfui-vertical" data-f="delete_any.enabled;true">';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="delete_any.user_roles" value="' . sanitize_text_field($v['delete_any']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="delete_any.user_ids" value="' . sanitize_text_field($v['delete_any']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="checkbox" name="delete_any.permanent" value="true"' . ($v['delete_any']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
+                        // Allow delete own entries
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="delete_own.enabled" value="true"' . ($v['delete_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete their own entries', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="delete_own.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="delete_own.user_roles" value="' . sanitize_text_field($v['delete_own']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="delete_own.user_ids" value="' . sanitize_text_field($v['delete_own']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="checkbox" name="delete_own.permanent" value="true"' . ($v['delete_own']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -453,144 +662,6 @@ if(!class_exists('SUPER_Listings')) :
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
-
-                        // Allow display any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="display_any.enabled" value="true"' . ($v['display_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to display any entries (logged in users will always be able to view their own entries)', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="display_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="display_any.user_roles" value="' . sanitize_text_field($v['display_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="display_any.user_ids" value="' . sanitize_text_field($v['display_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow editing any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="edit_any.enabled" value="true"' . ($v['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="edit_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_any.user_roles" value="' . sanitize_text_field($v['edit_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($v['edit_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_any.method" value="modal"' . ($v['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_any.method" value="url"' . ($v['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow editing own entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="edit_own.enabled" value="true"' . ($v['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="edit_own.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_own.user_roles" value="' . sanitize_text_field($v['edit_own']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_own.user_ids" value="' . sanitize_text_field($v['edit_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_own.method" value="modal"' . ($v['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_own.method" value="url"' . ($v['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow deleting any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="delete_any.enabled" value="true"' . ($v['delete_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-vertical" data-f="delete_any.enabled;true">';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_any.user_roles" value="' . sanitize_text_field($v['delete_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_any.user_ids" value="' . sanitize_text_field($v['delete_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="delete_any.permanent" value="true"' . ($v['delete_any']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow delete own entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="delete_own.enabled" value="true"' . ($v['delete_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="delete_own.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_own.user_roles" value="' . sanitize_text_field($v['delete_own']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_own.user_ids" value="' . sanitize_text_field($v['delete_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="delete_own.permanent" value="true"' . ($v['delete_own']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // No entries message
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<input type="text" name="noResultsText" value="' . $v['noResultsText'] . '" />';
-                                echo '<span class="sfui-label"><i>' . esc_html__( 'Text to display when there are no results', 'super-forms' ) . '</i></span>';
-                            echo '</label>';
-                        echo '</div>';
                     echo '</div>';
                 echo '</div>';
             }
@@ -603,7 +674,7 @@ if(!class_exists('SUPER_Listings')) :
         // Get default listing settings
         public static function get_default_listings_settings($list) {
             if(empty($list['name'])) $list['name'] = 'Listing #1';
-            if(empty($list['noResultsText'])) $list['noResultsText'] = esc_html__( 'No results...', 'super-forms' );
+            if(empty($list['noResultsMessage'])) $list['noResultsMessage'] = file_get_contents('templates/no_results_message.html', true);
             if(empty($list['display_based_on'])) $list['display_based_on'] = 'this_form';
             if(empty($list['form_ids'])) $list['form_ids'] = '';
             if(empty($list['date_range'])) $list['date_range'] = array(
@@ -709,12 +780,37 @@ if(!class_exists('SUPER_Listings')) :
                     )
                 ),
             );
-            // Display permissions
-            if( empty($list['display_any']) ) $list['display_any'] = array(
+            // See any permissions
+            if( empty($list['see_any']) ) $list['see_any'] = array(
                 'enabled'=>'true',
                 'user_roles'=>'administrator',
                 'user_ids'=>''
             );
+            // View permissions
+            if( empty($list['view_any']) ) $list['view_any'] = array(
+                'enabled'=>'true',
+                'method'=>'modal',
+                'user_roles'=>'administrator',
+                'user_ids'=>''
+            );
+            if( empty($list['view_own']) ) $list['view_own'] = array(
+                'enabled'=>'false',
+                'method'=>'modal',
+                'user_roles'=>'',
+                'user_ids'=>''
+            );
+
+            // HTML template
+            $html_template = file_get_contents('templates/view_any_html_template.html', true);
+            if( empty($list['view_any']['html_template']) ) $list['view_any']['html_template'] = $html_template;
+            $html_template = file_get_contents('templates/view_own_html_template.html', true);
+            if( empty($list['view_own']['html_template']) ) $list['view_own']['html_template'] = $html_template;
+            // Loop HTML
+            $loop_html = file_get_contents('templates/view_any_loop_html.html', true);
+            if( empty($list['view_any']['loop_html']) ) $list['view_any']['loop_html'] = $loop_html;
+            $loop_html = file_get_contents('templates/view_own_loop_html.html', true);
+            if( empty($list['view_own']['loop_html']) ) $list['view_own']['loop_html'] = $loop_html;
+
             // Edit permissions
             if( empty($list['edit_any']) ) $list['edit_any'] = array(
                 'enabled'=>'true',
@@ -743,6 +839,8 @@ if(!class_exists('SUPER_Listings')) :
             );
             if( empty($list['pagination']) ) $list['pagination'] = 'page';
             if( empty($list['limit']) ) $list['limit'] = 25;
+
+            $list = apply_filters( 'super_listings_default_settings_filter', $list );
             return $list;
         }
 
@@ -1005,51 +1103,11 @@ if(!class_exists('SUPER_Listings')) :
                 $having .= " HAVING filterValue LIKE '%$fv%'";
             }
 
-            // Filters by listing settings
-            $allowDisplayAny = false;
-            if(!empty($list['display_any'])) {
-                if($list['display_any']['enabled']==='true'){
-                    // Check if both roles and user ID's are empty
-                    if( (empty($list['display_any']['user_roles'])) && (empty($list['display_any']['user_ids'])) ){
-                        $allowDisplayAny = true;
-                    }else{
-                        $allowed_roles = preg_replace('/\s+/', '', $list['display_any']['user_roles']);
-                        $allowed_roles = explode(",", $allowed_roles);
-                        if( (!empty($list['display_any']['user_roles'])) && (empty($list['display_any']['user_ids'])) ){
-                            // Only compare against user roles
-                            foreach( $current_user->roles as $v ) {
-                                if( in_array( $v, $allowed_roles ) ) {
-                                    $allowDisplayAny = true;
-                                }
-                            }
-                        }else{
-                            if(empty($list['display_any']['user_roles'])) {
-                                // Only compare against user ID
-                                $allowed_ids = preg_replace('/\s+/', '', $list['display_any']['user_ids']);
-                                $allowed_ids = explode(",", $allowed_ids);
-                                if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                    $allowDisplayAny = true;
-                                }
-                            }else{
-                                // Compare against both user roles and ids
-                                foreach( $current_user->roles as $v ) {
-                                    if( in_array( $v, $allowed_roles ) ) {
-                                        $allowed_ids = preg_replace('/\s+/', '', $list['display_any']['user_ids']);
-                                        $allowed_ids = explode(",", $allowed_ids);
-                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                            $allowDisplayAny = true;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if($allowDisplayAny===true){
-                // Display all entries
+            $allow = self::get_action_permissions(array('list'=>$list));
+            if($allow['allowSeeAny']===true){
+                // Allow user to see any entries in the list
             }else{
-                // Only display entries based on the current logged in user
+                // Only allow to see entries that belong to the currently logged in user
                 $where .= ' AND post_author = "' . absint( $current_user->ID ) . '"';
             }
 
@@ -1146,9 +1204,10 @@ if(!class_exists('SUPER_Listings')) :
             ";
             //var_dump($query);
             $entries = $wpdb->get_results($query);
+            //var_dump($entries);
 
             $result = '';
-            $result .= '<div class="super-listings">';
+            $result .= '<div class="super-listings' . (count($entries)===0 ? ' super-no-results' : '') . '" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'">';
                 $result .= '<div class="super-header">';
                     $result .= '<div class="super-select-all">';
                         $result .= esc_html__( 'Select All', 'super-forms' );
@@ -1163,13 +1222,24 @@ if(!class_exists('SUPER_Listings')) :
                         if( isset($entries[0]) ) {
                             $entry = $entries[0];
                         }
-                        $result .= '<div class="super-col super-actions">';
-                            $actions = '<span class="super-edit"></span>';
-                            $actions .= '<span class="super-view"></span>';
-                            $actions .= '<span class="super-delete"></span>';
-                            $result .= apply_filters( 'super_s_actions_filter', $actions, $entry );
-                        $result .= ' </div>';
-
+                        $actions = '';
+                        $actions .= '<span class="super-edit"></span>';
+                        $actions .= '<span class="super-view"></span>';
+                        $actions .= '<span class="super-delete"></span>';
+                        if( ($list['view_any']['enabled']!=='true') &&
+                            ($list['view_own']['enabled']!=='true') &&
+                            ($list['edit_any']['enabled']!=='true') &&
+                            ($list['edit_own']['enabled']!=='true') &&
+                            ($list['delete_any']['enabled']!=='true') &&
+                            ($list['delete_own']['enabled']!=='true') ){
+                            $actions = '';
+                        }
+                        $actionsHeader = apply_filters( 'super_listings_actions_filter', $actions, $entry );
+                        if(!empty($actionsHeader)){
+                            $result .= '<div class="super-col super-actions">';
+                                $result .= $actions;
+                            $result .= ' </div>';
+                        }
                         foreach( $columns as $k => $v ) {
                             // If a max width was defined use it on the col-wrap
                             $styles = '';
@@ -1245,7 +1315,7 @@ if(!class_exists('SUPER_Listings')) :
 
                     $result .= '<div class="super-entries">';
                         if(count($entries)===0){
-                            $result .= '<div class="super-no-results">'.$list['noResultsText'].'</div>';
+                            $result .= '<div class="super-no-results">'.$list['noResultsMessage'].'</div>';
                         }else{
                             $result .= '<div class="super-scroll"></div>';
                             if( !class_exists( 'SUPER_Settings' ) ) require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
@@ -1255,204 +1325,41 @@ if(!class_exists('SUPER_Listings')) :
                                 $data = unserialize($entry->contact_entry_data);
                                 $result .= '<div class="super-entry" data-id="' . $entry->post_id . '">';
                                     $result .= '<div class="super-col super-check"></div>';
-                                    $result .= '<div class="super-col super-actions">';
-                                        $actions = '';
-    
-                                        // EDIT ANY
-                                        // Check if any user or own user is allowed to edit entry
-                                        $allowEditMethod = '';
-                                        $allowEditAny = false;
-                                        if(!empty($list['edit_any'])) {
-                                            if($list['edit_any']['enabled']==='true'){
-                                                $allowEditMethod = $list['edit_any']['method'];
-                                                // Check if both roles and user ID's are empty
-                                                if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
-                                                    $allowEditAny = true;
+                                    if(!empty($actionsHeader)){
+                                        $result .= '<div class="super-col super-actions">';
+                                            $allow = self::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
+                                            $allowViewAny = $allow['allowViewAny'];
+                                            $allowViewOwn = $allow['allowViewOwn'];
+                                            $allowEditAny = $allow['allowEditAny'];
+                                            $allowEditOwn = $allow['allowEditOwn'];
+                                            $allowEditMethod = $allow['allowEditMethod'];
+                                            $allowDeleteAny = $allow['allowDeleteAny'];
+                                            $allowDeleteOwn = $allow['allowDeleteOwn'];
+                                            $actions = '';
+                                            if($allowViewAny===true || $allowViewOwn===true){
+                                                $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
+                                            }
+                                            if($allowEditAny===true || $allowEditOwn===true){
+                                                if($allowEditMethod=='url'){
+                                                    $url = $settings['form_location']; 
+                                                    $query = parse_url($url, PHP_URL_QUERY);
+                                                    // Returns a string if the URL has parameters or NULL if not
+                                                    if ($query) {
+                                                        $url .= '&contact_entry_id=' . $entry->post_id;
+                                                    } else {
+                                                        $url .= '?contact_entry_id=' . $entry->post_id;
+                                                    }
+                                                    $actions .= '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
                                                 }else{
-                                                    $allowed_roles = preg_replace('/\s+/', '', $list['edit_any']['user_roles']);
-                                                    $allowed_roles = explode(",", $allowed_roles);
-                                                    if( (!empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
-                                                        // Only compare against user roles
-                                                        foreach( $current_user->roles as $v ) {
-                                                            if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowEditAny = true;
-                                                            }
-                                                        }
-                                                    }else{
-                                                        if(empty($list['edit_any']['user_roles'])) {
-                                                            // Only compare against user ID
-                                                            $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
-                                                            $allowed_ids = explode(",", $allowed_ids);
-                                                            if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                $allowEditAny = true;
-                                                            }
-                                                        }else{
-                                                            // Compare against both user roles and ids
-                                                            foreach( $current_user->roles as $v ) {
-                                                                if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
-                                                                    $allowed_ids = explode(",", $allowed_ids);
-                                                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                        $allowEditAny = true;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
+                                                    $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
                                                 }
                                             }
-                                        }
-                                        // EDIT OWN
-                                        $allowEditOwn = false;
-                                        if(!empty($list['edit_own'])) {
-                                            if($list['edit_own']['enabled']==='true'){
-                                                // First check if entry author ID equals logged in user ID
-                                                if(absint($current_user->ID) === absint($entry->post_author)){
-                                                    $allowEditMethod = $list['edit_own']['method'];
-                                                    // Check if both roles and user ID's are empty
-                                                    if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
-                                                        $allowEditOwn = true;
-                                                    }else{
-                                                        $allowed_roles = preg_replace('/\s+/', '', $list['edit_own']['user_roles']);
-                                                        $allowed_roles = explode(",", $allowed_roles);
-                                                        if( (!empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
-                                                            // Only compare against user roles
-                                                            foreach( $current_user->roles as $v ) {
-                                                                if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowEditOwn = true;
-                                                                }
-                                                            }
-                                                        }else{
-                                                            if(empty($list['edit_own']['user_roles'])) {
-                                                                // Only compare against user ID
-                                                                $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
-                                                                $allowed_ids = explode(",", $allowed_ids);
-                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                    $allowEditOwn = true;
-                                                                }
-                                                            }else{
-                                                                // Compare against both user roles and ids
-                                                                foreach( $current_user->roles as $v ) {
-                                                                    if( in_array( $v, $allowed_roles ) ) {
-                                                                        $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
-                                                                        $allowed_ids = explode(",", $allowed_ids);
-                                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                            $allowEditOwn = true;
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                            if($allowDeleteAny===true || $allowDeleteOwn===true){
+                                                $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
                                             }
-                                        }
-                                        // DELETE ANY
-                                        $allowDeleteAny = false;
-                                        if(!empty($list['delete_any'])) {
-                                            if($list['delete_any']['enabled']==='true'){
-                                                // Check if both roles and user ID's are empty
-                                                if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
-                                                    $allowDeleteAny = true;
-                                                }else{
-                                                    $allowed_roles = preg_replace('/\s+/', '', $list['delete_any']['user_roles']);
-                                                    $allowed_roles = explode(",", $allowed_roles);
-                                                    if( (!empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
-                                                        // Only compare against user roles
-                                                        foreach( $current_user->roles as $v ) {
-                                                            if( in_array( $v, $allowed_roles ) ) {
-                                                                $allowDeleteAny = true;
-                                                            }
-                                                        }
-                                                    }else{
-                                                        if(empty($list['delete_any']['user_roles'])) {
-                                                            // Only compare against user ID
-                                                            $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
-                                                            $allowed_ids = explode(",", $allowed_ids);
-                                                            if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                $allowDeleteAny = true;
-                                                            }
-                                                        }else{
-                                                            // Compare against both user roles and ids
-                                                            foreach( $current_user->roles as $v ) {
-                                                                if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
-                                                                    $allowed_ids = explode(",", $allowed_ids);
-                                                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                        $allowDeleteAny = true;
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        // DELETE OWN
-                                        $allowDeleteOwn = false;
-                                        if(!empty($list['delete_own'])) {
-                                            if($list['delete_own']['enabled']==='true'){
-                                                // First check if entry author ID equals logged in user ID
-                                                if(absint($current_user->ID) === absint($entry->post_author)){
-                                                    // Check if both roles and user ID's are empty
-                                                    if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
-                                                        $allowDeleteOwn = true;
-                                                    }else{
-                                                        $allowed_roles = preg_replace('/\s+/', '', $list['delete_own']['user_roles']);
-                                                        $allowed_roles = explode(",", $allowed_roles);
-                                                        if( (!empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
-                                                            // Only compare against user roles
-                                                            foreach( $current_user->roles as $v ) {
-                                                                if( in_array( $v, $allowed_roles ) ) {
-                                                                    $allowDeleteOwn = true;
-                                                                }
-                                                            }
-                                                        }else{
-                                                            if(empty($list['delete_own']['user_roles'])) {
-                                                                // Only compare against user ID
-                                                                $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
-                                                                $allowed_ids = explode(",", $allowed_ids);
-                                                                if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                    $allowDeleteOwn= true;
-                                                                }
-                                                            }else{
-                                                                // Compare against both user roles and ids
-                                                                foreach( $current_user->roles as $v ) {
-                                                                    if( in_array( $v, $allowed_roles ) ) {
-                                                                        $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
-                                                                        $allowed_ids = explode(",", $allowed_ids);
-                                                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
-                                                                            $allowDeleteOwn= true;
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
-                                        if($allowEditAny===true || $allowEditOwn===true){
-                                            if($allowEditMethod=='url'){
-                                                $url = $settings['form_location']; 
-                                                $query = parse_url($url, PHP_URL_QUERY);
-                                                // Returns a string if the URL has parameters or NULL if not
-                                                if ($query) {
-                                                    $url .= '&contact_entry_id=' . $entry->post_id;
-                                                } else {
-                                                    $url .= '?contact_entry_id=' . $entry->post_id;
-                                                }
-                                                $actions .= '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
-                                            }else{
-                                                $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
-                                            }
-                                        }
-                                        if($allowDeleteOwn===true || $allowDeleteAny===true){
-                                            $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
-                                        }
-                                        $result .= apply_filters( 'super_listings_actions_filter', $actions, $entry );
-                                    $result .= ' </div>';
+                                            $result .= apply_filters( 'super_listings_actions_filter', $actions, $entry );
+                                        $result .= ' </div>';
+                                    }
     
                                     foreach( $columns as $ck => $cv ) {
                                         // If a max width was defined use it on the col-wrap
@@ -1599,6 +1506,320 @@ if(!class_exists('SUPER_Listings')) :
                 //}
             $result .= '</div>';
             return $result;
+        }
+        public static function get_action_permissions($atts){
+            global $current_user;
+            $list = $atts['list'];
+            $entry = (isset($atts['entry']) ? $atts['entry'] : null);
+
+            // SEE ANY (logged in users can always see their own entries in the list)
+            $allowSeeAny = false;
+            if(!empty($list['see_any'])) {
+                if($list['see_any']['enabled']==='true'){
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['see_any']['user_roles'])) && (empty($list['see_any']['user_ids'])) ){
+                        $allowSeeAny = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['see_any']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['see_any']['user_roles'])) && (empty($list['see_any']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowSeeAny = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['see_any']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['see_any']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowSeeAny = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                if(!empty($list['see_any']['user_ids'])) {
+                                    foreach( $current_user->roles as $v ) {
+                                        if( in_array( $v, $allowed_roles ) ) {
+                                            $allowSeeAny = true;
+                                        }
+                                    }
+                                }
+                                if(!empty($list['see_any']['user_ids'])) {
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['see_any']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowSeeAny = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // VIEW ANY (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
+            $allowViewAny = false;
+            if(!empty($list['view_any'])) {
+                if($list['view_any']['enabled']==='true'){
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['view_any']['user_roles'])) && (empty($list['view_any']['user_ids'])) ){
+                        $allowViewAny = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['view_any']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['view_any']['user_roles'])) && (empty($list['view_any']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowViewAny = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['view_any']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['view_any']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowViewAny = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                if(!empty($list['view_any']['user_ids'])) {
+                                    foreach( $current_user->roles as $v ) {
+                                        if( in_array( $v, $allowed_roles ) ) {
+                                            $allowViewAny = true;
+                                        }
+                                    }
+                                }
+                                if(!empty($list['view_any']['user_ids'])) {
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['view_any']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowViewAny = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // VIEW OWN (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
+            $allowViewOwn = false;
+            if(!empty($list['view_own']) && isset($entry)) {
+                if($list['view_own']['enabled']==='true'){
+                    // First check if entry author ID equals logged in user ID
+                    if(absint($current_user->ID) === absint($entry->post_author)){
+                        $allowViewOwn = true;
+                    }
+                }
+            }
+
+            // EDIT ANY
+            // Check if any user or own user is allowed to edit entry
+            $allowEditMethod = '';
+            $allowEditAny = false;
+            if(!empty($list['edit_any'])) {
+                if($list['edit_any']['enabled']==='true'){
+                    $allowEditMethod = $list['edit_any']['method'];
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
+                        $allowEditAny = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['edit_any']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowEditAny = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['edit_any']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowEditAny = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                if(!empty($list['edit_any']['user_ids'])) {
+                                    foreach( $current_user->roles as $v ) {
+                                        if( in_array( $v, $allowed_roles ) ) {
+                                            $allowEditAny = true;
+                                        }
+                                    }
+                                }
+                                if(!empty($list['edit_any']['user_ids'])) {
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['edit_any']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowEditAny = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // EDIT OWN
+            $allowEditOwn = false;
+            if(!empty($list['edit_own']) && isset($entry)) {
+                if($list['edit_own']['enabled']==='true'){
+                    // First check if entry author ID equals logged in user ID
+                    if(absint($current_user->ID) === absint($entry->post_author)){
+                        $allowEditMethod = $list['edit_own']['method'];
+                        // Check if both roles and user ID's are empty
+                        if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
+                            $allowEditOwn = true;
+                        }else{
+                            $allowed_roles = preg_replace('/\s+/', '', $list['edit_own']['user_roles']);
+                            $allowed_roles = explode(",", $allowed_roles);
+                            if( (!empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
+                                // Only compare against user roles
+                                foreach( $current_user->roles as $v ) {
+                                    if( in_array( $v, $allowed_roles ) ) {
+                                        $allowEditOwn = true;
+                                    }
+                                }
+                            }else{
+                                if(empty($list['edit_own']['user_roles'])) {
+                                    // Only compare against user ID
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowEditOwn = true;
+                                    }
+                                }else{
+                                    // Compare against both user roles and ids
+                                    if(!empty($list['edit_own']['user_ids'])) {
+                                        foreach( $current_user->roles as $v ) {
+                                            if( in_array( $v, $allowed_roles ) ) {
+                                                $allowEditOwn = true;
+                                            }
+                                        }
+                                    }
+                                    if(!empty($list['edit_own']['user_ids'])) {
+                                        $allowed_ids = preg_replace('/\s+/', '', $list['edit_own']['user_ids']);
+                                        $allowed_ids = explode(",", $allowed_ids);
+                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                            $allowEditOwn = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // DELETE ANY
+            $allowDeleteAny = false;
+            if(!empty($list['delete_any'])) {
+                if($list['delete_any']['enabled']==='true'){
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
+                        $allowDeleteAny = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['delete_any']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowDeleteAny = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['delete_any']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowDeleteAny = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                if(!empty($list['delete_any']['user_ids'])) {
+                                    foreach( $current_user->roles as $v ) {
+                                        if( in_array( $v, $allowed_roles ) ) {
+                                            $allowDeleteAny = true;
+                                        }
+                                    }
+                                }
+                                if(!empty($list['delete_any']['user_ids'])) {
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['delete_any']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowDeleteAny = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // DELETE OWN
+            $allowDeleteOwn = false;
+            if(!empty($list['delete_own']) && isset($entry)) {
+                if($list['delete_own']['enabled']==='true'){
+                    // First check if entry author ID equals logged in user ID
+                    if(absint($current_user->ID) === absint($entry->post_author)){
+                        // Check if both roles and user ID's are empty
+                        if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
+                            $allowDeleteOwn = true;
+                        }else{
+                            $allowed_roles = preg_replace('/\s+/', '', $list['delete_own']['user_roles']);
+                            $allowed_roles = explode(",", $allowed_roles);
+                            if( (!empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
+                                // Only compare against user roles
+                                foreach( $current_user->roles as $v ) {
+                                    if( in_array( $v, $allowed_roles ) ) {
+                                        $allowDeleteOwn = true;
+                                    }
+                                }
+                            }else{
+                                if(empty($list['delete_own']['user_roles'])) {
+                                    // Only compare against user ID
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowDeleteOwn= true;
+                                    }
+                                }else{
+                                    // Compare against both user roles and ids
+                                    if(!empty($list['delete_own']['user_ids'])) {
+                                        foreach( $current_user->roles as $v ) {
+                                            if( in_array( $v, $allowed_roles ) ) {
+                                                $allowDeleteOwn= true;
+                                            }
+                                        }
+                                    }
+                                    if(!empty($list['delete_own']['user_ids'])) {
+                                        $allowed_ids = preg_replace('/\s+/', '', $list['delete_own']['user_ids']);
+                                        $allowed_ids = explode(",", $allowed_ids);
+                                        if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                            $allowDeleteOwn= true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return array(
+                'allowSeeAny' => $allowSeeAny,
+                'allowViewAny' => $allowViewAny,
+                'allowViewOwn' => $allowViewOwn,
+                'allowEditAny' => $allowEditAny,
+                'allowEditOwn' => $allowEditOwn,
+                'allowEditMethod' => $allowEditMethod,
+                'allowDeleteAny' => $allowDeleteAny,
+                'allowDeleteOwn' => $allowDeleteOwn
+            );
         }
     }
 endif;
