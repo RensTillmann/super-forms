@@ -1773,6 +1773,247 @@ class SUPER_Common {
         return $tags;
     }
 
+
+    /**
+     * Retrieve HTML for email loop
+     * 
+    */
+    public static function retrieve_email_loop_html($atts){
+        $data = $atts['data'];
+        $settings = $atts['settings'];
+        $exclude = $atts['exclude']; // Fields to exclude (currently used by Listings Add-on)
+        $listing_loop = '';
+        $email_loop = '';
+        $confirm_loop = '';
+        $attachments = array();
+        $confirm_attachments = array();
+        $string_attachments = array();
+        if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
+            foreach( $data as $k => $v ) {
+                // Skip dynamic data
+                if($k=='_super_dynamic_data') continue;
+                
+                $row = $settings['email_loop'];
+                $confirm_row = $row;
+                if( isset($settings['confirm_email_loop']) ) {
+                    $confirm_row = $settings['confirm_email_loop'];
+                }
+                // Used by Listings Add-on only
+                if( isset($atts['listing_loop']) ) {
+                    $listing_row = $atts['listing_loop'];
+                }
+
+                // Exclude from emails
+                // 0 = Do not exclude from e-mails
+                // 1 = Exclude from confirmation email
+                // 2 = Exclude from all email
+                // 3 = Exclude from admin email
+                if( !isset( $v['exclude'] ) ) {
+                    $v['exclude'] = 0;
+                }
+                if( $v['exclude']==2 ) {
+                    // Exclude from all emails
+                    continue;
+                }
+
+                /** 
+                 *  Filter to control the email loop when something special needs to happen
+                 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+                 *
+                 *  @param  string  $row
+                 *  @param  array   $data
+                 *
+                 *  @since      1.0.9
+                */
+                $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $listing_result = apply_filters( 'super_before_listing_loop_data_filter', $listing_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $continue = false;
+                if( isset( $result['status'] ) ) {
+                    if( $result['status']=='continue' ) {
+                        if( isset( $result['string_attachments'] ) ) {
+                            $string_attachments = $result['string_attachments'];
+                        }
+                        $email_loop .= $result['row'];
+                        $continue = true;
+                    }
+                }
+                if( isset( $confirm_result['status'] ) ) {
+                    if( $confirm_result['status']=='continue' ) {
+                        if( isset( $confirm_result['string_attachments'] ) ) {
+                            $string_attachments = $confirm_result['string_attachments'];
+                        }
+                        if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
+                        }else{
+                            $confirm_loop .= $confirm_result['row'];
+                        }
+                        $continue = true;
+                    }
+                }
+                if( isset( $listing_result['status'] ) ) {
+                    if( $listing_result['status']=='continue' ) {
+                        if( isset( $listing_result['string_attachments'] ) ) {
+                            $string_attachments = $listing_result['string_attachments'];
+                        }
+                        if( ( isset( $listing_result['exclude'] ) ) && ( $listing_result['exclude']==1 ) ) {
+                        }else{
+                            $listing_loop .= $listing_result['row'];
+                        }
+                        $continue = true;
+                    }
+                }
+                if($continue) continue;
+
+                if( isset($v['type']) && $v['type']=='files' ) {
+                    $files_value = '';
+                    $files_value_listing = '';
+                    if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
+                        $v['value'] = '';
+                        if( !empty( $v['label'] ) ) {
+                            // Replace %d with empty string if exists
+                            $v['label'] = str_replace('%d', '', $v['label']);
+                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                        }else{
+                            $row = str_replace( '{loop_label}', '', $row );
+                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', '', $listing_row );
+                        }
+                        $files_value .= esc_html__( 'User did not upload any files', 'super-forms' );
+                    }else{
+                        $v['value'] = '-';
+                        foreach( $v['files'] as $key => $value ) {
+                            // Check if user explicitely wants to remove files from {loop_fields} in emails
+                            if(!empty($settings['file_upload_remove_from_email_loop'])) {
+                                // Remove this row completely
+                                $row = ''; 
+                                $confirm_row = '';
+                            }else{
+                                if( $key==0 ) {
+                                    if( !empty( $v['label'] ) ) {
+                                        $v['label'] = str_replace('%d', '', $v['label']);
+                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+                                        $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                                    }else{
+                                        $row = str_replace( '{loop_label}', '', $row );
+                                        $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                                        $listing_row = str_replace( '{loop_label}', '', $listing_row );
+                                    }
+                                }
+                                // In case the file was deleted we do not want to add a hyperlink that links to the file
+                                // In case the user explicitely choose to remove the hyperlink
+                                if( !empty($settings['file_upload_submission_delete']) || 
+                                    !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
+                                    $files_value .= $value['value'] . '<br /><br />';
+                                }else{
+                                    $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
+                                }
+                                if( !empty($settings['file_upload_submission_delete']) ) {
+                                    $files_value_listing .= $value['value'] . '<br />';
+                                }else{
+                                    $files_value_listing .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br />';
+                                }
+                            }
+                            // Check if we should exclude the file from emails
+                            // 0 = Do not exclude from e-mails
+                            // 1 = Exclude from confirmation email
+                            // 2 = Exclude from all email
+                            // 3 = Exclude from admin email
+                            if( $v['exclude']!=2 ) {
+                                // Get either URL or Secure file path
+                                if(!empty($value['attachment'])){
+                                    $fileValue = $value['url'];
+                                }else{
+                                    // See if this was a secure file upload
+                                    if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
+                                }
+                                // 1 = Exclude from confirmation email
+                                if( $v['exclude']==1 ) {
+                                    $attachments[$value['value']] = $fileValue;
+                                }else{
+                                    // 3 = Exclude from admin email
+                                    if( $v['exclude']==3 ) {
+                                        $confirm_attachments[$value['value']] = $fileValue;
+                                    }else{
+                                        // Do not exclude
+                                        $attachments[$value['value']] = $fileValue;
+                                        $confirm_attachments[$value['value']] = $fileValue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $row = str_replace( '{loop_value}', $files_value, $row );
+                    $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
+                    $listing_row = str_replace( '{loop_value}', $files_value_listing, $listing_row );
+                }else{
+                    if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
+                        $row = '';
+                        $confirm_row = '';
+                        $listing_row = '';
+                    }else{
+                        if( !empty( $v['label'] ) ) {
+                            $v['label'] = str_replace('%d', '', $v['label']);
+                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                        }else{
+                            $row = str_replace( '{loop_label}', '', $row );
+                            $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', '', $listing_row );
+                        }
+                        // @since 1.2.7
+                        if( isset( $v['admin_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
+                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
+                        }
+                        if( isset( $v['confirm_value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
+                        }
+                        if( isset( $v['value'] ) ) {
+                            // @since 3.9.0 - replace comma's with HTML
+                            if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
+                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
+                            $listing_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $listing_row );
+                        }
+
+                    }
+                }
+
+                // @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
+                // 0 = Do not exclude from e-mails
+                // 1 = Exclude from confirmation email
+                // 2 = Exclude from all email
+                // 3 = Exclude from admin email
+                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && empty($v['value']) )) {
+                    // Exclude from admin email loop
+                }else{
+                    $email_loop .= $row;
+                }
+                if( $v['exclude']==1 || ($settings['confirm_exclude_empty']=='true' && empty($v['value']) )) {
+                    // Exclude from confirmation email loop
+                }else{
+                    $confirm_loop .= $confirm_row;
+                }
+                $listing_loop .= $listing_row;
+            }
+        }
+        return array(
+            'listing_loop' => $listing_loop,
+            'email_loop' => $email_loop,
+            'confirm_loop' => $confirm_loop
+        );
+    }
+
+
+
     /**
      * Remove directory and it's contents
      *

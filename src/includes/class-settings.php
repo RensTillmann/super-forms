@@ -2944,7 +2944,7 @@ class SUPER_Settings {
          *
          *	@since		1.0.0
         */
-        $array['backend_settings'] = array(        
+        $array['backend_settings'] = array(
             'hidden' => true,
             'name' => esc_html__( 'Backend Settings', 'super-forms' ),
             'label' => esc_html__('Here you can change serveral settings that apply to your backend', 'super-forms' ),
@@ -2994,6 +2994,31 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );
         
+        /** 
+         *	WooCommerce /my-account menu items
+         *
+         *	@since		5.0.0
+        */
+        $array['wc_my_account_menu'] = array(
+            'hidden' => true,
+            'name' => esc_html__( 'WooCommerce My Account Menu Items', 'super-forms' ),
+            'label' => esc_html__('Define custom WooCommerce "My Account" menu items', 'super-forms' ),
+            'html' => array(
+                '<p style="background-color: #ff3535;color: #ffffff;font-size: 14px;line-height: 16px;margin-bottom: 30px;border-radius: 5px;padding: 15px 25px 15px 25px;">',
+                '<strong style="font-size:16px;">' . esc_html__( 'Please note:', 'super-forms' ) . '</strong> ',
+                sprintf( esc_html__( 'In order to reflect any changes made to the below settings you must refresh your permalinks under %1$sSettings > Permalinks%2$s by clicking "Save Changes".', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'options-permalink.php') . '">', '</a>'),
+                '</p>',
+            ),
+            'fields' => array(
+                'wc_my_account_menu_items' => array(
+                    'name' => esc_html__('Define menu items', 'super-forms' ),
+                    'desc' => sprintf( esc_html__('Put each on a new line formatted like this:%1$s%4$smenu-slug|Menu Title|Put your HTML or shortcode here...|Integer for menu item position (optional)|URL to custom page (optional)%5$s%1$s%2$sExample without custom page URL:%3$s%1$s%4$sform-submissions|Form Submissions|[super_listings list="1" id="54751"]|3%5$s%1$s%2$sExample with custom page URL:%3$s%1$s%4$sform-submissions|Form Submissions|[super_listings list="1" id="54751"]|3|https://domain.com/my-custom-page%5$s', 'super-forms' ), '<br />', '<strong>', '</strong>', '<div class="super-settings-code-snippet">', '</div>' ),
+                    'default' => self::get_value( $default, 'wc_my_account_menu_items', $settings, "" ),
+                    'type' => 'textarea', 
+                ),
+            ),
+        );
+        $array = apply_filters( 'super_settings_after_wc_my_account_menu_filter', $array, array( 'settings'=>$settings ) );
 
         /** 
          *  Custom CSS

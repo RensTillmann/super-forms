@@ -5592,6 +5592,18 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
+        // Allow users to override any form settings through the shortcode, this way you can have a single form that can be used many times with different settings
+        foreach($atts as $k => $v){
+            // If the shortcode attribute starts with "_setting_" we use it 
+            // e.g.: `_setting_retrieve_last_entry_data="false"` will set the option to "false", even if it was set to "true"
+            if(substr( $k, 0, 9 )==='_setting_'){
+                // Either override existing setting or set new
+                $settingKey = substr($k, 9, strlen($k));
+                $settings[substr($k, 9, strlen($k))] = $v;
+            }
+        }
+
+
         $translations = SUPER_Common::get_form_translations($form_id);
 
         // @since 4.7.0 - translation
@@ -5799,6 +5811,9 @@ class SUPER_Shortcodes {
             // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
             $result .= '<span class="super-load-icon"></span>';
 
+
+
+
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
             if($settings['i18n_switch']=='true'){
@@ -5982,6 +5997,19 @@ class SUPER_Shortcodes {
                         return '';
                     }
                 }
+            }
+        }
+
+        // Display message to admin if the form is in debug mode for PDF generator
+        if(!empty($settings['_pdf'])) {
+            if($settings['_pdf']['generate']==='true' && $settings['_pdf']['debug']==='true') {
+                $result .= '<div class="super-msg super-info">';
+                    if($settings['form_locker_msg_title']!='') {
+                        $result .= '<h1>'.esc_html__( 'PDF Generator debug mode is enabled!', 'super-forms' ).'</h1>';
+                    }
+                    $result .= esc_html__( 'The form will not be submitted, no email will be send and no Contact Entry will be saved. Only the PDF file will be generated and downloaded for testing purposes.', 'super-forms' );
+                    $result .= '<span class="super-close"></span>';
+                $result .= '</div>';
             }
         }
         

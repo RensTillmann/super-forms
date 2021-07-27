@@ -2802,11 +2802,16 @@
 .sfui-setting.sfui-vertical > .sfui-sub-settings {
     margin:0px 0px 0px 0px;
 }
-.sfui-setting textarea,
 .sfui-setting input,
 .sfui-setting select {
-    width:100%;
-    resize:both;
+    width: 100%;
+    max-width: 100%;
+}
+.sfui-setting textarea {
+    width: 100%;
+    max-width: 100%;
+    resize: vertical;
+    min-height: 100px;
 }
 .sfui-setting input[type="date"] {
     width:150px;
