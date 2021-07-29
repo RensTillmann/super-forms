@@ -21,6 +21,7 @@
 - **Fix:** `Front-end Posting Add-on` issue with saving google map data for ACF map field
 - **Fix:** `Signature Add-on` fix issue when clicking on canvas would create a vertical line instead of a small dot
 - **Fix:** `WooCommerce Checkout Add-on` issue with `External/Affiliate product` URL being reset to the product permalink
+- **Fix:** `WooCommerce Checkout Add-on` bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 - **Fix:** `Zapier Add-on` use numbered index instead of filenames as index for the array, otherwise you would not be able to map/retrieve the file within zapier interface
 
 
