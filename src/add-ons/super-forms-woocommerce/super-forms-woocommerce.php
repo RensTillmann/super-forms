@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.8.1
+ * Version:     1.8.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.8.1';
+        public $version = '1.8.2';
 
 
         /**
@@ -205,6 +205,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             $productId = $cart_item['product_id'];
             // Based on hiding product from shop
             $result = $this->hideProductsByIdOrSlug();
+            if(!$result) return $remove;
             if($result){
                 if( (count($result['ids'])!==0 && in_array($productId, $result['ids'])) || (count($result['slugs'])!==0 && has_term($result['slugs'], 'product_cat', $productId)) ) {
                     return true;
@@ -251,7 +252,7 @@ if(!class_exists('SUPER_WooCommerce')) :
         // Exclude products from WooCommerce shortcodes
         public function exclude_products_from_wc_shortcodes($query_args, $attr, $type){
             $result = $this->hideProductsByIdOrSlug();
-            if(!$result) return true;
+            if(!$result) return $query_args;
             if(count($result['ids'])!==0){
                 $query_args['post__not_in'] = $result['ids'];
             }
