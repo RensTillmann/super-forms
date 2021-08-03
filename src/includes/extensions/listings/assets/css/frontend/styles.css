@@ -1,11 +1,10 @@
 .super-listings {
     display: block;
     float: left;
-    background-color: white;
     width: 100%;
 }
 .super-listings-wrap {
-    overflow-x: scroll;
+    overflow-x: auto;
     overflow-y: hidden;
     width: 100%;
 }
@@ -67,7 +66,7 @@
   margin: 0px 10px 0px 0px;
 }
 .super-listings .super-columns {
-  padding-left:40px;
+  padding-left:20px;
   margin-bottom:15px;
   min-width: 100%;
 }
@@ -134,21 +133,11 @@
   border-radius:3px;
   color:#8C8C8C;
   padding:0px 10px 0px 10px;
+  margin: 0;
 }
 .super-entry {
   padding:10px 0px 10px 0px;
-  background-color:#fff;
-  color: #8c8c8c;
 }
-.super-entries > .super-entry:nth-of-type(odd) {
-  background-color: #F8F8F8;
-}
-.super-entry:hover,
-.super-entry:hover:nth-of-type(odd) {
-  color: #333333;
-  background-color:#fffbe0;
-}
-
 .super-entry * {
   font-size:13px;
 }
@@ -168,12 +157,13 @@
     padding:0px 10px 0px 10px;
 }
 .super-entry .super-col.super-check {
-  width:40px;
+  width:25px;
   height:25px;
   margin-right:0;
 }
 .super-entry .super-col.super-check:before {
   top:2px;
+  display: none;
 }
 .super-listings .super-pagination {
   padding-top:10px;
@@ -273,7 +263,6 @@
   text-align:center;
   padding:0px 0px 0px 0px;
   cursor:pointer;
-  color:#cecece;
 }
 .super-listings .super-actions .super-edit:hover {
   color:#15c130;
@@ -511,17 +500,6 @@
     margin-bottom: 0;
   }
 }
-
-.super-listings.super-no-results .super-listings-wrap {
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-.super-listings.super-no-results .super-header,
-.super-listings.super-no-results .super-columns,
-.super-listings.super-no-results .super-pagination {
-  padding-left: 0;
-  display: none;
-}
 .super-msg:after,
 .super-msg .super-close:after {
   font-family: "Font Awesome 5 Free";
@@ -627,11 +605,80 @@
 }
 .super-msg.super-info:after {
   color: #DCCF6E;
-  content: "\f058";
+  content: "\f05a";
 }
 .super-msg.super-info a {
   color: #756E39;
 }
 .super-msg.super-info .super-close {
   color: #DCCF6E;
+}
+.super-listings .super-col > a {
+  text-decoration: underline;
+  color: blue;
+}
+.super-listings img.super-signature {
+  border: 1px solid #cfcfcf;
+  background-color: white;
+}
+.super-listings .super-entry:hover,
+.super-listings .super-entry:hover:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.07);
+  color: rgba(0, 0, 0, 0.8);
+}
+.super-listings .super-entry:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+.super-listings .super-entry {
+  padding: 10px 0;
+  color: rgba(0, 0, 0, 0.55);
+}
+.super-listings .super-actions .super-edit,
+.super-listings .super-actions .super-view,
+.super-listings .super-actions .super-delete {
+  color: rgba(0, 0, 0, 0.25);
+}
+.super-listings .super-no-results,
+.super-listings .super-no-results-filter {
+  padding-bottom: 15px;
+}
+
+.super-listings .order-status.status-on-hold {
+  display: -webkit-inline-box;
+  display: inline-flex;
+  line-height: 2.5em;
+  color: #777;
+  background: #e5e5e5;
+  border-radius: 4px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin: -.25em 0;
+  cursor: inherit !important;
+  white-space: nowrap;
+  max-width: 100%;
+  width: auto;
+}
+.super-listings .order-status.status-on-hold > span {
+  margin: 0 1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.super-listings .order-status.status-completed {
+  background: #c8d7e1;
+  color: #2e4453;
+}
+.super-listings .order-status.status-on-hold {
+  background: #f8dda7;
+  color: #94660c;
+}
+.super-listings .order-status.status-failed {
+  background: #eba3a3;
+  color: #761919;
+}
+.super-listings .order-status.status-processing {
+  background: #c6e1c6;
+  color: #5b841b;
+}
+.super-listings .order-status.status-trash {
+  background: #eba3a3;
+  color: #761919;
 }

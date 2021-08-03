@@ -54,9 +54,9 @@
     SUPER.frontEndListing = {};
     
     // Get current query string
-    SUPER.frontEndListing.getQueryString = function(el, skip){
+    SUPER.frontEndListing.getQueryString = function(el){
         debugger;
-        var i, nodes, col, inputField, value, columnName, limit = 25, queryString = [];
+        var i, nodes, col, inputField, value, columnName, limit = 25, queryString = [], from, till;
         // Get the current limit from the pagination (if any otherwise default to 25)
         if(typeof document.querySelector('.super-pagination .super-limit') !== 'undefined' ){
             limit = document.querySelector('.super-pagination .super-limit').value;
@@ -64,37 +64,31 @@
         queryString.push('limit='+limit);
 
         // If we are searching, then we skip the column search inputs, and just use the current one
-        if(skip!=='search'){
-            debugger;
-            // Loop through all filters and grab the value and the column name
-            // Then append each of them
-            nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-col-wrap');
-            for (i = 0; i < nodes.length; i++) {
-                // Check if this column can be filtered if so add it to the array
-                // But only if value isn't empty
-                value = nodes[i].querySelector('.super-col-filter input') ? nodes[i].querySelector('.super-col-filter input').value : nodes[i].querySelector('.super-col-filter select').value;
-                if( value!=='' ) {
-                    columnName = nodes[i].dataset.name;
-                    queryString.push('fc='+columnName);
-                    queryString.push('fv='+value);
+        debugger;
+        // Loop through all filters and grab the value and the column name
+        // Then append each of them
+        nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-col-wrap');
+        for (i = 0; i < nodes.length; i++) {
+            // Check if this column can be filtered if so add it to the array
+            // But only if value isn't empty
+            value = nodes[i].querySelector('.super-col-filter input') ? nodes[i].querySelector('.super-col-filter input').value : (nodes[i].querySelector('.super-col-filter select') ? nodes[i].querySelector('.super-col-filter select').value : '');
+            if( value!=='' ) {
+                columnName = nodes[i].dataset.name;
+                if(columnName==='post_date'){
+                    from = getParents(el, '.super-listings')[0].querySelector('input[name="post_date_from"]');
+                    till = getParents(el, '.super-listings')[0].querySelector('input[name="post_date_till"]');
+                    queryString.push('fc_'+columnName+'='+from.value+';'+till.value);
+                }else{
+                    queryString.push('fc_'+columnName+'='+value);
                 }
-            }
-        }else{
-            debugger;
-            col = el.closest('.super-col-wrap');
-            inputField = col.querySelector('input');
-            if(inputField.value!==''){
-                columnName = col.dataset.name;
-                queryString.push('fc='+columnName);
-                queryString.push('fv='+inputField.value);
             }
         }
 
         // Get current active sort (if any)
         nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
-        console.log(nodes);
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].classList.contains('super-active')){
+                debugger;
                 queryString.push('sc='+nodes[i].closest('.super-col-wrap').dataset.name);
                 if(nodes[i].classList.contains('super-sort-down')){
                     queryString.push('sm=d');
@@ -134,34 +128,36 @@
     // When page is being changed
     SUPER.frontEndListing.changePage = function(event, el){
         event.preventDefault();
-        var queryString = SUPER.frontEndListing.getQueryString(el, 'page');
+        var queryString = SUPER.frontEndListing.getQueryString(el);
         window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
     };
     // When limit dropdown is changed
     SUPER.frontEndListing.limit = function(event, el){
         event.preventDefault();
-        var queryString = SUPER.frontEndListing.getQueryString(el, 'limit');
+        var queryString = SUPER.frontEndListing.getQueryString(el);
         window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
     };
     // When search button is clicked
     SUPER.frontEndListing.search = function(event, el){
         event.preventDefault();
-        var queryString = SUPER.frontEndListing.getQueryString(el, 'search');
+        var queryString = SUPER.frontEndListing.getQueryString(el);
         window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
     };
     // When sort button is clicked
-    SUPER.frontEndListing.sort = function(el, method){
-        var queryString = SUPER.frontEndListing.getQueryString(el, 'sort');
-        // Add sort
-        if(method==='down'){
-            method = 'd';
-        }else{
-            method = 'a';
+    SUPER.frontEndListing.sort = function(event, el){
+        event.preventDefault();
+        var queryString = SUPER.frontEndListing.getQueryString(el);
+        var i, nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
+        for (i = 0; i < nodes.length; i++) {
+            nodes[i].classList.remove('super-active');
         }
-        var parent = getParents(el, '.super-col-wrap')
-        var columnName = parent[0].dataset.name;
-        queryString.push('sc='+columnName); // Sort column
-        queryString.push('sm='+method); // Sort method
+        el.classList.add('super-active');
+        queryString.push('sc='+el.closest('.super-col-wrap').dataset.name); // sort column
+        if(el.classList.contains('super-sort-down')){
+            queryString.push('sm=d'); // sort method
+        }else{
+            queryString.push('sm=a'); // sort method
+        }
         window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
     };
 

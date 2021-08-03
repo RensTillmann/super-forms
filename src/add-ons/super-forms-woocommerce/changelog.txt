@@ -1,8 +1,6 @@
 Jul 29, 2021 - Version 1.8.2
 - Fix: Bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 
-`External/Affiliate product` URL was reset to the product permalink, this is now resolved
-
 Apr 09, 2021 - Version 1.8.1
 - Fix: `External/Affiliate product` URL was reset to the product permalink, this is now resolved
 

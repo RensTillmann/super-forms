@@ -144,105 +144,37 @@ class SUPER_Ajax {
                 $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
             }
         }
-        // Check if logged in user is allowed to delete any entry (all entries)
-        if($list['delete_any']['value']==='true'){
-            $roles = $list['delete_any']['user_roles'];
-            if($roles!==''){
-                // Compare against roles
-                $allowed_roles = explode(',', $roles);
-                $allowed = false;
-                global $current_user;
-                $user = get_userdata( $current_user_id );
-                $user_roles = $user->roles;
-                foreach( $user_roles as $v ) {
-                    if( in_array( $v, $allowed_roles ) ) {
-                        $allowed = true;
-                    }
-                }
-                if( $allowed==false ) {
-                    // User is not allowed because doesn\'t have proper role to delete entries
-                    echo esc_html__( 'You do not have permission to delete this entry.', 'super-forms' );
-                    die();
-                }
-            }
-            $ids = $list['delete_any']['user_ids'];
-            if($ids!==''){
-                // Compare against ID's
-                $ids = explode(',', $ids);
-                if( !in_array( $current_user_id, $ids ) ) {
-                    // User is not allowed because ID is not in allowed list
-                    echo esc_html__( 'You do not have permission to delete this entry.', 'super-forms' );
-                    die();
-                }
-            }
+        $entry = get_post($entry_id);
+        $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=> $entry));
+        $allowDeleteAny = $allow['allowDeleteAny'];
+        $allowDeleteOwn = $allow['allowDeleteOwn'];
+        if($allowDeleteAny===false && $allowDeleteOwn===false){
+            // User is not allowed because doesn\'t have proper role to delete entries
+            echo esc_html__( 'You do not have permission to delete this entry.', 'super-forms' );
+            die();
         }
-        // Delete the entry
-        wp_delete_post(absint($entry_id));
-        echo '1'; // return 1 if successfully deleted entry
-        die();
-
-        // ["delete_any"]=>
-        //   array(3) {
-        //     ["value"]=>
-        //     string(4) "true"
-        //     ["user_roles"]=>
-        //     string(13) "administrator"
-        //     ["user_ids"]=>
-        //     string(0) ""
-        //   }
-        // ["delete_own"]=>
-        //   array(3) {
-        //     ["value"]=>
-        //     string(5) "false"
-        //     ["user_roles"]=>
-        //     string(0) ""
-        //     ["user_ids"]=>
-        //     string(0) ""
-        //   }
-
-        
-        // If the entry exists, check which form it belongs to.
-
-        // Get the form settings and check if user is allowed to delete any entry
-        // Also check if user is allowed to delete their own entries
-        // It's important (for security reasons, to first check against the last setting, in case developer of form forgot to delete the other setting)
-        // Basically the latter is the master and thus leading
-        
-
-        
-        //$current_user_id = get_current_user_id();
-        //if( $current_user_id!=0 ) {
-        //    // Only if user is logged in
-        //    // We also check if user is allowed to delete entries
-        //    //
-
-        //}
-
-        //global $wpdb;
-        //$form_id = absint($_POST['form_id']);
-
-        //// Only delete selected backup
-        //if( isset($_POST['backup_id']) ) {
-        //    wp_delete_post( absint($_POST['backup_id']), true );
-        //    die();
-        //}
-
-        //// Delete form backups
-        //$args = array( 
-        //    'post_parent' => $form_id,
-        //    'post_type' => 'super_form',
-        //    'post_status' => 'backup',
-        //    'posts_per_page' => -1 //Make sure all matching backups will be retrieved
-        //);
-        //$backups = get_posts( $args );
-        //if(is_array($backups) && count($backups) > 0) {
-        //    foreach( $backups as $v ) {
-        //        wp_delete_post( $v->ID, true );
-        //    }
-        //}
-        //die();            
-
-
+        if($allowDeleteAny){
+            // Allowed to delete any entry
+            if($list['delete_any']['permanent']==='true'){
+                wp_delete_post($entry_id, true);
+                echo '1';
+                die();
+            }
+            wp_trash_post($entry_id);
+            echo '1'; // return 1 if successfully deleted entry
+            die();
+        } 
+        if($allowDeleteOwn===true && absint($entry->post_author)===$current_user_id){
+            // Allowed to delete his own entry
+            if($list['delete_own']['permanent']==='true'){
+                wp_delete_post($entry_id, true);
+                echo '1';
+                die();
+            }
+            wp_trash_post($entry_id);
+            echo '1'; // return 1 if successfully deleted entry
+            die();
+        }
         die();
     }
 

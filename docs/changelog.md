@@ -6,6 +6,8 @@
 
 ## Jul 13, 2021 - Version 5.0.0
 
+- **Added:** New option under global settings `Super Forms > Settings > WooCommerce My Account Menu Items` to add custom menu items with custom content/shortcode or a custom URL to redirect to a custom page. This allows you to display any extra content for the `/my-account` page. For instance you could list contact entries with the use of the `Listings Add-on` on the `My Account` page. Since you can use shortcodes you could also use it for other usecases that are not even related to Super Forms.
+- **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having seperate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
 - **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`
 - **Added:** Option to define colors for Tooltips via `Form Settings > Theme & Colors`
 - **Added:** Option to define colors for Calculator element (Calculator Add-on) via `Form Settings > Theme & Colors`
@@ -19,9 +21,9 @@
 - **Fix:** `Front-end Posting Add-on` issue with saving google map data for ACF map field
 - **Fix:** `Signature Add-on` fix issue when clicking on canvas would create a vertical line instead of a small dot
 - **Fix:** `WooCommerce Checkout Add-on` issue with `External/Affiliate product` URL being reset to the product permalink
+- **Fix:** `WooCommerce Checkout Add-on` bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 - **Fix:** `Zapier Add-on` use numbered index instead of filenames as index for the array, otherwise you would not be able to map/retrieve the file within zapier interface
-
-
+- **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 
 
 

@@ -7,7 +7,6 @@ Aug 27, 2020 - Version 1.5.6
 Aug 05, 2020 - Version 1.5.5
 - Fix: Compatibility with latest Super Forms version
 
-- Update: hooks from main plugin
 May 13, 2020 - Version 1.5.4
 - Update: hooks from main plugin
 
