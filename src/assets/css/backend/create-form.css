@@ -2744,17 +2744,14 @@
     padding: 0px 8px 0px 8px;
     margin: 0px 0px 10px 0px;
 }
-.sfui-repeater-item:hover {
-    border: 1px solid #D8C88C;
-    background-color: #fff0ba7d;
-}
 .sfui-repeater-item:hover .sfui-repeater-item:hover {
     border: 1px solid #D8C88C;
     background-color: #fff0ba7d;
 }
 .sfui-inline .sfui-setting {
     flex-direction: row;
-    align-items:center;
+    align-items: center;
+    flex: 1;
 }
 .sfui-setting > label {
     display:flex;
@@ -2844,6 +2841,8 @@
     align-items:center;
     padding:0px 10px 0px 10px;
     background-color:#7F7F7F;
+    flex: 1;
+    flex-grow: 0;
 }
 .sfui-btn.sfui-red {
     background-color:#F5234B;
@@ -2904,4 +2903,11 @@
 .sfui-setting.sfui-vertical .sfui-label {
   padding-top: 5px;
   padding-bottom: 5px;
+}
+.sfui-setting .sfui-setting .sfui-setting .sfui-vertical > .sfui-setting {
+  padding: 0;
+}
+.sfui-setting .sfui-setting .sfui-setting .sfui-vertical > label {
+  padding-top: 0;
+  padding-bottom: 0;
 }

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Front-end Posting
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Let visitors create posts from your front-end website
- * Version:     1.5.1
+ * Version:     1.5.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.5.1';
+        public $version = '1.5.2';
 
         
         /**
@@ -414,6 +414,12 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 }else{
 
                     $post_id = $result;
+                    // Store the created Post ID to get a connection with the created entry
+                    $entry_id = absint($atts['entry_id']);
+                    if($entry_id!==0){
+                        update_post_meta( $entry_id, '_super_created_post', $post_id );
+                        update_post_meta( $post_id, '_super_entry_id', $entry_id );
+                    }
 
                     // Check if we need to make this post sticky
                     if( isset( $data['stick_post'] ) ) {
@@ -996,6 +1002,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
                 // Store the created post ID into a session, to either alter the redirect URL or for developers to use in their custom code
                 // The redirect URL will only be altered if the option to do so was enabled in the form settings.
                 SUPER_Forms()->session->set( 'super_forms_frontend_posting_created_post', $post_id );
+
 
                 // @since 1.0.1
                 do_action( 'super_front_end_posting_after_insert_post_action', array( 'post_id'=>$post_id, 'data'=>$data, 'atts'=>$atts ) );
