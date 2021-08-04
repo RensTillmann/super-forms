@@ -73,10 +73,13 @@
             // But only if value isn't empty
             value = nodes[i].querySelector('.super-col-filter input') ? nodes[i].querySelector('.super-col-filter input').value : (nodes[i].querySelector('.super-col-filter select') ? nodes[i].querySelector('.super-col-filter select').value : '');
             if( value!=='' ) {
+                // Replace hashtag to avoid browser thinking to use it as anchor
+                //if(value.charAt(0)==='#') value = '%23'+value.substring(1, value.length);
+                value = encodeURIComponent(value);
                 columnName = nodes[i].dataset.name;
-                if(columnName==='post_date'){
-                    from = getParents(el, '.super-listings')[0].querySelector('input[name="post_date_from"]');
-                    till = getParents(el, '.super-listings')[0].querySelector('input[name="post_date_till"]');
+                if(columnName==='date'){
+                    from = getParents(el, '.super-listings')[0].querySelector('input[name="date_from"]');
+                    till = getParents(el, '.super-listings')[0].querySelector('input[name="date_till"]');
                     queryString.push('fc_'+columnName+'='+from.value+';'+till.value);
                 }else{
                     queryString.push('fc_'+columnName+'='+value);

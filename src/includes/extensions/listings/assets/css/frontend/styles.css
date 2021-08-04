@@ -682,3 +682,10 @@
   background: #eba3a3;
   color: #761919;
 }
+.super-listings .super-col > a {
+  width: auto;
+}
+.super-listings .super-col > a:focus,
+.super-listings .super-col > a:active {
+  background: none !important;
+}

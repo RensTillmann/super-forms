@@ -111,7 +111,7 @@ if(!class_exists('SUPER_Listings')) :
                 ),
                 'date' => array(
                     'name' => esc_html__( 'Date', 'super-forms' ),
-                    'meta_key' => 'post_date',
+                    'meta_key' => 'date',
                     'sort' => 'true'
                 ),
                 'wc_order' => array(
@@ -634,49 +634,43 @@ if(!class_exists('SUPER_Listings')) :
                                                 echo '<input type="checkbox" name="'.$sk.'_column.sort" value="true"' . ($v[$sk.'_column']['sort']==='true' ? ' checked="checked"' : '') . ' />';
                                             echo '</label>';
                                         echo '</div>';
-                                        //if(in_array($sk, array('title', 'status', 'date', '_generated_pdf'))){
-                                        //    // Do not show for title, status, date columns
-                                        //    echo '<div class="sfui-setting sfui-vertical">';
-                                        //    echo '</div>';
-                                        //}else{
-                                            echo '<div class="sfui-setting sfui-vertical">';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">';
-                                                        echo esc_html__( 'Link', 'super-forms' ) . ':';
-                                                    echo '</span>';
-                                                    echo '<select name="'.$sk.'_column.link.type" onChange="SUPER.ui.updateSettings(event, this)">';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='none' ? ' selected="selected"' : '') . ' value="none">' . esc_html__( 'None', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='contact_entry' ? ' selected="selected"' : '') . ' value="contact_entry">' . esc_html__( 'Edit the contact entry (backend)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='wc_order_backend' ? ' selected="selected"' : '') . ' value="wc_order_backend">' . esc_html__( 'WooCommerce order (backend)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='wc_order_frontend' ? ' selected="selected"' : '') . ' value="wc_order_frontend">' . esc_html__( 'WooCommerce order (front-end)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='paypal_order' ? ' selected="selected"' : '') . ' value="paypal_order">' . esc_html__( 'PayPal order (backend)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='generated_pdf' ? ' selected="selected"' : '') . ' value="generated_pdf">' . esc_html__( 'Generated PDF file', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='post_backend' ? ' selected="selected"' : '') . ' value="post_backend">' . esc_html__( 'Created post/page (backend)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='post_frontend' ? ' selected="selected"' : '') . ' value="post_frontend">' . esc_html__( 'Created post/page (front-end)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_posts' ? ' selected="selected"' : '') . ' value="author_posts">' . esc_html__( 'The author page (front-end)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_edit' ? ' selected="selected"' : '') . ' value="author_edit">' . esc_html__( 'URL to edit user page (backend)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_email' ? ' selected="selected"' : '') . ' value="author_email">' . esc_html__( 'Link to author E-mail address (href mailto:)', 'super-forms' ) . '</option>';
-                                                        echo '<option ' . ($v[$sk.'_column']['link']['type']=='custom' ? ' selected="selected"' : '') . ' value="custom">' . esc_html__( 'Custom URL', 'super-forms' ) . '</option>';
-                                                    echo '</select>';
-                                                echo '</label>';
-                                                echo '<div class="sfui-sub-settings" data-f="'.$sk.'_column.link.type;custom">';
-                                                    echo '<div class="sfui-vertical">';
-                                                        echo '<div class="sfui-setting sfui-vertical">';
-                                                            echo '<label>';
-                                                                echo '<span class="sfui-label">' . esc_html__( 'Enter custom URL (use {tags} if needed)', 'super-forms' ) . ':</span>';
-                                                                echo '<input type="text" name="'.$sk.'_column.link.url" value="' . $v[$sk.'_column']['link']['url'] . '" />';
-                                                            echo '</label>';
-                                                        echo '</div>';
-                                                        echo '<div class="sfui-setting">';
-                                                            echo '<label>';
-                                                                echo '<input type="checkbox" name="'.$sk.'_column.link.newTab" value="true"' . ($v[$sk.'_column']['link']['newTab']==='true' ? ' checked="checked"' : '') . ' />';
-                                                                echo '<span class="sfui-label">' . esc_html__( 'Open in new tab?', 'super-forms' ) . '</span>';
-                                                            echo '</label>';
-                                                        echo '</div>';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span class="sfui-label">';
+                                                    echo esc_html__( 'Link', 'super-forms' ) . ':';
+                                                echo '</span>';
+                                                echo '<select name="'.$sk.'_column.link.type" onChange="SUPER.ui.updateSettings(event, this)">';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='none' ? ' selected="selected"' : '') . ' value="none">' . esc_html__( 'None', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='contact_entry' ? ' selected="selected"' : '') . ' value="contact_entry">' . esc_html__( 'Edit the contact entry (backend)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='wc_order_backend' ? ' selected="selected"' : '') . ' value="wc_order_backend">' . esc_html__( 'WooCommerce order (backend)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='wc_order_frontend' ? ' selected="selected"' : '') . ' value="wc_order_frontend">' . esc_html__( 'WooCommerce order (front-end)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='paypal_order' ? ' selected="selected"' : '') . ' value="paypal_order">' . esc_html__( 'PayPal order (backend)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='generated_pdf' ? ' selected="selected"' : '') . ' value="generated_pdf">' . esc_html__( 'Generated PDF file', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='post_backend' ? ' selected="selected"' : '') . ' value="post_backend">' . esc_html__( 'Created post/page (backend)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='post_frontend' ? ' selected="selected"' : '') . ' value="post_frontend">' . esc_html__( 'Created post/page (front-end)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_posts' ? ' selected="selected"' : '') . ' value="author_posts">' . esc_html__( 'The author page (front-end)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_edit' ? ' selected="selected"' : '') . ' value="author_edit">' . esc_html__( 'URL to edit user page (backend)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='author_email' ? ' selected="selected"' : '') . ' value="author_email">' . esc_html__( 'Link to author E-mail address (href mailto:)', 'super-forms' ) . '</option>';
+                                                    echo '<option ' . ($v[$sk.'_column']['link']['type']=='custom' ? ' selected="selected"' : '') . ' value="custom">' . esc_html__( 'Custom URL', 'super-forms' ) . '</option>';
+                                                echo '</select>';
+                                            echo '</label>';
+                                            echo '<div class="sfui-sub-settings" data-f="'.$sk.'_column.link.type;custom">';
+                                                echo '<div class="sfui-vertical">';
+                                                    echo '<div class="sfui-setting sfui-vertical">';
+                                                        echo '<label>';
+                                                            echo '<span class="sfui-label">' . esc_html__( 'Enter custom URL (use {tags} if needed)', 'super-forms' ) . ':</span>';
+                                                            echo '<input type="text" name="'.$sk.'_column.link.url" value="' . $v[$sk.'_column']['link']['url'] . '" />';
+                                                        echo '</label>';
+                                                    echo '</div>';
+                                                    echo '<div class="sfui-setting">';
+                                                        echo '<label>';
+                                                            echo '<input type="checkbox" name="'.$sk.'_column.link.newTab" value="true"' . ($v[$sk.'_column']['link']['newTab']==='true' ? ' checked="checked"' : '') . ' />';
+                                                            echo '<span class="sfui-label">' . esc_html__( 'Open in new tab?', 'super-forms' ) . '</span>';
+                                                        echo '</label>';
                                                     echo '</div>';
                                                 echo '</div>';
                                             echo '</div>';
-                                        //}
+                                        echo '</div>';
                                         echo '<div class="sfui-setting sfui-vertical" style="flex:0.5;">';
                                             echo '<label>';
                                                 echo '<span class="sfui-label">' . esc_html__( 'Column width (px)', 'super-forms' ) . '</span>';
@@ -1235,7 +1229,7 @@ if(!class_exists('SUPER_Listings')) :
                             'placeholder' => $list[$sk.'_column']['placeholder']
                         )
                     );
-                    if($sk=='date'){ // entry post_date
+                    if($sk=='date'){ // Entry date (form submission date) 
                         $columns[$sv['meta_key']]['filter'] = array(
                             'field_type' => 'datepicker',
                             'placeholder' => $list[$sk.'_column']['placeholder']
@@ -1245,21 +1239,44 @@ if(!class_exists('SUPER_Listings')) :
                         $columns[$sv['meta_key']]['filter']['field_type'] = 'none';
                         $columns[$sv['meta_key']]['sort'] = 'none';
                     }
-                    if($sk=='entry_status'){
-                        $items = array();
-                        foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
-                            $items[$k] = $v['name']; 
-                        }
+                    if($sk=='wc_order_status'){
+                        $items = array(
+                            '' => esc_html__( '- select -', 'super-forms' )
+                        );
+                        $wc_order_statuses = wc_get_order_statuses();
+                        $items = array_merge($items, $wc_order_statuses);      
                         $columns[$sv['meta_key']]['filter'] = array(
                             'field_type' => 'dropdown',
                             'placeholder' => $list[$sk.'_column']['placeholder'],
                             'items' => $items
                         );
-                    }else{
-                        // If link available
-                        if(isset($list[$sk.'_column']['link'])){
-                            $columns[$sv['meta_key']]['link'] = $list[$sk.'_column']['link'];
+                    }
+                    if($sk=='wp_post_status'){
+                        $items = array(
+                            '' => esc_html__( '- select -', 'super-forms' )
+                        );
+                        $items = array_merge($items, get_post_statuses());      
+                        $columns[$sv['meta_key']]['filter'] = array(
+                            'field_type' => 'dropdown',
+                            'placeholder' => $list[$sk.'_column']['placeholder'],
+                            'items' => $items
+                        );
+                    }
+                    if($sk=='entry_status'){
+                        $items = array();
+                        foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
+                            $items[$k] = $v['name']; 
                         }
+                        $items[''] = esc_html__( '- select -', 'super-forms' );
+                        $columns[$sv['meta_key']]['filter'] = array(
+                            'field_type' => 'dropdown',
+                            'placeholder' => $list[$sk.'_column']['placeholder'],
+                            'items' => $items
+                        );
+                    }
+                    // If link available
+                    if(isset($list[$sk.'_column']['link'])){
+                        $columns[$sv['meta_key']]['link'] = $list[$sk.'_column']['link'];
                     }
                 }
             }
@@ -1334,25 +1351,39 @@ if(!class_exists('SUPER_Listings')) :
                     }
                 }else{
                     // Filter by default column
-                    if($fck=='post_date'){
+                    if($fck=='date'){
                         $dateFilter = explode(';', $fcv);
                         if(!empty($dateFilter[1])){
                             $from = $dateFilter[0];
                             $till = $dateFilter[1];
-                            $filters .= " $fck BETWEEN CAST('$from' AS DATE) AND CAST('$till' AS DATE)";
+                            $filters .= " post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$till' AS DATE)";
                         }else{
                             $from = $dateFilter[0];
-                            $filters .= " $fck LIKE '$from%'"; // Only filter starting with
+                            $filters .= " post.post_date LIKE '$from%'"; // Only filter starting with
                         }
                     }elseif($fck=='post_title') {
                         if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' post_title LIKE "%' . $fcv . '%"';
+                        $filters .= ' post.post_title LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='wp_post_title'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' created_post.post_title LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='wp_post_status'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' created_post.post_status = "' . $fcv . '"';
                     }elseif($fck=='entry_status'){
-                         if( !empty($filters) ) $filters .= ' AND';
-                         $filters .= ' entry_status.meta_value = "' . $fcv . '"';
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' entry_status.meta_value = "' . $fcv . '"';
+                    }elseif($fck=='wc_order'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        // If starts with hashtag then remove it
+                        if(substr($fcv, 0, 1)=='#') $fcv = substr($fcv, 1, strlen($fcv));
+                        $filters .= ' wc_order.ID LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='wc_order_status'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' wc_order.post_status LIKE "' . $fcv . '"';
                     }elseif($fck=='post_author'){
                         if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' post_author LIKE "%' . $fcv . '%"';
+                        $filters .= ' post.post_author = "' . $fcv . '"';
                     }else{
                         //if( !empty($filters) ) $filters .= ' AND';
                         //$filters .= " $fck LIKE '%$fcv%'"; // Filter globally
@@ -1361,9 +1392,10 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             // Check if custom sort was choosen by the user
-            $sc = 'post_date'; // sort column (defaults to 'post_date')
+            $sc = 'post_date'; // sort column (defaults to 'date')
             if( !empty($_GET['sc']) ) {
                 $sc = sanitize_text_field($_GET['sc']);
+                if($sc==='date') $sc = 'post_date';
             }
 
             $order_by_entry_data = "";
@@ -1385,9 +1417,9 @@ if(!class_exists('SUPER_Listings')) :
             }
             
             // Sort method, either `a` (ASC) or `d` (DESC)` (defaults to ASC)
-            $sm = 'ASC'; 
-            if( (!empty($_GET['sm'])) && ($_GET['sm']=='d') ){
-                $sm = 'DESC';
+            $sm = 'DESC'; 
+            if( (!empty($_GET['sm'])) && ($_GET['sm']=='a') ){
+                $sm = 'ASC';
             }
             $order_by = "$sc $sm";
             if(!empty($order_by_entry_data)){
@@ -1404,8 +1436,8 @@ if(!class_exists('SUPER_Listings')) :
             $where = '';
             $whereWithoutFilters = '';
             if( $list['display_based_on']=='this_form' ) {
-                $where .= " AND post_parent = '" . absint($form_id) . "'";
-                $whereWithoutFilters .= " AND post_parent = '" . absint($form_id) . "'";
+                $where .= " AND post.post_parent = '" . absint($form_id) . "'";
+                $whereWithoutFilters .= " AND post.post_parent = '" . absint($form_id) . "'";
             }
             
             $allow = self::get_action_permissions(array('list'=>$list));
@@ -1413,8 +1445,8 @@ if(!class_exists('SUPER_Listings')) :
                 // Allow user to see any entries in the list
             }else{
                 // Only allow to see entries that belong to the currently logged in user
-                $where .= ' AND post_author = "' . absint( $current_user->ID ) . '"';
-                $whereWithoutFilters .= ' AND post_author = "' . absint( $current_user->ID ) . '"';
+                $where .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
+                $whereWithoutFilters .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
             }
 
             if( !empty($filters) ) {
@@ -1437,42 +1469,74 @@ if(!class_exists('SUPER_Listings')) :
             // temp disabled     $where .= ' AND (' . $custom_fields_filters . ')';
             // temp disabled }
 
-            // SELECT ID, post_title, post_date, meta.meta_value AS data, 
-            // (SELECT meta_value FROM wp_postmeta AS meta WHERE meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_status') AS status 
-            // FROM wp_posts AS post 
-            // INNER JOIN wp_postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data' 
-            // WHERE post_type = 'super_contact_entry' AND (meta.meta_value REGEXP '.*s:4:"name";s:[0-9]+:"email";s:5:"value";s:[0-9]+:"(.*ng4design@.*)";' )
-            // ORDER BY post_date DESC 
-            // LIMIT 500
-
             $count_query = "SELECT COUNT(post_id) AS total
             FROM (
-                SELECT post.ID AS post_id, post.post_author AS post_author, post.post_title AS post_title, post.post_date AS post_date, meta.meta_value AS contact_entry_data, entry_status.meta_value AS status, first_name.meta_value AS first_name, last_name.meta_value AS last_name, nickname.meta_value AS nickname, author.user_login AS username, author.user_email AS email, author.display_name AS display_name 
+                SELECT 
+                post.ID AS post_id, 
+                post.post_author AS post_author, 
+                post.post_title AS post_title, 
+                post.post_date AS post_date, 
+                meta.meta_value AS contact_entry_data,
+                entry_status.meta_value AS status,
+                created_post.post_status AS created_post_status,
+                created_post.post_title AS created_post_title, 
+                wc_order.post_status AS wc_order_status, 
+                wc_order.ID AS wc_order_number,
+                first_name.meta_value AS first_name,
+                last_name.meta_value AS last_name,
+                nickname.meta_value AS nickname,
+                author.user_login AS username,
+                author.user_email AS email, 
+                author.display_name AS display_name 
                 $order_by_entry_data
                 $filter_by_entry_data 
                 FROM $wpdb->posts AS post 
                 INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
                 LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+                LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
+                LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
+                LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
+                LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
                 LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
                 LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
                 LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
                 LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
-                WHERE post_type = 'super_contact_entry'
+                WHERE post.post_type = 'super_contact_entry'
                 $where
                 $having
             ) a";
             $results_found = $wpdb->get_var($count_query);
             $count_without_filters_query = "SELECT COUNT(post_id) AS total
             FROM (
-                SELECT post.ID AS post_id, post.post_author AS post_author, post.post_title AS post_title, post.post_date AS post_date, meta.meta_value AS contact_entry_data, entry_status.meta_value AS status, first_name.meta_value AS first_name, last_name.meta_value AS last_name, nickname.meta_value AS nickname, author.user_login AS username, author.user_email AS email, author.display_name AS display_name 
+                SELECT 
+                post.ID AS post_id,
+                post.post_author AS post_author,
+                post.post_title AS post_title, 
+                post.post_date AS post_date,
+                meta.meta_value AS contact_entry_data,
+                entry_status.meta_value AS status,
+                created_post.post_status AS created_post_status,
+                created_post.post_title AS created_post_title, 
+                wc_order.post_status AS wc_order_status, 
+                wc_order.ID AS wc_order_number,
+                first_name.meta_value AS first_name,
+                last_name.meta_value AS last_name,
+                nickname.meta_value AS nickname, 
+                author.user_login AS username,
+                author.user_email AS email,
+                author.display_name AS display_name 
                 FROM $wpdb->posts AS post 
                 INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
                 LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+                LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
+                LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
+                LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
+                LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
                 LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
                 LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
                 LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
                 LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
-                WHERE post_type = 'super_contact_entry'
+                WHERE post.post_type = 'super_contact_entry'
                 $whereWithoutFilters
             ) a";
             $absoluteZeroResults = $wpdb->get_var($count_without_filters_query);
@@ -1484,29 +1548,43 @@ if(!class_exists('SUPER_Listings')) :
 
             $query = "
             SELECT 
-            post.ID AS post_id, post.post_author AS post_author, post.post_title AS post_title, post.post_date AS post_date,
+            post.ID AS post_id, 
+            post.post_author AS post_author,
+            post.post_title AS post_title,
+            post.post_date AS post_date,
             meta.meta_value AS contact_entry_data,
             entry_status.meta_value AS status,
+            created_post.post_status AS created_post_status,
+            created_post.post_title AS created_post_title, 
+            wc_order.post_status AS wc_order_status, 
+            wc_order.ID AS wc_order_number,
             first_name.meta_value AS first_name,
             last_name.meta_value AS last_name,
             nickname.meta_value AS nickname,
-            author.user_login AS username, author.user_email AS email, author.display_name AS display_name
+            author.user_login AS username, 
+            author.user_email AS email, 
+            author.display_name AS display_name
             $order_by_entry_data
             $filter_by_entry_data
             FROM $wpdb->posts AS post 
             INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
             LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
+            LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
+            LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
+            LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
+            LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
             LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
             LEFT JOIN $wpdb->usermeta AS first_name ON first_name.user_id = post.post_author AND first_name.meta_key = 'first_name'
             LEFT JOIN $wpdb->usermeta AS last_name ON last_name.user_id = post.post_author AND last_name.meta_key = 'last_name'
             LEFT JOIN $wpdb->usermeta AS nickname ON nickname.user_id = post.post_author AND nickname.meta_key = 'nickname'
-            WHERE post_type = 'super_contact_entry'
+            WHERE post.post_type = 'super_contact_entry'
             $where
             $having
             ORDER BY $order_by
             LIMIT $limit
             OFFSET $offset
             ";
+            var_dump($query);
             $entries = $wpdb->get_results($query);
 
             $result = '';
@@ -1773,9 +1851,10 @@ if(!class_exists('SUPER_Listings')) :
                                                     $order_status  = $order->get_status();
                                                     if($order_id!=0) $result .= '<mark class="order-status status-'.$order_status.' tips"><span>'.$wc_order_statuses['wc-'.$order_status].'</span></mark>';
                                                 }
-                                            }elseif($column_key=='post_date'){
-                                                $result .= date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
-                                                //echo get_the_date($entry->post_date);
+                                            }elseif($column_key=='date'){
+                                                $date = date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
+                                                $time = ' @ ' . date_i18n( get_option( 'time_format' ), strtotime( $entry->post_date ) );
+                                                $result .= apply_filters( 'super_listings_date_filter', $date.$time, $entry );
                                             }else{
                                                 // Check if this data key exists
                                                 if(isset($data[$column_key])){
