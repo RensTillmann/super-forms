@@ -4239,28 +4239,26 @@ class SUPER_Shortcodes {
             $url = ' href="' . esc_url($url) . '"';
         }
         $result .= '<div class="super-image align-' . esc_attr($atts['alignment']) . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
-        $result .= '<div class="super-image-inner">';
-        if( !isset( $atts['target'] ) ) $atts['target'] = '';
-        $result .= '<a target="' . esc_attr($atts['target']) . '"' . $url . '>';
-
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
-
-        if( !isset( $atts['image'] ) ) $atts['image'] = 0;
-        $attachment_id = absint($atts['image']);
-        if( $attachment_id===0 ) {
-            $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
-            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' itemprop="contentURL"';
-        }else{
-            $title = get_the_title( $attachment_id );
-            $url = wp_get_attachment_url( $attachment_id );
-            $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
-            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" itemprop="contentURL"';
-        } 
-        if( !empty( $style ) ) $result .= ' style="' . esc_attr($style) . '"';
-        $result .= '>';
-        $result .= '</a>';
-        $result .= '</div>';
+            $result .= '<div class="super-image-inner">';
+                if( !isset( $atts['target'] ) ) $atts['target'] = '';
+                if(!empty($url)) $result .= '<a target="' . esc_attr($atts['target']) . '"' . $url . '>';
+                    // @since 1.9 - custom class
+                    if( !isset( $atts['class'] ) ) $atts['class'] = '';
+                    if( !isset( $atts['image'] ) ) $atts['image'] = 0;
+                    $attachment_id = absint($atts['image']);
+                    if( $attachment_id===0 ) {
+                        $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                        $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' itemprop="contentURL"';
+                    }else{
+                        $title = get_the_title( $attachment_id );
+                        $url = wp_get_attachment_url( $attachment_id );
+                        $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+                        $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" itemprop="contentURL"';
+                    } 
+                    if( !empty( $style ) ) $result .= ' style="' . esc_attr($style) . '"';
+                    $result .= '>';
+                if(!empty($url)) $result .= '</a>';
+            $result .= '</div>';
         $result .= '</div>';
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
@@ -6003,7 +6001,7 @@ class SUPER_Shortcodes {
         // Display message to admin if the form is in debug mode for PDF generator
         if(!empty($settings['_pdf'])) {
             if($settings['_pdf']['generate']==='true' && $settings['_pdf']['debug']==='true') {
-                $result .= '<div class="super-msg super-info">';
+                $result .= '<div class="super-msg super-info" data-pdfoption="exclude">';
                     if($settings['form_locker_msg_title']!='') {
                         $result .= '<h1>'.esc_html__( 'PDF Generator debug mode is enabled!', 'super-forms' ).'</h1>';
                     }

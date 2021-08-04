@@ -3,24 +3,28 @@
   z-index: 2999999999 !important;
 }
 
-.super-shortcode[data-pdfoption=include],
-.super-shortcode[data-pdfoption=header],
-.super-shortcode[data-pdfoption=footer] {
+[data-pdfoption=include],
+[data-pdfoption=header],
+[data-pdfoption=footer] {
   display: none !important;
 }
 
-.super-pdf-header .super-shortcode[data-pdfoption=header] {
+.super-pdf-header .super-shortcode[data-pdfoption=header],
+.super-pdf-header [data-pdfoption=header] {
   display: block !important;
 }
 
-.super-pdf-body .super-shortcode[data-pdfoption=include] {
+.super-pdf-body .super-shortcode[data-pdfoption=include],
+.super-pdf-body [data-pdfoption=include] {
   display: block !important;
 }
-.super-pdf-body .super-shortcode[data-pdfoption=exclude] {
+.super-pdf-body .super-shortcode[data-pdfoption=exclude],
+.super-pdf-body [data-pdfoption=exclude] {
   display: none !important;
 }
 
-.super-pdf-footer .super-shortcode[data-pdfoption=footer] {
+.super-pdf-footer .super-shortcode[data-pdfoption=footer],
+.super-pdf-footer [data-pdfoption=footer] {
   display: block !important;
 }
 
@@ -755,6 +759,9 @@ h1.super-thanks-title {
 }
 .super-image img {
   max-width: 100%;
+}
+.super-image .super-image-inner a {
+  display: block;
 }
 
 .super-field.super-tooltip {

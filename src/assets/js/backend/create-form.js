@@ -287,7 +287,7 @@
     };
     SUPER.get_tab_settings = function(settings, slug){
         var i, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
-        if(tab.querySelector('.super_transient')){
+        if(tab && tab.querySelector('.super_transient')){
             // First grab all settings that are not inside a repeater element
             i, nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
             for(i=0; i<nodes.length; i++){
