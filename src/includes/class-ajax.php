@@ -42,7 +42,7 @@ class SUPER_Ajax {
             'load_preview'                  => false,
             'switch_language'               => false, // @since 4.7.0
 
-            'send_email'                    => true,
+            'submit_form'                    => true,
             'language_switcher'             => true,  // @since 4.7.0
 
             'load_default_settings'         => false,
@@ -98,6 +98,7 @@ class SUPER_Ajax {
             'api_submit_feedback'           => false,
 
             'listings_view_entry' => true,
+            'listings_edit_entry' => true,
             'listings_delete_entry' => false,
 
         );
@@ -111,6 +112,11 @@ class SUPER_Ajax {
     }
 
     public static function listings_view_entry(){
+        require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
+        require_once( SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php' );
+        die();
+    }
+    public static function listings_edit_entry(){
         require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
         require_once( SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php' );
         die();
@@ -2232,13 +2238,13 @@ class SUPER_Ajax {
 
 
     /** 
-     *  Send an email with the submitted form data
+     *  Submit form
      *
      *  @param  array  $settings
      *
      *  @since      1.0.0
     */
-    public static function send_email( $settings=null ) {
+    public static function submit_form( $settings=null ) {
 
         // Check if form_id exists, this is always required
         // If it doesn't exist it is most likely due the server not being able to process all the data
@@ -2293,6 +2299,11 @@ class SUPER_Ajax {
             unset($settings['theme_custom_css']);
             unset($settings['form_custom_css']);
         }
+
+        // Before we continue we might want to manipulate the form settings
+        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'post'=>$_POST, 'data'=>$data ) );        
+        $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
+        $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
 
         // Temporarily deprecated till found a solution with caching plugins
         // // @since 4.6.0 - Check if ajax request is valid based on nonce field
@@ -2606,8 +2617,6 @@ class SUPER_Ajax {
             }
         }
             
-        // @since 4.7.7 - prevent new Contact Entry from being created
-        $entry_id = absint( $_POST['entry_id'] );
         if( ($entry_id!=0) && (!empty($settings['contact_entry_prevent_creation'])) ) {
             $settings['save_contact_entry'] = 'no';
         }
@@ -2764,6 +2773,9 @@ class SUPER_Ajax {
                     }
                 }
             }
+        }
+        if(isset($final_entry_data['hidden_list_id'])) {
+            unset($final_entry_data['hidden_list_id']);
         }
 
         // @since 2.2.0 - update contact entry data by ID
@@ -3028,10 +3040,10 @@ class SUPER_Ajax {
                 }
             }
 
-
             // @since 3.6.0 - custom POST parameters method
+            if( empty($settings['form_post_option']) ) $settings['form_post_option'] = '';
             if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
-            if( $settings['form_post_custom']=='true' ) {
+            if( $settings['form_post_option']=='true' && $settings['form_post_custom']=='true' ) {
                 $parameter = array();
                 if( empty($settings['form_post_parameters']) ) $settings['form_post_parameters'] = '';
                 if(trim($settings['form_post_parameters'])==''){

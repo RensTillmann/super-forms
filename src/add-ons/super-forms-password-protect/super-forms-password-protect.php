@@ -330,7 +330,7 @@ if(!class_exists('SUPER_Password_Protect')) :
 	                }
 
                     // Now lets check if the passwords are incorrect
-					if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_send_email') ) {
+					if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
 						if( $atts['data']['password']['value']!=$atts['settings']['password_protect_password'] ) {
 	                        if( !isset( $atts['settings']['password_protect_incorrect_msg'] ) ) {
 	                            $atts['settings']['password_protect_incorrect_msg'] = esc_html__( 'Incorrect password, please try again!', 'super-forms' );
@@ -375,7 +375,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                         if( !isset( $atts['settings']['password_protect_show_login_after_submit'] ) ) $atts['settings']['password_protect_show_login_after_submit'] = '';
                         if( $atts['settings']['password_protect_show_login_after_submit']=='true' ) {
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
-                                if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_send_email') ) {
+                                if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
                                     SUPER_Common::output_message(
                                         $error = true,
                                         $msg = $atts['settings']['password_protect_login_msg'],
@@ -401,7 +401,7 @@ if(!class_exists('SUPER_Password_Protect')) :
 
                     // @since 1.0.2 - If user didn't choose any setting option at least show error to the user
                     if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
-                        if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_send_email') ) {
+                        if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
                             SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $atts['settings']['password_protect_login_msg'],

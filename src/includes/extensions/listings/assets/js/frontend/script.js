@@ -74,7 +74,6 @@
             value = nodes[i].querySelector('.super-col-filter input') ? nodes[i].querySelector('.super-col-filter input').value : (nodes[i].querySelector('.super-col-filter select') ? nodes[i].querySelector('.super-col-filter select').value : '');
             if( value!=='' ) {
                 // Replace hashtag to avoid browser thinking to use it as anchor
-                //if(value.charAt(0)==='#') value = '%23'+value.substring(1, value.length);
                 value = encodeURIComponent(value);
                 columnName = nodes[i].dataset.name;
                 if(columnName==='date'){
@@ -171,6 +170,7 @@
 
     // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
     SUPER.frontEndListing.viewEntry = function(el){
+        debugger;
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
@@ -224,21 +224,15 @@
         };
         params = jQuery.param(params);
         xhttp.send(params);
-        
-        //var iframe = document.createElement('iframe');
-        //// eslint-disable-next-line no-undef
-        //iframe.src = super_listings_i18n.get_home_url+'?super-listings-view='+entry_id+'&form-id='+form_id+'&list-id='+list_id;
-        //iframe.style.width = '100%';
-        //iframe.style.height = '100%';
-        //iframe.style.border = '0px';
-        //modal.appendChild(iframe);
-        // Print modal
         document.body.appendChild(modal);
     };
     // When edit button is clicked create a modal/popup window and load the form + it's entry data
     SUPER.frontEndListing.editEntry = function(el){
+        debugger;
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
+        var form_id = getParents(el, '.super-listings')[0].dataset.formId;
+        var list_id = getParents(el, '.super-listings')[0].dataset.listId;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -254,17 +248,46 @@
         closeBtn.addEventListener('click', function(){
             this.parentNode.remove();
         });
+        debugger;
         modal.appendChild(closeBtn);
-        // Load iframe
-        var iframe = document.createElement('iframe');
-        // eslint-disable-next-line no-undef
-        iframe.src = super_listings_i18n.get_home_url+'?super-listings-edit='+entry_id;
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = '0px';
-        modal.appendChild(iframe);
-
-        // Print modal
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                // Success:
+                if (this.status == 200) {
+                    debugger;
+                    var node = document.createElement('div');
+                    node.classList.add('super-listing-entry-wrapper');
+                    node.innerHTML = this.responseText;
+                    modal.appendChild(node);
+                    debugger;
+                    var form = modal.querySelector('.super-form');
+                    form.classList.add('super-initialized');
+                    SUPER.init_common_fields();
+                    SUPER.init_replace_html_tags({el: undefined, form: form});
+                    SUPER.init_super_responsive_form_fields({form: form});
+                    SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
+                    loadingIcon.remove();
+                }
+                // Complete:
+                debugger;
+                parent.classList.remove('super-loading');
+            }
+        };
+        xhttp.onerror = function () {
+            console.log(this);
+            console.log("** An error occurred during the transaction");
+        };
+        xhttp.open("POST", super_listings_i18n.ajaxurl, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var params = {
+            action: 'super_listings_edit_entry',
+            entry_id: entry_id,
+            form_id: form_id,
+            list_id: list_id
+        };
+        params = jQuery.param(params);
+        xhttp.send(params);
         document.body.appendChild(modal);
     };
  
