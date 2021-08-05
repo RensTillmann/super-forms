@@ -1911,7 +1911,8 @@ function SUPERreCaptcha(){
     };
 
     // Send E-mail
-    SUPER.send_email = function(args) {
+    SUPER.submit_form = function(args) {
+        debugger;
         if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
         var innerText = args.loadingOverlay.querySelector('.super-inner-text');
         if(args.pdfArgs!==false){
@@ -1941,11 +1942,12 @@ function SUPERreCaptcha(){
             url: super_common_i18n.ajaxurl,
             type: 'post',
             data: {
-                action: 'super_send_email',
+                action: 'super_submit_form',
                 super_ajax_nonce: args.super_ajax_nonce,
                 data: args.data,
                 form_id: args.form_id,
                 entry_id: args.entry_id,
+                list_id: args.list_id,
                 token: args.token,
                 version: args.version,
                 i18n: args.form.data('i18n') // @since 4.7.0 translation
@@ -2367,16 +2369,20 @@ function SUPERreCaptcha(){
 
     // Send form submission through ajax request
     SUPER.create_ajax_request = function(args){
+        debugger;
         var form = $(args.form),
             data,
             form_id,
             entry_id,
+            list_id,
             json_data,
             version,
             super_ajax_nonce;
 
         form_id = args.data.form_id;
         entry_id = args.data.entry_id;
+        debugger;
+        list_id = args.data.list_id;
         args.showOverlay = args.form.dataset.overlay;
 
         // @since 1.3
@@ -2455,6 +2461,7 @@ function SUPERreCaptcha(){
             }
 
             var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
+            debugger;
             args = {
                 form: form,
                 form0: form[0],
@@ -2464,11 +2471,13 @@ function SUPERreCaptcha(){
                 data: data,
                 form_id: form_id,
                 entry_id: entry_id,
+                list_id: list_id,
                 token: args.token,
                 version: version,
                 loadingOverlay: loadingOverlay,
                 progressBar: progressBar
             }
+            debugger;
 
             // Generate PDF
             if( generatePdf ){
@@ -2624,14 +2633,14 @@ function SUPERreCaptcha(){
                                 pdfSettings: pdfSettings,
                                 pdf: pdf
                             }
-                            SUPER.send_email(args);
+                            SUPER.submit_form(args);
                         }); 
                     });
                 }, 500);
                 return false;
             }
             // We do not need to generate a PDF
-            SUPER.send_email(args);
+            SUPER.submit_form(args);
         };
         SUPER.before_email_send_hook(args);
     };
@@ -3933,9 +3942,11 @@ function SUPERreCaptcha(){
 
     // @since 3.2.0 - prepare form data
     SUPER.prepare_form_data = function($form){
+        debugger;
         var $data = SUPER.prepare_form_data_fields($form),
             $form_id = '',
             $entry_id = '',
+            $list_id = '',
             $dynamic_columns = {},
             $dynamic_arrays = [],
             $map_key_names = [],
@@ -3998,7 +4009,14 @@ function SUPERreCaptcha(){
             'value':$entry_id,
             'type':'entry_id'
         };
-        return {data:$data, form_id:$form_id, entry_id:$entry_id};
+        debugger;
+
+        // When editing entry via Listings add-on
+        if($form.find('input[name="hidden_list_id"]').length !== 0) {
+            $list_id = $form.find('input[name="hidden_list_id"]').val();
+        }
+
+        return {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
     };
 
     // @since 1.3

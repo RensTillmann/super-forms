@@ -5540,8 +5540,19 @@ class SUPER_Shortcodes {
 
         extract( shortcode_atts( array(
             'id' => '',
+            'list_id' => '',
+            'entry_id' => '',
             'i18n' => ''
         ), $atts ) );
+
+        $editingContactEntry = false;
+        if($id!=='' && $list_id!=='' && $entry_id!==''){
+            $editingContactEntry = true;
+            //echo 'we are editing an existing entry<br />';
+            //echo 'form_id: '.$id.'<br />';
+            //echo 'list_id: '.$list_id.'<br />';
+            //echo 'entry_id: '.$entry_id.'<br />';
+        }
 
         // @since 4.6.0 - set GET parameters for parsed shortcode params
         foreach($atts as $k => $v){
@@ -5600,7 +5611,8 @@ class SUPER_Shortcodes {
                 $settings[substr($k, 9, strlen($k))] = $v;
             }
         }
-
+        // Allow us to manipulate form settings, currently used by Listings Add-on
+        $settings = apply_filters( 'super_before_form_render_settings_filter', $settings, array( 'id' => $id, 'list_id' => $list_id, 'entry_id' => $entry_id, 'i18n' => $i18n ) );        
 
         $translations = SUPER_Common::get_form_translations($form_id);
 
@@ -6025,6 +6037,14 @@ class SUPER_Shortcodes {
         $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($form_id) . '" name="hidden_form_id" />';
         $result .= '</div>';
 
+        // When editing a contact entry, we need to pass the below values to handle the ajax request
+        if($editingContactEntry===true){
+            // Holds list ID
+            $result .= '<div class="super-shortcode super-field super-hidden">';
+            $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($list_id) . '" name="hidden_list_id" />';
+            $result .= '</div>';
+        }
+
         // Grab all form elements
         $elements = get_post_meta( $form_id, '_super_elements', true );
         if( !is_array($elements) ) {
@@ -6065,6 +6085,11 @@ class SUPER_Shortcodes {
         // Make sure to only return the default submit button if no custom button was used
         if(!isset($GLOBALS['super_custom_button_used'])){
             $result .= self::button( 'button', array(), '', '', $settings, $i18n );
+        }else{
+            // In case of editing an entry via Listings Add-on, make sure we add a submit button
+            if($editingContactEntry===true){
+                $result .= self::button( 'button', array('name'=>esc_html__( 'Update', 'super-forms' )), '', '', $settings, $i18n );
+            }
         }
 
         // Always unset after all elements have been processed

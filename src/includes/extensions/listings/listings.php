@@ -82,19 +82,98 @@ if(!class_exists('SUPER_Listings')) :
                 add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
                 add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
             }
-            if( isset($_GET['super-listings-view']) || isset($_GET['super-listings-edit']) ) {
-                //if(SUPER_PLUGIN_FILE){
-                //    SUPER_Forms()->enqueue_fontawesome_styles();
-                //    wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
-                //}
-                add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
-                add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
-                add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX ); // We do not want to display the admin bar
-                add_filter( 'template_include', array( $this, 'form_blank_page_template' ), PHP_INT_MAX );
-            }
             add_action( 'wp_ajax_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
             add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
+            add_filter( 'super_before_form_render_settings_filter', array( $this, 'alter_form_settings_before_rendering' ), 10, 2 );
+            add_filter( 'super_before_submit_form_settings_filter', array( $this, 'alter_form_settings_before_submit' ), 10, 2 );
+        }
 
+        // Required to change some settings when editing/updating an existing entry via Listings Add-on
+        public static function alter_form_settings_before_rendering($settings, $args){
+            if($args['id']!=='' && $args['list_id']!=='' && $args['entry_id']!==''){
+                // In order to edit entries we need to make sure some settings are not enabled
+                $overrideSettings = array(
+                    'update_contact_entry'=>'true',
+                    'contact_entry_prevent_creation'=>'true',
+                    'contact_entry_custom_status_update'=>'',
+                    'save_form_progress'=>'',
+                    'retrieve_last_entry_data'=>'',
+                    'send'=>'no',
+                    'confirm'=>'no',
+                    'save_contact_entry'=>'no',
+                    'form_disable_enter'=>'true',
+                    'form_locker'=>'',
+                    'user_form_locker'=>'',
+                    'csv_attachment_enable'=>'',
+                    'frontend_posting_action'=>'none',
+                    'mailster_enabled'=>'',
+                    'paypal_checkout'=>'',
+                    'register_login_action'=>'none',
+                    'woocommerce_checkout'=>'',
+                    'zapier_enable'=>'',
+                    'popup_enabled'=>'',
+                    'form_processing_overlay'=>'',
+                    'form_show_thanks_msg'=>'',
+                    'form_post_option'=>'',
+                    'form_post_url'=>'',
+                    'form_redirect_option'=>'',
+                    'form_hide_after_submitting'=>'',
+                    'form_clear_after_submitting'=>''
+                );
+                foreach($overrideSettings as $k => $v){
+                    $settings[$k] = $v;
+                }
+            }
+            return $settings;
+        }
+
+        // Required to change some settings when editing/updating an existing entry via Listings Add-on
+        public static function alter_form_settings_before_submit($settings, $args){
+            $post = $args['post'];
+            // @since 4.7.7 - prevent new Contact Entry from being created
+            $entry_id = absint( $post['entry_id'] );
+            $list_id = sanitize_text_field( $post['list_id'] );
+            if($list_id!==''){
+                // In order to edit entries we need to make sure some settings are not enabled
+                $overrideSettings = array(
+                    'update_contact_entry'=>'true',
+                    'contact_entry_prevent_creation'=>'true',
+                    'contact_entry_custom_status_update'=>'',
+                    'save_form_progress'=>'',
+                    'retrieve_last_entry_data'=>'',
+                    'send'=>'no',
+                    'confirm'=>'no',
+                    'save_contact_entry'=>'no',
+                    'form_disable_enter'=>'true',
+                    'form_locker'=>'',
+                    'user_form_locker'=>'',
+                    'csv_attachment_enable'=>'',
+                    'frontend_posting_action'=>'none',
+                    'mailster_enabled'=>'',
+                    'paypal_checkout'=>'',
+                    'register_login_action'=>'none',
+                    'woocommerce_checkout'=>'',
+                    'zapier_enable'=>'',
+                    'popup_enabled'=>'',
+                    'form_processing_overlay'=>'',
+                    'form_show_thanks_msg'=>'',
+                    'form_post_option'=>'',
+                    'form_post_url'=>'',
+                    'form_redirect_option'=>'',
+                    'form_hide_after_submitting'=>'',
+                    'form_clear_after_submitting'=>''
+                );
+                $global_settings = SUPER_Common::get_global_settings();
+                $i = 1;
+                while($i <= absint($global_settings['email_reminder_amount'])){
+                    $overrideSettings['email_reminder_'.$i] = '';
+                    $i++;
+                }
+                foreach($overrideSettings as $k => $v){
+                    $settings[$k] = $v;
+                }
+            }
+            return $settings;
         }
 
         public static function getStandardColumns(){
@@ -1718,7 +1797,6 @@ if(!class_exists('SUPER_Listings')) :
                                             $allowViewOwn = $allow['allowViewOwn'];
                                             $allowEditAny = $allow['allowEditAny'];
                                             $allowEditOwn = $allow['allowEditOwn'];
-                                            $allowEditMethod = $allow['allowEditMethod'];
                                             $allowDeleteAny = $allow['allowDeleteAny'];
                                             $allowDeleteOwn = $allow['allowDeleteOwn'];
                                             $actions = '';
@@ -1726,19 +1804,7 @@ if(!class_exists('SUPER_Listings')) :
                                                 $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
                                             }
                                             if($allowEditAny===true || $allowEditOwn===true){
-                                                if($allowEditMethod=='url'){
-                                                    $url = $settings['form_location']; 
-                                                    $query = parse_url($url, PHP_URL_QUERY);
-                                                    // Returns a string if the URL has parameters or NULL if not
-                                                    if ($query) {
-                                                        $url .= '&contact_entry_id=' . $entry->post_id;
-                                                    } else {
-                                                        $url .= '?contact_entry_id=' . $entry->post_id;
-                                                    }
-                                                    $actions .= '<a class="super-edit" target="_blank" href="' . esc_url($url) . '"></a>';
-                                                }else{
-                                                    $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
-                                                }
+                                                $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
                                             }
                                             if($allowDeleteAny===true || $allowDeleteOwn===true){
                                                 $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
@@ -2062,11 +2128,9 @@ if(!class_exists('SUPER_Listings')) :
 
             // EDIT ANY
             // Check if any user or own user is allowed to edit entry
-            $allowEditMethod = '';
             $allowEditAny = false;
             if(!empty($list['edit_any'])) {
                 if($list['edit_any']['enabled']==='true'){
-                    $allowEditMethod = $list['edit_any']['method'];
                     // Check if both roles and user ID's are empty
                     if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
                         $allowEditAny = true;
@@ -2115,7 +2179,6 @@ if(!class_exists('SUPER_Listings')) :
                 if($list['edit_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
                     if(absint($current_user->ID) === absint($entry->post_author)){
-                        $allowEditMethod = $list['edit_own']['method'];
                         // Check if both roles and user ID's are empty
                         if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
                             $allowEditOwn = true;
@@ -2260,7 +2323,6 @@ if(!class_exists('SUPER_Listings')) :
                 'allowViewOwn' => $allowViewOwn,
                 'allowEditAny' => $allowEditAny,
                 'allowEditOwn' => $allowEditOwn,
-                'allowEditMethod' => $allowEditMethod,
                 'allowDeleteAny' => $allowDeleteAny,
                 'allowDeleteOwn' => $allowDeleteOwn
             );

@@ -313,7 +313,7 @@ if(!class_exists('SUPER_Register_Login')) :
             }else{
                 // Check if user has not activated their account yet
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
-                if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_send_email')){
+                if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_submit_form')){
                     if( $status!=1 && $status!=='' ) {
                         remove_action('authenticate', 'wp_authenticate_username_password', 20);
                         $user = new WP_Error( 'account_not_active', esc_html__( 'You haven\'t verified your email address yet. Please check your email!' ) );
