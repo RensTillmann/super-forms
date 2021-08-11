@@ -1912,7 +1912,6 @@ function SUPERreCaptcha(){
 
     // Send E-mail
     SUPER.submit_form = function(args) {
-        debugger;
         if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
         var innerText = args.loadingOverlay.querySelector('.super-inner-text');
         if(args.pdfArgs!==false){
@@ -2125,21 +2124,21 @@ function SUPERreCaptcha(){
         // Remove any form padding
         css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
         // Hide none essential elements/styles from the PDF output
-        css += '.super-generating-pdf *,';
-        css += '.super-generating-pdf *:after,';
-        css += '.super-generating-pdf .super-accordion-header:after,';
-        css += '.super-generating-pdf .super-accordion-header:before { transition: initial!important; }';
-        css += '.super-generating-pdf .super-accordion-header:before,';
-        css += '.super-generating-pdf .super-accordion-header:after,';
-        css += '.super-generating-pdf .super-form-button,';
-        css += '.super-generating-pdf .super-multipart-progress,';
-        css += '.super-generating-pdf .super-multipart-steps,';
-        css += '.super-generating-pdf .super-prev-multipart,';
-        css += '.super-generating-pdf .super-next-multipart,';
-        css += '.super-generating-pdf .super-tabs-menu,';
-        css += '.super-generating-pdf .super-signature-clear { display: none!important; }';
-        css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
-        css += '.super-generating-pdf .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) *,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) *:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before { transition: initial!important; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-form-button,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-progress,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-steps,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-prev-multipart,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-next-multipart,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-tabs-menu,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-signature-clear { display: none!important; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
         // Header margins
         var headerMarginBottom = parseFloat(args.pdfSettings.margins.header.bottom)+parseFloat(args.pdfSettings.margins.body.top);
@@ -2369,7 +2368,6 @@ function SUPERreCaptcha(){
 
     // Send form submission through ajax request
     SUPER.create_ajax_request = function(args){
-        debugger;
         var form = $(args.form),
             data,
             form_id,
@@ -2381,7 +2379,6 @@ function SUPERreCaptcha(){
 
         form_id = args.data.form_id;
         entry_id = args.data.entry_id;
-        debugger;
         list_id = args.data.list_id;
         args.showOverlay = args.form.dataset.overlay;
 
@@ -2461,7 +2458,6 @@ function SUPERreCaptcha(){
             }
 
             var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
-            debugger;
             args = {
                 form: form,
                 form0: form[0],
@@ -2477,7 +2473,6 @@ function SUPERreCaptcha(){
                 loadingOverlay: loadingOverlay,
                 progressBar: progressBar
             }
-            debugger;
 
             // Generate PDF
             if( generatePdf ){
@@ -3942,7 +3937,6 @@ function SUPERreCaptcha(){
 
     // @since 3.2.0 - prepare form data
     SUPER.prepare_form_data = function($form){
-        debugger;
         var $data = SUPER.prepare_form_data_fields($form),
             $form_id = '',
             $entry_id = '',
@@ -4009,11 +4003,11 @@ function SUPERreCaptcha(){
             'value':$entry_id,
             'type':'entry_id'
         };
-        debugger;
 
         // When editing entry via Listings add-on
         if($form.find('input[name="hidden_list_id"]').length !== 0) {
             $list_id = $form.find('input[name="hidden_list_id"]').val();
+            //SUPER.form_js[$form_id]._pdf.generate = 'false';
         }
 
         return {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};

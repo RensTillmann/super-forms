@@ -260,7 +260,7 @@ if(!class_exists('SUPER_Zapier')) :
                     $error_message = $response->get_error_message();
                     SUPER_Common::output_message(
                         $error = true,
-                        $msg = $error_message
+                        $msg = 'Zapier: ' . $error_message
                     );
                 }
             }

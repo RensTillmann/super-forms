@@ -1795,6 +1795,7 @@ class SUPER_Common {
                 
                 $row = $settings['email_loop'];
                 $confirm_row = $row;
+                $listing_row = '';
                 if( isset($settings['confirm_email_loop']) ) {
                     $confirm_row = $settings['confirm_email_loop'];
                 }

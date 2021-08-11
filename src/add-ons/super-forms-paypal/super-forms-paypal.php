@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.4.1
+ * Version:     1.5.0
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.4.1';
+		public $version = '1.5.0';
 
 		
 		/**
@@ -1418,9 +1418,14 @@ if (!class_exists('SUPER_PayPal')):
 		public function paypal_ipn() {
 
 			if ((isset($_GET['page'])) && ($_GET['page'] == 'super_paypal_ipn')) {
+				error_log('Super Forms: handling incoming Paypal IPN');
 	
 				// Only continue for transactions that contain 'payment_status'
-				if(empty($_POST['payment_status'])) die();
+				if(empty($_POST['payment_status']) && $_POST['txn_type']!=='subscr_signup') {
+					error_log('Super Forms: Paypal IPN did not contain `payment_status`, do nothing');
+					error_log($_POST['txn_type']);
+					die();
+				} 
 
 				// txn_type options are:
 				// subscr_signup
@@ -1433,6 +1438,8 @@ if (!class_exists('SUPER_PayPal')):
 				// When the subscription has expired due to cancelation or expiration (term has ended) we don't have to do anything other then notifying paypal that we received the IPN message.
 				// The subscription has expired, either because the subscriber cancelled it or it has a fixed term (implying a fixed number of payments) and it has now expired with no further payments being due.
 				if( (isset($_POST['txn_type'])) && ($_POST['txn_type']=='subscr_eot') ) {
+					error_log('Super Forms: Paypal IPN subscription expired due to cancelation or expiration (term has ended), notify Paypal by returning 200 status code');
+					do_action( 'super_after_paypal_ipn_subscription_expired', array( 'post'=>$_POST ) );
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
                     http_response_code(200);
                     exit;
@@ -1440,6 +1447,8 @@ if (!class_exists('SUPER_PayPal')):
 
 				// When the subscription payment has failed, not much we can do about this, and we don't have to do anything except let paypal know we received the IPN message
 				if( (isset($_POST['txn_type'])) && ($_POST['txn_type']=='subscr_failed') ) {
+					error_log('Super Forms: Paypal IPN subscription payment failed, notify Paypal by returning 200 status code');
+					do_action( 'super_after_paypal_ipn_subscription_payment_failed', array( 'post'=>$_POST ) );
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
                     http_response_code(200);
                     exit;
@@ -1447,6 +1456,7 @@ if (!class_exists('SUPER_PayPal')):
 
 				// IPN message telling that the subscription is either being modified, suspended or canceled
 				if( (isset($_POST['txn_type'])) && (($_POST['txn_type']=='subscr_modify') || ($_POST['txn_type']=='recurring_payment_suspended') || ($_POST['txn_type']=='subscr_cancel')) ) {
+					error_log('Super Forms: Paypal IPN subscription is being modified, suspended or canceled');
 
 					// Get subscription ID
 					if( isset($_POST['subscr_id']) ) {
@@ -1489,7 +1499,7 @@ if (!class_exists('SUPER_PayPal')):
 						update_post_meta( $post_id, '_super_txn_data', $_POST );
 					}
 
-					do_action( 'super_after_paypal_ipn_subscription_changed', array( 'post_id'=>$post_id, 'txn_type'=>$_POST['txn_type'] ) );
+					do_action( 'super_after_paypal_ipn_subscription_changed', array( 'post'=>$_POST, 'post_id'=>$post_id, 'txn_type'=>$_POST['txn_type'] ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
                     http_response_code(200);
@@ -1498,6 +1508,7 @@ if (!class_exists('SUPER_PayPal')):
 
 				// If payment status is Refunded
 				if( (isset($_POST['payment_status'])) && ($_POST['payment_status']=='Refunded') ) {
+					error_log('Super Forms: Paypal IPN subscription payment status changed to refunded');
 
 					// Get ID based on ipn tracking ID
 					global $wpdb;
@@ -1507,7 +1518,7 @@ if (!class_exists('SUPER_PayPal')):
 					$post_txn_data['payment_status'] = 'Refunded';
 					update_post_meta( $post_id, '_super_txn_data', $post_txn_data );
 
-					do_action( 'super_after_paypal_ipn_payment_refunded', array( 'post_id'=>$post_id ) );
+					do_action( 'super_after_paypal_ipn_payment_refunded', array( 'post'=>$_POST, 'post_id'=>$post_id ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
                     http_response_code(200);
@@ -1932,12 +1943,10 @@ if (!class_exists('SUPER_PayPal')):
 			$settings = $atts['settings'];
 			if (isset($atts['data'])) {
 				$data = $atts['data'];
-			}
-			else {
+			} else {
 				if ($settings['save_contact_entry'] == 'yes') {
 					$data = get_post_meta($atts['entry_id'], '_super_contact_entry_data', true);
-				}
-				else {
+				} else {
 					$data = $atts['post']['data'];
 				}
 			}

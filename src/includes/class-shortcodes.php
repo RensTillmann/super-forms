@@ -4396,7 +4396,7 @@ class SUPER_Shortcodes {
             $field_names = implode('}{', $data_fields);
             $html = $atts['html'];
 
-            if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) ) {
+            if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_listings_edit_entry' || $_POST['action']=='super_language_switcher') ) ) {
                 if( !empty($atts['nl2br']) ) $html = nl2br($html);
                 $html_code = do_shortcode(stripslashes($html));
             }else{
@@ -4624,6 +4624,11 @@ class SUPER_Shortcodes {
         $font_hover = $settings['theme_button_font_hover'];
 
         if( !empty( $atts['action']) ) $action = $atts['action'];
+        if( !isset( $GLOBALS['super_submit_button_found'] ) && $action==='submit' ) {
+            $GLOBALS['super_submit_button_found'] = true;
+        }
+
+
         if( !empty( $atts['name'] ) ) $name = $atts['name'];
         $name = stripslashes($name);
 
@@ -5548,10 +5553,6 @@ class SUPER_Shortcodes {
         $editingContactEntry = false;
         if($id!=='' && $list_id!=='' && $entry_id!==''){
             $editingContactEntry = true;
-            //echo 'we are editing an existing entry<br />';
-            //echo 'form_id: '.$id.'<br />';
-            //echo 'list_id: '.$list_id.'<br />';
-            //echo 'entry_id: '.$entry_id.'<br />';
         }
 
         // @since 4.6.0 - set GET parameters for parsed shortcode params
@@ -6085,15 +6086,15 @@ class SUPER_Shortcodes {
         // Make sure to only return the default submit button if no custom button was used
         if(!isset($GLOBALS['super_custom_button_used'])){
             $result .= self::button( 'button', array(), '', '', $settings, $i18n );
-        }else{
-            // In case of editing an entry via Listings Add-on, make sure we add a submit button
-            if($editingContactEntry===true){
-                $result .= self::button( 'button', array('name'=>esc_html__( 'Update', 'super-forms' )), '', '', $settings, $i18n );
-            }
+        }
+        // In case of editing an entry via Listings Add-on, make sure we add a submit button
+        if( !isset($GLOBALS['super_submit_button_found']) && $editingContactEntry===true ){
+            $result .= self::button( 'button', array('name'=>esc_html__( 'Update', 'super-forms' )), '', '', $settings, $i18n );
         }
 
         // Always unset after all elements have been processed
         unset($GLOBALS['super_custom_button_used']);
+        unset($GLOBALS['super_submit_button_found']);
         unset($GLOBALS['super_first_multipart']); // @since 2.6.0
 
         // @since 3.1.0 - filter to add any HTML after the last form element
