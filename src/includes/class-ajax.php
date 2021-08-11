@@ -3179,9 +3179,9 @@ class SUPER_Ajax {
             
             // @since 4.6.0 - also parse all attachments (useful for external file storage through for instance Zapier)
             $attachments = array(
-                'attachments' => $attachments,
-                'confirm_attachments' => $confirm_attachments,
-                'string_attachments' => $string_attachments
+                'attachments' => (isset($attachments) ? $attachments : array()),
+                'confirm_attachments' => (isset($confirm_attachments) ? $confirm_attachments : array()),
+                'string_attachments' => (isset($string_attachments) ? $string_attachments : array())
             );
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
             do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );

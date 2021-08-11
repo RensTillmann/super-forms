@@ -1,3 +1,6 @@
+Aug 11, 2021 - Version 1.5.0
+- Fix: Subscriptions with trial periods were not handled properly by IPN
+
 Mar 26, 2021 - Version 1.4.1
 - Fix: Make sure that PayPal receives 200 OK status code
 

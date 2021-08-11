@@ -704,10 +704,18 @@ if(!class_exists('SUPER_Forms')) :
                         foreach( $contact_entry_data as $k => $v ) {
                             if( isset($v['type']) && ($v['type']=='files') ) {
                                 if( isset( $v['files'] ) ) {
+                                    // Delete possible generated PDF file
                                     foreach( $v['files'] as $fk => $fv ) {
-                                        if(!empty($fv['path'])){
-                                            // Try to delete it
-                                            SUPER_Common::delete_dir( $fv['path'] );
+                                        if($k==='_generated_pdf_file'){
+                                            if(!empty($fv['url'])){
+                                                // Try to delete it
+                                                SUPER_Common::delete_dir( $fv['url'] );
+                                            }
+                                        }else{
+                                            if(!empty($fv['path'])){
+                                                // Try to delete it
+                                                SUPER_Common::delete_dir( $fv['path'] );
+                                            }
                                         }
                                     }
                                 }

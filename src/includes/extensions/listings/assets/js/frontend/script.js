@@ -53,10 +53,15 @@
 
     SUPER.frontEndListing = {};
     
+    // Clear filters
+    SUPER.frontEndListing.clearFilter = function(event){
+        event.preventDefault();
+        window.location.href = window.location.href.split('?')[0];
+    };
+
     // Get current query string
     SUPER.frontEndListing.getQueryString = function(el){
-        debugger;
-        var i, nodes, col, inputField, value, columnName, limit = 25, queryString = [], from, till;
+        var i, nodes, value, columnName, limit = 25, queryString = [], from, till;
         // Get the current limit from the pagination (if any otherwise default to 25)
         if(typeof document.querySelector('.super-pagination .super-limit') !== 'undefined' ){
             limit = document.querySelector('.super-pagination .super-limit').value;
@@ -64,7 +69,6 @@
         queryString.push('limit='+limit);
 
         // If we are searching, then we skip the column search inputs, and just use the current one
-        debugger;
         // Loop through all filters and grab the value and the column name
         // Then append each of them
         nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-col-wrap');
@@ -76,9 +80,9 @@
                 // Replace hashtag to avoid browser thinking to use it as anchor
                 value = encodeURIComponent(value);
                 columnName = nodes[i].dataset.name;
-                if(columnName==='date'){
-                    from = getParents(el, '.super-listings')[0].querySelector('input[name="date_from"]');
-                    till = getParents(el, '.super-listings')[0].querySelector('input[name="date_till"]');
+                if(columnName==='entry_date'){
+                    from = getParents(el, '.super-listings')[0].querySelector('input[name="entry_date_from"]');
+                    till = getParents(el, '.super-listings')[0].querySelector('input[name="entry_date_till"]');
                     queryString.push('fc_'+columnName+'='+from.value+';'+till.value);
                 }else{
                     queryString.push('fc_'+columnName+'='+value);
@@ -90,7 +94,6 @@
         nodes = getParents(el, '.super-listings')[0].querySelectorAll('.super-columns .super-sort-down, .super-columns .super-sort-up');
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].classList.contains('super-active')){
-                debugger;
                 queryString.push('sc='+nodes[i].closest('.super-col-wrap').dataset.name);
                 if(nodes[i].classList.contains('super-sort-down')){
                     queryString.push('sm=d');
@@ -103,7 +106,6 @@
 
         // Load the page with query strings and make sure to start at page 1
         // Except when a page change was issued
-        debugger;
         var page = 1;
         if( el.classList.contains('super-switcher') ){
             page = parseInt(el.value, 10);
@@ -121,7 +123,6 @@
                 page = parseInt(el.value, 10); // Update to correct page
             }
         }
-        debugger;
         if(page<1) page = 1;
         queryString.push('sfp='+page);
         return queryString;
@@ -170,7 +171,6 @@
 
     // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
     SUPER.frontEndListing.viewEntry = function(el){
-        debugger;
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
@@ -228,7 +228,6 @@
     };
     // When edit button is clicked create a modal/popup window and load the form + it's entry data
     SUPER.frontEndListing.editEntry = function(el){
-        debugger;
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
@@ -248,19 +247,19 @@
         closeBtn.addEventListener('click', function(){
             this.parentNode.remove();
         });
-        debugger;
         modal.appendChild(closeBtn);
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
-                    debugger;
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
+                    debugger;
+                    node.innerHTML = '<img src="https://f4d.nl/dev/wp-content/uploads/superforms/2021/08/670640000/Example%20-%20Copy.jpg" />';
+                    debugger;
                     node.innerHTML = this.responseText;
                     modal.appendChild(node);
-                    debugger;
                     var form = modal.querySelector('.super-form');
                     form.classList.add('super-initialized');
                     SUPER.init_common_fields();
@@ -270,7 +269,6 @@
                     loadingIcon.remove();
                 }
                 // Complete:
-                debugger;
                 parent.classList.remove('super-loading');
             }
         };
@@ -293,7 +291,6 @@
  
     // Delete entry
     SUPER.frontEndListing.deleteEntry = function(el, list_id){
-        debugger;
         var parent = getParents(el, '.super-entry')[0];
         parent.classList.add('super-loading');
         var entry_id = parent.dataset.id;
@@ -303,7 +300,6 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
-                    debugger;
                     if(this.responseText==='1'){
                         // Delete entry
                         parent.remove();
