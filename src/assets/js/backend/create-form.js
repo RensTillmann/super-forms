@@ -85,7 +85,6 @@
         },
         // Update form settings
         updateSettings: function(e, el){
-            console.log(el);
             SUPER.ui.showHideSubsettings(el);
             // Update form settings
             SUPER.update_form_settings(true);

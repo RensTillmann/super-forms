@@ -242,6 +242,9 @@
   display: inline-block;
   vertical-align: top;
 }
+.super-listings .super-listings-wrap .super-entries .super-entry .super-col.super-actions {
+  overflow: visible;
+}
 
 .super-listings * {
   width: 100%;
@@ -424,7 +427,7 @@
 
 .super-listings .super-pagination .super-switcher,
 .super-listings .super-pagination .super-limit {
-  padding-right: 30px !important;
+  padding-right: 30px;
 }
 
 .super-nav .super-page,
@@ -438,7 +441,7 @@
   cursor: pointer;
   margin: 4px 2px 4px 2px;
   border-radius: 3px;
-  text-decoration: none !important;
+  text-decoration: none;
   font-size: 12px;
   color: #a5a5a5;
 }
@@ -878,7 +881,7 @@
   border-radius: 4px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   margin: 0;
-  cursor: inherit !important;
+  cursor: inherit;
   white-space: nowrap;
   max-width: 100%;
   width: auto;
@@ -921,7 +924,7 @@
 
 .super-listings .super-col>a:focus,
 .super-listings .super-col>a:active {
-  background: none !important;
+  background: none;
 }
 
 .super-listings .super-txn-status {
@@ -964,33 +967,6 @@
 .super-listings .super-txn-status-voided {
   background-color: #000000;
 }
-.super-listings .super-columns .super-clear>span:not(.super-col-name) {
-  color: #bbad1c;
-  background-color: #fff36e;
-  height: 30px;
-  font-size: 12px;
-  border-radius: 3px;
-  padding: 0 10px;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-
-.super-listings .super-columns .super-clear>span:not(.super-col-name):after {
-  content: "\f0b0";
-  font-family: "Font Awesome 5 Free";
-  font-weight: 900;
-  padding-left: 5px;
-}
-
-.super-listings .super-columns .super-clear:hover>span:not(.super-col-name) {
-  color: #827815;
-  background-color: #ffed30;
-}
-
-
 
 .super-listings .super-entry.super-loading .super-toggle:after {
   width: 22px;
@@ -1005,11 +981,16 @@
   animation: rotating 1s linear infinite;
 }
 
+.super-listings .super-actions-dummy {
+  width: 35px;
+  height: 1px;
+}
+
 .super-listings .super-actions {
   width: auto;
   position: relative;
   z-index: 1;
-  overflow: visible!important;
+  overflow: visible;
 }
 
 .super-listings .super-actions .super-toggle {
@@ -1098,44 +1079,77 @@
 }
 
 
-.super-listings .super-columns .super-clear {
-  width: 35px;
-}
-.super-listings .super-columns .super-clear > span {
-  visibility: hidden;
-  height: 0px!important;
-}
-.super-listings .super-columns .super-clear > span:not(.super-col-name) {
-  width: 80px;
-  padding: 0;
-}
-.super-listings.super-has-filters .super-columns .super-clear {
-  width: auto;
-}
-.super-listings.super-has-filters .super-columns .super-clear > span {
-  visibility: visible;
-}
-.super-listings.super-has-filters .super-actions .super-toggle .super-actions-menu {
-  flex-direction: row-reverse;
-  left: initial;
-  right: 0;
-  padding: 0;
-  border: 1px solid #afafaf;
-}
 .super-listings .super-entry {
   color: rgba(0, 0, 0, 0.55);
-  padding: 10px 0px 10px 10px;
+  padding: 10px 0px 10px 2px;
 }
-.super-listings.super-has-filters .super-entry {
-  padding-left: 60px;
-}
-
 .super-listings .super-entry .super-col {
   overflow: hidden;
 }
-.super-listings.super-has-filters .super-columns .super-clear > span {
-  height: auto !important;
+
+.super-listings .super-clear {
+  width: auto;
+  margin-bottom: 10px;
 }
-.super-listings.super-has-filters .super-columns .super-clear > span:not(.super-col-name) {
-  height: 30px !important;
+.super-listings .super-clear:hover > span {
+  color: #827815;
+  background-color: #ffed30;
+}
+.super-listings .super-clear > span {
+  color: #bbad1c;
+  background-color: #fff36e;
+  height: 30px;
+  font-size: 12px;
+  border-radius: 3px;
+  padding: 0 15px;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: auto;
+}
+.super-listings .super-clear > span:after {
+  content: "\f0b0";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  padding-left: 5px;
+}
+
+.super-listings .super-col > a {
+  display: flex;
+  text-decoration: none;
+}
+.super-listings .super-col > a:hover {
+  text-decoration: underline;
+}
+.super-listings .super-icon-edit,
+.super-listings .super-icon-view,
+.super-listings .super-icon-download,
+.super-listings .super-icon-mail {
+  padding: 1px 0 0 5px;
+  margin: 0;
+  display: flex;
+  width: 20px;
+  justify-content: center;
+  align-items: center;
+}
+.super-listings .super-icon-edit:after,
+.super-listings .super-icon-view:after,
+.super-listings .super-icon-download:after,
+.super-listings .super-icon-mail:after {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+}
+.super-listings .super-icon-edit:after {
+  content: '\f303';
+}
+.super-listings .super-icon-view:after {
+  content: '\f06e';
+}
+.super-listings .super-icon-download:after {
+  content: '\f019';
+}
+.super-listings .super-icon-mail:after {
+  content: '\f0e0';
 }

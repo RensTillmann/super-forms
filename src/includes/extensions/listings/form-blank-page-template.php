@@ -51,29 +51,6 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                         }
                     }
                 }
-                //$entry_status = get_post_meta( absint($entry_id), '_super_contact_entry_status', true );
-                //$entry_title = get_the_title( absint($entry_id) );
-                // If entry status is empty, return the post status instead
-                //if(empty($entry_status)){ $entry_status = get_post_status($entry_id); }
-                //$data['hidden_contact_entry_status'] = array( 'name' => 'hidden_contact_entry_status', 'value' => $entry_status, 'type' => 'var');
-                //$data['hidden_contact_entry_id'] = array( 'name' => 'hidden_contact_entry_id', 'value' => $entry_id, 'type' => 'entry_id');
-                //$data['hidden_contact_entry_title'] = array( 'name' => 'hidden_contact_entry_title', 'value' => $entry_title, 'type' => 'var');
-                //$skip = sanitize_text_field($_POST['skip']);
-                //$skip_fields = explode( "|", $skip );
-                //foreach($skip_fields as $field_name){
-                //    if( isset($data[$field_name]) ) {
-                //        unset($data[$field_name]);
-                //    }
-                //}
-
-                //$email_loop = $loops['email_loop'];
-                //$confirm_loop = $loops['confirm_loop'];
-
-                //// Seems that everything is OK, continue and load the form
-                //$entry = get_post($entry_id);
-                //$form_id = $entry->post_parent; // This will hold the form ID
-                //// Now print out the form by executing the shortcode function
-                //echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
             }
 
             // If we are viewing an entry
@@ -112,7 +89,7 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                 $html = str_replace( '{listing_list_id}', $list_id, $html);
                 $html = str_replace( '{listing_entry_title}', $entry_title, $html);
                 $html = str_replace( '{listing_entry_date}', $entry_date, $html);
-                echo $html;
+                echo do_shortcode($html);
             }
         }
     }

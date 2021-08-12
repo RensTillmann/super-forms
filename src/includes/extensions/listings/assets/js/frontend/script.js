@@ -61,7 +61,7 @@
 
     // Get current query string
     SUPER.frontEndListing.getQueryString = function(el){
-        var i, nodes, value, columnName, limit = 25, queryString = [], from, till;
+        var i, nodes, value, columnName, limit = 25, queryString = [], from, until;
         // Get the current limit from the pagination (if any otherwise default to 25)
         if(typeof document.querySelector('.super-pagination .super-limit') !== 'undefined' ){
             limit = document.querySelector('.super-pagination .super-limit').value;
@@ -82,8 +82,8 @@
                 columnName = nodes[i].dataset.name;
                 if(columnName==='entry_date'){
                     from = getParents(el, '.super-listings')[0].querySelector('input[name="entry_date_from"]');
-                    till = getParents(el, '.super-listings')[0].querySelector('input[name="entry_date_till"]');
-                    queryString.push('fc_'+columnName+'='+from.value+';'+till.value);
+                    until = getParents(el, '.super-listings')[0].querySelector('input[name="entry_date_until"]');
+                    queryString.push('fc_'+columnName+'='+from.value+';'+until.value);
                 }else{
                     queryString.push('fc_'+columnName+'='+value);
                 }
@@ -162,11 +162,6 @@
             queryString.push('sm=a'); // sort method
         }
         window.location.href = window.location.href.split('?')[0]+'?'+queryString.join("&");
-    };
-
-    // When switch to page is changed
-    SUPER.frontEndListing.pageSwitcher = function(el){
-        console.log(el.value);
     };
 
     // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
@@ -329,17 +324,14 @@
 
     // Resize modal
     SUPER.frontEndListing.resizeModal = function(modal){
-        console.log(modal);
         if( typeof modal === 'undefined' ) {
             modal = document.querySelector('.super-listings-modal');
-            console.log(modal);
         }
         if( typeof modal === 'undefined' || modal == null ) {
             return false;
         }
         var height = window.innerHeight;
         var width = window.innerWidth;
-        console.log('height: '+height, ' | width: '+width);
         if( width > 1200 ) {
             // Resize by 20%
             height = height - (height/100)*20;

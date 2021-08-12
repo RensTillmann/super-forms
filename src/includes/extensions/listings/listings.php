@@ -529,17 +529,44 @@ if(!class_exists('SUPER_Listings')) :
                     echo '</div>';
 
                     echo '<div class="sfui-setting-group">';
+                        // Hide listing to specific user role/ids
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="display.enabled" value="true"' . ($v['display']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only display this listing to the following users', 'super-forms' ) . ':</span>';
+                                echo '<div class="sfui-sub-settings" data-f="display.enabled;true">';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to display to all roles', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="display.user_roles" value="' . sanitize_text_field($v['display']['user_roles']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only display to the roles defined above', 'super-forms' ) . '</span>';
+                                            echo '<input type="text" name="display.user_ids" value="' . sanitize_text_field($v['display']['user_ids']) . '" />';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting sfui-vertical">';
+                                        echo '<label>';
+                                            echo '<span class="sfui-title">' . esc_html__( 'HTML/message to display to users that can not see the listing (leave blank for none)', 'super-forms' ) . '</span>';
+                                            echo '<span class="sfui-label">' . esc_html__( 'This message will be displayed if the listing is not visible to the user', 'super-forms' ) . '</span>';
+                                            echo '<textarea name="display.message">' . $v['display']['message'] . '</textarea>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</label>';
+                        echo '</div>';
                         // Display based on
                         echo '<form class="sfui-setting">';
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="display_based_on" value="this_form"' . ($v['display_based_on']==='this_form' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only display entries based on this form', 'super-forms' ) . '</span>';
+                                    echo '<input type="radio" name="retrieve" value="this_form"' . ($v['retrieve']==='this_form' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only retrieve entries based on this form', 'super-forms' ) . '</span>';
                                 echo '</label>';
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="display_based_on" value="all_forms"' . ($v['display_based_on']==='all_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Display entries based on all forms', 'super-forms' ) . '</span>';
+                                    echo '<input type="radio" name="retrieve" value="all_forms"' . ($v['retrieve']==='all_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Retrieve entries based on all forms', 'super-forms' ) . '</span>';
                                 echo '</label>';
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="display_based_on" value="specific_forms"' . ($v['display_based_on']==='specific_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Display entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="display_based_on;specific_forms">';
+                                    echo '<input type="radio" name="retrieve" value="specific_forms"' . ($v['retrieve']==='specific_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Retrieve entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
+                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="retrieve;specific_forms">';
                                         echo '<div class="sfui-setting sfui-vertical">';
                                             echo '<label>';
                                                 echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($v['form_ids']) . '" />';
@@ -563,8 +590,8 @@ if(!class_exists('SUPER_Listings')) :
                                     echo '</div>';
                                     echo '<div class="sfui-setting sfui-vertical" style="width:auto;">';
                                         echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Till', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
-                                            echo '<input type="date" name="date_range.till" value="' . sanitize_text_field($v['date_range']['till']) . '" />';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Until', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
+                                            echo '<input type="date" name="date_range.until" value="' . sanitize_text_field($v['date_range']['until']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -697,16 +724,6 @@ if(!class_exists('SUPER_Listings')) :
                                             echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($v['edit_any']['user_ids']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_any.method" value="modal"' . ($v['edit_any']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_any.method" value="url"' . ($v['edit_any']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
@@ -725,16 +742,6 @@ if(!class_exists('SUPER_Listings')) :
                                         echo '<label>';
                                             echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'seperated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
                                             echo '<input type="text" name="edit_own.user_ids" value="' . sanitize_text_field($v['edit_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_own.method" value="modal"' . ($v['edit_own']['method']==='modal' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open form in a modal (default)', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="edit_own.method" value="url"' . ($v['edit_own']['method']==='url' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Open via form page (this requires "Form Location" to be defined under "Form Settings")', 'super-forms' ) . '</span>';
                                         echo '</label>';
                                     echo '</div>';
                                 echo '</div>';
@@ -840,12 +847,21 @@ if(!class_exists('SUPER_Listings')) :
                 $customColumn = true;
                 $v = $value;
             }
-            echo '<div class="sfui-setting sfui-vertical">';
+            echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
                 echo '<label>';
                     echo '<span class="sfui-label">' . esc_html__( 'Column name', 'super-forms' ) . '</span>';
                     echo '<input type="text" name="'.$pre.'name" value="' . sanitize_text_field($v['name']) . '" />';
                 echo '</label>';
             echo '</div>';
+            if($customColumn){
+                echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
+                    echo '<label>';
+                        echo '<span class="sfui-label">' . esc_html__( 'Field name', 'super-forms' ) . ':</span>';
+                        echo '<input type="text" name="field_name" value="' . sanitize_text_field($v['field_name']) . '" />';
+                        echo '<span class="sfui-label"><i>(' . esc_html__( 'enter the field name', 'super-forms') .')</i></span>';
+                    echo '</label>';
+                echo '</div>';
+            }
             echo '<div class="sfui-setting sfui-vertical" style="flex:0.5;">';
                 echo '<span class="sfui-label">' . esc_html__( 'Allow sorting', 'super-forms' ) . '</span>';
                 echo '<label>';
@@ -935,85 +951,26 @@ if(!class_exists('SUPER_Listings')) :
                 }
             echo '</div>';
         }
-        //public static function getColumnSettingFields($pre, $k, $v){
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-        //        echo '<label>';
-        //            echo '<span class="sfui-label">' . esc_html__( 'Column name', 'super-forms' ) . ':</span>';
-        //            echo '<input type="text" name="name" value="' . sanitize_text_field($v['name']) . '" />';
-        //        echo '</label>';
-        //    echo '</div>';
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-        //        echo '<label>';
-        //            echo '<span class="sfui-label">' . esc_html__( 'Field name', 'super-forms' ) . ':</span>';
-        //            echo '<input type="text" name="field_name" value="' . sanitize_text_field($v['field_name']) . '" />';
-        //            echo '<span class="sfui-label"><i>(' . esc_html__( 'enter the field name', 'super-forms') .')</i></span>';
-        //        echo '</label>';
-        //    echo '</div>';
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:0.5;">';
-        //        echo '<span class="sfui-label">' . esc_html__( 'Allow sorting', 'super-forms' ) . '</span>';
-        //        echo '<label>';
-        //            echo '<div class="sfui-inline">';
-        //                echo '<input type="checkbox" name="sort" value="true"' . ($v['sort']==='true' ? ' checked="checked"' : '') . ' />';
-        //                echo '<span class="sfui-label">' . esc_html__( 'Yes', 'super-forms' ) . '</span>';
-        //            echo '</div>';
-        //        echo '</label>';
-        //    echo '</div>';
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:0.5;">';
-        //        echo '<label>';
-        //            echo '<span class="sfui-label">' . esc_html__( 'Width', 'super-forms' ) . ' <i>(' . esc_html__( 'in', 'super-forms') .' px)</i>:</span>';
-        //            echo '<input type="number" name="width" value="' . sanitize_text_field($v['width']) . '" />';
-        //        echo '</label>';
-        //    echo '</div>';
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:0.5;">';
-        //        echo '<label>';
-        //            echo '<span class="sfui-label">' . esc_html__( 'Order', 'super-forms' ) . '</span>';
-        //            echo '<input type="number" name="order" value="' . absint($v['order']) . '" />';
-        //        echo '</label>';
-        //    echo '</div>';
-        //    echo '<div class="sfui-setting sfui-vertical" style="flex:2;">';
-        //        echo '<span class="sfui-label">' . esc_html__( 'Allow filter', 'super-forms' ) . '</span>';
-        //        echo '<label>';
-        //            echo '<div class="sfui-inline">';
-        //                echo '<input type="checkbox" name="filter.enabled" value="true"' . ($v['filter']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
-        //                echo '<span class="sfui-label">' . esc_html__( 'Yes', 'super-forms' ) . '</span>';
-        //            echo '</div>';
-        //        echo '</label>';
-        //        echo '<div class="sfui-sub-settings sfui-vertical" data-f="filter.enabled;true">';
-        //            echo '<label>';
-        //                echo '<span class="sfui-label">' . esc_html__( 'Filter placeholder', 'super-forms' ) . '</span>';
-        //                echo '<input type="text" name="filter.placeholder" value="' . sanitize_text_field($v['filter']['placeholder']) . '" />';
-        //            echo '</label>';
-        //            echo '<label>';
-        //                echo '<span class="sfui-label">'.esc_html__( 'Filter method', 'super-forms' ) . ':</span>';
-        //                echo '<select name="filter.type" onChange="SUPER.ui.updateSettings(event, this)">';
-        //                    echo '<option '.($v['filter']['type']=='text' ? ' selected="selected"' : '').' value="text">'.esc_html__( 'Text field (default)', 'super-forms' ).'</option>';
-        //                    echo '<option '.($v['filter']['type']=='dropdown' ? ' selected="selected"' : '').' value="dropdown">'.esc_html__( 'Dropdown', 'super-forms' ).'</option>';
-        //                echo '</select>';
-        //            echo '</label>';
-        //            echo '<div class="sfui-sub-settings" data-f="filter.type;dropdown">';
-        //                echo '<div class="sfui-setting sfui-vertical">';
-        //                    echo '<label>';
-        //                        echo '<span class="sfui-label">' . esc_html__( 'Filter options', 'super-forms' ) . ' <i>(' . esc_html__( 'put each on a new line', 'super-forms') .')</i>:</span>';
-        //                        echo '<textarea name="filter.items" placeholder="' . esc_attr__( "option_value1|Option Label 1\noption_value2|Option Label 2", 'super-forms') . '">' . $v['filter']['items'] . '</textarea>';
-        //                    echo '</label>';
-        //                echo '</div>';
-        //            echo '</div>';
-        //        echo '</div>';
-        //    echo '</div>';
-        //}
 
         // Get default listing settings
         public static function get_default_listings_settings($list) {
             if(empty($list['name'])) $list['name'] = 'Listing #1';
-            if(empty($list['noResultsFilterMessage'])) $list['noResultsFilterMessage'] = file_get_contents('templates/no_results_filter_message.html', true);
-            if(empty($list['noResultsMessage'])) $list['noResultsMessage'] = file_get_contents('templates/no_results_message.html', true);
-            if(empty($list['onlyDisplayMessage'])) $list['onlyDisplayMessage'] = 'true';
-            if(empty($list['display_based_on'])) $list['display_based_on'] = 'this_form';
-            if(empty($list['form_ids'])) $list['form_ids'] = '';
+            // Display
+            if( empty($list['display']) ) $list['display'] = array(
+                'enabled'=>'true',
+                'user_roles'=>'administrator',
+                'user_ids'=>'',
+                'message'=>"<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "You do not have permission to view this listing", "super-forms" ) . "</h1>\n</div>"
+            );
+            if(!isset($list['retrieve'])) $list['retrieve'] = 'this_form';
+            if(!isset($list['form_ids'])) $list['form_ids'] = '';
+            if(!isset($list['noResultsFilterMessage'])) $list['noResultsFilterMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    Clear your filters or try a different filter.\n</div>";
+            if(!isset($list['noResultsMessage'])) $list['noResultsMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1></div>";
+            if(!isset($list['onlyDisplayMessage'])) $list['onlyDisplayMessage'] = 'true';
             if(empty($list['date_range'])) $list['date_range'] = array(
                 'enabled'=>'false',
                 'from'=>'',
-                'till'=>''
+                'until'=>''
             );
             if(empty($list['title_column'])) $list['title_column'] = array(
                 'enabled' => 'true',
@@ -1044,7 +1001,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 20,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['entry_date_column'])) $list['entry_date_column'] = array(
@@ -1076,7 +1033,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
+                'order' => 10,
                 'width' => 150
             );
 
@@ -1093,7 +1050,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
+                'order' => 10,
                 'width' => 100
             );
             if(empty($list['wc_order_status_column'])) $list['wc_order_status_column'] = array(
@@ -1109,7 +1066,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
+                'order' => 10,
                 'width' => 140
             );
             if(empty($list['paypal_order_column'])) $list['paypal_order_column'] = array(
@@ -1125,8 +1082,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
-                'width' => 150
+                'order' => 10,
+                'width' => 160
             );
             if(empty($list['paypal_order_status_column'])) $list['paypal_order_status_column'] = array(
                 'enabled' => 'true',
@@ -1141,8 +1098,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
-                'width' => 150
+                'order' => 10,
+                'width' => 160
             );
             if(empty($list['paypal_subscription_column'])) $list['paypal_subscription_column'] = array(
                 'enabled' => 'true',
@@ -1157,8 +1114,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
-                'width' => 150
+                'order' => 10,
+                'width' => 160
             );
             if(empty($list['paypal_subscription_status_column'])) $list['paypal_subscription_status_column'] = array(
                 'enabled' => 'true',
@@ -1173,8 +1130,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
-                'width' => 150
+                'order' => 10,
+                'width' => 200
             );
             if(empty($list['wp_post_title_column'])) $list['wp_post_title_column'] = array(
                 'enabled' => 'true',
@@ -1189,7 +1146,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['wp_post_status_column'])) $list['wp_post_status_column'] = array(
@@ -1205,8 +1162,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 40,
-                'width' => 150
+                'order' => 10,
+                'width' => 110
             );
 
             if(empty($list['author_username_column'])) $list['author_username_column'] = array(
@@ -1222,7 +1179,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 50,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_firstname_column'])) $list['author_firstname_column'] = array(
@@ -1238,7 +1195,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 60,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_lastname_column'])) $list['author_lastname_column'] = array(
@@ -1254,7 +1211,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 70,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_fullname_column'])) $list['author_fullname_column'] = array(
@@ -1270,7 +1227,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 80,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_nickname_column'])) $list['author_nickname_column'] = array(
@@ -1286,7 +1243,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 90,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_display_column'])) $list['author_display_column'] = array(
@@ -1302,7 +1259,7 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 100,
+                'order' => 10,
                 'width' => 150
             );
             if(empty($list['author_email_column'])) $list['author_email_column'] = array(
@@ -1318,8 +1275,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 110,
-                'width' => 150
+                'order' => 10,
+                'width' => 250
             );
             if(empty($list['author_id_column'])) $list['author_id_column'] = array(
                 'enabled' => 'false',
@@ -1334,8 +1291,8 @@ if(!class_exists('SUPER_Listings')) :
                     'type' => 'none',
                     'url' => ''
                 ),
-                'order' => 120,
-                'width' => 150
+                'order' => 10,
+                'width' => 100
             );
             if(empty($list['custom_columns']) ) $list['custom_columns'] = array(
                 'enabled' => 'true',
@@ -1351,7 +1308,7 @@ if(!class_exists('SUPER_Listings')) :
                         ),
                         'sort' => 'true',
                         'width' => 150,
-                        'order' => 1
+                        'order' => 10
                     ),
                     array(
                         'name' => esc_html__( 'Last Name', 'super-forms' ),
@@ -1364,7 +1321,7 @@ if(!class_exists('SUPER_Listings')) :
                         ),
                         'sort' => 'true',
                         'width' => 150,
-                        'order' => 2
+                        'order' => 10
                     ),
                     array(
                         'name' => esc_html__( 'E-mail', 'super-forms' ),
@@ -1377,7 +1334,7 @@ if(!class_exists('SUPER_Listings')) :
                         ),
                         'sort' => 'true',
                         'width' => 150,
-                        'order' => 3
+                        'order' => 10
                     ),
                 ),
             );
@@ -1388,8 +1345,27 @@ if(!class_exists('SUPER_Listings')) :
                 'user_ids'=>''
             );
             // View permissions
-            $html_template = file_get_contents('templates/view_any_html_template.html', true);
-            $loop_html = file_get_contents('templates/view_any_loop_html.html', true);
+            $html_template = "<div class=\"super-listing-entry-details\">
+    <div class=\"super-listing-row super-title\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry title", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_title}</div>
+    </div>\n
+    <div class=\"super-listing-row super-date\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry date", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_date}</div>
+    </div>\n
+    <div class=\"super-listing-row super-entry-id\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry ID", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_id}</div>
+    </div>
+</div>
+<div class=\"super-listing-entry-data\">
+    {loop_fields}
+</div>";
+            $loop_html = "<div class=\"super-listing-row\">
+    <div class=\"super-listing-row-label\">{loop_label}</div>
+    <div class=\"super-listing-row-value\">{loop_value}</div>
+</div>";
             if( empty($list['view_any']) ) $list['view_any'] = array(
                 'enabled'=>'true',
                 'method'=>'modal',
@@ -1398,8 +1374,6 @@ if(!class_exists('SUPER_Listings')) :
                 'html_template' => $html_template,
                 'loop_html' => $loop_html
             );
-            $html_template = file_get_contents('templates/view_own_html_template.html', true);
-            $loop_html = file_get_contents('templates/view_own_loop_html.html', true);
             if( empty($list['view_own']) ) $list['view_own'] = array(
                 'enabled'=>'false',
                 'method'=>'modal',
@@ -1501,7 +1475,6 @@ if(!class_exists('SUPER_Listings')) :
             );
             wp_enqueue_script( $handle );
 
-
             // Enqueue scripts and styles
             $handle = 'super-listings';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
@@ -1515,8 +1488,6 @@ if(!class_exists('SUPER_Listings')) :
                 )
             );
             wp_enqueue_script( $handle );
-            // wp_enqueue_script( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), $this->version, false );  
-            
             wp_enqueue_style( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Listings()->version );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
@@ -1530,6 +1501,18 @@ if(!class_exists('SUPER_Listings')) :
             }
             // Set default values if they don't exist
             $list = self::get_default_listings_settings($lists[$list_id]);
+            $allow = self::get_action_permissions(array('list'=>$list));
+            $allowDisplay = $allow['allowDisplay'];
+            if($allowDisplay===false){
+                return do_shortcode($list['display']['message']);
+            }
+
+            $allowViewAny = $allow['allowViewAny'];
+            $allowViewOwn = $allow['allowViewOwn'];
+            $allowEditAny = $allow['allowEditAny'];
+            $allowEditOwn = $allow['allowEditOwn'];
+            $allowDeleteAny = $allow['allowDeleteAny'];
+            $allowDeleteOwn = $allow['allowDeleteOwn'];
 
             $columns = array(); 
             $standardColumns = self::getStandardColumns();
@@ -1593,56 +1576,6 @@ if(!class_exists('SUPER_Listings')) :
                         $columns[$sv['meta_key']]['filter']['type'] = 'dropdown';
                         $columns[$sv['meta_key']]['filter']['items'] = $items;
                     }
-                    // temp disabled if($sk=='date'){ // Entry date (form submission date) 
-                    // temp disabled     $columns[$sv['meta_key']]['filter'] = array(
-                    // temp disabled         'field_type' => 'datepicker',
-                    // temp disabled         'placeholder' => $list[$sk.'_column']['placeholder']
-                    // temp disabled     );
-                    // temp disabled }
-                    // temp disabled //if($sk=='generated_pdf'){
-                    // temp disabled //    //$columns[$sv['meta_key']]['filter']['field_type'] = 'none';
-                    // temp disabled //    //$columns[$sv['meta_key']]['sort'] = 'none';
-                    // temp disabled //}
-                    // temp disabled if($sk=='wc_order_status'){
-                    // temp disabled     $items = array(
-                    // temp disabled         '' => esc_html__( '- select -', 'super-forms' )
-                    // temp disabled     );
-                    // temp disabled     $wc_order_statuses = wc_get_order_statuses();
-                    // temp disabled     $items = array_merge($items, $wc_order_statuses);      
-                    // temp disabled     $columns[$sv['meta_key']]['filter'] = array(
-                    // temp disabled         'field_type' => 'dropdown',
-                    // temp disabled         'placeholder' => $list[$sk.'_column']['placeholder'],
-                    // temp disabled         'items' => $items
-                    // temp disabled     );
-                    // temp disabled }
-                    // temp disabled if(class_exists('SUPER_PayPal')) {
-                    // temp disabled     if($sk=='paypal_order_status'){
-                    // temp disabled         $items = array(
-                    // temp disabled             '' => esc_html__( '- select -', 'super-forms' )
-                    // temp disabled         );
-                    // temp disabled         $paypal_payment_statuses = SUPER_PayPal::$paypal_payment_statuses;
-                    // temp disabled         foreach($paypal_payment_statuses as $pk => $pv){
-                    // temp disabled             $items[$pv['label']] = $pv['label'];
-                    // temp disabled         }
-                    // temp disabled         //$items = array_merge($items, $paypal_payment_statuses);      
-                    // temp disabled         $columns[$sv['meta_key']]['filter'] = array(
-                    // temp disabled             'field_type' => 'dropdown',
-                    // temp disabled             'placeholder' => $list[$sk.'_column']['placeholder'],
-                    // temp disabled             'items' => $items
-                    // temp disabled         );
-                    // temp disabled     }
-                    // temp disabled }
-                    // temp disabled if($sk=='wp_post_status'){
-                    // temp disabled     $items = array(
-                    // temp disabled         '' => esc_html__( '- select -', 'super-forms' )
-                    // temp disabled     );
-                    // temp disabled     $items = array_merge($items, get_post_statuses());      
-                    // temp disabled     $columns[$sv['meta_key']]['filter'] = array(
-                    // temp disabled         'field_type' => 'dropdown',
-                    // temp disabled         'placeholder' => $list[$sk.'_column']['placeholder'],
-                    // temp disabled         'items' => $items
-                    // temp disabled     );
-                    // temp disabled }
                 }
             }
 
@@ -1653,29 +1586,6 @@ if(!class_exists('SUPER_Listings')) :
 
             // Now re-order all columns based on order number
             array_multisort(array_column($columns, 'order'), SORT_ASC, $columns);
-
-            // For now these are the columns:
-            // billing_company|Entity
-            // post_title|Order Name
-            // total_monthly_payment|Monthly
-            // lease_months|Lease Term
-            // I will probably need 1-2 more but need to figure out a few things first
-
-            // $custom_columns = array(
-            //     'billing_company' => array(
-            //         'name' => 'Entity',
-            //         'width' => '100px',
-            //     ),
-            //     'total_monthly_payment' => array(
-            //         'name' => 'Monthly',
-            //         'width' => '100px',
-            //     ),
-            //     'lease_months' => array(
-            //         'name' => 'Lease Term',
-            //         'width' => '130px',
-            //     )
-            // );
-            // $columns = array_merge($columns, $custom_columns);
 
             // Filters by user
             $hasFilters = false;
@@ -1725,8 +1635,8 @@ if(!class_exists('SUPER_Listings')) :
                         $dateFilter = explode(';', $fcv);
                         if(!empty($dateFilter[1])){
                             $from = $dateFilter[0];
-                            $till = $dateFilter[1];
-                            $filters .= " post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$till' AS DATE)";
+                            $until = $dateFilter[1];
+                            $filters .= " post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
                         }else{
                             $from = $dateFilter[0];
                             $filters .= " post.post_date LIKE '$from%'"; // Only filter starting with
@@ -1775,12 +1685,31 @@ if(!class_exists('SUPER_Listings')) :
                         }else{
                             $having .= ' HAVING paypalSubscriptionStatus = "'.$fcv.'"';
                         }
+                    }elseif($fck=='author_username'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author.user_login LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_firstname'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author_firstname.meta_value LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_lastname'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author_lastname.meta_value LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_fullname'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' CONCAT(author_firstname.meta_value, author_lastname.meta_value) LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_nickname'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author_nickname.meta_value LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_display'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author.display_name LIKE "%' . $fcv . '%"';
+                    }elseif($fck=='author_email'){
+                        if( !empty($filters) ) $filters .= ' AND';
+                        $filters .= ' author.user_email LIKE "%' . $fcv . '%"';
                     }elseif($fck=='author_id'){
                         if( !empty($filters) ) $filters .= ' AND';
                         $filters .= ' post.post_author = "' . $fcv . '"';
                     }else{
-                        //if( !empty($filters) ) $filters .= ' AND';
-                        //$filters .= " $fck LIKE '%$fcv%'"; // Filter globally
                     }
                 }
             }
@@ -1871,12 +1800,27 @@ END AS paypalSubscriptionId
 
             $where = '';
             $whereWithoutFilters = '';
-            if( $list['display_based_on']=='this_form' ) {
+            if( $list['retrieve']=='this_form' ) {
                 $where .= " AND post.post_parent = '" . absint($form_id) . "'";
                 $whereWithoutFilters .= " AND post.post_parent = '" . absint($form_id) . "'";
             }
+
+            if( $list['date_range']['enabled']==='true'){
+                $from = $list['date_range']['from'];
+                $until = $list['date_range']['until'];
+                if( !empty($from) || !empty($until) ){
+                    if( !empty($from) && empty($until) ){
+                        $where .= " AND DATE(post.post_date) >= CAST('$from' AS DATE)";
+                    }
+                    if( empty($from) && !empty($until) ){
+                        $where .= " AND DATE(post.post_date) <= CAST('$until' AS DATE)";
+                    }
+                    if( !empty($from) && !empty($until) ){
+                        $where .= " AND post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
+                    }
+                }
+            }
             
-            $allow = self::get_action_permissions(array('list'=>$list));
             if($allow['allowSeeAny']===true){
                 // Allow user to see any entries in the list
             }else{
@@ -2052,40 +1996,28 @@ END AS paypalSubscriptionId
 
             $result = '';
             $result .= '<div class="super-listings'.($hasFilters ? ' super-has-filters' : '').'" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'">';
-                //$result .= '<div class="super-header">';
-                //    $result .= '<div class="super-select-all">';
-                //        $result .= esc_html__( 'Select All', 'super-forms' );
-                //    $result .= '</div>';
-                //    $result .= '<div class="super-csv-export">';
-                //        $result .= esc_html__( 'CSV Export', 'super-forms' );
-                //    $result .= '</div>';
-                //$result .= '</div>';
                 $result .= '<div class="super-listings-wrap">';
                     if($absoluteZeroResults===true && $list['onlyDisplayMessage']==='true'){
                         // Do not show filters/columns
                     }else{
                         $actions = '';
-                        $actions .= '<span class="super-edit"></span>';
-                        $actions .= '<span class="super-view"></span>';
-                        $actions .= '<span class="super-delete"></span>';
-                        if( ($list['view_any']['enabled']!=='true') &&
-                            ($list['view_own']['enabled']!=='true') &&
-                            ($list['edit_any']['enabled']!=='true') &&
-                            ($list['edit_own']['enabled']!=='true') &&
-                            ($list['delete_any']['enabled']!=='true') &&
-                            ($list['delete_own']['enabled']!=='true') ){
-                            $actions = '';
+                        if($allowViewAny===true || $allowViewOwn===true){
+                            $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
                         }
-                        $entry = array();
-                        if( isset($entries[0]) ) {
-                            $entry = $entries[0];
+                        if($allowEditAny===true || $allowEditOwn===true){
+                            $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
                         }
-                        $actionsHeader = apply_filters( 'super_listings_actions_filter', $actions, $entry );
-                        $result .= '<div class="super-columns">';
-                            $result .= '<div class="super-col-wrap super-clear" title="'.esc_html__( 'Reset filters', 'super-forms' ).'">';
-                                $result .= '<span class="super-col-name">&nbsp;</span>';
+                        if($allowDeleteAny===true || $allowDeleteOwn===true){
+                            $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
+                        }
+                        if(!empty($actions)) $result .= '<div class="super-actions-dummy"></div>';
+                        if($hasFilters){
+                            $result .= '<div class="super-clear" title="'.esc_html__( 'Reset filters', 'super-forms' ).'">';
                                 $result .= '<span onclick="SUPER.frontEndListing.clearFilter(event)">'.esc_html__( 'Clear', 'super-forms' ).'</span>';
                             $result .= ' </div>';
+                        }
+                        $result .= '<div class="super-columns">';
+                            if(!empty($actions)) $result .= '<div class="super-actions-dummy"></div>';
                             foreach( $columns as $k => $v ) {
                                 $column_name = $k;
                                 if(isset($v['field_name'])){
@@ -2121,11 +2053,11 @@ END AS paypalSubscriptionId
                                                 $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
                                             }
                                             if($v['filter']['type']=='datepicker'){
-                                                $fromTill = explode(';', $inputValue);
-                                                $from = (isset($fromTill[0]) ? $fromTill[0] : '');
-                                                $till = (isset($fromTill[1]) ? $fromTill[1] : '');
+                                                $fromUntil = explode(';', $inputValue);
+                                                $from = (isset($fromUntil[0]) ? $fromUntil[0] : '');
+                                                $until = (isset($fromUntil[1]) ? $fromUntil[1] : '');
                                                 $result .= '<input'.(!empty($v['width']) ? ' style="width:'.(absint($v['width'])/2-2).'px;"' : '').' value="' . $from . '" autocomplete="new-password" name="' . $k . '_from" type="date"  onchange="SUPER.frontEndListing.search(event, this)" />';
-                                                $result .= '<input'.(!empty($v['width']) ? ' style="width:'.(absint($v['width'])/2-2).'px;margin-left:4px;"' : '').' value="' . $till . '" autocomplete="new-password" name="' . $k . '_till" type="date" onchange="SUPER.frontEndListing.search(event, this)" />';
+                                                $result .= '<input'.(!empty($v['width']) ? ' style="width:'.(absint($v['width'])/2-2).'px;margin-left:4px;"' : '').' value="' . $until . '" autocomplete="new-password" name="' . $k . '_until" type="date" onchange="SUPER.frontEndListing.search(event, this)" />';
                                             }
                                             if( $v['filter']['type']=='dropdown' ) {
                                                 $result .= '<select name="' . $k . '" onchange="SUPER.frontEndListing.search(event, this)">';
@@ -2148,43 +2080,16 @@ END AS paypalSubscriptionId
                                             }
                                         $result .= '</div>';
                                     }
-
-                                    //if( isset($v['filter']) && is_array($v['filter']) ) {
-                                    //}else{
-                                    //    if( isset($v['filter']) && $v['filter']==='true' ) {
-                                    //        // It's a custom column, find out what filter method to use
-                                    //        $result .= '<div class="super-col-filter">';
-                                    //            if( !isset($v['filter']) ) $v['filter'] = 'text';
-                                    //            if( $v['filter']=='text' ) {
-                                    //                $result .= '<input value="' . $inputValue . '" autocomplete="new-password" type="text" name="' . $v['field_name'] . '" placeholder="' . esc_attr__( 'search...', 'super-forms' ) . '" />';
-                                    //                $result .= '<span class="super-search" onclick="SUPER.frontEndListing.search(event, this)"></span>';
-                                    //            }
-                                    //            if( $v['filter']=='dropdown' ) {
-                                    //                $result .= '<select name="' . $k . '" onchange="SUPER.frontEndListing.search(event, this)">';
-                                    //                    $result .= '<option value=""' . ( empty($inputValue) ? ' selected="selected"' : '' ) . '>' . esc_html__( '- filter -', 'super-forms' ) . '</option>';
-                                    //                    $filter_items = explode("\n", $v['filter_items']);
-                                    //                    foreach( $filter_items as $value ) {
-                                    //                        $value = explode('|', $value);
-                                    //                        $label = (isset($value[1]) ? $value[1] : 'undefined');
-                                    //                        $value = (isset($value[0]) ? $value[0] : 'undefined');
-                                    //                        $result .= '<option value="' . $value . '"' . ( $inputValue==$value ? ' selected="selected"' : '' ) . '>' . $label . '</option>';
-                                    //                    }
-                                    //                $result .= '</select>';
-                                    //            }
-                                    //        $result .= '</div>';
-                                    //    }
-                                    //}
-
                                 $result .= '</div>';
                             }
                         $result .= '</div>';
                     }
                     if($absoluteZeroResults){
-                        $result .= '<div class="super-no-results">'.$list['noResultsMessage'].'</div>';
+                        $result .= '<div class="super-no-results">'.do_shortcode($list['noResultsMessage']).'</div>';
                     }
                     $result .= '<div class="super-entries">';
                         if(count($entries)===0 && !$absoluteZeroResults){
-                            $result .= '<div class="super-no-results-filter">'.$list['noResultsFilterMessage'].'</div>';
+                            $result .= '<div class="super-no-results-filter">'.do_shortcode($list['noResultsFilterMessage']).'</div>';
                         }else{
                             $result .= '<div class="super-scroll"></div>';
                             if( !class_exists( 'SUPER_Settings' ) ) require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
@@ -2198,25 +2103,25 @@ END AS paypalSubscriptionId
                             foreach($entries as $entry){
                                 $data = unserialize($entry->contact_entry_data);
                                 $result .= '<div class="super-entry" data-id="' . $entry->entry_id . '">';
-                                    if(!empty($actionsHeader)){
+                                    $allow = self::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
+                                    $allowViewAny = $allow['allowViewAny'];
+                                    $allowViewOwn = $allow['allowViewOwn'];
+                                    $allowEditAny = $allow['allowEditAny'];
+                                    $allowEditOwn = $allow['allowEditOwn'];
+                                    $allowDeleteAny = $allow['allowDeleteAny'];
+                                    $allowDeleteOwn = $allow['allowDeleteOwn'];
+                                    $actions = '';
+                                    if($allowViewAny===true || $allowViewOwn===true){
+                                        $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
+                                    }
+                                    if($allowEditAny===true || $allowEditOwn===true){
+                                        $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
+                                    }
+                                    if($allowDeleteAny===true || $allowDeleteOwn===true){
+                                        $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
+                                    }
+                                    if(!empty($actions)){
                                         $result .= '<div class="super-col super-actions">';
-                                            $allow = self::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
-                                            $allowViewAny = $allow['allowViewAny'];
-                                            $allowViewOwn = $allow['allowViewOwn'];
-                                            $allowEditAny = $allow['allowEditAny'];
-                                            $allowEditOwn = $allow['allowEditOwn'];
-                                            $allowDeleteAny = $allow['allowDeleteAny'];
-                                            $allowDeleteOwn = $allow['allowDeleteOwn'];
-                                            $actions = '';
-                                            if($allowViewAny===true || $allowViewOwn===true){
-                                                $actions .= '<span class="super-view" onclick="SUPER.frontEndListing.viewEntry(this, '.$list_id.')"></span>';
-                                            }
-                                            if($allowEditAny===true || $allowEditOwn===true){
-                                                $actions .= '<span class="super-edit" onclick="SUPER.frontEndListing.editEntry(this, '.$list_id.')"></span>';
-                                            }
-                                            if($allowDeleteAny===true || $allowDeleteOwn===true){
-                                                $actions .= '<span class="super-delete" onclick="SUPER.frontEndListing.deleteEntry(this, '.$list_id.')"></span>';
-                                            }
                                             $result .= '<div class="super-toggle">';
                                                 $result .= '<div class="super-actions-menu">';
                                                     $result .= apply_filters( 'super_listings_actions_filter', $actions, $entry );
@@ -2234,13 +2139,12 @@ END AS paypalSubscriptionId
                                         if( !empty( $styles ) ) {
                                             $styles = ' style="' . $styles . '"';
                                         }
-    
                                         $column_key = ( isset($cv['field_name']) ? $cv['field_name'] : $ck );
-    
                                         $result .= '<div class="super-col super-' . $column_key . '"' . $styles . '>';
-                                            //$authorData = get_userdata($entry->author_id);
                                             $cellValue = '';
                                             $linkUrl = '';
+                                            $linkType = '';
+                                            $linkTitle = '';
                                             if(!empty($cv['link']) && $cv['link']['type']!='none'){
                                                 $lt = $cv['link']['type'];
                                                 if($lt=='custom'){
@@ -2248,21 +2152,33 @@ END AS paypalSubscriptionId
                                                     $linkUrl = $cv['link']['url'];
                                                 }elseif($lt==='contact_entry'){
                                                     $linkUrl = get_admin_url() . '?page=super_contact_entry&id='.$entry->entry_id;
+                                                    $linkType = 'edit';
+                                                    $linkTitle = esc_html__( 'Edit contact entry', 'super-forms' );
                                                 }elseif($lt=='wc_order_backend'){
                                                     // WooCommerce order backend (edit) (WC Checkout Add-on)
                                                     $linkUrl = get_edit_post_link($entry->wc_order_number);
+                                                    $linkType = 'edit';
+                                                    $linkTitle = esc_html__( 'Edit order', 'super-forms' );
                                                 }elseif($lt=='wc_order_frontend'){
                                                     // WooCommerce order front-end (view) (WC Checkout Add-on)
                                                     if (function_exists('wc_get_order')) {
                                                         $order = wc_get_order($entry->wc_order_number);
-                                                        if($order) $linkUrl = $order->get_checkout_order_received_url();
+                                                        if($order) {
+                                                            $linkUrl = $order->get_checkout_order_received_url();
+                                                            $linkType = 'view';
+                                                            $linkTitle = esc_html__( 'View order', 'super-forms' );
+                                                        }
                                                     }
                                                 }elseif($lt=='paypal_order'){
                                                     // Paypal order (Paypal Add-on)
                                                     $linkUrl = admin_url() . 'admin.php?page=super_paypal_txn&id=' . $entry->paypalOrderId;
+                                                    $linkType = 'view';
+                                                    $linkTitle = esc_html__( 'View order', 'super-forms' );
                                                 }elseif($lt=='paypal_subscription'){
                                                     // Paypal subscription (Paypal Add-on)
                                                     $linkUrl = admin_url() . 'admin.php?page=super_paypal_sub&id=' . $entry->paypalOrderId;
+                                                    $linkType = 'view';
+                                                    $linkTitle = esc_html__( 'View subscription', 'super-forms' );
                                                 }elseif($lt=='generated_pdf'){
                                                     // Generated PDF file (PDF Generator Add-on)
                                                     if( isset( $data['_generated_pdf_file']['files'] ) ) {
@@ -2271,27 +2187,46 @@ END AS paypalSubscriptionId
                                                             if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                 $linkUrl = wp_get_attachment_url( $fv['attachment'] );
                                                             }
+                                                            $linkType = 'download';
+                                                            $linkTitle = esc_html__( 'Download PDF', 'super-forms' );
                                                         }
                                                     }
                                                 }elseif($lt=='post_backend'){
                                                     // Created post (Front-end Posting Add-on)
-                                                    //$linkUrl = get_admin_url() . 'post.php?post=' . $post_id . '&action=edit';
                                                     $linkUrl = get_edit_post_link($entry->created_post_id);
+                                                    $linkType = 'edit';
+                                                    $linkTitle = esc_html__( 'Edit post', 'super-forms' );
                                                 }elseif($lt=='post_frontend'){
                                                     // Created post (Front-end Posting Add-on)
                                                     $linkUrl = get_permalink($entry->created_post_id);
+                                                    $linkType = 'view';
+                                                    $linkTitle = esc_html__( 'View post', 'super-forms' );
                                                 }elseif($lt=='author_posts'){
                                                     // Link to author page
-                                                    if($entry->author_id) $linkUrl = get_author_posts_url($entry->author_id);
+                                                    if($entry->author_id) {
+                                                        $linkUrl = get_author_posts_url($entry->author_id);
+                                                        $linkType = 'view';
+                                                        $linkTitle = esc_html__( 'View author', 'super-forms' );
+                                                    }
                                                 }elseif($lt=='author_edit'){
                                                     // Link to edit user
-                                                    if($entry->author_id) $linkUrl = get_edit_user_link($entry->author_id);
+                                                    if($entry->author_id) {
+                                                        $linkUrl = get_edit_user_link($entry->author_id);
+                                                        $linkType = 'edit';
+                                                        $linkTitle = esc_html__( 'Edit author', 'super-forms' );
+                                                    }
                                                 }elseif($lt=='author_email'){
                                                     // Link to mail directly to the author E-mail address
-                                                    if($entry->author_id) $linkUrl = 'mailto:'.$entry->author_email;
+                                                    if($entry->author_id) {
+                                                        $linkUrl = 'mailto:'.$entry->author_email;
+                                                        $linkType = 'mail';
+                                                        $linkTitle = esc_html__( 'Send E-mail to author', 'super-forms' );
+                                                    }
                                                 }elseif($lt=='mailto'){
                                                     // Link to mail directly to the author E-mail address
                                                     $linkUrl = 'mailto';
+                                                    $linkType = 'mail';
+                                                    $linkTitle = esc_html__( 'Send E-mail', 'super-forms' );
                                                 }
                                             }
                                             if($column_key=='post_title'){
@@ -2405,7 +2340,9 @@ END AS paypalSubscriptionId
                                                             // otherwise the signature will not be displayed
                                                             $linkUrl = '';
                                                             $imgUrl = esc_url( $data[$column_key]['value'], array( 'data' ) );
-                                                            $cellValue = '<a href="' . $imgUrl . '" download><img class="super-signature" src="' . $imgUrl . '" /></a>';
+                                                            $cellValue = '<a href="' . $imgUrl . '" download>';
+                                                            $cellValue .= '<img class="super-signature" src="' . $imgUrl . '" />';
+                                                            $cellValue .= '<span class="super-icon-download"></span></a>';
                                                         }else{
                                                             $cellValue = esc_html($data[$column_key]['value']);
                                                         }
@@ -2425,7 +2362,7 @@ END AS paypalSubscriptionId
                                                                     }
                                                                     $cellValue .= esc_html( $fv['value'] ); // The filename
                                                                     if(!empty($url)){
-                                                                        $cellValue .= '</a>';
+                                                                        $cellValue .= '<span class="super-icon-download"></span></a>';
                                                                     }
                                                                     $cellValue .= '<br />';
                                                                 }
@@ -2440,7 +2377,15 @@ END AS paypalSubscriptionId
                                             }
                                             if($linkUrl!==''){
                                                 if($linkUrl==='mailto') $linkUrl = 'mailto:'.$cellValue;
-                                                $result .= '<a target="_blank" href="' . esc_url($linkUrl) . '">' . $cellValue . '</a>';
+                                                $result .= '<a target="_blank" href="' . esc_url($linkUrl) . '">';
+                                                $result .= $cellValue;
+                                                if(!empty($cellValue)){
+                                                    if($linkType==='edit') $result .= '<span class="super-icon-edit" title="'.esc_attr($linkTitle).'"></span>';
+                                                    if($linkType==='view') $result .= '<span class="super-icon-view" title="'.esc_attr($linkTitle).'"></span>';
+                                                    if($linkType==='download') $result .= '<span class="super-icon-download" title="'.esc_attr($linkTitle).'"></span>';
+                                                    if($linkType==='mail') $result .= '<span class="super-icon-mail" title="'.esc_attr($linkTitle).'"></span>';
+                                                }
+                                                $result .= '</a>';
                                             }else{
                                                 $result .= $cellValue;
                                             }
@@ -2497,6 +2442,54 @@ END AS paypalSubscriptionId
             global $current_user;
             $list = $atts['list'];
             $entry = (isset($atts['entry']) ? $atts['entry'] : null);
+
+            // Display listings (wether or not the listing should be generated/displayed to this user)
+            $allowDisplay = true;
+            if(!empty($list['display'])){
+                if($list['display']['enabled']==='true'){
+                    $allowDisplay = false;
+                    // Check if both roles and user ID's are empty
+                    if( (empty($list['display']['user_roles'])) && (empty($list['display']['user_ids'])) ){
+                        $allowDisplay = true;
+                    }else{
+                        $allowed_roles = preg_replace('/\s+/', '', $list['display']['user_roles']);
+                        $allowed_roles = explode(",", $allowed_roles);
+                        if( (!empty($list['display']['user_roles'])) && (empty($list['display']['user_ids'])) ){
+                            // Only compare against user roles
+                            foreach( $current_user->roles as $v ) {
+                                if( in_array( $v, $allowed_roles ) ) {
+                                    $allowDisplay = true;
+                                }
+                            }
+                        }else{
+                            if(empty($list['display']['user_roles'])) {
+                                // Only compare against user ID
+                                $allowed_ids = preg_replace('/\s+/', '', $list['display']['user_ids']);
+                                $allowed_ids = explode(",", $allowed_ids);
+                                if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                    $allowDisplay = true;
+                                }
+                            }else{
+                                // Compare against both user roles and ids
+                                if(!empty($list['display']['user_ids'])) {
+                                    foreach( $current_user->roles as $v ) {
+                                        if( in_array( $v, $allowed_roles ) ) {
+                                            $allowDisplay = true;
+                                        }
+                                    }
+                                }
+                                if(!empty($list['display']['user_ids'])) {
+                                    $allowed_ids = preg_replace('/\s+/', '', $list['display']['user_ids']);
+                                    $allowed_ids = explode(",", $allowed_ids);
+                                    if( in_array( $current_user->ID, $allowed_ids ) ) {
+                                        $allowDisplay = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // SEE ANY (logged in users can always see their own entries in the list)
             $allowSeeAny = false;
@@ -2794,6 +2787,7 @@ END AS paypalSubscriptionId
                 }
             }
             return array(
+                'allowDisplay' => $allowDisplay,
                 'allowSeeAny' => $allowSeeAny,
                 'allowViewAny' => $allowViewAny,
                 'allowViewOwn' => $allowViewOwn,
