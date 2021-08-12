@@ -3,6 +3,9 @@
   z-index: 2999999999 !important;
 }
 
+.super-shortcode[data-pdfoption=include],
+.super-shortcode[data-pdfoption=header],
+.super-shortcode[data-pdfoption=footer],
 [data-pdfoption=include],
 [data-pdfoption=header],
 [data-pdfoption=footer] {

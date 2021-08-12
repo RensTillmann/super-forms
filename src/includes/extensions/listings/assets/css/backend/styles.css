@@ -107,20 +107,20 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   align-items: center;
 }
 .sfui-setting .sfui-repeater-item .sfui-setting > label > .sfui-sub-settings > .sfui-repeater > .sfui-repeater-item .sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline > input[type="checkbox"] {
-  margin: 0 5px 0 0 !important;
+  margin: 0 5px 0 0;
 }
 .sfui-setting .sfui-setting > label > .sfui-sub-settings.sfui-vertical > .sfui-setting {
   padding-left: 0;
 }
 .sfui-setting.sfui-inline > label > input[type="checkbox"] {
-  margin: 0 5px 0 0 !important;
+  margin: 0 5px 0 0;
 }
 .sfui-setting .sfui-sub-settings.sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline {
   justify-content: center;
   align-items: center;
 }
 .sfui-setting .sfui-sub-settings.sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline > input[type="checkbox"] {
-  margin: 0 5px 0 0 !important;
+  margin: 0 5px 0 0;
 }
 .sfui-setting .sfui-repeater-item > .sfui-inline {
   align-items: flex-start;
@@ -249,8 +249,8 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   margin: 0 0 10px;
 }
 .sfui-repeater > .sfui-repeater-item {
-  margin: 0 0 10px !important;
-  padding: 0 !important;
+  margin: 0 0 10px;
+  padding: 0;
 }
 .sfui-repeater > .sfui-repeater-item > .sfui-inline {
   padding-right: 10px;

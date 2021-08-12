@@ -97,15 +97,15 @@
         for (var key = 0; key < list.length; key++) {
             data.formSettings._listings[key] = {};
             data.formSettings._listings[key].name = list[key].querySelector('input[name="name"]').value;
-            data.formSettings._listings[key].display_based_on = list[key].querySelector('[data-name="display_based_on"]').querySelector('.super-active').dataset.value;
-            if(data.formSettings._listings[key].display_based_on=='specific_forms'){
+            data.formSettings._listings[key].retrieve = list[key].querySelector('[data-name="retrieve"]').querySelector('.super-active').dataset.value;
+            if(data.formSettings._listings[key].retrieve=='specific_forms'){
                 data.formSettings._listings[key].form_ids = list[key].querySelector('input[name="form_ids"]').value;
             }
             data.formSettings._listings[key].date_range = false;
             if(list[key].querySelector('[data-name="date_range"]').classList.contains('super-active')){
                 data.formSettings._listings[key].date_range = {
                     from: list[key].querySelector('[data-name="date_range"] input[name="from"]').value,
-                    till: list[key].querySelector('[data-name="date_range"] input[name="till"]').value
+                    until: list[key].querySelector('[data-name="date_range"] input[name="until"]').value
                 };
             }
             data.formSettings._listings[key].show_title = false;
