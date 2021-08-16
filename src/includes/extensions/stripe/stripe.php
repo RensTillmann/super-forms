@@ -13,15 +13,6 @@ if(!class_exists('SUPER_Stripe')) :
      */
     final class SUPER_Stripe {
     
-        
-        /**
-         * @var string
-         *
-         *  @since      1.0.0
-        */
-        public $version = '1.0.0';
-
-
         /**
          * @var string
          *
@@ -575,7 +566,7 @@ if(!class_exists('SUPER_Stripe')) :
             $styles['super-stripe-dashboard'] = array(
                 'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.css',
                 'deps'    => array(),
-                'version' => SUPER_Stripe()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array(
                     'super-forms_page_super_stripe_dashboard'
@@ -589,7 +580,7 @@ if(!class_exists('SUPER_Stripe')) :
             $scripts['super-stripe-dashboard'] = array(
                 'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.js',
                 'deps'    => array(),
-                'version' => SUPER_Stripe()->version,
+                'version' => SUPER_VERSION,
                 'footer'  => true,
                 'screen'  => array( 
                     'super-forms_page_super_stripe_dashboard'
@@ -797,7 +788,7 @@ if(!class_exists('SUPER_Stripe')) :
             $scripts['currencyFormatter'] = array(
                 'src'     => plugin_dir_url( __FILE__ ) . 'currencyFormatter.min.js',
                 'deps'    => array('super-stripe-dashboard'),
-                'version' => SUPER_Stripe()->version,
+                'version' => SUPER_VERSION,
                 'footer'  => true,
                 'screen'  => array( 
                     'super-forms_page_super_stripe_dashboard'
@@ -816,7 +807,7 @@ if(!class_exists('SUPER_Stripe')) :
             require_once 'stripe-php/init.php';
             \Stripe\Stripe::setAppInfo(
                 'Super Forms - Stripe Add-on',
-                SUPER_Stripe()->version,
+                SUPER_VERSION,
                 'https://f4d.nl/super-forms'
             );
             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
@@ -1482,10 +1473,10 @@ if(!class_exists('SUPER_Stripe')) :
 
 
         public static function stripe_element_scripts() {
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false );
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -2802,10 +2793,10 @@ if(!class_exists('SUPER_Stripe')) :
                 $atts = SUPER_Shortcodes::merge_i18n($atts, $i18n); 
             }
             // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false );  
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false );  
             $handle = 'super-stripe-ideal';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-ideal.js', array( 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'scripts-ideal.js', array( 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
             wp_localize_script(
                 $handle,
@@ -2873,10 +2864,10 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_ideal( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
 
             // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false ); 
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -2932,10 +2923,10 @@ if(!class_exists('SUPER_Stripe')) :
         */
         public static function stripe_cc( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
             // Enqueu required scripts
-            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+            wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false ); 
             $handle = 'super-stripe';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_Stripe()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['stripe_pk'])){
                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
@@ -3027,12 +3018,12 @@ if(!class_exists('SUPER_Stripe')) :
                 }
 
                 // Enqueue styles
-                wp_enqueue_style( 'super-stripe-confirmation', plugin_dir_url( __FILE__ ) . 'stripe-confirmation.css', array(), SUPER_Stripe()->version );
+                wp_enqueue_style( 'super-stripe-confirmation', plugin_dir_url( __FILE__ ) . 'stripe-confirmation.css', array(), SUPER_VERSION );
                 // Enqueue scripts
-                wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_Stripe()->version, false ); 
+                wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false ); 
                 $handle = 'super-stripe-confirmation';
                 $name = str_replace( '-', '_', $handle ) . '_i18n';
-                wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_Stripe()->version, false ); 
+                wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_VERSION, false ); 
                 $global_settings = SUPER_Common::get_global_settings();
                 if(empty($global_settings['stripe_pk'])){
                     $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';

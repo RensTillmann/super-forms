@@ -20,13 +20,6 @@ if(!class_exists('SUPER_WC_Custom_Orders')) :
          * @var string
          *
         */
-        public $version = '1.0.0';
-
-        
-        /**
-         * @var string
-         *
-        */
         public $add_on_slug = 'wc-custom-orders';
         public $add_on_name = 'WooCommerce Custom Orders';
 

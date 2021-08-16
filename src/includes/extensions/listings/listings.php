@@ -14,15 +14,6 @@ if(!class_exists('SUPER_Listings')) :
      */
     final class SUPER_Listings {
     
-        
-        /**
-         * @var string
-         *
-         *  @since      1.0.0
-        */
-        public $version = '1.0.0';
-
-
         /**
          * @var string
          *
@@ -419,7 +410,7 @@ if(!class_exists('SUPER_Listings')) :
             $styles['super-listings'] = array(
                 'src'     => $assets_path . 'css/backend/styles.css',
                 'deps'    => '',
-                'version' => SUPER_Listings()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -1464,7 +1455,7 @@ if(!class_exists('SUPER_Listings')) :
             // Enqueue scripts and styles
             $handle = 'super-listings';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_Listings()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_VERSION, false );  
             wp_localize_script(
                 $handle,
                 $name,
@@ -1474,7 +1465,7 @@ if(!class_exists('SUPER_Listings')) :
                 )
             );
             wp_enqueue_script( $handle );
-            wp_enqueue_style( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_Listings()->version );
+            wp_enqueue_style( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_VERSION );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
             // Get the settings for this specific list based on it's index

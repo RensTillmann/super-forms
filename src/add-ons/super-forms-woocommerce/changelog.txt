@@ -1,3 +1,6 @@
+Aug 16, 2021 - Version 1.9.0
+- Compatibility with Super Forms v5.0.0
+
 Jul 29, 2021 - Version 1.8.2
 - Fix: Bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 

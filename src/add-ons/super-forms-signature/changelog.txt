@@ -1,3 +1,6 @@
+Aug 16, 2021 - Version 1.7.0
+- Compatibility with Super Forms v5.0.0
+
 Mar 04, 2020 - Version 1.6.3
 - Added: Option to set signature line color
 - Fix: Changing signature line thickness not working

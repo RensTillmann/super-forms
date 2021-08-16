@@ -1,3 +1,6 @@
+Aug 16, 2021 - Version 1.9.0
+- Compatibility with Super Forms v5.0.0
+
 Feb 22, 2021 - Version 1.8.7
 - Fix: Compatibility with latest WordPress version, E-mail verification broke,
 due to `action` POST parameter no longer available in latest WP version
