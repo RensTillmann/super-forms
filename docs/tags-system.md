@@ -247,3 +247,9 @@ Now you might ask where should I actually place this tag? You can choose to use 
 
 * `{pdf_page}`
 * `{pdf_total_pages}`
+
+**Tag to retrieve the generated PDF file label/name/url:**
+
+* `{_generated_pdf_file_label}`
+* `{_generated_pdf_file_name}`
+* `{_generated_pdf_file_url}`
