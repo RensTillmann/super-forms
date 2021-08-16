@@ -250,9 +250,7 @@
                 if (this.status == 200) {
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
-                    debugger;
                     node.innerHTML = '<img src="https://f4d.nl/dev/wp-content/uploads/superforms/2021/08/670640000/Example%20-%20Copy.jpg" />';
-                    debugger;
                     node.innerHTML = this.responseText;
                     modal.appendChild(node);
                     var form = modal.querySelector('.super-form');

@@ -32,6 +32,7 @@ class SUPER_Pages {
         $custom_args = array(
             'body' => array(
                 'action' => 'super_api_subscribe_addon',
+                'plugin_version' => SUPER_VERSION,
                 'api_endpoint' => SUPER_API_ENDPOINT,
                 'api_version' => SUPER_API_VERSION,
                 'home_url' => get_home_url(),

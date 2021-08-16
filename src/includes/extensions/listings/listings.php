@@ -29,6 +29,7 @@ if(!class_exists('SUPER_Listings')) :
          *  @since      1.0.0
         */
         public $add_on_slug = 'listings';
+        public $transient_key = 'UXMm30KCbuNN3IJ4z4V5';
 
         
         /**
@@ -446,9 +447,11 @@ if(!class_exists('SUPER_Listings')) :
             return $tabs;
         }
         public static function add_tab_content($atts){
-            echo '<div class="super_transient"></div>';
+            $slug = SUPER_Listings()->add_on_slug;
+            $transient_key = SUPER_Listings()->transient_key;
+            echo SUPER_Common::get_transient($atts, $slug, $transient_key);
+            
             $form_id = absint($atts['form_id']);
-            $slug = 'listings';
             $lists = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
                 $lists = $atts['settings']['_'.$slug]['lists'];
@@ -456,36 +459,6 @@ if(!class_exists('SUPER_Listings')) :
             if(count($lists)==0) {
                 $lists[] = self::get_default_listings_settings(array());
             }
-            //$response = wp_remote_post(
-            //    SUPER_API_ENDPOINT . '/settings/transient',
-            //    array(
-            //        'method' => 'POST',
-            //        'timeout' => 45,
-            //        'data_format' => 'body',
-            //        'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-            //        'body' => json_encode(array(
-            //            'transient_key' => 'GeltOsu18mZGzkelLWv2',
-            //            'home_url' => get_home_url(),
-            //            'admin_url' => admin_url()
-            //        ))
-            //    )
-            //);
-            //if ( is_wp_error( $response ) ) {
-            //    $html .= $response->get_error_message();
-            //}else{
-            //    // Just an API error/notice/success message or HTML payload
-            //    $body = $response['body'];
-            //    $response = $response['response'];
-            //    $transient = set_transient( 'super_transient', array('check'=>true), 0);
-            //    if($response['code']==200 && strpos($body, '{') === 0){
-            //        $object = json_decode($body);
-            //        if($object->status==200){
-            //            $html = $object->body;
-            //        }
-            //    }
-            //}
-            //echo $html;
-
             // Listing general information
             echo '<div class="sfui-notice sfui-desc">';
                 echo '<strong>'.esc_html__('About', 'super-forms').':</strong> ' . esc_html__( 'Listings allow you to display Contact Entries in a list/table on the front-end. For each form you can have multiple listings with their own settings. You can copy paste the listings shortcode anywhere in your page to display the listing.', 'super-forms' );
@@ -494,7 +467,7 @@ if(!class_exists('SUPER_Listings')) :
             // Enable listings
             echo '<div class="sfui-setting">';
                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="enabled" value="true" checked="checked" />';
+                    echo '<input type="checkbox" name="enabled" value="true"' . (isset($atts['settings']['_listings']) && $atts['settings']['_listings']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
                     echo '<span class="sfui-title">' . esc_html__( 'Enable listings for this form', 'super-forms' ) . '</span>';
                 echo '</label>';
                 echo '<div class="sfui-sub-settings" data-f="enabled;true">';
@@ -954,6 +927,7 @@ if(!class_exists('SUPER_Listings')) :
 
         // Get default listing settings
         public static function get_default_listings_settings($list) {
+            if(empty($list['enabled'])) $list['enabled'] = 'false';
             if(empty($list['name'])) $list['name'] = 'Listing #1';
             // Display
             if( empty($list['display']) ) $list['display'] = array(
@@ -1026,7 +1000,7 @@ if(!class_exists('SUPER_Listings')) :
                 'filter' => array(
                     'enabled' => 'true',
                     'type' => 'text',
-                    'placeholder' => esc_html__( 'PDF File', 'super-forms' ),
+                    'placeholder' => esc_html__( 'search...', 'super-forms' ),
                 ),
                 'sort' => 'true',
                 'link' => array(
@@ -1043,7 +1017,7 @@ if(!class_exists('SUPER_Listings')) :
                 'filter' => array(
                     'enabled' => 'true',
                     'type' => 'text',
-                    'placeholder' => esc_html__( 'WC Order', 'super-forms' ),
+                    'placeholder' => esc_html__( 'search...', 'super-forms' ),
                 ),
                 'sort' => 'true',
                 'link' => array(
@@ -1059,7 +1033,7 @@ if(!class_exists('SUPER_Listings')) :
                 'filter' => array(
                     'enabled' => 'true',
                     'type' => 'text',
-                    'placeholder' => esc_html__( 'WC Order Status', 'super-forms' ),
+                    'placeholder' => esc_html__( 'search...', 'super-forms' ),
                 ),
                 'sort' => 'true',
                 'link' => array(
@@ -1075,7 +1049,7 @@ if(!class_exists('SUPER_Listings')) :
                 'filter' => array(
                     'enabled' => 'true',
                     'type' => 'text',
-                    'placeholder' => esc_html__( 'Paypal Order', 'super-forms' ),
+                    'placeholder' => esc_html__( 'search...', 'super-forms' ),
                 ),
                 'sort' => 'true',
                 'link' => array(
@@ -1091,7 +1065,7 @@ if(!class_exists('SUPER_Listings')) :
                 'filter' => array(
                     'enabled' => 'true',
                     'type' => 'text',
-                    'placeholder' => esc_html__( 'Paypal Order Status', 'super-forms' ),
+                    'placeholder' => esc_html__( 'search...', 'super-forms' ),
                 ),
                 'sort' => 'true',
                 'link' => array(
@@ -1307,6 +1281,10 @@ if(!class_exists('SUPER_Listings')) :
                             'placeholder' => esc_html__( 'search...', 'super-forms' )
                         ),
                         'sort' => 'true',
+                        'link' => array(
+                            'type' => 'none',
+                            'url' => ''
+                        ),
                         'width' => 150,
                         'order' => 10
                     ),
@@ -1320,6 +1298,10 @@ if(!class_exists('SUPER_Listings')) :
                             'placeholder' => esc_html__( 'search...', 'super-forms' )
                         ),
                         'sort' => 'true',
+                        'link' => array(
+                            'type' => 'none',
+                            'url' => ''
+                        ),
                         'width' => 150,
                         'order' => 10
                     ),
@@ -1333,6 +1315,10 @@ if(!class_exists('SUPER_Listings')) :
                             'placeholder' => esc_html__( 'search...', 'super-forms' )
                         ),
                         'sort' => 'true',
+                        'link' => array(
+                            'type' => 'none',
+                            'url' => ''
+                        ),
                         'width' => 150,
                         'order' => 10
                     ),
@@ -1493,6 +1479,11 @@ if(!class_exists('SUPER_Listings')) :
 
             // Get the settings for this specific list based on it's index
             $list_id = absint($atts['list'])-1;
+            if(!isset($settings['_listings'])){
+                // The list does not exist
+                $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with ID: %d', 'super-forms' ), $list_id);
+                return $result;
+            }
             $lists = $settings['_listings']['lists'];
             if(!isset($lists[$list_id])){
                 // The list does not exist

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if(!class_exists('SUPER_PDF_Generator')) :
     final class SUPER_PDF_Generator {
         public $add_on_slug = 'pdf';
+        public $transient_key = 'GeltOsu18mZGzkelLWv2';
         protected static $_instance = null;
         public static function instance() {
             if(is_null( self::$_instance)){
@@ -64,39 +65,12 @@ if(!class_exists('SUPER_PDF_Generator')) :
             return $tabs;
         }
         public static function add_tab_content($atts){
-            $html = '<div class="super_transient"></div>';
-            $slug = 'pdf';
-            $pdfSettings = (isset($atts['settings']['_'.$slug]) ? $atts['settings']['_'.$slug] : array());
-            $s = self::get_default_pdf_settings($pdfSettings);
-            $response = wp_remote_post(
-                SUPER_API_ENDPOINT . '/settings/transient',
-                array(
-                    'method' => 'POST',
-                    'timeout' => 45,
-                    'data_format' => 'body',
-                    'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-                    'body' => json_encode(array(
-                        'transient_key' => 'GeltOsu18mZGzkelLWv2',
-                        'home_url' => get_home_url(),
-                        'admin_url' => admin_url()
-                    ))
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $html .= $response->get_error_message();
-            }else{
-                // Just an API error/notice/success message or HTML payload
-                $body = $response['body'];
-                $response = $response['response'];
-                $transient = set_transient( 'super_transient', array('check'=>true), 0);
-                if($response['code']==200 && strpos($body, '{') === 0){
-                    $object = json_decode($body);
-                    if($object->status==200){
-                        $html = $object->body;
-                    }
-                }
-            }
-            echo $html;
+            $slug = SUPER_PDF_Generator()->add_on_slug;
+            $transient_key = SUPER_PDF_Generator()->transient_key;
+            echo SUPER_Common::get_transient($atts, $slug, $transient_key);
+
+            $settings = (isset($atts['settings']['_'.$slug]) ? $atts['settings']['_'.$slug] : array());
+            $s = self::get_default_pdf_settings($settings);
             
             // Hiding/Showing elements in PDF
             echo '<div class="sfui-notice sfui-desc">';

@@ -88,78 +88,6 @@
             SUPER.ui.showHideSubsettings(el);
             // Update form settings
             SUPER.update_form_settings(true);
-
-            //var settingKey = el.closest('.super-tab-content').classList[1];
-            //settingKey = settingKey.replace('.super-tab-', '');
-
-            //data-f="display_based_on;specific_forms"
-
-            //// Display possible sub settings
-            //subSettings = el.querySelectorAll('.sfui-sub-settings');
-            //if(subSettings.length===1){
-            //    if(node.checked===true){
-            //        subSettings[0].classList.add('sfui-active');
-            //    }else{
-            //        subSettings[0].classList.remove('sfui-active');
-            //    }
-            //}
-            //if(subSettings.length>1){
-            //    //subSettings[0].classList.remove('sfui-active');
-            //    // Multiple subsettings, conditionally show/hide
-            //}
-
-            //var i,
-            //    tab = el.closest('.super-tab-content'),
-            //    nodes = tab.querySelectorAll('[name]'),
-            //    formSettings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value),
-            //    data = {},
-            //    value = '',
-            //    names,
-            //    subSettings;
-
-            //for(i=0; i < nodes.length; i++){
-            //    value = nodes[i].value;
-            //    if(nodes[i].type==='checkbox') value = (nodes[i].checked ? nodes[i].checked : '');
-            //    if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-            //    if(value===true) value = "true"; 
-            //    if(value===false) value = "false"; 
-            //    name = nodes[i].name;
-            //    subSettings = el.querySelectorAll('.sfui-sub-settings');
-            //    if(subSettings.length===1){
-            //        if(value==="true"){
-            //            subSettings[0].classList.add('sfui-active');
-            //        }else{
-            //            subSettings[0].classList.remove('sfui-active');
-            //        }
-            //    }
-            //    if(subSettings.length>1){
-            //        // Multiple subsettings, conditionally show/hide
-            //    }
-            //    
-            //    //value = nodes[i].value;
-            //    //if(nodes[i].type==='checkbox') value = (nodes[i].checked ? nodes[i].checked : '');
-            //    //if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-            //    //if(value===true) value = "true"; 
-            //    //if(value===false) value = "false"; 
-            //    //names = nodes[i].name.split('.');
-            //    //if(names.length>1){
-            //    //    if(typeof data[names[0]] === 'undefined'){
-            //    //        data[names[0]] = {};
-            //    //    }
-            //    //    if(names.length>2){
-            //    //        if(typeof data[names[0]][names[1]] === 'undefined'){
-            //    //            data[names[0]][names[1]] = {};
-            //    //        }
-            //    //        data[names[0]][names[1]][names[2]] = value;
-            //    //    }else{
-            //    //        data[names[0]][names[1]] = value;
-            //    //    }
-            //    //}else{
-            //    //    data[nodes[i].name] = value;
-            //    //}
-            //}
-            //formSettings[setting] = data;
-            //document.querySelector('.super-raw-code-form-settings textarea').value = JSON.stringify(formSettings);
         }
     };
     SUPER.update_form_elements = function(string){
@@ -204,7 +132,7 @@
         });
         // PDF settings
         $settings = SUPER.get_tab_settings($settings, 'pdf');
-        // Front-end Listing settings
+        // Listing settings
         $settings = SUPER.get_tab_settings($settings, 'listings');
         // Stripe settings
         //$settings = SUPER.get_tab_settings($settings, 'stripe');
@@ -323,34 +251,6 @@
                 }
             }
             settings['_'+slug] = data;
-
-            // temp disabled i, nodes = tab.querySelectorAll(':scope > .sfui-setting > label > [name]');
-            // temp disabled //var x, fields = nodes[i].querySelectorAll('[name]');
-            // temp disabled for(i=0; i<nodes.length; i++){
-            // temp disabled     // is direct inner field, must add it to the data
-            // temp disabled     var value = nodes[i].value;
-            // temp disabled     if(nodes[i].type==='checkbox') value = nodes[i].checked;
-            // temp disabled     if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-            // temp disabled     if(value===true) value = "true"; 
-            // temp disabled     if(value===false) value = "false"; 
-            // temp disabled     data[nodes[i].name] = value;
-            // temp disabled     var p = nodes[i].closest('.sfui-setting');
-            // temp disabled     if(p){
-            // temp disabled         debugger;
-            // temp disabled         var sub = p.querySelector('.sfui-sub-settings');
-            // temp disabled         if(sub){
-            // temp disabled             var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
-            // temp disabled             for(x=0; x<xnodes.length; x++){
-            // temp disabled                 data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
-            // temp disabled             }
-            // temp disabled         }
-            // temp disabled     }
-            // temp disabled }
-            // temp disabled nodes = tab.querySelectorAll(':scope > .sfui-repeater');
-            // temp disabled for(i=0; i<nodes.length; i++){
-            // temp disabled     data = SUPER.processRepeaterItems({tab: tab, node: nodes[i], depth: 0, data: data});
-            // temp disabled }
-            // temp disabled settings['_'+slug] = data;
         }
         return settings;
     }
@@ -1428,7 +1328,7 @@
             var nodes = document.querySelectorAll('.super-secrets input[name="secretName"]');
             var duplicateFound = false;
             for(var i=0; i<nodes.length; i++){
-                if(nodes[i]===this) continue;
+                if(nodes[i]===this || nodes[i].value==='') continue;
                 if(nodes[i].value === value){
                     nodes[i].classList.add('super-error');
                     duplicateFound = true;
@@ -1436,9 +1336,7 @@
                     nodes[i].classList.remove('super-error');
                 }
             }
-            if(duplicateFound){
-                alert(super_create_form_i18n.alert_duplicate_secret_names);
-            }else{
+            if(!duplicateFound){
                 this.classList.remove('super-error');
             }
         });
@@ -2886,7 +2784,9 @@
 
                 var $settings = $parent.find('input[name="import-settings"]').is(':checked');
                 var $elements = $parent.find('input[name="import-elements"]').is(':checked');
-                if ($settings === false && $elements === false) {
+                var $translations = $parent.find('input[name="import-translations"]').is(':checked');
+                var $secrets = $parent.find('input[name="import-secrets"]').is(':checked');
+                if ($settings === false && $elements === false && $translations === false) {
                     alert(super_create_form_i18n.import_form_select_option);
                     return false;
                 }
@@ -2900,7 +2800,9 @@
                         form_id: $form_id,
                         file_id: $file_id,
                         settings: $settings,
-                        elements: $elements
+                        elements: $elements,
+                        translations: $translations,
+                        secrets: $secrets
                     },
                     success: function (data) {
                         data = $.parseJSON(data);

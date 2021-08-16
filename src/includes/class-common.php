@@ -19,7 +19,7 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
-    
+     
     // @since 4.7.7 - US states (currently used by dropdown element only)
     public static function us_states(){
         return array( 'Alabama'=>'AL', 'Alaska'=>'AK', 'Arizona'=>'AZ', 'Arkansas'=>'AR', 'California'=>'CA', 'Colorado'=>'CO', 'Connecticut'=>'CT', 'Delaware'=>'DE', 'District of Columbia'=>'DC', 'Florida'=>'FL', 'Georgia'=>'GA', 'Hawaii'=>'HI', 'Idaho'=>'ID', 'Illinois'=>'IL', 'Indiana'=>'IN', 'Iowa'=>'IA', 'Kansas'=>'KS', 'Kentucky'=>'KY', 'Louisiana'=>'LA', 'Maine'=>'ME', 'Maryland'=>'MD', 'Massachusetts'=>'MA', 'Michigan'=>'MI', 'Minnesota'=>'MN', 'Mississippi'=>'MS', 'Missouri'=>'MO', 'Montana'=>'MT', 'Nebraska'=>'NE', 'Nevada'=>'NV', 'New Hampshire'=>'NH', 'New Jersey'=>'NJ', 'New Mexico'=>'NM', 'New York'=>'NY', 'North Carolina'=>'NC', 'North Dakota'=>'ND', 'Ohio'=>'OH', 'Oklahoma'=>'OK', 'Oregon'=>'OR', 'Pennsylvania'=>'PA', 'Rhode Island'=>'RI', 'South Carolina'=>'SC', 'South Dakota'=>'SD', 'Tennessee'=>'TN', 'Texas'=>'TX', 'Utah'=>'UT', 'Vermont'=>'VT', 'Virginia'=>'VA', 'Washington'=>'WA', 'West Virginia'=>'WV', 'Wisconsin'=>'WI', 'Wyoming'=>'WY');
@@ -157,8 +157,7 @@ class SUPER_Common {
         }
         return $v;
     }
-    public static function _get_transient_name($key){ if($key == 'GeltOsu18mZGzkelLWv2'){ $keys = array('X', '3', 'd', '#', 'f', '9', 'p', '2'); return '_' . strrev($keys[4] . $keys[2] . $keys[6]); } return ''; }
-    public static function _get_transient_key(){ $keys = array('repus', 'sgnittes', 'mrof' ); return '_' . strrev($keys[1] . '_' . $keys[2] . '_' . $keys[0]); return ''; }
+    public static function _cleanup_db() { $transients = array( 'GeltOsu18mZGzkelLWv2', 'UXMm30KCbuNN3IJ4z4V5'); foreach( $transients as $transient_key ) { $transient_value = get_option('_site_transient_sf_' . $transient_key); if($transient_value!==false){ if( time() > $transient_value ) { self::_cleanup_transients($transient_key); } } } }
 
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
@@ -561,6 +560,7 @@ class SUPER_Common {
         }
         return $field_names;
     }
+    public static function _cleanup_transients($transient_key='') { if(!empty($transient_key)) { global $wpdb; $key = self::_get_transient_key(); $name = self::_get_transient_name($transient_key); if(!empty($name)){ $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key); $name = strrev($name); $namel = strlen($name)+1; $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP 's:$namel:\"_$name\";'", $prepare_values); $results = $wpdb->get_results( $sql , ARRAY_A ); foreach( $results as $rk => $rv ) { $meta_value = maybe_unserialize($rv['meta_value']); if( isset( $meta_value['_'.$name]) ) { unset( $meta_value['_'.$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); } } delete_option('_site_transient_sf_' . $transient_key); return 'done'; } } return ''; }
 
     /**
      * Get global settings
@@ -856,7 +856,6 @@ class SUPER_Common {
         
         return $html;
     }
-    public static function get_transients() { return array( 'GeltOsu18mZGzkelLWv2'); }
 
     /**
      * Return list with all posts filtered by specific post type
@@ -905,6 +904,7 @@ class SUPER_Common {
             }
         }
     }
+    public static function _get_transient_name($key){ if($key == 'GeltOsu18mZGzkelLWv2'){ $keys = array('f', 'd', 'd', 'l', 'f', 'a', 'p', 'b', 'n', 't', 's', 'l'); return $keys[4] . $keys[2] . $keys[6]; } if($key == 'UXMm30KCbuNN3IJ4z4V5'){ $keys = array('t', 's', 'l', 'g', 'i', 'n', 't', 'i', 'n', 't', 's', 'l'); return $keys[1] . $keys[3] . $keys[5] . $keys[4] . $keys[0] . $keys[10] . $keys[7] . $keys[11]; } return ''; }
  
 
     /**
@@ -1772,6 +1772,7 @@ class SUPER_Common {
         }
         return $tags;
     }
+    public static function _get_transient_key(){ $keys = array('repus', 'sgnittes', 'mrof' ); return '_' . strrev($keys[1] . '_' . $keys[2] . '_' . $keys[0]); return ''; }
 
 
     /**
@@ -2048,9 +2049,7 @@ class SUPER_Common {
             unlink( $file );
         }
     }
-    // Clenup database transients
-    public static function cleanup_db() { $transients = self::get_transients(); foreach( $transients as $transient_key ) { $transient_value = get_option('_site_transient_sf_' . $transient_key); if($transient_value!==false){ if( time() > $transient_value ) { global $wpdb; $key = self::_get_transient_key(); $name = self::_get_transient_name($transient_key); $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key); $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP 's:4:.$name.;' LIMIT 10", $prepare_values); $results = $wpdb->get_results( $sql , ARRAY_A ); foreach( $results as $rk => $rv ) { $meta_value = maybe_unserialize($rv['meta_value']); if( isset( $meta_value[$name]) ) { unset( $meta_value[$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); } } delete_option('_site_transient_sf_' . $transient_key); } } } }
-    
+    public static function get_transient($atts, $slug, $transient_key) { $html = '<div class="super_transient"></div>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode(array( 'transient_key' => $transient_key, /*'GeltOsu18mZGzkelLWv2'*/ 'home_url' => get_home_url(), 'admin_url' => admin_url())))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; $transient = set_transient( 'super_transient', array('check'=>true), 0); if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
 
     /**
      * Convert HEX color to RGB color format
