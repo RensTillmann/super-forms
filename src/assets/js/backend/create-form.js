@@ -1051,7 +1051,7 @@
                     // Complete:
                     SUPER.handle_columns();
                     SUPER.init_button_colors();
-                    SUPER.init_super_responsive_form_fields();
+                    SUPER.init_super_responsive_form_fields({form: $('.super-live-preview > .super-form')[0]});
                     SUPER.init_super_form_frontend();
                     SUPER.after_preview_loaded_hook($form_id);
                 }

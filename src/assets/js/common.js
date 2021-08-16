@@ -3103,6 +3103,7 @@ function SUPERreCaptcha(){
 
     // Validate the form
     SUPER.validate_form = function(args){ // form, submitButton, validateMultipart, e, doingSubmit
+        SUPER.resetFocussedFields();
         SUPER.conditional_logic(args);
 
         // // Check if any of the stripe elements are filled out correctly

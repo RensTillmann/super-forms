@@ -2312,6 +2312,9 @@
                     for(i = 0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-open');
                     }
+                    if(e.target.classList.contains('super-shortcode') && !e.target.classList.contains('super-field')){
+                        SUPER.resetFocussedFields();
+                    }
                 }
             }
         });

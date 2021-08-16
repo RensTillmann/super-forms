@@ -64,6 +64,7 @@
 
 - Add-ons / Extensions
   - [All Add-ons](add-ons)
+    - [Listings](listings-add-on)
     - [PDF Generator](pdf-generator-add-on)
     - [Calculator](calculator-add-on)
     - [WooCommerce Checkout](woocommerce-checkout-add-on)
