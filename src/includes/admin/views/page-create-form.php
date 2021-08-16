@@ -234,8 +234,11 @@
                 if( $form_id==0 ) {
                     echo '<div class="super-demos-notice">';
                     echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
+                    echo '<h2>' . sprintf( esc_html__( 'Listings Add-on', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
+                    echo '<p><a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/sections/4405742210961-Listings-Add-on" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                    echo '<hr />';
                     echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                    echo '<p><a target="_blank" href="https://renstillmann.github.io/super-forms/#/pdf-generator-add-on" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                    echo '<p><a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/sections/4404338396177-PDF-Generator" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                     echo '<hr />';
                     echo '<h2>' . sprintf( esc_html__( 'Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
                     echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . esc_url(get_admin_url() . 'upload.php') . '">', '</a>') . '</p>';

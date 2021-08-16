@@ -31,6 +31,7 @@
     color: #555;
 }
 
+.super-tabs > .super-tab-listings,
 .super-tabs > .super-tab-pdf {
     background-color: #ff7e7e!important;
     color: white!important;
@@ -38,6 +39,7 @@
     padding-right: 60px !important;
 }
 
+.super-tabs > .super-tab-listings:before,
 .super-tabs > .super-tab-pdf:before {
     content: 'Add-on' !important;
     position: absolute;
@@ -55,6 +57,7 @@
     color: white;
 }
 
+.super-tabs > .super-tab-listings:after,
 .super-tabs > .super-tab-pdf:after {
     content: '';
     position: absolute;
@@ -67,9 +70,17 @@
     border-bottom: 8px solid transparent;
     border-left: 8px solid #ff7e7e;
 }
-
 .super-tabs > .super-tab-pdf.super-active:after {
     border-left: 8px solid #ff7e7e;
+}
+.super-tabs > .super-tab-listings {
+    background-color: #8c7bff!important;
+}
+.super-tabs > .super-tab-listings:after {
+    border-left: 8px solid #8c7bff;
+}
+.super-tabs > .super-tab-listings.super-active:after {
+    border-left: 8px solid #8c7bff;
 }
 
 .super-raw-code-form-elements, .super-raw-code-form-settings, .super-raw-code-translation-settings {

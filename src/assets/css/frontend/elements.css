@@ -3297,6 +3297,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form.super-preview-elements {
   flex-wrap: wrap;
   flex-direction: row;
+  align-items: flex-start;
 }
 .super-form.super-initialized .super-keyword-filter {
   visibility: visible;

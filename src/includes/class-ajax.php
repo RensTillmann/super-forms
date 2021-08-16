@@ -1784,11 +1784,10 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form() { // $id=null, $formElements=null, $translationSettings=null, $secretsSettings=null, $formSettings=null, $title=null ) {
-
+    public static function save_form() {
         // Normal form save:
         $action = $_POST['action'];
-        $id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
+        $form_id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
         $title = (!empty($_POST['title']) ? $_POST['title'] : esc_html__( 'Form Name', 'super-forms' ));
         $_super_elements = wp_unslash($_POST['formElements']);
         $_super_form_settings = wp_unslash($_POST['formSettings']);
@@ -1822,67 +1821,116 @@ class SUPER_Ajax {
         }
         // @since 4.7.0 - translation language switcher
         if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
-        if( empty( $id ) ) {
+        if( empty( $form_id ) ) {
             $form = array(
                 'post_title' => $title,
                 'post_status' => 'publish',
                 'post_type'  => 'super_form'
             );
-            $id = wp_insert_post( $form ); 
-            add_post_meta( $id, '_super_version', SUPER_VERSION );
-            add_post_meta( $id, '_super_form_settings', $_super_form_settings );
-            add_post_meta( $id, '_super_elements', $_super_elements );
-            add_post_meta( $id, '_super_translations', $_super_translations );
-            add_post_meta( $id, '_super_local_secrets', $_super_local_secrets );
+            $form_id = wp_insert_post( $form ); 
+            self::save_form_meta(
+                array(
+                    'action'=>$action,
+                    'form_id'=>$form_id,
+                    'settings'=>$_super_form_settings,
+                    'elements'=>$_super_elements, 
+                    'translations'=>$_super_translations, 
+                    'local_secrets'=>$_super_local_secrets, 
+                    'global_secrets'=>$super_global_secrets,
+                    'new'=>true,
+                    'backup'=>false
+                )
+            );
         }else{
             $form = array(
-                'ID' => $id,
+                'ID' => $form_id,
                 'post_title' => $title
             );
             wp_update_post( $form );
             if(!empty($_POST['i18n'])){
                 // Merge with existing form settings
-                $settings = SUPER_Common::get_form_settings($id);
+                $settings = SUPER_Common::get_form_settings($form_id);
                 // Add language to the form settings
                 $settings['i18n'][$_POST['i18n']] = $_super_form_settings;
                 $_super_form_settings = $settings;
             }else{
-                $settings = SUPER_Common::get_form_settings($id);
+                $settings = SUPER_Common::get_form_settings($form_id);
                 if(!empty($settings['i18n'])){
                     $_super_form_settings['i18n'] = $settings['i18n'];
                 }
             }
-            update_post_meta( $id, '_super_version', SUPER_VERSION );
-            update_post_meta( $id, '_super_form_settings', $_super_form_settings );
-            update_post_meta( $id, '_super_elements', $_super_elements );
-            update_post_meta( $id, '_super_translations', $_super_translations );
-            update_post_meta( $id, '_super_local_secrets', $_super_local_secrets );
-            // @since 3.1.0 - save history (store a total of 50 backups into db)
-            $form = array(
-                'post_parent' => $id,
-                'post_title' => $title,
-                'post_status' => 'backup',
-                'post_type'  => 'super_form'
+            self::save_form_meta(
+                array(
+                    'action'=>$action,
+                    'form_id'=>$form_id,
+                    'settings'=>$_super_form_settings,
+                    'elements'=>$_super_elements, 
+                    'translations'=>$_super_translations, 
+                    'local_secrets'=>$_super_local_secrets, 
+                    'global_secrets'=>$super_global_secrets,
+                    'new'=>false,
+                    'backup'=>false
+                )
             );
-            $backup_id = wp_insert_post( $form ); 
-            add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
-            add_post_meta( $backup_id, '_super_form_settings', $_super_form_settings );
-            add_post_meta( $backup_id, '_super_elements', $_super_elements );
-            add_post_meta( $backup_id, '_super_translations', $_super_translations );
-            add_post_meta( $backup_id, '_super_local_secrets', $_super_local_secrets );
         }
         if($action==='super_save_form'){
             // Only update global secrets if we are not importing a form
             update_option( 'super_global_secrets', $super_global_secrets );
-            echo $id;
+            echo $form_id;
             die();
         }
-        // Import single form
+        // Importing single form, we must return the form ID
         if($action==='super_import_single_form'){
-            return $id;
+            return $form_id;
         }
     }
-
+    public static function save_form_meta($atts) {
+        extract($atts);
+        if($new===true){
+            add_post_meta( $form_id, '_super_version', SUPER_VERSION );
+            add_post_meta( $form_id, '_super_form_settings', $settings );
+            add_post_meta( $form_id, '_super_elements', $elements );
+            add_post_meta( $form_id, '_super_translations', $translations );
+            add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+        }else{
+            update_post_meta( $form_id, '_super_version', SUPER_VERSION );
+            if($action==='super_save_form'){
+                update_post_meta( $form_id, '_super_form_settings', $settings );
+                update_post_meta( $form_id, '_super_elements', $elements );
+                update_post_meta( $form_id, '_super_translations', $translations );
+                update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+            }
+            if($action==='super_import_single_form'){
+                if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
+                if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
+                if(!empty($translations)) update_post_meta( $form_id, '_super_translations', $translations );
+                if(!empty($local_secrets)) update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+            }
+            // @since 3.1.0 - save history (store a total of 50 backups into db)
+            if($backup===false){
+                $form = array(
+                    'post_parent' => $form_id,
+                    'post_title' => $title,
+                    'post_status' => 'backup',
+                    'post_type'  => 'super_form'
+                );
+                $backup_id = wp_insert_post( $form ); 
+                self::save_form_meta(
+                    array(
+                        'action'=>$action,
+                        'form_id'=>$backup_id,
+                        'settings'=>$settings,
+                        'elements'=>$elements, 
+                        'translations'=>$translations, 
+                        'local_secrets'=>$local_secrets, 
+                        'global_secrets'=>$global_secrets,
+                        'new'=>false,
+                        'backup'=>true
+                    )
+                );
+            }
+        }
+    }
 
     /** 
      *  Deletes the form with all it's settings
