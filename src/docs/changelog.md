@@ -19,8 +19,10 @@
 - **Added:** `{user_last_entry_status_any_form}` tag to retrieve the latest contact entry status of the logged in user for any form
 - **Added:** `{user_last_entry_id_any_form}` tag to retrieve the latest contact entry ID of the logged in user for any form
 - **Added:** New filter hook `super_attachments_filter` to alter/add/delete the email attachments
-- **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
 - **Added:** `MailChimp Add-on` escape html in output message and replace psuedo after/before elements with normal DOM element
+- **Added:** New tags to be used inside E-mails `{_generated_pdf_file_label}`, `{_generated_pdf_file_name}`, `{_generated_pdf_file_url}` allows you to retrieve the Generated PDF url so you can create a button that links to the file for download
+- **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
+- **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 - **Fix:** When switching language through language switcher, preserver URL parameters so that the form is populated with data after switching language
 - **Fix:** `Front-end Register & Login Add-on` when using language switcher, make sure the `code` parameters is preserverd (for account/email verifications)
 - **Fix:** `Front-end Posting Add-on` issue with saving google map data for ACF map field
@@ -28,7 +30,6 @@
 - **Fix:** `WooCommerce Checkout Add-on` issue with `External/Affiliate product` URL being reset to the product permalink
 - **Fix:** `WooCommerce Checkout Add-on` bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 - **Fix:** `Zapier Add-on` use numbered index instead of filenames as index for the array, otherwise you would not be able to map/retrieve the file within zapier interface
-- **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 
 ## Mar 16, 2021 - Version 4.9.800
 - **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to exclude products the shop so that they can only be ordered via the form

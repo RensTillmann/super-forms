@@ -1256,6 +1256,22 @@ class SUPER_Common {
             if( isset($_SERVER['HTTP_REFERER']) ) {
                 $_SERVER_HTTP_REFERER = $_SERVER['HTTP_REFERER'];
             }
+
+            // Generated PDF file (PDF Generator Add-on)
+            $_generated_pdf_file_label = '';
+            $_generated_pdf_file_name = '';
+            $_generated_pdf_file_url = '';
+            if( isset( $data['_generated_pdf_file']['files'] ) ) {
+                foreach( $data['_generated_pdf_file']['files'] as $fk => $fv ) {
+                    $_generated_pdf_file_label = esc_html($fv['label']);
+                    $_generated_pdf_file_name = esc_html($fv['name']);
+                    $linkUrl = esc_url($fv['url']);
+                    if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
+                        $linkUrl = wp_get_attachment_url( $fv['attachment'] );
+                    }
+                    $_generated_pdf_file_url = $linkUrl;
+                }
+            }
     
             $tags = array(
                 'field_*****' => array(
@@ -1272,7 +1288,7 @@ class SUPER_Common {
                     esc_html__( 'Any setting value used for the form', 'super-forms' ),
                     ''
                 ),
-                
+ 
                 'option_admin_email' => array(
                     esc_html__( 'E-mail address of blog administrator', 'super-forms' ),
                     get_option('admin_email')
@@ -1505,6 +1521,20 @@ class SUPER_Common {
                 'user_last_entry_id_any_form' => array(
                     esc_html__( 'Retrieves the latest Contact Entry ID of the logged in user for any form', 'super-forms' ),
                     $user_last_entry_id_any_form
+                ),
+                
+                // PDF Generator data
+                '_generated_pdf_file_label' => array(
+                    esc_html__( 'Generated PDF Label', 'super-forms' ),
+                    $_generated_pdf_file_label
+                ),
+                '_generated_pdf_file_name' => array(
+                    esc_html__( 'Generated PDF name', 'super-forms' ),
+                    $_generated_pdf_file_name
+                ),
+                '_generated_pdf_file_url' => array(
+                    esc_html__( 'Generated PDF URL', 'super-forms' ),
+                    $_generated_pdf_file_url
                 ),
     
             );
