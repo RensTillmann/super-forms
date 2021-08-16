@@ -1411,11 +1411,13 @@ class SUPER_Ajax {
         $formElements = wp_unslash($_POST['formElements']);
         $formElements = json_decode($formElements, true);
         $translationSettings = get_post_meta( $form_id, '_super_translations', true );
+        $secretsSettings = get_post_meta( $form_id, '_super_local_secrets', true );
         $export = array(
             'title' => $title,
             'settings' => $formSettings,
             'elements' => $formElements,
-            'translations' => $translationSettings
+            'translations' => $translationSettings,
+            'secrets' => $secretsSettings
         );
         $export = '<html>'.maybe_serialize($export);
         $filename = $title.'-super-forms-export.html';
@@ -1436,12 +1438,11 @@ class SUPER_Ajax {
     public static function import_single_form() {
         $form_id = absint( $_POST['form_id'] );
         $file_id = absint( $_POST['file_id'] );
-
         // What do we need to import?
         $import_elements = $_POST['elements']; // Form elements
         $import_settings = $_POST['settings']; // Form settings
         $import_translations = $_POST['translations']; // Translation settings
-
+        $import_secrets = $_POST['secrets']; // Translation settings
         $file = wp_get_attachment_url($file_id);
         if( $file ) {
             $contents = wp_remote_fopen($file);
@@ -1450,49 +1451,22 @@ class SUPER_Ajax {
             if($html_tag==='<html>'){
                 $contents = substr($contents, 6);
             }
-            
             // Check if content is json (backward compatibility import from older SF versions)
             json_decode($contents);
             if( json_last_error() == JSON_ERROR_NONE ) {
                 $contents = json_decode($contents, true)[0];
             }
-
             $contents = maybe_unserialize( $contents );
-            $title = (isset($contents['title']) ? $contents['title'] : $contents['post_title']);
-
-            // Only set elements from import file if user choose to do so
+            $_POST['title'] = (isset($contents['title']) ? $contents['title'] : $contents['post_title']);
             $formElements = array();
-            if($import_elements=='true') {
-                if(isset($contents['elements'])) $formElements = $contents['elements'];
-            }
-            // Only set settings from import file if user choose to do so
             $formSettings = array();
-            if($import_settings=='true') {
-                if(isset($contents['settings']))  $formSettings = $contents['settings'];
-            } 
-            // Only set translation settings from import file if user choose to do so
             $translationSettings = array();
-            if($import_translations=='true') {
-                if(isset($contents['translations'])) $translationSettings = $contents['translations'];
-            } 
-
-            if( $form_id==0 ) {
-                // Create a new form
-                $form_id = self::save_form( $form_id, $formElements, $translationSettings, $formSettings, $title );
-            }else{
-                // Only import/update elements if user wanted to
-                if($import_elements=='true') {
-                    update_post_meta( $form_id, '_super_elements', $formElements );
-                }
-                // Only import/update settings if user wanted to
-                if($import_settings=='true') {
-                    update_post_meta( $form_id, '_super_form_settings', $formSettings );
-                }
-                // Only import/update translation settings if user wanted to
-                if($import_translations=='true') {
-                    update_post_meta( $form_id, '_super_translations', $translationSettings );
-                }
-            }
+            $secretsSettings = array();
+            if($import_elements=='true' && isset($contents['elements'])) $_POST['formElements'] = $contents['elements'];
+            if($import_settings=='true' && isset($contents['settings'])) $_POST['formSettings'] = $contents['settings'];
+            if($import_translations=='true' && isset($contents['translations'])) $_POST['translationSettings']= $contents['translations'];
+            if($import_secrets=='true' && isset($contents['secrets'])) $_POST['localSecrets'] = $contents['secrets'];
+            $form_id = self::save_form();
             echo $form_id;
         }else{
             SUPER_Common::output_message(
@@ -1810,58 +1784,44 @@ class SUPER_Ajax {
      *
      *  @since      1.0.0
     */
-    public static function save_form( $id=null, $formElements=null, $translationSettings=null, $formSettings=null, $title=null ) {
-        if(empty($id)){
-            if(isset($_POST['form_id'])) $id = $_POST['form_id'];
-            if(empty($formElements)){
-                $_POST['formElements'] = wp_unslash($_POST['formElements']);
-                $formElements = json_decode($_POST['formElements'], true);
-            }
-            if(empty($formSettings)){
-                $_POST['formSettings'] = wp_unslash($_POST['formSettings']);
-                $formSettings = json_decode($_POST['formSettings'], true);
-            }
-            if(empty($translationSettings)){
-                $_POST['translationSettings'] = wp_unslash($_POST['translationSettings']);
-                $translationSettings = json_decode($_POST['translationSettings'], true);
-            }
+    public static function save_form() { // $id=null, $formElements=null, $translationSettings=null, $secretsSettings=null, $formSettings=null, $title=null ) {
+
+        // Normal form save:
+        $action = $_POST['action'];
+        $id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
+        $title = (!empty($_POST['title']) ? $_POST['title'] : esc_html__( 'Form Name', 'super-forms' ));
+        $_super_elements = wp_unslash($_POST['formElements']);
+        $_super_form_settings = wp_unslash($_POST['formSettings']);
+        $_super_translations = wp_unslash($_POST['translationSettings']);
+        if($action==='super_save_form'){
+            // Decode JSON string
+            $_super_elements = json_decode($_super_elements, true);
+            $_super_form_settings = json_decode($_super_form_settings, true);
+            $_super_translations = json_decode($_super_translations, true);
         }
-        $id = absint( $id );
-
-        // @since 4.9.6 - secrets
-        $localSecrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
-        $globalSecrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
-
-        $formElements = wp_slash($formElements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
-        $formSettings = wp_slash($formSettings); // This is required to keep Custom CSS {content: '\x123';} working
-        // @since 4.7.0 - translations
+        $_super_local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
+        $super_global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
+        $_super_elements = wp_slash($_super_elements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
+        $_super_form_settings = wp_slash($_super_form_settings); // This is required to keep Custom CSS {content: '\x123';} working
         // We must delete/clear any translations that no longer exist
-        $formElements = self::clear_i18n($formElements, $translationSettings);
-
+        $_super_elements = self::clear_i18n($_super_elements, $_super_translations);
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
         // Loop trhough all form settings, and look for duplicates based on global settings
-        if(!empty($formSettings)){
-            foreach( $formSettings as $k => $v ) {
+        if(!empty($_super_form_settings)){
+            foreach( $_super_form_settings as $k => $v ) {
                 // Check if the setting exists on global level
                 if( isset( $global_settings[$k] ) ) {
                     // Only unset key if value is exactly the same as global setting value
                     if( $global_settings[$k] == $v ) {
-                        unset( $formSettings[$k] );
+                        unset( $_super_form_settings[$k] );
                     }
                 }
             }
         }
         // @since 4.7.0 - translation language switcher
-        if(isset($_POST['i18n_switch'])) $formSettings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
-
-        if( $title==null) {
-            $title = esc_html__( 'Form Name', 'super-forms' );
-        }
-        if( isset( $_POST['title'] ) ) {
-            $title = $_POST['title'];
-        }
+        if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
         if( empty( $id ) ) {
             $form = array(
                 'post_title' => $title,
@@ -1869,51 +1829,34 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $id = wp_insert_post( $form ); 
-
-            // @since 4.7.0 - translation
-            add_post_meta( $id, '_super_form_settings', $formSettings );
-            add_post_meta( $id, '_super_elements', $formElements );
-
-            // @since 4.9.6 - secrets
-            add_post_meta( $id, '_super_local_secrets', $localSecrets );
-
-            // @since 3.1.0 - save current plugin version / form version
             add_post_meta( $id, '_super_version', SUPER_VERSION );
-
-            // @since 4.7.0 - translations
-            add_post_meta( $id, '_super_translations', $translationSettings );
-
+            add_post_meta( $id, '_super_form_settings', $_super_form_settings );
+            add_post_meta( $id, '_super_elements', $_super_elements );
+            add_post_meta( $id, '_super_translations', $_super_translations );
+            add_post_meta( $id, '_super_local_secrets', $_super_local_secrets );
         }else{
             $form = array(
                 'ID' => $id,
                 'post_title' => $title
             );
             wp_update_post( $form );
-
             if(!empty($_POST['i18n'])){
                 // Merge with existing form settings
                 $settings = SUPER_Common::get_form_settings($id);
                 // Add language to the form settings
-                $settings['i18n'][$_POST['i18n']] = $formSettings;
-                $formSettings = $settings;
+                $settings['i18n'][$_POST['i18n']] = $_super_form_settings;
+                $_super_form_settings = $settings;
             }else{
                 $settings = SUPER_Common::get_form_settings($id);
                 if(!empty($settings['i18n'])){
-                    $formSettings['i18n'] = $settings['i18n'];
+                    $_super_form_settings['i18n'] = $settings['i18n'];
                 }
             }
-            update_post_meta( $id, '_super_form_settings', $formSettings );
-            update_post_meta( $id, '_super_elements', $formElements );
-            
-            // @since 4.9.6 - secrets
-            update_post_meta( $id, '_super_local_secrets', $localSecrets );
-
-            // @since 3.1.0 - save current plugin version / form version
             update_post_meta( $id, '_super_version', SUPER_VERSION );
-
-            // @since 4.7.0 - translations
-            update_post_meta( $id, '_super_translations', $translationSettings );
-
+            update_post_meta( $id, '_super_form_settings', $_super_form_settings );
+            update_post_meta( $id, '_super_elements', $_super_elements );
+            update_post_meta( $id, '_super_translations', $_super_translations );
+            update_post_meta( $id, '_super_local_secrets', $_super_local_secrets );
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             $form = array(
                 'post_parent' => $id,
@@ -1922,19 +1865,22 @@ class SUPER_Ajax {
                 'post_type'  => 'super_form'
             );
             $backup_id = wp_insert_post( $form ); 
-            add_post_meta( $backup_id, '_super_form_settings', $formSettings );
-            add_post_meta( $backup_id, '_super_elements', $formElements );
             add_post_meta( $backup_id, '_super_version', SUPER_VERSION );
-            // @since 4.7.0 - translations
-            add_post_meta( $backup_id, '_super_translations', $translationSettings );
+            add_post_meta( $backup_id, '_super_form_settings', $_super_form_settings );
+            add_post_meta( $backup_id, '_super_elements', $_super_elements );
+            add_post_meta( $backup_id, '_super_translations', $_super_translations );
+            add_post_meta( $backup_id, '_super_local_secrets', $_super_local_secrets );
         }
-
-        // @since 4.9.6 - secrets
-        update_option( 'super_global_secrets', $globalSecrets );
-
-        echo $id;
-        die();
-
+        if($action==='super_save_form'){
+            // Only update global secrets if we are not importing a form
+            update_option( 'super_global_secrets', $super_global_secrets );
+            echo $id;
+            die();
+        }
+        // Import single form
+        if($action==='super_import_single_form'){
+            return $id;
+        }
     }
 
 

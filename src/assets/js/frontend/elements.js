@@ -2297,6 +2297,7 @@
                 }
                 if(e.target.closest('.super-setting')){
                     if(e.target.classList.contains('super-dropdown-placeholder')){
+                        e.target.parentNode.classList.add('super-focus');
                         e.target.parentNode.classList.add('super-open');
                     }
                 }

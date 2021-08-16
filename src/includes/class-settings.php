@@ -3103,12 +3103,12 @@ class SUPER_Settings {
                 '<div class="super-export-import-single-form">',
 
                     '<div class="super-field">
-                        <div class="super-field-name">' . esc_html__( 'Export form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="super-field-name">' . esc_html__( 'Export form', 'super-forms' ) . ':</div>
                         <span class="super-button super-export super-clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
                     </div>',
 
                     '<div class="super-field">
-                        <div class="super-field-name">' . esc_html__( 'Import form settings and elements', 'super-forms' ) . ':</div>
+                        <div class="super-field-name">' . esc_html__( 'Import form', 'super-forms' ) . ':</div>
                         <div class="super-field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
                         <div class="super-field-input">
                         <div class="image-field browse-files" data-file-type="text/html" data-multiple="false">
@@ -3124,6 +3124,12 @@ class SUPER_Settings {
                                 </label>
                                 <label>
                                     <input type="checkbox" name="import-elements">' . esc_html__( 'Import elements', 'super-forms' ) . '
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="import-translations">' . esc_html__( 'Import translation settings', 'super-forms' ) . '
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="import-secrets">' . esc_html__( 'Import secrets', 'super-forms' ) . '
                                 </label>
                             </div>
                         </div>
