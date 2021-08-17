@@ -387,6 +387,7 @@ if(!class_exists('SUPER_Forms')) :
         }
         public static function add_custom_wc_my_account_menu_items( $menu ){
             $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);
@@ -416,6 +417,7 @@ if(!class_exists('SUPER_Forms')) :
         }
         public static function add_custom_wc_my_account_menu_item_endpoint( $url, $endpoint, $value, $permalink ){
             $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);
@@ -1532,6 +1534,7 @@ if(!class_exists('SUPER_Forms')) :
             add_filter( 'woocommerce_account_menu_items', array( $this, 'add_custom_wc_my_account_menu_items' ), 10, 1 );
             add_filter( 'woocommerce_get_endpoint_url', array( $this, 'add_custom_wc_my_account_menu_item_endpoint' ), 10, 4 );
             $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);

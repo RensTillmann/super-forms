@@ -2078,7 +2078,10 @@ END AS paypalSubscriptionId
                             $global_settings = SUPER_Common::get_global_settings();
                             $entry_statuses = SUPER_Settings::get_entry_statuses($global_settings);
                             $wp_post_statuses = get_post_statuses();
-                            $wc_order_statuses = wc_get_order_statuses();
+                            $wc_order_statuses = array();
+                            if (function_exists('wc_get_order_statuses')) {
+                                $wc_order_statuses = wc_get_order_statuses();
+                            }
                             if(class_exists('SUPER_PayPal')) {
                                 $paypal_payment_statuses = SUPER_PayPal::$paypal_payment_statuses;
                             }
