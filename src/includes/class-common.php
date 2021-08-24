@@ -989,7 +989,10 @@ class SUPER_Common {
                 $error = error_get_last();
                 SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
             }
-            return array('folderPath' => $folderPath, 'folderName' => $folderName);
+            return array(
+                'folderPath' => $folderPath,
+                'folderName' => $folderName
+            );
         }
     }
 
@@ -1263,6 +1266,7 @@ class SUPER_Common {
             $_generated_pdf_file_url = '';
             if( isset( $data['_generated_pdf_file']['files'] ) ) {
                 foreach( $data['_generated_pdf_file']['files'] as $fk => $fv ) {
+                    if(!isset($fv['url'])) continue;
                     $_generated_pdf_file_label = esc_html($fv['label']);
                     $_generated_pdf_file_name = esc_html($fv['name']);
                     $linkUrl = esc_url($fv['url']);

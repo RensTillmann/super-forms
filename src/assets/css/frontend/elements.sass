@@ -1006,6 +1006,64 @@ textarea
   cursor: pointer
   z-index: -1
 
+.super-form
+  .super-fileupload-files
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    margin: auto
+    justify-content: flex-start
+    align-items: flex-start
+    > div
+      width: auto
+      margin: 0px 5px 5px 0px
+      display: flex
+      flex-direction: column
+      justify-content: center
+      align-items: center
+      width: 200px
+      overflow-wrap: anywhere
+      padding: 10px 0px 0px 0px
+      background-color: rgb(240,240,240)
+      border: 1px solid rgb(200,200,200)
+      .super-fileupload-image
+        max-width: 100px
+        display: flex
+        border: 1px solid rgb(169,169,169)
+      .super-fileupload-document
+        width: 50px
+        height: 50px
+        display: flex
+        justify-content: center
+        align-items: center
+        &:after
+          +fontAwesome(900)
+          content: unicode("f15b")
+          font-size: 43px
+      .super-fileupload-info
+        padding: 5px 10px 10px 10px
+        .super-fileupload-delete
+          padding: 0px 10px 0px 10px
+      &[data-type*="application/zip"],
+      &[data-type*="application/x-zip-compressed"],
+      &[data-type*="application/x-gzip"]
+        .super-fileupload-document
+          &:after
+            content: unicode("f1c6")
+      &[data-type*="application/msword"],
+      &[data-type*="application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
+        .super-fileupload-document
+          &:after
+            content: unicode("f1c2")
+      &[data-type*="application/vnd.ms-excel"]
+        .super-fileupload-document
+          &:after
+            content: unicode("f1c3")
+      &[data-type*="application/pdf"]
+        .super-fileupload-document
+          &:after
+            content: unicode("f1c1")
+
 .super-progress-bar
   float: left
   height: 4px
