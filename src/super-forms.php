@@ -443,7 +443,7 @@ if(!class_exists('SUPER_Forms')) :
         }
         public function rewrite_rules(){
             add_rewrite_rule( 
-                'sfgtfi/(.*)', // sfgtfi stands for "super forms get file"
+                'sfgtfi\/(.*)', // sfgtfi stands for "super forms get file"
                 'index.php?sfgtfi=$matches[1]', 
                 'top' 
             );
@@ -482,6 +482,43 @@ if(!class_exists('SUPER_Forms')) :
                 }
             }
         }
+
+        public static function filter_upload_dir($dirs){
+            if(!empty($GLOBALS['super_upload_dir'])){
+                return $GLOBALS['super_upload_dir'];
+            }
+            error_log('filter_upload_dir()');
+            $global_settings = SUPER_Common::get_global_settings();
+            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $global_settings = array_merge( $defaults, $global_settings );
+            $upload_folder = $global_settings['file_upload_dir'];
+            if(!isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders'])) {
+                $upload_folder = $global_settings['file_upload_dir'] . $dirs['subdir'];
+            }
+            $upload_dir = ABSPATH . $upload_folder;
+            $folderResult = SUPER_Common::generate_random_folder($upload_dir);
+            $upload_folder = $upload_folder . '/' . $folderResult['folderName'];
+            error_log($folderResult['folderName']);
+            $siteurl = get_option('siteurl');
+            $dirs['path'] = $folderResult['folderPath'];
+            $dirs['url'] = trailingslashit($siteurl) . $upload_folder;
+            $dirs['subdir'] = $upload_folder;
+            if(substr($upload_folder, 0, 1) !== '/') {
+                $dirs['subdir'] = '/'.$upload_folder;
+            }
+            $dirs['basedir'] = ABSPATH;
+            $dirs['baseurl'] = $siteurl;
+            return $dirs;
+        }
+        public static function filter_mime_types($mime_types){
+            // Add MS Word .doc files mime type to WordPress.
+            $mime_types['doc'] = 'application/msword'; // Adding .doc extension
+            // Add AI files mime type to WordPress.
+            //$mime_types['ai'] = 'application/pdf'; // Adding .ai extension
+            return $mime_types;
+        }
+
+
         public function parse_request( &$wp ) {
             if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
                 // Get settings
@@ -517,20 +554,23 @@ if(!class_exists('SUPER_Forms')) :
                     auth_redirect();
                 }
 
-                // File location e.g: 2020/05/29329832/file.jpg
-                $fileLocation = $wp->query_vars['sfgtfi'];
-                // Upload directory e.g: wp-content/uploads/superforms
-                // Get settings
-                $settings = SUPER_Common::get_form_settings(0);
-                // Default to super forms directory
-                $uploadPath = SUPER_FORMS_UPLOAD_DIR;
-                if(!empty($settings['file_upload_dir'])){
-                    // User defined directory
-                    $uploadPath = ABSPATH . $settings['file_upload_dir'];
-                }
-                $file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
+                // Example for public dir: wp-content/uploads/superforms
+                // Example for private dir: ../../my-private-folder/2021/08/29238139/file.jpg
+                $file = ABSPATH . str_replace('__/', '../', $wp->query_vars['sfgtfi']);
+                error_log($file);
+                error_log(wp_normalize_path($file));
+                //// Get settings
+                //$settings = SUPER_Common::get_form_settings(0);
+                //// Default to super forms directory
+                //$uploadPath = SUPER_FORMS_UPLOAD_DIR;
+                //if(!empty($settings['file_upload_dir'])){
+                //    // User defined directory
+                //    $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                //}
+                //$file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
                 $file = urldecode( $file );
-                if (!$uploadPath || !is_file($file)) {
+                error_log($file);
+                if(!is_file($file)) {
                     status_header(404);
                     exit;
                 }
@@ -2814,3 +2854,17 @@ if(!function_exists('SUPER_Forms')){
     // Global for backwards compatibility.
     $GLOBALS['super'] = SUPER_Forms();
 }
+
+if(!class_exists('SuperFormsUploadException')) :
+    class SuperFormsUploadException extends Exception {
+        public function __construct($code) {
+            $message = $this->codeToMessage($code);
+            parent::__construct($message, $code);
+        }
+        private function codeToMessage($code) {
+            var_dump($code);
+            exit;
+            return $message;
+        }
+    }
+endif;

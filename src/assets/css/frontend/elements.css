@@ -1208,6 +1208,64 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   z-index: -1;
 }
 
+.super-form .super-fileupload-files {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: auto;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.super-form .super-fileupload-files > div {
+  width: auto;
+  margin: 0px 5px 5px 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  overflow-wrap: anywhere;
+  padding: 10px 0px 0px 0px;
+  background-color: #f0f0f0;
+  border: 1px solid #c8c8c8;
+}
+.super-form .super-fileupload-files > div .super-fileupload-image {
+  max-width: 100px;
+  display: flex;
+  border: 1px solid darkgray;
+}
+.super-form .super-fileupload-files > div .super-fileupload-document {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.super-form .super-fileupload-files > div .super-fileupload-document:after {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f15b";
+  font-size: 43px;
+}
+.super-form .super-fileupload-files > div .super-fileupload-info {
+  padding: 5px 10px 10px 10px;
+}
+.super-form .super-fileupload-files > div .super-fileupload-info .super-fileupload-delete {
+  padding: 0px 10px 0px 10px;
+}
+.super-form .super-fileupload-files > div[data-type*="application/zip"] .super-fileupload-document:after, .super-form .super-fileupload-files > div[data-type*="application/x-zip-compressed"] .super-fileupload-document:after, .super-form .super-fileupload-files > div[data-type*="application/x-gzip"] .super-fileupload-document:after {
+  content: "\f1c6";
+}
+.super-form .super-fileupload-files > div[data-type*="application/msword"] .super-fileupload-document:after, .super-form .super-fileupload-files > div[data-type*="application/vnd.openxmlformats-officedocument.wordprocessingml.document"] .super-fileupload-document:after {
+  content: "\f1c2";
+}
+.super-form .super-fileupload-files > div[data-type*="application/vnd.ms-excel"] .super-fileupload-document:after {
+  content: "\f1c3";
+}
+.super-form .super-fileupload-files > div[data-type*="application/pdf"] .super-fileupload-document:after {
+  content: "\f1c1";
+}
+
 .super-progress-bar {
   float: left;
   height: 4px;

@@ -2183,13 +2183,14 @@
             $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload').trigger('click');
         });
         $doc.on('click', '.super-fileupload-delete', function(){
+            debugger;
             var $this = $(this);
             var $parent = $this.parents('.super-fileupload-files:eq(0)');
             var $wrapper = $parent.parents('.super-field-wrapper:eq(0)');
-            var total = $wrapper.children('.super-fileupload').data('total-file-sizes') - $this.parent().data('file-size');
+            var total = $wrapper.children('.super-fileupload').data('total-file-sizes') - $this.parents('div:eq(0)').data('file-size');
             $wrapper.children('.super-fileupload').data('total-file-sizes', total);
             $wrapper.children('input[type="hidden"]').val('');
-            $this.parent('div').remove();
+            $this.parents('div:eq(0)').remove();
         });
         
         // @since 1.2.4 - autosuggest text field

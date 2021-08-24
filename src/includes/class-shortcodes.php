@@ -3742,7 +3742,13 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= '<input tabindex="-1" class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" data-file-size="' . $atts['filesize'] . '" data-upload-limit="' . $atts['upload_limit'] . '" data-accept-file-types="' . $extensions . '" data-url="' . SUPER_PLUGIN_FILE . 'u/"';
+        $result .= '<input tabindex="-1" class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" ';
+        $result .= ' data-file-size="' . $atts['filesize'] . '"';
+        $result .= ' data-upload-limit="' . $atts['upload_limit'] . '"';
+        $result .= ' data-accept-file-types="' . $extensions . '"';
+        $result .= ' data-url="' . site_url() . '/?sfupload"';
+        //$result .= ' data-url="' . SUPER_PLUGIN_FILE . 'u/"';
+
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';

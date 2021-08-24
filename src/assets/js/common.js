@@ -26,6 +26,7 @@ if (!Element.prototype.closest) {
 }
 
 window.SUPER = {};
+SUPER.files = [];
 
 // reCaptcha
 SUPER.reCaptchaScriptLoaded = false;
@@ -508,12 +509,14 @@ function SUPERreCaptcha(){
 
     // @since 2.3.0 - init file upload fields
     SUPER.init_fileupload_fields = function(){
+        debugger;
         $('.super-fileupload:not(.super-rendered)').each(function() {
             $(this).addClass('super-rendered');
             $(this).fileupload({
                 filesContainer : $(this).find(".super-fileupload-files"),
                 dropZone : $(this).parent('.super-field-wrapper'),
                 add: function(e, data) {
+                    debugger;
                     var uploadErrors = [];
                     if(data.originalFiles[0].size > ($(this).data('file-size')*1000000) ) {
                         $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files').children('div[data-name="'+data.originalFiles[0].name+'"]').remove();
@@ -527,11 +530,13 @@ function SUPERreCaptcha(){
                 autoUpload: false,
                 maxFileSize: $(this).data('file-size')*1000000, // 5 MB
                 progressall: function (e, data) {
+                    debugger;
                     var progress = parseInt(data.loaded / data.total * 100, 10);
                     $(this).parent().children('.super-progress-bar').css('display','block').css('width', progress + '%');
                 }        
             }).on('fileuploaddone', function (e, data) {
                 $.each(data.result.files, function (index, file) {
+                    debugger;
                     if (file.error) {
                         var error = $('<span class="super-error"/>').text(' ('+file.error+')');
                         $(data.context.children()[index]).children('.super-error').remove();
@@ -543,9 +548,16 @@ function SUPERreCaptcha(){
                     }
                 });
             }).on('fileuploadadd', function (e, data) {
+                debugger;
+                var formId = 0;
+                var form = SUPER.get_frontend_or_backend_form({el: this});
+                if(form.querySelector('input[name="hidden_form_id"]')){
+                    formId = form.querySelector('input[name="hidden_form_id"]').value;
+                }
                 $(this).removeClass('finished');
                 $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div.error').remove();
                 data.context = $('<div/>').appendTo($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files'));
+                var fieldName = $(this).parents('.super-field-wrapper:eq(0)').find('.super-active-files').attr("name");
                 var el = $(this);
                 var accepted_file_types = el.data('accept-file-types');
                 var file_types_object = accepted_file_types.split('|');
@@ -554,6 +566,7 @@ function SUPERreCaptcha(){
                 var upload_limit = $(this).data('upload-limit')*1000000; // e.g: 20 MB
 
                 $.each(data.files, function (index, file) {
+                    debugger;
                     var total = el.data('total-file-sizes');
                     if(typeof total === 'undefined'){
                         total = file.size;
@@ -563,12 +576,47 @@ function SUPERreCaptcha(){
                     if( (total>upload_limit) && (upload_limit!==0) ) {
                         alert(super_common_i18n.errors.file_upload.upload_limit_reached);
                     }else{
+                        debugger;
                         var ext = file.name.split('.').pop();
                         if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
                             data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
-                            data.context.data(data).attr('data-name',file.name).html('<span class="super-fileupload-name">'+file.name+'</span><span class="super-fileupload-delete"></span>');
+                            debugger;
+                            if(typeof SUPER.files[formId] === 'undefined'){
+                                SUPER.files[formId] = [];
+                            }
+                            if(typeof SUPER.files[formId][fieldName] === 'undefined'){
+                                SUPER.files[formId][fieldName] = [];
+                            }
+                            if(file.type && file.type.indexOf("image/") === 0){
+                                var src = URL.createObjectURL(file)
+                            }
+                            var totalFiles = SUPER.files[formId][fieldName].length;
+                            SUPER.files[formId][fieldName][totalFiles] = file; //SUPER.files[formId][totalFiles] = file;
+                            var html = '';
+                            if(file.type && file.type.indexOf("image/") === 0){
+                                html += '<span class="super-fileupload-image super-file-type-'+file.type.replace('/','-')+'">';
+                                    html += '<img src="'+src+'" />';
+                                html += '</span>';
+                            }else{
+                                html += '<span class="super-fileupload-document super-file-type-'+file.type.replace('/','-')+'"></span>';
+                            }
+                            html += '<span class="super-fileupload-info">';
+                                // Truncate file if it's too long
+                                var split = file.name.split('.');
+                                var filename = split[0];
+                                if (filename.length > 10) filename = filename.substring(0, 10)+'...';
+                                html += '<span class="super-fileupload-name">'+filename+'.'+ext+'</span>';
+                                html += '<span class="super-fileupload-delete"></span>';
+                            html += '</span>';
+                            data.context.data(data).attr('data-name',file.name).attr('title',file.name).attr('data-type',file.type).html(html);
                             data.context.data('file-size',file.size);
+                            if(data.context[0].querySelector('img')){
+                                var img = data.context[0].querySelector('img');
+                                img.onload = function(){
+                                    URL.revokeObjectURL(img.src); // free memory
+                                }
+                            }
                         }else{
                             data.context.remove();
                             alert(super_common_i18n.errors.file_upload.incorrect_file_extension);
@@ -576,6 +624,7 @@ function SUPERreCaptcha(){
                     }
                 });
             }).on('fileuploadprocessalways', function (e, data) {
+                debugger;
                 var index = data.index;
                 var file = data.files[index];
                 if (file.error) {
@@ -583,6 +632,7 @@ function SUPERreCaptcha(){
                     alert(file.error);
                 }
             }).on('fileuploadfail', function (e, data) {
+                debugger;
                 var el = e.target;
                 var form = el.closest('.super-form');
                 SUPER.handle_errors(el);
@@ -596,6 +646,7 @@ function SUPERreCaptcha(){
                 SUPER.handle_validations({el: el, form: form});
                 SUPER.scrollToError(form);
             }).on('fileuploadsubmit', function (e, data) {
+                debugger;
                 data.formData = {
                     'accept_file_types': $(this).data('accept-file-types'),
                     'max_file_size': $(this).data('file-size')*1000000,
@@ -1937,83 +1988,63 @@ function SUPERreCaptcha(){
             // Update processing state
             if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         }
-        $.ajax({
-            url: super_common_i18n.ajaxurl,
-            type: 'post',
-            data: {
-                action: 'super_submit_form',
-                super_ajax_nonce: args.super_ajax_nonce,
-                data: args.data,
-                form_id: args.form_id,
-                entry_id: args.entry_id,
-                list_id: args.list_id,
-                token: args.token,
-                version: args.version,
-                i18n: args.form.data('i18n') // @since 4.7.0 translation
-            },
-            xhr: function() {
-                var xhr = new window.XMLHttpRequest();
-                if(args.showOverlay==="true"){
-                    xhr.upload.addEventListener("progress", function(evt) {
-                        if (evt.lengthComputable) {
-                            var percentComplete = evt.loaded / evt.total;
-                            //Do something with upload progress here
-                            if(args.pdfArgs!==false){
-                                if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-                            }else{
-                                if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-                            }
-                        }
-                    }, false);
-                }
-                return xhr;
-            },
-            success: function(result){
-                result = JSON.parse(result);
-                if(result.error===true){
-                    // Display error message
-                    SUPER.form_submission_finished(args, result);
-                }else{
-                    // Clear form progression (if enabled)
-                    if( args.form[0].classList.contains('super-save-progress') ) {
-                        $.ajax({
-                            url: super_common_i18n.ajaxurl,
-                            type: 'post',
-                            data: {
-                                action: 'super_save_form_progress',
-                                data: '',
-                                form_id: args.form_id
-                            }
-                        });
-                    }
-                    // Trigger js hook and continue
-                    SUPER.after_email_send_hook(args);
-                    // If a hook is redirecting we should avoid doing other things
-                    if(args.form.data('is-redirecting')){
-                        // However if a hook is doing things in the back-end, we must check until finished
-                        if(args.form.data('is-doing-things')){
-                            clearInterval(SUPER.submit_form_interval);
-                            SUPER.submit_form_interval = setInterval(function(){
-                                if(args.form.data('is-doing-things')){
-                                    // Still doing things...
-                                }else{
-                                    clearInterval(SUPER.submit_form_interval);
-                                    // Form submission is finished
-                                    SUPER.form_submission_finished(args, result);
-                                }
-                            }, 100);
-                        }
-                        return false; // Stop here, we are redirecting the form (used by Stripe)
-                    }
 
-                    // @since 2.2.0 - custom form POST method
-                    if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
-                        args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
-                        return false;
-                    }
-                    // Form submission is finished
-                    SUPER.form_submission_finished(args, result);
+        // add assoc key values, this will be posts values
+        //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div');
+        //for( var i = 0; i < nodes.length; i++) {
+        //    var name = nodes[i].dataset.name;
+        //    var src = nodes[i].querySelector('img').src;
+        //    var objectURL = URL.createObjectURL(src)
+        //    formData.append("file", objectURL, name);
+
+        //    //console.log(nodes[i]);
+        //    //var file = nodes[i].files[0];
+        //    //var fileName = nodes[i].files[0].name;
+        //    ////file.type; file.size; file.name;
+        //}
+
+        debugger;
+        var formData = new FormData();
+        var files = SUPER.files[args.form_id];
+        if(files){
+            Object.keys(files).forEach(function(i) {
+                debugger;
+                for( var x = 0; x < files[i].length; x++){
+                    formData.append('files['+i+']['+x+']', files[i][x]); //files[i].file //files[i].src //files[i].name //files[i].size //files[i].type
                 }
+            });
+        }
+        formData.append('action', 'super_submit_form');
+        if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
+        if(args.data) formData.append('data', JSON.stringify(args.data));
+        if(args.form_id) formData.append('form_id', args.form_id);
+        if(args.entry_d) formData.append('entry_id', args.entry_id);
+        if(args.list_id) formData.append('list_id', args.list_id);
+        if(args.token) formData.append('token', args.token);
+        if(args.version) formData.append('version', args.version);
+        formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
+
+        $.ajax({
+            type: 'post',
+            //url: "?sfupload",
+            url: super_common_i18n.ajaxurl,
+            data: formData,
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false,
+            timeout: 60000, // 1m
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    //myXhr.upload.addEventListener('progress', that.progressHandling, false);
+                }
+                return myXhr;
+            },
+            success: function (data) {
+                // your callback here
+                debugger;
+                console.log(data);
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 // eslint-disable-next-line no-console
@@ -2021,6 +2052,183 @@ function SUPERreCaptcha(){
                 alert('Failed to process data, please try again');
             }
         });
+        
+        //Upload.prototype.progressHandling = function (event) {
+        //    var percent = 0;
+        //    var position = event.loaded || event.position;
+        //    var total = event.total;
+        //    var progress_bar_id = "#progress-wrp";
+        //    if (event.lengthComputable) {
+        //        percent = Math.ceil(position / total * 100);
+        //    }
+        //    // update progressbars classes so it fits your code
+        //    $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
+        //    $(progress_bar_id + " .status").text(percent + "%");
+        //};
+
+
+
+
+
+        //var xhttp = new XMLHttpRequest();
+        //xhttp.onreadystatechange = function () {
+        //    if (this.readyState == 4) {
+        //        if (this.status == 200) {
+        //            // Success:
+        //        }
+        //        // Complete:
+        //    }
+        //};
+        //xhttp.onerror = function () {
+        //    console.log(this);
+        //    console.log("** An error occurred during the transaction");
+        //};
+        //xhttp.open("POST", super_common_i18n.ajaxurl, true);
+        //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        //var params = {
+        //    action: 'super_submit_form',
+        //    super_ajax_nonce: args.super_ajax_nonce,
+        //    data: args.data,
+        //    files: args.files,
+        //    form_id: args.form_id,
+        //    entry_id: args.entry_id,
+        //    list_id: args.list_id,
+        //    token: args.token,
+        //    version: args.version,
+        //    i18n: args.form.data('i18n') // @since 4.7.0 translation
+        //};
+        //params = $.param(params);
+        //xhttp.send(params);
+        
+        //var formData = new FormData()
+        //formData.append('action', 'super_submit_form');
+        //formData.append('super_ajax_nonce', args.super_ajax_nonce);
+        //formData.append('data', args.data);
+        //formData.append('form_id', args.form_id);
+        //formData.append('entry_id', args.entry_id);
+        //formData.append('list_id', args.list_id);
+        //formData.append('token', args.token);
+        //formData.append('version', args.version);
+        //formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
+
+        //var dataURL = canvas.toDataURL('image/jpeg', 1.0)
+        //var blob = dataURItoBlob(dataURL)
+        //var formData = new FormData()
+        //formData.append('access_token', token)
+        //formData.append('source', blob)
+
+        //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+        //var $files = [];
+        //for( var i = 0; i < nodes.length; i++) {
+        //    $files.push($(nodes[i]).data());
+        //    //args.files.submit();
+        //}
+        //formData.append('files', $files);
+        //$.ajax({
+        //    url: super_common_i18n.ajaxurl,
+        //    type: 'post',
+        //    data: formData,
+        //    processData: false,
+        //    contentType: false,
+        //    success: function(data) {
+        //        console.log(data);
+        //    }
+        //});
+        // debugger;
+        // var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+        // var $files = [];
+        // for( var i = 0; i < nodes.length; i++) {
+        //     $files.push($(nodes[i]).data());
+        //     //args.files.submit();
+        // }
+        // var filesData = new FormData()
+        // filesData.append('files', $files);
+
+        // $.ajax({
+        //     url: super_common_i18n.ajaxurl,
+        //     type: 'post',
+        //     data: {
+        //         action: 'super_submit_form',
+        //         super_ajax_nonce: args.super_ajax_nonce,
+        //         data: args.data,
+        //         files: args.files,
+        //         form_id: args.form_id,
+        //         entry_id: args.entry_id,
+        //         list_id: args.list_id,
+        //         token: args.token,
+        //         version: args.version,
+        //         i18n: args.form.data('i18n') // @since 4.7.0 translation
+        //     },
+        //     xhr: function() {
+        //         var xhr = new window.XMLHttpRequest();
+        //         if(args.showOverlay==="true"){
+        //             xhr.upload.addEventListener("progress", function(evt) {
+        //                 if (evt.lengthComputable) {
+        //                     var percentComplete = evt.loaded / evt.total;
+        //                     //Do something with upload progress here
+        //                     if(args.pdfArgs!==false){
+        //                         if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+        //                     }else{
+        //                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+        //                     }
+        //                 }
+        //             }, false);
+        //         }
+        //         return xhr;
+        //     },
+        //     success: function(result){
+        //         result = JSON.parse(result);
+        //         if(result.error===true){
+        //             // Display error message
+        //             SUPER.form_submission_finished(args, result);
+        //         }else{
+        //             // Clear form progression (if enabled)
+        //             if( args.form[0].classList.contains('super-save-progress') ) {
+        //                 $.ajax({
+        //                     url: super_common_i18n.ajaxurl,
+        //                     type: 'post',
+        //                     data: {
+        //                         action: 'super_save_form_progress',
+        //                         data: '',
+        //                         form_id: args.form_id
+        //                     }
+        //                 });
+        //             }
+        //             // Trigger js hook and continue
+        //             SUPER.after_email_send_hook(args);
+        //             // If a hook is redirecting we should avoid doing other things
+        //             if(args.form.data('is-redirecting')){
+        //                 // However if a hook is doing things in the back-end, we must check until finished
+        //                 if(args.form.data('is-doing-things')){
+        //                     clearInterval(SUPER.submit_form_interval);
+        //                     SUPER.submit_form_interval = setInterval(function(){
+        //                         if(args.form.data('is-doing-things')){
+        //                             // Still doing things...
+        //                         }else{
+        //                             clearInterval(SUPER.submit_form_interval);
+        //                             // Form submission is finished
+        //                             SUPER.form_submission_finished(args, result);
+        //                         }
+        //                     }, 100);
+        //                 }
+        //                 return false; // Stop here, we are redirecting the form (used by Stripe)
+        //             }
+
+        //             // @since 2.2.0 - custom form POST method
+        //             if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
+        //                 args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
+        //                 return false;
+        //             }
+        //             // Form submission is finished
+        //             SUPER.form_submission_finished(args, result);
+        //         }
+        //     },
+        //     error: function (xhr, ajaxOptions, thrownError) {
+        //         // eslint-disable-next-line no-console
+        //         console.log(xhr, ajaxOptions, thrownError);
+        //         alert('Failed to process data, please try again');
+        //     }
+        // });
     };
 
 
@@ -2780,11 +2988,13 @@ function SUPERreCaptcha(){
             }
         }
         nodes = args.form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+        debugger;
         for( i = 0; i < nodes.length; i++) {
             args.data = $(nodes[i]).data();
             args.data.submit();
         }
         $(args.form).find('.super-fileupload').on('fileuploaddone', function (e, data) {
+            debugger;
             $this = $(this);
             wrapper = $this.parents('.super-field-wrapper:eq(0)');
             field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
@@ -2827,9 +3037,11 @@ function SUPERreCaptcha(){
                 clearInterval(interval);
                 SUPER.init_fileupload_fields();
                 $(args.form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
+                debugger;
                 args.data = SUPER.prepare_form_data($(args.form));
                 args.callback = function(){
                     setTimeout(function() {
+                        debugger;
                         SUPER.complete_submit(args);
                     }, 1000);
                 };
@@ -3279,14 +3491,14 @@ function SUPERreCaptcha(){
                 data: SUPER.prepare_form_data($(args.form)),
                 oldHtml: oldHtml,
             };
-            if (args.form.querySelectorAll('.super-fileupload-files > div').length !== 0) {
-                SUPER.upload_files(args);
-            }else{
+            //if (args.form.querySelectorAll('.super-fileupload-files > div').length !== 0) {
+            //    SUPER.upload_files(args);
+            //}else{
                 args.callback = function(){
                     SUPER.complete_submit(args);
                 };
                 SUPER.before_submit_hook(args);
-            }
+            //}
         }else{
             SUPER.scrollToError(args.form, args.validateMultipart);
         }
@@ -3688,7 +3900,7 @@ function SUPERreCaptcha(){
             }else{
                 if($this.hasClass('super-fileupload')){
                     $parent = $this.parents('.super-field-wrapper:eq(0)');
-                    $field = $parent.find('.super-active-files');                
+                    $field = $parent.find('.super-active-files');
                     $files = $parent.find('.super-fileupload-files > div');
                     $data[$field.attr('name')] = {
                         'label':$field.data('email'),
@@ -4504,7 +4716,6 @@ function SUPERreCaptcha(){
             }
         }, timeout );
     }
-    SUPER.google_maps_api.allMaps = [];
     // @since 3.5.0 - function for intializing google maps elements
     SUPER.google_maps_api.allMaps = [];
     SUPER.google_maps_api.initMaps = function(args){
@@ -6291,11 +6502,30 @@ function SUPERreCaptcha(){
                             }
                             element = form.querySelector('.super-active-files[name="'+fv.name+'"]');
                             field = element.closest('.super-field');     
-                            html += '<div data-name="'+fv.value+'" class="super-uploaded"';
+                            html += '<div data-name="'+fv.value+'" class="super-uploaded" title="'+fv.value+'"';
                             html += ' data-url="'+fv.url+'"';
-                            html += ' data-thumburl="'+fv.thumburl+'">';
-                            html += '<span class="super-fileupload-name"><a href="'+fv.url+'" target="_blank">'+fv.value+'</a></span>';
-                            html += '<span class="super-fileupload-delete"></span>';
+                            if(fv.type){
+                                html += ' data-type="'+fv.type+'"';
+                            }
+                            html += '>';
+                                if(fv.type && fv.type.indexOf("image/") === 0){
+                                    html += '<span class="super-fileupload-image super-file-type-'+fv.type.replace('/','-')+'">';
+                                        html += '<img src="'+fv.url+'" />';
+                                    html += '</span>';
+                                }else{
+                                    html += '<span class="super-fileupload-document super-file-type-'+fv.type.replace('/','-')+'"></span>';
+                                }
+                                html += '<span class="super-fileupload-info">';
+                                    html += '<span class="super-fileupload-name">';
+                                        // Truncate file if it's too long
+                                        var split = fv.value.split('.');
+                                        var filename = split[0];
+                                        var ext = split[1];
+                                        if (filename.length > 10) filename = filename.substring(0, 10)+'...';
+                                        html += '<a href="'+fv.url+'" target="_blank">'+filename+'.'+ext+'</a>';
+                                    html += '</span>';
+                                    html += '<span class="super-fileupload-delete"></span>';
+                                html += '</span>';
                             html += '</div>';
                         });
                         element.value = files;
