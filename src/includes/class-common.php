@@ -980,7 +980,7 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        $folderName = rand( 100000000, 999999999 );
+        $folderName = rand( 1000000000000, 9999999999999 );
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
@@ -1959,6 +1959,7 @@ class SUPER_Common {
                             // 3 = Exclude from admin email
                             if( $v['exclude']!=2 ) {
                                 // Get either URL or Secure file path
+                                $fileValue = '';
                                 if(!empty($value['attachment'])){
                                     $fileValue = $value['url'];
                                 }else{

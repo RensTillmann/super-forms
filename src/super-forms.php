@@ -553,33 +553,46 @@ if(!class_exists('SUPER_Forms')) :
                 if($auth===false){
                     auth_redirect();
                 }
-
-                // Example for public dir: wp-content/uploads/superforms
-                // Example for private dir: ../../my-private-folder/2021/08/29238139/file.jpg
-                $file = ABSPATH . str_replace('__/', '../', $wp->query_vars['sfgtfi']);
-                error_log($file);
-                error_log(wp_normalize_path($file));
-                //// Get settings
-                //$settings = SUPER_Common::get_form_settings(0);
-                //// Default to super forms directory
-                //$uploadPath = SUPER_FORMS_UPLOAD_DIR;
-                //if(!empty($settings['file_upload_dir'])){
-                //    // User defined directory
-                //    $uploadPath = ABSPATH . $settings['file_upload_dir'];
-                //}
-                //$file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
-                $file = urldecode( $file );
-                error_log($file);
-                if(!is_file($file)) {
-                    status_header(404);
-                    exit;
+                $fileLocation = $wp->query_vars['sfgtfi'];
+                // Check if this file was uploaded via the new file upload system (v5.0.0+)
+                // This is true if the subdir is 13 digits long
+                $new = false;
+                $re = '/[0-9]{13}\/.*\..*/m';
+                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
+                if($matches) $new = true;
+                $re = '/[0-9]{4}\/[0-9]{2}\/[0-9]{13}\/.*\..*/m';
+                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
+                if($matches) $new = true;
+                if($new){
+                    // Was uploaded with the new file upload system...
+                    $file = ABSPATH . str_replace('__/', '../', $wp->query_vars['sfgtfi']);
+                    $file = urldecode(urlencode($file));
+                    if(!is_file($file)) {
+                        status_header(404);
+                        exit;
+                    }
+                }else{
+                    // Get settings
+                    $settings = SUPER_Common::get_form_settings(0);
+                    // Default to super forms directory
+                    $uploadPath = SUPER_FORMS_UPLOAD_DIR;
+                    if(!empty($settings['file_upload_dir'])){
+                        // User defined directory
+                        $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                    }
+                    $file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
+                    $file = urldecode( $file );
+                    if (!$uploadPath || !is_file($file)) {
+                        status_header(404);
+                        exit;
+                    }
                 }
                 $mime = wp_check_filetype($file);
                 if( false === $mime[ 'type' ] && function_exists( 'mime_content_type' ) ) {
                     $mime[ 'type' ] = mime_content_type( $file );
                 }
-                if( $mime[ 'type' ] ) {
-                    $mimetype = $mime[ 'type' ];
+                if($mime['type']) {
+                    $mimetype = $mime['type'];
                 }else{
                     $mimetype = 'image/' . substr( $file, strrpos( $file, '.' ) + 1 );
                 }

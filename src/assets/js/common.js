@@ -1,5 +1,4 @@
 /* globals jQuery, SUPER, grecaptcha, super_common_i18n, ajaxurl, IBAN, tinyMCE, google, quicktags */
-
 "use strict";
 
 // polyfill remove() ie9 and above
@@ -149,6 +148,284 @@ function SUPERreCaptcha(){
         // eslint-disable-next-line no-console
         console.log($log);
     };
+
+    // Submit the form
+    SUPER.complete_submit = function(args){
+        // If form has g-recaptcha element
+        if(($(args.form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
+            grecaptcha.ready(function(){
+                grecaptcha.execute($(args.form).find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function(token){
+                    args.token = token;
+                    SUPER.create_ajax_request(args);
+                });
+            });
+        }else{
+            SUPER.create_ajax_request(args);
+        }
+    };
+    // Send form submission through ajax request
+    SUPER.create_ajax_request = function(args){
+        var json_data;
+        args.form = $(args.form);
+        args.form0 = args.form[0];
+        args.form_id = args.data.form_id;
+        args.entry_id = args.data.entry_id;
+        args.list_id = args.data.list_id;
+        args.showOverlay = args.form0.dataset.overlay;
+
+        // @since 1.3
+        args.data = SUPER.after_form_data_collected_hook(args.data.data);
+
+        // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
+        args.data.super_hp = args.form.find('input[name="super_hp"]').val();
+        if(args.data.super_hp!==''){
+            return false;
+        }
+
+        // @since 4.6.0 - Send ajax nonce
+        args.super_ajax_nonce = args.form.find('input[name="super_ajax_nonce"]').val();
+
+        // @since 2.9.0 - json data POST
+        json_data = JSON.stringify(args.data);
+        args.form.find('textarea[name="json_data"]').val(json_data);
+
+        if(typeof args.token === 'undefined'){
+            if(args.form.find('.super-recaptcha:not(.g-recaptcha)').length!==0){
+                args.version = 'v2';
+                args.token = args.form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
+            }
+        }else{
+            args.version = 'v3';
+        }
+        // Create loader overlay
+        args = SUPER.createLoadingOverlay(args);
+        args.callback = function(){
+            SUPER.submit_form(args);
+        };
+        SUPER.before_email_send_hook(args);
+    };
+    SUPER.createLoadingOverlay = function(args){
+        args.loadingOverlay = document.createElement('div');
+        var html = '';
+        html += '<div class="super-loading-wrapper">';
+            html += '<div class="super-close"></div>';
+            html += '<div class="super-loading-text">';
+                html += '<div class="super-custom-el1"></div>';
+                html += '<div class="super-inner-text"></div>';
+                html += '<div class="super-progress">';
+                    html += '<div class="super-progress-bar"></div>';
+                html += '</div>';
+                html += '<div class="super-custom-el2"></div>';
+            html += '</div>';
+        html += '</div>';
+        args.loadingOverlay.innerHTML = html;
+        args.loadingOverlay.classList.add('super-loading-overlay');
+        args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
+        args.loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
+        if(args.showOverlay==="true"){
+            document.body.appendChild(args.loadingOverlay);
+        }
+        // Close modal (should also reset pdf generation)
+        var closeBtn = args.loadingOverlay.querySelector('.super-close');
+        if(closeBtn){
+            closeBtn.addEventListener('click', function(){
+                // Close overlay
+                SUPER.close_loading_overlay(args.loadingOverlay);
+            });
+        }
+        args.progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
+        return args;
+    };
+    SUPER.submit_form = function(args){
+        var result;
+        args.files = SUPER.files[args.form_id];
+        if(args.files){
+            args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>Uploading files...</span>';
+            SUPER.upload_files(args, function(args){
+                console.log('process_form_data(1)');
+                SUPER.process_form_data(args, function(){
+                    console.log('process_form_data(2)');
+                });
+            });
+        }else{
+            SUPER.process_form_data(args, function(){
+            });
+        }
+        console.log(result);
+    };
+    SUPER.get_single_uploaded_file_html = function(withoutHeader, uploaded, html, fileName, fileType, fileUrl){
+        debugger;
+        var classes = '';
+        if(uploaded) classes = ' class="super-uploaded"';
+        if(withoutHeader) {
+            // We do not want a header
+        }else{
+            html += '<div data-name="'+fileName+'" title="'+fileName+'" data-type="'+fileType+'"'+classes+'" data-url="'+fileUrl+'">';
+        }
+        if(fileType && fileType.indexOf("image/") === 0){
+            html += '<span class="super-fileupload-image super-file-type-'+fileType.replace('/','-')+'">';
+                html += '<img src="'+fileUrl+'" />';
+            html += '</span>';
+        }else{
+            html += '<span class="super-fileupload-document super-file-type-'+fileType.replace('/','-')+'"></span>';
+        }
+        html += '<span class="super-fileupload-info">';
+            // Truncate file if it's too long
+            var split = fileName.split('.');
+            var filename = split[0];
+            var ext = split[1];
+            if (filename.length > 10) filename = filename.substring(0, 10)+'...';
+            if(uploaded){
+                html += '<a href="'+fileUrl+'" target="_blank">'+filename+'.'+ext+'</a>';
+            }else{
+                html += '<span class="super-fileupload-name">'+filename+'.'+ext+'</span>';
+                html += '<span class="super-fileupload-delete"></span>';
+            }
+        html += '</span>';
+        if(withoutHeader) {
+            // We do not want a header
+        }else{
+            html += '</div>';
+        }
+        return html;
+    }
+    // Upload files
+    SUPER.upload_files = function(args, callback){
+        args._process_form_data_callback = callback;
+        args.formData = new FormData();
+        Object.keys(args.files).forEach(function(i) {
+            for( var x = 0; x < args.files[i].length; x++){
+                args.formData.append('files['+i+']['+x+']', args.files[i][x]); // holds: file, src, name, size, type
+            }
+        });
+        args.formData.append('action', 'super_upload_files');
+        if(args.form_id) args.formData.append('form_id', args.form_id);
+        if(args.entry_d) args.formData.append('entry_id', args.entry_id);
+        if(args.list_id) args.formData.append('list_id', args.list_id);
+        if(args.token) args.formData.append('token', args.token);
+        if(args.version) args.formData.append('version', args.version);
+        $.ajax({
+            type: 'post',
+            url: super_common_i18n.ajaxurl,
+            data: args.formData,
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false,
+            timeout: 60000, // 1m
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                if(args.showOverlay==="true"){
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress here
+                            if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+                        }
+                    }, false);
+                }
+                return xhr;
+            },
+            success: function(result){
+                result = JSON.parse(result);
+                if(result.error===true){
+                    // Display error message
+                    SUPER.form_submission_finished(args, result);
+                }else{
+                    debugger;
+                    // Loop over files and update src for each image
+                    // We do not have to do this for other file types
+                    var i, html, activeFiles, fieldWrapper, filesWrapper, field, file, files = result;
+                    Object.keys(files).forEach(function(fieldName) {
+                        debugger;
+                        field = files[fieldName];
+                        activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
+                        if(!activeFiles) return true; // continue to next field
+                        fieldWrapper = activeFiles.closest('.super-field-wrapper');
+                        if(!fieldWrapper) return true; // continue to next field
+                        filesWrapper = fieldWrapper.querySelector('.super-fileupload-files');
+                        if(!filesWrapper) return true; // continue to next field
+                        console.log(filesWrapper);
+                        html = '';
+                        for(i=0; i<field.files.length; i++){
+                            file = field.files[i];
+                            html += SUPER.get_single_uploaded_file_html(false, false, html, file.value, file.type, file.url);
+                            if(args.data[fieldName]){
+                                args.data[fieldName]['files'][i]['value'] = file.value;
+                                args.data[fieldName]['files'][i]['type'] = file.type;
+                                args.data[fieldName]['files'][i]['url'] = file.url;
+                                if(file.subdir) {
+                                    args.data[fieldName]['files'][i]['subdir'] = file.subdir;
+                                }
+                                if(file.attachment) {
+                                    args.data[fieldName]['files'][i]['attachment'] = file.attachment;
+                                }
+                            }
+                        }
+                        filesWrapper.innerHTML = html;
+                    });
+                    // Now process form data
+                    args._process_form_data_callback(args);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Failed to process data, please try again');
+            }
+        });
+    }
+    SUPER.process_form_data = function(args){
+        console.log('process_form_data(3)');
+        args.generatePdf = false;
+        args.pdfSettings = null;
+        if( typeof SUPER.form_js !== 'undefined' && 
+            typeof SUPER.form_js[args.form_id] !== 'undefined' && 
+            typeof SUPER.form_js[args.form_id]._pdf !== 'undefined' && 
+            SUPER.form_js[args.form_id]._pdf.generate === "true" ) {
+                args.generatePdf = true;
+                args.pdfSettings = SUPER.form_js[args.form_id]._pdf;
+                args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+        }else{
+            // In case we are in back-end preview mode
+            if( typeof SUPER.get_form_settings === 'function' && 
+                typeof SUPER.get_form_settings()._pdf !== 'undefined' && 
+                SUPER.get_form_settings()._pdf.generate === "true" ) {
+                    args.generatePdf = true;
+                    args.pdfSettings = SUPER.get_form_settings()._pdf;
+                    args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+            }
+        }
+        if(args.generatePdf){
+            SUPER.pdf_generator_init(args, function(){
+                SUPER.save_data(args, function(){
+                    // Done.
+                });
+            });
+        }else{
+            SUPER.save_data(args, function(){
+                // Done.
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // Focus form
     SUPER.focusForm = function(target){
@@ -509,14 +786,12 @@ function SUPERreCaptcha(){
 
     // @since 2.3.0 - init file upload fields
     SUPER.init_fileupload_fields = function(){
-        debugger;
         $('.super-fileupload:not(.super-rendered)').each(function() {
             $(this).addClass('super-rendered');
             $(this).fileupload({
                 filesContainer : $(this).find(".super-fileupload-files"),
                 dropZone : $(this).parent('.super-field-wrapper'),
                 add: function(e, data) {
-                    debugger;
                     var uploadErrors = [];
                     if(data.originalFiles[0].size > ($(this).data('file-size')*1000000) ) {
                         $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files').children('div[data-name="'+data.originalFiles[0].name+'"]').remove();
@@ -530,13 +805,11 @@ function SUPERreCaptcha(){
                 autoUpload: false,
                 maxFileSize: $(this).data('file-size')*1000000, // 5 MB
                 progressall: function (e, data) {
-                    debugger;
                     var progress = parseInt(data.loaded / data.total * 100, 10);
                     $(this).parent().children('.super-progress-bar').css('display','block').css('width', progress + '%');
                 }        
             }).on('fileuploaddone', function (e, data) {
                 $.each(data.result.files, function (index, file) {
-                    debugger;
                     if (file.error) {
                         var error = $('<span class="super-error"/>').text(' ('+file.error+')');
                         $(data.context.children()[index]).children('.super-error').remove();
@@ -548,7 +821,6 @@ function SUPERreCaptcha(){
                     }
                 });
             }).on('fileuploadadd', function (e, data) {
-                debugger;
                 var formId = 0;
                 var form = SUPER.get_frontend_or_backend_form({el: this});
                 if(form.querySelector('input[name="hidden_form_id"]')){
@@ -566,7 +838,6 @@ function SUPERreCaptcha(){
                 var upload_limit = $(this).data('upload-limit')*1000000; // e.g: 20 MB
 
                 $.each(data.files, function (index, file) {
-                    debugger;
                     var total = el.data('total-file-sizes');
                     if(typeof total === 'undefined'){
                         total = file.size;
@@ -576,12 +847,10 @@ function SUPERreCaptcha(){
                     if( (total>upload_limit) && (upload_limit!==0) ) {
                         alert(super_common_i18n.errors.file_upload.upload_limit_reached);
                     }else{
-                        debugger;
                         var ext = file.name.split('.').pop();
                         if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
                             data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
-                            debugger;
                             if(typeof SUPER.files[formId] === 'undefined'){
                                 SUPER.files[formId] = [];
                             }
@@ -593,22 +862,7 @@ function SUPERreCaptcha(){
                             }
                             var totalFiles = SUPER.files[formId][fieldName].length;
                             SUPER.files[formId][fieldName][totalFiles] = file; //SUPER.files[formId][totalFiles] = file;
-                            var html = '';
-                            if(file.type && file.type.indexOf("image/") === 0){
-                                html += '<span class="super-fileupload-image super-file-type-'+file.type.replace('/','-')+'">';
-                                    html += '<img src="'+src+'" />';
-                                html += '</span>';
-                            }else{
-                                html += '<span class="super-fileupload-document super-file-type-'+file.type.replace('/','-')+'"></span>';
-                            }
-                            html += '<span class="super-fileupload-info">';
-                                // Truncate file if it's too long
-                                var split = file.name.split('.');
-                                var filename = split[0];
-                                if (filename.length > 10) filename = filename.substring(0, 10)+'...';
-                                html += '<span class="super-fileupload-name">'+filename+'.'+ext+'</span>';
-                                html += '<span class="super-fileupload-delete"></span>';
-                            html += '</span>';
+                            var html = SUPER.get_single_uploaded_file_html(true, false, '', file.name, file.type, src);
                             data.context.data(data).attr('data-name',file.name).attr('title',file.name).attr('data-type',file.type).html(html);
                             data.context.data('file-size',file.size);
                             if(data.context[0].querySelector('img')){
@@ -624,7 +878,6 @@ function SUPERreCaptcha(){
                     }
                 });
             }).on('fileuploadprocessalways', function (e, data) {
-                debugger;
                 var index = data.index;
                 var file = data.files[index];
                 if (file.error) {
@@ -632,7 +885,6 @@ function SUPERreCaptcha(){
                     alert(file.error);
                 }
             }).on('fileuploadfail', function (e, data) {
-                debugger;
                 var el = e.target;
                 var form = el.closest('.super-form');
                 SUPER.handle_errors(el);
@@ -646,7 +898,6 @@ function SUPERreCaptcha(){
                 SUPER.handle_validations({el: el, form: form});
                 SUPER.scrollToError(form);
             }).on('fileuploadsubmit', function (e, data) {
-                debugger;
                 data.formData = {
                     'accept_file_types': $(this).data('accept-file-types'),
                     'max_file_size': $(this).data('file-size')*1000000,
@@ -1946,349 +2197,432 @@ function SUPERreCaptcha(){
         return args.value;
     };
 
+    // File upload handler
+    // temp disabled SUPER.upload_files = function(args, files, formData, callback){
+    // temp disabled     Object.keys(files).forEach(function(i) {
+    // temp disabled         for( var x = 0; x < files[i].length; x++){
+    // temp disabled             formData.append('files['+i+']['+x+']', files[i][x]); // holds: file, src, name, size, type
+    // temp disabled         }
+    // temp disabled     });
+    // temp disabled     formData.append('action', 'super_upload_files');
+    // temp disabled     if(args.form_id) formData.append('form_id', args.form_id);
+    // temp disabled     if(args.entry_d) formData.append('entry_id', args.entry_id);
+    // temp disabled     if(args.list_id) formData.append('list_id', args.list_id);
+    // temp disabled     if(args.token) formData.append('token', args.token);
+    // temp disabled     if(args.version) formData.append('version', args.version);
+    // temp disabled     $.ajax({
+    // temp disabled         type: 'post',
+    // temp disabled         url: super_common_i18n.ajaxurl,
+    // temp disabled         data: formData,
+    // temp disabled         async: true,
+    // temp disabled         cache: false,
+    // temp disabled         contentType: false,
+    // temp disabled         processData: false,
+    // temp disabled         timeout: 60000, // 1m
+    // temp disabled         xhr: function() {
+    // temp disabled             var xhr = new window.XMLHttpRequest();
+    // temp disabled             if(args.showOverlay==="true"){
+    // temp disabled                 xhr.upload.addEventListener("progress", function(evt) {
+    // temp disabled                     if (evt.lengthComputable) {
+    // temp disabled                         var percentComplete = evt.loaded / evt.total;
+    // temp disabled                         //Do something with upload progress here
+    // temp disabled                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+    // temp disabled                     }
+    // temp disabled                 }, false);
+    // temp disabled             }
+    // temp disabled             return xhr;
+    // temp disabled         },
+    // temp disabled         success: function(result){
+    // temp disabled             result = JSON.parse(result);
+    // temp disabled             if(result.error===true){
+    // temp disabled                 // Display error message
+    // temp disabled                 SUPER.form_submission_finished(args, result);
+    // temp disabled             }else{
+    // temp disabled                 // Now submit the form
+    // temp disabled                 SUPER.submit_form(args);
+    // temp disabled             }
+    // temp disabled         },
+    // temp disabled         error: function (xhr, ajaxOptions, thrownError) {
+    // temp disabled             // eslint-disable-next-line no-console
+    // temp disabled             console.log(xhr, ajaxOptions, thrownError);
+    // temp disabled             alert('Failed to process data, please try again');
+    // temp disabled         }
+    // temp disabled     });
+    // temp disabled     callback(args);
+    // temp disabled };
+
+    // Do Generate PDF
+    // temp disabled SUPER.do_generate_pdf = function(args){
+    // temp disabled     // Page margins and print area
+    // temp disabled     // Media                Page size           Print area              Margins
+    // temp disabled     //                                                                  Top         Bottom      Sides
+    // temp disabled     // A/Letter (U.S.)      8.5 x 11 in.        8.2 x 10.6 in.          .22 in.     .18 in      .15 in
+    // temp disabled     // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
+    // temp disabled     // Legal Short (U.S.)   8.5 x 14 in.        8.2 x 11.7 in           1.15 in.    1.15 in.    .15 in.
+    // temp disabled     // Legal (U.S.)         8.5 x 14 in.        8.2 x 11.7 in. (Color)  1.15 in     2.25 in.    .15 in.
+    // temp disabled     //                                          8.2 x 13.5 in. (Black)  .23 in      .23 in.     .15 in.
+
+    // temp disabled     // Page formats
+    // temp disabled     // Format       Size in Millimeters     Size in Inches          Point (pt)
+    // temp disabled     // A0           841 x 1189              33.1 x 46.8
+    // temp disabled     // A1           594 x 841               23.4 x 33.1
+    // temp disabled     // A2           420 x 594               16.5 x 23.4
+    // temp disabled     // A3           297 x 420               11.7 x 16.5
+    // temp disabled     // A4           210 x 297               8.3 x 11.7              595.28, 841.89
+    // temp disabled     // A5           148 x 210               5.8 x 8.3
+    // temp disabled     // A6           105 x 148               4.1 x 5.8
+    // temp disabled     // A7           74 x 105                2.9 x 4.1
+    // temp disabled     // A8           52 x 74                 2.0 x 2.9
+    // temp disabled     // A9           37 x 52	                1.5 x 2.0
+    // temp disabled     // A10          26 x 37                 1.0 x 1.5
+
+
+    // temp disabled     args.orientation = pdfSettings.orientation;
+    // temp disabled     args.format = pdfSettings.format;
+    // temp disabled     // Check if custom format is defined
+    // temp disabled     var customFormat = pdfSettings.customformat;
+    // temp disabled     if(typeof customFormat !== 'undefined' && customFormat!==''){
+    // temp disabled         customFormat = customFormat.split(',');
+    // temp disabled         if(typeof customFormat[1] !== 'undefined'){
+    // temp disabled             customFormat[0] = customFormat[0].trim();
+    // temp disabled             customFormat[1] = customFormat[1].trim();
+    // temp disabled             if(customFormat[0]!=='' && customFormat[1]!==''){
+    // temp disabled                 args.format = customFormat;
+    // temp disabled             }
+    // temp disabled         }
+    // temp disabled     }
+
+    // temp disabled     // For quick debugging purposes only:
+    // temp disabled     // eslint-disable-next-line no-undef
+    // temp disabled     var pdf = new jsPDF({
+    // temp disabled         orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
+    // temp disabled         format: args.format,             // The format of the first page.  Default is "a4"
+    // temp disabled         putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
+    // temp disabled         compress: false,            // Compress the generated PDF.
+    // temp disabled         precision: 16,              // Precision of the element-positions.
+    // temp disabled         userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
+    // temp disabled         floatPrecision: 16,         // or "smart", default is 16
+    // temp disabled         unit: pdfSettings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+    // temp disabled     });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
+    // temp disabled                                         // Can be:
+    // temp disabled                                         // a0 - a10
+    // temp disabled                                         // b0 - b10
+    // temp disabled                                         // c0 - c10
+    // temp disabled                                         // dl
+    // temp disabled                                         // letter
+    // temp disabled                                         // government-letter
+    // temp disabled                                         // legal
+    // temp disabled                                         // junior-legal
+    // temp disabled                                         // ledger
+    // temp disabled                                         // tabloid
+    // temp disabled                                         // credit-card
+
+
+    // temp disabled     // PDF width: 595.28 pt
+    // temp disabled     // PDF height: 841.89 pt
+    // temp disabled     
+    // temp disabled     // PDF width: 210.0015555555555 mm
+    // temp disabled     // PDF height: 297.0000833333333 mm
+
+    // temp disabled     // PDF width: 21.000155555555555 cm
+    // temp disabled     // PDF height: 29.700008333333333 cm
+
+    // temp disabled     // PDF width: 8.267777777777777 in
+    // temp disabled     // PDF height: 11.692916666666667 in
+
+    // temp disabled     // PDF width: 446.46 px
+    // temp disabled     // PDF height: 631.4175 px
+
+    // temp disabled     // pt to px  = X / 1.333333333333333
+    // temp disabled     // mm to px  = X / 0.4703703703703702
+    // temp disabled     // cm to px  = X / 0.04703703703703702
+    // temp disabled     // in to px  = X / 0.0185185185010975
+    // temp disabled     args.unitRatio = 1;
+    // temp disabled     if(pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
+    // temp disabled     if(pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
+    // temp disabled     if(pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
+    // temp disabled     if(pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
+    // temp disabled     var pageWidth = pdf.internal.pageSize.getWidth();
+    // temp disabled     var pageHeight = pdf.internal.pageSize.getHeight();
+    // temp disabled     args.pageWidthPortrait = pageWidth;
+    // temp disabled     args.pageHeightPortrait = pageHeight;
+    // temp disabled     args.pageWidthLandscape = pageHeight;
+    // temp disabled     args.pageHeightLandscape = pageWidth;
+    // temp disabled     args.pageWidthInPixels = pageWidth / args.unitRatio;
+    // temp disabled     args.pageHeightInPixels = pageHeight / args.unitRatio;
+    // temp disabled     
+    // temp disabled     // Make form scrollable based on a4 height
+    // temp disabled     var scrollAmount = 0;
+
+    // temp disabled     args.pdfSettings = pdfSettings;
+    // temp disabled     args.scrollAmount = scrollAmount;
+    // temp disabled     args.pdf = pdf;
+    // temp disabled     args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
+
+    // temp disabled     // Blur/unfocus any focussed field
+    // temp disabled     // bug in google chrome on mobile devices
+    // temp disabled     // .....
+    // temp disabled     //
+    // temp disabled     // Add a timeout (just to be sure)
+    // temp disabled     setTimeout(function(){
+    // temp disabled         SUPER.pdf_generator_prepare(args, function(args){
+    // temp disabled             // Start generating pages (starting at page 1)
+    // temp disabled             args.currentPage = 1;
+    // temp disabled             pdf = SUPER.generate_pdf(args, function(pdf, form){
+    // temp disabled                 // Reset everything to how it was
+    // temp disabled                 SUPER.reset_pdf_generation(form);
+    // temp disabled                 // Attach as file to form data
+    // temp disabled                 var datauristring = pdf.output('datauristring', {
+    // temp disabled                     filename: pdfSettings.filename
+    // temp disabled                 });
+    // temp disabled                 var exclude = 0;
+    // temp disabled                 if(pdfSettings.adminEmail!=='true' && pdfSettings.confirmationEmail!=='true'){
+    // temp disabled                     exclude = 2; // Exclude from both emails
+    // temp disabled                 }else{
+    // temp disabled                     if(pdfSettings.adminEmail==='true' && pdfSettings.confirmationEmail==='true'){
+    // temp disabled                         exclude = 0; // Do not exclude
+    // temp disabled                     }else{
+    // temp disabled                         if(pdfSettings.adminEmail==='true'){
+    // temp disabled                             exclude = 1; // Exclude from confirmation email only
+    // temp disabled                         }
+    // temp disabled                         if(pdfSettings.confirmationEmail==='true'){
+    // temp disabled                             exclude = 3; // Exclude from admin email only
+    // temp disabled                         }
+    // temp disabled                     }
+    // temp disabled                 }
+    // temp disabled                 data._generated_pdf_file = {
+    // temp disabled                     files: [{
+    // temp disabled                         label: pdfSettings.emailLabel,
+    // temp disabled                         name: pdfSettings.filename,
+    // temp disabled                         datauristring: datauristring,
+    // temp disabled                         value: pdfSettings.filename
+    // temp disabled                     }],
+    // temp disabled                     label: pdfSettings.emailLabel,
+    // temp disabled                     type: 'files',
+    // temp disabled                     exclude: exclude
+    // temp disabled                 };
+    // temp disabled                 args.pdfArgs = {
+    // temp disabled                     pdfSettings: pdfSettings,
+    // temp disabled                     pdf: pdf
+    // temp disabled                 }
+    // temp disabled                 SUPER.submit_form(args);
+    // temp disabled             }); 
+    // temp disabled         });
+    // temp disabled     }, 500);
+    // temp disabled     return false;
+    // temp disabled };
     // Submit the form
-    SUPER.complete_submit = function(args){
-        // If form has g-recaptcha element
-        if(($(args.form).find('.g-recaptcha').length!=0) && (typeof grecaptcha !== 'undefined')) {
-            grecaptcha.ready(function(){
-                grecaptcha.execute($(args.form).find('.g-recaptcha .super-recaptcha').attr('data-sitekey'), {action: 'super_form_submit'}).then(function(token){
-                    args.token = token;
-                    SUPER.create_ajax_request(args);
-                });
-            });
-        }else{
-            SUPER.create_ajax_request(args);
-        }
-    };
+    // temp disabled SUPER.submit_form = function(args) {
+    // temp disabled     // Generate PDF
+    // temp disabled     if(args.generatePdf){
+    // temp disabled         SUPER.do_generate_pdf(args);
+    // temp disabled     }else{
+    // temp disabled         // We do not need to generate a PDF
+    // temp disabled         SUPER.process_form_data(args);
+    // temp disabled     }
+    // temp disabled };
+    // temp disabled SUPER.process_form_data = function(args){
+    // temp disabled     if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
+    // temp disabled     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+    // temp disabled     if(args.pdfArgs!==false){
+    // temp disabled         // When debugging is enabled download file instantly without submitting the form
+    // temp disabled         if(args.pdfArgs.pdfSettings.debug==="true"){
+    // temp disabled             // Direct download of PDF
+    // temp disabled             args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename, {returnPromise: true}).then(function() {
+    // temp disabled                 // Close loading overlay
+    // temp disabled                 if(args.progressBar) args.progressBar.style.width = (100)+"%";  
+    // temp disabled                 if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+    // temp disabled                 args.loadingOverlay.classList.add('super-success');
+    // temp disabled                 // Close Popup (if any)
+    // temp disabled                 if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+    // temp disabled                     SUPER.init_popups.close(true);
+    // temp disabled                 }
+    // temp disabled             }, function() {
+    // temp disabled                 // Show error message
+    // temp disabled                 if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+    // temp disabled                 args.loadingOverlay.classList.add('super-error');
+    // temp disabled             });
+    // temp disabled             return false;
+    // temp disabled         }
+    // temp disabled         // Update processing state
+    // temp disabled         if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
+    // temp disabled     }
+    // temp disabled     
+    // temp disabled     //Upload.prototype.progressHandling = function (event) {
+    // temp disabled     //    var percent = 0;
+    // temp disabled     //    var position = event.loaded || event.position;
+    // temp disabled     //    var total = event.total;
+    // temp disabled     //    var progress_bar_id = "#progress-wrp";
+    // temp disabled     //    if (event.lengthComputable) {
+    // temp disabled     //        percent = Math.ceil(position / total * 100);
+    // temp disabled     //    }
+    // temp disabled     //    // update progressbars classes so it fits your code
+    // temp disabled     //    $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
+    // temp disabled     //    $(progress_bar_id + " .status").text(percent + "%");
+    // temp disabled     //};
 
-    // Send E-mail
-    SUPER.submit_form = function(args) {
-        if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
-        var innerText = args.loadingOverlay.querySelector('.super-inner-text');
-        if(args.pdfArgs!==false){
-            // When debugging is enabled download file instantly without submitting the form
-            if(args.pdfArgs.pdfSettings.debug==="true"){
-                // Direct download of PDF
-                args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename, {returnPromise: true}).then(function() {
-                    // Close loading overlay
-                    if(args.progressBar) args.progressBar.style.width = (100)+"%";  
-                    if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
-                    args.loadingOverlay.classList.add('super-success');
-                    // Close Popup (if any)
-                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-                        SUPER.init_popups.close(true);
-                    }
-                }, function() {
-                    // Show error message
-                    if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
-                    args.loadingOverlay.classList.add('super-error');
-                });
-                return false;
-            }
-            // Update processing state
-            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
-        }
+    // temp disabled     //var xhttp = new XMLHttpRequest();
+    // temp disabled     //xhttp.onreadystatechange = function () {
+    // temp disabled     //    if (this.readyState == 4) {
+    // temp disabled     //        if (this.status == 200) {
+    // temp disabled     //            // Success:
+    // temp disabled     //        }
+    // temp disabled     //        // Complete:
+    // temp disabled     //    }
+    // temp disabled     //};
+    // temp disabled     //xhttp.onerror = function () {
+    // temp disabled     //    console.log(this);
+    // temp disabled     //    console.log("** An error occurred during the transaction");
+    // temp disabled     //};
+    // temp disabled     //xhttp.open("POST", super_common_i18n.ajaxurl, true);
+    // temp disabled     //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+    // temp disabled     //var params = {
+    // temp disabled     //    action: 'super_submit_form',
+    // temp disabled     //    super_ajax_nonce: args.super_ajax_nonce,
+    // temp disabled     //    data: args.data,
+    // temp disabled     //    files: args.files,
+    // temp disabled     //    form_id: args.form_id,
+    // temp disabled     //    entry_id: args.entry_id,
+    // temp disabled     //    list_id: args.list_id,
+    // temp disabled     //    token: args.token,
+    // temp disabled     //    version: args.version,
+    // temp disabled     //    i18n: args.form.data('i18n') // @since 4.7.0 translation
+    // temp disabled     //};
+    // temp disabled     //params = $.param(params);
+    // temp disabled     //xhttp.send(params);
+    // temp disabled     
+    // temp disabled     //var formData = new FormData()
+    // temp disabled     //formData.append('action', 'super_submit_form');
+    // temp disabled     //formData.append('super_ajax_nonce', args.super_ajax_nonce);
+    // temp disabled     //formData.append('data', args.data);
+    // temp disabled     //formData.append('form_id', args.form_id);
+    // temp disabled     //formData.append('entry_id', args.entry_id);
+    // temp disabled     //formData.append('list_id', args.list_id);
+    // temp disabled     //formData.append('token', args.token);
+    // temp disabled     //formData.append('version', args.version);
+    // temp disabled     //formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
 
-        // add assoc key values, this will be posts values
-        //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div');
-        //for( var i = 0; i < nodes.length; i++) {
-        //    var name = nodes[i].dataset.name;
-        //    var src = nodes[i].querySelector('img').src;
-        //    var objectURL = URL.createObjectURL(src)
-        //    formData.append("file", objectURL, name);
+    // temp disabled     //var dataURL = canvas.toDataURL('image/jpeg', 1.0)
+    // temp disabled     //var blob = dataURItoBlob(dataURL)
+    // temp disabled     //var formData = new FormData()
+    // temp disabled     //formData.append('access_token', token)
+    // temp disabled     //formData.append('source', blob)
 
-        //    //console.log(nodes[i]);
-        //    //var file = nodes[i].files[0];
-        //    //var fileName = nodes[i].files[0].name;
-        //    ////file.type; file.size; file.name;
-        //}
+    // temp disabled     //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+    // temp disabled     //var $files = [];
+    // temp disabled     //for( var i = 0; i < nodes.length; i++) {
+    // temp disabled     //    $files.push($(nodes[i]).data());
+    // temp disabled     //    //args.files.submit();
+    // temp disabled     //}
+    // temp disabled     //formData.append('files', $files);
+    // temp disabled     //$.ajax({
+    // temp disabled     //    url: super_common_i18n.ajaxurl,
+    // temp disabled     //    type: 'post',
+    // temp disabled     //    data: formData,
+    // temp disabled     //    processData: false,
+    // temp disabled     //    contentType: false,
+    // temp disabled     //    success: function(data) {
+    // temp disabled     //        console.log(data);
+    // temp disabled     //    }
+    // temp disabled     //});
+    // temp disabled     // var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
+    // temp disabled     // var $files = [];
+    // temp disabled     // for( var i = 0; i < nodes.length; i++) {
+    // temp disabled     //     $files.push($(nodes[i]).data());
+    // temp disabled     //     //args.files.submit();
+    // temp disabled     // }
+    // temp disabled     // var filesData = new FormData()
+    // temp disabled     // filesData.append('files', $files);
 
-        debugger;
-        var formData = new FormData();
-        var files = SUPER.files[args.form_id];
-        if(files){
-            Object.keys(files).forEach(function(i) {
-                debugger;
-                for( var x = 0; x < files[i].length; x++){
-                    formData.append('files['+i+']['+x+']', files[i][x]); //files[i].file //files[i].src //files[i].name //files[i].size //files[i].type
-                }
-            });
-        }
-        formData.append('action', 'super_submit_form');
-        if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
-        if(args.data) formData.append('data', JSON.stringify(args.data));
-        if(args.form_id) formData.append('form_id', args.form_id);
-        if(args.entry_d) formData.append('entry_id', args.entry_id);
-        if(args.list_id) formData.append('list_id', args.list_id);
-        if(args.token) formData.append('token', args.token);
-        if(args.version) formData.append('version', args.version);
-        formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
+    // temp disabled     // $.ajax({
+    // temp disabled     //     url: super_common_i18n.ajaxurl,
+    // temp disabled     //     type: 'post',
+    // temp disabled     //     data: {
+    // temp disabled     //         action: 'super_submit_form',
+    // temp disabled     //         super_ajax_nonce: args.super_ajax_nonce,
+    // temp disabled     //         data: args.data,
+    // temp disabled     //         files: args.files,
+    // temp disabled     //         form_id: args.form_id,
+    // temp disabled     //         entry_id: args.entry_id,
+    // temp disabled     //         list_id: args.list_id,
+    // temp disabled     //         token: args.token,
+    // temp disabled     //         version: args.version,
+    // temp disabled     //         i18n: args.form.data('i18n') // @since 4.7.0 translation
+    // temp disabled     //     },
+    // temp disabled     //     xhr: function() {
+    // temp disabled     //         var xhr = new window.XMLHttpRequest();
+    // temp disabled     //         if(args.showOverlay==="true"){
+    // temp disabled     //             xhr.upload.addEventListener("progress", function(evt) {
+    // temp disabled     //                 if (evt.lengthComputable) {
+    // temp disabled     //                     var percentComplete = evt.loaded / evt.total;
+    // temp disabled     //                     //Do something with upload progress here
+    // temp disabled     //                     if(args.pdfArgs!==false){
+    // temp disabled     //                         if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+    // temp disabled     //                     }else{
+    // temp disabled     //                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+    // temp disabled     //                     }
+    // temp disabled     //                 }
+    // temp disabled     //             }, false);
+    // temp disabled     //         }
+    // temp disabled     //         return xhr;
+    // temp disabled     //     },
+    // temp disabled     //     success: function(result){
+    // temp disabled     //         result = JSON.parse(result);
+    // temp disabled     //         if(result.error===true){
+    // temp disabled     //             // Display error message
+    // temp disabled     //             SUPER.form_submission_finished(args, result);
+    // temp disabled     //         }else{
+    // temp disabled     //             // Clear form progression (if enabled)
+    // temp disabled     //             if( args.form[0].classList.contains('super-save-progress') ) {
+    // temp disabled     //                 $.ajax({
+    // temp disabled     //                     url: super_common_i18n.ajaxurl,
+    // temp disabled     //                     type: 'post',
+    // temp disabled     //                     data: {
+    // temp disabled     //                         action: 'super_save_form_progress',
+    // temp disabled     //                         data: '',
+    // temp disabled     //                         form_id: args.form_id
+    // temp disabled     //                     }
+    // temp disabled     //                 });
+    // temp disabled     //             }
+    // temp disabled     //             // Trigger js hook and continue
+    // temp disabled     //             SUPER.after_email_send_hook(args);
+    // temp disabled     //             // If a hook is redirecting we should avoid doing other things
+    // temp disabled     //             if(args.form.data('is-redirecting')){
+    // temp disabled     //                 // However if a hook is doing things in the back-end, we must check until finished
+    // temp disabled     //                 if(args.form.data('is-doing-things')){
+    // temp disabled     //                     clearInterval(SUPER.submit_form_interval);
+    // temp disabled     //                     SUPER.submit_form_interval = setInterval(function(){
+    // temp disabled     //                         if(args.form.data('is-doing-things')){
+    // temp disabled     //                             // Still doing things...
+    // temp disabled     //                         }else{
+    // temp disabled     //                             clearInterval(SUPER.submit_form_interval);
+    // temp disabled     //                             // Form submission is finished
+    // temp disabled     //                             SUPER.form_submission_finished(args, result);
+    // temp disabled     //                         }
+    // temp disabled     //                     }, 100);
+    // temp disabled     //                 }
+    // temp disabled     //                 return false; // Stop here, we are redirecting the form (used by Stripe)
+    // temp disabled     //             }
 
-        $.ajax({
-            type: 'post',
-            //url: "?sfupload",
-            url: super_common_i18n.ajaxurl,
-            data: formData,
-            async: true,
-            cache: false,
-            contentType: false,
-            processData: false,
-            timeout: 60000, // 1m
-            xhr: function () {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    //myXhr.upload.addEventListener('progress', that.progressHandling, false);
-                }
-                return myXhr;
-            },
-            success: function (data) {
-                // your callback here
-                debugger;
-                console.log(data);
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                // eslint-disable-next-line no-console
-                console.log(xhr, ajaxOptions, thrownError);
-                alert('Failed to process data, please try again');
-            }
-        });
-        
-        //Upload.prototype.progressHandling = function (event) {
-        //    var percent = 0;
-        //    var position = event.loaded || event.position;
-        //    var total = event.total;
-        //    var progress_bar_id = "#progress-wrp";
-        //    if (event.lengthComputable) {
-        //        percent = Math.ceil(position / total * 100);
-        //    }
-        //    // update progressbars classes so it fits your code
-        //    $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
-        //    $(progress_bar_id + " .status").text(percent + "%");
-        //};
-
-
-
-
-
-        //var xhttp = new XMLHttpRequest();
-        //xhttp.onreadystatechange = function () {
-        //    if (this.readyState == 4) {
-        //        if (this.status == 200) {
-        //            // Success:
-        //        }
-        //        // Complete:
-        //    }
-        //};
-        //xhttp.onerror = function () {
-        //    console.log(this);
-        //    console.log("** An error occurred during the transaction");
-        //};
-        //xhttp.open("POST", super_common_i18n.ajaxurl, true);
-        //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-        //var params = {
-        //    action: 'super_submit_form',
-        //    super_ajax_nonce: args.super_ajax_nonce,
-        //    data: args.data,
-        //    files: args.files,
-        //    form_id: args.form_id,
-        //    entry_id: args.entry_id,
-        //    list_id: args.list_id,
-        //    token: args.token,
-        //    version: args.version,
-        //    i18n: args.form.data('i18n') // @since 4.7.0 translation
-        //};
-        //params = $.param(params);
-        //xhttp.send(params);
-        
-        //var formData = new FormData()
-        //formData.append('action', 'super_submit_form');
-        //formData.append('super_ajax_nonce', args.super_ajax_nonce);
-        //formData.append('data', args.data);
-        //formData.append('form_id', args.form_id);
-        //formData.append('entry_id', args.entry_id);
-        //formData.append('list_id', args.list_id);
-        //formData.append('token', args.token);
-        //formData.append('version', args.version);
-        //formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
-
-        //var dataURL = canvas.toDataURL('image/jpeg', 1.0)
-        //var blob = dataURItoBlob(dataURL)
-        //var formData = new FormData()
-        //formData.append('access_token', token)
-        //formData.append('source', blob)
-
-        //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
-        //var $files = [];
-        //for( var i = 0; i < nodes.length; i++) {
-        //    $files.push($(nodes[i]).data());
-        //    //args.files.submit();
-        //}
-        //formData.append('files', $files);
-        //$.ajax({
-        //    url: super_common_i18n.ajaxurl,
-        //    type: 'post',
-        //    data: formData,
-        //    processData: false,
-        //    contentType: false,
-        //    success: function(data) {
-        //        console.log(data);
-        //    }
-        //});
-        // debugger;
-        // var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
-        // var $files = [];
-        // for( var i = 0; i < nodes.length; i++) {
-        //     $files.push($(nodes[i]).data());
-        //     //args.files.submit();
-        // }
-        // var filesData = new FormData()
-        // filesData.append('files', $files);
-
-        // $.ajax({
-        //     url: super_common_i18n.ajaxurl,
-        //     type: 'post',
-        //     data: {
-        //         action: 'super_submit_form',
-        //         super_ajax_nonce: args.super_ajax_nonce,
-        //         data: args.data,
-        //         files: args.files,
-        //         form_id: args.form_id,
-        //         entry_id: args.entry_id,
-        //         list_id: args.list_id,
-        //         token: args.token,
-        //         version: args.version,
-        //         i18n: args.form.data('i18n') // @since 4.7.0 translation
-        //     },
-        //     xhr: function() {
-        //         var xhr = new window.XMLHttpRequest();
-        //         if(args.showOverlay==="true"){
-        //             xhr.upload.addEventListener("progress", function(evt) {
-        //                 if (evt.lengthComputable) {
-        //                     var percentComplete = evt.loaded / evt.total;
-        //                     //Do something with upload progress here
-        //                     if(args.pdfArgs!==false){
-        //                         if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-        //                     }else{
-        //                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-        //                     }
-        //                 }
-        //             }, false);
-        //         }
-        //         return xhr;
-        //     },
-        //     success: function(result){
-        //         result = JSON.parse(result);
-        //         if(result.error===true){
-        //             // Display error message
-        //             SUPER.form_submission_finished(args, result);
-        //         }else{
-        //             // Clear form progression (if enabled)
-        //             if( args.form[0].classList.contains('super-save-progress') ) {
-        //                 $.ajax({
-        //                     url: super_common_i18n.ajaxurl,
-        //                     type: 'post',
-        //                     data: {
-        //                         action: 'super_save_form_progress',
-        //                         data: '',
-        //                         form_id: args.form_id
-        //                     }
-        //                 });
-        //             }
-        //             // Trigger js hook and continue
-        //             SUPER.after_email_send_hook(args);
-        //             // If a hook is redirecting we should avoid doing other things
-        //             if(args.form.data('is-redirecting')){
-        //                 // However if a hook is doing things in the back-end, we must check until finished
-        //                 if(args.form.data('is-doing-things')){
-        //                     clearInterval(SUPER.submit_form_interval);
-        //                     SUPER.submit_form_interval = setInterval(function(){
-        //                         if(args.form.data('is-doing-things')){
-        //                             // Still doing things...
-        //                         }else{
-        //                             clearInterval(SUPER.submit_form_interval);
-        //                             // Form submission is finished
-        //                             SUPER.form_submission_finished(args, result);
-        //                         }
-        //                     }, 100);
-        //                 }
-        //                 return false; // Stop here, we are redirecting the form (used by Stripe)
-        //             }
-
-        //             // @since 2.2.0 - custom form POST method
-        //             if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
-        //                 args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
-        //                 return false;
-        //             }
-        //             // Form submission is finished
-        //             SUPER.form_submission_finished(args, result);
-        //         }
-        //     },
-        //     error: function (xhr, ajaxOptions, thrownError) {
-        //         // eslint-disable-next-line no-console
-        //         console.log(xhr, ajaxOptions, thrownError);
-        //         alert('Failed to process data, please try again');
-        //     }
-        // });
-    };
-
+    // temp disabled     //             // @since 2.2.0 - custom form POST method
+    // temp disabled     //             if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
+    // temp disabled     //                 args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
+    // temp disabled     //                 return false;
+    // temp disabled     //             }
+    // temp disabled     //             // Form submission is finished
+    // temp disabled     //             SUPER.form_submission_finished(args, result);
+    // temp disabled     //         }
+    // temp disabled     //     },
+    // temp disabled     //     error: function (xhr, ajaxOptions, thrownError) {
+    // temp disabled     //         // eslint-disable-next-line no-console
+    // temp disabled     //         console.log(xhr, ajaxOptions, thrownError);
+    // temp disabled     //         alert('Failed to process data, please try again');
+    // temp disabled     //     }
+    // temp disabled     // });
+    // temp disabled };
 
     SUPER.close_loading_overlay = function(loadingOverlay){
         if(loadingOverlay) loadingOverlay.remove();
-    };
-    SUPER.reset_pdf_generation = function(form){
-        // Only if not already canceled/reset
-        if(form && !form.classList.contains('super-generating-pdf')){
-            return false;
-        }
-        // Show scrollbar again
-        document.documentElement.classList.remove('super-hide-scrollbar');
-        var inlineStyle = document.querySelector('#super-generating-pdf');
-        if(inlineStyle) inlineStyle.remove();
-        // Make all mutli-parts invisible again (except for the last active multi-part)
-        // Make all TABs invisible
-        // Make all accordions invisible
-        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
-        for(var i=0; i < nodes.length; i++){
-            if(!nodes[i].classList.contains('super-active-origin')){
-                nodes[i].classList.remove('super-active');
-            }else{
-                nodes[i].classList.remove('super-active-origin');
-            }
-        }
-        // Reset any PDF page break heights
-        var i, nodes = form.querySelectorAll('.super-pdf_page_break');
-        for(i=0; i<nodes.length; i++){
-            nodes[i].style.height = '0px';
-        }
-        
-        // @@@@@@@@@@@@@@
-        // // Re-enable the UI for Maps and resize to original width
-        // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
-        //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
-        //         disableDefaultUI: false
-        //     });
-        //     var children = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelectorAll(':scope > div');
-        //     for(var x=0; x < children.length; x++){
-        //         children[x].style.width = '';
-        //         if(children[x].classList.contains('super-google-map-directions')){
-        //             children[x].style.overflowY = 'scroll';
-        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelector('super-google-map-'+$form_id).offsetHeight+'px';
-        //         }
-        //     }
-        // }
-        // @@@@@@@@@@@@@@
-
-        // Restore form position and remove the cloned form
-        // Before removing cloned form, insert original form before cloned form
-        form.querySelector('form').style.marginTop = '';
-        SUPER.reset_submit_button_loading_state(form);
-        var placeholder = document.querySelector('.super-pdf-placeholder');
-        placeholder.parentNode.insertBefore(form, placeholder.nextSibling);
-        form.classList.remove('super-generating-pdf');
-        placeholder.remove();
-        var pdfPageContainer = document.querySelector('.super-pdf-page-container');
-        if(pdfPageContainer) pdfPageContainer.remove();
-        SUPER.init_super_responsive_form_fields({form: form});
     };
     SUPER.reset_submit_button_loading_state = function(form){
         var submitButton = form.querySelector('.super-form-button.super-loading');
@@ -2300,561 +2634,15 @@ function SUPERreCaptcha(){
         }
     };
 
-    SUPER.before_generate_pdf = function(args, callback){
-        var form = args.form0;
 
-        // Define PDF tags
-        SUPER.pdf_tags = {
-            pdf_page: '{pdf_page}',
-            pdf_total_pages: '{pdf_total_pages}'
-        };
-
-        // Must hide scrollbar
-        document.documentElement.classList.add('super-hide-scrollbar');
-        form.classList.add('super-generating-pdf');
-        
-        // Normalize font styles
-        var normalizeFontStylesNodesClasses = 'h1, h2, h3, h4, h5, h6, .super-label, .super-description, .super-heading-title, .super-heading-description, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-quantity .super-shortcode-field, .super-toggle-switch, .super-currency .super-shortcode-field, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content',
-        normalizeFontStylesNodesClassesExploded = normalizeFontStylesNodesClasses.split(','),
-        newNormalizeFontStylesNodesClasses = '';
-        for(i=0; i<normalizeFontStylesNodesClassesExploded.length; i++){
-            if(i>0) newNormalizeFontStylesNodesClasses += ', ';
-            newNormalizeFontStylesNodesClasses += '.super-pdf-page-container '+normalizeFontStylesNodesClassesExploded[i];
-        }
-
-        // Must hide elements
-        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
-        // Required to render pseudo elements (html2canvas code was altered for this)
-        css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
-        css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
-        // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
-        css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
-        // Remove any form padding
-        css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
-        // Hide none essential elements/styles from the PDF output
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) *,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) *:after,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before { transition: initial!important; }';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-form-button,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-progress,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-steps,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-prev-multipart,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-next-multipart,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-tabs-menu,';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-signature-clear { display: none!important; }';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
-        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
-        css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
-        // Header margins
-        var headerMarginBottom = parseFloat(args.pdfSettings.margins.header.bottom)+parseFloat(args.pdfSettings.margins.body.top);
-        css += '.super-pdf-header {padding: '+args.pdfSettings.margins.header.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.right+args.pdfSettings.unit+' '+headerMarginBottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.left+args.pdfSettings.unit+' }';
-        css += '.super-pdf-header .super-form, .super-pdf-header .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
-        // Body margins
-        css += '.super-pdf-body {padding: 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.right+args.pdfSettings.unit+' 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.left+args.pdfSettings.unit+';}';
-        // Footer margins
-        var footerMarginTop = parseFloat(args.pdfSettings.margins.footer.top)+parseFloat(args.pdfSettings.margins.body.bottom);
-        css += '.super-pdf-footer {padding: '+footerMarginTop+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.left+args.pdfSettings.unit+'; }';
-        css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
-
-        var head = document.head || document.getElementsByTagName('head')[0],
-        style = document.createElement('style');
-        style.id = 'super-generating-pdf';
-        head.appendChild(style);
-        style.type = 'text/css';
-        if (style.styleSheet){
-            // This is required for IE8 and below.
-            style.styleSheet.cssText = css;
-        } else {
-            style.appendChild(document.createTextNode(css));
-        }
-
-        var formId = form.querySelector('input[name="hidden_form_id"]').value;
-
-
-        // Add form placeholder (fake form)
-        var placeholder = form.cloneNode(true);
-        placeholder.id = placeholder.id+'-placeholder';
-        placeholder.classList.add('super-pdf-placeholder');
-        args.placeholder = placeholder;
-        form.parentNode.insertBefore(placeholder, form.nextSibling);
-
-        // Remove responsiveness classes, so that mobile and desktop PDF look identical
-        var clonedForm = form.cloneNode(true);
-        var newClassName = '';
-        //var oldClassName = clonedForm.className;
-        for(var i=0; i<clonedForm.classList.length; i++){
-            // e.g: super-first-responsiveness, super-window-first-responsiveness
-            if(clonedForm.classList[i].indexOf('responsiveness')===-1){
-                newClassName += clonedForm.classList[i]+' ';
-            }
-        }
-        // Update classname
-        clonedForm.className = newClassName;
-        args.form0.className = newClassName;
-        var headerClone = clonedForm.cloneNode(true);
-        var footerClone = clonedForm.cloneNode(true);
-        
-        // PDF page container
-        var pdfPageContainer = document.createElement('div');
-        args.pdfPageContainer = pdfPageContainer;
-        var html = '<div class="super-pdf-header">';
-            // Put any header(s) here
-        html += '</div>';
-        html += '<div class="super-pdf-body">';
-            // Put form here
-        html += '</div>';
-        html += '<div class="super-pdf-footer">';
-            // Put any footer(s) here
-        html += '</div>';
-        pdfPageContainer.innerHTML = html;
-        pdfPageContainer.classList.add('super-pdf-page-container');
-        document.body.appendChild(pdfPageContainer);
-        pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-        pdfPageContainer.style.zIndex = "-999999999";
-        pdfPageContainer.style.left = "-9999px";
-        pdfPageContainer.style.top = "0px";
-        // ------- for debugging only: ----
-        //debugger;
-        //pdfPageContainer.style.zIndex = "9999999999";
-        //pdfPageContainer.style.left = "0px";
-        //pdfPageContainer.style.top = "0px";
-        // ------- for debugging only: ----
-        pdfPageContainer.style.position = "fixed";
-        pdfPageContainer.style.backgroundColor = "#ffffff";
-        pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-        pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
-        pdfPageContainer.style.overflow = "hidden";
-        pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
-        pdfPageContainer.querySelector('.super-pdf-body').appendChild(args.form0);
-        pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footerClone);
-
-        // Put header before form
-        headerClone.querySelector('form').innerHTML = '';
-        var header = form.querySelector('.super-shortcode[data-pdfoption="header"]');
-        if(header){
-            if(header.classList.contains('super-column')){
-                header = header.closest('.super-grid').cloneNode(true);
-            }else{
-                header = header.cloneNode(true);
-            }
-            header.classList.add('pdf-generated-header');
-            headerClone.querySelector('form').appendChild(header);
-        }
-
-        // Put footer after form
-        footerClone.querySelector('form').innerHTML = '';
-        var footer = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
-        if(footer){
-            if(footer.classList.contains('super-column')){
-                footer = footer.closest('.super-grid').cloneNode(true);
-            }else{
-                footer = footer.cloneNode(true);
-            }
-            footer.classList.add('pdf-generated-footer');
-            footerClone.querySelector('form').appendChild(footer);
-        }
-
-        // Resize PDF body height based on header/footer heights
-        var headerFooterHeight = 0;
-        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-        args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-        pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
-        pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
-
-        // Make all mutli-parts visible
-        // Make all TABs visible
-        // Make all accordions visible
-        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
-        for( i=0; i < nodes.length; i++){
-            if(nodes[i].classList.contains('super-active')){
-                nodes[i].classList.add('super-active-origin');         
-            }else{
-                nodes[i].classList.add('super-active');
-            }
-        }
-
-        // Normalize all font sizes
-        // Example of allowed font sizes are: 10px, 12.5px, 15px, 17.5px, 20px etc. (increment with 2.5px)
-        // Other font sizes creates issues within the PDF
-        // We only have to loop over fields that we are going to print out
-        nodes = pdfPageContainer.querySelectorAll(normalizeFontStylesNodesClasses);
-        for( i=0; i < nodes.length; i++ ) {
-            var el = nodes[i];
-            if(el.classList.contains('super-heading-title')){
-                el = el.children[0];
-            }
-            var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
-            var newFontSize = 2.5 * Math.ceil(fontSize/2.5);
-            el.style.fontSize = newFontSize+'px';
-        }
-
-        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
-            // First disable the UI on the map for nicer print of the map
-            // And make map fullwidth and directions fullwidth
-            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-                SUPER.google_maps_api.allMaps[formId][i].setOptions({
-                    disableDefaultUI: true
-                });
-                nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
-                for(var x=0; x < nodes.length; x++){
-                    nodes[x].style.width = '100%';
-                    if(nodes[x].classList.contains('super-google-map-directions')){
-                        nodes[x].style.overflowY = 'initial';
-                        nodes[x].style.height = 'auto';
-                    }
-                }
-            }
-            
-            // Convert height of textarea to fit content (otherwie it would be cut of during printing)
-            function adjustHeight(el, minHeight) {
-                // compute the height difference which is caused by border and outline
-                var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-                var diff = outerHeight - el.clientHeight;
-                // set the height to 0 in case of it has to be shrinked
-                el.style.height = 0;
-                // set the correct height
-                // el.scrollHeight is the full height of the content, not just the visible part
-                el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
-            }
-            // we use the "data-adaptheight" attribute as a marker
-            // iterate through all the textareas on the page
-            var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
-            for(i=0; i<nodes.length; i++){
-                el = nodes[i];
-                // we need box-sizing: border-box, if the textarea has padding
-                el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
-                // we don't need any scrollbars, do we? :)
-                el.style.overflowY = 'hidden';
-                // the minimum height initiated through the "rows" attribute
-                minHeight = el.scrollHeight * 1.03;
-                el.addEventListener('input', function() {
-                    adjustHeight(el, minHeight);
-                });
-                // we have to readjust when window size changes (e.g. orientation change)
-                window.addEventListener('resize', function() {
-                    adjustHeight(el, minHeight);
-                });
-                // we adjust height to the initial content
-                adjustHeight(el, minHeight);
-            }
-
-            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
-            var i, nodes = form.querySelectorAll('.super-pdf_page_break');
-            args.pageOrientationChanges = {};
-            for(i=0; i<nodes.length; i++){
-                var pos = nodes[i].getBoundingClientRect();
-                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
-                //var belongsToPage = args.scrollAmount/pos.top;
-                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
-                var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                dynamicHeight = dynamicHeight+headerHeight;
-                nodes[i].style.height = dynamicHeight+'px';
-                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
-                if(nodes[i].classList.contains('pdf-orientation-portrait')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-landscape')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-default')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'default';
-                }
-            }
-
-            // Grab the total form height, this is required to know how many pages will be generated for the PDF file
-            // This way we can also show the progression to the end user
-            //scrollAmount = (pageHeightInPixels*2);
-            args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
-            if(args.progressBar) args.progressBar.style.width = 5+'%';
-            callback(args);
-        }});
-    };
-
-    // Send form submission through ajax request
-    SUPER.create_ajax_request = function(args){
-        var form = $(args.form),
-            data,
-            form_id,
-            entry_id,
-            list_id,
-            json_data,
-            version,
-            super_ajax_nonce;
-
-        form_id = args.data.form_id;
-        entry_id = args.data.entry_id;
-        list_id = args.data.list_id;
-        args.showOverlay = args.form.dataset.overlay;
-
-        // @since 1.3
-        data = SUPER.after_form_data_collected_hook(args.data.data);
-
-        // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
-        data.super_hp = form.find('input[name="super_hp"]').val();
-        if(data.super_hp!==''){
-            return false;
-        }
-
-        // @since 4.6.0 - Send ajax nonce
-        super_ajax_nonce = form.find('input[name="super_ajax_nonce"]').val();
-
-        // @since 2.9.0 - json data POST
-        json_data = JSON.stringify(data);
-        form.find('textarea[name="json_data"]').val(json_data);
-
-        if(typeof args.token === 'undefined'){
-            if(form.find('.super-recaptcha:not(.g-recaptcha)').length!==0){
-                version = 'v2';
-                args.token = form.find('.super-recaptcha:not(.g-recaptcha) .super-recaptcha').attr('data-response');
-            }
-        }else{
-            version = 'v3';
-        }
-        args.callback = function(args){
-            // Create loader overlay
-            var loadingOverlay = document.createElement('div');
-            var html = '';
-            html += '<div class="super-loading-wrapper">';
-                html += '<div class="super-close"></div>';
-                html += '<div class="super-loading-text">';
-                    html += '<div class="super-custom-el1"></div>';
-                    html += '<div class="super-inner-text"></div>';
-                    html += '<div class="super-progress">';
-                        html += '<div class="super-progress-bar"></div>';
-                    html += '</div>';
-                    html += '<div class="super-custom-el2"></div>';
-                html += '</div>';
-            html += '</div>';
-            loadingOverlay.innerHTML = html;
-            loadingOverlay.classList.add('super-loading-overlay');
-            loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
-            loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
-            var generatePdf = false, pdfSettings;
-            if( typeof SUPER.form_js !== 'undefined' && 
-                typeof SUPER.form_js[form_id] !== 'undefined' && 
-                typeof SUPER.form_js[form_id]._pdf !== 'undefined' && 
-                SUPER.form_js[form_id]._pdf.generate === "true" ) {
-                    generatePdf = true;
-                    pdfSettings = SUPER.form_js[form_id]._pdf;
-                    loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
-            }else{
-                // In case we are in back-end preview mode
-                if( typeof SUPER.get_form_settings === 'function' && 
-                    typeof SUPER.get_form_settings()._pdf !== 'undefined' && 
-                    SUPER.get_form_settings()._pdf.generate === "true" ) {
-                        generatePdf = true;
-                        pdfSettings = SUPER.get_form_settings()._pdf;
-                        loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+pdfSettings.generatingText+'</span>';
-                }
-            }
-
-            if(args.showOverlay==="true"){
-                document.body.appendChild(loadingOverlay);
-            }
-
-            // Close modal (should also reset pdf generation)
-            var closeBtn = loadingOverlay.querySelector('.super-close');
-            if(closeBtn){
-                closeBtn.addEventListener('click', function(){
-                    // Close overlay
-                    SUPER.close_loading_overlay(loadingOverlay);
-                });
-            }
-
-            var progressBar = document.querySelector('.super-loading-overlay .super-progress-bar');
-            args = {
-                form: form,
-                form0: form[0],
-                super_ajax_nonce: super_ajax_nonce,
-                oldHtml: args.oldHtml,
-                showOverlay: args.showOverlay,
-                data: data,
-                form_id: form_id,
-                entry_id: entry_id,
-                list_id: list_id,
-                token: args.token,
-                version: version,
-                loadingOverlay: loadingOverlay,
-                progressBar: progressBar
-            }
-
-            // Generate PDF
-            if( generatePdf ){
-                // Page margins and print area
-                // Media                Page size           Print area              Margins
-                //                                                                  Top         Bottom      Sides
-                // A/Letter (U.S.)      8.5 x 11 in.        8.2 x 10.6 in.          .22 in.     .18 in      .15 in
-                // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
-                // Legal Short (U.S.)   8.5 x 14 in.        8.2 x 11.7 in           1.15 in.    1.15 in.    .15 in.
-                // Legal (U.S.)         8.5 x 14 in.        8.2 x 11.7 in. (Color)  1.15 in     2.25 in.    .15 in.
-                //                                          8.2 x 13.5 in. (Black)  .23 in      .23 in.     .15 in.
-
-                // Page formats
-                // Format       Size in Millimeters     Size in Inches          Point (pt)
-                // A0           841 x 1189              33.1 x 46.8
-                // A1           594 x 841               23.4 x 33.1
-                // A2           420 x 594               16.5 x 23.4
-                // A3           297 x 420               11.7 x 16.5
-                // A4           210 x 297               8.3 x 11.7              595.28, 841.89
-                // A5           148 x 210               5.8 x 8.3
-                // A6           105 x 148               4.1 x 5.8
-                // A7           74 x 105                2.9 x 4.1
-                // A8           52 x 74                 2.0 x 2.9
-                // A9           37 x 52	                1.5 x 2.0
-                // A10          26 x 37                 1.0 x 1.5
-
-
-                args.orientation = pdfSettings.orientation;
-                args.format = pdfSettings.format;
-                // Check if custom format is defined
-                var customFormat = pdfSettings.customformat;
-                if(typeof customFormat !== 'undefined' && customFormat!==''){
-                    customFormat = customFormat.split(',');
-                    if(typeof customFormat[1] !== 'undefined'){
-                        customFormat[0] = customFormat[0].trim();
-                        customFormat[1] = customFormat[1].trim();
-                        if(customFormat[0]!=='' && customFormat[1]!==''){
-                            args.format = customFormat;
-                        }
-                    }
-                }
-
-                // For quick debugging purposes only:
-                // eslint-disable-next-line no-undef
-                var pdf = new jsPDF({
-                    orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
-                    format: args.format,             // The format of the first page.  Default is "a4"
-                    putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
-                    compress: false,            // Compress the generated PDF.
-                    precision: 16,              // Precision of the element-positions.
-                    userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
-                    floatPrecision: 16,         // or "smart", default is 16
-                    unit: pdfSettings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
-                });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
-                                                    // Can be:
-                                                    // a0 - a10
-                                                    // b0 - b10
-                                                    // c0 - c10
-                                                    // dl
-                                                    // letter
-                                                    // government-letter
-                                                    // legal
-                                                    // junior-legal
-                                                    // ledger
-                                                    // tabloid
-                                                    // credit-card
-
-
-                // PDF width: 595.28 pt
-                // PDF height: 841.89 pt
-                
-                // PDF width: 210.0015555555555 mm
-                // PDF height: 297.0000833333333 mm
-
-                // PDF width: 21.000155555555555 cm
-                // PDF height: 29.700008333333333 cm
-
-                // PDF width: 8.267777777777777 in
-                // PDF height: 11.692916666666667 in
-
-                // PDF width: 446.46 px
-                // PDF height: 631.4175 px
-
-                // pt to px  = X / 1.333333333333333
-                // mm to px  = X / 0.4703703703703702
-                // cm to px  = X / 0.04703703703703702
-                // in to px  = X / 0.0185185185010975
-                args.unitRatio = 1;
-                if(pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
-                if(pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
-                if(pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
-                if(pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
-                var pageWidth = pdf.internal.pageSize.getWidth();
-                var pageHeight = pdf.internal.pageSize.getHeight();
-                args.pageWidthPortrait = pageWidth;
-                args.pageHeightPortrait = pageHeight;
-                args.pageWidthLandscape = pageHeight;
-                args.pageHeightLandscape = pageWidth;
-                args.pageWidthInPixels = pageWidth / args.unitRatio;
-                args.pageHeightInPixels = pageHeight / args.unitRatio;
-                
-                // Make form scrollable based on a4 height
-                var scrollAmount = 0;
-
-                args.pdfSettings = pdfSettings;
-                args.scrollAmount = scrollAmount;
-                args.pdf = pdf;
-                args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
-
-                // Blur/unfocus any focussed field
-                // bug in google chrome on mobile devices
-                // .....
-                //
-                // Add a timeout (just to be sure)
-                setTimeout(function(){
-                    SUPER.before_generate_pdf(args, function(args){
-                        // Start generating pages (starting at page 1)
-                        args.currentPage = 1;
-                        pdf = SUPER.generate_pdf(args, function(pdf, form){
-                            // Reset everything to how it was
-                            SUPER.reset_pdf_generation(form);
-                            // Attach as file to form data
-                            var datauristring = pdf.output('datauristring', {
-                                filename: pdfSettings.filename
-                            });
-                            var exclude = 0;
-                            if(pdfSettings.adminEmail!=='true' && pdfSettings.confirmationEmail!=='true'){
-                                exclude = 2; // Exclude from both emails
-                            }else{
-                                if(pdfSettings.adminEmail==='true' && pdfSettings.confirmationEmail==='true'){
-                                    exclude = 0; // Do not exclude
-                                }else{
-                                    if(pdfSettings.adminEmail==='true'){
-                                        exclude = 1; // Exclude from confirmation email only
-                                    }
-                                    if(pdfSettings.confirmationEmail==='true'){
-                                        exclude = 3; // Exclude from admin email only
-                                    }
-                                }
-                            }
-                            data._generated_pdf_file = {
-                                files: [{
-                                    label: pdfSettings.emailLabel,
-                                    name: pdfSettings.filename,
-                                    datauristring: datauristring,
-                                    value: pdfSettings.filename
-                                }],
-                                label: pdfSettings.emailLabel,
-                                type: 'files',
-                                exclude: exclude
-                            };
-                            args.pdfArgs = {
-                                pdfSettings: pdfSettings,
-                                pdf: pdf
-                            }
-                            SUPER.submit_form(args);
-                        }); 
-                    });
-                }, 500);
-                return false;
-            }
-            // We do not need to generate a PDF
-            SUPER.submit_form(args);
-        };
-        SUPER.before_email_send_hook(args);
-    };
     // Show PDF download button
     SUPER.show_pdf_download_btn = function(args){
         var btn = document.createElement('div');
         btn.classList.add('super-pdf-download-btn');
-        btn.innerHTML = args.pdfArgs.pdfSettings.downloadBtnText;
+        btn.innerHTML = args.pdfSettings.downloadBtnText;
         args.loadingOverlay.querySelector('.super-loading-text').appendChild(btn);
         btn.addEventListener('click', function(){
-            args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename);
+            args._pdf.save(args.pdfSettings.filename);
         });
     };
     // Form submission is finished
@@ -2873,7 +2661,7 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                 }else{
                     args.loadingOverlay.classList.add('super-success');
-                    if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
+                    if(args.pdfSettings.downloadBtn==='true'){
                         SUPER.show_pdf_download_btn(args);
                     }
                     // Close Popup (if any)
@@ -2895,7 +2683,7 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // We do not want to display a thank you message, but might want to display a Download PDF button
-                if(args.pdfArgs && args.pdfArgs.pdfSettings.downloadBtn==='true'){
+                if(args.pdfSettings.downloadBtn==='true'){
                     args.loadingOverlay.classList.add('super-success');
                     SUPER.show_pdf_download_btn(args);
                 }else{
@@ -2971,83 +2759,6 @@ function SUPERreCaptcha(){
                 }
             }
         }
-    };
-
-    // File upload handler
-    SUPER.upload_files = function(args){
-        var i,nodes,minfiles,$this,wrapper,field,interval,total_file_uploads,shortcode_field;
-        
-        nodes = args.form.querySelectorAll('.super-fileupload-files');
-        for( i = 0; i < nodes.length; i++) {
-            minfiles = nodes[i].parentNode.querySelector('.super-active-files').dataset.minfiles;
-            if( typeof minfiles === 'undefined' ) {
-                minfiles = 0;
-            }
-            if( ( minfiles===0 ) && ( nodes[i].parentNode.querySelectorAll('.super-fileupload-files > div').length===0 ) ) {
-                nodes[i].parentNode.querySelector('.super-fileupload').classList.add('finished');
-            }
-        }
-        nodes = args.form.querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
-        debugger;
-        for( i = 0; i < nodes.length; i++) {
-            args.data = $(nodes[i]).data();
-            args.data.submit();
-        }
-        $(args.form).find('.super-fileupload').on('fileuploaddone', function (e, data) {
-            debugger;
-            $this = $(this);
-            wrapper = $this.parents('.super-field-wrapper:eq(0)');
-            field = $(this).parents('.super-field-wrapper:eq(0)').children('input[type="hidden"]');
-            $.each(data.result.files, function (index, file) {
-                if(!file.error){
-                    if(field.val()===''){
-                        field.val(file.name);
-                    }else{
-                        field.val(field.val()+','+file.name);
-                    }
-                }
-            });
-            data[field.attr('name')] = field.val();
-            if(wrapper.find('.super-fileupload-files > div.error').length){
-                $(args.form).find('.super-form-button.super-loading .super-button-name').html(args.oldHtml);
-                $(args.form).find('.super-form-button.super-loading').removeClass('super-loading');
-                clearInterval(interval);
-            }else{
-                // Let's check if there are any errors with one of the files
-                // If so we do not want to submit the form, we prevent this by not adding the "finished" class
-                if(wrapper.find('.super-fileupload-files > div.error').length==0){
-                    // There are no errors, let's check if the total list equals to the total files that were successfully uploaded
-                    if(wrapper.find('.super-fileupload-files > div').length == wrapper.find('.super-fileupload-files > div.super-uploaded').length){
-                        $(this).addClass('finished');
-                    }
-                }
-            }
-        });
-        interval = setInterval(function() {
-            total_file_uploads = 0;
-            $(args.form).find('.super-fileupload').each(function(){
-                shortcode_field = $(this);
-                if( SUPER.has_hidden_parent(shortcode_field[0])===false ) {
-                    total_file_uploads++;
-                }else{
-                    shortcode_field.removeClass('finished');
-                }
-            });
-            if($(args.form).find('.super-fileupload.finished').length == total_file_uploads){
-                clearInterval(interval);
-                SUPER.init_fileupload_fields();
-                $(args.form).find('.super-fileupload').removeClass('super-rendered').fileupload('destroy');
-                debugger;
-                args.data = SUPER.prepare_form_data($(args.form));
-                args.callback = function(){
-                    setTimeout(function() {
-                        debugger;
-                        SUPER.complete_submit(args);
-                    }, 1000);
-                };
-                SUPER.before_submit_hook(args);
-            }
-        }, 1000);
     };
 
     // Trim strings
@@ -3459,30 +3170,23 @@ function SUPERreCaptcha(){
         if(tabs && tabs[0]) tabs[0].click();
         var accordions = args.form.querySelectorAll('.super-accordion-item.super-error');
         if(accordions && accordions[0]) accordions[0].querySelector('.super-accordion-header').click();
-
         if(error===false){
-
             // Check if there are other none standard elements that have an active error
             // Currently used by Stripe Add-on to check for invalid card numbers for instance
             if(args.form.querySelectorAll('.super-error-active').length){
                 SUPER.scrollToError(args.form);
                 return true;
             }
-
             // @since 2.0.0 - multipart validation
             if(args.validateMultipart===true) return true;
-
             submitButtonName = args.submitButton.querySelector('.super-button-name');
-
             args.submitButton.closest('.super-form-button').classList.add('super-loading');
             oldHtml = submitButtonName.innerHTML;
-
             // @since 2.0.0 - submit button loading state name
             loading = args.submitButton.querySelector('.super-button-name').dataset.loading;
             if(super_common_i18n.loading!='Loading...') {
                 loading = super_common_i18n.loading;
             }
-
             submitButtonName.innerHTML = loading;
             // Prepare arguments
             args = {
@@ -3491,14 +3195,10 @@ function SUPERreCaptcha(){
                 data: SUPER.prepare_form_data($(args.form)),
                 oldHtml: oldHtml,
             };
-            //if (args.form.querySelectorAll('.super-fileupload-files > div').length !== 0) {
-            //    SUPER.upload_files(args);
-            //}else{
-                args.callback = function(){
-                    SUPER.complete_submit(args);
-                };
-                SUPER.before_submit_hook(args);
-            //}
+            args.callback = function(){
+                SUPER.complete_submit(args);
+            };
+            SUPER.before_submit_hook(args);
         }else{
             SUPER.scrollToError(args.form, args.validateMultipart);
         }
@@ -4356,366 +4056,8 @@ function SUPERreCaptcha(){
         var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
         return input.replace(commentsAndPhpTags, '').replace(tags, function ($0, $1) { return allowed.indexOf('<' + $1.toLowerCase() + '>') > -1 ? $0 : ''; });
     }
-    // PDF Draw text
-    SUPER.draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
-        args.pdf.setFontType('normal');
-        var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
-        if(el.classList.contains('super-heading-title')){
-            el = nodes[i].children[0];
-        }
-        if(el.classList.contains('super-toggle-switch')){
-            if(el.classList.contains('super-active')){
-                el = el.querySelector('.super-toggle-on');
-                value = el.querySelector('.super-toggle-on > span').innerText;
-                paddingRight = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-right'))/scale)*convertFromPixel;
-            }else{
-                el = el.querySelector('.super-toggle-off');
-                value = el.querySelector('.super-toggle-off > span').innerText;
-                paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
-            }
-        }else{
-            if(el.closest('.super-text, .super-textarea, .super-quantity, .super-currency')){
-                if(el.value) {
-                    value = el.value;
-                }else if(el.innerText) {
-                    value = el.innerText;
-                }
-            }else{
-                value = el.innerText;
-            }
-        }
-        if(value==='') return true; //continue;
-        pos = el.getBoundingClientRect();
-        // Before we print the text, we must check if it's visible for this specific PDF page
-        tmpPosTop = pos.top;
-        // Only if not header and not footer, because these are printed on every single page
-        if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
-            var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-            if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
-                return true; //continue;
-            }
-        }
-        var posWidth = (pos.width/scale)*convertFromPixel;
-        var posHeight = (pos.height/scale)*convertFromPixel;
-        var posLeft = ((pos.left+9999)/scale)*convertFromPixel;
-        var posTop = ((tmpPosTop)/scale)*convertFromPixel;
-        if(el.classList.contains('super-pdf-text')){
-            if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
-                args.pdf.setFontType('bold');
-            }
-            posWidth = ((pos.width+1)/scale)*convertFromPixel;
-        }
-        if(el.closest('.super-toggle-prefix-label') || el.closest('.super-toggle-suffix-label')){
-            posTop = ((tmpPosTop+1)/scale)*convertFromPixel;
-            posWidth = ((pos.width+1)/scale)*convertFromPixel;
-        }
-        if(el.closest('.super-radio') || el.closest('.super-checkbox') || el.classList.contains('super-fileupload-button-text')){
-            posWidth = ((pos.width+1)/scale)*convertFromPixel;
-        }
-        var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
-        var fontSizePoint = fontSize * 0.67;
-        value = args.pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth);
-        var charSpace = -(fontSize*charSpaceMultiplier)*convertFromPixel;
-        var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
-        if(el.closest('.super-adaptive-placeholder')){
-            posLeft = posLeft+(posWidth/2);
-            if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-            args.pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
-            return true; //continue;
-        }
-        if(el.closest('.super-dropdown')){
-            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
-            args.pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(el.closest('.super-radio') || el.closest('.super-checkbox')){
-            if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-            args.pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(el.closest('.super-toggle-switch')){
-            if(el.closest('.super-toggle-switch').classList.contains('super-active')){
-                if(drawRectangle) args.pdf.rect(posLeft+((posWidth-paddingRight)/2), posTop, posWidth-paddingRight, posHeight);
-                args.pdf.text(value, posLeft+((posWidth-paddingRight)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-            }else{
-                if(drawRectangle) args.pdf.rect(posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop, posWidth-paddingLeft, posHeight);
-                args.pdf.text(value, posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-            }
-            return true; //continue;
-        }
-        if(el.closest('.super-quantity')){
-            if(drawRectangle) args.pdf.rect(posLeft, posTop+(posHeight/2), posWidth, posHeight);
-            posLeft = posLeft+(posWidth/2);
-            args.pdf.text(value, posLeft, posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(el.closest('.super-textarea')){
-            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
-            paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/scale)*convertFromPixel;
-            if(drawRectangle) args.pdf.rect(posLeft, posTop, posWidth, posHeight);
-            args.pdf.text(value, posLeft+paddingLeft, posTop+paddingTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(el.closest('.super-text') || el.closest('.super-currency')){
-            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
-            if(drawRectangle) args.pdf.rect(posLeft, posTop, posWidth, posHeight);
-            args.pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(drawRectangle) args.pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-        args.pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
-        return true; //continue;
-    };
 
-    // PDF render text
-    SUPER.render_pdf_text = function(args){
-        // If so add a text node on the exact position
-        var i, nodes, formWidth, pdfPageWidth, scale,
-            lineHeight = 1.194,
-            drawRectangle = false, // true,
-            renderingMode = 'invisible', // fill,
-            resume, el,
-            // Loop over all elements and see if the element is included in the PDF
-            pdfPageContainer = document.querySelector('.super-pdf-page-container'),
-            //pdfHeader = pdfPageContainer.querySelector('.super-pdf-header'),
-            //pdfBody = pdfPageContainer.querySelector('.super-pdf-body'),
-            //pdfFooter = pdfPageContainer.querySelector('.super-pdf-footer'),
-            convertToPixel = 1,
-            convertFromPixel = 1,
-            charSpaceMultiplier = 0.00135;
 
-        // Convert unit to pixel
-        if(args.pdfSettings.unit=='pt') convertToPixel = 1.333333333333333;
-        if(args.pdfSettings.unit=='mm') convertToPixel = 3.7795275591;
-        if(args.pdfSettings.unit=='cm') convertToPixel = 37.7952755906
-        if(args.pdfSettings.unit=='in') convertToPixel = 96;
-        // Convert pixel to unit
-        if(args.pdfSettings.unit=='pt') convertFromPixel = 0.75;
-        if(args.pdfSettings.unit=='mm') convertFromPixel = 0.2645833333;
-        if(args.pdfSettings.unit=='cm') convertFromPixel = 0.0264583333;
-        if(args.pdfSettings.unit=='in') convertFromPixel = 0.0104166667;
-        // Convert pixel to unit
-        if(args.pdfSettings.unit=='pt') charSpaceMultiplier = 0.00200;
-        if(args.pdfSettings.unit=='mm') charSpaceMultiplier = 0.00200;
-        if(args.pdfSettings.unit=='cm') charSpaceMultiplier = 0.00200;
-        if(args.pdfSettings.unit=='in') charSpaceMultiplier = 0.00200;
-        var topLineHeightDivider = 1;
-        if(args.pdfSettings.unit=='px') topLineHeightDivider = 2;
-        var m = args.pdfSettings.margins;
-        var bodyMargins = {
-            top: parseFloat(m.body.top)*convertToPixel,
-            right: parseFloat(m.body.right)*convertToPixel,
-            bottom: parseFloat(m.body.bottom)*convertToPixel,
-            left: parseFloat(m.body.left)*convertToPixel,
-        };
-        
-        // Determine scale
-        formWidth = args.form0.clientWidth;
-        formWidth = formWidth + bodyMargins.left + bodyMargins.right;
-        pdfPageWidth = args.pdf.internal.pageSize.getWidth()*convertToPixel;
-        scale = formWidth / pdfPageWidth;
-
-        args.pdf.setFont('Helvetica');
-        args.pdf.setTextColor('red');
-        args.pdf.setLineWidth(1*convertFromPixel);
-
-        nodes = pdfPageContainer.querySelectorAll('.super-label, .super-description, .super-heading-title, .super-heading-description, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-toggle-switch, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-currency .super-shortcode-field');
-        for( i=0; i < nodes.length; i++ ) {
-            el = nodes[i];
-            // For HTML content we will need to do some special things because a HTML element will contain unkown nodes with unkown styles
-            // We will first have to wrap any stand alone text inside a <div> tag. This way we can more accurately position the overlapping text
-            // After that we can loop over nodes and check for child nodes and do the same thing
-            // Once done we can then do a final loop
-            if(el.classList.contains('super-html-content')){
-                // Wrap individual text inside "span" tags
-                //var regex = /(?<=(>))((?![<])(.{1,}?))(?=<)/gm;
-                //var str = el.innerHTML;
-                //var subst = '<span class="super-pdf-text">$2</span>';
-                //// The substituted value will be contained in the result variable
-                //var result = str.replace(regex, subst);
-                //regex = /(?<=<.+?>)([\s]+(?!<).{1,}[\s]+)(?=<.+?>)/gm;
-                //str = result;
-                //subst = '<span class="super-pdf-text">$1</span>';
-                //// The substituted value will be contained in the result variable
-                //el.innerHTML = str.replace(regex, subst);
-                //var childNodes = el.querySelectorAll('.super-pdf-text');
-                //for(var x=0; x < childNodes.length; x++){
-                //    resume = SUPER.draw_pdf_text(i, childNodes[x], childNodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
-                //    if(resume) continue;
-                //}
-                continue;
-            }
-            resume = SUPER.draw_pdf_text(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
-            if(resume) continue;
-        }
-    };
-
-    // PDF Generation
-    SUPER.generate_pdf = function(args, callback){
-        var form = args.form0.closest('.super-form');
-        // When canceled the following class will no longer exist, and we should not proceed
-        if(form && !form.classList.contains('super-generating-pdf')){
-            return false;
-        }
-        if(args.currentPage===1){
-            if(args.orientation==='portrait'){
-                args.pageWidth = args.pageWidthPortrait;
-                args.pageHeight = args.pageHeightPortrait;
-            }else{
-                args.pageWidth = args.pageWidthLandscape;
-                args.pageHeight = args.pageHeightLandscape;
-            }
-        }else{
-            // Change the PDF container width based on orientation
-            var headerFooterHeight = 0;
-            if(args.pageOrientationChanges[args.currentPage]==='portrait'){
-                args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-                args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-                args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
-                args.pageWidth = args.pageWidthPortrait;
-                args.pageHeight = args.pageHeightPortrait;
-                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-                args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-            }
-            if(args.pageOrientationChanges[args.currentPage]==='landscape'){
-                args.pdfPageContainer.style.width = (args.pageHeightInPixels*2)+'px';
-                args.pdfPageContainer.style.height = (args.pageWidthInPixels*2)+'px';
-                args.pdfPageContainer.style.maxHeight = (args.pageWidthInPixels*2)+'px';
-                args.pageWidth = args.pageWidthLandscape;
-                args.pageHeight = args.pageHeightLandscape;
-                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-                args.scrollAmount = (args.pageWidthInPixels*2)-headerFooterHeight;
-            }
-            // Reset any PDF page break heights
-            var i, nodes = form.querySelectorAll('.super-pdf_page_break');
-            for(i=0; i<nodes.length; i++){
-                nodes[i].style.height = '0px';
-            }
-            // Reset scroll
-            form.querySelector('form').style.marginTop = '';
-            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
-            var i, nodes = form.querySelectorAll('.super-pdf_page_break');
-            for(i=0; i<nodes.length; i++){
-                var pos = nodes[i].getBoundingClientRect();
-                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
-                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
-                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                dynamicHeight = dynamicHeight+headerHeight;
-                nodes[i].style.height = dynamicHeight+'px';
-            }
-            args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
-            args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
-            // Scroll to the "fake" page
-            form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
-        }
-        
-
-        // Set form width and height according to a4 paper size minus the margins
-        // 210 == 793px
-        // 297 == 1122px
-        // Media                Page size           Print area              Margins
-        // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
-
-        // Update PDF tags
-        SUPER.pdf_tags = {
-            pdf_page: args.currentPage,
-            pdf_total_pages: args.totalPages
-        };
-
-        // Update pdf {tags}
-        SUPER.after_field_change_blur_hook({el: undefined, form: form});
-        var pdfHeaderForm = document.querySelector('.super-pdf-header .super-form');
-        SUPER.after_field_change_blur_hook({el: undefined, form: pdfHeaderForm});
-        var pdfFooterForm = document.querySelector('.super-pdf-footer .super-form');
-        SUPER.after_field_change_blur_hook({el: undefined, form: pdfFooterForm});
-
-        // Scroll to the "fake" page
-        //form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
-
-        // Because disabling the UI takes some time, add a timeout
-        var timeout = (args.currentPage===1 ? 200 : 0);
-        setTimeout(function(){
-            // Now allow printing
-            try {
-                // Only if not already canceled/reset
-                if(form && !form.classList.contains('super-generating-pdf')){
-                    return false;
-                }
-                // eslint-disable-next-line no-undef
-                html2canvas(document.querySelector('.super-pdf-page-container'), {
-                    scrollX: 0, // Important, do not remove
-                    scrollY: 0,  // -window.scrollY, // Important, do not remove
-                    scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
-                    currentPage: args.currentPage,
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#ffffff'
-                }).then(function(canvas) {
-                    // Only if not already canceled/reset
-                    if(form && !form.classList.contains('super-generating-pdf')){
-                        return false;
-                    }
-
-                    var percentage = ((50/(args.totalPages+1))*args.currentPage)+5;
-                    if(percentage<5) percentage = 5;
-                    if(percentage>=50) percentage = 50;
-                    if(args.progressBar) args.progressBar.style.width = percentage+"%";  
-                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
-                    // Add this image as 1 single page
-                    args.pdf.addImage(
-                        imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
-                        'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
-                                    // e.g. 'JPEG', 'PNG', 'WEBP'
-                        0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                        0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-                        args.pageWidth,
-                        args.pageHeight
-                    );
-                    // Make PDF searchable when text rendering is enabled
-                    if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
-                    if(args.pdfSettings.textRendering==='true'){
-                        SUPER.render_pdf_text(args);
-                    }
-                    // If there are more pages to be processed, go ahead
-                    if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
-                        args.currentPage++;
-                        if(typeof args.pageOrientationChanges[args.currentPage] !== 'undefined' ){
-                            if(args.pageOrientationChanges[args.currentPage]==='unchanged'){
-                                if(typeof args.lastPageOrientation === 'undefined' ){
-                                    args.lastPageOrientation = args.pdfSettings.orientation;
-                                }
-                                args.pdf.addPage(args.pdfSettings.format, args.lastPageOrientation);
-                            }else{
-                                if(args.pageOrientationChanges[args.currentPage]==='default'){
-                                    args.pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
-                                    args.lastPageOrientation = args.pdfSettings.orientation;
-                                }else{
-                                    args.pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
-                                    args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
-                                }
-                            }
-                        }else{
-                            args.pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
-                            args.lastPageOrientation = args.pdfSettings.orientation;
-                        }
-                        SUPER.generate_pdf(args, callback);
-                    }else{                   
-                        // No more pages to generate (submit form / send email)
-                        callback(args.pdf, form);
-                    }
-                });
-            }
-            catch(error) {
-                console.log("Error: ", error);
-            }
-        }, timeout );
-    }
     // @since 3.5.0 - function for intializing google maps elements
     SUPER.google_maps_api.allMaps = [];
     SUPER.google_maps_api.initMaps = function(args){
@@ -5660,19 +5002,13 @@ function SUPERreCaptcha(){
             $originalHtml,
             $splitName,
             $newName,
-            $row_str,
             $original,
             $field_name,
             $original_field_name,
             $rv,
-            $field,
             $return,
             $rows,
             $row,
-            $found,
-            $tag_items,
-            $old_name,
-            $new_name,
             $regex,
             $array,
             $values,
@@ -6112,14 +5448,13 @@ function SUPERreCaptcha(){
 
     // @since 2.0.0 - clear / reset form fields
     SUPER.init_clear_form = function(args){ //form, clone){
-        var field, nodes, innerNodes, el, i, ii,
-            children, index, element, dropdown, dropdownItem, 
+        var field, nodes, innerNodes, i, ii,
+            children, index, element, dropdownItem, 
             option, switchBtn, activeItem,
             value = '',
             default_value,
             main_form = args.form,
             new_value = '',
-            placeholder,
             new_placeholder = '';
 
         if(typeof args.clone !== 'undefined') {
@@ -6399,8 +5734,8 @@ function SUPERreCaptcha(){
     SUPER.populate_form_with_entry_data = function(data, form, clear){
         if(typeof clear === 'undefined') clear = true;
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
-            html,files,element,field,stars,currentStar,placeholder,firstField,firstFieldName,
-            switchBtn,activeItem,signatureDataUrl,placeholderHtml,fieldName,
+            html,files,element,field,stars,currentStar,firstField,firstFieldName,
+            switchBtn,activeItem,signatureDataUrl,fieldName,
             dynamicFields = {},        
             updatedFields = {};        
         
@@ -6502,31 +5837,7 @@ function SUPERreCaptcha(){
                             }
                             element = form.querySelector('.super-active-files[name="'+fv.name+'"]');
                             field = element.closest('.super-field');     
-                            html += '<div data-name="'+fv.value+'" class="super-uploaded" title="'+fv.value+'"';
-                            html += ' data-url="'+fv.url+'"';
-                            if(fv.type){
-                                html += ' data-type="'+fv.type+'"';
-                            }
-                            html += '>';
-                                if(fv.type && fv.type.indexOf("image/") === 0){
-                                    html += '<span class="super-fileupload-image super-file-type-'+fv.type.replace('/','-')+'">';
-                                        html += '<img src="'+fv.url+'" />';
-                                    html += '</span>';
-                                }else{
-                                    html += '<span class="super-fileupload-document super-file-type-'+fv.type.replace('/','-')+'"></span>';
-                                }
-                                html += '<span class="super-fileupload-info">';
-                                    html += '<span class="super-fileupload-name">';
-                                        // Truncate file if it's too long
-                                        var split = fv.value.split('.');
-                                        var filename = split[0];
-                                        var ext = split[1];
-                                        if (filename.length > 10) filename = filename.substring(0, 10)+'...';
-                                        html += '<a href="'+fv.url+'" target="_blank">'+filename+'.'+ext+'</a>';
-                                    html += '</span>';
-                                    html += '<span class="super-fileupload-delete"></span>';
-                                html += '</span>';
-                            html += '</div>';
+                            html += SUPER.get_single_uploaded_file_html(false, true, '', fv.value, fv.type, fv.url);
                         });
                         element.value = files;
                         field.querySelector('.super-fileupload-files').innerHTML = html;
@@ -7210,6 +6521,7 @@ function SUPERreCaptcha(){
     // Handle the responsiveness of the form
     SUPER.responsive_form_fields_timeout = {};
     SUPER.init_super_responsive_form_fields = function(args){
+        if(typeof $ === 'undefined') $ = jQuery;
         if(typeof args === 'undefined') args = {};
         if(typeof args.form === 'undefined') {
             args.form = document.querySelector('.super-form');
@@ -7496,6 +6808,951 @@ function SUPERreCaptcha(){
             }
         }
     };
+    SUPER.pdf_generator_init = function(args, callback){
+        args._save_data_callback = callback;
+
+        // Page margins and print area
+        // Media                Page size           Print area              Margins
+        //                                                                  Top         Bottom      Sides
+        // A/Letter (U.S.)      8.5 x 11 in.        8.2 x 10.6 in.          .22 in.     .18 in      .15 in
+        // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
+        // Legal Short (U.S.)   8.5 x 14 in.        8.2 x 11.7 in           1.15 in.    1.15 in.    .15 in.
+        // Legal (U.S.)         8.5 x 14 in.        8.2 x 11.7 in. (Color)  1.15 in     2.25 in.    .15 in.
+        //                                          8.2 x 13.5 in. (Black)  .23 in      .23 in.     .15 in.
+
+        // Page formats
+        // Format       Size in Millimeters     Size in Inches          Point (pt)
+        // A0           841 x 1189              33.1 x 46.8
+        // A1           594 x 841               23.4 x 33.1
+        // A2           420 x 594               16.5 x 23.4
+        // A3           297 x 420               11.7 x 16.5
+        // A4           210 x 297               8.3 x 11.7              595.28, 841.89
+        // A5           148 x 210               5.8 x 8.3
+        // A6           105 x 148               4.1 x 5.8
+        // A7           74 x 105                2.9 x 4.1
+        // A8           52 x 74                 2.0 x 2.9
+        // A9           37 x 52	                1.5 x 2.0
+        // A10          26 x 37                 1.0 x 1.5
+
+
+        args.orientation = args.pdfSettings.orientation;
+        args.format = args.pdfSettings.format;
+        // Check if custom format is defined
+        var customFormat = args.pdfSettings.customformat;
+        if(typeof customFormat !== 'undefined' && customFormat!==''){
+            customFormat = customFormat.split(',');
+            if(typeof customFormat[1] !== 'undefined'){
+                customFormat[0] = customFormat[0].trim();
+                customFormat[1] = customFormat[1].trim();
+                if(customFormat[0]!=='' && customFormat[1]!==''){
+                    args.format = customFormat;
+                }
+            }
+        }
+
+        // For quick debugging purposes only:
+        // eslint-disable-next-line no-undef
+        args._pdf = new jsPDF({
+            orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
+            format: args.format,             // The format of the first page.  Default is "a4"
+            putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
+            compress: false,            // Compress the generated PDF.
+            precision: 16,              // Precision of the element-positions.
+            userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
+            floatPrecision: 16,         // or "smart", default is 16
+            unit: args.pdfSettings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
+        });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
+                                            // Can be:
+                                            // a0 - a10
+                                            // b0 - b10
+                                            // c0 - c10
+                                            // dl
+                                            // letter
+                                            // government-letter
+                                            // legal
+                                            // junior-legal
+                                            // ledger
+                                            // tabloid
+                                            // credit-card
+
+
+        // PDF width: 595.28 pt
+        // PDF height: 841.89 pt
+        
+        // PDF width: 210.0015555555555 mm
+        // PDF height: 297.0000833333333 mm
+
+        // PDF width: 21.000155555555555 cm
+        // PDF height: 29.700008333333333 cm
+
+        // PDF width: 8.267777777777777 in
+        // PDF height: 11.692916666666667 in
+
+        // PDF width: 446.46 px
+        // PDF height: 631.4175 px
+
+        // pt to px  = X / 1.333333333333333
+        // mm to px  = X / 0.4703703703703702
+        // cm to px  = X / 0.04703703703703702
+        // in to px  = X / 0.0185185185010975
+        args.unitRatio = 1;
+        if(args.pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
+        if(args.pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
+        if(args.pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
+        if(args.pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
+        var pageWidth = args._pdf.internal.pageSize.getWidth();
+        var pageHeight = args._pdf.internal.pageSize.getHeight();
+        args.pageWidthPortrait = pageWidth;
+        args.pageHeightPortrait = pageHeight;
+        args.pageWidthLandscape = pageHeight;
+        args.pageHeightLandscape = pageWidth;
+        args.pageWidthInPixels = pageWidth / args.unitRatio;
+        args.pageHeightInPixels = pageHeight / args.unitRatio;
+        
+        // Make form scrollable based on a4 height
+        var scrollAmount = 0;
+
+        args.scrollAmount = scrollAmount;
+        args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
+
+        // Blur/unfocus any focussed field
+        // bug in google chrome on mobile devices
+        // .....
+        //
+        // Add a timeout (just to be sure)
+        setTimeout(function(){
+            console.log(typeof args._pdf);
+            SUPER.pdf_generator_prepare(args, function(args){
+                // Start generating pages (starting at page 1)
+                args.currentPage = 1;
+                SUPER.pdf_generator_generate_page(args, function(args){ //pdf, form){
+                    console.log(typeof args._pdf);
+                    // Reset everything to how it was
+                    SUPER.pdf_generator_reset(args.form0);
+                    // Attach as file to form data
+                    var datauristring = args._pdf.output('datauristring', {
+                        filename: args.pdfSettings.filename
+                    });
+                    var exclude = 0;
+                    if(args.pdfSettings.adminEmail!=='true' && args.pdfSettings.confirmationEmail!=='true'){
+                        exclude = 2; // Exclude from both emails
+                    }else{
+                        if(args.pdfSettings.adminEmail==='true' && args.pdfSettings.confirmationEmail==='true'){
+                            exclude = 0; // Do not exclude
+                        }else{
+                            if(args.pdfSettings.adminEmail==='true'){
+                                exclude = 1; // Exclude from confirmation email only
+                            }
+                            if(args.pdfSettings.confirmationEmail==='true'){
+                                exclude = 3; // Exclude from admin email only
+                            }
+                        }
+                    }
+                    args.data._generated_pdf_file = {
+                        files: [{
+                            label: args.pdfSettings.emailLabel,
+                            name: args.pdfSettings.filename,
+                            datauristring: datauristring,
+                            value: args.pdfSettings.filename
+                        }],
+                        label: args.pdfSettings.emailLabel,
+                        type: 'files',
+                        exclude: exclude
+                    };
+                    // We PDF has been generated, continue with form submission
+                    args._save_data_callback(args);
+                }); 
+            });
+        }, 5000);
+        return false;
+    };
+
+
+    SUPER.pdf_generator_prepare = function(args, callback){
+        var form = args.form0;
+
+        // Define PDF tags
+        SUPER.pdf_tags = {
+            pdf_page: '{pdf_page}',
+            pdf_total_pages: '{pdf_total_pages}'
+        };
+
+        // Must hide scrollbar
+        document.documentElement.classList.add('super-hide-scrollbar');
+        form.classList.add('super-generating-pdf');
+        
+        // Normalize font styles
+        var normalizeFontStylesNodesClasses = 'h1, h2, h3, h4, h5, h6, .super-label, .super-description, .super-heading-title, .super-heading-description, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-quantity .super-shortcode-field, .super-toggle-switch, .super-currency .super-shortcode-field, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content',
+        normalizeFontStylesNodesClassesExploded = normalizeFontStylesNodesClasses.split(','),
+        newNormalizeFontStylesNodesClasses = '';
+        for(i=0; i<normalizeFontStylesNodesClassesExploded.length; i++){
+            if(i>0) newNormalizeFontStylesNodesClasses += ', ';
+            newNormalizeFontStylesNodesClasses += '.super-pdf-page-container '+normalizeFontStylesNodesClassesExploded[i];
+        }
+
+        // Must hide elements
+        var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
+        // Required to render pseudo elements (html2canvas code was altered for this)
+        css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
+        css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
+        // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
+        css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
+        // Remove any form padding
+        css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
+        // Hide none essential elements/styles from the PDF output
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) *,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) *:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before { transition: initial!important; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:before,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header:after,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-form-button,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-progress,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-multipart-steps,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-prev-multipart,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-next-multipart,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-tabs-menu,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-signature-clear { display: none!important; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
+        css += '.super-pdf-header, .super-pdf-body, .super-pdf-footer { display: block; float: left; width: 100%; overflow: hidden; }';
+        // Header margins
+        var headerMarginBottom = parseFloat(args.pdfSettings.margins.header.bottom)+parseFloat(args.pdfSettings.margins.body.top);
+        css += '.super-pdf-header {padding: '+args.pdfSettings.margins.header.top+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.right+args.pdfSettings.unit+' '+headerMarginBottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.header.left+args.pdfSettings.unit+' }';
+        css += '.super-pdf-header .super-form, .super-pdf-header .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
+        // Body margins
+        css += '.super-pdf-body {padding: 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.right+args.pdfSettings.unit+' 0'+args.pdfSettings.unit+' '+args.pdfSettings.margins.body.left+args.pdfSettings.unit+';}';
+        // Footer margins
+        var footerMarginTop = parseFloat(args.pdfSettings.margins.footer.top)+parseFloat(args.pdfSettings.margins.body.bottom);
+        css += '.super-pdf-footer {padding: '+footerMarginTop+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.right+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.bottom+args.pdfSettings.unit+' '+args.pdfSettings.margins.footer.left+args.pdfSettings.unit+'; }';
+        css += '.super-pdf-footer .super-form, .super-pdf-footer .super-form form {padding:0!important;margin:0!important;float:left!important;width:100%!important;}';
+
+        var head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+        style.id = 'super-generating-pdf';
+        head.appendChild(style);
+        style.type = 'text/css';
+        if (style.styleSheet){
+            // This is required for IE8 and below.
+            style.styleSheet.cssText = css;
+        } else {
+            style.appendChild(document.createTextNode(css));
+        }
+
+        var formId = form.querySelector('input[name="hidden_form_id"]').value;
+
+
+        // Add form placeholder (fake form)
+        var placeholder = form.cloneNode(true);
+        placeholder.id = placeholder.id+'-placeholder';
+        placeholder.classList.add('super-pdf-placeholder');
+        args.placeholder = placeholder;
+        form.parentNode.insertBefore(placeholder, form.nextSibling);
+
+        // Remove responsiveness classes, so that mobile and desktop PDF look identical
+        var clonedForm = form.cloneNode(true);
+        var newClassName = '';
+        //var oldClassName = clonedForm.className;
+        for(var i=0; i<clonedForm.classList.length; i++){
+            // e.g: super-first-responsiveness, super-window-first-responsiveness
+            if(clonedForm.classList[i].indexOf('responsiveness')===-1){
+                newClassName += clonedForm.classList[i]+' ';
+            }
+        }
+        // Update classname
+        clonedForm.className = newClassName;
+        args.form0.className = newClassName;
+        var headerClone = clonedForm.cloneNode(true);
+        var footerClone = clonedForm.cloneNode(true);
+        
+        // PDF page container
+        var pdfPageContainer = document.createElement('div');
+        args.pdfPageContainer = pdfPageContainer;
+        var html = '<div class="super-pdf-header">';
+            // Put any header(s) here
+        html += '</div>';
+        html += '<div class="super-pdf-body">';
+            // Put form here
+        html += '</div>';
+        html += '<div class="super-pdf-footer">';
+            // Put any footer(s) here
+        html += '</div>';
+        pdfPageContainer.innerHTML = html;
+        pdfPageContainer.classList.add('super-pdf-page-container');
+        document.body.appendChild(pdfPageContainer);
+        pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+        pdfPageContainer.style.zIndex = "-999999999";
+        pdfPageContainer.style.left = "-9999px";
+        pdfPageContainer.style.top = "0px";
+        // ------- for debugging only: ----
+        debugger;
+        pdfPageContainer.style.zIndex = "9999999999";
+        pdfPageContainer.style.left = "0px";
+        pdfPageContainer.style.top = "0px";
+        // ------- for debugging only: ----
+        pdfPageContainer.style.position = "fixed";
+        pdfPageContainer.style.backgroundColor = "#ffffff";
+        pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.overflow = "hidden";
+        pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
+        pdfPageContainer.querySelector('.super-pdf-body').appendChild(args.form0);
+        pdfPageContainer.querySelector('.super-pdf-footer').appendChild(footerClone);
+
+        // Put header before form
+        headerClone.querySelector('form').innerHTML = '';
+        var header = form.querySelector('.super-shortcode[data-pdfoption="header"]');
+        if(header){
+            if(header.classList.contains('super-column')){
+                header = header.closest('.super-grid').cloneNode(true);
+            }else{
+                header = header.cloneNode(true);
+            }
+            header.classList.add('pdf-generated-header');
+            headerClone.querySelector('form').appendChild(header);
+        }
+
+        // Put footer after form
+        footerClone.querySelector('form').innerHTML = '';
+        var footer = form.querySelector('.super-shortcode[data-pdfoption="footer"]');
+        if(footer){
+            if(footer.classList.contains('super-column')){
+                footer = footer.closest('.super-grid').cloneNode(true);
+            }else{
+                footer = footer.cloneNode(true);
+            }
+            footer.classList.add('pdf-generated-footer');
+            footerClone.querySelector('form').appendChild(footer);
+        }
+
+        // Resize PDF body height based on header/footer heights
+        var headerFooterHeight = 0;
+        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+        headerFooterHeight += pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
+        args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+        pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
+        pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
+
+        // Make all mutli-parts visible
+        // Make all TABs visible
+        // Make all accordions visible
+        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        for( i=0; i < nodes.length; i++){
+            if(nodes[i].classList.contains('super-active')){
+                nodes[i].classList.add('super-active-origin');         
+            }else{
+                nodes[i].classList.add('super-active');
+            }
+        }
+
+        // Normalize all font sizes
+        // Example of allowed font sizes are: 10px, 12.5px, 15px, 17.5px, 20px etc. (increment with 2.5px)
+        // Other font sizes creates issues within the PDF
+        // We only have to loop over fields that we are going to print out
+        nodes = pdfPageContainer.querySelectorAll(normalizeFontStylesNodesClasses);
+        for( i=0; i < nodes.length; i++ ) {
+            var el = nodes[i];
+            if(el.classList.contains('super-heading-title')){
+                el = el.children[0];
+            }
+            var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+            var newFontSize = 2.5 * Math.ceil(fontSize/2.5);
+            el.style.fontSize = newFontSize+'px';
+        }
+
+        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
+
+            // First disable the UI on the map for nicer print of the map
+            // And make map fullwidth and directions fullwidth
+            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+                SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                    disableDefaultUI: true
+                });
+                nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
+                for(var x=0; x < nodes.length; x++){
+                    nodes[x].style.width = '100%';
+                    if(nodes[x].classList.contains('super-google-map-directions')){
+                        nodes[x].style.overflowY = 'initial';
+                        nodes[x].style.height = 'auto';
+                    }
+                }
+            }
+            
+            // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+            function adjustHeight(el, minHeight) {
+                // compute the height difference which is caused by border and outline
+                var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+                var diff = outerHeight - el.clientHeight;
+                // set the height to 0 in case of it has to be shrinked
+                el.style.height = 0;
+                // set the correct height
+                // el.scrollHeight is the full height of the content, not just the visible part
+                el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+            }
+            // we use the "data-adaptheight" attribute as a marker
+            // iterate through all the textareas on the page
+            var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
+            for(i=0; i<nodes.length; i++){
+                el = nodes[i];
+                // we need box-sizing: border-box, if the textarea has padding
+                el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+                // we don't need any scrollbars, do we? :)
+                el.style.overflowY = 'hidden';
+                // the minimum height initiated through the "rows" attribute
+                minHeight = el.scrollHeight * 1.03;
+                el.addEventListener('input', function() {
+                    adjustHeight(el, minHeight);
+                });
+                // we have to readjust when window size changes (e.g. orientation change)
+                window.addEventListener('resize', function() {
+                    adjustHeight(el, minHeight);
+                });
+                // we adjust height to the initial content
+                adjustHeight(el, minHeight);
+            }
+
+            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
+            nodes = form.querySelectorAll('.super-pdf_page_break');
+            args.pageOrientationChanges = {};
+            for(i=0; i<nodes.length; i++){
+                var pos = nodes[i].getBoundingClientRect();
+                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
+                //var belongsToPage = args.scrollAmount/pos.top;
+                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
+                var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                dynamicHeight = dynamicHeight+headerHeight;
+                nodes[i].style.height = dynamicHeight+'px';
+                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
+                if(nodes[i].classList.contains('pdf-orientation-portrait')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-landscape')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-default')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'default';
+                }
+            }
+
+            // Grab the total form height, this is required to know how many pages will be generated for the PDF file
+            // This way we can also show the progression to the end user
+            //scrollAmount = (pageHeightInPixels*2);
+            args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
+            if(args.progressBar) args.progressBar.style.width = 5+'%';
+            callback(args);
+        }});
+    };
+
+
+
+    // PDF Generation
+    SUPER.pdf_generator_generate_page = function(args, callback){
+        args._pdf_generator_done_callback = callback;
+        var form = args.form0.closest('.super-form');
+        // When canceled the following class will no longer exist, and we should not proceed
+        if(form && !form.classList.contains('super-generating-pdf')){
+            return false;
+        }
+        if(args.currentPage===1){
+            if(args.orientation==='portrait'){
+                args.pageWidth = args.pageWidthPortrait;
+                args.pageHeight = args.pageHeightPortrait;
+            }else{
+                args.pageWidth = args.pageWidthLandscape;
+                args.pageHeight = args.pageHeightLandscape;
+            }
+        }else{
+            // Change the PDF container width based on orientation
+            var headerFooterHeight = 0;
+            if(args.pageOrientationChanges[args.currentPage]==='portrait'){
+                args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+                args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
+                args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+                args.pageWidth = args.pageWidthPortrait;
+                args.pageHeight = args.pageHeightPortrait;
+                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
+                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
+                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
+                args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+            }
+            if(args.pageOrientationChanges[args.currentPage]==='landscape'){
+                args.pdfPageContainer.style.width = (args.pageHeightInPixels*2)+'px';
+                args.pdfPageContainer.style.height = (args.pageWidthInPixels*2)+'px';
+                args.pdfPageContainer.style.maxHeight = (args.pageWidthInPixels*2)+'px';
+                args.pageWidth = args.pageWidthLandscape;
+                args.pageHeight = args.pageHeightLandscape;
+                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
+                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
+                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
+                args.scrollAmount = (args.pageWidthInPixels*2)-headerFooterHeight;
+            }
+            // Reset any PDF page break heights
+            var i, nodes = form.querySelectorAll('.super-pdf_page_break');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].style.height = '0px';
+            }
+            // Reset scroll
+            form.querySelector('form').style.marginTop = '';
+            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
+            nodes = form.querySelectorAll('.super-pdf_page_break');
+            for(i=0; i<nodes.length; i++){
+                var pos = nodes[i].getBoundingClientRect();
+                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
+                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
+                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                dynamicHeight = dynamicHeight+headerHeight;
+                nodes[i].style.height = dynamicHeight+'px';
+            }
+            args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
+            args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
+            // Scroll to the "fake" page
+            form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
+        }
+        
+
+        // Set form width and height according to a4 paper size minus the margins
+        // 210 == 793px
+        // 297 == 1122px
+        // Media                Page size           Print area              Margins
+        // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
+
+        // Update PDF tags
+        SUPER.pdf_tags = {
+            pdf_page: args.currentPage,
+            pdf_total_pages: args.totalPages
+        };
+
+        // Update pdf {tags}
+        SUPER.after_field_change_blur_hook({el: undefined, form: form});
+        var pdfHeaderForm = document.querySelector('.super-pdf-header .super-form');
+        SUPER.after_field_change_blur_hook({el: undefined, form: pdfHeaderForm});
+        var pdfFooterForm = document.querySelector('.super-pdf-footer .super-form');
+        SUPER.after_field_change_blur_hook({el: undefined, form: pdfFooterForm});
+
+        // Scroll to the "fake" page
+        //form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
+
+        // Because disabling the UI takes some time, add a timeout
+        var timeout = (args.currentPage===1 ? 200 : 0);
+        setTimeout(function(){
+            // Now allow printing
+            try {
+                // Only if not already canceled/reset
+                if(form && !form.classList.contains('super-generating-pdf')){
+                    return false;
+                }
+                // eslint-disable-next-line no-undef
+                debugger;
+                html2canvas(document.querySelector('.super-pdf-page-container'), {
+                    scrollX: 0, // Important, do not remove
+                    scrollY: 0,  // -window.scrollY, // Important, do not remove
+                    scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
+                    currentPage: args.currentPage,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: '#ffffff'
+                }).then(function(canvas) {
+                    debugger;
+                    // Only if not already canceled/reset
+                    if(form && !form.classList.contains('super-generating-pdf')){
+                        return false;
+                    }
+
+                    var percentage = ((50/(args.totalPages+1))*args.currentPage)+5;
+                    if(percentage<5) percentage = 5;
+                    if(percentage>=50) percentage = 50;
+                    if(args.progressBar) args.progressBar.style.width = percentage+"%";  
+                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                    // Add this image as 1 single page
+                    args._pdf.addImage(
+                        imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
+                        'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
+                                    // e.g. 'JPEG', 'PNG', 'WEBP'
+                        0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                        0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                        args.pageWidth,
+                        args.pageHeight
+                    );
+                    // Make PDF searchable when text rendering is enabled
+                    if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
+                    if(args.pdfSettings.textRendering==='true'){
+                        SUPER.pdf_generator_render_text(args);
+                    }
+                    // If there are more pages to be processed, go ahead
+                    if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
+                        args.currentPage++;
+                        if(typeof args.pageOrientationChanges[args.currentPage] !== 'undefined' ){
+                            if(args.pageOrientationChanges[args.currentPage]==='unchanged'){
+                                if(typeof args.lastPageOrientation === 'undefined' ){
+                                    args.lastPageOrientation = args.pdfSettings.orientation;
+                                }
+                                args._pdf.addPage(args.pdfSettings.format, args.lastPageOrientation);
+                            }else{
+                                if(args.pageOrientationChanges[args.currentPage]==='default'){
+                                    args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                                    args.lastPageOrientation = args.pdfSettings.orientation;
+                                }else{
+                                    args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
+                                    args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
+                                }
+                            }
+                        }else{
+                            args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                            args.lastPageOrientation = args.pdfSettings.orientation;
+                        }
+                        SUPER.pdf_generator_generate_page(args, args._pdf_generator_done_callback(args));
+                    }else{                   
+                        // No more pages to generate (submit form / send email)
+                        args._pdf_generator_done_callback(args);
+                    }
+                });
+            }
+            catch(error) {
+                console.log("Error: ", error);
+            }
+        }, timeout );
+    }
+    // PDF render text
+    SUPER.pdf_generator_render_text = function(args){
+        // If so add a text node on the exact position
+        var i, nodes, formWidth, pdfPageWidth, scale,
+            lineHeight = 1.194,
+            drawRectangle = false, // true,
+            renderingMode = 'invisible', // fill,
+            resume, el,
+            // Loop over all elements and see if the element is included in the PDF
+            pdfPageContainer = document.querySelector('.super-pdf-page-container'),
+            //pdfHeader = pdfPageContainer.querySelector('.super-pdf-header'),
+            //pdfBody = pdfPageContainer.querySelector('.super-pdf-body'),
+            //pdfFooter = pdfPageContainer.querySelector('.super-pdf-footer'),
+            convertToPixel = 1,
+            convertFromPixel = 1,
+            charSpaceMultiplier = 0.00135;
+
+        // Convert unit to pixel
+        if(args.pdfSettings.unit=='pt') convertToPixel = 1.333333333333333;
+        if(args.pdfSettings.unit=='mm') convertToPixel = 3.7795275591;
+        if(args.pdfSettings.unit=='cm') convertToPixel = 37.7952755906
+        if(args.pdfSettings.unit=='in') convertToPixel = 96;
+        // Convert pixel to unit
+        if(args.pdfSettings.unit=='pt') convertFromPixel = 0.75;
+        if(args.pdfSettings.unit=='mm') convertFromPixel = 0.2645833333;
+        if(args.pdfSettings.unit=='cm') convertFromPixel = 0.0264583333;
+        if(args.pdfSettings.unit=='in') convertFromPixel = 0.0104166667;
+        // Convert pixel to unit
+        if(args.pdfSettings.unit=='pt') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='mm') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='cm') charSpaceMultiplier = 0.00200;
+        if(args.pdfSettings.unit=='in') charSpaceMultiplier = 0.00200;
+        var topLineHeightDivider = 1;
+        if(args.pdfSettings.unit=='px') topLineHeightDivider = 2;
+        var m = args.pdfSettings.margins;
+        var bodyMargins = {
+            top: parseFloat(m.body.top)*convertToPixel,
+            right: parseFloat(m.body.right)*convertToPixel,
+            bottom: parseFloat(m.body.bottom)*convertToPixel,
+            left: parseFloat(m.body.left)*convertToPixel,
+        };
+        
+        // Determine scale
+        formWidth = args.form0.clientWidth;
+        formWidth = formWidth + bodyMargins.left + bodyMargins.right;
+        pdfPageWidth = args._pdf.internal.pageSize.getWidth()*convertToPixel;
+        scale = formWidth / pdfPageWidth;
+
+        args._pdf.setFont('Helvetica');
+        args._pdf.setTextColor('red');
+        args._pdf.setLineWidth(1*convertFromPixel);
+
+        nodes = pdfPageContainer.querySelectorAll('.super-label, .super-description, .super-heading-title, .super-heading-description, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-toggle-switch, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-currency .super-shortcode-field');
+        for( i=0; i < nodes.length; i++ ) {
+            el = nodes[i];
+            // For HTML content we will need to do some special things because a HTML element will contain unkown nodes with unkown styles
+            // We will first have to wrap any stand alone text inside a <div> tag. This way we can more accurately position the overlapping text
+            // After that we can loop over nodes and check for child nodes and do the same thing
+            // Once done we can then do a final loop
+            if(el.classList.contains('super-html-content')){
+                // Wrap individual text inside "span" tags
+                //var regex = /(?<=(>))((?![<])(.{1,}?))(?=<)/gm;
+                //var str = el.innerHTML;
+                //var subst = '<span class="super-pdf-text">$2</span>';
+                //// The substituted value will be contained in the result variable
+                //var result = str.replace(regex, subst);
+                //regex = /(?<=<.+?>)([\s]+(?!<).{1,}[\s]+)(?=<.+?>)/gm;
+                //str = result;
+                //subst = '<span class="super-pdf-text">$1</span>';
+                //// The substituted value will be contained in the result variable
+                //el.innerHTML = str.replace(regex, subst);
+                //var childNodes = el.querySelectorAll('.super-pdf-text');
+                //for(var x=0; x < childNodes.length; x++){
+                //    resume = SUPER.draw_pdf_text(i, childNodes[x], childNodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+                //    if(resume) continue;
+                //}
+                continue;
+            }
+            resume = SUPER.pdf_generator_draw_pdf_text(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+            if(resume) continue;
+        }
+    };
+    // PDF Draw text
+    SUPER.pdf_generator_draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
+        args._pdf.setFontType('normal');
+        var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
+        if(el.classList.contains('super-heading-title')){
+            el = nodes[i].children[0];
+        }
+        if(el.classList.contains('super-toggle-switch')){
+            if(el.classList.contains('super-active')){
+                el = el.querySelector('.super-toggle-on');
+                value = el.querySelector('.super-toggle-on > span').innerText;
+                paddingRight = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-right'))/scale)*convertFromPixel;
+            }else{
+                el = el.querySelector('.super-toggle-off');
+                value = el.querySelector('.super-toggle-off > span').innerText;
+                paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            }
+        }else{
+            if(el.closest('.super-text, .super-textarea, .super-quantity, .super-currency')){
+                if(el.value) {
+                    value = el.value;
+                }else if(el.innerText) {
+                    value = el.innerText;
+                }
+            }else{
+                value = el.innerText;
+            }
+        }
+        if(value==='') return true; //continue;
+        pos = el.getBoundingClientRect();
+        // Before we print the text, we must check if it's visible for this specific PDF page
+        tmpPosTop = pos.top;
+        // Only if not header and not footer, because these are printed on every single page
+        if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
+            var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+            if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
+                return true; //continue;
+            }
+        }
+        var posWidth = (pos.width/scale)*convertFromPixel;
+        var posHeight = (pos.height/scale)*convertFromPixel;
+        var posLeft = ((pos.left+9999)/scale)*convertFromPixel;
+        var posTop = ((tmpPosTop)/scale)*convertFromPixel;
+        if(el.classList.contains('super-pdf-text')){
+            if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
+                args._pdf.setFontType('bold');
+            }
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        if(el.closest('.super-toggle-prefix-label') || el.closest('.super-toggle-suffix-label')){
+            posTop = ((tmpPosTop+1)/scale)*convertFromPixel;
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        if(el.closest('.super-radio') || el.closest('.super-checkbox') || el.classList.contains('super-fileupload-button-text')){
+            posWidth = ((pos.width+1)/scale)*convertFromPixel;
+        }
+        var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+        var fontSizePoint = fontSize * 0.67;
+        value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth);
+        var charSpace = -(fontSize*charSpaceMultiplier)*convertFromPixel;
+        var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
+        if(el.closest('.super-adaptive-placeholder')){
+            posLeft = posLeft+(posWidth/2);
+            if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
+            return true; //continue;
+        }
+        if(el.closest('.super-dropdown')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-radio') || el.closest('.super-checkbox')){
+            if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-toggle-switch')){
+            if(el.closest('.super-toggle-switch').classList.contains('super-active')){
+                if(drawRectangle) args._pdf.rect(posLeft+((posWidth-paddingRight)/2), posTop, posWidth-paddingRight, posHeight);
+                args._pdf.text(value, posLeft+((posWidth-paddingRight)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            }else{
+                if(drawRectangle) args._pdf.rect(posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop, posWidth-paddingLeft, posHeight);
+                args._pdf.text(value, posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            }
+            return true; //continue;
+        }
+        if(el.closest('.super-quantity')){
+            if(drawRectangle) args._pdf.rect(posLeft, posTop+(posHeight/2), posWidth, posHeight);
+            posLeft = posLeft+(posWidth/2);
+            args._pdf.text(value, posLeft, posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-textarea')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/scale)*convertFromPixel;
+            if(drawRectangle) args._pdf.rect(posLeft, posTop, posWidth, posHeight);
+            args._pdf.text(value, posLeft+paddingLeft, posTop+paddingTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(el.closest('.super-text') || el.closest('.super-currency')){
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            if(drawRectangle) args._pdf.rect(posLeft, posTop, posWidth, posHeight);
+            args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            return true; //continue;
+        }
+        if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+        args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+        return true; //continue;
+    };
+    SUPER.pdf_generator_reset = function(form){
+        // Only if not already canceled/reset
+        if(form && !form.classList.contains('super-generating-pdf')){
+            return false;
+        }
+        // Show scrollbar again
+        document.documentElement.classList.remove('super-hide-scrollbar');
+        var inlineStyle = document.querySelector('#super-generating-pdf');
+        if(inlineStyle) inlineStyle.remove();
+        // Make all mutli-parts invisible again (except for the last active multi-part)
+        // Make all TABs invisible
+        // Make all accordions invisible
+        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        for(var i=0; i < nodes.length; i++){
+            if(!nodes[i].classList.contains('super-active-origin')){
+                nodes[i].classList.remove('super-active');
+            }else{
+                nodes[i].classList.remove('super-active-origin');
+            }
+        }
+        // Reset any PDF page break heights
+        nodes = form.querySelectorAll('.super-pdf_page_break');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].style.height = '0px';
+        }
+        
+        // @@@@@@@@@@@@@@
+        // // Re-enable the UI for Maps and resize to original width
+        // for(i=0; i < SUPER.google_maps_api.allMaps[$form_id].length; i++){
+        //     SUPER.google_maps_api.allMaps[$form_id][i].setOptions({
+        //         disableDefaultUI: false
+        //     });
+        //     var children = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelectorAll(':scope > div');
+        //     for(var x=0; x < children.length; x++){
+        //         children[x].style.width = '';
+        //         if(children[x].classList.contains('super-google-map-directions')){
+        //             children[x].style.overflowY = 'scroll';
+        //             children[x].style.height = SUPER.google_maps_api.allMaps[$form_id][i]['super_el'].querySelector('super-google-map-'+$form_id).offsetHeight+'px';
+        //         }
+        //     }
+        // }
+        // @@@@@@@@@@@@@@
+
+        // Restore form position and remove the cloned form
+        // Before removing cloned form, insert original form before cloned form
+        form.querySelector('form').style.marginTop = '';
+        SUPER.reset_submit_button_loading_state(form);
+        var placeholder = document.querySelector('.super-pdf-placeholder');
+        placeholder.parentNode.insertBefore(form, placeholder.nextSibling);
+        form.classList.remove('super-generating-pdf');
+        placeholder.remove();
+        var pdfPageContainer = document.querySelector('.super-pdf-page-container');
+        if(pdfPageContainer) pdfPageContainer.remove();
+        SUPER.init_super_responsive_form_fields({form: form});
+    };
+    SUPER.save_data = function(args){
+        console.log('save_data(4)');
+        var formData = new FormData();
+        formData.append('action', 'super_submit_form');
+        if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
+        if(args.data) formData.append('data', JSON.stringify(args.data));
+        if(args.form_id) formData.append('form_id', args.form_id);
+        if(args.entry_d) formData.append('entry_id', args.entry_id);
+        if(args.list_id) formData.append('list_id', args.list_id);
+        if(args.token) formData.append('token', args.token);
+        if(args.version) formData.append('version', args.version);
+        formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
+        $.ajax({
+            type: 'post',
+            url: super_common_i18n.ajaxurl,
+            data: formData,
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false,
+            timeout: 60000, // 1m
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+                if(args.showOverlay==="true"){
+                    xhr.upload.addEventListener("progress", function(evt) {
+                        if (evt.lengthComputable) {
+                            var percentComplete = evt.loaded / evt.total;
+                            //Do something with upload progress here
+                            if(args._pdf!==false){
+                                if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+                            }else{
+                                if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+                            }
+                        }
+                    }, false);
+                }
+                return xhr;
+            },
+            success: function(result){
+                result = JSON.parse(result);
+                if(result.error===true){
+                    // Display error message
+                    SUPER.form_submission_finished(args, result);
+                }else{
+                    // Clear form progression (if enabled)
+                    if( args.form[0].classList.contains('super-save-progress') ) {
+                        $.ajax({
+                            url: super_common_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_save_form_progress',
+                                data: '',
+                                form_id: args.form_id
+                            }
+                        });
+                    }
+                    // Trigger js hook and continue
+                    SUPER.after_email_send_hook(args);
+                    // If a hook is redirecting we should avoid doing other things
+                    if(args.form.data('is-redirecting')){
+                        // However if a hook is doing things in the back-end, we must check until finished
+                        if(args.form.data('is-doing-things')){
+                            clearInterval(SUPER.submit_form_interval);
+                            SUPER.submit_form_interval = setInterval(function(){
+                                if(args.form.data('is-doing-things')){
+                                    // Still doing things...
+                                }else{
+                                    clearInterval(SUPER.submit_form_interval);
+                                    // Form submission is finished
+                                    SUPER.form_submission_finished(args, result);
+                                }
+                            }, 100);
+                        }
+                        return false; // Stop here, we are redirecting the form (used by Stripe)
+                    }
+
+                    // @since 2.2.0 - custom form POST method
+                    if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
+                        args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
+                        return false;
+                    }
+                    // Form submission is finished
+                    SUPER.form_submission_finished(args, result);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Failed to process data, please try again');
+            }
+        });
+    };
 
 
     jQuery(document).ready(function ($) {
@@ -7543,9 +7800,7 @@ function SUPERreCaptcha(){
             $field.addClass('super-focus');
         });
 
-        $doc.keyup(function(e){
-        });
-        $doc.on('keyup', '.super-icon-search input', function(e){
+        $doc.on('keyup', '.super-icon-search input', function(){
             var $value = $(this).val();
             var $icons = $(this).parents('.super-icon-field').children('.super-icon-list').children('i');
             if($value===''){
@@ -7597,7 +7852,6 @@ function SUPERreCaptcha(){
                 var $populate = $this.data('wcosp');
                 var $skip = $this.data('wcoss');
                 var $status = $this.data('wcosst');
-                var $form = $this.closest('.super-form');
                 if( $value.length>0 ) {
                     $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
                     $.ajax({
@@ -7643,3 +7897,4 @@ function SUPERreCaptcha(){
     });
 
 })(jQuery);
+
