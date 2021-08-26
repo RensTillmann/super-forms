@@ -623,10 +623,8 @@ if(!class_exists('SUPER_Mailchimp')) :
          *  @since      1.0.0
         */
         public static function update_mailchimp_subscribers( $atts ) {
-            
-            $data = $atts['post']['data'];
+            extract($atts); // data, post, settings
             if( isset( $data['mailchimp_list_id'] ) ) {
-
                 // First check if 'email' field exists, because this is required to make the request
                 if( (empty($data['email'])) || (empty($data['email']['value'])) ) {
                     SUPER_Common::output_message(

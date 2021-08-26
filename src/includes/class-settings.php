@@ -714,27 +714,6 @@ class SUPER_Settings {
          *  @since      1.0.0
         */
 
-        // Set to 0 to use the GD library to scale and orient images,
-        // set to 1 to use imagick (if installed, falls back to GD),
-        // set to 2 to use the ImageMagick convert binary directly:
-
-        // GD library
-        $loaded_image_libraries = array();
-        if (function_exists('imagecreatetruecolor')) {
-            $loaded_image_libraries[0] = 'Graphics Draw [GD]';
-        }else{
-            $loaded_image_libraries[0] = 'Graphics Draw [GD] (NOT INSTALLED)';
-        }
-
-        // ImageMagick
-        if( extension_loaded('imagick') || class_exists("Imagick") ) {
-            $loaded_image_libraries[1] = 'ImageMagick [imagick]';
-            $loaded_image_libraries[2] = 'ImageMagick [imagick] (binary)';
-        }else{
-            $loaded_image_libraries[1] = 'ImageMagick [imagick] (Extension not installed)';
-            $loaded_image_libraries[2] = 'ImageMagick Binary [imagick] (Extension not installed)';
-        }
-
         // Get available roles
         global $wp_roles;
         $all_roles = $wp_roles->roles;
@@ -748,13 +727,6 @@ class SUPER_Settings {
             'name' => esc_html__( 'File Upload Settings', 'super-forms' ),
             'label' => esc_html__('Here you can change the way files are being processed and uploaded', 'super-forms' ),
             'fields' => array(
-                'file_upload_image_library' => array(
-                    'name' => esc_html__('Image Library', 'super-forms' ),
-                    'desc' => esc_html__('Choose which image library should be used to scale and orient images', 'super-forms' ),
-                    'default' => self::get_value( $default, 'file_upload_image_library', $settings, '1' ),
-                    'type' => 'select', 
-                    'values' => $loaded_image_libraries
-                ),
                 'file_upload_hide_from_media_library' => array(
                     'name' => esc_html__('Hide files from Media Library that were uploaded via forms', 'super-forms' ),
                     'desc' => esc_html__('Please note that when you are storing your files in a secure/private directory outside the root the files will automatically not be added to the Media Library.', 'super-forms' ),

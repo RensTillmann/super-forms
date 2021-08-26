@@ -208,11 +208,6 @@ if(!class_exists('SUPER_Password_Protect')) :
          *  @since      1.0.0
         */
         public static function before_sending_email( $atts ) {
-            $atts = array(
-                'id' => $atts['post']['form_id'],
-                'data' => $atts['post']['data'],
-                'settings' => $atts['settings']
-            );
             SUPER_Password_Protect()->locked_msg( '', $atts );
         }
 
@@ -307,20 +302,21 @@ if(!class_exists('SUPER_Password_Protect')) :
          *  @since      1.0.2
         */
         public static function locked_msg( $result, $atts ) {
+            extract($atts); // data, post, settings
 
-            if( !isset( $atts['settings']['password_protect'] ) ) $atts['settings']['password_protect'] = '';
-            if( !isset( $atts['settings']['password_protect_login'] ) ) $atts['settings']['password_protect_login'] = '';
-            if( !isset( $atts['settings']['password_protect_roles'] ) ) $atts['settings']['password_protect_roles'] = '';
+            if( !isset( $settings['password_protect'] ) ) $settings['password_protect'] = '';
+            if( !isset( $settings['password_protect_login'] ) ) $settings['password_protect_login'] = '';
+            if( !isset( $settings['password_protect_roles'] ) ) $settings['password_protect_roles'] = '';
 
             // Check if password protect is enabled
-            if( $atts['settings']['password_protect']=='true' ) {
+            if( $settings['password_protect']=='true' ) {
 
                 if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                     
                     if ( !SUPER_Password_Protect()->is_request( 'admin' ) ) {
 	                    // Before we proceed, lets check if we have a password field
-	                    if( !isset( $atts['data']['password'] ) ) {
-	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] )) . '">', '</a>' );
+	                    if( !isset( $data['password'] ) ) {
+	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
 	                        SUPER_Common::output_message(
 	                            $error = true,
 	                            $msg = $msg,
@@ -331,13 +327,13 @@ if(!class_exists('SUPER_Password_Protect')) :
 
                     // Now lets check if the passwords are incorrect
 					if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
-						if( $atts['data']['password']['value']!=$atts['settings']['password_protect_password'] ) {
-	                        if( !isset( $atts['settings']['password_protect_incorrect_msg'] ) ) {
-	                            $atts['settings']['password_protect_incorrect_msg'] = esc_html__( 'Incorrect password, please try again!', 'super-forms' );
+						if( $data['password']['value']!=$settings['password_protect_password'] ) {
+	                        if( !isset( $settings['password_protect_incorrect_msg'] ) ) {
+	                            $settings['password_protect_incorrect_msg'] = esc_html__( 'Incorrect password, please try again!', 'super-forms' );
 	                        }
 	                        SUPER_Common::output_message(
 	                            $error = true,
-	                            $msg = $atts['settings']['password_protect_incorrect_msg'],
+	                            $msg = $settings['password_protect_incorrect_msg'],
 	                            $redirect = null
 	                        );               
 	                    }
@@ -345,7 +341,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                   
                 }
 
-                $elements = get_post_meta( absint($atts['id']), '_super_elements', true );
+                $elements = get_post_meta( absint($post['form_id']), '_super_elements', true );
                 if(!is_array($elements)){
                     $elements = json_decode( $elements, true );
                 }
@@ -353,7 +349,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                 $field_found = strpos($elements_json, '"name":"password"');
                 if ($field_found === false) {
                     $msg  = '<div class="super-msg super-error">';
-                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['id'] )) . '">', '</a>' );
+                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                     $msg .= '<span class="super-close"></span>';
                     $msg .= '</div>';
                     return $result.$msg;
@@ -361,24 +357,24 @@ if(!class_exists('SUPER_Password_Protect')) :
             }
 
             // Return message for non logged in users
-            if( $atts['settings']['password_protect_login']=='true' ) {
+            if( $settings['password_protect_login']=='true' ) {
                 if ( !is_user_logged_in() ) {
-                    if( !isset( $atts['settings']['password_protect_show_login_msg'] ) ) {
-                        $atts['settings']['password_protect_show_login_msg'] = '';
+                    if( !isset( $settings['password_protect_show_login_msg'] ) ) {
+                        $settings['password_protect_show_login_msg'] = '';
                     }
-                    if( $atts['settings']['password_protect_show_login_msg']=='true' ) {
-                        if( !isset( $atts['settings']['password_protect_login_msg'] ) ) {
-                            $atts['settings']['password_protect_login_msg'] = esc_html__( 'You do not have permission to submit this form!', 'super-forms' );
+                    if( $settings['password_protect_show_login_msg']=='true' ) {
+                        if( !isset( $settings['password_protect_login_msg'] ) ) {
+                            $settings['password_protect_login_msg'] = esc_html__( 'You do not have permission to submit this form!', 'super-forms' );
                         }
                         
                         // @since 1.0.1 - show only after form submit
-                        if( !isset( $atts['settings']['password_protect_show_login_after_submit'] ) ) $atts['settings']['password_protect_show_login_after_submit'] = '';
-                        if( $atts['settings']['password_protect_show_login_after_submit']=='true' ) {
+                        if( !isset( $settings['password_protect_show_login_after_submit'] ) ) $settings['password_protect_show_login_after_submit'] = '';
+                        if( $settings['password_protect_show_login_after_submit']=='true' ) {
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                                 if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
                                     SUPER_Common::output_message(
                                         $error = true,
-                                        $msg = $atts['settings']['password_protect_login_msg'],
+                                        $msg = $settings['password_protect_login_msg'],
                                         $redirect = null
                                     );
                                 }             
@@ -387,12 +383,12 @@ if(!class_exists('SUPER_Password_Protect')) :
                             if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                                 SUPER_Common::output_message(
                                     $error = true,
-                                    $msg = $atts['settings']['password_protect_login_msg'],
+                                    $msg = $settings['password_protect_login_msg'],
                                     $redirect = null
                                 );
                             }
                             $msg  = '<div class="super-msg super-error">';
-                            $msg .= $atts['settings']['password_protect_login_msg'];
+                            $msg .= $settings['password_protect_login_msg'];
                             $msg .= '<span class="super-close"></span>';
                             $msg .= '</div>';
                             return $result.$msg;
@@ -404,7 +400,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                         if( (isset($_REQUEST['action'])) && ($_REQUEST['action']=='super_submit_form') ) {
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = $atts['settings']['password_protect_login_msg'],
+                                $msg = $settings['password_protect_login_msg'],
                                 $redirect = null
                             );
                         }             
@@ -414,19 +410,19 @@ if(!class_exists('SUPER_Password_Protect')) :
             }
 
             // Return message for locked out users
-            if( $atts['settings']['password_protect_roles']=='true' ) {
-                if( !isset( $atts['settings']['password_protect_show_msg'] ) ) {
-                    $atts['settings']['password_protect_show_msg'] = '';
+            if( $settings['password_protect_roles']=='true' ) {
+                if( !isset( $settings['password_protect_show_msg'] ) ) {
+                    $settings['password_protect_show_msg'] = '';
                 }
-                if( !isset( $atts['settings']['password_protect_msg'] ) ) {
-                    $atts['settings']['password_protect_msg'] = esc_html__( 'You are currently not logged in. In order to submit the form make sure you are logged in!', 'super-forms' );
+                if( !isset( $settings['password_protect_msg'] ) ) {
+                    $settings['password_protect_msg'] = esc_html__( 'You are currently not logged in. In order to submit the form make sure you are logged in!', 'super-forms' );
                 }
                 // Check if the users doesn't have the propper user role
                 global $current_user;
-                if( (!isset( $atts['settings']['password_protect_user_roles'] )) || ($atts['settings']['password_protect_user_roles']=='') ) {
-                    $atts['settings']['password_protect_user_roles'] = array();
+                if( (!isset( $settings['password_protect_user_roles'] )) || ($settings['password_protect_user_roles']=='') ) {
+                    $settings['password_protect_user_roles'] = array();
                 }
-                $allowed_roles = $atts['settings']['password_protect_user_roles'];
+                $allowed_roles = $settings['password_protect_user_roles'];
                 $allowed = false;
                 foreach( $current_user->roles as $v ) {
                     if( in_array( $v, $allowed_roles ) ) {
@@ -437,13 +433,13 @@ if(!class_exists('SUPER_Password_Protect')) :
                     if ( SUPER_Password_Protect()->is_request( 'ajax' ) ) {
                         SUPER_Common::output_message(
                             $error = true,
-                            $msg = $atts['settings']['password_protect_msg'],
+                            $msg = $settings['password_protect_msg'],
                             $redirect = null
                         );               
                     }
-                    if( $atts['settings']['password_protect_show_msg']=='true' ) {
+                    if( $settings['password_protect_show_msg']=='true' ) {
                         $msg  = '<div class="super-msg super-error">';
-                        $msg .= $atts['settings']['password_protect_msg'];
+                        $msg .= $settings['password_protect_msg'];
                         $msg .= '<span class="super-close"></span>';
                         $msg .= '</div>';
                         return $result.$msg;

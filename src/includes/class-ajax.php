@@ -2286,9 +2286,9 @@ class SUPER_Ajax {
         }
 
         // Before we continue we might want to manipulate the form settings
-        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'data'=>$data ) );        
         $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
         $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
+        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
         
         // Temporarily deprecated till found a solution with caching plugins
         // // @since 4.6.0 - Check if ajax request is valid based on nonce field
@@ -2387,14 +2387,14 @@ class SUPER_Ajax {
         return array(
             'data'=>$data,
             'form_id'=>$form_id,
-            'entry_id'=>$etnry_id,
+            'entry_id'=>$entry_id,
             'list_id'=>$list_id,
             'settings'=>$settings,
             'response_data'=>$response_data
         );
     }
     public static function upload_files() {
-        $atts = self::submit_form_checks($settings);
+        $atts = self::submit_form_checks();
         $data = $atts['data'];
         $form_id = $atts['form_id'];
         // Dependencies for file upload
@@ -2525,15 +2525,6 @@ class SUPER_Ajax {
                 }
             }
         }
-        foreach($data as $k => $v){
-            if( $v['type']=='files' ) {
-                if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                    // Has files, we will return this so we can update the front-end
-                }else{
-                    unset($data[$k]);
-                }
-            }
-        }
         echo json_encode($data);
         die();
     }
@@ -2605,6 +2596,10 @@ class SUPER_Ajax {
                                         $value['attachment'] = $attachment_id;
                                     }
                                     $data[$k]['files'][$key] = $value;
+                                    // Exclude from Contact Entry?
+                                    if(!empty($settings['_pdf']['excludeEntry']) && $settings['_pdf']['excludeEntry']==='true'){
+                                        $data[$k]['exclude_entry'] = 'true';
+                                    }
                                 } catch (Exception $e) {
                                     // Print error message
                                     SUPER_Common::output_message(
@@ -2857,7 +2852,7 @@ class SUPER_Ajax {
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
 
             // @since 3.4.0 - update contact entry status
-            $entry_status_update = sanitize_text_field( $_POST['entry_status_update'] );
+            $entry_status_update = (isset($_POST['entry_status_update']) ? sanitize_text_field( $_POST['entry_status_update'] ) : '');
             if($entry_status_update!=''){
                 $settings['contact_entry_custom_status_update'] = $entry_status_update;
             }
@@ -2891,6 +2886,9 @@ class SUPER_Ajax {
         $loops = SUPER_Common::retrieve_email_loop_html(array('data'=>$data, 'settings'=>$settings, 'exclude'=>array()));
         $email_loop = $loops['email_loop'];
         $confirm_loop = $loops['confirm_loop'];
+        $attachments = $loops['attachments'];
+        $confirm_attachments = $loops['confirm_attachments'];
+        $string_attachments = $loops['string_attachments'];
 
         // @since 4.9.5 - override setting with global email settings
         // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
