@@ -8,9 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Aug 16, 2021 - Version 5.0.0 (beta)
+## Aug 26, 2021 - Version 5.0.0 (BETA)
 
 - **Added:** `Listings Add-on` display entries on front-end, more info here (https://renstillmann.github.io/super-forms/#/listings-add-on)
+- **Added:** New file upload system, file upload element will now display image/document in thumbnail preview before it's being uploaded to the server, they will also be visible in the generated PDF `PDF Generator Add-on`
 - **Added:** New option under global settings `Super Forms > Settings > WooCommerce My Account Menu Items` to add custom menu items with custom content/shortcode or a custom URL to redirect to a custom page. This allows you to display any extra content for the `/my-account` page. For instance you could list contact entries with the use of the `Listings Add-on` on the `My Account` page. Since you can use shortcodes you could also use it for other usecases that are not even related to Super Forms.
 - **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having seperate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
 - **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`
@@ -23,6 +24,7 @@
 - **Added:** New tags to be used inside E-mails `{_generated_pdf_file_label}`, `{_generated_pdf_file_name}`, `{_generated_pdf_file_url}` allows you to retrieve the Generated PDF url so you can create a button that links to the file for download
 - **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
 - **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
+- **Fix:** `PDF Generator Add-on` option to exclude generated PDF from contact entry not working
 - **Fix:** When switching language through language switcher, preserver URL parameters so that the form is populated with data after switching language
 - **Fix:** `Front-end Register & Login Add-on` when using language switcher, make sure the `code` parameters is preserverd (for account/email verifications)
 - **Fix:** `Front-end Posting Add-on` issue with saving google map data for ACF map field
@@ -30,6 +32,7 @@
 - **Fix:** `WooCommerce Checkout Add-on` issue with `External/Affiliate product` URL being reset to the product permalink
 - **Fix:** `WooCommerce Checkout Add-on` bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
 - **Fix:** `Zapier Add-on` use numbered index instead of filenames as index for the array, otherwise you would not be able to map/retrieve the file within zapier interface
+- **Fix:** Possible RCE (Remote Code Exectuion) vulnerability in old file upload system (doesn't affect most servers, but it's recommended to update to the latest version anyway)
 
 ## Mar 16, 2021 - Version 4.9.800
 - **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to exclude products the shop so that they can only be ordered via the form
