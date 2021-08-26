@@ -3715,7 +3715,6 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         $atts['placeholder'] = '';
 
-        $class = '';
         $files = '';
         // @since   2.9.0 - autopopulate with last entry data
         if( ($entry_data!=null) && (isset($entry_data[$atts['name']])) ) {
@@ -3725,32 +3724,52 @@ class SUPER_Shortcodes {
                         // Before adding the file, check if the file still exists.
                         // In some cases this might not be the case due to the file being deleted from the server manually
                         // or when the setting "Delete files from server after form submissions" is enabled
+                        // If file has attachment ID, always try to retrieve the url via WP core function
+                        if(!empty($v['attachment'])){
+                            $v['url'] = wp_get_attachment_url($v['attachment']);
+                        }
                         $file = $v['url'];
+                        $fileType = (!empty($v['type']) ? $v['type'] : '');
+                        $basename = basename($file);
                         $file_headers = @get_headers($file);
-                        if($file_headers && (strpos($file_headers[0], '404'))==false) {
+                        if($file_headers && (strpos($file_headers[0], '404'))===false) {
                             // File exists, let's add it to the list
-                            $class = ' finished'; // Required in order for the file upload to know if all files are uploaded to the server
-                            $files .= '<div data-name="' . esc_attr($v['value']) . '" class="super-uploaded"';
-                            $files .= ' data-url="' . esc_attr($v['url']) . '"';
-                            $files .= ' data-thumburl="' . esc_attr($v['thumburl']) . '">';
-                            $files .= '<span class="super-fileupload-name"><a href="' . esc_url($v['url']) . '" target="_blank">' . esc_html($v['value']) . '</a></span>';
-                            $files .= '<span class="super-fileupload-delete"></span>';
+                            $files .= '<div class="super-uploaded" data-name="' . esc_attr($basename) . '" title="' . esc_attr($basename) . '" data-type="' . esc_attr($fileType) . '" data-url="' . esc_url($file) . '">';
+                                if(!empty($fileType) && (strpos($fileType, 'image/'))===0){
+                                    $files .= '<span class="super-fileupload-image super-file-type-' . esc_attr(str_replace('/', '-', $fileType)) . '">';
+                                        $files .= '<img src="' . esc_url($file) . '">';
+                                    $files .= '</span>';
+                                }else{
+                                    $files .= '<span class="super-fileupload-document super-file-type-' . esc_attr(str_replace('/', '-', $fileType)) . '"></span>';
+                                }
+                                $files .= '<span class="super-fileupload-info">';
+                                    $split = explode('.', $basename);
+                                    $filename = $split[0];
+                                    $ext = $split[1];
+                                    if (strlen($filename) > 10) $filename = substr($filename, 0, 10).'...';
+                                    $files .= '<span class="super-fileupload-name">' . esc_html($filename) . '.' . $ext . '</span>';
+                                    $files .= '<span class="super-fileupload-delete"></span>';
+                                $files .= '</span>';
                             $files .= '</div>';
                         }
                     }
                 }
             }
         }
-
-        $result .= '<input tabindex="-1" class="super-shortcode-field super-fileupload' . $class . '" type="file" name="files[]" ';
-        $result .= ' data-file-size="' . $atts['filesize'] . '"';
-        $result .= ' data-upload-limit="' . $atts['upload_limit'] . '"';
-        $result .= ' data-accept-file-types="' . $extensions . '"';
-        $result .= ' data-url="' . site_url() . '/?sfupload"';
-        //$result .= ' data-url="' . SUPER_PLUGIN_FILE . 'u/"';
-
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
+
+        $result .= '<input tabindex="-1" class="super-shortcode-field super-fileupload" type="file" name="files[]" ';
+        $result .= ' data-file-size="' . $atts['filesize'] . '"';
+        $singleFileSizeMax = absint($atts['filesize']);
+        $totalFilesAllowed = absint($atts['maxlength']);
+        if($totalFilesAllowed===0){
+            $combinedUploadLimit = $singleFileSizeMax;
+        }else{
+            $combinedUploadLimit = absint($singleFileSizeMax*$totalFilesAllowed);
+        } 
+        $result .= ' data-upload-limit="' . $combinedUploadLimit . '"';
+        $result .= ' data-accept-file-types="' . $extensions . '"';
         if( ($atts['minlength']>1) || ($atts['maxlength']>1) ) $result .= ' multiple';
         $result .= ' />';
         $result .= '<input class="super-active-files" type="hidden" value="" name="' . $atts['name'] . '"';

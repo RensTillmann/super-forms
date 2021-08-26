@@ -1925,6 +1925,7 @@ class SUPER_Common {
                                 // Remove this row completely
                                 $row = ''; 
                                 $confirm_row = '';
+                                $listing_row = '';
                             }else{
                                 if( $key==0 ) {
                                     if( !empty( $v['label'] ) ) {
@@ -1942,7 +1943,7 @@ class SUPER_Common {
                                 // In case the user explicitely choose to remove the hyperlink
                                 if( !empty($settings['file_upload_submission_delete']) || 
                                     !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
-                                    $files_value .= $value['value'] . '<br /><br />';
+                                    $files_value .= $value['value'] . '<br />';
                                 }else{
                                     $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
                                 }
@@ -2045,7 +2046,10 @@ class SUPER_Common {
         return array(
             'listing_loop' => $listing_loop,
             'email_loop' => $email_loop,
-            'confirm_loop' => $confirm_loop
+            'confirm_loop' => $confirm_loop,
+            'attachments' => $attachments,
+            'confirm_attachments' => $confirm_attachments,
+            'string_attachments' => $string_attachments
         );
     }
 

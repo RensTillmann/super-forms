@@ -487,7 +487,6 @@ if(!class_exists('SUPER_Forms')) :
             if(!empty($GLOBALS['super_upload_dir'])){
                 return $GLOBALS['super_upload_dir'];
             }
-            error_log('filter_upload_dir()');
             $global_settings = SUPER_Common::get_global_settings();
             $defaults = SUPER_Settings::get_defaults($global_settings, 0);
             $global_settings = array_merge( $defaults, $global_settings );
@@ -498,7 +497,6 @@ if(!class_exists('SUPER_Forms')) :
             $upload_dir = ABSPATH . $upload_folder;
             $folderResult = SUPER_Common::generate_random_folder($upload_dir);
             $upload_folder = $upload_folder . '/' . $folderResult['folderName'];
-            error_log($folderResult['folderName']);
             $siteurl = get_option('siteurl');
             $dirs['path'] = $folderResult['folderPath'];
             $dirs['url'] = trailingslashit($siteurl) . $upload_folder;
@@ -1265,9 +1263,6 @@ if(!class_exists('SUPER_Forms')) :
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
 
-            if(!isset($settings['file_upload_image_library'])) $settings['file_upload_image_library'] = 1;
-            $image_library = absint($settings['file_upload_image_library']);
-
             $i18n = array(
                 'ajaxurl'=>$ajax_url,
                 'preload'=>$settings['form_preload'],
@@ -1281,7 +1276,6 @@ if(!class_exists('SUPER_Forms')) :
                 'errors'=>SUPER_Forms()->common_i18n['errors'],
                 // @since 3.6.0 - google tracking
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                'image_library' => $image_library, 
             );
             wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
@@ -1484,6 +1478,8 @@ if(!class_exists('SUPER_Forms')) :
                     // Loading overlay text
                     'loadingOverlay' => array(
                         'processing' => esc_html__( 'Processing form data...', 'super-forms' ),
+                        'uploading_files' => esc_html__( 'Uploading files...', 'super-forms' ),
+                        'generating_pdf' => esc_html__( 'Generating PDF file...', 'super-forms' ),
                         'completed' => esc_html__( 'Completed!', 'super-forms' ),
                         'close' => esc_html__( 'Close', 'super-forms' ),
                         'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
@@ -1587,7 +1583,7 @@ if(!class_exists('SUPER_Forms')) :
             add_filter( 'woocommerce_account_menu_items', array( $this, 'add_custom_wc_my_account_menu_items' ), 10, 1 );
             add_filter( 'woocommerce_get_endpoint_url', array( $this, 'add_custom_wc_my_account_menu_item_endpoint' ), 10, 4 );
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = '';
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);
@@ -2102,8 +2098,6 @@ if(!class_exists('SUPER_Forms')) :
             $backend_path   = $assets_path . 'js/backend/';
             $frontend_path  = $assets_path . 'js/frontend/';
             $global_settings = SUPER_Common::get_global_settings();
-            if(!isset($global_settings['file_upload_image_library'])) $global_settings['file_upload_image_library'] = 1;
-            $image_library = absint($global_settings['file_upload_image_library']);
 
             return apply_filters( 
                 'super_enqueue_scripts', 
@@ -2160,7 +2154,6 @@ if(!class_exists('SUPER_Forms')) :
                             'errors' => SUPER_Forms()->common_i18n['errors'],
                             // @since 3.6.0 - google tracking
                             'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
-                            'image_library' => $image_library,
                         )
                     ),
                     'super-backend-common' => array(
@@ -2867,17 +2860,3 @@ if(!function_exists('SUPER_Forms')){
     // Global for backwards compatibility.
     $GLOBALS['super'] = SUPER_Forms();
 }
-
-if(!class_exists('SuperFormsUploadException')) :
-    class SuperFormsUploadException extends Exception {
-        public function __construct($code) {
-            $message = $this->codeToMessage($code);
-            parent::__construct($message, $code);
-        }
-        private function codeToMessage($code) {
-            var_dump($code);
-            exit;
-            return $message;
-        }
-    }
-endif;

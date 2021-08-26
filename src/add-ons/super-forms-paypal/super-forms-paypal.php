@@ -1422,7 +1422,7 @@ if (!class_exists('SUPER_PayPal')):
 	
 				// Only continue for transactions that contain 'payment_status'
 				if(empty($_POST['payment_status']) && $_POST['txn_type']!=='subscr_signup') {
-					error_log('Super Forms: Paypal IPN did not contain `payment_status`, do nothing');
+					error_log('Super Forms: Paypal IPN did not contain `payment_status` and is not of type `subscr_signup`, do nothing');
 					error_log($_POST['txn_type']);
 					die();
 				} 
@@ -1581,12 +1581,8 @@ if (!class_exists('SUPER_PayPal')):
 				));
 				$http_code = $response['response']['code'];
 				if ($http_code != 200) {
-					update_option('super_ipn_error_log_' . $form_id . '_' . time(), "PayPal responded with http code $http_code");
-					throw new Exception("PayPal responded with http code $http_code");
+					throw new Exception("PayPal responded with HTTP code $http_code");
 				}
-
-				// Log IPN data
-				update_option('super_ipn_log_' . $form_id . '_' . time(), ($_POST));
 
 				// Check if PayPal verifies the IPN data, and if so, return true.
 				if ((!is_wp_error($response)) && ($response['body'] == 'VERIFIED')) {

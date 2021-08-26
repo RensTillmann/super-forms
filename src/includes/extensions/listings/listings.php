@@ -82,7 +82,8 @@ if(!class_exists('SUPER_Listings')) :
 
         // Required to change some settings when editing/updating an existing entry via Listings Add-on
         public static function alter_form_settings_before_rendering($settings, $args){
-            if($args['id']!=='' && $args['list_id']!=='' && $args['entry_id']!==''){
+            extract($args);
+            if($id!=='' && $list_id!=='' && $entry_id!==''){
                 // In order to edit entries we need to make sure some settings are not enabled
                 $overrideSettings = array(
                     'update_contact_entry'=>'true',
@@ -122,10 +123,7 @@ if(!class_exists('SUPER_Listings')) :
 
         // Required to change some settings when editing/updating an existing entry via Listings Add-on
         public static function alter_form_settings_before_submit($settings, $args){
-            $post = $args['post'];
-            // @since 4.7.7 - prevent new Contact Entry from being created
-            $entry_id = absint( $post['entry_id'] );
-            $list_id = sanitize_text_field( $post['list_id'] );
+            extract($args);
             if($list_id!==''){
                 // In order to edit entries we need to make sure some settings are not enabled
                 $overrideSettings = array(
@@ -930,7 +928,7 @@ if(!class_exists('SUPER_Listings')) :
             if(!isset($list['retrieve'])) $list['retrieve'] = 'this_form';
             if(!isset($list['form_ids'])) $list['form_ids'] = '';
             if(!isset($list['noResultsFilterMessage'])) $list['noResultsFilterMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    Clear your filters or try a different filter.\n</div>";
-            if(!isset($list['noResultsMessage'])) $list['noResultsMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1></div>";
+            if(!isset($list['noResultsMessage'])) $list['noResultsMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>";
             if(!isset($list['onlyDisplayMessage'])) $list['onlyDisplayMessage'] = 'true';
             if(empty($list['date_range'])) $list['date_range'] = array(
                 'enabled'=>'false',
@@ -1430,9 +1428,6 @@ if(!class_exists('SUPER_Listings')) :
             $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
             if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
 
-            if(!isset($settings['file_upload_image_library'])) $settings['file_upload_image_library'] = 0;
-            $image_library = absint($settings['file_upload_image_library']);            
-
             wp_localize_script(
                 $handle,
                 $name,
@@ -1441,13 +1436,13 @@ if(!class_exists('SUPER_Listings')) :
                     'preload'=>$settings['form_preload'],
                     'duration'=>$settings['form_duration'],
                     'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
+                    'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
                     'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
                     'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                    'image_library' => $image_library,  
                 )
             );
             wp_enqueue_script( $handle );
@@ -2171,6 +2166,7 @@ END AS paypalSubscriptionId
                                                             $linkUrl = $fv['url'];
                                                             if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                 $linkUrl = wp_get_attachment_url( $fv['attachment'] );
+                                                                if($linkUrl===false) $linkUrl = '';
                                                             }
                                                             $linkType = 'download';
                                                             $linkTitle = esc_html__( 'Download PDF', 'super-forms' );
@@ -2338,7 +2334,7 @@ END AS paypalSubscriptionId
                                                             if(isset($data[$column_key]['files'])){
                                                                 $files = $data[$column_key]['files'];
                                                                 foreach($files as $fk => $fv){
-                                                                    $url = $fv['url'];
+                                                                    $url = (!empty($fv['url']) ? $fv['url'] : '');
                                                                     if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                         $url = wp_get_attachment_url( $fv['attachment'] );
                                                                     }

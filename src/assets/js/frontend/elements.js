@@ -139,6 +139,7 @@
 
     // @since 3.2.0 - function to return next field based on TAB index
     SUPER.nextTabField = function(e, field, form, nextTabIndex){
+        if(!field) return false;
         var nextTabIndexSmallIncrement,
             nextField,
             nextFieldSmallIncrement,
@@ -245,7 +246,7 @@
                         move: function(color) {
                             this.value = color.toHexString();
                         },
-                        beforeShow: function(color){
+                        beforeShow: function(){
                             SUPER.focusForm(this);
                             SUPER.focusField(this);
                         }
@@ -458,9 +459,9 @@
                 if(localization!==''){
                     if(typeof $.datepicker.regional[localization] !== 'undefined'){
                         format = $.datepicker.regional[localization].dateFormat;
-                        var jsformat = format;
+                        jsformat = format;
                         jsformat = jsformat.replace('DD', 'dddd');
-                        var regex = /MM/i;
+                        regex = /MM/i;
                         if(regex.test(jsformat)){
                             jsformat = jsformat.replace('MM', 'MMMM');
                         }else{
@@ -1090,6 +1091,46 @@
         if (!$match) { return 0; }
         return Math.max(0, ($match[1] ? $match[1].length : 0) - ($match[2] ? +$match[2] : 0));
     };
+    SUPER.getAllUrlParams = function(url) {
+        var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
+        var obj = {};
+
+        if (queryString) {
+        queryString = queryString.split('#')[0];
+        var arr = queryString.split('&');
+
+        for (var i = 0; i < arr.length; i++) {
+            var a = arr[i].split('=');
+            var paramName = a[0];
+            var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+
+            paramName = paramName.toLowerCase();
+            if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+
+            if (paramName.match(/\[(\d+)?\]$/)) {
+            var key = paramName.replace(/\[(\d+)?\]/, '');
+            if (!obj[key]) obj[key] = [];
+
+            if (paramName.match(/\[\d+\]$/)) {
+                var index = /\[(\d+)\]/.exec(paramName)[1];
+                obj[key][index] = paramValue;
+            } else {
+                obj[key].push(paramValue);
+            }
+            } else {
+            if (!obj[paramName]) {
+                obj[paramName] = paramValue;
+            } else if (obj[paramName] && typeof obj[paramName] === 'string'){
+                obj[paramName] = [obj[paramName]];
+                obj[paramName].push(paramValue);
+            } else {
+                obj[paramName].push(paramValue);
+            }
+            }
+        }
+        }
+        return obj;
+    };
 
     jQuery(document).ready(function ($) {
         
@@ -1121,17 +1162,17 @@
                     SUPER.focusForm(e.target);
                     SUPER.lastFocussedForm = e.target;
                     var form = SUPER.lastFocussedForm;
-                    var visibleNodes = [];
+                    var i, field, visibleNodes = [];
                     if(SUPER.lastTabKey==='tab'){
                         e.target.blur();
                         // the form became focus via regular tab, so we must focus the first field
-                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
                             if(SUPER.has_hidden_parent(nodes[i])) continue;
                             visibleNodes.push(nodes[i]);
                             break;
                         }
-                        var field = visibleNodes[0];
+                        field = visibleNodes[0];
                         SUPER.focusNextTabField(e, field, form, field);
                     }
                     if(SUPER.lastTabKey==='shift+tab'){
@@ -1141,12 +1182,12 @@
                         }
                         e.target.blur();
                         // the form became focus via shift+tab, so we must focus the last field
-                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
                             if(SUPER.has_hidden_parent(nodes[i])) continue;
                             visibleNodes.push(nodes[i]);
                         }
-                        var field = visibleNodes[visibleNodes.length-1];
+                        field = visibleNodes[visibleNodes.length-1];
                         SUPER.focusNextTabField(e, field, form, field);
                     }
                     e.preventDefault();
@@ -1193,16 +1234,11 @@
         });
         $doc.keydown(function(e){
             SUPER.lastTabKey = undefined;
-            var i, nodes, total,
+            var i, nodes,
                 field,
                 form,
-                children,
-                dropdown,
-                dropdown_ui,
                 item,
                 current,
-                placeholder,
-                nextIndex,
                 submitButton,
                 nextSibling,
                 keyCode = e.keyCode || e.which;
@@ -1238,7 +1274,7 @@
                 field = document.querySelector('.super-focus');
                 if(field){
                     if(field.classList.contains('super-dropdown')){
-                        var item = field.querySelector('.super-focus');
+                        item = field.querySelector('.super-focus');
                         if(item) item.click();
                         e.preventDefault();
                         return false;
@@ -1291,11 +1327,12 @@
                         var inputField = field.querySelector('.super-shortcode-field');
                         var value = inputField.value;
                         var steps = inputField.dataset.steps;
+                        var newValue;
                         if(keyCode == 37 || keyCode == 38){
                             // Reverse
-                            var newValue = parseFloat(value)-parseFloat(steps);
+                            newValue = parseFloat(value)-parseFloat(steps);
                         }else{
-                            var newValue = parseFloat(value)+parseFloat(steps);
+                            newValue = parseFloat(value)+parseFloat(steps);
                         }
                         SUPER.reposition_slider_amount_label(inputField, newValue);
                         e.preventDefault();
@@ -1304,7 +1341,7 @@
                     // Star rating
                     if(field.classList.contains('super-rating')){
                         // First find last active star
-                        var nodes = field.querySelectorAll('.super-active');
+                        nodes = field.querySelectorAll('.super-active');
                         if(keyCode == 37 || keyCode == 38){
                             // Reverse
                             if(nodes.length) nodes[nodes.length-2].click();
@@ -1326,7 +1363,7 @@
                     // Dropdown
                     if(field.classList.contains('super-dropdown')){
                         var all = field.querySelectorAll('.super-item:not(.super-placeholder)');
-                        var current = field.querySelector('.super-focus');
+                        current = field.querySelector('.super-focus');
                         if(!current){
                             // If no item is focussed we grab the active item
                             current = field.querySelector('.super-active');
@@ -1447,13 +1484,13 @@
                     SUPER.lastTabKey = 'shift+tab';
                 }
                 // Check if we have a focussed form
-                var form  = document.querySelector('.super-form-focussed')
+                form  = document.querySelector('.super-form-focussed')
                 if(form){
                     // Check if we can find a currently focussed field
                     field = form.querySelector('.super-field.super-focus');
                     if(field){
                         // Check if first field of form
-                        var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         var visibleNodes = [];
                         for (i = 0; i < nodes.length; i++) {
                             if(SUPER.has_hidden_parent(nodes[i])) continue;
@@ -1488,7 +1525,7 @@
                                     SUPER.init_button_colors(field.querySelector('.super-button-wrap'));
                                 }else{
                                     // If not a button
-                                    var innerNodes = field.querySelectorAll('.super-focus');
+                                    innerNodes = field.querySelectorAll('.super-focus');
                                     for ( i = 0; i < innerNodes.length; i++){
                                         innerNodes[i].classList.remove('super-focus');
                                     }
@@ -1504,13 +1541,12 @@
                         // No focussed field yet, let's focus the first field or last depending on tab, or shift+tab
                         if(SUPER.lastTabKey==='tab'){
                             SUPER.firstFocussedField = true;
-                            var i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                            nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                             for (i = 0; i < nodes.length; i++) {
                                 if(SUPER.has_hidden_parent(nodes[i])) continue;
                                 SUPER.focusNextTabField(e, nodes[i], form, nodes[i]);
                                 e.preventDefault();
                                 return false;
-                                break;
                             }
                         }
                         if(SUPER.lastTabKey==='shift+tab'){
@@ -1676,12 +1712,12 @@
         });
 
         // Upon opening color picker
-        $doc.on('click', '.super-color', function(e){
+        $doc.on('click', '.super-color', function(){
             SUPER.focusField(this);
         });
 
         // @since 1.2.4
-        $doc.on('click', '.super-quantity .super-minus-button, .super-quantity .super-plus-button', function(e){
+        $doc.on('click', '.super-quantity .super-minus-button, .super-quantity .super-plus-button', function(){
             SUPER.focusField(this);
             var $this = $(this),
                 $input_field = $this.parent().find('.super-shortcode-field'),
@@ -2103,7 +2139,6 @@
             var i, nodes, found,
                 form = this.closest('.super-form'),
                 removedFields = {},
-                htmlFields,
                 dataFields,
                 parent = this.closest('.super-duplicate-column-fields'),
                 foundElements = [];
@@ -2183,8 +2218,24 @@
             $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload').trigger('click');
         });
         $doc.on('click', '.super-fileupload-delete', function(){
-            debugger;
+            var form = SUPER.get_frontend_or_backend_form({el: this});
+            var formId = 0;
+            if(form.querySelector('input[name="hidden_form_id"]')){
+                formId = form.querySelector('input[name="hidden_form_id"]').value;
+            }
             var $this = $(this);
+            var $fieldWrapper = $this.parents('.super-field-wrapper:eq(0)');
+            var $fieldName = $fieldWrapper.find('.super-active-files').attr('name');
+            var $index = $this.parents('div:eq(0)').index();
+            // Modify file list, and remove one element at $index
+            // We use splice() instead of delete() because we don't want to leave the old index with an `undefined` value
+            if(SUPER.files){
+                if(SUPER.files[formId]){
+                    if(SUPER.files[formId][$fieldName]){
+                        SUPER.files[formId][$fieldName].splice($index, 1); 
+                    }
+                }
+            }
             var $parent = $this.parents('.super-fileupload-files:eq(0)');
             var $wrapper = $parent.parents('.super-field-wrapper:eq(0)');
             var total = $wrapper.children('.super-fileupload').data('total-file-sizes') - $this.parents('div:eq(0)').data('file-size');
@@ -2458,7 +2509,6 @@
                 name,
                 validation,
                 max,
-                min,
                 total,
                 names,
                 values,
@@ -2485,7 +2535,6 @@
                 field.classList.remove('super-open');
             }else{
                 max = (input.dataset.maxlength ? parseInt(input.dataset.maxlength, 10) : 1);
-                min = (input.dataset.minlength ? parseInt(input.dataset.minlength, 10) : 0);
                 total = parent.querySelectorAll('.super-item.super-active:not(.super-placeholder').length;
                 if(this.classList.contains('super-active')){
                     this.classList.remove('super-active');    
@@ -2532,48 +2581,8 @@
                 $form.removeClass('super-initialized');
 
                 // Get URL parameters
-                function getAllUrlParams(url) {
-                  var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
-                  var obj = {};
-
-                  if (queryString) {
-                    queryString = queryString.split('#')[0];
-                    var arr = queryString.split('&');
-
-                    for (var i = 0; i < arr.length; i++) {
-                      var a = arr[i].split('=');
-                      var paramName = a[0];
-                      var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
-
-                      paramName = paramName.toLowerCase();
-                      if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
-
-                      if (paramName.match(/\[(\d+)?\]$/)) {
-                        var key = paramName.replace(/\[(\d+)?\]/, '');
-                        if (!obj[key]) obj[key] = [];
-
-                        if (paramName.match(/\[\d+\]$/)) {
-                          var index = /\[(\d+)\]/.exec(paramName)[1];
-                          obj[key][index] = paramValue;
-                        } else {
-                          obj[key].push(paramValue);
-                        }
-                      } else {
-                        if (!obj[paramName]) {
-                          obj[paramName] = paramValue;
-                        } else if (obj[paramName] && typeof obj[paramName] === 'string'){
-                          obj[paramName] = [obj[paramName]];
-                          obj[paramName].push(paramValue);
-                        } else {
-                          obj[paramName].push(paramValue);
-                        }
-                      }
-                    }
-                  }
-                  return obj;
-                }
                 var $queryString = window.location.search;
-                var $parameters = getAllUrlParams($queryString);
+                var $parameters = SUPER.getAllUrlParams($queryString);
                 $.ajax({
                     url: super_elements_i18n.ajaxurl,
                     type: 'post',
@@ -2651,7 +2660,6 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                var p = el.closest('.super-field');
                 $form = SUPER.get_frontend_or_backend_form({el: el});
                 SUPER.focusNextTabField(e, el, $form, el);
                 $this = el.querySelector('input[type="radio"]');
@@ -2700,7 +2708,6 @@
                     window.location.href = e.target.href;
                 }
             }else{
-                var p = el.closest('.super-field');
                 $form = SUPER.get_frontend_or_backend_form({el: el});
                 SUPER.focusNextTabField(e, el, $form, el);
 
@@ -2979,12 +2986,6 @@
                 }
             });
             return found;
-        };
-        // Focus field
-        app.focusField = function(e, target){
-        };
-        // Unfocus field
-        app.unfocusField = function(e, target){
         };
 
         // Keyword element functions

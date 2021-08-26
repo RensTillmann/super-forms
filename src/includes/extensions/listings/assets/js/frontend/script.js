@@ -250,15 +250,17 @@
                 if (this.status == 200) {
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
-                    node.innerHTML = '<img src="https://f4d.nl/dev/wp-content/uploads/superforms/2021/08/670640000/Example%20-%20Copy.jpg" />';
                     node.innerHTML = this.responseText;
                     modal.appendChild(node);
-                    var form = modal.querySelector('.super-form');
-                    form.classList.add('super-initialized');
-                    SUPER.init_common_fields();
-                    SUPER.init_replace_html_tags({el: undefined, form: form});
-                    SUPER.init_super_responsive_form_fields({form: form});
-                    SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
+                    SUPER.init_tooltips(); 
+                    SUPER.init_distance_calculators();
+                    SUPER.init_super_form_frontend();
+                    //var form = modal.querySelector('.super-form');
+                    //form.classList.add('super-initialized');
+                    //SUPER.init_common_fields();
+                    //SUPER.init_replace_html_tags({el: undefined, form: form});
+                    //SUPER.init_super_responsive_form_fields({form: form});
+                    //SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
                     loadingIcon.remove();
                 }
                 // Complete:

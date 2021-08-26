@@ -1200,8 +1200,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *  @since      1.0.0
         */
         public static function before_sending_email( $atts ) {
-            $data = $atts['post']['data'];
-            $settings = $atts['settings'];
+            extract($atts); // data, post, settings
             
             if( !isset( $settings['register_login_action'] ) ) return true;
             if( $settings['register_login_action']=='none' ) return true;
@@ -1245,7 +1244,7 @@ if(!class_exists('SUPER_Register_Login')) :
 
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
-                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
+                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,

@@ -202,10 +202,8 @@ if(!class_exists('SUPER_Zapier')) :
          *
          *  @since      1.0.0
         */
-        public static function zapier_static_web_hook( $data ) {
-            if(isset($data['attachments'])){
-                $attachments = $data['attachments'];
-            }
+        public static function zapier_static_web_hook( $atts ) {
+            extract($atts); // post, data, settings, entry_id, attachments
 
             // Create array for all files with numbered indexes , so that the index on zapier is always the same
             // because the filenames are dynamic and we can't rely on that
@@ -221,14 +219,9 @@ if(!class_exists('SUPER_Zapier')) :
                 }
             }
 
-            $post = $data['post'];
-            $settings = $data['settings'];
-            $entry_id = $data['entry_id'];
-            $data = $post['data'];
             // @since 1.0.3 - transfer uploaded files
-            if(isset($attachments)){
-                $data['_super_attachments'] = $attachments;
-            }
+            $data['_super_attachments'] = $attachments;
+            
             if( !empty($settings['zapier_enable']) ) {
                 $url = $settings['zapier_webhook'];  
                 if(isset($settings['zapier_exclude_settings']) && $settings['zapier_exclude_settings']=='true'){

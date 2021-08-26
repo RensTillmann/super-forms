@@ -168,13 +168,13 @@ function SUPERreCaptcha(){
         var json_data;
         args.form = $(args.form);
         args.form0 = args.form[0];
-        args.form_id = args.data.form_id;
-        args.entry_id = args.data.entry_id;
-        args.list_id = args.data.list_id;
         args.showOverlay = args.form0.dataset.overlay;
+        // already defined: args.form_id
+        // already defined: args.entry_id
+        // already defined: args.list_id
 
         // @since 1.3
-        args.data = SUPER.after_form_data_collected_hook(args.data.data);
+        args.data = SUPER.after_form_data_collected_hook(args.data);
 
         // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
         args.data.super_hp = args.form.find('input[name="super_hp"]').val();
@@ -237,25 +237,18 @@ function SUPERreCaptcha(){
         return args;
     };
     SUPER.submit_form = function(args){
-        var result;
         args.files = SUPER.files[args.form_id];
         if(args.files){
-            args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>Uploading files...</span>';
+            args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.uploading_files+'</span>';
             SUPER.upload_files(args, function(args){
-                console.log('process_form_data(1)');
-                SUPER.process_form_data(args, function(){
-                    console.log('process_form_data(2)');
-                });
+                SUPER.process_form_data(args);
             });
         }else{
-            SUPER.process_form_data(args, function(){
-            });
+            SUPER.process_form_data(args);
         }
-        console.log(result);
     };
-    SUPER.get_single_uploaded_file_html = function(withoutHeader, uploaded, html, fileName, fileType, fileUrl){
-        debugger;
-        var classes = '';
+    SUPER.get_single_uploaded_file_html = function(withoutHeader, uploaded, fileName, fileType, fileUrl){
+        var html = '', classes = '';
         if(uploaded) classes = ' class="super-uploaded"';
         if(withoutHeader) {
             // We do not want a header
@@ -300,7 +293,7 @@ function SUPERreCaptcha(){
         });
         args.formData.append('action', 'super_upload_files');
         if(args.form_id) args.formData.append('form_id', args.form_id);
-        if(args.entry_d) args.formData.append('entry_id', args.entry_id);
+        if(args.entry_id) args.formData.append('entry_id', args.entry_id);
         if(args.list_id) args.formData.append('list_id', args.list_id);
         if(args.token) args.formData.append('token', args.token);
         if(args.version) args.formData.append('version', args.version);
@@ -332,12 +325,32 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
-                    debugger;
+                    var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field, file, files = result;
+                    Object.keys(files).forEach(function(fieldName) {
+                        activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
+                        if(!activeFiles) return true; // continue to next field
+                        fieldWrapper = activeFiles.closest('.super-field-wrapper');
+                        if(!fieldWrapper) return true; // continue to next field
+                        filesWrapper = fieldWrapper.querySelector('.super-fileupload-files');
+                        if(!filesWrapper) return true; // continue to next field
+                        uploadedFiles = filesWrapper.querySelectorAll('.super-uploaded');
+                        updateHtml[fieldName] = {
+                            filesWrapper: filesWrapper,
+                            html: ''
+                        }
+                        for(i=0; i<uploadedFiles.length; i++){
+                            updateHtml[fieldName].html += uploadedFiles[i].outerHTML;
+                        }
+                    });
                     // Loop over files and update src for each image
                     // We do not have to do this for other file types
-                    var i, html, activeFiles, fieldWrapper, filesWrapper, field, file, files = result;
                     Object.keys(files).forEach(function(fieldName) {
-                        debugger;
+                        if(typeof updateHtml[fieldName].filesWrapper === 'undefined'){
+                            updateHtml[fieldName] = {
+                                filesWrapper: filesWrapper,
+                                html: ''
+                            }
+                        }
                         field = files[fieldName];
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -345,11 +358,10 @@ function SUPERreCaptcha(){
                         if(!fieldWrapper) return true; // continue to next field
                         filesWrapper = fieldWrapper.querySelector('.super-fileupload-files');
                         if(!filesWrapper) return true; // continue to next field
-                        console.log(filesWrapper);
-                        html = '';
                         for(i=0; i<field.files.length; i++){
                             file = field.files[i];
-                            html += SUPER.get_single_uploaded_file_html(false, false, html, file.value, file.type, file.url);
+                            //html[fieldName] += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
+                            updateHtml[fieldName].html += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
                             if(args.data[fieldName]){
                                 args.data[fieldName]['files'][i]['value'] = file.value;
                                 args.data[fieldName]['files'][i]['type'] = file.type;
@@ -364,6 +376,10 @@ function SUPERreCaptcha(){
                         }
                         filesWrapper.innerHTML = html;
                     });
+                    Object.keys(updateHtml).forEach(function(fieldName) {
+                        updateHtml[fieldName].filesWrapper.innerHTML = updateHtml[fieldName].html;
+                    });
+
                     // Now process form data
                     args._process_form_data_callback(args);
                 }
@@ -376,7 +392,6 @@ function SUPERreCaptcha(){
         });
     }
     SUPER.process_form_data = function(args){
-        console.log('process_form_data(3)');
         args.generatePdf = false;
         args.pdfSettings = null;
         if( typeof SUPER.form_js !== 'undefined' && 
@@ -385,7 +400,12 @@ function SUPERreCaptcha(){
             SUPER.form_js[args.form_id]._pdf.generate === "true" ) {
                 args.generatePdf = true;
                 args.pdfSettings = SUPER.form_js[args.form_id]._pdf;
-                args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+                if(args.progressBar) args.progressBar.style.width = 0+'%';
+                if(args.pdfSettings.generatingText===''){
+                    args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
+                }else{
+                    args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+                }
         }else{
             // In case we are in back-end preview mode
             if( typeof SUPER.get_form_settings === 'function' && 
@@ -393,19 +413,43 @@ function SUPERreCaptcha(){
                 SUPER.get_form_settings()._pdf.generate === "true" ) {
                     args.generatePdf = true;
                     args.pdfSettings = SUPER.get_form_settings()._pdf;
-                    args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+                    if(args.progressBar) args.progressBar.style.width = 0+'%';
+                    if(args.pdfSettings.generatingText===''){
+                        args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
+                    }else{
+                        args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+args.pdfSettings.generatingText+'</span>';
+                    }
             }
         }
         if(args.generatePdf){
-            SUPER.pdf_generator_init(args, function(){
-                SUPER.save_data(args, function(){
-                    // Done.
-                });
+            SUPER.pdf_generator_init(args, function(args){
+                // When debugging is enabled download file instantly without submitting the form
+                if(args.pdfSettings.debug==="true"){
+                    var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+                    // Direct download of PDF
+                    args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
+                        // Close loading overlay
+                        if(args.progressBar) args.progressBar.style.width = (100)+"%";  
+                        if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+                        args.loadingOverlay.classList.add('super-success');
+                        if(args.pdfSettings.downloadBtn==='true'){
+                            args.loadingOverlay.classList.add('super-success');
+                            SUPER.show_pdf_download_btn(args);
+                        }
+                        // Close Popup (if any)
+                        if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                            SUPER.init_popups.close(true);
+                        }
+                    }, function() {
+                        // Show error message
+                        if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+                        args.loadingOverlay.classList.add('super-error');
+                    });
+                }
+                SUPER.save_data(args); 
             });
         }else{
-            SUPER.save_data(args, function(){
-                // Done.
-            });
+            SUPER.save_data(args);
         }
     }
 
@@ -808,18 +852,6 @@ function SUPERreCaptcha(){
                     var progress = parseInt(data.loaded / data.total * 100, 10);
                     $(this).parent().children('.super-progress-bar').css('display','block').css('width', progress + '%');
                 }        
-            }).on('fileuploaddone', function (e, data) {
-                $.each(data.result.files, function (index, file) {
-                    if (file.error) {
-                        var error = $('<span class="super-error"/>').text(' ('+file.error+')');
-                        $(data.context.children()[index]).children('.super-error').remove();
-                        $(data.context.children()[index]).append(error);
-                        $(data.context.children()[index]).parent('div').addClass('error');
-                    }else{
-                        $(data.context).addClass('super-uploaded');
-                        data.context.attr('data-name',file.name).attr('data-url',file.url).attr('data-thumburl',file.thumbnailUrl);
-                    }
-                });
             }).on('fileuploadadd', function (e, data) {
                 var formId = 0;
                 var form = SUPER.get_frontend_or_backend_form({el: this});
@@ -845,6 +877,7 @@ function SUPERreCaptcha(){
                         total = total+file.size;
                     }
                     if( (total>upload_limit) && (upload_limit!==0) ) {
+                        el.parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div').last().remove();
                         alert(super_common_i18n.errors.file_upload.upload_limit_reached);
                     }else{
                         var ext = file.name.split('.').pop();
@@ -862,7 +895,7 @@ function SUPERreCaptcha(){
                             }
                             var totalFiles = SUPER.files[formId][fieldName].length;
                             SUPER.files[formId][fieldName][totalFiles] = file; //SUPER.files[formId][totalFiles] = file;
-                            var html = SUPER.get_single_uploaded_file_html(true, false, '', file.name, file.type, src);
+                            var html = SUPER.get_single_uploaded_file_html(true, false, file.name, file.type, src);
                             data.context.data(data).attr('data-name',file.name).attr('title',file.name).attr('data-type',file.type).html(html);
                             data.context.data('file-size',file.size);
                             if(data.context[0].querySelector('img')){
@@ -2197,430 +2230,6 @@ function SUPERreCaptcha(){
         return args.value;
     };
 
-    // File upload handler
-    // temp disabled SUPER.upload_files = function(args, files, formData, callback){
-    // temp disabled     Object.keys(files).forEach(function(i) {
-    // temp disabled         for( var x = 0; x < files[i].length; x++){
-    // temp disabled             formData.append('files['+i+']['+x+']', files[i][x]); // holds: file, src, name, size, type
-    // temp disabled         }
-    // temp disabled     });
-    // temp disabled     formData.append('action', 'super_upload_files');
-    // temp disabled     if(args.form_id) formData.append('form_id', args.form_id);
-    // temp disabled     if(args.entry_d) formData.append('entry_id', args.entry_id);
-    // temp disabled     if(args.list_id) formData.append('list_id', args.list_id);
-    // temp disabled     if(args.token) formData.append('token', args.token);
-    // temp disabled     if(args.version) formData.append('version', args.version);
-    // temp disabled     $.ajax({
-    // temp disabled         type: 'post',
-    // temp disabled         url: super_common_i18n.ajaxurl,
-    // temp disabled         data: formData,
-    // temp disabled         async: true,
-    // temp disabled         cache: false,
-    // temp disabled         contentType: false,
-    // temp disabled         processData: false,
-    // temp disabled         timeout: 60000, // 1m
-    // temp disabled         xhr: function() {
-    // temp disabled             var xhr = new window.XMLHttpRequest();
-    // temp disabled             if(args.showOverlay==="true"){
-    // temp disabled                 xhr.upload.addEventListener("progress", function(evt) {
-    // temp disabled                     if (evt.lengthComputable) {
-    // temp disabled                         var percentComplete = evt.loaded / evt.total;
-    // temp disabled                         //Do something with upload progress here
-    // temp disabled                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-    // temp disabled                     }
-    // temp disabled                 }, false);
-    // temp disabled             }
-    // temp disabled             return xhr;
-    // temp disabled         },
-    // temp disabled         success: function(result){
-    // temp disabled             result = JSON.parse(result);
-    // temp disabled             if(result.error===true){
-    // temp disabled                 // Display error message
-    // temp disabled                 SUPER.form_submission_finished(args, result);
-    // temp disabled             }else{
-    // temp disabled                 // Now submit the form
-    // temp disabled                 SUPER.submit_form(args);
-    // temp disabled             }
-    // temp disabled         },
-    // temp disabled         error: function (xhr, ajaxOptions, thrownError) {
-    // temp disabled             // eslint-disable-next-line no-console
-    // temp disabled             console.log(xhr, ajaxOptions, thrownError);
-    // temp disabled             alert('Failed to process data, please try again');
-    // temp disabled         }
-    // temp disabled     });
-    // temp disabled     callback(args);
-    // temp disabled };
-
-    // Do Generate PDF
-    // temp disabled SUPER.do_generate_pdf = function(args){
-    // temp disabled     // Page margins and print area
-    // temp disabled     // Media                Page size           Print area              Margins
-    // temp disabled     //                                                                  Top         Bottom      Sides
-    // temp disabled     // A/Letter (U.S.)      8.5 x 11 in.        8.2 x 10.6 in.          .22 in.     .18 in      .15 in
-    // temp disabled     // A4 (Metric)          210 x 297 mm        200 x 287 mm            5 mm        5 mm        5 mm
-    // temp disabled     // Legal Short (U.S.)   8.5 x 14 in.        8.2 x 11.7 in           1.15 in.    1.15 in.    .15 in.
-    // temp disabled     // Legal (U.S.)         8.5 x 14 in.        8.2 x 11.7 in. (Color)  1.15 in     2.25 in.    .15 in.
-    // temp disabled     //                                          8.2 x 13.5 in. (Black)  .23 in      .23 in.     .15 in.
-
-    // temp disabled     // Page formats
-    // temp disabled     // Format       Size in Millimeters     Size in Inches          Point (pt)
-    // temp disabled     // A0           841 x 1189              33.1 x 46.8
-    // temp disabled     // A1           594 x 841               23.4 x 33.1
-    // temp disabled     // A2           420 x 594               16.5 x 23.4
-    // temp disabled     // A3           297 x 420               11.7 x 16.5
-    // temp disabled     // A4           210 x 297               8.3 x 11.7              595.28, 841.89
-    // temp disabled     // A5           148 x 210               5.8 x 8.3
-    // temp disabled     // A6           105 x 148               4.1 x 5.8
-    // temp disabled     // A7           74 x 105                2.9 x 4.1
-    // temp disabled     // A8           52 x 74                 2.0 x 2.9
-    // temp disabled     // A9           37 x 52	                1.5 x 2.0
-    // temp disabled     // A10          26 x 37                 1.0 x 1.5
-
-
-    // temp disabled     args.orientation = pdfSettings.orientation;
-    // temp disabled     args.format = pdfSettings.format;
-    // temp disabled     // Check if custom format is defined
-    // temp disabled     var customFormat = pdfSettings.customformat;
-    // temp disabled     if(typeof customFormat !== 'undefined' && customFormat!==''){
-    // temp disabled         customFormat = customFormat.split(',');
-    // temp disabled         if(typeof customFormat[1] !== 'undefined'){
-    // temp disabled             customFormat[0] = customFormat[0].trim();
-    // temp disabled             customFormat[1] = customFormat[1].trim();
-    // temp disabled             if(customFormat[0]!=='' && customFormat[1]!==''){
-    // temp disabled                 args.format = customFormat;
-    // temp disabled             }
-    // temp disabled         }
-    // temp disabled     }
-
-    // temp disabled     // For quick debugging purposes only:
-    // temp disabled     // eslint-disable-next-line no-undef
-    // temp disabled     var pdf = new jsPDF({
-    // temp disabled         orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
-    // temp disabled         format: args.format,             // The format of the first page.  Default is "a4"
-    // temp disabled         putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
-    // temp disabled         compress: false,            // Compress the generated PDF.
-    // temp disabled         precision: 16,              // Precision of the element-positions.
-    // temp disabled         userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
-    // temp disabled         floatPrecision: 16,         // or "smart", default is 16
-    // temp disabled         unit: pdfSettings.unit                  // Measurement unit (base unit) to be used when coordinates are specified.
-    // temp disabled     });                             // Possible values are "pt" (points), "mm", "cm", "m", "in" or "px".
-    // temp disabled                                         // Can be:
-    // temp disabled                                         // a0 - a10
-    // temp disabled                                         // b0 - b10
-    // temp disabled                                         // c0 - c10
-    // temp disabled                                         // dl
-    // temp disabled                                         // letter
-    // temp disabled                                         // government-letter
-    // temp disabled                                         // legal
-    // temp disabled                                         // junior-legal
-    // temp disabled                                         // ledger
-    // temp disabled                                         // tabloid
-    // temp disabled                                         // credit-card
-
-
-    // temp disabled     // PDF width: 595.28 pt
-    // temp disabled     // PDF height: 841.89 pt
-    // temp disabled     
-    // temp disabled     // PDF width: 210.0015555555555 mm
-    // temp disabled     // PDF height: 297.0000833333333 mm
-
-    // temp disabled     // PDF width: 21.000155555555555 cm
-    // temp disabled     // PDF height: 29.700008333333333 cm
-
-    // temp disabled     // PDF width: 8.267777777777777 in
-    // temp disabled     // PDF height: 11.692916666666667 in
-
-    // temp disabled     // PDF width: 446.46 px
-    // temp disabled     // PDF height: 631.4175 px
-
-    // temp disabled     // pt to px  = X / 1.333333333333333
-    // temp disabled     // mm to px  = X / 0.4703703703703702
-    // temp disabled     // cm to px  = X / 0.04703703703703702
-    // temp disabled     // in to px  = X / 0.0185185185010975
-    // temp disabled     args.unitRatio = 1;
-    // temp disabled     if(pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
-    // temp disabled     if(pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
-    // temp disabled     if(pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
-    // temp disabled     if(pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
-    // temp disabled     var pageWidth = pdf.internal.pageSize.getWidth();
-    // temp disabled     var pageHeight = pdf.internal.pageSize.getHeight();
-    // temp disabled     args.pageWidthPortrait = pageWidth;
-    // temp disabled     args.pageHeightPortrait = pageHeight;
-    // temp disabled     args.pageWidthLandscape = pageHeight;
-    // temp disabled     args.pageHeightLandscape = pageWidth;
-    // temp disabled     args.pageWidthInPixels = pageWidth / args.unitRatio;
-    // temp disabled     args.pageHeightInPixels = pageHeight / args.unitRatio;
-    // temp disabled     
-    // temp disabled     // Make form scrollable based on a4 height
-    // temp disabled     var scrollAmount = 0;
-
-    // temp disabled     args.pdfSettings = pdfSettings;
-    // temp disabled     args.scrollAmount = scrollAmount;
-    // temp disabled     args.pdf = pdf;
-    // temp disabled     args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
-
-    // temp disabled     // Blur/unfocus any focussed field
-    // temp disabled     // bug in google chrome on mobile devices
-    // temp disabled     // .....
-    // temp disabled     //
-    // temp disabled     // Add a timeout (just to be sure)
-    // temp disabled     setTimeout(function(){
-    // temp disabled         SUPER.pdf_generator_prepare(args, function(args){
-    // temp disabled             // Start generating pages (starting at page 1)
-    // temp disabled             args.currentPage = 1;
-    // temp disabled             pdf = SUPER.generate_pdf(args, function(pdf, form){
-    // temp disabled                 // Reset everything to how it was
-    // temp disabled                 SUPER.reset_pdf_generation(form);
-    // temp disabled                 // Attach as file to form data
-    // temp disabled                 var datauristring = pdf.output('datauristring', {
-    // temp disabled                     filename: pdfSettings.filename
-    // temp disabled                 });
-    // temp disabled                 var exclude = 0;
-    // temp disabled                 if(pdfSettings.adminEmail!=='true' && pdfSettings.confirmationEmail!=='true'){
-    // temp disabled                     exclude = 2; // Exclude from both emails
-    // temp disabled                 }else{
-    // temp disabled                     if(pdfSettings.adminEmail==='true' && pdfSettings.confirmationEmail==='true'){
-    // temp disabled                         exclude = 0; // Do not exclude
-    // temp disabled                     }else{
-    // temp disabled                         if(pdfSettings.adminEmail==='true'){
-    // temp disabled                             exclude = 1; // Exclude from confirmation email only
-    // temp disabled                         }
-    // temp disabled                         if(pdfSettings.confirmationEmail==='true'){
-    // temp disabled                             exclude = 3; // Exclude from admin email only
-    // temp disabled                         }
-    // temp disabled                     }
-    // temp disabled                 }
-    // temp disabled                 data._generated_pdf_file = {
-    // temp disabled                     files: [{
-    // temp disabled                         label: pdfSettings.emailLabel,
-    // temp disabled                         name: pdfSettings.filename,
-    // temp disabled                         datauristring: datauristring,
-    // temp disabled                         value: pdfSettings.filename
-    // temp disabled                     }],
-    // temp disabled                     label: pdfSettings.emailLabel,
-    // temp disabled                     type: 'files',
-    // temp disabled                     exclude: exclude
-    // temp disabled                 };
-    // temp disabled                 args.pdfArgs = {
-    // temp disabled                     pdfSettings: pdfSettings,
-    // temp disabled                     pdf: pdf
-    // temp disabled                 }
-    // temp disabled                 SUPER.submit_form(args);
-    // temp disabled             }); 
-    // temp disabled         });
-    // temp disabled     }, 500);
-    // temp disabled     return false;
-    // temp disabled };
-    // Submit the form
-    // temp disabled SUPER.submit_form = function(args) {
-    // temp disabled     // Generate PDF
-    // temp disabled     if(args.generatePdf){
-    // temp disabled         SUPER.do_generate_pdf(args);
-    // temp disabled     }else{
-    // temp disabled         // We do not need to generate a PDF
-    // temp disabled         SUPER.process_form_data(args);
-    // temp disabled     }
-    // temp disabled };
-    // temp disabled SUPER.process_form_data = function(args){
-    // temp disabled     if(typeof args.pdfArgs === 'undefined') args.pdfArgs = false; 
-    // temp disabled     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
-    // temp disabled     if(args.pdfArgs!==false){
-    // temp disabled         // When debugging is enabled download file instantly without submitting the form
-    // temp disabled         if(args.pdfArgs.pdfSettings.debug==="true"){
-    // temp disabled             // Direct download of PDF
-    // temp disabled             args.pdfArgs.pdf.save(args.pdfArgs.pdfSettings.filename, {returnPromise: true}).then(function() {
-    // temp disabled                 // Close loading overlay
-    // temp disabled                 if(args.progressBar) args.progressBar.style.width = (100)+"%";  
-    // temp disabled                 if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
-    // temp disabled                 args.loadingOverlay.classList.add('super-success');
-    // temp disabled                 // Close Popup (if any)
-    // temp disabled                 if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-    // temp disabled                     SUPER.init_popups.close(true);
-    // temp disabled                 }
-    // temp disabled             }, function() {
-    // temp disabled                 // Show error message
-    // temp disabled                 if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
-    // temp disabled                 args.loadingOverlay.classList.add('super-error');
-    // temp disabled             });
-    // temp disabled             return false;
-    // temp disabled         }
-    // temp disabled         // Update processing state
-    // temp disabled         if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
-    // temp disabled     }
-    // temp disabled     
-    // temp disabled     //Upload.prototype.progressHandling = function (event) {
-    // temp disabled     //    var percent = 0;
-    // temp disabled     //    var position = event.loaded || event.position;
-    // temp disabled     //    var total = event.total;
-    // temp disabled     //    var progress_bar_id = "#progress-wrp";
-    // temp disabled     //    if (event.lengthComputable) {
-    // temp disabled     //        percent = Math.ceil(position / total * 100);
-    // temp disabled     //    }
-    // temp disabled     //    // update progressbars classes so it fits your code
-    // temp disabled     //    $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
-    // temp disabled     //    $(progress_bar_id + " .status").text(percent + "%");
-    // temp disabled     //};
-
-    // temp disabled     //var xhttp = new XMLHttpRequest();
-    // temp disabled     //xhttp.onreadystatechange = function () {
-    // temp disabled     //    if (this.readyState == 4) {
-    // temp disabled     //        if (this.status == 200) {
-    // temp disabled     //            // Success:
-    // temp disabled     //        }
-    // temp disabled     //        // Complete:
-    // temp disabled     //    }
-    // temp disabled     //};
-    // temp disabled     //xhttp.onerror = function () {
-    // temp disabled     //    console.log(this);
-    // temp disabled     //    console.log("** An error occurred during the transaction");
-    // temp disabled     //};
-    // temp disabled     //xhttp.open("POST", super_common_i18n.ajaxurl, true);
-    // temp disabled     //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-    // temp disabled     //var params = {
-    // temp disabled     //    action: 'super_submit_form',
-    // temp disabled     //    super_ajax_nonce: args.super_ajax_nonce,
-    // temp disabled     //    data: args.data,
-    // temp disabled     //    files: args.files,
-    // temp disabled     //    form_id: args.form_id,
-    // temp disabled     //    entry_id: args.entry_id,
-    // temp disabled     //    list_id: args.list_id,
-    // temp disabled     //    token: args.token,
-    // temp disabled     //    version: args.version,
-    // temp disabled     //    i18n: args.form.data('i18n') // @since 4.7.0 translation
-    // temp disabled     //};
-    // temp disabled     //params = $.param(params);
-    // temp disabled     //xhttp.send(params);
-    // temp disabled     
-    // temp disabled     //var formData = new FormData()
-    // temp disabled     //formData.append('action', 'super_submit_form');
-    // temp disabled     //formData.append('super_ajax_nonce', args.super_ajax_nonce);
-    // temp disabled     //formData.append('data', args.data);
-    // temp disabled     //formData.append('form_id', args.form_id);
-    // temp disabled     //formData.append('entry_id', args.entry_id);
-    // temp disabled     //formData.append('list_id', args.list_id);
-    // temp disabled     //formData.append('token', args.token);
-    // temp disabled     //formData.append('version', args.version);
-    // temp disabled     //formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
-
-    // temp disabled     //var dataURL = canvas.toDataURL('image/jpeg', 1.0)
-    // temp disabled     //var blob = dataURItoBlob(dataURL)
-    // temp disabled     //var formData = new FormData()
-    // temp disabled     //formData.append('access_token', token)
-    // temp disabled     //formData.append('source', blob)
-
-    // temp disabled     //var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
-    // temp disabled     //var $files = [];
-    // temp disabled     //for( var i = 0; i < nodes.length; i++) {
-    // temp disabled     //    $files.push($(nodes[i]).data());
-    // temp disabled     //    //args.files.submit();
-    // temp disabled     //}
-    // temp disabled     //formData.append('files', $files);
-    // temp disabled     //$.ajax({
-    // temp disabled     //    url: super_common_i18n.ajaxurl,
-    // temp disabled     //    type: 'post',
-    // temp disabled     //    data: formData,
-    // temp disabled     //    processData: false,
-    // temp disabled     //    contentType: false,
-    // temp disabled     //    success: function(data) {
-    // temp disabled     //        console.log(data);
-    // temp disabled     //    }
-    // temp disabled     //});
-    // temp disabled     // var nodes = args.form[0].querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)');
-    // temp disabled     // var $files = [];
-    // temp disabled     // for( var i = 0; i < nodes.length; i++) {
-    // temp disabled     //     $files.push($(nodes[i]).data());
-    // temp disabled     //     //args.files.submit();
-    // temp disabled     // }
-    // temp disabled     // var filesData = new FormData()
-    // temp disabled     // filesData.append('files', $files);
-
-    // temp disabled     // $.ajax({
-    // temp disabled     //     url: super_common_i18n.ajaxurl,
-    // temp disabled     //     type: 'post',
-    // temp disabled     //     data: {
-    // temp disabled     //         action: 'super_submit_form',
-    // temp disabled     //         super_ajax_nonce: args.super_ajax_nonce,
-    // temp disabled     //         data: args.data,
-    // temp disabled     //         files: args.files,
-    // temp disabled     //         form_id: args.form_id,
-    // temp disabled     //         entry_id: args.entry_id,
-    // temp disabled     //         list_id: args.list_id,
-    // temp disabled     //         token: args.token,
-    // temp disabled     //         version: args.version,
-    // temp disabled     //         i18n: args.form.data('i18n') // @since 4.7.0 translation
-    // temp disabled     //     },
-    // temp disabled     //     xhr: function() {
-    // temp disabled     //         var xhr = new window.XMLHttpRequest();
-    // temp disabled     //         if(args.showOverlay==="true"){
-    // temp disabled     //             xhr.upload.addEventListener("progress", function(evt) {
-    // temp disabled     //                 if (evt.lengthComputable) {
-    // temp disabled     //                     var percentComplete = evt.loaded / evt.total;
-    // temp disabled     //                     //Do something with upload progress here
-    // temp disabled     //                     if(args.pdfArgs!==false){
-    // temp disabled     //                         if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-    // temp disabled     //                     }else{
-    // temp disabled     //                         if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-    // temp disabled     //                     }
-    // temp disabled     //                 }
-    // temp disabled     //             }, false);
-    // temp disabled     //         }
-    // temp disabled     //         return xhr;
-    // temp disabled     //     },
-    // temp disabled     //     success: function(result){
-    // temp disabled     //         result = JSON.parse(result);
-    // temp disabled     //         if(result.error===true){
-    // temp disabled     //             // Display error message
-    // temp disabled     //             SUPER.form_submission_finished(args, result);
-    // temp disabled     //         }else{
-    // temp disabled     //             // Clear form progression (if enabled)
-    // temp disabled     //             if( args.form[0].classList.contains('super-save-progress') ) {
-    // temp disabled     //                 $.ajax({
-    // temp disabled     //                     url: super_common_i18n.ajaxurl,
-    // temp disabled     //                     type: 'post',
-    // temp disabled     //                     data: {
-    // temp disabled     //                         action: 'super_save_form_progress',
-    // temp disabled     //                         data: '',
-    // temp disabled     //                         form_id: args.form_id
-    // temp disabled     //                     }
-    // temp disabled     //                 });
-    // temp disabled     //             }
-    // temp disabled     //             // Trigger js hook and continue
-    // temp disabled     //             SUPER.after_email_send_hook(args);
-    // temp disabled     //             // If a hook is redirecting we should avoid doing other things
-    // temp disabled     //             if(args.form.data('is-redirecting')){
-    // temp disabled     //                 // However if a hook is doing things in the back-end, we must check until finished
-    // temp disabled     //                 if(args.form.data('is-doing-things')){
-    // temp disabled     //                     clearInterval(SUPER.submit_form_interval);
-    // temp disabled     //                     SUPER.submit_form_interval = setInterval(function(){
-    // temp disabled     //                         if(args.form.data('is-doing-things')){
-    // temp disabled     //                             // Still doing things...
-    // temp disabled     //                         }else{
-    // temp disabled     //                             clearInterval(SUPER.submit_form_interval);
-    // temp disabled     //                             // Form submission is finished
-    // temp disabled     //                             SUPER.form_submission_finished(args, result);
-    // temp disabled     //                         }
-    // temp disabled     //                     }, 100);
-    // temp disabled     //                 }
-    // temp disabled     //                 return false; // Stop here, we are redirecting the form (used by Stripe)
-    // temp disabled     //             }
-
-    // temp disabled     //             // @since 2.2.0 - custom form POST method
-    // temp disabled     //             if( (args.form.find('form').attr('method')=='post') && (args.form.find('form').attr('action')!=='') ){
-    // temp disabled     //                 args.form.find('form').submit(); // When doing custom POST, the form will redirect itself
-    // temp disabled     //                 return false;
-    // temp disabled     //             }
-    // temp disabled     //             // Form submission is finished
-    // temp disabled     //             SUPER.form_submission_finished(args, result);
-    // temp disabled     //         }
-    // temp disabled     //     },
-    // temp disabled     //     error: function (xhr, ajaxOptions, thrownError) {
-    // temp disabled     //         // eslint-disable-next-line no-console
-    // temp disabled     //         console.log(xhr, ajaxOptions, thrownError);
-    // temp disabled     //         alert('Failed to process data, please try again');
-    // temp disabled     //     }
-    // temp disabled     // });
-    // temp disabled };
-
     SUPER.close_loading_overlay = function(loadingOverlay){
         if(loadingOverlay) loadingOverlay.remove();
     };
@@ -2661,7 +2270,7 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                 }else{
                     args.loadingOverlay.classList.add('super-success');
-                    if(args.pdfSettings.downloadBtn==='true'){
+                    if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
                         SUPER.show_pdf_download_btn(args);
                     }
                     // Close Popup (if any)
@@ -2683,7 +2292,8 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // We do not want to display a thank you message, but might want to display a Download PDF button
-                if(args.pdfSettings.downloadBtn==='true'){
+
+                if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
                     args.loadingOverlay.classList.add('super-success');
                     SUPER.show_pdf_download_btn(args);
                 }else{
@@ -3189,10 +2799,14 @@ function SUPERreCaptcha(){
             }
             submitButtonName.innerHTML = loading;
             // Prepare arguments
+            var formData = SUPER.prepare_form_data($(args.form)); // returns {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
             args = {
                 event: args.event,
                 form: args.form,
-                data: SUPER.prepare_form_data($(args.form)),
+                data: formData.data,
+                form_id: formData.form_id,
+                entry_id: formData.entry_id,
+                list_id: formData.list_id,
                 oldHtml: oldHtml,
             };
             args.callback = function(){
@@ -3614,7 +3228,6 @@ function SUPERreCaptcha(){
                             'name':$field.attr('name'),
                             'value':$file.attr('data-name'),
                             'url':$file.attr('data-url'),
-                            'thumburl':$file.attr('data-thumburl'),
                             'label':$field.data('email'),
                             'exclude':$field.data('exclude'),
                             'exclude_entry':$field.data('exclude-entry'),
@@ -3922,7 +3535,6 @@ function SUPERreCaptcha(){
             $list_id = $form.find('input[name="hidden_list_id"]').val();
             //SUPER.form_js[$form_id]._pdf.generate = 'false';
         }
-
         return {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
     };
 
@@ -5837,7 +5449,7 @@ function SUPERreCaptcha(){
                             }
                             element = form.querySelector('.super-active-files[name="'+fv.name+'"]');
                             field = element.closest('.super-field');     
-                            html += SUPER.get_single_uploaded_file_html(false, true, '', fv.value, fv.type, fv.url);
+                            html += SUPER.get_single_uploaded_file_html(false, true, fv.value, fv.type, fv.url);
                         });
                         element.value = files;
                         field.querySelector('.super-fileupload-files').innerHTML = html;
@@ -6921,12 +6533,10 @@ function SUPERreCaptcha(){
         //
         // Add a timeout (just to be sure)
         setTimeout(function(){
-            console.log(typeof args._pdf);
             SUPER.pdf_generator_prepare(args, function(args){
                 // Start generating pages (starting at page 1)
                 args.currentPage = 1;
                 SUPER.pdf_generator_generate_page(args, function(args){ //pdf, form){
-                    console.log(typeof args._pdf);
                     // Reset everything to how it was
                     SUPER.pdf_generator_reset(args.form0);
                     // Attach as file to form data
@@ -7085,10 +6695,10 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.left = "-9999px";
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
-        debugger;
-        pdfPageContainer.style.zIndex = "9999999999";
-        pdfPageContainer.style.left = "0px";
-        pdfPageContainer.style.top = "0px";
+        //debugger;
+        //pdfPageContainer.style.zIndex = "9999999999";
+        //pdfPageContainer.style.left = "0px";
+        //pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
         pdfPageContainer.style.backgroundColor = "#ffffff";
@@ -7238,7 +6848,8 @@ function SUPERreCaptcha(){
             // This way we can also show the progression to the end user
             //scrollAmount = (pageHeightInPixels*2);
             args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
-            if(args.progressBar) args.progressBar.style.width = 5+'%';
+            args.totalPercentagePerPage = (100/args.totalPages) / 3;
+            args.pdfPercentageCompleted = 0;
             callback(args);
         }});
     };
@@ -7247,6 +6858,10 @@ function SUPERreCaptcha(){
 
     // PDF Generation
     SUPER.pdf_generator_generate_page = function(args, callback){
+        args.pdfPercentageCompleted += args.totalPercentagePerPage;
+        if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
+        //var percentage = (100/args.totalPages)*args.currentPage;
+        //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
         args._pdf_generator_done_callback = callback;
         var form = args.form0.closest('.super-form');
         // When canceled the following class will no longer exist, and we should not proceed
@@ -7344,7 +6959,8 @@ function SUPERreCaptcha(){
                     return false;
                 }
                 // eslint-disable-next-line no-undef
-                debugger;
+                args.pdfPercentageCompleted += args.totalPercentagePerPage;
+                if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
                 html2canvas(document.querySelector('.super-pdf-page-container'), {
                     scrollX: 0, // Important, do not remove
                     scrollY: 0,  // -window.scrollY, // Important, do not remove
@@ -7354,16 +6970,17 @@ function SUPERreCaptcha(){
                     allowTaint: false,
                     backgroundColor: '#ffffff'
                 }).then(function(canvas) {
-                    debugger;
                     // Only if not already canceled/reset
                     if(form && !form.classList.contains('super-generating-pdf')){
                         return false;
                     }
-
-                    var percentage = ((50/(args.totalPages+1))*args.currentPage)+5;
-                    if(percentage<5) percentage = 5;
-                    if(percentage>=50) percentage = 50;
-                    if(args.progressBar) args.progressBar.style.width = percentage+"%";  
+                    args.pdfPercentageCompleted += args.totalPercentagePerPage;
+                    if(args.pdfPercentageCompleted > 99){
+                        args.pdfPercentageCompleted = 100;
+                    }
+                    if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
+                    //var percentage = (100/args.totalPages)*args.currentPage;
+                    //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
                     var imgData = canvas.toDataURL("image/jpeg", 1.0);
                     // Add this image as 1 single page
                     args._pdf.addImage(
@@ -7662,16 +7279,17 @@ function SUPERreCaptcha(){
         SUPER.init_super_responsive_form_fields({form: form});
     };
     SUPER.save_data = function(args){
-        console.log('save_data(4)');
+        if(args.progressBar) args.progressBar.style.width = 0+'%';
+        args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         var formData = new FormData();
         formData.append('action', 'super_submit_form');
         if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
-        if(args.data) formData.append('data', JSON.stringify(args.data));
         if(args.form_id) formData.append('form_id', args.form_id);
-        if(args.entry_d) formData.append('entry_id', args.entry_id);
+        if(args.entry_id) formData.append('entry_id', args.entry_id);
         if(args.list_id) formData.append('list_id', args.list_id);
         if(args.token) formData.append('token', args.token);
         if(args.version) formData.append('version', args.version);
+        if(args.data) formData.append('data', JSON.stringify(args.data));
         formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
         $.ajax({
             type: 'post',
@@ -7689,11 +7307,12 @@ function SUPERreCaptcha(){
                         if (evt.lengthComputable) {
                             var percentComplete = evt.loaded / evt.total;
                             //Do something with upload progress here
-                            if(args._pdf!==false){
-                                if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-                            }else{
-                                if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-                            }
+                            if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+                            //if(args._pdf!==false){
+                            //    if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
+                            //}else{
+                            //    if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
+                            //}
                         }
                     }, false);
                 }

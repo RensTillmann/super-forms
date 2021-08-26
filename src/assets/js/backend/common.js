@@ -127,7 +127,6 @@
 
     jQuery(document).ready(function ($) {
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
-            debugger;
             var args = {
                 el: undefined,
                 form: this.closest('.super-form'),
