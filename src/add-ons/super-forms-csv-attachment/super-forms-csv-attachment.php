@@ -252,12 +252,8 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                         }
                     }
                 }
-                if(!defined(SUPER_PHP_UPLOAD_DIR)){
-                    $file_location = '/u/f/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
-                }else{
-                    $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
-                }
-                $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
+                $file_location = '/' . SUPER_FORMS_UPLOAD_DIR . '/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
+                $source = urldecode( $file_location );
                 if( file_exists( $source ) ) {
                     SUPER_Common::delete_file( $source );
                 }

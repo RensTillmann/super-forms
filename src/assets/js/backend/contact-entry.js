@@ -139,6 +139,7 @@
             $checkboxes.prop("checked", !$checkboxes.prop("checked"));
         });
         $doc.on('click', '.super-export-selected-columns', function(){
+            var $btn = $(this);
             var $dialog = $(this).parent();
             var $query = $dialog.find('input[name="query"]').val();
             var $columns = {};
@@ -150,6 +151,7 @@
                     $columns[$field_name] = $column_name;
                 }
             });
+            $btn.addClass('super-loading');
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
@@ -162,6 +164,7 @@
                     window.location.href = data;
                 },
                 complete: function(){
+                    $btn.removeClass('super-loading');
                     super_save_export_order();
                 }
             });

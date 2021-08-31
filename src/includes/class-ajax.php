@@ -1009,30 +1009,34 @@ class SUPER_Ajax {
                 }
             }
         }
-        
-        // Delete old files
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        $files = glob($source);
-        foreach($files as $v){
-            if( file_exists( $v ) ) {
-                SUPER_Common::delete_file( $v );
+        try {
+            $d = wp_upload_dir();
+            $basename = 'super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+            $filename = trailingslashit($d['path']) . $basename;
+            $fp = fopen( $filename, 'w' );
+            fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+            foreach ( $rows as $fields ) {
+                fputcsv( $fp, $fields, $delimiter, $enclosure );
             }
+            fclose( $fp );
+            $attachment = array(
+                'post_mime_type' => 'text/csv',
+                'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+            $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+            wp_update_attachment_metadata( $attachment_id,  $attach_data );
+            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            die();
+        } catch (Exception $e) {
+            // Print error message
+            SUPER_Common::output_message(
+                $error = true,
+                $e->getMessage()
+            );
         }
-        // Save new file
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        if( file_exists( $source ) ) {
-            SUPER_Common::delete_file( $source );
-        }
-        $fp = fopen( $source, 'w' );
-        fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
-        foreach ( $rows as $fields ) {
-            fputcsv( $fp, $fields, $delimiter, $enclosure );
-        }
-        fclose( $fp );
-        echo SUPER_PLUGIN_FILE . $file_location;
-        die();
     }
 
 
@@ -1084,20 +1088,22 @@ class SUPER_Ajax {
             }
         }
         $columns[] = 'entry_ip';
-        echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">'.esc_html__('Toggle all fields', 'super-forms').'</span>';
-        echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 10px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
-        echo '<ul class="super-export-entry-columns">';
-        foreach( $columns as $k => $v ) {
-            echo '<li class="super-entry-column" data-name="' . esc_attr($v) . '">';
-            echo '<input type="checkbox"' . ((isset($column_settings[$v])) ? ' checked="checked"' : '') . ' />';
-            echo '<span class="name">' . $v . '</span>';
-            echo '<input type="text" value="' . ((isset($column_settings[$v])) ? $column_settings[$v] : $v) . '" />';
-            echo '<span class="sort"></span>';
-            echo '</li>';
-        }
-        echo '</ul>';
-        echo '<input type="hidden" name="query" value="' . $query . '" />';
-        echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 0px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
+        echo '<div class="super-contact-entries-export-modal">';
+            echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">'.esc_html__('Toggle all fields', 'super-forms').'</span>';
+            echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 10px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
+            echo '<ul class="super-export-entry-columns">';
+            foreach( $columns as $k => $v ) {
+                echo '<li class="super-entry-column" data-name="' . esc_attr($v) . '">';
+                echo '<input type="checkbox"' . ((isset($column_settings[$v])) ? ' checked="checked"' : '') . ' />';
+                echo '<span class="name">' . $v . '</span>';
+                echo '<input type="text" value="' . ((isset($column_settings[$v])) ? $column_settings[$v] : $v) . '" />';
+                echo '<span class="sort"></span>';
+                echo '</li>';
+            }
+            echo '</ul>';
+            echo '<input type="hidden" name="query" value="' . $query . '" />';
+            echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 0px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
+        echo '</div>';
         die();
     }
 
@@ -1420,14 +1426,31 @@ class SUPER_Ajax {
             'translations' => $translationSettings,
             'secrets' => $secretsSettings
         );
-        $export = '<html>'.maybe_serialize($export);
-        $filename = $title.'-super-forms-export.html';
-        $filename = sanitize_file_name($filename);
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/' . $filename;
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        file_put_contents($source, $export);
-        echo SUPER_PLUGIN_FILE . $file_location;
-        die();
+        $export = maybe_serialize($export);
+        $basename = $title.'-super-forms-export-'.strtotime(date_i18n('Y-m-d H:i:s')).'.txt';
+        $basename = sanitize_file_name($basename);
+        try {
+            $d = wp_upload_dir();
+            $filename = trailingslashit($d['path']) . $basename;
+            file_put_contents($filename, $export);
+            $attachment = array(
+                'post_mime_type' => 'text/plain',
+                'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+            $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+            wp_update_attachment_metadata( $attachment_id,  $attach_data );
+            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            die();
+        } catch (Exception $e) {
+            // Print error message
+            SUPER_Common::output_message(
+                $error = true,
+                $e->getMessage()
+            );
+        }
     }
 
 
@@ -1499,50 +1522,75 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function export_forms() {
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-forms-export.html';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        ini_set('max_execution_time', 0);
-        global $wpdb;
-        $offset = absint($_POST['offset']);
-        $limit = absint($_POST['limit']);
-        $table = $wpdb->prefix . 'posts';
-        $table_meta = $wpdb->prefix . 'postmeta';
-        if($_POST['found']==''){
-            // Return total forms
-            $found = absint($wpdb->get_var("SELECT COUNT(form.ID) FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form'"));
-        }else{
-            $found = absint($_POST['found']);
-        }
-        $forms = $wpdb->get_results("
-        SELECT 
-        form.ID,
-        form.post_author,
-        form.post_date,
-        form.post_date_gmt,
-        form.post_title,
-        form.post_status
-        FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form' LIMIT $limit OFFSET $offset", ARRAY_A);
-        
-        $fp = fopen($source, 'w');
-        fwrite($fp, "<html>");
-        foreach( $forms as $k => $v ) {
-            $form_id = $v['ID'];
-            $settings = SUPER_Common::get_form_settings($form_id);
-            $elements = get_post_meta( $form_id, '_super_elements', true );
-            $forms[$k]['settings'] = $settings;
-            if(is_array($elements)){
-                $forms[$k]['elements'] = $elements;
+        try {
+            ini_set('max_execution_time', 0);
+            global $wpdb;
+            $offset = absint($_POST['offset']);
+            $limit = absint($_POST['limit']);
+            $table = $wpdb->prefix . 'posts';
+            $table_meta = $wpdb->prefix . 'postmeta';
+            if($_POST['found']===''){
+                // Return total forms
+                $found = absint($wpdb->get_var("
+                SELECT COUNT(form.ID) 
+                FROM $table AS form 
+                WHERE form.post_status IN ('publish') AND form.post_type = 'super_form'"));
             }else{
-                $forms[$k]['elements'] = json_decode($elements, true);
+                $found = absint($_POST['found']);
             }
-            $translations = get_post_meta( $form_id, '_super_translations', true );
-            $forms[$k]['translations'] = $translations;
+            $forms = $wpdb->get_results("
+            SELECT form.ID, form.post_author, form.post_date, form.post_date_gmt, form.post_title, form.post_status
+            FROM $table AS form WHERE form.post_status IN ('publish') AND form.post_type = 'super_form' 
+            LIMIT $limit OFFSET $offset", ARRAY_A);
+            $d = wp_upload_dir();
+            $basename = 'super-forms-export-'.strtotime(date_i18n('Y-m-d H:i:s')).'.txt';
+            $filename = trailingslashit($d['path']) . $basename;
+            $fp = fopen($filename, 'w');
+            foreach( $forms as $k => $v ) {
+                $form_id = $v['ID'];
+                $settings = SUPER_Common::get_form_settings($form_id);
+                $elements = get_post_meta( $form_id, '_super_elements', true );
+                $forms[$k]['settings'] = $settings;
+                if(is_array($elements)){
+                    $forms[$k]['elements'] = $elements;
+                }else{
+                    $forms[$k]['elements'] = json_decode($elements, true);
+                }
+                $translations = get_post_meta( $form_id, '_super_translations', true );
+                $forms[$k]['translations'] = $translations;
+                $secretsSettings = get_post_meta( $form_id, '_super_local_secrets', true );
+                $forms[$k]['secrets'] = $secretsSettings;
+            }
+            $content = json_encode($forms);
+            fwrite($fp, $content);
+            fclose($fp);
+            $attachment_id = 0;
+            if($offset+$limit>$found){
+                $attachment = array(
+                    'post_mime_type' => 'text/plain',
+                    'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                    'post_content'   => '',
+                    'post_status'    => 'inherit'
+                );
+                $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+                $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+                wp_update_attachment_metadata( $attachment_id,  $attach_data );
+            }
+            echo json_encode(
+                array(
+                    'file_url' => trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id,
+                    'offset' => $offset+$limit,
+                    'found' => $found
+                )
+            );
+            die();
+        } catch (Exception $e) {
+            // Print error message
+            SUPER_Common::output_message(
+                $error = true,
+                $e->getMessage()
+            );
         }
-        $content = json_encode($forms);
-        fwrite($fp, $content);
-        fclose($fp);
-        echo json_encode(array('file_url'=>SUPER_PLUGIN_FILE . $file_location, 'offset'=>$offset+$limit, 'found'=>$found));
-        die();
     }
 
 
@@ -1583,6 +1631,10 @@ class SUPER_Ajax {
             // @since 4.7.0 - translations
             if(isset($v['translations'])){
                 add_post_meta( $form_id, '_super_translations', $v['translations'] );
+            }
+            // @since 4.7.0 - translations
+            if(isset($v['secrets'])){
+                add_post_meta( $form_id, '_super_local_secrets', $v['secrets'] );
             }
         }
         die();
@@ -1693,30 +1745,34 @@ class SUPER_Ajax {
                 }
             }
         }
-
-        // Delete old files
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-*.csv';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        $files = glob($source);
-        foreach($files as $v){
-            if( file_exists( $v ) ) {
-                SUPER_Common::delete_file( $v );
+        try {
+            $d = wp_upload_dir();
+            $basename = 'super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
+            $filename = trailingslashit($d['path']) . $basename;
+            $fp = fopen( $filename, 'w' );
+            fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+            foreach ( $rows as $fields ) {
+                fputcsv( $fp, $fields, $delimiter, $enclosure );
             }
+            fclose( $fp );
+            $attachment = array(
+                'post_mime_type' => 'text/csv',
+                'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                'post_content'   => '',
+                'post_status'    => 'inherit'
+            );
+            $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+            $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+            wp_update_attachment_metadata( $attachment_id,  $attach_data );
+            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            die();
+        } catch (Exception $e) {
+            // Print error message
+            SUPER_Common::output_message(
+                $error = true,
+                $e->getMessage()
+            );
         }
-        // Save new file
-        $file_location = '/' . SUPER_PHP_UPLOAD_DIR . '/super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
-        $source = urldecode( SUPER_PLUGIN_DIR . $file_location );
-        if( file_exists( $source ) ) {
-            SUPER_Common::delete_file( $source );
-        }
-        $fp = fopen( $source, 'w' );
-        fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
-        foreach ( $rows as $fields ) {
-            fputcsv( $fp, $fields, $delimiter, $enclosure );
-        }
-        fclose( $fp );
-        echo SUPER_PLUGIN_FILE . $file_location;
-        die();
     }
 
 

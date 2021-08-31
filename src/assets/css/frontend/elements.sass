@@ -594,17 +594,19 @@ h1.super-thanks-title
       display: none
   input[name="super_hp"]
     display: none !important
-  *
-    .super-column
+  &:not(.super-preview-elements)
+    *
+      .super-column
+        display: block
+      &[data-conditional-action="show"]
+        display: none
+      &[data-conditional-action="hide"]
+        display: block
+  &:not(.super-preview-elements)
+    .super-conditional-visible
       display: block
-    &[data-conditional-action="show"]
+    .super-conditional-hidden
       display: none
-    &[data-conditional-action="hide"]
-      display: block
-  .super-conditional-visible
-    display: block
-  .super-conditional-hidden
-    display: none
   .super-focus,
   .super-focus .super-shortcode-field,
   .super-focus .super-keyword-filter,

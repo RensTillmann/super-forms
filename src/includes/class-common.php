@@ -591,7 +591,11 @@ class SUPER_Common {
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings, 0);
         $global_settings = array_merge( $defaults, $global_settings );
-        $settings = array_merge( $global_settings, $form_settings );
+        if(is_array($form_settings)){
+            $settings = array_merge( $global_settings, $form_settings );
+        }else{
+            $settings = $form_settings;
+        }
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
     }
 
