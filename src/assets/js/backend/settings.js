@@ -456,7 +456,7 @@
                     if(data.offset>data.found){
                         setTimeout(function() {
                             $this.html('Completed ('+data.found+'/'+data.found+')');
-                            window.location.href = data.file_url;
+                            window.open(data.file_url);
                         }, 10*limit);
                         return false;
                     }else{

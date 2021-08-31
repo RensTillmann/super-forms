@@ -3083,7 +3083,7 @@ class SUPER_Settings {
                         <div class="super-field-name">' . esc_html__( 'Import form', 'super-forms' ) . ':</div>
                         <div class="super-field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
                         <div class="super-field-input">
-                        <div class="image-field browse-files" data-file-type="text/html" data-multiple="false">
+                        <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
                             <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
                             <ul class="file-preview"></ul>
                             <input type="hidden" name="import-file" class="super-element-field">

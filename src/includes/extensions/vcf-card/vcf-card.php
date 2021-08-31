@@ -188,7 +188,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             $cardData .= "FN:" . $formData['first_name']['value'] . "\n";
 //             $cardData .= "EMAIL:" . $formData['email']['value'] . "\n";
 //             $cardData .= "END:VCARD";
-//             $filePath = '/.SUPER_PHP_UPLOAD_DIR./' . $attachmentName;
+//             $filePath = '/.SUPER_FORMS_UPLOAD_DIR./' . $attachmentName;
 //             $source = urldecode( SUPER_PLUGIN_DIR . $filePath );
 //             if( file_exists( $source ) ) {
 //                 SUPER_Common::delete_file( $source );

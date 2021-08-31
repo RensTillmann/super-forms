@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.0
+ * Version:     5.0.001
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.0';
+        public $version = '5.0.001';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -168,7 +168,6 @@ if(!class_exists('SUPER_Forms')) :
             $this->define( 'SUPER_API_VERSION', $this->apiVersion );
             $this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
             $this->define( 'SUPER_FORMS_UPLOAD_DIR', apply_filters( 'super_forms_upload_dir_filter', str_replace(ABSPATH, '', WP_CONTENT_DIR) . '/uploads/superforms' ) );
-            $this->define( 'SUPER_PHP_UPLOAD_DIR', 'u/f' );
             
         }
 
@@ -384,7 +383,36 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'rewrite_rules' ) );
             add_action( 'query_vars', array( $this, 'query_vars' ) );
             add_filter( 'parse_request', array( $this, 'parse_request' ) );
+
+            // Allow text/plain MIME type for export/import
+            add_filter( 'wp_check_filetype_and_ext', function($types, $file, $filename, $mimes) {
+                if(false !== strpos( $filename, '.txt' ) ) {
+                    $types['ext'] = 'txt';
+                    $types['type'] = 'text/plain';
+                }
+                return $types;
+            }, 10, 4 );
+            add_filter( 'upload_mimes', function($mimes){
+                $mimes['txt'] = 'text/plain';
+                return $mimes;
+            });
+
+            // Delete deprecated folders
+            $deprecatedFolders = array(
+                'uploads', 'u' // no longer needed since new file upload system
+            );
+            foreach($deprecatedFolders as $folder){
+                $path = trailingslashit(SUPER_PLUGIN_DIR) . $folder;
+                if(is_dir($path)){
+                    SUPER_Common::delete_dir( $path );
+                }
+            }
         }
+        public static function allow_txt_mime_type($mimes, $user){
+            $mimes['txt'] = 'text/plain';
+            return $mimes;
+        }
+
         public static function add_custom_wc_my_account_menu_items( $menu ){
             $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
@@ -442,13 +470,19 @@ if(!class_exists('SUPER_Forms')) :
             }
         }
         public function rewrite_rules(){
-            add_rewrite_rule( 
+            add_rewrite_rule(
+                'sfdlfi\/(.*)', // sfdlfi stands for "super forms download file"
+                'index.php?sfdlfi=$matches[1]', 
+                'top' 
+            );
+            add_rewrite_rule(
                 'sfgtfi\/(.*)', // sfgtfi stands for "super forms get file"
                 'index.php?sfgtfi=$matches[1]', 
                 'top' 
             );
         }
         public function query_vars( $query_vars ){
+            $query_vars[] = 'sfdlfi';
             $query_vars[] = 'sfgtfi';
             return $query_vars;
         }
@@ -518,6 +552,26 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request( &$wp ) {
+            if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
+                //error_log('try to generated/download file');
+                if ( ! current_user_can( 'export' ) ) {
+                    wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
+                }
+                $fileLocation = $wp->query_vars['sfdlfi'];
+                $url = wp_get_attachment_url( $fileLocation );
+                if(empty($url)){
+                    header("HTTP/1.1 404 Not Found");
+                    exit;
+                }
+                $content = file_get_contents($url, true);
+                // Delete the export data
+                wp_delete_attachment( $fileLocation, true );
+                header('Content-Description: File Transfer');
+                header('Content-Disposition: attachment; filename=' . basename($url) );
+                header('Content-Type: text/txt; charset=' . get_option( 'blog_charset' ), true );
+                echo $content;
+                exit;
+            }
             if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
                 // Get settings
                 $settings = SUPER_Common::get_form_settings(0);
@@ -670,7 +724,7 @@ if(!class_exists('SUPER_Forms')) :
                                 'includes/ajax-handler.php'
                             );
                             foreach($deprecatedFiles as $file){
-                                $path = SUPER_PLUGIN_DIR . '/' . $file;
+                                $path = trailingslashit(SUPER_PLUGIN_DIR) . $file;
                                 if(is_file($path)) unlink($path);
                             }
                             // Send API request that the plugin has been updated

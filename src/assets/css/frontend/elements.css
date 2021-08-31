@@ -675,19 +675,19 @@ h1.super-thanks-title {
 .super-form input[name=super_hp] {
   display: none !important;
 }
-.super-form * .super-column {
+.super-form:not(.super-preview-elements) * .super-column {
   display: block;
 }
-.super-form *[data-conditional-action=show] {
+.super-form:not(.super-preview-elements) *[data-conditional-action=show] {
   display: none;
 }
-.super-form *[data-conditional-action=hide] {
+.super-form:not(.super-preview-elements) *[data-conditional-action=hide] {
   display: block;
 }
-.super-form .super-conditional-visible {
+.super-form:not(.super-preview-elements) .super-conditional-visible {
   display: block;
 }
-.super-form .super-conditional-hidden {
+.super-form:not(.super-preview-elements) .super-conditional-hidden {
   display: none;
 }
 .super-form .super-focus,

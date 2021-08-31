@@ -2905,7 +2905,9 @@ function SUPERreCaptcha(){
                         if(totalFields==counter){
                             if(nodes[i].name==args.el.name){
                                 setTimeout(function (){
-                                    activeMultipart.querySelector('.super-next-multipart').click();
+                                    if(activeMultipart.querySelector('.super-next-multipart')) {
+                                        activeMultipart.querySelector('.super-next-multipart').click();
+                                    }
                                 }, 200);
                                 break;
                             }
@@ -6391,14 +6393,16 @@ function SUPERreCaptcha(){
             SUPER.init_field_filter_visibility($this, type);
         });
 
-        // Apply styles after chaning settings
+        // Apply styles after changing settings
         // Toggle RTL styles
         if(document.querySelector('input[name="theme_rtl"]')){
             var theme_rtl = document.querySelector('input[name="theme_rtl"]').value;
-            if(theme_rtl==='true'){
-                document.querySelector('.super-preview-elements').classList.add('super-rtl');
-            }else{
-                document.querySelector('.super-preview-elements').classList.remove('super-rtl');
+            if(document.querySelector('.super-preview-elements')){
+                if(theme_rtl==='true'){
+                    document.querySelector('.super-preview-elements').classList.add('super-rtl');
+                }else{
+                    document.querySelector('.super-preview-elements').classList.remove('super-rtl');
+                }
             }
         }
     };

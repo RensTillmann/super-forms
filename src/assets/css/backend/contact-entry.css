@@ -128,3 +128,63 @@ input[name="sffrom"], input[name="sfto"] {
     vertical-align: middle;
     margin: 1px 5px 1px 0px;
 }
+
+.super-contact-entries-export-modal {
+    float:left;
+    width:100%;
+    margin:0px 0px 10px 0px;
+}
+.super-export-selected-columns.super-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.super-export-selected-columns.super-loading:after {
+    content: '\f1ce';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    -webkit-animation: rotating 2s linear infinite;
+    -moz-animation: rotating 2s linear infinite;
+    -ms-animation: rotating 2s linear infinite;
+    -o-animation: rotating 2s linear infinite;
+    animation: rotating 2s linear infinite;
+}
+@-webkit-keyframes rotating {
+  from {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
