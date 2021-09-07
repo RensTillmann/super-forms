@@ -1646,6 +1646,61 @@ class SUPER_Common {
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
+                    if( isset( $v['type'] ) && $v['type']==='files' ) {
+                        $allFileNames = array();
+                        $allFileUrls = array();
+                        $allFileLinks = array();
+                        foreach($v['files'] as $fk => $fv){
+                            $allFileNames[] = self::decode($fv['value']);
+                            $allFileUrls[] = self::decode($fv['url']);
+                            $allFileLinks[] = self::decode('<a href="'.esc_attr($fv['url']).'">'.$fv['value'].'</a>');
+                        }
+                        // Below filter should return a string, if it's still an array we will convert it into a string seperated by line breaks
+                        $allFileNames = apply_filters( 'super_filter_all_file_names_filter', $allFileNames, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
+                        $allFileUrls = apply_filters( 'super_filter_all_file_urls_filter', $allFileUrls, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
+                        $allFileLinks = apply_filters( 'super_filter_all_file_links_filter', $allFileLinks, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
+                        if(is_array($allFileNames)) $allFileNames = implode('<br />', $allFileNames);
+                        if(is_array($allFileUrls)) $allFileUrls = implode('<br />', $allFileUrls);
+                        if(is_array($allFileLinks)) $allFileLinks = implode('<br />', $allFileLinks);
+                        foreach($v['files'] as $fk => $fv){
+                            // Returns the file name/basename by default e.g: `example.png`
+                            $value = str_replace( '{' . $k . '}', $allFileNames, $value );
+                            $value = str_replace( '{' . $k . ';allFileNames}', $allFileNames, $value ); // returns a list of all file names
+                            $value = str_replace( '{' . $k . ';allFileUrls}', $allFileUrls, $value ); // returns a list of all file urls
+                            $value = str_replace( '{' . $k . ';allFileLinks}', $allFileLinks, $value ); // returns a list of all files with link to file
+                            // count (total files)
+                            $value = str_replace( '{' . $k . ';count}', count($v['files']), $value );
+                            $value = str_replace( '{' . $k . ';total_files}', count($v['files']), $value );
+                            $value = str_replace( '{' . $k . ';total}', count($v['files']), $value );
+                            $value = str_replace( '{' . $k . ';new_count}', count($v['files']), $value );
+                            $value = str_replace( '{' . $k . ';existing_count}', count($v['files']), $value );
+                            // URL
+                            $value = str_replace( '{' . $k . ';url}', self::decode($fv['url']), $value );
+                            $value = str_replace( '{' . $k . ';url['.$fk.']}', self::decode($fv['url']), $value );
+                            // Extension
+                            $ext = pathinfo($fv['value'], PATHINFO_EXTENSION);
+                            $value = str_replace( '{' . $k . ';ext}', self::decode($ext), $value );
+                            $value = str_replace( '{' . $k . ';ext['.$fk.']}', self::decode($ext), $value );
+                            $value = str_replace( '{' . $k . ';extension}', self::decode($ext), $value );
+                            $value = str_replace( '{' . $k . ';extension['.$fk.']}', self::decode($ext), $value );
+                            // Type
+                            $value = str_replace( '{' . $k . ';type}', self::decode($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';type['.$fk.']}', self::decode($fv['type']), $value );
+                            // Name
+                            $value = str_replace( '{' . $k . ';name}', self::decode($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';name['.$fk.']}', self::decode($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';basename}', self::decode($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';basename['.$fk.']}', self::decode($fv['value']), $value );
+                            // Attachment
+                            $value = str_replace( '{' . $k . ';attachment_id}', self::decode($fv['attachment']), $value );
+                            $value = str_replace( '{' . $k . ';attachment_id['.$fk.']}', self::decode($fv['attachment']), $value );
+                            $value = str_replace( '{' . $k . ';attachment}', self::decode($fv['attachment']), $value );
+                            $value = str_replace( '{' . $k . ';attachment['.$fk.']}', self::decode($fv['attachment']), $value );
+                            // E-mail label
+                            $value = str_replace( '{' . $k . ';label}', self::decode($v['label']), $value );
+                        }
+                        continue;
+                    }
                     if( isset( $v['name'] ) ) {
                         if( (isset($v['type'])) && ($v['type']=='text') ) {
                             $v['value'] = self::decode_textarea( $v['value'] );

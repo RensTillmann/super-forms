@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.001
+ * Version:     5.0.002
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.001';
+        public $version = '5.0.002';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -415,7 +415,7 @@ if(!class_exists('SUPER_Forms')) :
 
         public static function add_custom_wc_my_account_menu_items( $menu ){
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = '';
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);
@@ -445,7 +445,7 @@ if(!class_exists('SUPER_Forms')) :
         }
         public static function add_custom_wc_my_account_menu_item_endpoint( $url, $endpoint, $value, $permalink ){
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = array();
+            if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = '';
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
                 $v = explode('|', $v);
@@ -862,10 +862,14 @@ if(!class_exists('SUPER_Forms')) :
             // Regex to do foreach loop for dynamic column fields
             $regex = '/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
+            $fileLoopRows = array();
             foreach($matches as $k => $v){
                 $original = $v[0];
                 $field_name = $v[1];
-                $original_field_name = $v[1];
+                $splitName = explode(';', $field_name);
+                $field_name = $splitName[0];
+                $value_n = (isset($splitName[1]) ? $splitName[1] : '');
+                $original_field_name = $field_name;
                 $return = '';
                 if( isset( $v[2] ) ) $return = $v[2];
                 if($return==='') continue;
@@ -876,22 +880,42 @@ if(!class_exists('SUPER_Forms')) :
                     $row = $return;
                     $row_match = preg_match_all($row_regex, $row, $row_matches, PREG_SET_ORDER, 0);
                     foreach($row_matches as $rk => $rv){
-                        if($rv[1]==='counter'){
-                            $row = str_replace( $rv[0], $i, $row);
-                            continue;
+                        if($value_n==='loop'){
+                            // Loop over all current files
+                            $files = $data['data'][$field_name]['files'];
+                            if(!isset($fileLoopRows[$field_name])) $fileLoopRows[$field_name] = array();
+                            foreach($files as $x => $fv){
+                                if(!isset($fileLoopRows[$field_name][$x])) $fileLoopRows[$field_name][$x] = $row;
+                                if($rv[1]==='counter'){
+                                    $fileLoopRows[$field_name][$x] = str_replace( $rv[0], $x+1, $fileLoopRows[$field_name][$x]);
+                                    continue;
+                                }
+                                $fileLoopRows[$field_name][$x] = str_replace( $rv[0], '{'.$field_name.';'.$rv[1].'['.($x).']}', $fileLoopRows[$field_name][$x]);
+                            }
+                        }else{
+                            if($rv[1]==='counter'){
+                                $row = str_replace( $rv[0], $i, $row);
+                                continue;
+                            }
+                            if($i<2){
+                                $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
+                                continue;
+                            }
+                            $splitName = explode(';', $rv[1]);
+                            $newName = $splitName[0].'_'.$i;
+                            if(count($splitName)>1){
+                                $newName .= ';'.$splitName[1];
+                            }
+                            $row = str_replace( $rv[0], '{'.$newName.'}', $row);
                         }
-                        if($i<2){
-                            $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
-                            continue;
-                        }
-                        $splitName = explode(';', $rv[1]);
-                        $newName = $splitName[0].'_'.$i;
-                        if(count($splitName)>1){
-                            $newName .= ';'.$splitName[1];
-                        }
-                        $row = str_replace( $rv[0], '{'.$newName.'}', $row);
                     }
-                    $rows .= $row;
+                    if($value_n==='loop'){
+                        foreach($fileLoopRows[$field_name] as $value){
+                            $rows .= $value;
+                        }
+                    }else{
+                        $rows .= $row;
+                    }
                     $i++;
                     $field_name = $original_field_name.'_'.$i;
                 }

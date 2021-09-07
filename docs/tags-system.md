@@ -98,6 +98,25 @@ Now you might ask where should I actually place this tag? You can choose to use 
 
 ## Predefined {tags} that are useful
 
+**Tags that are compatible with the file upload element:**
+
+?> Also checkout the [file upload foreach example](email-foreach-loops#how-to-loop-over-files) for the file upload element
+
+* `{fieldname}` (retrieve list with file name(s))
+* `{fieldname;count}` (retrieve total amount of files connected to this file upload element)
+* `{fieldname;new_count}` (retrieve total amount of files that are yet to be uploaded)
+* `{fieldname;existing_count}` (retrieve total amount of files already/previously uploaded)
+* `{fieldname;url}` (retrieve file  "blob" or "URL")
+* `{fieldname;size}` (retrieve file size)
+* `{fieldname;type}` (retrieve file type)
+* `{fieldname;name}` (retrieve file name)
+* `{fieldname;ext}` (retrieve file extension)
+* `{fieldname;attachment_id}` (retrieve file ID after file has been uploaded when form is submitted)
+* `{fieldname;url[2]}` (retrieve specific file data, this example retrieves the third file URL if it exists based on array index)
+* `{fieldname;allFileNames}` (retrieve list with all file names, it's possible to filter this list with filter hook: `super_filter_all_file_names_filter`
+* `{fieldname;allFileUrls}` (retrieve list with all file URLs, it's possible to filter this list with filter hook: `super_filter_all_file_urls_filter`
+* `{fieldname;allFileLinks}` (retrieve list with a link to the file, it's possible to filter this list with filter hook: `super_filter_all_file_links_filter`
+
 **Tag to retrieve the current page or post title:**
 
 * `{post_title}`

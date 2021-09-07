@@ -2242,6 +2242,8 @@
             $wrapper.children('.super-fileupload').data('total-file-sizes', total);
             $wrapper.children('input[type="hidden"]').val('');
             $this.parents('div:eq(0)').remove();
+            var field = $fieldWrapper.find('.super-active-files')[0];
+            SUPER.after_field_change_blur_hook({el: field, form: form});
         });
         
         // @since 1.2.4 - autosuggest text field
