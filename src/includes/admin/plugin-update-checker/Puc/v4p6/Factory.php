@@ -47,12 +47,11 @@ if ( !class_exists('Puc_v4p6_Factory', false) ):
 				$type = 'Theme';
 				$id = $themeDirectory;
 			} else {
-				return null;
-				//throw new RuntimeException(sprintf(
-				//	'The update checker cannot determine if "%s" is a plugin or a theme. ' .
-				//	'This is a bug. Please contact the PUC developer.',
-				//	htmlentities($fullPath)
-				//));
+				throw new RuntimeException(sprintf(
+					'The update checker cannot determine if "%s" is a plugin or a theme. ' .
+					'This is a bug. Please contact the PUC developer.',
+					htmlentities($fullPath)
+				));
 			}
 
 			//Which hosting service does the URL point to?

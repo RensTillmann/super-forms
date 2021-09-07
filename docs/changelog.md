@@ -12,6 +12,31 @@
 
 - **Added:** `Listings Add-on` display entries on front-end, more info here (https://renstillmann.github.io/super-forms/#/listings-add-on)
 - **Added:** New file upload system, file upload element will now display image/document in thumbnail preview before it's being uploaded to the server, they will also be visible in the generated PDF `PDF Generator Add-on`
+- **Added:** New tags for file upload element, can be used inside HTML element on front-end and inside E-mail body
+  - `{fieldname}` (retrieve list with file name(s))
+  - `{fieldname;count}` (retrieve total amount of files connected to this file upload element)
+  - `{fieldname;new_count}` (retrieve total amount of files that are yet to be uploaded)
+  - `{fieldname;existing_count}` (retrieve total amount of files already/previously uploaded)
+  - `{fieldname;url}` (retrieve file  "blob" or "URL")
+  - `{fieldname;size}` (retrieve file size)
+  - `{fieldname;type}` (retrieve file type)
+  - `{fieldname;name}` (retrieve file name)
+  - `{fieldname;ext}` (retrieve file extension)
+  - `{fieldname;attachment_id}` (retrieve file ID after file has been uploaded when form is submitted)
+  - `{fieldname;url[2]}` (retrieve specific file data, this example retrieves the third file URL if it exists based on array index)
+  - `{fieldname;allFileNames}` (retrieve list with all file names, it's possible to filter this list with filter hook: `super_filter_all_file_names_filter`
+  - `{fieldname;allFileUrls}` (retrieve list with all file URLs, it's possible to filter this list with filter hook: `super_filter_all_file_urls_filter`
+  - `{fieldname;allFileLinks}` (retrieve list with a link to the file, it's possible to filter this list with filter hook: `super_filter_all_file_links_filter`
+- **Added:** Compatibility for file upload with `foreach` loop inside HTML element and E-mail body example:
+  ```php
+  foreach(fileupload_field_name_here;loop):
+      <strong>Name (<%counter%>):</strong> <%name%><br />
+      <strong>URL (<%counter%>):</strong> <%url%><br />
+      <strong>Extension (<%counter%>):</strong> <%ext%><br />
+      <strong>Type (<%counter%>):</strong> <%type%><br />
+      <strong>ID (<%counter%>):</strong> <%attachment_id%><br />
+  endforeach;
+  ```
 - **Added:** New option under global settings `Super Forms > Settings > WooCommerce My Account Menu Items` to add custom menu items with custom content/shortcode or a custom URL to redirect to a custom page. This allows you to display any extra content for the `/my-account` page. For instance you could list contact entries with the use of the `Listings Add-on` on the `My Account` page. Since you can use shortcodes you could also use it for other usecases that are not even related to Super Forms.
 - **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having seperate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
 - **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`

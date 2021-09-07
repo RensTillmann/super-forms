@@ -606,11 +606,13 @@ class SUPER_Shortcodes {
                             foreach($retrieve_method_meta_keys as $rk => $rv){
                                 if($rv=='featured_image'){
                                     $attachment_image = wp_get_attachment_image_src(get_post_thumbnail_id($v['ID']));
-                                    $image_url = $attachment_image[0];
-                                    if($rk>0){
-                                        $data_value .= ';'.$image_url;
-                                    }else{
-                                        $data_value .= $image_url;
+                                    if($attachment_image){
+                                        $image_url = $attachment_image[0];
+                                        if($rk>0){
+                                            $data_value .= ';'.$image_url;
+                                        }else{
+                                            $data_value .= $image_url;
+                                        }
                                     }
                                     continue;
                                 }
@@ -677,11 +679,13 @@ class SUPER_Shortcodes {
                         foreach($retrieve_method_meta_keys as $rk => $rv){
                             if($rv=='featured_image'){
                                 $attachment_image = wp_get_attachment_image_src(get_post_thumbnail_id($v['ID']));
-                                $image_url = $attachment_image[0];
-                                if($rk>0){
-                                    $data_value .= ';'.$image_url;
-                                }else{
-                                    $data_value .= $image_url;
+                                if($attachment_image){
+                                    $image_url = $attachment_image[0];
+                                    if($rk>0){
+                                        $data_value .= ';'.$image_url;
+                                    }else{
+                                        $data_value .= $image_url;
+                                    }
                                 }
                                 continue;
                             }
@@ -3830,6 +3834,7 @@ class SUPER_Shortcodes {
             }
             $new_format = str_replace('yy', 'Y', $new_format);
             $atts['value'] = date_i18n($new_format);
+            $atts['absolute_default'] = $atts['value'];
         }
 
         // Get default value

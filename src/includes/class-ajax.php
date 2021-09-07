@@ -2964,14 +2964,23 @@ class SUPER_Ajax {
             'global_email_reply_name' => array('header_reply_name', 'confirm_reply_name'),
         );
         foreach($overrideSettings as $k => $v){
-            if(!empty($global_settings[$k . '_force'])){
-                if(is_array($v)){
-                    foreach($v as $vv){
-                        $settings[$vv] = $global_settings[$k];
-                    }
-                }else{
-                    $settings[$v] = $global_settings[$k];
-                }
+            if($k==='global_email_to_admin') $settings['header_to'] = $global_settings[$k];
+            if($k==='global_email_to_confirm') $settings['confirm_to'] = $global_settings[$k];
+            if($k==='global_email_from'){
+                if(!empty($global_settings[$k . '_admin_force'])) $settings['header_from'] = $global_settings[$k];
+                if(!empty($global_settings[$k . '_confirm_force'])) $settings['confirm_from'] = $global_settings[$k];
+            }
+            if($k==='global_email_from_name'){
+                if(!empty($global_settings[$k . '_admin_force'])) $settings['header_from_name'] = $global_settings[$k];
+                if(!empty($global_settings[$k . '_confirm_force'])) $settings['confirm_from_name'] = $global_settings[$k];
+            }
+            if($k==='global_email_reply'){
+                if(!empty($global_settings[$k . '_admin_force'])) $settings['header_reply'] = $global_settings[$k];
+                if(!empty($global_settings[$k . '_confirm_force'])) $settings['confirm_reply'] = $global_settings[$k];
+            }
+            if($k==='global_email_reply_name'){
+                if(!empty($global_settings[$k . '_admin_force'])) $settings['header_reply_name'] = $global_settings[$k];
+                if(!empty($global_settings[$k . '_confirm_force'])) $settings['confirm_reply_name'] = $global_settings[$k];
             }
         }
 

@@ -397,7 +397,8 @@ if ( !class_exists('Puc_v4p6_UpdateChecker', false) ):
 		 */
 		public function triggerError($message, $errorType) {
 			if ( $this->isDebugModeEnabled() ) {
-				trigger_error($message, $errorType);
+				error_log($message . ' ' . $errorType);
+				//trigger_error($message, $errorType);
 			}
 		}
 
