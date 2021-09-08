@@ -1709,11 +1709,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-family: tinymce, Arial;
 }
 
-.super-overlap .super-shortcode-field,
-.super-overlap input[type=text], .super-overlap input[type=number], .super-overlap input[type=email], .super-overlap input[type=tel], .super-overlap input[type=url], .super-overlap input[type=password], .super-overlap input[type=search], .super-overlap textarea {
-  visibility: hidden;
-}
-
 .super-first-responsiveness .super-field.super-grouped {
   width: 50%;
 }
@@ -3378,8 +3373,15 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   resize: vertical;
   min-height: 100px;
 }
-.super-form .super-quantity {
+.super-form .super-textarea .super-field-wrapper .wp-editor-wrap,
+.super-form .super-textarea .super-field-wrapper .tmce-active {
+  width: 100%;
+}
+.super-form .super-quantity .super-quantity-field-wrap {
   display: flex;
+}
+.super-form .super-quantity .super-quantity-field-wrap .super-field-wrapper {
+  margin-top: 0 !important;
 }
 .super-form .sp-replacer.super-forms {
   display: flex;
@@ -3457,6 +3459,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form.super-adaptive .super-has-label-desc .super-field-wrapper {
   margin-top: 6px;
 }
+.super-form.super-adaptive .super-has-label-desc.super-slider .super-field-wrapper {
+  margin-top: 26px;
+}
 .super-form .display-vertical .super-item.super-has-image {
   flex-direction: row;
 }
@@ -3471,6 +3476,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form .display-slider .super-field-wrapper {
   display: block;
+}
+.super-form .display-slider .super-field-wrapper .super-has-image .super-before {
+  display: none;
 }
 .super-form .display-slider .super-field-wrapper .super-item-label {
   padding-top: 10px;
@@ -3563,6 +3571,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form .super-dropdown .super-dropdown-list {
   max-height: 200px;
+  margin: 0;
 }
 .super-form .super-dropdown .super-dropdown-list .super-item.super-placeholder {
   width: calc(100% - 26px);
@@ -5460,6 +5469,191 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   padding-right: calc(14px + 20px);
   padding-bottom: 0px;
   padding-left: calc(14px + 20px);
+}
+
+.super-icon-inside.super-icon-left.super-overlap .super-icon {
+  display: none;
+}
+
+.super-overlap .super-shortcode-field,
+.super-overlap input[type=text], .super-overlap input[type=number], .super-overlap input[type=email], .super-overlap input[type=tel], .super-overlap input[type=url], .super-overlap input[type=password], .super-overlap input[type=search], .super-overlap textarea {
+  visibility: hidden;
+}
+
+.super-field.super-text .super-overlap .super-dropdown-list .super-item {
+  display: none !important;
+}
+.super-field.super-text .super-overlap .super-dropdown-list .super-item.super-active {
+  display: block !important;
+  background: none;
+  color: black;
+  padding-left: 35px;
+}
+
+.super-field.super-auto-suggest .super-overlap .super-dropdown-list .super-item {
+  height: 32px;
+}
+.super-field.super-auto-suggest .super-overlap .super-dropdown-list .super-item.super-active {
+  display: flex !important;
+  padding-left: 6px;
+}
+
+.super-overlap .super-item.super-active:before {
+  content: "\f00d";
+  font-size: 12px;
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  text-align: center;
+  position: initial;
+  border: 1px solid red;
+  background-color: red;
+  color: white;
+  margin-right: 10px;
+}
+
+.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  display: none;
+}
+.super-auto-suggest .super-field-wrapper.super-overlap .super-adaptive-placeholder {
+  z-index: 3600;
+}
+.super-auto-suggest .super-field-wrapper.super-overlap .super-dropdown-list {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.super-auto-suggest.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  z-index: 1;
+  display: block;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0;
+  top: 33px;
+  width: 100%;
+}
+.super-auto-suggest.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item.super-match {
+  display: flex;
+  font-weight: bold;
+}
+
+.super-field-size-large .super-overlap .super-item.super-active:before {
+  top: 10px;
+  left: 10px;
+}
+.super-field-size-large .super-field.super-text .super-overlap .super-item.super-active {
+  padding-left: 45px;
+}
+.super-field-size-large .super-field .super-overlap .super-item {
+  height: 41px;
+  line-height: 41px;
+}
+
+.super-field-size-huge .super-overlap .super-item.super-active:before {
+  top: 15px;
+  left: 15px;
+}
+.super-field-size-huge .super-field.super-text .super-overlap .super-item.super-active {
+  padding-left: 50px;
+}
+.super-field-size-huge .super-field .super-overlap .super-item {
+  height: 51px;
+  line-height: 51px;
+}
+
+.super-field-size-medium .super-overlap .super-adaptive-placeholder:before {
+  margin-left: 17px;
+}
+.super-field-size-medium .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+  margin-left: 0px;
+}
+
+.super-field-size-large .super-overlap .super-adaptive-placeholder:before {
+  margin-left: 27px;
+}
+.super-field-size-large .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+  margin-left: 0px;
+}
+
+.super-field-size-huge .super-overlap .super-adaptive-placeholder:before {
+  margin-left: 32px;
+}
+.super-field-size-huge .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+  margin-left: 0px;
+}
+.super-field-size-huge.super-full-rounded .super-overlap .super-adaptive-placeholder:before {
+  margin-left: 32px;
+}
+
+.super-default-rounded .super-overlap .super-item.super-active:before {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
+.super-full-rounded .super-overlap .super-item.super-active:before {
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  border-radius: 50px;
+}
+
+.super-rtl .super-adaptive-placeholder {
+  justify-content: flex-end;
+  padding-right: 30px;
+}
+.super-rtl .super-overlap .super-adaptive-placeholder {
+  padding-right: 50px;
+}
+.super-rtl.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-large.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-large.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-huge.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-adaptive-placeholder {
+  padding-right: 40px;
+}
+.super-rtl.super-field-size-medium .super-overlap .super-adaptive-placeholder {
+  padding-right: 35px;
+  margin: 0;
+}
+.super-rtl.super-field-size-large .super-overlap .super-adaptive-placeholder {
+  padding-right: 40px;
+  margin: 0;
+}
+.super-rtl.super-field-size-huge .super-overlap .super-adaptive-placeholder {
+  padding-right: 45px;
+  margin: 0;
+}
+.super-rtl.super-field-size-medium .super-overlap .super-item.super-active:before {
+  left: initial;
+  right: 5px;
+}
+.super-rtl.super-field-size-medium .super-overlap .super-item.super-active {
+  padding-left: 0px;
+  padding-right: 35px;
+}
+.super-rtl.super-field-size-large .super-overlap .super-item.super-active:before {
+  left: initial;
+  right: 10px;
+}
+.super-rtl.super-field-size-large .super-overlap .super-item.super-active {
+  padding-left: 0px;
+  padding-right: 40px;
+}
+.super-rtl.super-field-size-huge .super-overlap .super-item.super-active:before {
+  left: initial;
+  right: 15px;
+}
+.super-rtl.super-field-size-huge .super-overlap .super-item.super-active {
+  padding-left: 0px;
+  padding-right: 45px;
 }
 
 /*# sourceMappingURL=elements.css.map */

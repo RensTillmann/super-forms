@@ -2574,7 +2574,6 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
-        
 
         if( empty($atts['wrapper_width']) ) $atts['wrapper_width'] = 50;
         if( empty($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
@@ -2585,32 +2584,34 @@ class SUPER_Shortcodes {
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
         
         $result = self::opening_tag( $tag, $atts );
-        $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
+        $result .= '<div class="super-quantity-field-wrap">';
+            $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
+            $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
-        // @since 1.9 - custom class
-        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+            // @since 1.9 - custom class
+            if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input tabindex="-1" class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
+            $result .= '<input tabindex="-1" class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text"';
 
-        if( empty( $atts['minnumber']) ) $atts['minnumber'] = 0;
-        if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
-        if( $atts['value']<$atts['minnumber'] ) {
-            $atts['value'] = $atts['minnumber'];
-        }
-        if( $atts['value']>$atts['maxnumber'] ) {
-            $atts['value'] = $atts['maxnumber'];
-        }
+            if( empty( $atts['minnumber']) ) $atts['minnumber'] = 0;
+            if( empty( $atts['maxnumber']) ) $atts['maxnumber'] = 100;
+            if( $atts['value']<$atts['minnumber'] ) {
+                $atts['value'] = $atts['minnumber'];
+            }
+            if( $atts['value']>$atts['maxnumber'] ) {
+                $atts['value'] = $atts['maxnumber'];
+            }
 
-        $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '" data-steps="' . $atts['steps'] . '"';
-        $result .= self::common_attributes( $atts, $tag, $settings );
-        $result .= ' />';
+            $result .= ' name="' . $atts['name'] . '" value="' . esc_attr($atts['value']) . '" data-steps="' . $atts['steps'] . '"';
+            $result .= self::common_attributes( $atts, $tag, $settings );
+            $result .= ' />';
 
-        // @since 1.2.5     - custom regex validation
-        if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
+            // @since 1.2.5     - custom regex validation
+            if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
+            $result .= '</div>';
+            $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
         $result .= '</div>';
-        $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
