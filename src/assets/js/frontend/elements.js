@@ -2301,6 +2301,7 @@
         // Focus dropdowns
         $doc.on('click', '.super-dropdown-list:not(.super-autosuggest-tags-list)', function(e){
             var i, nodes, field = e.target.closest('.super-field');
+            if(field.classList.contains('super-auto-suggest')) return false;
             SUPER.focusForm(field);
             if(!field.classList.contains('super-open')){
                 nodes = document.querySelectorAll('.super-focus');
@@ -2458,6 +2459,7 @@
             this.classList.add('super-active');
             wrapper.querySelector('.super-shortcode-field').value = value;
             field.classList.remove('super-focus');
+            field.classList.remove('super-open');
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
             field.classList.add('super-filled');
@@ -2469,6 +2471,7 @@
         // On removing item
         $doc.on('click', '.super-wc-order-search .super-field-wrapper.super-overlap li, .super-auto-suggest .super-field-wrapper.super-overlap li', function(){
             var i,items,
+                el = this.closest('.super-field'),
                 wrapper = this.closest('.super-field-wrapper'),
                 field = wrapper.querySelector('.super-shortcode-field');
             
@@ -2478,22 +2481,9 @@
                 items[i].classList.remove('super-active');
             }
             wrapper.classList.remove('super-overlap');
-            field.classList.remove('super-filled');
+            el.classList.remove('super-filled');
             field.focus();
             SUPER.after_field_change_blur_hook({el: field});
-        });
-
-        // Update autosuggest
-        $doc.on('click', '.super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(){
-            var $this = $(this);
-            var $field = $this.parents('.super-field:eq(0)');
-            var $parent = $this.parent();
-            var $value = $this.text();
-            $parent.find('li').removeClass('super-active');
-            $(this).addClass('super-active');
-            $field.find('.super-shortcode-field').val($value);
-            $field.removeClass('super-focus').removeClass('super-string-found');
-            SUPER.after_field_change_blur_hook({el: $field.find('.super-shortcode-field')[0]});
         });
 
         // Update dropdown
