@@ -1110,6 +1110,7 @@ class SUPER_Common {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;
         $current_user = wp_get_current_user();
+        $product = false;
 
         // @since 4.9.402 - check if switching from language, if so grab initial tag values from session
         if( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) {
@@ -1593,9 +1594,9 @@ class SUPER_Common {
                     $cart_items = '';
                     $cart_items_price = '';
                     foreach($items as $item => $values) { 
-                        $product =  wc_get_product( $values['data']->get_id() ); 
-                        $cart_items .= absint($values['quantity']) . 'x - ' . $product->get_title() . '<br />'; 
-                        $cart_items_price .= absint($values['quantity']) . 'x - ' . $product->get_title() . ' (' . wc_price(get_post_meta($values['product_id'], '_price', true)) . ')<br />'; 
+                        $cartProduct =  wc_get_product( $values['data']->get_id() ); 
+                        $cart_items .= absint($values['quantity']) . 'x - ' . $cartProduct->get_title() . '<br />'; 
+                        $cart_items_price .= absint($values['quantity']) . 'x - ' . $cartProduct->get_title() . ' (' . wc_price(get_post_meta($values['product_id'], '_price', true)) . ')<br />'; 
                     }
                 }else{
                     $cart_total = 0;
@@ -1619,21 +1620,14 @@ class SUPER_Common {
                     'wc_cart_items_price' => array(
                         esc_html__( 'WC Cart Items + Price', 'super-forms' ),
                         $cart_items_price
-                    ),
-                    'product_regular_price' => array(
-                        esc_html__( 'Product Regular Price', 'super-forms' ),
-                        $product_regular_price
-                    ),
-                    'product_sale_price' => array(
-                        esc_html__( 'Product Sale Price', 'super-forms' ),
-                        $product_sale_price
-                    ),
-                    'product_price' => array(
-                        esc_html__( 'Product Price', 'super-forms' ),
-                        $product_price
                     )
-    
                 );
+                // Only add if product exists/found
+                if($product){
+                    $wc_tags['product_regular_price'] = array( esc_html__( 'Product Regular Price', 'super-forms' ), $product_regular_price);
+                    $wc_tags['product_sale_price'] = array( esc_html__( 'Product Sale Price', 'super-forms' ), $product_sale_price);
+                    $wc_tags['product_price'] = array( esc_html__( 'Product Price', 'super-forms' ), $product_price);
+                }
                 $tags = array_merge( $tags, $wc_tags );
             }
             $tags = apply_filters( 'super_email_tags_filter', $tags );

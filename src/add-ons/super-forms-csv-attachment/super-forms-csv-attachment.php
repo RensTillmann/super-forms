@@ -252,23 +252,33 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                         }
                     }
                 }
-                $file_location = '/' . SUPER_FORMS_UPLOAD_DIR . '/' . sanitize_title_with_dashes($csv_attachment_name) . '.csv';
-                $source = urldecode( $file_location );
-                if( file_exists( $source ) ) {
-                    SUPER_Common::delete_file( $source );
-                }
-                $fp = fopen( $source, 'w' );
-                if($fp==false){
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = '<strong>' . esc_html__('Error', 'super-forms') . ':</strong> ' . esc_html__( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
-                    );
-                }else{
+                try {
+                    $d = wp_upload_dir();
+                    $basename = sanitize_title_with_dashes($csv_attachment_name) . '.csv';
+                    $filename = trailingslashit($d['path']) . $basename;
+                    $fp = fopen( $filename, 'w' );
+                    fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
                     foreach ( $rows as $fields ) {
                         fputcsv( $fp, $fields, $delimiter, $enclosure );
                     }
                     fclose( $fp );
-                    $attachments['csv-form-data.csv'] = SUPER_PLUGIN_FILE . $file_location;
+                    $attachment = array(
+                        'post_mime_type' => 'text/csv',
+                        'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                        'post_content'   => '',
+                        'post_status'    => 'inherit'
+                    );
+                    $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+                    add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
+                    $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
+                    wp_update_attachment_metadata( $attachment_id,  $attach_data );
+                    $attachments['csv-form-data.csv'] = wp_get_attachment_url( $attachment_id );
+                } catch (Exception $e) {
+                    // Print error message
+                    SUPER_Common::output_message(
+                        $error = true,
+                        $e->getMessage()
+                    );
                 }
             }
             return $attachments;

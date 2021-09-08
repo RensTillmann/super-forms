@@ -1402,11 +1402,6 @@ textarea
   .mce-ico.mce-i-resize
     font-family: tinymce, Arial
 
-.super-overlap
-  .super-shortcode-field,
-  #{$formFields}
-    visibility: hidden
-
 .super-first-responsiveness
   .super-field
     &.super-grouped
@@ -2594,8 +2589,15 @@ textarea
     .super-shortcode-field
       resize: vertical
       min-height: 100px
+    .super-field-wrapper
+      .wp-editor-wrap,
+      .tmce-active
+        width: 100%
   .super-quantity
-    display: flex
+    .super-quantity-field-wrap
+      display: flex
+      .super-field-wrapper
+        margin-top: 0!important
   .sp-replacer.super-forms
     display: flex
     justify-content: center
@@ -2664,6 +2666,9 @@ textarea
     .super-has-label-desc
       .super-field-wrapper
         margin-top: 6px
+      &.super-slider
+        .super-field-wrapper
+          margin-top: 26px
   .display-vertical 
     .super-item 
       &.super-has-image 
@@ -2679,6 +2684,9 @@ textarea
   .display-slider 
     .super-field-wrapper 
       display: block
+      .super-has-image
+        .super-before
+          display: none
       .super-item-label 
           padding-top: 10px
   .display-grid 
@@ -2763,6 +2771,7 @@ textarea
       height: 34px
     .super-dropdown-list
       max-height: 200px
+      margin: 0
       .super-item.super-placeholder
         width: calc(100% - 26px)
     .super-dropdown-arrow
@@ -4590,3 +4599,185 @@ textarea
       padding-right: calc(14px + 20px)
       padding-bottom: 0px
       padding-left: calc(14px + 20px)
+
+.super-icon-inside.super-icon-left.super-overlap 
+  .super-icon
+    display: none
+.super-overlap
+  .super-shortcode-field,
+  #{$formFields}
+    visibility: hidden
+.super-field.super-text 
+  .super-overlap 
+    .super-dropdown-list
+      .super-item 
+        display: none !important
+        &.super-active
+          display: block !important
+          background: none
+          color: black
+          padding-left: 35px
+.super-field.super-auto-suggest 
+  .super-overlap 
+    .super-dropdown-list 
+      .super-item
+        height: 32px
+        &.super-active
+          display: flex!important
+          padding-left: 6px
+.super-overlap
+  .super-item.super-active:before
+    content: unicode("f00d")
+    font-size: 12px
+    +fontAwesome(900)
+    width: 15px
+    height: 15px
+    line-height: 15px
+    text-align: center
+    position: initial
+    border: 1px solid red
+    background-color: red
+    color: white
+    margin-right: 10px
+.super-auto-suggest
+  .super-field-wrapper
+    &:not(.super-overlap)
+      .super-dropdown-list
+        display: none
+    &.super-overlap
+      .super-adaptive-placeholder
+        z-index: 3600
+      .super-dropdown-list
+        margin: 0
+        padding: 0
+        position: absolute
+        left: 0
+        top: 0
+        width: 100%
+  &.super-string-found
+    .super-field-wrapper
+      &:not(.super-overlap)
+        .super-dropdown-list
+          z-index: 1
+          display: block
+          margin: 0
+          padding: 0
+          position: absolute
+          left: 0
+          top: 33px
+          width: 100%
+          .super-item
+            &.super-match
+              display: flex
+              font-weight: bold
+.super-field-size-large
+  .super-overlap .super-item.super-active:before
+    top: 10px
+    left: 10px
+  .super-field
+    &.super-text .super-overlap .super-item.super-active
+      padding-left: 45px
+    .super-overlap .super-item
+      height: 41px
+      line-height: 41px
+.super-field-size-huge
+  .super-overlap .super-item.super-active:before
+    top: 15px
+    left: 15px
+  .super-field
+    &.super-text .super-overlap .super-item.super-active
+      padding-left: 50px
+    .super-overlap .super-item
+      height: 51px
+      line-height: 51px
+.super-field-size-medium
+  .super-overlap
+    .super-adaptive-placeholder:before
+      margin-left: 17px
+    &.super-icon-inside.super-icon-left
+      .super-adaptive-placeholder:before
+        margin-left: 0px
+.super-field-size-large
+  .super-overlap
+    .super-adaptive-placeholder:before
+      margin-left: 27px
+    &.super-icon-inside.super-icon-left
+      .super-adaptive-placeholder:before
+        margin-left: 0px
+.super-field-size-huge
+  .super-overlap
+    .super-adaptive-placeholder:before
+      margin-left: 32px
+    &.super-icon-inside.super-icon-left
+      .super-adaptive-placeholder:before
+        margin-left: 0px
+  &.super-full-rounded
+    .super-overlap
+      .super-adaptive-placeholder:before
+        margin-left: 32px
+.super-default-rounded 
+  .super-overlap
+    .super-item.super-active:before
+      +borderRadius(3px)
+.super-full-rounded
+  .super-overlap
+    .super-item.super-active:before
+      +borderRadius(50px)
+
+.super-rtl
+  .super-adaptive-placeholder
+    justify-content: flex-end
+    padding-right: 30px
+  .super-overlap
+    .super-adaptive-placeholder
+      padding-right: 50px
+  &.super-full-rounded
+    .super-adaptive-placeholder
+      padding-right: 35px
+  &.super-field-size-large
+    &.super-default-rounded,&.super-full-rounded
+      .super-adaptive-placeholder
+        padding-right: 35px
+  &.super-field-size-huge
+    &.super-default-rounded,&.super-full-rounded
+      .super-adaptive-placeholder
+        padding-right: 40px
+  &.super-field-size-medium
+    .super-overlap
+      .super-adaptive-placeholder
+        padding-right: 35px
+        margin: 0
+  &.super-field-size-large
+    .super-overlap
+      .super-adaptive-placeholder
+        padding-right: 40px
+        margin: 0
+  &.super-field-size-huge
+    .super-overlap
+      .super-adaptive-placeholder
+        padding-right: 45px
+        margin: 0
+  &.super-field-size-medium
+    .super-overlap
+      .super-item.super-active:before
+        left: initial
+        right: 5px
+      .super-item.super-active
+        padding-left: 0px
+        padding-right: 35px
+  &.super-field-size-large
+    .super-overlap
+      .super-item.super-active:before
+        left: initial
+        right: 10px
+      .super-item.super-active
+        padding-left: 0px
+        padding-right: 40px
+  &.super-field-size-huge
+    .super-overlap
+      .super-item.super-active:before
+        left: initial
+        right: 15px
+      .super-item.super-active
+        padding-left: 0px
+        padding-right: 45px

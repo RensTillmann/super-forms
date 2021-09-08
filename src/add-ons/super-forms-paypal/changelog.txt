@@ -1,4 +1,4 @@
-Aug 16, 2021 - Version 1.5.0
+Sep 07, 2021 - Version 1.5.0
 - Compatibility with Super Forms v5.0.0
 - Fix: Subscriptions with trial periods were not handled properly by IPN
 
