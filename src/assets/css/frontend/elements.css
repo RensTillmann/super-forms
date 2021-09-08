@@ -5543,117 +5543,181 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-weight: bold;
 }
 
-.super-field-size-large .super-overlap .super-item.super-active:before {
-  top: 10px;
-  left: 10px;
+.super-field-size-medium .super-field.super-auto-suggest .super-overlap .super-dropdown-list .super-item {
+  height: calc(32px + 0px);
 }
-.super-field-size-large .super-field.super-text .super-overlap .super-item.super-active {
-  padding-left: 45px;
+.super-field-size-medium .super-field.super-auto-suggest.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  top: calc(33px + 0px);
 }
-.super-field-size-large .super-field .super-overlap .super-item {
-  height: 41px;
-  line-height: 41px;
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-left: 34px;
+  border-left-width: 0px !important;
 }
-
-.super-field-size-huge .super-overlap .super-item.super-active:before {
-  top: 15px;
-  left: 15px;
-}
-.super-field-size-huge .super-field.super-text .super-overlap .super-item.super-active {
-  padding-left: 50px;
-}
-.super-field-size-huge .super-field .super-overlap .super-item {
-  height: 51px;
-  line-height: 51px;
-}
-
-.super-field-size-medium .super-overlap .super-adaptive-placeholder:before {
-  margin-left: 17px;
-}
-.super-field-size-medium .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
   margin-left: 0px;
+  border-left-width: 1px;
+  width: calc(100% - 0px);
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-left: 10px;
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-right: 34px;
+  border-right-width: 0px !important;
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 0px;
+  border-right-width: 1px;
+  width: calc(100% - 0px);
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-right: 10px;
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-outside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 44px);
+  margin-left: 44px;
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-outside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-left: 44px;
+  width: calc(100% - 44px);
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-outside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 44px);
+  margin-right: 44px;
+}
+.super-field-size-medium .super-field.super-auto-suggest.super-icon-outside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 44px;
+  width: calc(100% - 44px);
 }
 
-.super-field-size-large .super-overlap .super-adaptive-placeholder:before {
-  margin-left: 27px;
+.super-field-size-large .super-field.super-auto-suggest .super-overlap .super-dropdown-list .super-item {
+  height: calc(32px + 10px);
 }
-.super-field-size-large .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+.super-field-size-large .super-field.super-auto-suggest.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  top: calc(33px + 10px);
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-left: 34px;
+  border-left-width: 0px !important;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
   margin-left: 0px;
+  border-left-width: 1px;
+  width: calc(100% - 0px);
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-left: 10px;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-right: 34px;
+  border-right-width: 0px !important;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 0px;
+  border-right-width: 1px;
+  width: calc(100% - 0px);
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-right: 10px;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-outside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 54px);
+  margin-left: 54px;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-outside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-left: 54px;
+  width: calc(100% - 54px);
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-outside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 54px);
+  margin-right: 54px;
+}
+.super-field-size-large .super-field.super-auto-suggest.super-icon-outside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 54px;
+  width: calc(100% - 54px);
 }
 
-.super-field-size-huge .super-overlap .super-adaptive-placeholder:before {
-  margin-left: 32px;
+.super-field-size-huge .super-field.super-auto-suggest .super-overlap .super-dropdown-list .super-item {
+  height: calc(32px + 20px);
 }
-.super-field-size-huge .super-overlap.super-icon-inside.super-icon-left .super-adaptive-placeholder:before {
+.super-field-size-huge .super-field.super-auto-suggest.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  top: calc(33px + 20px);
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-left: 34px;
+  border-left-width: 0px !important;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
   margin-left: 0px;
+  border-left-width: 1px;
+  width: calc(100% - 0px);
 }
-.super-field-size-huge.super-full-rounded .super-overlap .super-adaptive-placeholder:before {
-  margin-left: 32px;
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-left: 10px;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 34px);
+  margin-right: 34px;
+  border-right-width: 0px !important;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 0px;
+  border-right-width: 1px;
+  width: calc(100% - 0px);
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-inside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item {
+  padding-right: 10px;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-outside.super-icon-left .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 64px);
+  margin-left: 64px;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-outside.super-icon-left.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-left: 64px;
+  width: calc(100% - 64px);
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-outside.super-icon-right .super-field-wrapper.super-overlap .super-dropdown-list {
+  width: calc(100% - 64px);
+  margin-right: 64px;
+}
+.super-field-size-huge .super-field.super-auto-suggest.super-icon-outside.super-icon-right.super-string-found .super-field-wrapper:not(.super-overlap) .super-dropdown-list {
+  margin-right: 64px;
+  width: calc(100% - 64px);
 }
 
-.super-default-rounded .super-overlap .super-item.super-active:before {
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+.super-default-rounded .super-auto-suggest.super-string-found .super-shortcode-field {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.super-default-rounded .super-auto-suggest.super-string-found .super-dropdown-list {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
-.super-full-rounded .super-overlap .super-item.super-active:before {
-  -webkit-border-radius: 50px;
-  -moz-border-radius: 50px;
-  border-radius: 50px;
+.super-full-rounded .super-auto-suggest.super-string-found .super-shortcode-field {
+  border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.super-full-rounded .super-auto-suggest.super-string-found .super-dropdown-list {
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
 }
 
-.super-rtl .super-adaptive-placeholder {
+.super-rtl .super-auto-suggest .super-dropdown-list .super-item {
   justify-content: flex-end;
-  padding-right: 30px;
-}
-.super-rtl .super-overlap .super-adaptive-placeholder {
-  padding-right: 50px;
-}
-.super-rtl.super-full-rounded .super-adaptive-placeholder {
-  padding-right: 35px;
-}
-.super-rtl.super-field-size-large.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-large.super-full-rounded .super-adaptive-placeholder {
-  padding-right: 35px;
-}
-.super-rtl.super-field-size-huge.super-default-rounded .super-adaptive-placeholder, .super-rtl.super-field-size-huge.super-full-rounded .super-adaptive-placeholder {
-  padding-right: 40px;
-}
-.super-rtl.super-field-size-medium .super-overlap .super-adaptive-placeholder {
-  padding-right: 35px;
-  margin: 0;
-}
-.super-rtl.super-field-size-large .super-overlap .super-adaptive-placeholder {
-  padding-right: 40px;
-  margin: 0;
-}
-.super-rtl.super-field-size-huge .super-overlap .super-adaptive-placeholder {
-  padding-right: 45px;
-  margin: 0;
-}
-.super-rtl.super-field-size-medium .super-overlap .super-item.super-active:before {
-  left: initial;
-  right: 5px;
-}
-.super-rtl.super-field-size-medium .super-overlap .super-item.super-active {
-  padding-left: 0px;
-  padding-right: 35px;
-}
-.super-rtl.super-field-size-large .super-overlap .super-item.super-active:before {
-  left: initial;
-  right: 10px;
-}
-.super-rtl.super-field-size-large .super-overlap .super-item.super-active {
-  padding-left: 0px;
-  padding-right: 40px;
-}
-.super-rtl.super-field-size-huge .super-overlap .super-item.super-active:before {
-  left: initial;
-  right: 15px;
-}
-.super-rtl.super-field-size-huge .super-overlap .super-item.super-active {
-  padding-left: 0px;
-  padding-right: 45px;
 }
 
 /*# sourceMappingURL=elements.css.map */
