@@ -3052,6 +3052,18 @@ textarea
     width: auto
   .super-next-multipart
     float: right
+  .super-button
+    &.super-prev-multipart,
+    &.super-next-multipart
+      &.super-button-align-left
+        justify-content: flex-start
+        width: 100%
+      &.super-button-align-center
+        justify-content: center
+        width: 100%
+      &.super-button-align-right
+        justify-content: flex-end
+        width: 100%
 
   // LTR
   &:not(.super-rtl)

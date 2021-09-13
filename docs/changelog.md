@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Aug 26, 2021 - Version 5.0.0 (BETA)
+## Sep 13, 2021 - Version 5.0.0 (BETA)
 
+- **Added:** New element `HTML Elements > PDF Page Break` for PDF Generator Add-on, which allows you to start a new page after a specific element. You can also switch between orientation `Portrait` and `Landscape` if needed.
 - **Added:** `Listings Add-on` display entries on front-end, more info here (https://renstillmann.github.io/super-forms/#/listings-add-on)
 - **Added:** New file upload system, file upload element will now display image/document in thumbnail preview before it's being uploaded to the server, they will also be visible in the generated PDF `PDF Generator Add-on`
 - **Added:** New tags for file upload element, can be used inside HTML element on front-end and inside E-mail body
@@ -47,6 +48,7 @@
 - **Added:** New filter hook `super_attachments_filter` to alter/add/delete the email attachments
 - **Added:** `MailChimp Add-on` escape html in output message and replace psuedo after/before elements with normal DOM element
 - **Added:** New tags to be used inside E-mails `{_generated_pdf_file_label}`, `{_generated_pdf_file_name}`, `{_generated_pdf_file_url}` allows you to retrieve the Generated PDF url so you can create a button that links to the file for download
+- **Added:** New actions `Prev/Next Multipart/Step` for `Button` element to have more control over when to show the Previous / Next buttons in a multi-part element.
 - **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
 - **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 - **Fix:** `PDF Generator Add-on` option to exclude generated PDF from contact entry not working

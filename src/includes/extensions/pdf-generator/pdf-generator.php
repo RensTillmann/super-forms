@@ -353,7 +353,8 @@ if(!class_exists('SUPER_PDF_Generator')) :
             if(absint($form_id)!==0){ 
                 $settings = $attr['settings'];
                 if(isset($settings['_pdf'])){
-                    $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse(\''.json_encode($settings['_pdf']).'\');';
+                    $_pdf = json_encode(wp_slash($settings['_pdf']), JSON_UNESCAPED_UNICODE);
+                    $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse(\''.$_pdf.'\');';
                 }
             }
             return $js;

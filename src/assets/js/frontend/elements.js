@@ -71,7 +71,7 @@
         // Disable scrolling for multi-part prev/next
         multipart = form.querySelector('.super-multipart.super-active');
         if(typeof multipart.dataset.disableScrollPn === 'undefined'){
-            if(!e.shiftKey){
+            if(e && !e.shiftKey){
                 $('html, body').animate({
                     scrollTop: $(form).offset().top - 30
                 }, 500);
@@ -2708,12 +2708,19 @@
                 $field = $parent.querySelector('input[type="hidden"]');
                 $counter = 0;
                 $maxlength = $parent.querySelector('.super-shortcode-field').dataset.maxlength;
+                $checked = $parent.querySelectorAll('label.super-active');
                 if(el.classList.contains('super-active')){
                     el.classList.remove('super-active');
                 }else{
-                    $checked = $parent.querySelectorAll('label.super-active');
-                    if($checked.length >= $maxlength){
-                        return false;
+                    if($checked.length >= parseInt($maxlength, 10)){
+                        if(parseInt($maxlength,10)===1){
+                            for (var i = 0; i < $checked.length; ++i) {
+                                $checked[i].classList.remove('super-active');
+                                $checked[i].querySelector('input').checked = false;
+                            }
+                        }else{
+                            return false;
+                        }
                     }
                     el.classList.add('super-active');
                 }

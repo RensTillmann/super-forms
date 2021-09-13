@@ -4659,7 +4659,6 @@ class SUPER_Shortcodes {
             $GLOBALS['super_submit_button_found'] = true;
         }
 
-
         if( !empty( $atts['name'] ) ) $name = $atts['name'];
         $name = stripslashes($name);
 
@@ -4694,8 +4693,17 @@ class SUPER_Shortcodes {
         $icon_animation = ' super-button-icon-animation-' . $icon_animation;
         if( $icon_visibility=='visible' ) $icon_animation = '';
         
-        $class = 'super-extra-shortcode super-shortcode super-field super-form-button super-clear-none ';
-        $class .= 'super-button super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
+        $class = 'super-extra-shortcode super-shortcode super-field super-button super-clear-none';
+        if($action==='prev' || $action==='next'){
+            if($action==='prev'){
+                $class .= ' super-prev-multipart';
+            }else{
+                $class .= ' super-next-multipart';
+            }
+        }else{
+            $class .= ' super-form-button';
+        }
+        $class .= ' super-radius-' . $radius . ' super-type-' . $type . ' super-button-' . $size . ' super-button-align-' . $align . ' super-button-width-' . $width;
         if( $icon_option!='none' ) {
             $class .= ' super-button-icon-option-' . $icon_option . $icon_animation . ' super-button-icon-visibility-' . $icon_visibility;
         }

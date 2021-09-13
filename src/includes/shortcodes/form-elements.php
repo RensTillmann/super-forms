@@ -3477,6 +3477,8 @@ $array['form_elements'] = array(
                                 'clear'=>esc_html__( 'Clear / Reset the form', 'super-forms' ),
                                 'print'=>esc_html__( 'Print form data', 'super-forms' ),
                                 'url'=>esc_html__( 'Redirect to link or URL', 'super-forms' ),
+                                'prev'=>esc_html__( 'Previous Multi-part/Step', 'super-forms' ),
+                                'next'=>esc_html__( 'Next Multi-part/Step', 'super-forms' )
                             ),
                             'filter'=>true,
                         ),
