@@ -500,7 +500,8 @@ function SUPERreCaptcha(){
         }
     };
     SUPER.focusNextTabField = function(e, next, form, skipNext){
-        var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = e.keyCode || e.which;
+        var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = -1;
+        if(e) keyCode = e.keyCode || e.which;
          
         if(typeof skipNext !== 'undefined'){
             next = skipNext;
@@ -563,7 +564,7 @@ function SUPERreCaptcha(){
             parentTabElement = parentTabElement.parentNode.closest('.super-accordion-item');
         }
 
-        if(e.type!=='click' && keyCode != 32){
+        if(e && e.type!=='click' && keyCode != 32){
             // Only scroll into view via tabbing, not via clicking
             next.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
         }
@@ -3011,8 +3012,14 @@ function SUPERreCaptcha(){
                         if(totalFields==counter){
                             if(nodes[i].name==args.el.name){
                                 setTimeout(function (){
-                                    if(activeMultipart.querySelector('.super-next-multipart')) {
-                                        activeMultipart.querySelector('.super-next-multipart').click();
+                                    var activeMultipart = args.form.querySelector('.super-multipart-step.super-active'),
+                                    children = Array.prototype.slice.call(activeMultipart.parentNode.children),
+                                    total = args.form.querySelectorAll('.super-multipart').length,
+                                    currentStep = children.indexOf(activeMultipart);
+                                    if(total===currentStep+1){
+                                        // Except if already last step
+                                    }else{
+                                        SUPER.switchMultipart(undefined, args.el, 'next');
                                     }
                                 }, 200);
                                 break;
@@ -5877,29 +5884,45 @@ function SUPERreCaptcha(){
 
         // @since 1.1.8     - set radio button to correct value
         $('.super-field.super-radio').each(function(){
-            var $this = $(this);
-            var $value = $this.find('.super-shortcode-field').val();
-            if( typeof $value !== 'undefined' ) {
-                $value = $value.split(',');
-                $this.find('input[type="radio"]').prop("checked", false);
-                $.each($value, function( index, value ) {
-                    value = $.trim(value);
-                    $this.find('input[type="radio"][value="'+value+'"]').prop("checked", true);
-                });
+            var field = this.querySelector('.super-shortcode-field');
+            if(field){
+                var fieldValue = field.value;
+                var itemsList = field.closest('.super-field-wrapper').querySelector('.super-items-list');
+                var i, selectedValues = fieldValue.split(',');
+                var nodes = itemsList.querySelectorAll('input[type="radio"]');
+                // Loop over all items
+                for(i=0; i<nodes.length; i++){
+                    // Check if value is in array
+                    if( (fieldValue === nodes[i].value) || (fieldValue !== '' && ((selectedValues.indexOf(nodes[i].value)!==-1) || (selectedValues.indexOf(nodes[i].value.trim())!==-1))) ) {
+                        nodes[i].closest('.super-item').classList.add('super-active');
+                        nodes[i].checked = true;
+                    }else{
+                        nodes[i].closest('.super-item').classList.remove('super-active');
+                        nodes[i].checked = false;
+                    }
+                }
             }
         });
 
         // @since 1.1.8     - set checkbox to correct value
         $('.super-field.super-checkbox').each(function(){
-            var $this = $(this);
-            var $value = $this.find('.super-shortcode-field').val();
-            if( typeof $value !== 'undefined' ) {
-                $value = $value.split(',');
-                $this.find('input[type="checkbox"]').prop("checked", false);
-                $.each($value, function( index, value ) {
-                    value = $.trim(value);
-                    $this.find('input[type="checkbox"][value="'+value+'"]').prop("checked", true);
-                });
+            var field = this.querySelector('.super-shortcode-field');
+            if(field){
+                var fieldValue = field.value;
+                var itemsList = field.closest('.super-field-wrapper').querySelector('.super-items-list');
+                var i, selectedValues = fieldValue.split(',');
+                var nodes = itemsList.querySelectorAll('input[type="checkbox"]');
+                // Loop over all items
+                for(i=0; i<nodes.length; i++){
+                    // Check if value is in array
+                    if( (fieldValue === nodes[i].value) || (fieldValue !== '' && ((selectedValues.indexOf(nodes[i].value)!==-1) || (selectedValues.indexOf(nodes[i].value.trim())!==-1))) ) {
+                        nodes[i].closest('.super-item').classList.add('super-active');
+                        nodes[i].checked = true;
+                    }else{
+                        nodes[i].closest('.super-item').classList.remove('super-active');
+                        nodes[i].checked = false;
+                    }
+                }
             }
         });
 
@@ -5948,29 +5971,37 @@ function SUPERreCaptcha(){
                 if( !$form.find('.super-multipart:eq(0)').hasClass('super-rendered') ) {
                     // First Multi-part should be set to active automatically
                     $form.find('.super-multipart:eq(0)').addClass('super-active').addClass('super-rendered');
-                    $submit_button = $form.find('.super-form-button:last');
-                    $clone = $submit_button.clone();
-                    $($clone).appendTo($form.find('.super-multipart:last'));
-                    $button_clone = $submit_button[0].outerHTML;
-                    $submit_button.remove();
-                    $($button_clone).appendTo($form.find('.super-multipart').not(':last')).removeClass('super-form-button').addClass('super-next-multipart').find('.super-button-name').html(super_common_i18n.directions.next);
-                    $($button_clone).appendTo($form.find('.super-multipart').not(':first')).removeClass('super-form-button').addClass('super-prev-multipart').find('.super-button-name').html(super_common_i18n.directions.prev);
+                    // If a custom prev/next multipart button was found do not add any automatically
+                    var hasPrevNextBtns = true;
+                    if( $form.find('.super-prev-multipart').length===0 && $form.find('.super-next-multipart').length===0 ) {
+                        hasPrevNextBtns = false;
+                    }
+                    if(!hasPrevNextBtns){
+                        $submit_button = $form.find('.super-button:last');
+                        $clone = $submit_button.clone();
+                        $($clone).appendTo($form.find('.super-multipart:last'));
+                        $button_clone = $submit_button[0].outerHTML;
+                        $submit_button.remove();
+                        $($button_clone).appendTo($form.find('.super-multipart').not(':last')).removeClass('super-button-align-left').removeClass('super-button-align-center').removeClass('super-button-align-right').removeClass('super-form-button').addClass('super-next-multipart').find('.super-button-name').html(super_common_i18n.directions.next);
+                        $($button_clone).appendTo($form.find('.super-multipart').not(':first')).removeClass('super-button-align-left').removeClass('super-button-align-center').removeClass('super-button-align-right').removeClass('super-form-button').addClass('super-prev-multipart').find('.super-button-name').html(super_common_i18n.directions.prev);
+                    }
 
                     // Now lets loop through all the multi-parts and set the data such as name and description
                     $form.find('.super-multipart').each(function(){
-                        if( typeof $(this).data('prev-text') === 'undefined' ) {
-                            $prev = super_common_i18n.directions.prev;
-                        }else{
-                            $prev = $(this).data('prev-text');
+                        if(!hasPrevNextBtns){
+                            if( typeof $(this).data('prev-text') === 'undefined' ) {
+                                $prev = super_common_i18n.directions.prev;
+                            }else{
+                                $prev = $(this).data('prev-text');
+                            }
+                            if( typeof $(this).data('next-text') === 'undefined' ) {
+                                $next = super_common_i18n.directions.next;
+                            }else{
+                                $next = $(this).data('next-text');
+                            }
+                            $(this).find('.super-prev-multipart .super-button-name').html($prev);
+                            $(this).find('.super-next-multipart .super-button-name').html($next);
                         }
-                        if( typeof $(this).data('next-text') === 'undefined' ) {
-                            $next = super_common_i18n.directions.next;
-                        }else{
-                            $next = $(this).data('next-text');
-                        }
-                        $(this).find('.super-prev-multipart .super-button-name').html($prev);
-                        $(this).find('.super-next-multipart .super-button-name').html($next);
-
                         $multipart = {
                             name: $(this).data('step-name'),
                             description: $(this).data('step-description'),
@@ -5978,7 +6009,6 @@ function SUPERreCaptcha(){
                             icon: $(this).data('icon'),
                         };
                         $multiparts.push($multipart);
-
                     });
 
                     // Lets setup the progress steps

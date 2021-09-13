@@ -3868,6 +3868,18 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-next-multipart {
   float: right;
 }
+.super-form .super-button.super-prev-multipart.super-button-align-left, .super-form .super-button.super-next-multipart.super-button-align-left {
+  justify-content: flex-start;
+  width: 100%;
+}
+.super-form .super-button.super-prev-multipart.super-button-align-center, .super-form .super-button.super-next-multipart.super-button-align-center {
+  justify-content: center;
+  width: 100%;
+}
+.super-form .super-button.super-prev-multipart.super-button-align-right, .super-form .super-button.super-next-multipart.super-button-align-right {
+  justify-content: flex-end;
+  width: 100%;
+}
 .super-form:not(.super-rtl) .super-field:not(.super-icon-outside, .super-icon-inside) .super-autosuggest-tags > div {
   border-right-width: 0;
   border-top-right-radius: 0;
