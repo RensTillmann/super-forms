@@ -2594,16 +2594,16 @@
                         $form.find('form').html(data.html);
                     },
                     complete: function(){
-                        $form.addClass('super-initialized');
-                        SUPER.init_common_fields();
-                        SUPER.init_replace_html_tags({el: undefined, form: $form[0]});
-                        SUPER.init_super_responsive_form_fields({form: $form[0]});
-                        SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
+                        $form.removeClass('super-initialized');
+                        $form.removeClass('super-rendered');
+                        $form.find('.super-multipart-progress').remove();
+                        $form.find('.super-multipart-steps').remove();
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert('Failed to process data, please try again');
+                        alert(super_elements_i18n.failed_to_process_data);
+                        'Failed to process data, please try again');
                     }
                 });
                 return true;

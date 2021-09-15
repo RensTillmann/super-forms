@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.010
+ * Version:     5.0.014
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.010';
+        public $version = '5.0.014';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1546,6 +1546,9 @@ if(!class_exists('SUPER_Forms')) :
 
             if( ! wp_next_scheduled( 'sf_cron_jobs' ) ) wp_schedule_event( time(), 'weekly', 'sf_cron_jobs' );
 
+
+            $failed_to_process_data = esc_html__( 'Failed to process data, please try again', 'super-forms' );
+
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
                 array(  
@@ -1573,6 +1576,7 @@ if(!class_exists('SUPER_Forms')) :
                         'prev' => esc_html__( 'Prev', 'super-forms' ),
                     ),
                     'errors' => array(
+                        'failed_to_process_data' => $failed_to_process_data,
                         'file_upload' => array(
                             'upload_limit_reached' => esc_html__( 'Upload size limit reached!', 'super-forms' ),
                             'incorrect_file_extension' => esc_html__( 'Sorry, file extension is not allowed!', 'super-forms' ),
@@ -1591,6 +1595,8 @@ if(!class_exists('SUPER_Forms')) :
                 array(
 
                     'ajaxurl' => SUPER_Forms()->ajax_url(),
+
+                    'failed_to_process_data' => $failed_to_process_data,
 
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],

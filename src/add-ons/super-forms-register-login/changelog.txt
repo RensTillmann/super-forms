@@ -1,4 +1,4 @@
-Sep 07, 2021 - Version 1.9.0
+Sep 14, 2021 - Version 1.9.0
 - Compatibility with Super Forms v5.0.0
 
 Feb 22, 2021 - Version 1.8.7
