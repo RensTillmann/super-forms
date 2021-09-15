@@ -4,7 +4,7 @@
 	// Prevent scrolling on validation
 	SUPER.init_before_scrolling_to_error_popup = function(proceed, form, $scroll){
 		var popupContent = form.closest('.super-popup-content');
-		if(popupContent.length){
+		if(popupContent){
             $(popupContent).animate({
                 scrollTop: $scroll
             }, 1000);

@@ -36,7 +36,7 @@ SUPER.reCaptchaverifyCallback = function($response, $version, $element){
 SUPER.add_error_status_parent_layout_element = function($, el){
     var index;
     // Add error class to Multi-part
-    index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+    index = $(el).parents('.super-multipart:eq(0)').index('.super-form form .super-multipart');
     if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
         el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.add('super-error');
     }
@@ -55,7 +55,7 @@ SUPER.add_error_status_parent_layout_element = function($, el){
 SUPER.remove_error_status_parent_layout_element = function($, el){
     var index;
     if( el.closest('.super-multipart') && !el.closest('.super-multipart').querySelector('.super-error-active')){
-        index = $(el).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
+        index = $(el).parents('.super-multipart:eq(0)').index('.super-form form .super-multipart');
         if(el.closest('.super-form') && el.closest('.super-form').querySelectorAll('.super-multipart-step')[index]){
             el.closest('.super-form').querySelectorAll('.super-multipart-step')[index].classList.remove('super-error');
         }
@@ -281,7 +281,7 @@ function SUPERreCaptcha(){
             html += '</div>';
         }
         return html;
-    }
+    };
     // Upload files
     SUPER.upload_files = function(args, callback){
         args._process_form_data_callback = callback;
@@ -387,10 +387,10 @@ function SUPERreCaptcha(){
             error: function (xhr, ajaxOptions, thrownError) {
                 // eslint-disable-next-line no-console
                 console.log(xhr, ajaxOptions, thrownError);
-                alert('Failed to process data, please try again');
+                alert(super_common_i18n.errors.failed_to_process_data);
             }
         });
-    }
+    };
     SUPER.process_form_data = function(args){
         args.generatePdf = false;
         args.pdfSettings = null;
@@ -451,25 +451,7 @@ function SUPERreCaptcha(){
         }else{
             SUPER.save_data(args);
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    };
 
     // Focus form
     SUPER.focusForm = function(target){
@@ -477,7 +459,8 @@ function SUPERreCaptcha(){
         if(target.tagName!=='FORM'){
             target = target.closest('form');
         }
-        if(target){
+        // Only when form is initialized
+        if(target && target.closest('.super-initialized')){
             target.classList.add('super-form-focussed');
             target.tabIndex = -1;
             SUPER.lastFocussedForm = target;
@@ -492,11 +475,14 @@ function SUPERreCaptcha(){
     };
     // Focus field
     SUPER.focusField = function(target){
-        SUPER.resetFocussedFields();
-        if(target.classList.contains('super-field')){
-            target.classList.add('super-focus');
-        }else{
-            target.closest('.super-field').classList.add('super-focus');
+        // Only when form is initialized
+        if(target && target.closest('.super-initialized')){
+            SUPER.resetFocussedFields();
+            if(target.classList.contains('super-field')){
+                target.classList.add('super-focus');
+            }else{
+                target.closest('.super-field').classList.add('super-focus');
+            }
         }
     };
     SUPER.focusNextTabField = function(e, next, form, skipNext){
@@ -687,11 +673,19 @@ function SUPERreCaptcha(){
     
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         if(changedField[0]) changedField = changedField[0];
-
+        
         var p, parent;
         parent = changedField.closest('.super-shortcode');
         if( parent && (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
+        }
+
+        if(parent.dataset.conditionalAction){
+            if((parent.classList.contains('super-conditional-hidden')) ||
+                (parent.dataset.conditionalAction==='hide' && parent.classList.contains('super-conditional-hidden')) ||
+                (parent.dataset.conditionalAction==='show' && !parent.classList.contains('super-conditional-visible'))) {
+                return true;
+            }
         }
 
         for (p = changedField && changedField.parentElement; p; p = p.parentElement) {
@@ -700,7 +694,7 @@ function SUPERreCaptcha(){
                 if((p.classList.contains('super-conditional-hidden')) ||
                    (p.dataset.conditionalAction==='hide' && p.classList.contains('super-conditional-hidden')) ||
                    (p.dataset.conditionalAction==='show' && !p.classList.contains('super-conditional-visible'))) {
-                   return true;
+                    return true;
                 }
             }
         }
@@ -1090,7 +1084,7 @@ function SUPERreCaptcha(){
                     error: function (xhr, ajaxOptions, thrownError) {
                         // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert('Failed to process data, please try again');
+                        alert(super_common_i18n.errors.failed_to_process_data);
                     }
                 });
             }, 1000);
@@ -2442,10 +2436,12 @@ function SUPERreCaptcha(){
                 html += result.msg;
                 html += '<span class="super-close"></span>';
                 html += '</div>';
-                $(html).prependTo($(args.form));
-                $('html, body').animate({
-                    scrollTop: $(args.form).offset().top-200
-                }, 1000);
+                if(args.form){
+                    $(html).prependTo($(args.form));
+                    $('html, body').animate({
+                        scrollTop: $(args.form).offset().top-200
+                    }, 1000);
+                }
             }
         }
         // Redirect user to specified url
@@ -2454,24 +2450,26 @@ function SUPERreCaptcha(){
         }
         // @since 3.4.0 - keep loading state active
         if(result.loading!==true){
-            SUPER.reset_submit_button_loading_state(args.form[0]);
-            if(result.error===false){
-                // @since 2.0.0 - hide form or not
-                if($(args.form).data('hide')===true){
-                    $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
-                    setTimeout(function () {
-                        $(args.form).find('.super-field, .super-shortcode').remove();
-                    }, 500);
-                }else{
-                    // @since 2.0.0 - clear form after submitting
-                    if($(args.form).data('clear')===true){
-                        SUPER.init_clear_form({form: args.form0});
+            if(typeof args.form !== 'undefined') {
+                SUPER.reset_submit_button_loading_state(args.form[0]);
+                if(result.error===false){
+                    // @since 2.0.0 - hide form or not
+                    if($(args.form).data('hide')===true){
+                        $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
+                        setTimeout(function () {
+                            $(args.form).find('.super-field, .super-shortcode').remove();
+                        }, 500);
+                    }else{
+                        // @since 2.0.0 - clear form after submitting
+                        if($(args.form).data('clear')===true){
+                            SUPER.init_clear_form({form: args.form0});
+                        }
                     }
-                }
-                if(result.msg===''){
-                    // Close Popup (if any)
-                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-                        SUPER.init_popups.close(true);
+                    if(result.msg===''){
+                        // Close Popup (if any)
+                        if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                            SUPER.init_popups.close(true);
+                        }
                     }
                 }
             }
@@ -2731,8 +2729,8 @@ function SUPERreCaptcha(){
             SUPER.add_error_status_parent_layout_element($, args.el);
         }else{
             if(args.el.closest('.super-field')) args.el.closest('.super-field').classList.remove('super-error-active');
+            SUPER.remove_error_status_parent_layout_element($, args.el);
         }
-        SUPER.remove_error_status_parent_layout_element($, args.el);
         return error;
     };
 
@@ -2751,7 +2749,6 @@ function SUPERreCaptcha(){
         // super-stripe-ideal-element
         // super-stripe-cc-element
         // super-stripe-iban-element
-
         SUPER.before_validating_form_hook(args);
 
         var i = 0, nodes,
@@ -2860,16 +2857,10 @@ function SUPERreCaptcha(){
                     if(fileError===true){
                         error = true;
                         SUPER.handle_errors(field);
-                        index = $(field).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-                        $(field).parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+index+')').addClass('super-error');
+                        SUPER.add_error_status_parent_layout_element($, field);
                     }else{
-                        field.closest('.super-field').classList.remove('super-error-active');
-                    }
-                    if(field.closest('.super-multipart')){
-                        if(!field.closest('.super-multipart').querySelector('.super-error-active')){
-                            index = $(field).parents('.super-multipart:eq(0)').index('.super-form:eq(0) .super-multipart');
-                            $(field).parents('.super-form:eq(0)').find('.super-multipart-steps').children('.super-multipart-step:eq('+index+')').removeClass('super-error');
-                        }
+                        if(field.closest('.super-field')) field.closest('.super-field').classList.remove('super-error-active');
+                        SUPER.remove_error_status_parent_layout_element($, field);
                     }
                 }
                 if(textField===true){
@@ -5152,7 +5143,7 @@ function SUPERreCaptcha(){
                 error: function (xhr, ajaxOptions, thrownError) {
                     // eslint-disable-next-line no-console
                     console.log(xhr, ajaxOptions, thrownError);
-                    alert('Failed to process data, please try again');
+                    alert(super_common_i18n.errors.failed_to_process_data);
                     return false;
                 }
             });
@@ -5798,7 +5789,7 @@ function SUPERreCaptcha(){
                 error: function (xhr, ajaxOptions, thrownError) {
                     // eslint-disable-next-line no-console
                     console.log(xhr, ajaxOptions, thrownError);
-                    alert('Failed to process data, please try again');
+                    alert(super_common_i18n.errors.failed_to_process_data);
                 }
             });
         }else{
@@ -5827,7 +5818,7 @@ function SUPERreCaptcha(){
                     error: function (xhr, ajaxOptions, thrownError) {
                         // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert('Failed to process data, please try again');
+                        alert(super_common_i18n.errors.failed_to_process_data);
                     }
                 });
             }
@@ -5835,7 +5826,14 @@ function SUPERreCaptcha(){
     };
 
     // init the form on the frontend
-    SUPER.init_super_form_frontend = function(){
+    SUPER.init_super_form_frontend = function(ajaxRequest){
+        var languageSwitcher = false;
+        if(typeof ajaxRequest !== 'undefined'){
+            if(ajaxRequest.settings.data.indexOf('super_language_switcher')!==-1){
+                languageSwitcher = true;
+            }
+        }
+
         // Do not do anything if all forms where intialized already
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
@@ -5945,7 +5943,7 @@ function SUPERreCaptcha(){
         });
 
         // Multi-part
-        $('.super-form').each(function(){
+        $('.super-form:not(.super-preview-elements)').each(function(){
             var form = this,
                 $form = $(this),
                 $multipart = {},
@@ -6104,6 +6102,7 @@ function SUPERreCaptcha(){
                 }
             }
             SUPER.init_common_fields({form: form});
+            SUPER.init_super_responsive_form_fields({form: form});
         });
 
         $(window).resize(function() {
@@ -6125,9 +6124,16 @@ function SUPERreCaptcha(){
 
     // Reposition slider amount label
     SUPER.reposition_slider_amount_label = function(field, value){
-        if(typeof value === 'undefined') value = field.value;
-        $(field).simpleSlider("setValue", 0);
-        $(field).simpleSlider("setValue", value);
+        if(typeof value === 'undefined') {
+            value = field.value;
+            $(field).simpleSlider("setValue", 0);
+            $(field).simpleSlider("setValue", value);
+        }else{
+            if(value !== field.value){
+                $(field).simpleSlider("setValue", 0);
+                $(field).simpleSlider("setValue", value);
+            }
+        }
     };
     // Init Slider fields
     SUPER.init_slider_field = function(){
@@ -6183,6 +6189,7 @@ function SUPERreCaptcha(){
                 SUPER.reposition_slider_amount_label($field[0]);
 
                 $field.on("slider:changed", function ($event, $data) {
+                    // Only focus form/field when form is already initialized
                     SUPER.focusForm(this);
                     SUPER.focusField(this);
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
@@ -6712,48 +6719,47 @@ function SUPERreCaptcha(){
             SUPER.pdf_generator_prepare(args, function(args){
                 // Start generating pages (starting at page 1)
                 args.currentPage = 1;
-                SUPER.pdf_generator_generate_page(args, function(args){ //pdf, form){
-                    // Reset everything to how it was
-                    SUPER.pdf_generator_reset(args.form0);
-                    // Attach as file to form data
-                    var datauristring = args._pdf.output('datauristring', {
-                        filename: args.pdfSettings.filename
-                    });
-                    var exclude = 0;
-                    if(args.pdfSettings.adminEmail!=='true' && args.pdfSettings.confirmationEmail!=='true'){
-                        exclude = 2; // Exclude from both emails
-                    }else{
-                        if(args.pdfSettings.adminEmail==='true' && args.pdfSettings.confirmationEmail==='true'){
-                            exclude = 0; // Do not exclude
-                        }else{
-                            if(args.pdfSettings.adminEmail==='true'){
-                                exclude = 1; // Exclude from confirmation email only
-                            }
-                            if(args.pdfSettings.confirmationEmail==='true'){
-                                exclude = 3; // Exclude from admin email only
-                            }
-                        }
-                    }
-                    args.data._generated_pdf_file = {
-                        files: [{
-                            label: args.pdfSettings.emailLabel,
-                            name: args.pdfSettings.filename,
-                            datauristring: datauristring,
-                            value: args.pdfSettings.filename
-                        }],
-                        label: args.pdfSettings.emailLabel,
-                        type: 'files',
-                        exclude: exclude
-                    };
-                    // We PDF has been generated, continue with form submission
-                    args._save_data_callback(args);
-                }); 
+                SUPER.pdf_generator_generate_page(args);
             });
         }, 5000);
         return false;
     };
-
-
+    SUPER._pdf_generator_done_callback = function(args){
+        // Reset everything to how it was
+        SUPER.pdf_generator_reset(args.form0);
+        // Attach as file to form data
+        var datauristring = args._pdf.output('datauristring', {
+            filename: args.pdfSettings.filename
+        });
+        var exclude = 0;
+        if(args.pdfSettings.adminEmail!=='true' && args.pdfSettings.confirmationEmail!=='true'){
+            exclude = 2; // Exclude from both emails
+        }else{
+            if(args.pdfSettings.adminEmail==='true' && args.pdfSettings.confirmationEmail==='true'){
+                exclude = 0; // Do not exclude
+            }else{
+                if(args.pdfSettings.adminEmail==='true'){
+                    exclude = 1; // Exclude from confirmation email only
+                }
+                if(args.pdfSettings.confirmationEmail==='true'){
+                    exclude = 3; // Exclude from admin email only
+                }
+            }
+        }
+        args.data._generated_pdf_file = {
+            files: [{
+                label: args.pdfSettings.emailLabel,
+                name: args.pdfSettings.filename,
+                datauristring: datauristring,
+                value: args.pdfSettings.filename
+            }],
+            label: args.pdfSettings.emailLabel,
+            type: 'files',
+            exclude: exclude
+        };
+        // We PDF has been generated, continue with form submission
+        args._save_data_callback(args);
+    };
     SUPER.pdf_generator_prepare = function(args, callback){
         var form = args.form0;
 
@@ -7033,12 +7039,9 @@ function SUPERreCaptcha(){
 
 
     // PDF Generation
-    SUPER.pdf_generator_generate_page = function(args, callback){
+    SUPER.pdf_generator_generate_page = function(args){
         args.pdfPercentageCompleted += args.totalPercentagePerPage;
         if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
-        //var percentage = (100/args.totalPages)*args.currentPage;
-        //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
-        args._pdf_generator_done_callback = callback;
         var form = args.form0.closest('.super-form');
         // When canceled the following class will no longer exist, and we should not proceed
         if(form && !form.classList.contains('super-generating-pdf')){
@@ -7195,10 +7198,10 @@ function SUPERreCaptcha(){
                             args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
                             args.lastPageOrientation = args.pdfSettings.orientation;
                         }
-                        SUPER.pdf_generator_generate_page(args, args._pdf_generator_done_callback(args));
+                        SUPER.pdf_generator_generate_page(args);
                     }else{                   
                         // No more pages to generate (submit form / send email)
-                        args._pdf_generator_done_callback(args);
+                        SUPER._pdf_generator_done_callback(args);
                     }
                 });
             }
@@ -7544,7 +7547,7 @@ function SUPERreCaptcha(){
             error: function (xhr, ajaxOptions, thrownError) {
                 // eslint-disable-next-line no-console
                 console.log(xhr, ajaxOptions, thrownError);
-                alert('Failed to process data, please try again');
+                alert(super_common_i18n.errors.failed_to_process_data);
             }
         });
     };
@@ -7681,7 +7684,7 @@ function SUPERreCaptcha(){
                         error: function (xhr, ajaxOptions, thrownError) {
                             // eslint-disable-next-line no-console
                             console.log(xhr, ajaxOptions, thrownError);
-                            alert('Failed to process data, please try again');
+                            alert(super_common_i18n.errors.failed_to_process_data);
                         }
                     });
                 }
