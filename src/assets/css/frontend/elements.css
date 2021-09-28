@@ -31,6 +31,15 @@
   display: block !important;
 }
 
+.super-preview-elements .super-shortcode[data-pdfoption=include],
+.super-preview-elements .super-shortcode[data-pdfoption=header],
+.super-preview-elements .super-shortcode[data-pdfoption=footer],
+.super-preview-elements [data-pdfoption=include],
+.super-preview-elements [data-pdfoption=header],
+.super-preview-elements [data-pdfoption=footer] {
+  display: block !important;
+}
+
 .super-progress-bar {
   float: left;
   height: 4px;

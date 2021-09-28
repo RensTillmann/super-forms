@@ -38,6 +38,8 @@
 	// After responsiveness changed, resize the canvas of the signature
 	SUPER.refresh_signatures = function(classes, form){
 		if(typeof form === 'undefined') form = document;
+		// Do not refresh if generating PDF
+		if(form.closest('.super-pdf-page-container')) return true;
 		var i,x,y, 
 			nodes = form.querySelectorAll('.super-signature-canvas');
 

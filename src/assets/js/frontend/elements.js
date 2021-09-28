@@ -2603,7 +2603,6 @@
                         // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
                         alert(super_elements_i18n.failed_to_process_data);
-                        'Failed to process data, please try again');
                     }
                 });
                 return true;
@@ -2680,7 +2679,8 @@
         });
 
         SUPER.simulateCheckboxItemClicked = function(e, el){
-            var $form,
+            var i, 
+                $form,
                 $checked,
                 $value,
                 $checkbox,
@@ -2714,7 +2714,7 @@
                 }else{
                     if($checked.length >= parseInt($maxlength, 10)){
                         if(parseInt($maxlength,10)===1){
-                            for (var i = 0; i < $checked.length; ++i) {
+                            for (i = 0; i < $checked.length; ++i) {
                                 $checked[i].classList.remove('super-active');
                                 $checked[i].querySelector('input').checked = false;
                             }
@@ -2726,7 +2726,7 @@
                 }
                 $checked = $parent.querySelectorAll('label.super-active');
                 $value = '';
-                for (var i = 0; i < $checked.length; ++i) {
+                for (i = 0; i < $checked.length; ++i) {
                     if ($counter === 0) $value = $checked[i].querySelector('input').value;
                     if ($counter !== 0) $value = $value + ',' + $checked[i].querySelector('input').value;
                     $counter++;
@@ -3259,7 +3259,4 @@
             });
         });
     })(jQuery);
-
-
 })(jQuery);
-

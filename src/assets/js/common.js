@@ -1724,6 +1724,11 @@ function SUPERreCaptcha(){
 
         // @since 2.3.0 - update conditional logic and other variable fields based on the updated variable field
         $.each($updated_variable_fields, function( index, field ) {
+            if(field.value===''){
+                field.closest('.super-shortcode').classList.remove('super-filled');
+            }else{
+                field.closest('.super-shortcode').classList.add('super-filled');
+            }
             SUPER.after_field_change_blur_hook({el: field});
         });
 
@@ -5828,7 +5833,7 @@ function SUPERreCaptcha(){
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(ajaxRequest){
         var languageSwitcher = false;
-        if(typeof ajaxRequest !== 'undefined'){
+        if(typeof ajaxRequest !== 'undefined' && typeof ajaxRequest.settings !== 'undefined' && typeof ajaxRequest.settings.data === 'string'){
             if(ajaxRequest.settings.data.indexOf('super_language_switcher')!==-1){
                 languageSwitcher = true;
             }
@@ -6804,6 +6809,7 @@ function SUPERreCaptcha(){
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-prev-multipart,';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-next-multipart,';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-tabs-menu,';
+        css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-duplicate-actions,';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-signature-clear { display: none!important; }';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) .super-accordion-header { border: 1px solid #d2d2d2; }';

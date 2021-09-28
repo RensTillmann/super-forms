@@ -409,6 +409,9 @@ if(!class_exists('SUPER_WooCommerce')) :
             }
         }
         public function hideProductsByIdOrSlug(){
+            if(!class_exists('SUPER_Common')){
+                return false;
+            }
             $globalSettings = SUPER_Common::get_global_settings();
             $idSlugs = '';
             if(!empty($globalSettings['wc_hide_products_by_id_or_slug'])){
