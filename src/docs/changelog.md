@@ -50,6 +50,13 @@
 - **Added:** New tags to be used inside E-mails `{_generated_pdf_file_label}`, `{_generated_pdf_file_name}`, `{_generated_pdf_file_url}` allows you to retrieve the Generated PDF url so you can create a button that links to the file for download
 - **Added:** New actions `Prev/Next Multipart/Step` for `Button` element to have more control over when to show the Previous / Next buttons in a multi-part element.
 - **Added:** New filter hook `super_form_enctype_filter` to alter the form enctype attribute which defaults to `multipart/form-data`
+  ```php
+  add_filter( 'super_form_enctype_filter', 'f4d_change_enctype', 10, 2 );
+  function f4d_change_enctype($enctype, $attr){
+      return 'application/x-www-form-urlencoded':
+  }
+  ```
+
 - **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
 - **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 - **Fix:** `PDF Generator Add-on` option to exclude generated PDF from contact entry not working

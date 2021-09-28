@@ -110,8 +110,8 @@ class SUPER_Field_Types {
                             $return .= '<span class="down"><i class="fas fa-arrow-down"></i></span>';
                         $return .= '</div>';
                     }
-                    $return .= '<input type="text" placeholder="' . esc_html__( 'Title', 'super-forms' ) . '" value="' . esc_attr( $v['title'] ) . '" name="title">';
-                    $return .= '<textarea placeholder="' . esc_html__( 'Description', 'super-forms' ) . '" name="desc">' . esc_attr( $v['desc'] ) . '</textarea>';
+                    $return .= '<input type="text" placeholder="' . esc_html__( 'Title', 'super-forms' ) . '" value="' . esc_attr( stripslashes($v['title']) ) . '" name="title">';
+                    $return .= '<textarea placeholder="' . esc_html__( 'Description', 'super-forms' ) . '" name="desc">' . esc_attr( stripslashes($v['desc']) ) . '</textarea>';
                     if($translating!==true){
                         $return .= '<i class="super-add super-add-item fas fa-plus"></i>';
                         $return .= '<i class="super-delete fas fa-trash-alt"></i>';
@@ -138,7 +138,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
         }
         return $return;
     }
@@ -275,7 +275,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( $data[$id] ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
         }
         return $return;
     }
@@ -530,7 +530,10 @@ class SUPER_Field_Types {
                 $return .= '</div>';
             }
         }
-        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
+
+        if( is_array( $field['default'] ) ) {
+            $field['default'] = json_encode( stripslashes_deep($field['default']) );
+        } 
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
@@ -611,7 +614,9 @@ class SUPER_Field_Types {
                 $return .= '<span class="line-break"></span>';
             $return .= '</div>';
         }
-        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
+        if( is_array( $field['default'] ) ) {
+            $field['default'] = json_encode( stripslashes_deep($field['default']) );
+        }
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
@@ -711,7 +716,9 @@ class SUPER_Field_Types {
                 $return .= '<textarea placeholder="New value" value="" name="conditional_new_value"></textarea>';
                 $return .= '</div>';
         }
-        if( is_array( $field['default'] ) ) $field['default'] = json_encode( $field['default'] );
+        if( is_array( $field['default'] ) ) {
+            $field['default'] = json_encode( stripslashes_deep($field['default']) );
+        }
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['default'] . '</textarea>';
         return $return;
     }
