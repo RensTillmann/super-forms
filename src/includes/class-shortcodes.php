@@ -5904,7 +5904,11 @@ class SUPER_Shortcodes {
             }
 
             // @since 1.8 - needed for autocomplete
-            $result .= '<form tabindex="0" autocomplete="on" enctype="multipart/form-data"';
+            $result .= '<form tabindex="0" autocomplete="on"';
+            $enctype = apply_filters( 'super_form_enctype_filter', 'multipart/form-data', array( 'id'=>$form_id, 'settings'=>$settings ) );
+            if( !empty($enctype) ) {
+                $result .= ' enctype="' . esc_attr($enctype) . '"';
+            }
 
             // @since 3.6.0 - custom POST parameters method
             if( empty($settings['form_post_custom']) ) $settings['form_post_custom'] = '';
