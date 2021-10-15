@@ -6173,11 +6173,25 @@ class SUPER_Shortcodes {
             SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $js, array( 'id'=>$form_id, 'settings'=>$settings ) );
 
             $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
+
         }
 
         if( class_exists( 'SUPER_WooCommerce' ) ){
             add_action( 'pre_get_posts', array( SUPER_WooCommerce(), 'exclude_products_from_shop' ) );
         }
+
+        // If on back-end builder page
+        if( !empty($_POST['action']) && $_POST['action'] === 'super_load_preview' ){
+            $css = SUPER_Forms()->form_custom_css;
+            $global_css = '';
+            if( isset(SUPER_Forms()->global_settings) ) {
+                if( isset(SUPER_Forms()->global_settings['theme_custom_css']) ) {
+                    $global_css = stripslashes(SUPER_Forms()->global_settings['theme_custom_css']);
+                }
+            }
+            if( $css!='' ) $result .= '<style type="text/css">' . $global_css . $css . '</style>';
+        }
+
         return do_shortcode( $result );
     }
 
