@@ -8,10 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Sep 28, 2021 - Version 5.0.0 (BETA)
+## Oct 15, 2021 - Version 5.0.020
 
-- **Added:** New element `HTML Elements > PDF Page Break` for PDF Generator Add-on, which allows you to start a new page after a specific element. You can also switch between orientation `Portrait` and `Landscape` if needed.
 - **Added:** `Listings Add-on` display entries on front-end, more info here (https://renstillmann.github.io/super-forms/#/listings-add-on)
+- **Added:** New element `HTML Elements > PDF Page Break` for PDF Generator Add-on, which allows you to start a new page after a specific element. You can also switch between orientation `Portrait` and `Landscape` if needed.
 - **Added:** New file upload system, file upload element will now display image/document in thumbnail preview before it's being uploaded to the server, they will also be visible in the generated PDF `PDF Generator Add-on`
 - **Added:** New tags for file upload element, can be used inside HTML element on front-end and inside E-mail body
   - `{fieldname}` (retrieve list with file name(s))

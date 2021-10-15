@@ -87,6 +87,7 @@ class SUPER_Ajax {
             'update_unique_code'            => true, // @since 4.9.46
 
             'api_cancel_subscription'       => false,
+            'api_transfer_license'          => false,
             'api_start_trial'               => false,
             'api_checkout'                  => false,
             'api_register_user'             => false,
@@ -262,9 +263,20 @@ class SUPER_Ajax {
     public static function api_logout_user() {
         self::api_do_request('logout', array());
     }
+    public static function api_transfer_license() {
+        $custom_args = array(
+            'body' => (array(
+                'domain' => (isset($_POST['domain']) ? $_POST['domain'] : ''),
+                'slug' => $_POST['slug'],
+                'data' => $_POST['data']
+            ))
+        );
+        self::api_do_request('license/transfer', $custom_args);
+    }
     public static function api_cancel_subscription() {
         $custom_args = array(
             'body' => (array(
+                'domain' => (isset($_POST['domain']) ? $_POST['domain'] : ''),
                 'slug' => $_POST['slug'],
                 'data' => $_POST['data']
             ))
