@@ -3258,7 +3258,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 
 .super-calculator {
-  display: block !important;
+  display: block;
 }
 .super-calculator.super-icon-outside.super-icon-right .super-field-wrapper {
   flex-direction: row;
