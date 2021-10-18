@@ -1,3 +1,6 @@
+Oct 18, 2021 - Version 2.3.1
+- Bug fix with conditional logic
+
 Oct 15, 2021 - Version 2.3.0
 - Compatibility with Super Forms v5.0.0
 
@@ -9,7 +12,6 @@ Jan 14, 2021 - Version 2.2.2
 - Added: Option to directly retrieve predefined tags inside math, e.g: to retrieve current year, or month, or price of current WooCommerce product
 
 Dec 08, 2020 - Version 2.2.1
-
 - Fix: Conditional logic wasn't working due to new CSS rule `display:fex!important;`
 
 Dec 01, 2020 - Version 2.1.9

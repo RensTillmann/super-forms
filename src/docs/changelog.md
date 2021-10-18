@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Oct 18, 2021 - Version 5.0.021
+
+- **Fix:** Bug fix for conditional logic with Calculator element
+
 ## Oct 15, 2021 - Version 5.0.020
 
 - **Added:** `Listings Add-on` display entries on front-end, more info here (https://renstillmann.github.io/super-forms/#/listings-add-on)
