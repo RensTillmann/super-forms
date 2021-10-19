@@ -286,11 +286,17 @@ function SUPERreCaptcha(){
     SUPER.upload_files = function(args, callback){
         args._process_form_data_callback = callback;
         args.formData = new FormData();
+        var x = 0;
         Object.keys(args.files).forEach(function(i) {
-            for( var x = 0; x < args.files[i].length; x++){
+            for( x = 0; x < args.files[i].length; x++){
                 args.formData.append('files['+i+']['+x+']', args.files[i][x]); // holds: file, src, name, size, type
             }
         });
+        if(x===0){
+            // Now process form data
+            args._process_form_data_callback(args);
+            return true;
+        }
         args.formData.append('action', 'super_upload_files');
         if(args.form_id) args.formData.append('form_id', args.form_id);
         if(args.entry_id) args.formData.append('entry_id', args.entry_id);

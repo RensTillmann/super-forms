@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Register & Login
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.0
+ * Version:     1.9.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.0';
+        public $version = '1.9.1';
 
 
         /**
@@ -1202,6 +1202,7 @@ if(!class_exists('SUPER_Register_Login')) :
         public static function before_sending_email( $atts ) {
             extract($atts); // data, post, settings
             
+            if($post['action']==='super_upload_files') return true;
             if( !isset( $settings['register_login_action'] ) ) return true;
             if( $settings['register_login_action']=='none' ) return true;
 
