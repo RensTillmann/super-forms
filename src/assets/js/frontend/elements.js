@@ -2853,10 +2853,10 @@
             input.onblur = function () {
             }
             input.addEventListener('keyup', function () {
-                var placeholder = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholder;
-                var placeholderFilled = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
-                var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
-                
+                debugger;
+                var wrapper = this.closest('.super-field-wrapper');
+                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
+                var span = placeholder.children[0];
                 var filled = true,
                     parent = this.closest('.super-field');
                 if(parent.classList.contains('super-currency')){
@@ -2867,16 +2867,16 @@
                 if (this.value.length === 0) filled = false;
                 if(filled){
                     parent.classList.add('super-filled');
-                    span.innerHTML = placeholderFilled;
+                    span.innerHTML = placeholder.dataset.placeholderFilled;
                 }else{
                     parent.classList.remove('super-filled');
-                    span.innerHTML = placeholder;
+                    span.innerHTML = placeholder.dataset.placeholder;
                 }
             });
             input.oncut = input.onpaste = function (event) {
-                var placeholder = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholder;
-                var placeholderFilled = this.parentNode.querySelector('.super-adaptive-placeholder').dataset.placeholderfilled;
-                var span = this.parentNode.querySelector('.super-adaptive-placeholder').children[0];
+                var wrapper = this.closest('.super-field-wrapper');
+                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
+                var span = placeholder.children[0];
                 var filled = true,
                     input = event.target,
                     parent = event.target.closest('.super-field');
@@ -2891,10 +2891,10 @@
                         if (input.value.length === 0) filled = false;
                         if(filled){
                             parent.classList.add('super-filled');
-                            span.innerHTML = placeholderFilled;
+                            span.innerHTML = placeholder.dataset.placeholderfilled;
                         }else{
                             parent.classList.remove('super-filled');
-                            span.innerHTML = placeholder;
+                            span.innerHTML = placeholder.dataset.placeholder;
                         }
                     }, 100);
                 }
