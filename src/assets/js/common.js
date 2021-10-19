@@ -237,8 +237,16 @@ function SUPERreCaptcha(){
         return args;
     };
     SUPER.submit_form = function(args){
+        debugger;
+        var total = 0;
         args.files = SUPER.files[args.form_id];
         if(args.files){
+            Object.keys(args.files).forEach(function(i) {
+                total++;
+                return true;
+            });
+        }
+        if(total>0){
             args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.uploading_files+'</span>';
             SUPER.upload_files(args, function(args){
                 SUPER.process_form_data(args);
@@ -284,11 +292,14 @@ function SUPERreCaptcha(){
     };
     // Upload files
     SUPER.upload_files = function(args, callback){
+        debugger;
         args._process_form_data_callback = callback;
         args.formData = new FormData();
+        var hasFiles = false;
         Object.keys(args.files).forEach(function(i) {
             for( var x = 0; x < args.files[i].length; x++){
                 args.formData.append('files['+i+']['+x+']', args.files[i][x]); // holds: file, src, name, size, type
+                hasFiles = true;
             }
         });
         args.formData.append('action', 'super_upload_files');
@@ -297,6 +308,11 @@ function SUPERreCaptcha(){
         if(args.list_id) args.formData.append('list_id', args.list_id);
         if(args.token) args.formData.append('token', args.token);
         if(args.version) args.formData.append('version', args.version);
+        if(hasFiles===false){
+            // Now process form data
+            args._process_form_data_callback(args);
+            return
+        }
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,
@@ -5945,6 +5961,72 @@ function SUPERreCaptcha(){
                     }
                 });
             }
+        });
+
+        // @since 5.0.100 - country code phonenumbers
+        $('.super-shortcode-field[type="code-tel"]').each(function(){
+            var input = this;
+            // here, the index maps to the error code returned from getValidationError - see readme
+            var errorMap = ["Invalid number", "Invalid country code", "Too short", "Too long", "Invalid number"];
+            // initialise plugin
+            var iti = window.intlTelInput(input, {
+                // autoPlaceholder: "polite"
+                preferredCountries: ["nl"], // Specify the countries to appear at the top of the list.
+                onlyCountries: ["nl", "de", "be"],
+                placeholderNumberType: "MOBILE", // placeholderNumberType: var numberType = { "FIXED_LINE": 0, "MOBILE": 1, "FIXED_LINE_OR_MOBILE": 2, "TOLL_FREE": 3, "PREMIUM_RATE": 4, "SHARED_COST": 5, "VOIP": 6, "PERSONAL_NUMBER": 7, "PAGER": 8, "UAN": 9, "VOICEMAIL": 10, "UNKNOWN": -1 };
+                separateDialCode: true,
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js",
+
+            });
+            //window.intlTelInput(this, {
+            //    // any initialisation options go here
+            //    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/utils.js"
+            //});
+            // on blur: validate
+            input.addEventListener('blur', function() {
+                debugger;
+                if (input.value.trim()) {
+                    debugger;
+                    if (!iti.isValidNumber()) {
+
+
+                        console.log("invalid number");
+                        debugger;
+                        SUPER.handle_errors(input);
+                        SUPER.add_error_status_parent_layout_element($, input);
+                    } else {
+                        console.log("is valid number");
+                        //iti.destroy();
+                        var extension = iti.getExtension();
+                        var number = iti.getNumber();
+                        console.log(extension);
+                        console.log(number);
+                        debugger;
+                        if(input.closest('.super-field')) input.closest('.super-field').classList.remove('super-error-active');
+                        SUPER.remove_error_status_parent_layout_element($, input);
+                        //input.classList.add("error");
+                        //var errorCode = iti.getValidationError();
+                        //console.log(errorCode);
+                        //console.log(errorMap[errorCode]);
+                        //errorMsg.classList.remove("hide");
+                    }
+                }
+            });
+
+
+            // const phoneNumber = phoneInput.getNumber();
+
+            // info.style.display = "none";
+            // error.style.display = "none";
+           
+            // if (phoneInput.isValidNumber()) {
+            //   info.style.display = "";
+            //   info.innerHTML = `Phone number in E.164 format: <strong>${phoneNumber}</strong>`;
+            // } else {
+            //   error.style.display = "";
+            //   error.innerHTML = `Invalid phone number.`;
+            // }
+
         });
 
         // Multi-part
