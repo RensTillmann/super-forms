@@ -2841,9 +2841,10 @@ class SUPER_Shortcodes {
         if( empty($atts['step']) ) $atts['step'] == 'any';
 
         if($atts['type']==='code-tel'){
-            $atts['validation'] = 'none';
             wp_enqueue_style( 'super-code-tel', SUPER_PLUGIN_FILE . 'assets/css/frontend/code-tel.css', array(), SUPER_VERSION );    
-            wp_enqueue_script( 'super-code-tel', SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel.js', array( 'super-common' ), SUPER_VERSION );
+            wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
+            wp_enqueue_script( 'super-code-tel-utils', SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel-utils.js', array( 'super-common' ), SUPER_VERSION );
+            wp_enqueue_script( 'super-code-tel', SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel.js', array( 'super-common', 'super-code-tel-utils' ), SUPER_VERSION );
         }
 
         // Set validation to 'numeric' if field type was set to 'number'
@@ -2942,7 +2943,6 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
         $result = self::opening_tag( $tag, $atts, $class );
-        $result .= $atts['type'];
 
         $wrapper_class = '';
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {

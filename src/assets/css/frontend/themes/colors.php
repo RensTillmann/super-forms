@@ -52,6 +52,22 @@ return "
   background-color: ".$v['theme_ui_dropdown_item_bg_focus'].";
   color: ".$v['theme_ui_dropdown_item_font_focus'].";
 }
+".$s.".super-code-tel_country {
+  background-color: ".$v['theme_ui_dropdown_item_bg'].";
+}
+".$s.".super-code-tel_highlight,
+".$s.".super-code-tel_active {
+  opacity: 0.7;
+  background-color: ".$v['theme_ui_dropdown_item_bg_focus'].";
+  color: ".$v['theme_ui_dropdown_item_font_focus'].";
+}
+".$s.".super-code-tel_highlight .super-code-tel_dial-code,
+".$s.".super-code-tel_active .super-code-tel_dial-code {
+  color: ".$v['theme_ui_dropdown_item_font_focus'].";
+}
+".$s.".super-code-tel_active {
+  opacity: 1;
+}
 ".$s.".super-dropdown-arrow {
   color: ".$v['theme_ui_dropdown_arrow'].";
 }
