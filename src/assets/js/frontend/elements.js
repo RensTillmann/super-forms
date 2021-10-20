@@ -2866,14 +2866,16 @@
                 }
                 if (this.value.length === 0) filled = false;
                 if(filled){
+                    debugger;
                     parent.classList.add('super-filled');
-                    span.innerHTML = placeholder.dataset.placeholderFilled;
+                    span.innerHTML = placeholder.dataset.placeholderfilled;
                 }else{
                     parent.classList.remove('super-filled');
                     span.innerHTML = placeholder.dataset.placeholder;
                 }
             });
             input.oncut = input.onpaste = function (event) {
+                debugger;
                 var wrapper = this.closest('.super-field-wrapper');
                 var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
                 var span = placeholder.children[0];
@@ -2890,6 +2892,7 @@
                     setTimeout(function () {
                         if (input.value.length === 0) filled = false;
                         if(filled){
+                            debugger;
                             parent.classList.add('super-filled');
                             span.innerHTML = placeholder.dataset.placeholderfilled;
                         }else{

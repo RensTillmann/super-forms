@@ -65,6 +65,8 @@ return $import_fonts."
 ".$s.".super-fileupload-files,
 ".$s.".super-tabs,
 ".$s.".super-slider .amount,
+".$s.".super-slider .amount,
+".$s.".super-code-tel_selected-dial-code,
 ".$s.".super-adaptive-placeholder {
     font-family: ".$v['font_global_family'].";
     font-size: ".$v['font_global_size']."px;
@@ -119,6 +121,7 @@ return $import_fonts."
 ".$rs1.".super-wp-tag-desc,
 ".$rs1.".super-fileupload-files,
 ".$rs1.".super-tabs,
+".$rs1.".super-code-tel_selected-dial-code,
 ".$rs1.".super-slider .amount {
     font-size: ".$v['font_global_size_mobile']."px;
     font-weight: ".$v['font_global_weight_mobile'].";

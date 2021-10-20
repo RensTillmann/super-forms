@@ -6,7 +6,7 @@
 
 // wrap in UMD
 (function(factory) {
-    if (typeof module === "object" && module.exports) module.exports = factory(); else window.intlTelInput = factory();
+    if (typeof module === "object" && module.exports) module.exports = factory(); else window.superTelInput = factory();
 })(function(undefined) {
     "use strict";
     return function() {
@@ -56,14 +56,14 @@
             if (staticProps) _defineProperties(Constructor, staticProps);
             return Constructor;
         }
-        var intlTelInputGlobals = {
+        var superTelInputGlobals = {
             getInstance: function getInstance(input) {
                 var id = input.getAttribute("data-intl-tel-input-id");
-                return window.intlTelInputGlobals.instances[id];
+                return window.superTelInputGlobals.instances[id];
             },
             instances: {}
         };
-        if (typeof window === "object") window.intlTelInputGlobals = intlTelInputGlobals;
+        if (typeof window === "object") window.superTelInputGlobals = superTelInputGlobals;
         // these vars persist through all instances of the plugin
         var id = 0;
         var defaults = {
@@ -110,7 +110,7 @@
             // keep track of if the window.load event has fired as impossible to check after the fact
             window.addEventListener("load", function() {
                 // UPDATE: use a public static field so we can fudge it in the tests
-                window.intlTelInputGlobals.windowLoaded = true;
+                window.superTelInputGlobals.windowLoaded = true;
             });
         }
         // utility function to iterate over an object. can't use Object.entries or native forEach because
@@ -123,17 +123,17 @@
         };
         // run a method on each instance of the plugin
         var forEachInstance = function forEachInstance(method) {
-            forEachProp(window.intlTelInputGlobals.instances, function(key) {
-                window.intlTelInputGlobals.instances[key][method]();
+            forEachProp(window.superTelInputGlobals.instances, function(key) {
+                window.superTelInputGlobals.instances[key][method]();
             });
         };
         // this is our plugin class that we will create an instance of
         // eslint-disable-next-line no-unused-vars
-        var Iti = /*#__PURE__*/
+        var SuperCodeTel = /*#__PURE__*/
         function() {
-            function Iti(input, options) {
+            function SuperCodeTel(input, options) {
                 var _this = this;
-                _classCallCheck(this, Iti);
+                _classCallCheck(this, SuperCodeTel);
                 this.id = id++;
                 this.telInput = input;
                 this.activeItem = null;
@@ -147,7 +147,7 @@
                 });
                 this.hadInitialPlaceholder = Boolean(input.getAttribute("placeholder"));
             }
-            _createClass(Iti, [ {
+            _createClass(SuperCodeTel, [ {
                 key: "_init",
                 value: function _init() {
                     var _this2 = this;
@@ -167,12 +167,12 @@
                     this.isMobile = /Android.+Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     if (this.isMobile) {
                         // trigger the mobile dropdown css
-                        document.body.classList.add("iti-mobile");
+                        document.body.classList.add("super-code-tel-mobile");
                         // on mobile, we want a full screen dropdown, so we must append it to the body
                         if (!this.options.dropdownContainer) this.options.dropdownContainer = document.body;
                     }
                     // these promises get resolved when their individual requests complete
-                    // this way the dev can do something like iti.promise.then(...) to know when all requests are
+                    // this way the dev can do something like super_code_tel.promise.then(...) to know when all requests are
                     // complete
                     if (typeof Promise !== "undefined") {
                         var autoCountryPromise = new Promise(function(resolve, reject) {
@@ -338,9 +338,9 @@
                         this.telInput.setAttribute("autocomplete", "off");
                     }
                     // containers (mostly for positioning)
-                    var parentClass = "iti";
-                    if (this.options.allowDropdown) parentClass += " iti--allow-dropdown";
-                    if (this.options.separateDialCode) parentClass += " iti--separate-dial-code";
+                    var parentClass = "super-code-tel";
+                    if (this.options.allowDropdown) parentClass += " super-code-tel-allow-dropdown";
+                    if (this.options.separateDialCode) parentClass += " super-code-tel-separate-dial-code";
                     if (this.options.customContainer) {
                         parentClass += " ";
                         parentClass += this.options.customContainer;
@@ -350,49 +350,49 @@
                     });
                     this.telInput.parentNode.insertBefore(wrapper, this.telInput);
                     this.flagsContainer = this._createEl("div", {
-                        "class": "iti__flag-container"
+                        "class": "super-code-tel_flag-container"
                     }, wrapper);
                     wrapper.appendChild(this.telInput);
                     // selected flag (displayed to left of input)
                     this.selectedFlag = this._createEl("div", {
-                        "class": "iti__selected-flag",
+                        "class": "super-code-tel_selected-flag",
                         role: "combobox",
-                        "aria-owns": "iti-".concat(this.id, "__country-listbox"),
+                        "aria-owns": "super-code-tel-".concat(this.id, "__country-listbox"),
                         "aria-expanded": "false"
                     }, this.flagsContainer);
                     this.selectedFlagInner = this._createEl("div", {
-                        "class": "iti__flag"
+                        "class": "super-code-tel_flag"
                     }, this.selectedFlag);
                     if (this.options.separateDialCode) {
                         this.selectedDialCode = this._createEl("div", {
-                            "class": "iti__selected-dial-code"
+                            "class": "super-code-tel_selected-dial-code"
                         }, this.selectedFlag);
                     }
                     if (this.options.allowDropdown) {
                         // make element focusable and tab navigable
                         this.selectedFlag.setAttribute("tabindex", "0");
                         this.dropdownArrow = this._createEl("div", {
-                            "class": "iti__arrow"
+                            "class": "super-code-tel_arrow"
                         }, this.selectedFlag);
                         // country dropdown: preferred countries, then divider, then all countries
                         this.countryList = this._createEl("ul", {
-                            "class": "iti__country-list iti__hide",
-                            id: "iti-".concat(this.id, "__country-listbox"),
+                            "class": "super-code-tel_country-list super-code-tel_hide",
+                            id: "super-code-tel-".concat(this.id, "__country-listbox"),
                             role: "listbox"
                         });
                         if (this.preferredCountries.length) {
-                            this._appendListItems(this.preferredCountries, "iti__preferred", true);
+                            this._appendListItems(this.preferredCountries, "super-code-tel_preferred", true);
                             this._createEl("li", {
-                                "class": "iti__divider",
+                                "class": "super-code-tel_divider",
                                 role: "separator",
                                 "aria-disabled": "true"
                             }, this.countryList);
                         }
-                        this._appendListItems(this.countries, "iti__standard");
+                        this._appendListItems(this.countries, "super-code-tel_standard");
                         // create dropdownContainer markup
                         if (this.options.dropdownContainer) {
                             this.dropdown = this._createEl("div", {
-                                "class": "iti iti--container"
+                                "class": "super-code-telsuper-code-tel-container"
                             });
                             this.dropdown.appendChild(this.countryList);
                         } else {
@@ -426,12 +426,12 @@
                         var c = countries[i];
                         var idSuffix = preferred ? "-preferred" : "";
                         // open the list item
-                        tmp += "<li class='iti__country ".concat(className, "' tabIndex='-1' id='iti-").concat(this.id, "__item-").concat(c.iso2).concat(idSuffix, "' role='option' data-dial-code='").concat(c.dialCode, "' data-country-code='").concat(c.iso2, "'>");
+                        tmp += "<li class='super-code-tel_country ".concat(className, "' tabIndex='-1' id='super-code-tel-").concat(this.id, "__item-").concat(c.iso2).concat(idSuffix, "' role='option' data-dial-code='").concat(c.dialCode, "' data-country-code='").concat(c.iso2, "'>");
                         // add the flag
-                        tmp += "<div class='iti__flag-box'><div class='iti__flag iti__".concat(c.iso2, "'></div></div>");
+                        tmp += "<div class='super-code-tel_flag-box'><div class='super-code-tel_flag flag flag-"+c.iso2+" super-code-tel_".concat(c.iso2, "'></div></div>");
                         // and the country name and dial code
-                        tmp += "<span class='iti__country-name'>".concat(c.name, "</span>");
-                        tmp += "<span class='iti__dial-code'>+".concat(c.dialCode, "</span>");
+                        tmp += "<span class='super-code-tel_country-name'>".concat(c.name, "</span>");
+                        tmp += "<span class='super-code-tel_dial-code'>+".concat(c.dialCode, "</span>");
                         // close the list item
                         tmp += "</li>";
                     }
@@ -508,7 +508,7 @@
                     // close it again
                     this._handleLabelClick = function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
-                        if (_this4.countryList.classList.contains("iti__hide")) _this4.telInput.focus(); else e.preventDefault();
+                        if (_this4.countryList.classList.contains("super-code-tel_hide")) _this4.telInput.focus(); else e.preventDefault();
                     };
                     var label = this._getClosestLabel();
                     if (label) label.addEventListener("click", this._handleLabelClick);
@@ -517,14 +517,14 @@
                         // only intercept this event if we're opening the dropdown
                         // else let it bubble up to the top ("click-off-to-close" listener)
                         // we cannot just stopPropagation as it may be needed to close another instance
-                        if (_this4.countryList.classList.contains("iti__hide") && !_this4.telInput.disabled && !_this4.telInput.readOnly) {
+                        if (_this4.countryList.classList.contains("super-code-tel_hide") && !_this4.telInput.disabled && !_this4.telInput.readOnly) {
                             _this4._showDropdown();
                         }
                     };
                     this.selectedFlag.addEventListener("click", this._handleClickSelectedFlag);
                     // open dropdown list if currently focused
                     this._handleFlagsContainerKeydown = function(e) {
-                        var isDropdownHidden = _this4.countryList.classList.contains("iti__hide");
+                        var isDropdownHidden = _this4.countryList.classList.contains("super-code-tel_hide");
                         if (isDropdownHidden && [ "ArrowUp", "Up", "ArrowDown", "Down", " ", "Enter" ].indexOf(e.key) !== -1) {
                             // prevent form from being submitted if "ENTER" was pressed
                             e.preventDefault();
@@ -542,14 +542,14 @@
                 value: function _initRequests() {
                     var _this5 = this;
                     // if the user has specified the path to the utils script, fetch it on window.load, else resolve
-                    if (this.options.utilsScript && !window.intlTelInputUtils) {
+                    if (this.options.utilsScript && !window.superTelInputUtils) {
                         // if the plugin is being initialised after the window.load event has already been fired
-                        if (window.intlTelInputGlobals.windowLoaded) {
-                            window.intlTelInputGlobals.loadUtils(this.options.utilsScript);
+                        if (window.superTelInputGlobals.windowLoaded) {
+                            window.superTelInputGlobals.loadUtils(this.options.utilsScript);
                         } else {
                             // wait until the load event so we don't block any other requests e.g. the flags image
                             window.addEventListener("load", function() {
-                                window.intlTelInputGlobals.loadUtils(_this5.options.utilsScript);
+                                window.superTelInputGlobals.loadUtils(_this5.options.utilsScript);
                             });
                         }
                     } else this.resolveUtilsScriptPromise();
@@ -562,14 +562,14 @@
                     // 1) already loaded (we're done)
                     // 2) not already started loading (start)
                     // 3) already started loading (do nothing - just wait for loading callback to fire)
-                    if (window.intlTelInputGlobals.autoCountry) {
+                    if (window.superTelInputGlobals.autoCountry) {
                         this.handleAutoCountry();
-                    } else if (!window.intlTelInputGlobals.startedLoadingAutoCountry) {
+                    } else if (!window.superTelInputGlobals.startedLoadingAutoCountry) {
                         // don't do this twice!
-                        window.intlTelInputGlobals.startedLoadingAutoCountry = true;
+                        window.superTelInputGlobals.startedLoadingAutoCountry = true;
                         if (typeof this.options.geoIpLookup === "function") {
                             this.options.geoIpLookup(function(countryCode) {
-                                window.intlTelInputGlobals.autoCountry = countryCode.toLowerCase();
+                                window.superTelInputGlobals.autoCountry = countryCode.toLowerCase();
                                 // tell all instances the auto country is ready
                                 // TODO: this should just be the current instances
                                 // UPDATE: use setTimeout in case their geoIpLookup function calls this callback straight
@@ -649,7 +649,7 @@
             }, {
                 key: "_showDropdown",
                 value: function _showDropdown() {
-                    this.countryList.classList.remove("iti__hide");
+                    this.countryList.classList.remove("super-code-tel_hide");
                     this.selectedFlag.setAttribute("aria-expanded", "true");
                     this._setDropdownPosition();
                     // update highlighting and scroll to active list item
@@ -660,7 +660,7 @@
                     // bind all the dropdown-related listeners: mouseover, click, click-off, keydown
                     this._bindDropdownListeners();
                     // update the arrow
-                    this.dropdownArrow.classList.add("iti__arrow--up");
+                    this.dropdownArrow.classList.add("super-code-tel_arrow--up");
                     this._trigger("open:countrydropdown");
                 }
             }, {
@@ -686,7 +686,7 @@
                         var dropdownFitsAbove = inputTop - dropdownHeight > windowTop;
                         // by default, the dropdown will be below the input. If we want to position it above the
                         // input, we add the dropup class.
-                        this._toggleClass(this.countryList, "iti__country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
+                        this._toggleClass(this.countryList, "super-code-tel_country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
                         // if dropdownContainer is enabled, calculate postion
                         if (this.options.dropdownContainer) {
                             // by default the dropdown will be directly over the input because it's not in the flow.
@@ -707,7 +707,7 @@
                 key: "_getClosestListItem",
                 value: function _getClosestListItem(target) {
                     var el = target;
-                    while (el && el !== this.countryList && !el.classList.contains("iti__country")) {
+                    while (el && el !== this.countryList && !el.classList.contains("super-code-tel_country")) {
                         el = el.parentNode;
                     }
                     // if we reached the countryList element, then return null
@@ -770,7 +770,7 @@
                     var next = key === "ArrowUp" || key === "Up" ? this.highlightedItem.previousElementSibling : this.highlightedItem.nextElementSibling;
                     if (next) {
                         // skip the divider
-                        if (next.classList.contains("iti__divider")) {
+                        if (next.classList.contains("super-code-tel_divider")) {
                             next = key === "ArrowUp" || key === "Up" ? next.previousElementSibling : next.nextElementSibling;
                         }
                         this._highlightListItem(next, true);
@@ -786,7 +786,7 @@
                 value: function _searchForCountry(query) {
                     for (var i = 0; i < this.countries.length; i++) {
                         if (this._startsWith(this.countries[i].name, query)) {
-                            var listItem = this.countryList.querySelector("#iti-".concat(this.id, "__item-").concat(this.countries[i].iso2));
+                            var listItem = this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(this.countries[i].iso2));
                             // update highlighting and scroll
                             this._highlightListItem(listItem, false);
                             this._scrollTo(listItem, true);
@@ -803,11 +803,11 @@
                 key: "_updateValFromNumber",
                 value: function _updateValFromNumber(originalNumber) {
                     var number = originalNumber;
-                    if (this.options.formatOnDisplay && window.intlTelInputUtils && this.selectedCountryData) {
+                    if (this.options.formatOnDisplay && window.superTelInputUtils && this.selectedCountryData) {
                         var useNational = !this.options.separateDialCode && (this.options.nationalMode || number.charAt(0) !== "+");
-                        var _intlTelInputUtils$nu = intlTelInputUtils.numberFormat, NATIONAL = _intlTelInputUtils$nu.NATIONAL, INTERNATIONAL = _intlTelInputUtils$nu.INTERNATIONAL;
+                        var _superTelInputUtils$nu = superTelInputUtils.numberFormat, NATIONAL = _superTelInputUtils$nu.NATIONAL, INTERNATIONAL = _superTelInputUtils$nu.INTERNATIONAL;
                         var format = useNational ? NATIONAL : INTERNATIONAL;
-                        number = intlTelInputUtils.formatNumber(number, this.selectedCountryData.iso2, format);
+                        number = superTelInputUtils.formatNumber(number, this.selectedCountryData.iso2, format);
                     }
                     number = this._beforeSetNumber(number);
                     this.telInput.value = number;
@@ -885,9 +885,9 @@
                 key: "_highlightListItem",
                 value: function _highlightListItem(listItem, shouldFocus) {
                     var prevItem = this.highlightedItem;
-                    if (prevItem) prevItem.classList.remove("iti__highlight");
+                    if (prevItem) prevItem.classList.remove("super-code-tel_highlight");
                     this.highlightedItem = listItem;
-                    this.highlightedItem.classList.add("iti__highlight");
+                    this.highlightedItem.classList.add("super-code-tel_highlight");
                     if (shouldFocus) this.highlightedItem.focus();
                 }
             }, {
@@ -914,7 +914,7 @@
                     if (this.selectedCountryData.iso2) {
                         this.defaultCountry = this.selectedCountryData.iso2;
                     }
-                    this.selectedFlagInner.setAttribute("class", "iti__flag iti__".concat(countryCode));
+                    this.selectedFlagInner.setAttribute("class", "super-code-tel_flag flag flag-"+countryCode+" super-code-tel_".concat(countryCode));
                     // update the selected country's title attribute
                     var title = countryCode ? "".concat(this.selectedCountryData.name, ": +").concat(this.selectedCountryData.dialCode) : "Unknown";
                     this.selectedFlag.setAttribute("title", title);
@@ -923,8 +923,27 @@
                         this.selectedDialCode.innerHTML = dialCode;
                         // offsetWidth is zero if input is in a hidden container during initialisation
                         var selectedFlagWidth = this.selectedFlag.offsetWidth || this._getHiddenSelectedFlagWidth();
-                        // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
-                        this.telInput.style.paddingLeft = "".concat(selectedFlagWidth + 6, "px");
+                        var el = this.telInput;
+                        var adaptivePlaceholder = el.closest('.super-field-wrapper').querySelector('.super-adaptive-placeholder');
+                        // Check if RTL
+                        if(el.closest('.super-form').classList.contains('super-rtl')){
+                            debugger;
+                            // Is RTL
+                            // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
+                            this.telInput.style.paddingRight = "".concat(selectedFlagWidth + 10, "px");
+                            if(adaptivePlaceholder){
+                                adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth, "px");
+                            }
+                        }else{
+                            debugger;
+                            // Is LTR
+                            // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
+                            this.telInput.style.paddingLeft = "".concat(selectedFlagWidth + 10, "px");
+                            if(adaptivePlaceholder){
+                                adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth, "px");
+                            }
+                        }
+
                     }
                     // and the input's placeholder
                     this._updatePlaceholder();
@@ -932,14 +951,14 @@
                     if (this.options.allowDropdown) {
                         var prevItem = this.activeItem;
                         if (prevItem) {
-                            prevItem.classList.remove("iti__active");
+                            prevItem.classList.remove("super-code-tel_active");
                             prevItem.setAttribute("aria-selected", "false");
                         }
                         if (countryCode) {
                             // check if there is a preferred item first, else fall back to standard
-                            var nextItem = this.countryList.querySelector("#iti-".concat(this.id, "__item-").concat(countryCode, "-preferred")) || this.countryList.querySelector("#iti-".concat(this.id, "__item-").concat(countryCode));
+                            var nextItem = this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(countryCode, "-preferred")) || this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(countryCode));
                             nextItem.setAttribute("aria-selected", "true");
-                            nextItem.classList.add("iti__active");
+                            nextItem.classList.add("super-code-tel_active");
                             this.activeItem = nextItem;
                             this.selectedFlag.setAttribute("aria-activedescendant", nextItem.getAttribute("id"));
                         }
@@ -965,9 +984,9 @@
                 key: "_updatePlaceholder",
                 value: function _updatePlaceholder() {
                     var shouldSetPlaceholder = this.options.autoPlaceholder === "aggressive" || !this.hadInitialPlaceholder && this.options.autoPlaceholder === "polite";
-                    if (window.intlTelInputUtils && shouldSetPlaceholder) {
-                        var numberType = intlTelInputUtils.numberType[this.options.placeholderNumberType];
-                        var placeholder = this.selectedCountryData.iso2 ? intlTelInputUtils.getExampleNumber(this.selectedCountryData.iso2, this.options.nationalMode, numberType) : "";
+                    if (window.superTelInputUtils && shouldSetPlaceholder) {
+                        var numberType = superTelInputUtils.numberType[this.options.placeholderNumberType];
+                        var placeholder = this.selectedCountryData.iso2 ? superTelInputUtils.getExampleNumber(this.selectedCountryData.iso2, this.options.nationalMode, numberType) : "";
                         placeholder = this._beforeSetNumber(placeholder);
                         if (typeof this.options.customPlaceholder === "function") {
                             placeholder = this.options.customPlaceholder(placeholder, this.selectedCountryData);
@@ -995,10 +1014,10 @@
             }, {
                 key: "_closeDropdown",
                 value: function _closeDropdown() {
-                    this.countryList.classList.add("iti__hide");
+                    this.countryList.classList.add("super-code-tel_hide");
                     this.selectedFlag.setAttribute("aria-expanded", "false");
                     // update the arrow
-                    this.dropdownArrow.classList.remove("iti__arrow--up");
+                    this.dropdownArrow.classList.remove("super-code-tel_arrow--up");
                     // unbind key events
                     document.removeEventListener("keydown", this._handleKeydownOnDropdown);
                     document.documentElement.removeEventListener("click", this._handleClickOffToClose);
@@ -1144,7 +1163,7 @@
                     if (this.options.initialCountry === "auto") {
                         // we must set this even if there is an initial val in the input: in case the initial val is
                         // invalid and they delete it - they should see their auto country
-                        this.defaultCountry = window.intlTelInputGlobals.autoCountry;
+                        this.defaultCountry = window.superTelInputGlobals.autoCountry;
                         // if there's no initial value in the input, then update the flag
                         if (!this.telInput.value) {
                             this.setCountry(this.defaultCountry);
@@ -1156,7 +1175,7 @@
                 key: "handleUtils",
                 value: function handleUtils() {
                     // if the request was successful
-                    if (window.intlTelInputUtils) {
+                    if (window.superTelInputUtils) {
                         // if there's an initial value in the input, then format it
                         if (this.telInput.value) {
                             this._updateValFromNumber(this.telInput.value);
@@ -1195,30 +1214,30 @@
                     var wrapper = this.telInput.parentNode;
                     wrapper.parentNode.insertBefore(this.telInput, wrapper);
                     wrapper.parentNode.removeChild(wrapper);
-                    delete window.intlTelInputGlobals.instances[this.id];
+                    delete window.superTelInputGlobals.instances[this.id];
                 }
             }, {
                 key: "getExtension",
                 value: function getExtension() {
-                    if (window.intlTelInputUtils) {
-                        return intlTelInputUtils.getExtension(this._getFullNumber(), this.selectedCountryData.iso2);
+                    if (window.superTelInputUtils) {
+                        return superTelInputUtils.getExtension(this._getFullNumber(), this.selectedCountryData.iso2);
                     }
                     return "";
                 }
             }, {
                 key: "getNumber",
                 value: function getNumber(format) {
-                    if (window.intlTelInputUtils) {
+                    if (window.superTelInputUtils) {
                         var iso2 = this.selectedCountryData.iso2;
-                        return intlTelInputUtils.formatNumber(this._getFullNumber(), iso2, format);
+                        return superTelInputUtils.formatNumber(this._getFullNumber(), iso2, format);
                     }
                     return "";
                 }
             }, {
                 key: "getNumberType",
                 value: function getNumberType() {
-                    if (window.intlTelInputUtils) {
-                        return intlTelInputUtils.getNumberType(this._getFullNumber(), this.selectedCountryData.iso2);
+                    if (window.superTelInputUtils) {
+                        return superTelInputUtils.getNumberType(this._getFullNumber(), this.selectedCountryData.iso2);
                     }
                     return -99;
                 }
@@ -1230,9 +1249,9 @@
             }, {
                 key: "getValidationError",
                 value: function getValidationError() {
-                    if (window.intlTelInputUtils) {
+                    if (window.superTelInputUtils) {
                         var iso2 = this.selectedCountryData.iso2;
-                        return intlTelInputUtils.getValidationError(this._getFullNumber(), iso2);
+                        return superTelInputUtils.getValidationError(this._getFullNumber(), iso2);
                     }
                     return -99;
                 }
@@ -1241,14 +1260,14 @@
                 value: function isValidNumber() {
                     var val = this._getFullNumber().trim();
                     var countryCode = this.options.nationalMode ? this.selectedCountryData.iso2 : "";
-                    return window.intlTelInputUtils ? intlTelInputUtils.isValidNumber(val, countryCode) : null;
+                    return window.superTelInputUtils ? superTelInputUtils.isValidNumber(val, countryCode) : null;
                 }
             }, {
                 key: "setCountry",
                 value: function setCountry(originalCountryCode) {
                     var countryCode = originalCountryCode.toLowerCase();
                     // check if already selected
-                    if (!this.selectedFlagInner.classList.contains("iti__".concat(countryCode))) {
+                    if (!this.selectedFlagInner.classList.contains("super-code-tel_".concat(countryCode))) {
                         this._setFlag(countryCode);
                         this._updateDialCode(this.selectedCountryData.dialCode, false);
                         this._triggerCountryChange();
@@ -1272,13 +1291,13 @@
                     this._updatePlaceholder();
                 }
             } ]);
-            return Iti;
+            return SuperCodeTel;
         }();
         /********************
  *  STATIC METHODS
  ********************/
         // get the country data object
-        intlTelInputGlobals.getCountryData = function() {
+        superTelInputGlobals.getCountryData = function() {
             return allCountries;
         };
         // inject a <script> element to load utils.js
@@ -1293,20 +1312,20 @@
                 forEachInstance("rejectUtilsScriptPromise");
                 if (handleFailure) handleFailure();
             };
-            script.className = "iti-load-utils";
+            script.className = "super-code-tel-load-utils";
             script.async = true;
             script.src = path;
             document.body.appendChild(script);
         };
         // load the utils script
-        intlTelInputGlobals.loadUtils = function(path) {
+        superTelInputGlobals.loadUtils = function(path) {
             // 2 options:
             // 1) not already started loading (start)
             // 2) already started loading (do nothing - just wait for the onload callback to fire, which will
             // trigger handleUtils on all instances, invoking their resolveUtilsScriptPromise functions)
-            if (!window.intlTelInputUtils && !window.intlTelInputGlobals.startedLoadingUtilsScript) {
+            if (!window.superTelInputUtils && !window.superTelInputGlobals.startedLoadingUtilsScript) {
                 // only do this once
-                window.intlTelInputGlobals.startedLoadingUtilsScript = true;
+                window.superTelInputGlobals.startedLoadingUtilsScript = true;
                 // if we have promises, then return a promise
                 if (typeof Promise !== "undefined") {
                     return new Promise(function(resolve, reject) {
@@ -1318,16 +1337,16 @@
             return null;
         };
         // default options
-        intlTelInputGlobals.defaults = defaults;
+        superTelInputGlobals.defaults = defaults;
         // version
-        intlTelInputGlobals.version = "17.0.0";
+        superTelInputGlobals.version = "17.0.0";
         // convenience wrapper
         return function(input, options) {
-            var iti = new Iti(input, options);
-            iti._init();
-            input.setAttribute("data-intl-tel-input-id", iti.id);
-            window.intlTelInputGlobals.instances[iti.id] = iti;
-            return iti;
+            var super_code_tel = new SuperCodeTel(input, options);
+            super_code_tel._init();
+            input.setAttribute("data-intl-tel-input-id", super_code_tel.id);
+            window.superTelInputGlobals.instances[super_code_tel.id] = super_code_tel;
+            return super_code_tel;
         };
     }();
 });

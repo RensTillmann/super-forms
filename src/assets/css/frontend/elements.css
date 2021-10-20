@@ -3438,6 +3438,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   justify-content: center;
   align-items: center;
   pointer-events: none;
+  z-index: 2;
 }
 .super-form .super-adaptive-placeholder > span {
   margin-left: -5px;
