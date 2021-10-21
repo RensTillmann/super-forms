@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Oct 21, 2021 - Version 5.0.023
+## Oct 21, 2021 - Version 5.0.024
 
+- **Improved:** Replace `file_get_contents()` with `wp_safe_remote_get()` for improved security and compatibility accross hosting providers
 - **Fix:** Conditional logic not properly working upon page load
 
 ## Oct 19, 2021 - Version 5.0.022
