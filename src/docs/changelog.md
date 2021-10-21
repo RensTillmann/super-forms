@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Oct 21, 2021 - Version 5.0.023
+
+- **Fix:** Conditional logic not properly working upon page load
+
 ## Oct 19, 2021 - Version 5.0.022
 
 - **Fix:** When no files are selected for upload skip the request to try upload files (no need to do this)
