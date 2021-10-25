@@ -51,6 +51,10 @@
 			var lines = JSON.parse(json).lines;
 			var canvasWrapperWidth = canvasWrapper.clientWidth;
 			var canvasWrapperHeight = canvasWrapper.clientHeight;
+			if(canvasWrapperWidth===0 && canvasWrapperHeight===0){
+				// Do not refresh in case this singature was inside a multi-part and user switched to previous or next multi-part the canvas would have size of 0px by 0px
+				continue;
+			}
 			var canvas = nodes[i].querySelector('canvas');
 			canvas.width = canvasWrapperWidth;
 			canvas.height = canvasWrapperHeight;
@@ -69,7 +73,9 @@
 			var finalRatio = ratioX;
 			if(ratioX < ratioY) finalRatio = ratioY;
 			if(finalRatio<1) finalRatio = 1;
-			if(finalRatio>1){
+			// In case finalRatio equals Infinity, it means that the signature was inside a multipart, hence the size of canvas would equal to 0x0
+			// we shouldn't resize the signature in these scenario's
+			if(finalRatio!==Infinity && finalRatio>1){
 				// Resize
 				for(x=0; x < lines.length; x++){
 					for(y=0; y < lines[x].length; y++){
