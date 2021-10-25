@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Oct 25, 2021 - Version 5.0.026
+
+- **Fix:** Bug with multiple file upload elements that would skip uploading files when last element was not containing any files
+
 ## Oct 21, 2021 - Version 5.0.025
 
 - **Improved:** Replace `file_get_contents()` with `wp_safe_remote_get()` for improved security and compatibility accross hosting providers
