@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Oct 26, 2021 - Version 5.0.027
+
+- **Improved:** Improved CSS for dropdown placeholder and radio/checkbox items for compatibility
+
 ## Oct 25, 2021 - Version 5.0.026
 
 - **Fix:** Bug with multiple file upload elements that would skip uploading files when last element was not containing any files
