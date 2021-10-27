@@ -293,11 +293,11 @@ function SUPERreCaptcha(){
     SUPER.upload_files = function(args, callback){
         args._process_form_data_callback = callback;
         args.formData = new FormData();
-        var x = 0;
-        Object.keys(args.files).forEach(function(i) {
-            for( x = 0; x < args.files[i].length; x++){
-                args.formData.append('files['+i+']['+x+']', args.files[i][x]); // holds: file, src, name, size, type
-                hasFiles = true;
+        var x = 0, y = 0;
+        Object.keys(args.files).forEach(function(key) {
+            for( y = 0; y < args.files[key].length; y++){
+                x++;
+                args.formData.append('files['+key+']['+y+']', args.files[key][y]); // holds: file, src, name, size, type
             }
         });
         if(x===0){
@@ -980,6 +980,22 @@ function SUPERreCaptcha(){
                     'max_file_size': $(this).data('file-size')*1000000,
                     'image_library': super_common_i18n.image_library
                 };
+            });
+        });
+    };
+
+    // @since 5.0.100 - international phonenumber field
+    SUPER.init_international_phonenumber_fields = function(){
+        $('.super-shortcode-field[type="int-phone"]:not(.super-rendered)').each(function(){
+            this.classList.add('super-rendered');
+            window.superTelInput(this, {
+                placeholderNumberType: "MOBILE", // "FIXED_LINE": 0, "MOBILE": 1, "FIXED_LINE_OR_MOBILE": 2, "TOLL_FREE": 3, "PREMIUM_RATE": 4, "SHARED_COST": 5, "VOIP": 6, "PERSONAL_NUMBER": 7, "PAGER": 8, "UAN": 9, "VOICEMAIL": 10, "UNKNOWN": -1
+                separateDialCode: true,
+                utilsScript: super_common_i18n.super_int_phone_utilss, //"utils.js", 
+                preferredCountries: [] // Specify the countries to appear at the top of the list.
+                // autoPlaceholder: "polite"
+                // preferredCountries: ["nl"], // Specify the countries to appear at the top of the list.
+                // onlyCountries: ["nl", "de", "be"],
             });
         });
     };
@@ -2746,9 +2762,9 @@ function SUPERreCaptcha(){
             }
         }
         // @since 5.0.022 - extra validation check for international phone numbers
-        if(args.el.closest('.super-code-tel')){
-            var super_code_tel = window.superTelInputGlobals.getInstance(args.el);
-            if(!super_code_tel.isValidNumber()){
+        if(args.el.closest('.super-int-phone')){
+            var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
+            if(!super_int_phone.isValidNumber()){
                 console.log("invalid number");
                 error = true;
             }
@@ -5910,6 +5926,9 @@ function SUPERreCaptcha(){
         // @since 2.3.0 - init file upload fields
         SUPER.init_fileupload_fields();
 
+
+        SUPER.init_international_phonenumber_fields();
+
         //Set dropdown placeholder
         SUPER.init_set_dropdown_placeholder($('.super-form:not(.super-rendered)'));
 
@@ -5973,18 +5992,6 @@ function SUPERreCaptcha(){
                     }
                 });
             }
-        });
-
-        // @since 5.0.100 - country code phonenumbers
-        $('.super-shortcode-field[type="code-tel"]').each(function(){
-            window.superTelInput(this, {
-                placeholderNumberType: "MOBILE", // "FIXED_LINE": 0, "MOBILE": 1, "FIXED_LINE_OR_MOBILE": 2, "TOLL_FREE": 3, "PREMIUM_RATE": 4, "SHARED_COST": 5, "VOIP": 6, "PERSONAL_NUMBER": 7, "PAGER": 8, "UAN": 9, "VOICEMAIL": 10, "UNKNOWN": -1
-                separateDialCode: true,
-                utilsScript: super_common_i18n.super_code_tel_utilss, //"utils.js", 
-                // autoPlaceholder: "polite"
-                // preferredCountries: ["nl"], // Specify the countries to appear at the top of the list.
-                // onlyCountries: ["nl", "de", "be"],
-            });
         });
 
         // Multi-part

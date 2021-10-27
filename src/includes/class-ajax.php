@@ -1632,8 +1632,9 @@ class SUPER_Ajax {
     */
     public static function start_forms_import() {
         $file_id = absint( $_POST['file_id'] );
-        $source = get_attached_file($file_id);
-        $contents = file_get_contents($source);
+        $url = wp_get_attachment_url( $file_id );
+        $request = wp_safe_remote_get($url);
+        $contents = wp_remote_retrieve_body( $request );
 
         // Remove <html> tag at the beginning if exists
         $html_tag = substr($contents, 0, 6);

@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.022
+ * Version:     5.0.027
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.022';
+        public $version = '5.0.027';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -563,7 +563,13 @@ if(!class_exists('SUPER_Forms')) :
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
-                $content = file_get_contents($url, true);
+                $request = wp_safe_remote_get($url);
+                if ( is_wp_error( $request ) ) {
+                    header("HTTP/1.1 404 Not Found");
+                    exit;
+                }
+                $content = wp_remote_retrieve_body( $request );
+
                 // Delete the export data
                 wp_delete_attachment( $fileLocation, true );
                 header('Content-Description: File Transfer');
@@ -1354,7 +1360,7 @@ if(!class_exists('SUPER_Forms')) :
                 'errors'=>SUPER_Forms()->common_i18n['errors'],
                 // @since 3.6.0 - google tracking
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                'super_code_tel_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel-utils.js'
+                'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
             );
             wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
@@ -1940,7 +1946,7 @@ if(!class_exists('SUPER_Forms')) :
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
                         'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
-                        'super_code_tel_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel-utils.js'
+                        'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
                     )
                 );
                 wp_enqueue_script( $handle );
