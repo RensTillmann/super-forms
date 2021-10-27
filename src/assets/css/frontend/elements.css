@@ -913,6 +913,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   outline: none !important;
+  margin-bottom: 0 !important;
 }
 .super-form input[type=text], .super-form input[type=number], .super-form input[type=email], .super-form input[type=tel], .super-form input[type=url], .super-form input[type=password], .super-form input[type=search], .super-form textarea,
 .super-preview-elements input[type=text],
@@ -5308,6 +5309,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-field-size-large.super-rtl .super-shortcode-field {
   padding-right: 15px;
+}
+.super-form.super-field-size-large.super-rtl .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  margin-right: calc(29px + 6px);
 }
 .super-form.super-field-size-huge .super-shortcode-field,
 .super-form.super-field-size-huge .super-keyword-filter,

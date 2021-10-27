@@ -778,6 +778,7 @@ textarea
     line-height: normal
     +boxSizing(border-box)
     outline: none!important
+    margin-bottom: 0!important
   #{$formFields}
     +boxShadow(none)
   .super-shortcode-field,
@@ -4436,6 +4437,7 @@ textarea
             padding-left: calc(10px + 5px)
           .super-adaptive-placeholder
             left: calc(11px + 5px)
+    // RTL
     &.super-rtl
       .super-icon-outside
         &.super-icon-right
@@ -4454,6 +4456,14 @@ textarea
           right: calc(11px + 5px)
       .super-shortcode-field
         padding-right: 15px
+
+      // RTL Icons inside
+      .super-icon-inside
+        // RTL icons inside right
+        &.super-icon-right
+          .super-adaptive-placeholder
+            margin-right: calc(29px + 11px)
+
   &.super-field-size-huge
     .super-shortcode-field,
     .super-keyword-filter,
