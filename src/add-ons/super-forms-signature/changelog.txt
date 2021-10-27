@@ -1,3 +1,6 @@
+Oct 25, 2021 - Version 1.8.1
+- Fix: Issue with signature being lost when used inside multi-part element upon navigating to next or previous step
+
 Oct 15, 2021 - Version 1.8.0
 - Compatibility with Super Forms v5.0.0
 

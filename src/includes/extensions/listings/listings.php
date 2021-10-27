@@ -1443,7 +1443,7 @@ if(!class_exists('SUPER_Listings')) :
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
                     'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                    'super_code_tel_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel-utils.js'
+                    'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
                 )
             );
             wp_enqueue_script( $handle );

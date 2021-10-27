@@ -771,6 +771,7 @@ class SUPER_Common {
                     array( 'name' => 'init_button_colors' ),
                     array( 'name' => 'init_text_editors' ),
                     array( 'name' => 'init_fileupload_fields' ),
+                    array( 'name' => 'init_international_phonenumber_fields' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'set_keyword_tags_width' ),
                     array( 'name' => 'rating' ),
@@ -984,7 +985,10 @@ class SUPER_Common {
      * @since 1.0.0
     */
     public static function generate_random_folder( $folder ) {
-        $folderName = rand( 1000000000000, 9999999999999 );
+        // Random folder must be 13 characters long
+        // Since 32 bit system only allow a maximum of 2147483647 as int value
+        // we will generate 2 random numbers seperately and combine them as one
+        $folderName = rand(1000000, 9999999) . rand(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );

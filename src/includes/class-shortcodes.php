@@ -1417,6 +1417,11 @@ class SUPER_Shortcodes {
                 $class .= ' super-replace-tags';
             }
         }
+        
+        if( $tag!='hidden' ) {
+            $conditionAttributes = self::conditional_attributes( $atts );
+            $class .= $conditionAttributes['class'];
+        }
 
         // @since 1.9 - custom wrapper class
         if($tag=='spacer'){
@@ -1432,7 +1437,7 @@ class SUPER_Shortcodes {
             $result .= self::conditional_variable_attributes( $atts );
         }
         if( $tag!='hidden' ) {
-            $result .= self::conditional_attributes( $atts );
+            $result .= $conditionAttributes['dataset']; 
         }
 
         // @since 3.2.0 - custom TAB index
@@ -1469,8 +1474,13 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_action'] ) ) $atts['conditional_action'] = 'disabled';
         if( !isset( $atts['conditional_trigger'] ) ) $atts['conditional_trigger'] = 'all';
         if( $atts['conditional_action']!='disabled' ) {
-            return ' data-conditional-action="' . $atts['conditional_action'] . '" data-conditional-trigger="' . $atts['conditional_trigger'] . '"';
+            $class = ' super-conditional-visible';
+            if($atts['conditional_action']==='show'){
+                $class = ' super-conditional-hidden';
+            }
+            return array( 'class' => $class, 'dataset' => ' data-conditional-action="' . $atts['conditional_action'] . '" data-conditional-trigger="' . $atts['conditional_trigger'] . '"');
         }
+        return array('class'=>'', 'dataset'=>'');
     }
     public static function conditional_variable_attributes( $atts ) {
         if( !isset( $atts['conditional_variable_action'] ) ) $atts['conditional_variable_action'] = 'disabled';
@@ -2387,8 +2397,10 @@ class SUPER_Shortcodes {
 
         if( empty($atts['margin']) ) $atts['margin'] = '';
 
+        $conditionAttributes = self::conditional_attributes( $atts );
+        $class .= $conditionAttributes['class'];
         $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
-        $result .= self::conditional_attributes( $atts );
+        $result .= $conditionAttributes['dataset']; 
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
             if( !isset( $atts['duplicate_limit'] ) ) $atts['duplicate_limit'] = 0;
@@ -2840,11 +2852,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
         if( empty($atts['step']) ) $atts['step'] == 'any';
 
-        if($atts['type']==='code-tel'){
-            wp_enqueue_style( 'super-code-tel', SUPER_PLUGIN_FILE . 'assets/css/frontend/code-tel.css', array(), SUPER_VERSION );    
+        if($atts['type']==='int-phone'){
+            wp_enqueue_style( 'super-int-phone', SUPER_PLUGIN_FILE . 'assets/css/frontend/int-phone.css', array(), SUPER_VERSION );    
             wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
-            wp_enqueue_script( 'super-code-tel-utils', SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel-utils.js', array( 'super-common' ), SUPER_VERSION );
-            wp_enqueue_script( 'super-code-tel', SUPER_PLUGIN_FILE . 'assets/js/frontend/code-tel.js', array( 'super-common', 'super-code-tel-utils' ), SUPER_VERSION );
+            wp_enqueue_script( 'super-int-phone-utils', SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js', array( 'super-common' ), SUPER_VERSION );
+            wp_enqueue_script( 'super-int-phone', SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone.js', array( 'super-common', 'super-int-phone-utils' ), SUPER_VERSION );
         }
 
         // Set validation to 'numeric' if field type was set to 'number'

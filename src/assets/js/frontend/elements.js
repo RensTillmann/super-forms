@@ -1271,8 +1271,18 @@
             
             // 13 = enter
             if (keyCode == 13) {
+                debugger;
                 field = document.querySelector('.super-focus');
                 if(field){
+                    if(field.classList.contains('super-text')){
+                        var countryList = field.querySelector('.super-int-phone_country-list');
+                        if(countryList){
+                            if(!countryList.classList.contains('.super-int-phone_hide')){
+                                e.preventDefault();
+                                return false;
+                            }
+                        }
+                    }
                     if(field.classList.contains('super-dropdown')){
                         item = field.querySelector('.super-focus');
                         if(item) item.click();

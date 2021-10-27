@@ -6628,7 +6628,7 @@ msgid ""
 "valid address or zipcode."
 msgstr ""
 "Spiacenti, non è stato possibile calcolare la distanza in base ai dati "
-"insersuper_code_tel. Inserisci un indirizzo o un codice postale valido."
+"insersuper_int_phone. Inserisci un indirizzo o un codice postale valido."
 
 #: includes/shortcodes/html-elements.php:517
 msgid "Spacer"

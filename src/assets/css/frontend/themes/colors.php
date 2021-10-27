@@ -52,20 +52,20 @@ return "
   background-color: ".$v['theme_ui_dropdown_item_bg_focus'].";
   color: ".$v['theme_ui_dropdown_item_font_focus'].";
 }
-".$s.".super-code-tel_country {
+".$s.".super-int-phone_country {
   background-color: ".$v['theme_ui_dropdown_item_bg'].";
 }
-".$s.".super-code-tel_highlight,
-".$s.".super-code-tel_active {
+".$s.".super-int-phone_country.super-int-phone_highlight,
+".$s.".super-int-phone_country.super-int-phone_active {
   opacity: 0.7;
   background-color: ".$v['theme_ui_dropdown_item_bg_focus'].";
   color: ".$v['theme_ui_dropdown_item_font_focus'].";
 }
-".$s.".super-code-tel_highlight .super-code-tel_dial-code,
-".$s.".super-code-tel_active .super-code-tel_dial-code {
+".$s.".super-int-phone_country.super-int-phone_highlight .super-int-phone_dial-code,
+".$s.".super-int-phone_country.super-int-phone_active .super-int-phone_dial-code {
   color: ".$v['theme_ui_dropdown_item_font_focus'].";
 }
-".$s.".super-code-tel_active {
+".$s.".super-int-phone_country.super-int-phone_active {
   opacity: 1;
 }
 ".$s.".super-dropdown-arrow {

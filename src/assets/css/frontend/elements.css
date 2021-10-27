@@ -2447,6 +2447,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   height: 18px;
   align-items: center;
   justify-content: center;
+  margin-top: 0;
+  margin-bottom: 0;
   margin-right: 5px;
   flex-shrink: 0;
 }
@@ -2456,6 +2458,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-preview-elements .super-checkbox .super-after {
   width: 10px;
   height: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
   display: none;
 }
 .super-form .super-radio .super-item.super-active .super-after,
@@ -3570,11 +3574,15 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-radio .super-item .super-before {
   width: 18px;
   height: 18px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .super-form .super-checkbox .super-item .super-after,
 .super-form .super-radio .super-item .super-after {
   width: 10px;
   height: 10px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 .super-form .super-dropdown .super-field-wrapper {
   height: 34px;
@@ -3582,6 +3590,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-dropdown .super-dropdown-list {
   max-height: 200px;
   margin: 0;
+  padding: 0;
 }
 .super-form .super-dropdown .super-dropdown-list .super-item.super-placeholder {
   width: calc(100% - 26px);

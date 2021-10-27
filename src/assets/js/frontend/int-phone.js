@@ -167,12 +167,12 @@
                     this.isMobile = /Android.+Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                     if (this.isMobile) {
                         // trigger the mobile dropdown css
-                        document.body.classList.add("super-code-tel-mobile");
+                        document.body.classList.add("super-int-phone-mobile");
                         // on mobile, we want a full screen dropdown, so we must append it to the body
                         if (!this.options.dropdownContainer) this.options.dropdownContainer = document.body;
                     }
                     // these promises get resolved when their individual requests complete
-                    // this way the dev can do something like super_code_tel.promise.then(...) to know when all requests are
+                    // this way the dev can do something like super_int_phone.promise.then(...) to know when all requests are
                     // complete
                     if (typeof Promise !== "undefined") {
                         var autoCountryPromise = new Promise(function(resolve, reject) {
@@ -338,9 +338,9 @@
                         this.telInput.setAttribute("autocomplete", "off");
                     }
                     // containers (mostly for positioning)
-                    var parentClass = "super-code-tel";
-                    if (this.options.allowDropdown) parentClass += " super-code-tel-allow-dropdown";
-                    if (this.options.separateDialCode) parentClass += " super-code-tel-separate-dial-code";
+                    var parentClass = "super-int-phone";
+                    if (this.options.allowDropdown) parentClass += " super-int-phone-allow-dropdown";
+                    if (this.options.separateDialCode) parentClass += " super-int-phone-separate-dial-code";
                     if (this.options.customContainer) {
                         parentClass += " ";
                         parentClass += this.options.customContainer;
@@ -350,49 +350,49 @@
                     });
                     this.telInput.parentNode.insertBefore(wrapper, this.telInput);
                     this.flagsContainer = this._createEl("div", {
-                        "class": "super-code-tel_flag-container"
+                        "class": "super-int-phone_flag-container"
                     }, wrapper);
                     wrapper.appendChild(this.telInput);
                     // selected flag (displayed to left of input)
                     this.selectedFlag = this._createEl("div", {
-                        "class": "super-code-tel_selected-flag",
+                        "class": "super-int-phone_selected-flag",
                         role: "combobox",
-                        "aria-owns": "super-code-tel-".concat(this.id, "__country-listbox"),
+                        "aria-owns": "super-int-phone-".concat(this.id, "__country-listbox"),
                         "aria-expanded": "false"
                     }, this.flagsContainer);
                     this.selectedFlagInner = this._createEl("div", {
-                        "class": "super-code-tel_flag"
+                        "class": "super-int-phone_flag"
                     }, this.selectedFlag);
                     if (this.options.separateDialCode) {
                         this.selectedDialCode = this._createEl("div", {
-                            "class": "super-code-tel_selected-dial-code"
+                            "class": "super-int-phone_selected-dial-code"
                         }, this.selectedFlag);
                     }
                     if (this.options.allowDropdown) {
                         // make element focusable and tab navigable
                         this.selectedFlag.setAttribute("tabindex", "0");
                         this.dropdownArrow = this._createEl("div", {
-                            "class": "super-code-tel_arrow"
+                            "class": "super-int-phone_arrow"
                         }, this.selectedFlag);
                         // country dropdown: preferred countries, then divider, then all countries
                         this.countryList = this._createEl("ul", {
-                            "class": "super-code-tel_country-list super-code-tel_hide",
-                            id: "super-code-tel-".concat(this.id, "__country-listbox"),
+                            "class": "super-int-phone_country-list super-int-phone_hide",
+                            id: "super-int-phone-".concat(this.id, "__country-listbox"),
                             role: "listbox"
                         });
                         if (this.preferredCountries.length) {
-                            this._appendListItems(this.preferredCountries, "super-code-tel_preferred", true);
+                            this._appendListItems(this.preferredCountries, "super-int-phone_preferred", true);
                             this._createEl("li", {
-                                "class": "super-code-tel_divider",
+                                "class": "super-int-phone_divider",
                                 role: "separator",
                                 "aria-disabled": "true"
                             }, this.countryList);
                         }
-                        this._appendListItems(this.countries, "super-code-tel_standard");
+                        this._appendListItems(this.countries, "super-int-phone_standard");
                         // create dropdownContainer markup
                         if (this.options.dropdownContainer) {
                             this.dropdown = this._createEl("div", {
-                                "class": "super-code-telsuper-code-tel-container"
+                                "class": "super-int-phonesuper-int-phone-container"
                             });
                             this.dropdown.appendChild(this.countryList);
                         } else {
@@ -426,12 +426,12 @@
                         var c = countries[i];
                         var idSuffix = preferred ? "-preferred" : "";
                         // open the list item
-                        tmp += "<li class='super-code-tel_country ".concat(className, "' tabIndex='-1' id='super-code-tel-").concat(this.id, "__item-").concat(c.iso2).concat(idSuffix, "' role='option' data-dial-code='").concat(c.dialCode, "' data-country-code='").concat(c.iso2, "'>");
+                        tmp += "<li class='super-int-phone_country ".concat(className, "' tabIndex='-1' id='super-int-phone-").concat(this.id, "__item-").concat(c.iso2).concat(idSuffix, "' role='option' data-dial-code='").concat(c.dialCode, "' data-country-code='").concat(c.iso2, "'>");
                         // add the flag
-                        tmp += "<div class='super-code-tel_flag-box'><div class='super-code-tel_flag flag flag-"+c.iso2+" super-code-tel_".concat(c.iso2, "'></div></div>");
+                        tmp += "<div class='super-int-phone_flag-box'><div class='super-int-phone_flag flag flag-"+c.iso2+" super-int-phone_".concat(c.iso2, "'></div></div>");
                         // and the country name and dial code
-                        tmp += "<span class='super-code-tel_country-name'>".concat(c.name, "</span>");
-                        tmp += "<span class='super-code-tel_dial-code'>+".concat(c.dialCode, "</span>");
+                        tmp += "<span class='super-int-phone_country-name'>".concat(c.name, "</span>");
+                        tmp += "<span class='super-int-phone_dial-code'>+".concat(c.dialCode, "</span>");
                         // close the list item
                         tmp += "</li>";
                     }
@@ -508,7 +508,7 @@
                     // close it again
                     this._handleLabelClick = function(e) {
                         // if the dropdown is closed, then focus the input, else ignore the click
-                        if (_this4.countryList.classList.contains("super-code-tel_hide")) _this4.telInput.focus(); else e.preventDefault();
+                        if (_this4.countryList.classList.contains("super-int-phone_hide")) _this4.telInput.focus(); else e.preventDefault();
                     };
                     var label = this._getClosestLabel();
                     if (label) label.addEventListener("click", this._handleLabelClick);
@@ -517,14 +517,14 @@
                         // only intercept this event if we're opening the dropdown
                         // else let it bubble up to the top ("click-off-to-close" listener)
                         // we cannot just stopPropagation as it may be needed to close another instance
-                        if (_this4.countryList.classList.contains("super-code-tel_hide") && !_this4.telInput.disabled && !_this4.telInput.readOnly) {
+                        if (_this4.countryList.classList.contains("super-int-phone_hide") && !_this4.telInput.disabled && !_this4.telInput.readOnly) {
                             _this4._showDropdown();
                         }
                     };
                     this.selectedFlag.addEventListener("click", this._handleClickSelectedFlag);
                     // open dropdown list if currently focused
                     this._handleFlagsContainerKeydown = function(e) {
-                        var isDropdownHidden = _this4.countryList.classList.contains("super-code-tel_hide");
+                        var isDropdownHidden = _this4.countryList.classList.contains("super-int-phone_hide");
                         if (isDropdownHidden && [ "ArrowUp", "Up", "ArrowDown", "Down", " ", "Enter" ].indexOf(e.key) !== -1) {
                             // prevent form from being submitted if "ENTER" was pressed
                             e.preventDefault();
@@ -649,7 +649,7 @@
             }, {
                 key: "_showDropdown",
                 value: function _showDropdown() {
-                    this.countryList.classList.remove("super-code-tel_hide");
+                    this.countryList.classList.remove("super-int-phone_hide");
                     this.selectedFlag.setAttribute("aria-expanded", "true");
                     this._setDropdownPosition();
                     // update highlighting and scroll to active list item
@@ -660,7 +660,7 @@
                     // bind all the dropdown-related listeners: mouseover, click, click-off, keydown
                     this._bindDropdownListeners();
                     // update the arrow
-                    this.dropdownArrow.classList.add("super-code-tel_arrow--up");
+                    this.dropdownArrow.classList.add("super-int-phone_arrow--up");
                     this._trigger("open:countrydropdown");
                 }
             }, {
@@ -686,7 +686,7 @@
                         var dropdownFitsAbove = inputTop - dropdownHeight > windowTop;
                         // by default, the dropdown will be below the input. If we want to position it above the
                         // input, we add the dropup class.
-                        this._toggleClass(this.countryList, "super-code-tel_country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
+                        this._toggleClass(this.countryList, "super-int-phone_country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
                         // if dropdownContainer is enabled, calculate postion
                         if (this.options.dropdownContainer) {
                             // by default the dropdown will be directly over the input because it's not in the flow.
@@ -707,7 +707,7 @@
                 key: "_getClosestListItem",
                 value: function _getClosestListItem(target) {
                     var el = target;
-                    while (el && el !== this.countryList && !el.classList.contains("super-code-tel_country")) {
+                    while (el && el !== this.countryList && !el.classList.contains("super-int-phone_country")) {
                         el = el.parentNode;
                     }
                     // if we reached the countryList element, then return null
@@ -770,7 +770,7 @@
                     var next = key === "ArrowUp" || key === "Up" ? this.highlightedItem.previousElementSibling : this.highlightedItem.nextElementSibling;
                     if (next) {
                         // skip the divider
-                        if (next.classList.contains("super-code-tel_divider")) {
+                        if (next.classList.contains("super-int-phone_divider")) {
                             next = key === "ArrowUp" || key === "Up" ? next.previousElementSibling : next.nextElementSibling;
                         }
                         this._highlightListItem(next, true);
@@ -786,7 +786,7 @@
                 value: function _searchForCountry(query) {
                     for (var i = 0; i < this.countries.length; i++) {
                         if (this._startsWith(this.countries[i].name, query)) {
-                            var listItem = this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(this.countries[i].iso2));
+                            var listItem = this.countryList.querySelector("#super-int-phone-".concat(this.id, "__item-").concat(this.countries[i].iso2));
                             // update highlighting and scroll
                             this._highlightListItem(listItem, false);
                             this._scrollTo(listItem, true);
@@ -885,9 +885,9 @@
                 key: "_highlightListItem",
                 value: function _highlightListItem(listItem, shouldFocus) {
                     var prevItem = this.highlightedItem;
-                    if (prevItem) prevItem.classList.remove("super-code-tel_highlight");
+                    if (prevItem) prevItem.classList.remove("super-int-phone_highlight");
                     this.highlightedItem = listItem;
-                    this.highlightedItem.classList.add("super-code-tel_highlight");
+                    this.highlightedItem.classList.add("super-int-phone_highlight");
                     if (shouldFocus) this.highlightedItem.focus();
                 }
             }, {
@@ -914,7 +914,7 @@
                     if (this.selectedCountryData.iso2) {
                         this.defaultCountry = this.selectedCountryData.iso2;
                     }
-                    this.selectedFlagInner.setAttribute("class", "super-code-tel_flag flag flag-"+countryCode+" super-code-tel_".concat(countryCode));
+                    this.selectedFlagInner.setAttribute("class", "super-int-phone_flag flag flag-"+countryCode+" super-int-phone_".concat(countryCode));
                     // update the selected country's title attribute
                     var title = countryCode ? "".concat(this.selectedCountryData.name, ": +").concat(this.selectedCountryData.dialCode) : "Unknown";
                     this.selectedFlag.setAttribute("title", title);
@@ -951,14 +951,14 @@
                     if (this.options.allowDropdown) {
                         var prevItem = this.activeItem;
                         if (prevItem) {
-                            prevItem.classList.remove("super-code-tel_active");
+                            prevItem.classList.remove("super-int-phone_active");
                             prevItem.setAttribute("aria-selected", "false");
                         }
                         if (countryCode) {
                             // check if there is a preferred item first, else fall back to standard
-                            var nextItem = this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(countryCode, "-preferred")) || this.countryList.querySelector("#super-code-tel-".concat(this.id, "__item-").concat(countryCode));
+                            var nextItem = this.countryList.querySelector("#super-int-phone-".concat(this.id, "__item-").concat(countryCode, "-preferred")) || this.countryList.querySelector("#super-int-phone-".concat(this.id, "__item-").concat(countryCode));
                             nextItem.setAttribute("aria-selected", "true");
-                            nextItem.classList.add("super-code-tel_active");
+                            nextItem.classList.add("super-int-phone_active");
                             this.activeItem = nextItem;
                             this.selectedFlag.setAttribute("aria-activedescendant", nextItem.getAttribute("id"));
                         }
@@ -1014,10 +1014,10 @@
             }, {
                 key: "_closeDropdown",
                 value: function _closeDropdown() {
-                    this.countryList.classList.add("super-code-tel_hide");
+                    this.countryList.classList.add("super-int-phone_hide");
                     this.selectedFlag.setAttribute("aria-expanded", "false");
                     // update the arrow
-                    this.dropdownArrow.classList.remove("super-code-tel_arrow--up");
+                    this.dropdownArrow.classList.remove("super-int-phone_arrow--up");
                     // unbind key events
                     document.removeEventListener("keydown", this._handleKeydownOnDropdown);
                     document.documentElement.removeEventListener("click", this._handleClickOffToClose);
@@ -1267,7 +1267,7 @@
                 value: function setCountry(originalCountryCode) {
                     var countryCode = originalCountryCode.toLowerCase();
                     // check if already selected
-                    if (!this.selectedFlagInner.classList.contains("super-code-tel_".concat(countryCode))) {
+                    if (!this.selectedFlagInner.classList.contains("super-int-phone_".concat(countryCode))) {
                         this._setFlag(countryCode);
                         this._updateDialCode(this.selectedCountryData.dialCode, false);
                         this._triggerCountryChange();
@@ -1312,7 +1312,7 @@
                 forEachInstance("rejectUtilsScriptPromise");
                 if (handleFailure) handleFailure();
             };
-            script.className = "super-code-tel-load-utils";
+            script.className = "super-int-phone-load-utils";
             script.async = true;
             script.src = path;
             document.body.appendChild(script);
@@ -1342,11 +1342,11 @@
         superTelInputGlobals.version = "17.0.0";
         // convenience wrapper
         return function(input, options) {
-            var super_code_tel = new SuperCodeTel(input, options);
-            super_code_tel._init();
-            input.setAttribute("data-intl-tel-input-id", super_code_tel.id);
-            window.superTelInputGlobals.instances[super_code_tel.id] = super_code_tel;
-            return super_code_tel;
+            var super_int_phone = new SuperCodeTel(input, options);
+            super_int_phone._init();
+            input.setAttribute("data-intl-tel-input-id", super_int_phone.id);
+            window.superTelInputGlobals.instances[super_int_phone.id] = super_int_phone;
+            return super_int_phone;
         };
     }();
 });
