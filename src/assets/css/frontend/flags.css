@@ -302,7 +302,7 @@
     background-position: -144px -44px;
 }
 
-.flag.flag-fr {
+.flag.flag-fr, .flag.flag-mf {
     background-position: -160px -44px;
 }
 
@@ -670,7 +670,7 @@
     background-position: -80px -110px;
 }
 
-.flag.flag-nl {
+.flag.flag-nl, .flag.flag-bq {
     background-position: -96px -110px;
 }
 
@@ -1028,4 +1028,16 @@
 
 .flag.flag-zw {
     background-position: -240px -165px;
+}
+
+.flag.flag-cx {
+    background-position: -0px -176px;
+}
+
+.flag.flag-cc {
+    background-position: -16px -176px;
+}
+
+.flag.flag-bl {
+    background-position: -32px -176px;
 }

@@ -1593,9 +1593,19 @@ class SUPER_Shortcodes {
         if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
 
         $result = '';
+
+        if(!empty($atts['type']) && $atts['type']==='int-phone'){
+            $data_attributes['int-phone'] = json_encode(array(
+                'preferredCountries' => $atts['preferredCountries'],
+                'onlyCountries' => $atts['onlyCountries'],
+                'placeholderNumberType' => $atts['placeholderNumberType'],
+                'localizedCountries' => $atts['localizedCountries']
+            ));
+        }
+
         foreach($data_attributes as $k => $v){
             if($v!=''){
-                $result .= ' data-' . $k . '="' . $v . '"';
+                $result .= ' data-' . $k . '="' . esc_attr($v) . '"';
             }
         }
         
@@ -2952,6 +2962,11 @@ class SUPER_Shortcodes {
         if( !isset( $atts['uppercase'] ) ) $atts['uppercase'] = '';
         $class .= ($atts['uppercase']=='true' ? ' super-uppercase' : '');
 
+        // @since 5.0.100 - international phonenumber
+        if($atts['type']==='int-phone'){
+            $class .= ' super-int-phone-field';
+        }
+        
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
         $result = self::opening_tag( $tag, $atts, $class );

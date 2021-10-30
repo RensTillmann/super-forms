@@ -58,7 +58,7 @@
         }
         var superTelInputGlobals = {
             getInstance: function getInstance(input) {
-                var id = input.getAttribute("data-intl-tel-input-id");
+                var id = input.getAttribute("data-super-int-phone-id");
                 return window.superTelInputGlobals.instances[id];
             },
             instances: {}
@@ -687,6 +687,7 @@
                         // by default, the dropdown will be below the input. If we want to position it above the
                         // input, we add the dropup class.
                         this._toggleClass(this.countryList, "super-int-phone_country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
+                        this._toggleClass(this.countryList.closest('.super-shortcode'), "super-dropup", !dropdownFitsBelow && dropdownFitsAbove);
                         // if dropdownContainer is enabled, calculate postion
                         if (this.options.dropdownContainer) {
                             // by default the dropdown will be directly over the input because it's not in the flow.
@@ -927,20 +928,54 @@
                         var adaptivePlaceholder = el.closest('.super-field-wrapper').querySelector('.super-adaptive-placeholder');
                         // Check if RTL
                         if(el.closest('.super-form').classList.contains('super-rtl')){
-                            debugger;
                             // Is RTL
                             // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
-                            this.telInput.style.paddingRight = "".concat(selectedFlagWidth + 10, "px");
+                            this.telInput.style.paddingRight = "".concat(selectedFlagWidth + 0, "px");
                             if(adaptivePlaceholder){
-                                adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth, "px");
+                                if( (!el.closest('.super-shortcode').classList.contains('super-icon-inside')) && (!el.closest('.super-shortcode').classList.contains('super-icon-outside')) ){
+                                    adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
+                                }else{
+                                    if(el.closest('.super-shortcode').classList.contains('super-icon-outside')){
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                            adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 12, "px");
+                                        }
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                            adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
+                                        }
+                                    }else{
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                            adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
+                                        }
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                            adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 0, "px");
+                                        }
+                                    }
+                                }
                             }
                         }else{
-                            debugger;
                             // Is LTR
                             // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
-                            this.telInput.style.paddingLeft = "".concat(selectedFlagWidth + 10, "px");
+                            this.telInput.style.paddingLeft = "".concat(selectedFlagWidth + 0, "px");
                             if(adaptivePlaceholder){
-                                adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth, "px");
+                                if( (!el.closest('.super-shortcode').classList.contains('super-icon-inside')) && (!el.closest('.super-shortcode').classList.contains('super-icon-outside')) ){
+                                    adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
+                                }else{
+                                    if(el.closest('.super-shortcode').classList.contains('super-icon-outside')){
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                            adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 7, "px");
+                                        }
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                            adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
+                                        }
+                                    }else{
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                            adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 0, "px");
+                                        }
+                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                            adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -1208,8 +1243,8 @@
                     this.telInput.removeEventListener("keyup", this._handleKeyupEvent);
                     this.telInput.removeEventListener("cut", this._handleClipboardEvent);
                     this.telInput.removeEventListener("paste", this._handleClipboardEvent);
-                    // remove attribute of id instance: data-intl-tel-input-id
-                    this.telInput.removeAttribute("data-intl-tel-input-id");
+                    // remove attribute of id instance: data-super-int-phone-id
+                    this.telInput.removeAttribute("data-super-int-phone-id");
                     // remove markup (but leave the original input)
                     var wrapper = this.telInput.parentNode;
                     wrapper.parentNode.insertBefore(this.telInput, wrapper);
@@ -1344,7 +1379,7 @@
         return function(input, options) {
             var super_int_phone = new SuperCodeTel(input, options);
             super_int_phone._init();
-            input.setAttribute("data-intl-tel-input-id", super_int_phone.id);
+            input.setAttribute("data-super-int-phone-id", super_int_phone.id);
             window.superTelInputGlobals.instances[super_int_phone.id] = super_int_phone;
             return super_int_phone;
         };

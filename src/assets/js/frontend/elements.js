@@ -1271,7 +1271,6 @@
             
             // 13 = enter
             if (keyCode == 13) {
-                debugger;
                 field = document.querySelector('.super-focus');
                 if(field){
                     if(field.classList.contains('super-text')){
@@ -2863,7 +2862,6 @@
             input.onblur = function () {
             }
             input.addEventListener('keyup', function () {
-                debugger;
                 var wrapper = this.closest('.super-field-wrapper');
                 var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
                 var span = placeholder.children[0];
@@ -2876,7 +2874,6 @@
                 }
                 if (this.value.length === 0) filled = false;
                 if(filled){
-                    debugger;
                     parent.classList.add('super-filled');
                     span.innerHTML = placeholder.dataset.placeholderfilled;
                 }else{
@@ -2885,7 +2882,6 @@
                 }
             });
             input.oncut = input.onpaste = function (event) {
-                debugger;
                 var wrapper = this.closest('.super-field-wrapper');
                 var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
                 var span = placeholder.children[0];
@@ -2902,7 +2898,6 @@
                     setTimeout(function () {
                         if (input.value.length === 0) filled = false;
                         if(filled){
-                            debugger;
                             parent.classList.add('super-filled');
                             span.innerHTML = placeholder.dataset.placeholderfilled;
                         }else{
