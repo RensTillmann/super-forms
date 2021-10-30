@@ -778,7 +778,7 @@ textarea
     line-height: normal
     +boxSizing(border-box)
     outline: none!important
-    margin-bottom: 0px!important
+    margin-bottom: 0!important
   #{$formFields}
     +boxShadow(none)
   .super-shortcode-field,
@@ -981,33 +981,6 @@ textarea
     font-weight: bold
   &.super-dropdown.super-string-found .super-item span
     font-weight: normal
-
-
-// /* @since 5.0.100 international phonenumber field */
-// .super-int-phone
-//   width: 100%
-// .super-int-phone_country
-//   display: flex
-//   flex: 1
-//   justify-content: flex-start
-//   align-items: center
-//   height: 34px
-//   padding-top: 0px
-//   padding-right: 10px
-//   padding-bottom: 0px
-//   padding-left: 10px
-//   margin: 0
-//   white-space: nowrap
-//   width: 100%
-//   overflow: hidden
-//   &.super-int-phone_highlight,
-//   &.super-int-phone_active
-//     .super-int-phone_dial-code
-//       color: white
-//   .super-int-phone_flag-box
-//     display: flex
-// .super-int-phone_country-list
-//   z-index: 10
 
 .super-file 
   &.super-icon-inside
@@ -4465,6 +4438,7 @@ textarea
             padding-left: calc(10px + 5px)
           .super-adaptive-placeholder
             left: calc(11px + 5px)
+    // RTL
     &.super-rtl
       .super-icon-outside
         &.super-icon-right
@@ -4483,6 +4457,14 @@ textarea
           right: calc(11px + 5px)
       .super-shortcode-field
         padding-right: 15px
+
+      // RTL Icons inside
+      .super-icon-inside
+        // RTL icons inside right
+        &.super-icon-right
+          .super-adaptive-placeholder
+            margin-right: calc(29px + 11px)
+
   &.super-field-size-huge
     .super-shortcode-field,
     .super-keyword-filter,
@@ -4937,3 +4919,458 @@ textarea
     .super-dropdown-list
       .super-item
         justify-content: flex-end
+
+
+// @since 5.0.100 - International Phonenumber
+.super-form
+  .super-int-phone-field    
+    &.super-focus
+      .super-int-phone
+        .super-int-phone_flag-container
+          background: none
+          //border-color: #4EB1B6
+      &.super-open
+        //.super-shortcode-field
+        //  border: 1px solid #4EB1B6
+        &.super-icon-inside
+          &.super-icon-right
+            .super-icon
+              display: flex
+    &.super-icon-inside
+      &.super-icon-right
+        .super-shortcode-field
+          border-right: 0
+          border-top-right-radius: 0px!important
+          border-bottom-right-radius: 0px!important
+  &.super-rtl
+    .super-int-phone-field  
+      &.super-icon-inside
+        &.super-icon-left
+          .super-shortcode-field
+            border-left: 0
+            border-top-left-radius: 0px!important
+            border-bottom-left-radius: 0px!important
+  .super-int-phone
+    width: 100%
+    display: flex
+    .super-int-phone_flag-container
+      .super-int-phone_selected-flag
+        background: none!important
+        padding-left: 10px
+        padding-right: 10px
+  .super-int-phone_country
+    display: flex
+    flex: 1
+    justify-content: flex-start
+    align-items: center
+    height: 34px
+    padding-top: 0px
+    padding-right: 10px
+    padding-bottom: 0px
+    padding-left: 10px
+    margin: 0
+    white-space: nowrap
+    width: 100%
+    overflow: hidden
+    &.super-int-phone_highlight,
+    &.super-int-phone_active
+      .super-int-phone_dial-code
+        color: white
+    .super-int-phone_flag-box
+      display: flex
+  .super-int-phone_country-list
+    z-index: 10
+    box-shadow: initial
+    //border-color: #4EB1B6
+    border-top-left-radius: 0px
+    border-top-right-radius: 0px
+    border-bottom-left-radius: 0px
+    border-bottom-right-radius: 0px
+    &:not(.super-int-phone_country-list--dropup)
+      border-top: 0
+    &.super-int-phone_country-list--dropup
+      border-bottom: 0
+  &.super-rtl
+    .super-int-phone_country-list
+      right: 0
+      left: initial
+      .super-int-phone_country
+        flex-direction: row-reverse
+        .super-int-phone_flag-box
+          margin: 0
+          padding: 0
+          margin-left: 5px
+        .super-int-phone_country-name
+          margin: 0
+          padding: 0
+          margin-left: 5px
+        .super-int-phone_dial-code
+          margin: 0
+          padding: 0
+    .super-int-phone_flag-container
+      right: 0px
+      left: initial
+      .super-int-phone_selected-flag
+        flex-direction: row-reverse
+        .super-int-phone_selected-dial-code,
+        .super-int-phone_arrow
+          margin-left: 0
+          margin-right: 6px
+  &:not(.super-rtl)
+    // Default rounded
+    &.super-default-rounded
+      .super-shortcode
+        &:not(.super-dropup)
+          &.super-focus.super-open        
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 4px
+              border-bottom-left-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-bottom-left-radius: 4px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+        &.super-dropup
+          &.super-focus.super-open 
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 4px
+              border-top-left-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-top-left-radius: 4px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+    // Full rounded
+    &.super-full-rounded
+      .super-shortcode
+        &:not(.super-dropup)
+          &.super-focus.super-open        
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 16px
+              border-bottom-left-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-bottom-left-radius: 16px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+        &.super-dropup
+          &.super-focus.super-open 
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 16px
+              border-top-left-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-top-left-radius: 16px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+    // Large size  
+    &.super-field-size-large
+      // Default rounded
+      &.super-default-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-bottom-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-top-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+      // Full rounded
+      &.super-full-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 22px
+                border-bottom-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 22px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 22px
+                border-top-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 22px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+    // Huge size  
+    &.super-field-size-huge
+      // Default rounded
+      &.super-default-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-bottom-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-top-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+      // Full rounded
+      &.super-full-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 27px
+                border-bottom-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 27px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 27px
+                border-top-left-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 27px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+  &.super-rtl
+    // Default rounded
+    &.super-default-rounded
+      .super-shortcode
+        &:not(.super-dropup)
+          &.super-focus.super-open        
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 4px
+              border-bottom-right-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-bottom-left-radius: 4px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+        &.super-dropup
+          &.super-focus.super-open 
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 4px
+              border-top-right-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-top-left-radius: 4px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+    // Full rounded
+    &.super-full-rounded
+      .super-shortcode
+        &:not(.super-dropup)
+          &.super-focus.super-open        
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 16px
+              border-bottom-right-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-bottom-left-radius: 16px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+        &.super-dropup
+          &.super-focus.super-open 
+            .super-shortcode-field[type="int-phone"]
+              border-radius: 16px
+              border-top-right-radius: 0px
+            .super-int-phone_country-list
+              border-radius: 0px
+              border-top-left-radius: 16px
+            &.super-icon-inside
+              &.super-icon-left
+                .super-shortcode-field[type="int-phone"]
+                  border-top-left-radius: 0
+                  border-bottom-left-radius: 0
+    // Large size  
+    &.super-field-size-large
+      // Default rounded
+      &.super-default-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-bottom-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-top-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+      // Full rounded
+      &.super-full-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 22px
+                border-bottom-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 22px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 22px
+                border-top-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 22px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+    // Huge size  
+    &.super-field-size-huge
+      // Default rounded
+      &.super-default-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-bottom-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 4px
+                border-top-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 4px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+      // Full rounded
+      &.super-full-rounded
+        .super-shortcode
+          &:not(.super-dropup)
+            &.super-focus.super-open        
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 27px
+                border-bottom-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-bottom-left-radius: 27px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0
+          &.super-dropup
+            &.super-focus.super-open 
+              .super-shortcode-field[type="int-phone"]
+                border-radius: 27px
+                border-top-right-radius: 0px
+              .super-int-phone_country-list
+                border-radius: 0px
+                border-top-left-radius: 27px
+              &.super-icon-inside
+                &.super-icon-left
+                  .super-shortcode-field[type="int-phone"]
+                    border-top-left-radius: 0
+                    border-bottom-left-radius: 0

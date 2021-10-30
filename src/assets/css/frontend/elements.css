@@ -913,6 +913,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
   outline: none !important;
+  margin-bottom: 0 !important;
 }
 .super-form input[type=text], .super-form input[type=number], .super-form input[type=email], .super-form input[type=tel], .super-form input[type=url], .super-form input[type=password], .super-form input[type=search], .super-form textarea,
 .super-preview-elements input[type=text],
@@ -5310,6 +5311,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form.super-field-size-large.super-rtl .super-shortcode-field {
   padding-right: 15px;
 }
+.super-form.super-field-size-large.super-rtl .super-icon-inside.super-icon-right .super-adaptive-placeholder {
+  margin-right: calc(29px + 11px);
+}
 .super-form.super-field-size-huge .super-shortcode-field,
 .super-form.super-field-size-huge .super-keyword-filter,
 .super-form.super-field-size-huge .super-icon,
@@ -5749,6 +5753,388 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 
 .super-rtl .super-auto-suggest .super-dropdown-list .super-item {
   justify-content: flex-end;
+}
+
+.super-form .super-int-phone-field.super-focus .super-int-phone .super-int-phone_flag-container {
+  background: none;
+}
+.super-form .super-int-phone-field.super-focus.super-open.super-icon-inside.super-icon-right .super-icon {
+  display: flex;
+}
+.super-form .super-int-phone-field.super-icon-inside.super-icon-right .super-shortcode-field {
+  border-right: 0;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+.super-form.super-rtl .super-int-phone-field.super-icon-inside.super-icon-left .super-shortcode-field {
+  border-left: 0;
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+}
+.super-form .super-int-phone {
+  width: 100%;
+  display: flex;
+}
+.super-form .super-int-phone .super-int-phone_flag-container .super-int-phone_selected-flag {
+  background: none !important;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.super-form .super-int-phone_country {
+  display: flex;
+  flex: 1;
+  justify-content: flex-start;
+  align-items: center;
+  height: 34px;
+  padding-top: 0px;
+  padding-right: 10px;
+  padding-bottom: 0px;
+  padding-left: 10px;
+  margin: 0;
+  white-space: nowrap;
+  width: 100%;
+  overflow: hidden;
+}
+.super-form .super-int-phone_country.super-int-phone_highlight .super-int-phone_dial-code, .super-form .super-int-phone_country.super-int-phone_active .super-int-phone_dial-code {
+  color: white;
+}
+.super-form .super-int-phone_country .super-int-phone_flag-box {
+  display: flex;
+}
+.super-form .super-int-phone_country-list {
+  z-index: 10;
+  box-shadow: initial;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.super-form .super-int-phone_country-list:not(.super-int-phone_country-list--dropup) {
+  border-top: 0;
+}
+.super-form .super-int-phone_country-list.super-int-phone_country-list--dropup {
+  border-bottom: 0;
+}
+.super-form.super-rtl .super-int-phone_country-list {
+  right: 0;
+  left: initial;
+}
+.super-form.super-rtl .super-int-phone_country-list .super-int-phone_country {
+  flex-direction: row-reverse;
+}
+.super-form.super-rtl .super-int-phone_country-list .super-int-phone_country .super-int-phone_flag-box {
+  margin: 0;
+  padding: 0;
+  margin-left: 5px;
+}
+.super-form.super-rtl .super-int-phone_country-list .super-int-phone_country .super-int-phone_country-name {
+  margin: 0;
+  padding: 0;
+  margin-left: 5px;
+}
+.super-form.super-rtl .super-int-phone_country-list .super-int-phone_country .super-int-phone_dial-code {
+  margin: 0;
+  padding: 0;
+}
+.super-form.super-rtl .super-int-phone_flag-container {
+  right: 0px;
+  left: initial;
+}
+.super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag {
+  flex-direction: row-reverse;
+}
+.super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag .super-int-phone_selected-dial-code,
+.super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag .super-int-phone_arrow {
+  margin-left: 0;
+  margin-right: 6px;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 16px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 16px;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 16px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 16px;
+}
+.super-form:not(.super-rtl).super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 22px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 22px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 22px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 22px;
+}
+.super-form:not(.super-rtl).super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 27px;
+  border-bottom-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 27px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 27px;
+  border-top-left-radius: 0px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 27px;
+}
+.super-form:not(.super-rtl).super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form.super-rtl.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 16px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 16px;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 16px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 16px;
+}
+.super-form.super-rtl.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form.super-rtl.super-field-size-large.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 22px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 22px;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 22px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 22px;
+}
+.super-form.super-rtl.super-field-size-large.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 4px;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 4px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 4px;
+}
+.super-form.super-rtl.super-field-size-huge.super-default-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 27px;
+  border-bottom-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-bottom-left-radius: 27px;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode:not(.super-dropup).super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-shortcode-field[type=int-phone] {
+  border-radius: 27px;
+  border-top-right-radius: 0px;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open .super-int-phone_country-list {
+  border-radius: 0px;
+  border-top-left-radius: 27px;
+}
+.super-form.super-rtl.super-field-size-huge.super-full-rounded .super-shortcode.super-dropup.super-focus.super-open.super-icon-inside.super-icon-left .super-shortcode-field[type=int-phone] {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /*# sourceMappingURL=elements.css.map */

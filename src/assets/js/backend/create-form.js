@@ -1129,8 +1129,8 @@
 
     SUPER.trigger_redo_undo = function ($new_code, $old_code) {
         // First convert string to json
-        $new_code = JSON.parse($new_code);
-        $old_code = JSON.parse($old_code);
+        if($new_code==='') { $new_code = {}; }else{ $new_code = JSON.parse($new_code); }
+        if($old_code==='') { $old_code = {}; }else{ $old_code = JSON.parse($old_code); }
 
         // Before saving the form data, add it to form history for our Undo and Redo functionality
         var $history = SUPER.get_session_data('_super_form_history');

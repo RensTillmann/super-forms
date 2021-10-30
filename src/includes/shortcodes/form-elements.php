@@ -456,6 +456,61 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true
                         ),
+
+                        // International phonenumber options
+                        'preferredCountries' => array(
+                            'name' => esc_html__( 'Preferred countries', 'super-forms' ), 
+                            'label' => esc_html__( 'Specify the countries to appear at the top of the list. Seperated by comma\'s e.g: nl,be,de', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['preferredCountries'] ) ? '' : $attributes['preferredCountries'] ),
+                            'allow_empty'=>true,
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'int-phone'
+                        ),
+                        'onlyCountries' => array(
+                            'name' => esc_html__( 'Only display the following countries', 'super-forms' ), 
+                            'label' => esc_html__( 'Seperated by comma\'s e.g: nl,be,de', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['onlyCountries'] ) ? '' : $attributes['onlyCountries'] ),
+                            'allow_empty'=>true,
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'int-phone'
+                        ),
+                        'placeholderNumberType' => array(
+                            'name' => esc_html__( 'Set the type of number to be used as the placeholder', 'super-forms' ), 
+                            'label' => esc_html__( 'Upon selecting the country code a placeholder for the correct phonenumber format will be displayed', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['placeholderNumberType'] ) ? 'MOBILE' : $attributes['placeholderNumberType'] ),
+                            'type'=>'select',
+                            'values' => array(
+                                'FIXED_LINE' => 'FIXED_LINE',
+                                'MOBILE' => 'MOBILE (default)',
+                                'FIXED_LINE_OR_MOBILE' => 'FIXED_LINE_OR_MOBILE',
+                                'TOLL_FREE' => 'TOLL_FREE',
+                                'PREMIUM_RATE' => 'PREMIUM_RATE',
+                                'SHARED_COST' => 'SHARED_COST',
+                                'VOIP' => 'VOIP',
+                                'PERSONAL_NUMBER' => 'PERSONAL_NUMBER',
+                                'PAGER' => 'PAGER',
+                                'UAN' => 'UAN',
+                                'VOICEMAIL' => 'VOICEMAIL',
+                                'UNKNOWN' => 'UNKNOWN'
+                            ),
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'int-phone'
+                        ),
+                        'localizedCountries' => array(
+                            'name' => esc_html__( 'Translate countries by its given iso code', 'super-forms' ), 
+                            'label' => esc_html__( "Put each on a new line e.g:\nnl|Nederland\nde|Deutschland\n", 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['localizedCountries'] ) ? '' : $attributes['localizedCountries'] ),
+                            'type'=>'textarea',
+                            'allow_empty'=>true,
+                            'filter'=>true,
+                            'parent'=>'type',
+                            'filter_value'=>'int-phone'
+                        ),
+
+
                         'step' => array(
                             'name' => esc_html__( 'Step (defaults to "any")', 'super-forms' ), 
                             'label' => esc_html__( 'Specifies the value granularity of the element\'s value.', 'super-forms' ),
@@ -2457,7 +2512,7 @@ $array['form_elements'] = array(
         ),
 
         'phone' => array(
-            'name' => esc_html__( 'Phone', 'super-forms' ),
+            'name' => esc_html__( 'Phonenumber', 'super-forms' ),
             'icon' => 'phone',
             'predefined' => array(
                 array(
@@ -2468,9 +2523,10 @@ $array['form_elements'] = array(
                         'email' => esc_html__( 'Phonenumber', 'super-forms' ) . ':',
                         'placeholder' => esc_html__( 'Your Phonenumber', 'super-forms' ),
                         'placeholderFilled' => esc_html__( 'Phonenumber', 'super-forms' ),
-                        'validation' => 'phone',
+                        'type' => 'int-phone',
+                        'validation' => 'empty',
                         'icon' => 'phone',
-                        'type' => 'code_tel'
+                        'error' => esc_html__( 'Invalid phonenumber!', 'super-forms' )
                     )
                 )
             ),

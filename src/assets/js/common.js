@@ -987,15 +987,50 @@ function SUPERreCaptcha(){
     // @since 5.0.100 - international phonenumber field
     SUPER.init_international_phonenumber_fields = function(){
         $('.super-shortcode-field[type="int-phone"]:not(.super-rendered)').each(function(){
-            this.classList.add('super-rendered');
-            window.superTelInput(this, {
-                placeholderNumberType: "MOBILE", // "FIXED_LINE": 0, "MOBILE": 1, "FIXED_LINE_OR_MOBILE": 2, "TOLL_FREE": 3, "PREMIUM_RATE": 4, "SHARED_COST": 5, "VOIP": 6, "PERSONAL_NUMBER": 7, "PAGER": 8, "UAN": 9, "VOICEMAIL": 10, "UNKNOWN": -1
+            var input = this;
+            input.classList.add('super-rendered');
+            var settings = JSON.parse(input.dataset.intPhone),
+                preferredCountries = (settings.preferredCountries==='' ? '' : settings.preferredCountries.replace(/\s/g, '').split(',')),
+                onlyCountries = (settings.onlyCountries==='' ? '' : settings.onlyCountries.replace(/\s/g, '').split(',')),
+                localizedCountries = {},
+                items = (settings.localizedCountries==='' ? '' : settings.localizedCountries.split('\n')),
+                values;
+            $(items).each(function(i, v){
+                values = v.split("|");
+                if(values[0] && values[1]){
+                    localizedCountries[values[0]] = values[1];
+                }
+            });
+            window.superTelInput(input, {
                 separateDialCode: true,
-                utilsScript: super_common_i18n.super_int_phone_utilss, //"utils.js", 
-                preferredCountries: [] // Specify the countries to appear at the top of the list.
-                // autoPlaceholder: "polite"
-                // preferredCountries: ["nl"], // Specify the countries to appear at the top of the list.
-                // onlyCountries: ["nl", "de", "be"],
+                autoPlaceholder: "aggressive",
+                utilsScript: super_common_i18n.super_int_phone_utils, //"utils.js", 
+                preferredCountries: preferredCountries, // ["nl", "de", "be"] Specify the countries to appear at the top of the list.
+                onlyCountries: onlyCountries, // ["nl", "de", "be"]
+                localizedCountries: localizedCountries, //{ 'de': 'Deutschland' }
+                placeholderNumberType: settings.placeholderNumberType, // "MOBILE" // "FIXED_LINE": 0, "MOBILE": 1, "FIXED_LINE_OR_MOBILE": 2, "TOLL_FREE": 3, "PREMIUM_RATE": 4, "SHARED_COST": 5, "VOIP": 6, "PERSONAL_NUMBER": 7, "PAGER": 8, "UAN": 9, "VOICEMAIL": 10, "UNKNOWN": -1
+                customPlaceholder: function(selectedCountryPlaceholder) {
+                    var adaptivePlaceholder = input.closest('.super-int-phone-field').querySelector('.super-adaptive-placeholder');
+                    if(adaptivePlaceholder){
+                        adaptivePlaceholder.dataset.placeholder = selectedCountryPlaceholder;
+                        adaptivePlaceholder.querySelector('span').innerHTML = selectedCountryPlaceholder;
+                    }
+                    return selectedCountryPlaceholder;
+                },
+            });
+            this.addEventListener("countrychange", function() {
+                SUPER.after_field_change_blur_hook({el: this});
+            });
+            this.addEventListener("open:countrydropdown", function() {
+                var form = SUPER.get_frontend_or_backend_form({el: this}),
+                    i, nodes = form.querySelectorAll('.super-open');
+                for ( i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-open');
+                }
+                this.closest('.super-shortcode').classList.add('super-open');
+            });
+            this.addEventListener("close:countrydropdown", function() {
+                this.closest('.super-shortcode').classList.remove('super-open');
             });
         });
     };
@@ -2094,6 +2129,14 @@ function SUPERreCaptcha(){
                         $text_field = true;
                         $parent = $element.closest('.super-field');
 
+                        // Check if international phonenumber field
+                        if($parent.classList.contains('super-int-phone-field')){
+                            $text_field = false;
+                            //var input = document.querySelector('#phone');
+                            var intPhone = window.superTelInputGlobals.getInstance($element);
+                            $value = intPhone.getNumber();
+                        }
+
                         // Check if dropdown field
                         if($parent.classList.contains('super-dropdown')){
                             $text_field = false;
@@ -2765,7 +2808,6 @@ function SUPERreCaptcha(){
         if(args.el.closest('.super-int-phone')){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
             if(!super_int_phone.isValidNumber()){
-                console.log("invalid number");
                 error = true;
             }
         }
@@ -3406,6 +3448,12 @@ function SUPERreCaptcha(){
                         if($this.attr('data-vip')) $data[$this.attr('name')].vip = $this.attr('data-vip');
                     }
                     var $super_field = $this.parents('.super-field:eq(0)');
+
+                    // Check if international phonenumber field
+                    if($super_field.hasClass('super-int-phone-field')){
+                        var intPhone = window.superTelInputGlobals.getInstance($this[0]);
+                        $data[$this.attr('name')].value = intPhone.getNumber();
+                    }
 
                     if($super_field.hasClass('super-signature')){
                         $data[$this.attr('name')].signatureLines = $super_field.find('.super-signature-lines').val();
@@ -4772,7 +4820,6 @@ function SUPERreCaptcha(){
             $original,
             $field_name,
             $value_n,
-            $currentField,
             $original_field_name,
             $rv,
             $return,
@@ -4858,8 +4905,7 @@ function SUPERreCaptcha(){
                     if($return==='') continue;
                     $i = 1;
                     $rows = '';
-                    $currentField = undefined;
-                    while( $currentField = SUPER.field(args.form, $field_name) ) {
+                    while( SUPER.field(args.form, $field_name) ) {
                         $row_regex = /<%(.*?)%>/g;
                         $row = $return;
                         while (($rv = $row_regex.exec($row)) !== null) {
@@ -5600,12 +5646,20 @@ function SUPERreCaptcha(){
                 }else{
                     element.closest('.super-shortcode').classList.add('super-filled');
                 }
+                
+                // Internation phonenumber
+                if(field.classList.contains('super-int-phone-field')){
+                    var intPhone = window.superTelInputGlobals.getInstance(element);
+                    intPhone.setNumber(data[i].value);
+                    return true;
+                }
 
                 // Color picker
                 if(field.classList.contains('super-color')){
                     if(typeof $.fn.spectrum === "function") {
                         $(field.querySelector('.super-shortcode-field')).spectrum('set', data[i].value);
                     }
+                    return true;
                 }
 
                 // Signature field (Add-on)
@@ -5615,6 +5669,7 @@ function SUPERreCaptcha(){
                         field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                         $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
                     }
+                    return true;
                 }
 
                 // Toggle field

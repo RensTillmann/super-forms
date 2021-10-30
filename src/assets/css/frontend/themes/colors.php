@@ -175,6 +175,7 @@ return "
 ".$s.".super-keyword-filter,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-list,
+".$s.".super-int-phone_country-list,
 ".$s.".super-autosuggest-tags > div,
 ".$s.".sp-replacer {
   color: ".$v['theme_field_colors_font'].";
@@ -288,6 +289,7 @@ return "
 ".$s.".super-focus:not(.super-rating) .super-keyword-filter,
 ".$s.".super-focus:not(.super-rating) .super-fileupload-button,
 ".$s.".super-focus:not(.super-rating) .super-dropdown-list,
+".$s.".super-focus:not(.super-rating) .super-int-phone_country-list,
 ".$s.".super-focus:not(.super-rating) .sp-replacer,
 ".$s.".super-focus:not(.super-rating) .super-autosuggest-tags > div {
   color: ".$v['theme_field_colors_font_focus'].";
