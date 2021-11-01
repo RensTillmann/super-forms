@@ -5992,9 +5992,9 @@ function SUPERreCaptcha(){
             var field = this.querySelector('.super-shortcode-field');
             if(field){
                 var fieldValue = field.value;
-                var itemsList = field.closest('.super-field-wrapper').querySelector('.super-items-list');
+                var itemsList = field.closest('.super-field-wrapper');
                 var i, selectedValues = fieldValue.split(',');
-                var nodes = itemsList.querySelectorAll('input[type="radio"]');
+                var nodes = itemsList.querySelectorAll('.super-item input[type="radio"]');
                 // Loop over all items
                 for(i=0; i<nodes.length; i++){
                     // Check if value is in array
@@ -6014,9 +6014,9 @@ function SUPERreCaptcha(){
             var field = this.querySelector('.super-shortcode-field');
             if(field){
                 var fieldValue = field.value;
-                var itemsList = field.closest('.super-field-wrapper').querySelector('.super-items-list');
+                var itemsList = field.closest('.super-field-wrapper');
                 var i, selectedValues = fieldValue.split(',');
-                var nodes = itemsList.querySelectorAll('input[type="checkbox"]');
+                var nodes = itemsList.querySelectorAll('.super-item input[type="checkbox"]');
                 // Loop over all items
                 for(i=0; i<nodes.length; i++){
                     // Check if value is in array

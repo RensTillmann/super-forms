@@ -1,3 +1,6 @@
+Nov 01, 2021 - Version 1.9.1
+- Option to hide gallery on product page
+
 Oct 15, 2021 - Version 1.9.0
 - Compatibility with Super Forms v5.0.0
 
