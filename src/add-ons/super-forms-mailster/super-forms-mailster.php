@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailster
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Register subscribers for Mailster with Super Forms
- * Version:     1.3.0
+ * Version:     1.3.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailster')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.3.0';
+        public $version = '1.3.1';
 
 
         /**
@@ -205,11 +205,11 @@ if(!class_exists('SUPER_Mailster')) :
         public static function add_subscriber( $atts ) {
 
             if (function_exists('mailster_subscribe')) {
-                $settings = $atts['settings'];
+                extract($atts); // data, post, settings
                 if( (isset($settings['mailster_enabled'])) && ($settings['mailster_enabled']=='true') ) {
-                    $data = $atts['post']['data'];
+                    $data = wp_unslash($atts['post']['data']);
+                    $data = json_decode($data, true);
                     $save_subscriber = 'yes';
-
                     // @since 1.0.2 - check if we do not want to save subscriber conditionally
                     if( !empty($settings['mailster_conditionally_save']) ) {
                         $settings = $atts['settings'];
