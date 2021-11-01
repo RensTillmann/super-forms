@@ -14,7 +14,7 @@
  * Plugin Name: Super Forms - Drag & Drop Form Builder
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.100
+ * Version:     5.0.101
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -41,7 +41,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.100';
+        public $version = '5.0.101';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -2091,6 +2091,17 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_demos' ),
                         'method'  => 'enqueue',
                     ),
+                    // @since 5.0.100 - international phone numbers
+                    'super-int-phone' => array(
+                        'src'     => $frontend_path . 'int-phone.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array(
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     // @since 4.8.0 - CarouselJS for "Display Layout > Slider" for Radio/Checkbox elements
                     'super-carousel' => array(
                         'src'     => $frontend_path . 'carousel.css',
@@ -2365,6 +2376,17 @@ if(!class_exists('SUPER_Forms')) :
                             'reason_empty' => esc_html__( 'Please enter a reason!', 'super-forms' ),
                             'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
                         ),
+                    ),
+                    // @since 5.0.100 - international phone numbers
+                    'super-int-phone' => array(
+                        'src'     => $frontend_path . 'int-phone.js',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form',
+                        ),
+                        'method'  => 'enqueue',
                     ),
                     // @since 4.8.0 - CarouselJS for "Display Layout > Slider" for Radio/Checkbox elements
                     'super-carousel' => array(
