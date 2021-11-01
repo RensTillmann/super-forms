@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Password Protect
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.3.1
+ * Version:     1.3.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.3.1';
+        public $version = '1.3.2';
 
 
         /**
@@ -302,7 +302,8 @@ if(!class_exists('SUPER_Password_Protect')) :
          *  @since      1.0.2
         */
         public static function locked_msg( $result, $atts ) {
-            extract($atts); // id, settings
+            extract($atts); // data, post, settings
+            $form_id = $post['form_id'];
 
             if( !isset( $settings['password_protect'] ) ) $settings['password_protect'] = '';
             if( !isset( $settings['password_protect_login'] ) ) $settings['password_protect_login'] = '';
@@ -316,7 +317,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                     if ( !SUPER_Password_Protect()->is_request( 'admin' ) ) {
 	                    // Before we proceed, lets check if we have a password field
 	                    if( !isset( $data['password'] ) ) {
-	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $id )) . '">', '</a>' );
+	                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to password protect the form. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $form_id )) . '">', '</a>' );
 	                        SUPER_Common::output_message(
 	                            $error = true,
 	                            $msg = $msg,
@@ -340,7 +341,7 @@ if(!class_exists('SUPER_Password_Protect')) :
 	                }
                 }
 
-                $elements = get_post_meta( absint($id), '_super_elements', true );
+                $elements = get_post_meta( absint($form_id), '_super_elements', true );
                 if(!is_array($elements)){
                     $elements = json_decode( $elements, true );
                 }
@@ -348,7 +349,7 @@ if(!class_exists('SUPER_Password_Protect')) :
                 $field_found = strpos($elements_json, '"name":"password"');
                 if ($field_found === false) {
                     $msg  = '<div class="super-msg super-error">';
-                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $id )) . '">', '</a>' );
+                    $msg .= sprintf( esc_html__( 'You have enabled password protection for this form, but we couldn\'t find a password field with the name: %1$s. Please %2$sedit%3$s your form and try again.', 'super-forms' ), '<strong>password</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $form_id )) . '">', '</a>' );
                     $msg .= '<span class="super-close"></span>';
                     $msg .= '</div>';
                     return $result.$msg;

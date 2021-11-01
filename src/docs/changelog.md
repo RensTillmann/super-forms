@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Nov 01, 2021 - Version 5.0.100
+
+- **Added:** International Phonenumber field
+
 ## Oct 26, 2021 - Version 5.0.027
 
 - **Improved:** Improved CSS for dropdown placeholder and radio/checkbox items for compatibility

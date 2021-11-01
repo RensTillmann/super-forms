@@ -3829,7 +3829,34 @@ $array['form_elements'] = array(
                 ),
             ),
         ),
-
+        'entrySearch' => array(
+            'name' => esc_html__( 'Entry search', 'super-forms' ),
+            'icon' => 'search',
+            'predefined' => array(
+                array(
+                    'tag' => 'html',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'title' => 'Note:',
+                        'html' =>  "This is a text field with \"Contact entry search\" enabled. It allows you to search previously created contact entries and populate the form with that entry data. More information here: \n\n<a target=\"_blank\"href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983617\">Search existing contact entry by title and populate the form with data</a>\n\n<a target=\"_blank\" href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983877\">Updating an existing contact entry </a>",
+                    )
+                ),
+                array(
+                    'tag' => 'text',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'entry_search', 'super-forms' ),
+                        'email' => esc_html__( 'Entry searched', 'super-forms' ) . ':',
+                        'placeholder' => esc_html__( 'Search contact entry based on title', 'super-forms' ),
+                        'placeholderFilled' => esc_html__( 'Entry search', 'super-forms' ),
+                        'type' => 'text',
+                        'enable_search' => 'true',
+                        'icon' => 'search',
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'conditional_item' => array(
             'hidden' => true,
             'name' => '',
