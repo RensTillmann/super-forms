@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.9.0
+ * Version:     1.9.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -38,7 +38,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.0';
+        public $version = '1.9.1';
 
 
         /**
@@ -178,7 +178,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 // Exclude products from WooCommerce shortcodes
                 add_filter( 'woocommerce_shortcode_products_query', array( $this, 'exclude_products_from_wc_shortcodes' ), 10, 3 );
                 // Remove add to cart form
-                add_action( 'wp', array( $this, 'remove_single_product_title_rating_price_excerpt' ), 10);      
+                add_action( 'wp', array( $this, 'remove_single_product_gallery_title_rating_price_excerpt' ), 10);      
                 // Replace add to cart with form
                 add_action( 'woocommerce_single_product_summary', array( $this, 'replace_add_to_cart_btn_section_with_form' ), 20 );
                 // Replace loop add to cart URL
@@ -267,17 +267,34 @@ if(!class_exists('SUPER_WooCommerce')) :
             return $query_args;
         }
         // Remove add to cart form
-        public function remove_single_product_title_rating_price_excerpt() {
+        public function remove_single_product_gallery_title_rating_price_excerpt() {
             global $post;
             if(!$post) return true;
             $productId = $post->ID;
             $result = $this->productMatchByIdOrSlug($productId);
             if($result['match']){
-                // Optionally remove title, rating, price, excerpt?
+                // Optionally remove gallery, title, rating, price, excerpt?
+                if($result['remove_gallery']==='true') {
+                    remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20 );
+                    remove_action( 'woocommerce_product_thumbnails', 'woocommerce_show_product_thumbnails', 20 );
+                    ?>
+                    <style>
+                    .single-product div.product .summary,
+                    .single-product div.product .single-product-summary {
+                        width: 100%!important;
+                    }
+                    .single-product div.product .single-product-main-image {
+                        display: none;
+                    }
+
+                    </style>
+                    <?php
+                }
                 if($result['remove_title']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_title', 5 );
                 if($result['remove_rating']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_rating', 10 );
                 if($result['remove_price']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
                 if($result['remove_excerpt']==='true') remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
+
             }
         }
         // Replace add to cart with form
@@ -346,6 +363,7 @@ if(!class_exists('SUPER_WooCommerce')) :
             return array(
                 'match' => $match,
                 'form_id' => $formId,
+                'remove_gallery' => $settings['remove_gallery'],
                 'remove_title' => $settings['remove_title'],
                 'remove_rating' => $settings['remove_rating'],
                 'remove_price' => $settings['remove_price'],
@@ -355,6 +373,7 @@ if(!class_exists('SUPER_WooCommerce')) :
         public function globalWooCommerceSettings(){
             $globalSettings = SUPER_Common::get_global_settings();
             $formProductSlugs = '';
+            if(empty($globalSettings['wc_remove_single_product_page_gallery'])) $globalSettings['wc_remove_single_product_page_gallery'] = 'false';
             if(empty($globalSettings['wc_remove_single_product_page_title'])) $globalSettings['wc_remove_single_product_page_title'] = 'false';
             if(empty($globalSettings['wc_remove_single_product_page_rating'])) $globalSettings['wc_remove_single_product_page_rating'] = 'false';
             if(empty($globalSettings['wc_remove_single_product_page_price'])) $globalSettings['wc_remove_single_product_page_price'] = 'false';
@@ -392,6 +411,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 return array(
                     'ids' => $ids,
                     'slugs' => $slugs,
+                    'remove_gallery' => $globalSettings['wc_remove_single_product_page_gallery'],
                     'remove_title' => $globalSettings['wc_remove_single_product_page_title'],
                     'remove_rating' => $globalSettings['wc_remove_single_product_page_rating'],
                     'remove_price' => $globalSettings['wc_remove_single_product_page_price'],
@@ -401,6 +421,7 @@ if(!class_exists('SUPER_WooCommerce')) :
                 return array(
                     'ids' => array(),
                     'slugs' => array(),
+                    'remove_gallery' => $globalSettings['wc_remove_single_product_page_gallery'],
                     'remove_title' => $globalSettings['wc_remove_single_product_page_title'],
                     'remove_rating' => $globalSettings['wc_remove_single_product_page_rating'],
                     'remove_price' => $globalSettings['wc_remove_single_product_page_price'],
@@ -1589,7 +1610,16 @@ if(!class_exists('SUPER_WooCommerce')) :
                         'type'=>'textarea',
                         'placeholder'=> esc_html__( "FORM_ID|PRODUCT_ID\nFORM_ID|CATEGORY_SLUG", 'super-forms' ),
                     ),
-                    // Optionally delete, title, price, rating, excerpt from product page and only display the form
+                    // Optionally delete, gallery, title, price, rating, excerpt from product page and only display the form
+                    'wc_remove_single_product_page_gallery' => array(
+                        'name' => esc_html__( 'Remove gallery from single product page', 'super-forms' ),
+                        'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the gallery of the product will also be removed', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_gallery', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Remove gallery (images) from single product page', 'super-forms' ),
+                        ),
+                    ),
                     'wc_remove_single_product_page_title' => array(
                         'name' => esc_html__( 'Remove title from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the title of the product will also be removed', 'super-forms' ) ),
