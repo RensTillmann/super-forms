@@ -6293,8 +6293,6 @@ function SUPERreCaptcha(){
                 });
                 $wrapper = $field.parents('.super-field-wrapper:eq(0)');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
-                SUPER.reposition_slider_amount_label($field[0]);
-
                 $field.on("slider:changed", function ($event, $data) {
                     // Only focus form/field when form is already initialized
                     SUPER.focusForm(this);
@@ -6325,6 +6323,7 @@ function SUPERreCaptcha(){
                         }
                     },1);
                 });
+                SUPER.reposition_slider_amount_label($field[0]);
             }
         });
         $('.slider-field').each(function () {
