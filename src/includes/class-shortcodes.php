@@ -169,7 +169,7 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_image_url){
-        if($atts['retrieve_method']=='post_type') {
+        if($atts[$prefix.'retrieve_method']=='post_type') {
             $post_id = absint($v['ID']);
             $label_class = array();
             // Check if we want to display a featured image or not
@@ -494,7 +494,7 @@ class SUPER_Shortcodes {
         // radio - post_type
         // text - autosuggest - post_type
         // text - keywords - post_type
-        if($atts['retrieve_method']=='post_type') {
+        if($atts[$prefix.'retrieve_method']=='post_type') {
             if( !isset( $atts[$prefix.'retrieve_method_post'] ) ) $atts[$prefix.'retrieve_method_post'] = 'post';
             if( !isset( $atts[$prefix.'retrieve_method_post_status'] ) ) $atts[$prefix.'retrieve_method_post_status'] = 'publish';
             if( !isset( $atts[$prefix.'retrieve_method_post_limit'] ) ) $atts[$prefix.'retrieve_method_post_limit'] = 30;
