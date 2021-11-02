@@ -3199,11 +3199,11 @@
                     }else{
                         if (_currentFunc[actions]) {
                             _currentFunc = _currentFunc[actions];
+                            _currentFunc(e, target, eventType, actions);
                         } else {
                             // eslint-disable-next-line no-console
                             console.log('Function ' + actions + '() is undefined!');
                         }
-                        _currentFunc(e, target, eventType, actions);
                     }
                 }else{
                     Object.keys(actions).forEach(function (key) { // key = function name
