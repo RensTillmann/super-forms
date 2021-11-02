@@ -311,11 +311,6 @@ function SUPERreCaptcha(){
         if(args.list_id) args.formData.append('list_id', args.list_id);
         if(args.token) args.formData.append('token', args.token);
         if(args.version) args.formData.append('version', args.version);
-        if(hasFiles===false){
-            // Now process form data
-            args._process_form_data_callback(args);
-            return
-        }
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,

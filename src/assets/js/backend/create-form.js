@@ -409,14 +409,13 @@
         if ($field.length == 1) {
             if (typeof $field !== 'undefined') {
                 if (typeof $field.attr('name') !== 'undefined') {
+                    if($field.closest('.super-file')){
+                        $field = $element.find('.super-active-files');
+                    }
                     var $name = $field.attr('name').replace('[', '').replace(']', '');
                     var form = document.querySelector('.super-preview-elements');
                     var $exists = SUPER.field(form, $name);
-                    if (!$exists) {
-                        $field = $element.find('.super-active-files');
-                        $name = $field.attr('name').replace('[', '').replace(']', '');
-                        $exists = $('.super-preview-elements .super-active-files[name="' + $name + '"]');
-                    } else {
+                    if ($exists) {
                         var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
                         $field.attr('name', $unique_name);
                         var $data = $.parseJSON($element.children('textarea[name="element-data"]').val());

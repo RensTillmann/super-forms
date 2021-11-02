@@ -14,6 +14,7 @@
 - **Added:** Option for WooCommerce Checkout Add-on to hide product gallery on single product page so that only the Super Form is visible
 - **Improved:** Improved CSS for dropdown placeholder and radio/checkbox items for compatibility
 - **Improved:** Replace `file_get_contents()` with `wp_safe_remote_get()` for improved security and compatibility accross hosting providers
+- **Fix:** JS error with file uploads
 - **Fix:** Text field `keyword field` method not working with retrieve method `Specific posts (post_type)`
 - **Fix:** Slider element default value positioning for amount label not correctly aligned
 - **Fix:** JS error with Radio/Checkbox as Display Layout: Slider (Carousel)
