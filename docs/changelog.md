@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 02, 2021 - Version 5.0.104
+## Nov 02, 2021 - Version 5.0.105
 
 - **Added:** International Phonenumber field
 - **Added:** Option for WooCommerce Checkout Add-on to hide product gallery on single product page so that only the Super Form is visible
