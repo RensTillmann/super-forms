@@ -453,7 +453,7 @@
                 parseFormat = [
                     jsformat
                 ];
-
+                
                 // If localization is being used, use this date format instead
                 // Make sure to convert to correct format before using, plus update data attribute
                 if(localization!==''){
@@ -746,6 +746,8 @@
                 }else{
                     $(el).datepicker(options);
                 }
+                $(el).datepicker('option', 'minDate', min );
+
                 // @since 4.9.3 - Datepicker localization (language and format)
                 if(localization!==''){
                     if(typeof $.datepicker.regional[localization] !== 'undefined'){
@@ -1139,6 +1141,7 @@
         var $doc = $(document);
 
         $doc.on('focusin', function(e){
+            if(!e.target.tagName) return true;
 
             if(e.target.closest('.super-timepicker-dialog')){
                 // timepicker element was clicked

@@ -5756,6 +5756,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   justify-content: flex-end;
 }
 
+.super-form .super-int-phone-field .super-int-phone_divider {
+  list-style: none;
+}
 .super-form .super-int-phone-field.super-focus .super-int-phone .super-int-phone_flag-container {
   background: none;
 }
@@ -5809,6 +5812,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   border-top-right-radius: 0px;
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
+  margin: 0px;
+  margin-left: -1px;
 }
 .super-form .super-int-phone_country-list:not(.super-int-phone_country-list--dropup) {
   border-top: 0;
