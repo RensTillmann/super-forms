@@ -240,7 +240,7 @@ function SUPERreCaptcha(){
         var total = 0;
         args.files = SUPER.files[args.form_id];
         if(args.files){
-            Object.keys(args.files).forEach(function(i) {
+            Object.keys(args.files).forEach(function() {
                 total++;
                 return true;
             });
@@ -2851,7 +2851,6 @@ function SUPERreCaptcha(){
             submitButtonName,
             oldHtml,
             loading,
-            index,
             total,
             match,
             value,
@@ -2982,21 +2981,40 @@ function SUPERreCaptcha(){
                 loading = super_common_i18n.loading;
             }
             submitButtonName.innerHTML = loading;
-            // Prepare arguments
-            var formData = SUPER.prepare_form_data($(args.form)); // returns {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
-            args = {
-                event: args.event,
-                form: args.form,
-                data: formData.data,
-                form_id: formData.form_id,
-                entry_id: formData.entry_id,
-                list_id: formData.list_id,
-                oldHtml: oldHtml,
-            };
-            args.callback = function(){
-                SUPER.complete_submit(args);
-            };
-            SUPER.before_submit_hook(args);
+
+            var y=0, 
+                codeNodes = args.form.querySelectorAll('.super-shortcode-field[data-code="true"]'),
+                totalNodes = codeNodes.length;
+            for(y=0; y<codeNodes.length; y++){
+                codeNodes[y].classList.remove('super-generated');
+            }
+            for(y=0; y<codeNodes.length; y++){
+                SUPER.update_unique_code(codeNodes[y], 'true');
+            }
+            var completeSubmitInterval = setInterval(function(){
+                var codeNodes = args.form.querySelectorAll('.super-shortcode-field.super-generated[data-code="true"]');
+                if(codeNodes.length !== totalNodes){
+                    // Still doing things...
+                }else{
+                    clearInterval(completeSubmitInterval);
+                    // Prepare arguments
+                    var formData = SUPER.prepare_form_data($(args.form)); // returns {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
+                    args = {
+                        event: args.event,
+                        form: args.form,
+                        data: formData.data,
+                        form_id: formData.form_id,
+                        entry_id: formData.entry_id,
+                        list_id: formData.list_id,
+                        oldHtml: oldHtml,
+                    };
+                    args.callback = function(){
+                        SUPER.complete_submit(args);
+                    };
+                    SUPER.before_submit_hook(args);
+                }
+            }, 100);
+
         }else{
             SUPER.scrollToError(args.form, args.validateMultipart);
         }
@@ -3400,7 +3418,7 @@ function SUPERreCaptcha(){
                     $hidden = true;
                 }
             });
-
+            
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
@@ -5923,15 +5941,31 @@ function SUPERreCaptcha(){
             }
         }
     };
-
-    // init the form on the frontend
-    SUPER.init_super_form_frontend = function(ajaxRequest){
-        var languageSwitcher = false;
-        if(typeof ajaxRequest !== 'undefined' && typeof ajaxRequest.settings !== 'undefined' && typeof ajaxRequest.settings.data === 'string'){
-            if(ajaxRequest.settings.data.indexOf('super_language_switcher')!==-1){
-                languageSwitcher = true;
+    SUPER.update_unique_code = function(el, submittingForm){
+        $.ajax({
+            url: super_common_i18n.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'super_update_unique_code',
+                submittingForm: submittingForm,
+                codesettings: el.dataset.codesettings // {"len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+            },
+            success: function (result) {
+                console.log(result);
+                el.value = result;
+                el.classList.add('super-generated');
+                //el.removeAttribute("data-codesettings"); 
+                SUPER.after_field_change_blur_hook({el: el});
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Failed to generate unique code');
             }
-        }
+        });
+    }
+    // init the form on the frontend
+    SUPER.init_super_form_frontend = function(){
 
         // Do not do anything if all forms where intialized already
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
@@ -5940,26 +5974,7 @@ function SUPERreCaptcha(){
       
         // @since 4.9.46 - Generate random codes
         $('.super-shortcode-field[data-code="true"]:not(.super-generated)').each(function(){
-            var el = this;
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_update_unique_code',
-                    codesettings: el.dataset.codesettings // {"len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
-                },
-                success: function (result) {
-                    el.value = result;
-                    el.classList.add('super-generated');
-                    el.removeAttribute("data-codesettings"); 
-                    SUPER.after_field_change_blur_hook({el: el});
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    // eslint-disable-next-line no-console
-                    console.log(xhr, ajaxOptions, thrownError);
-                    alert('Failed to generate unique code');
-                }
-            });
+            SUPER.update_unique_code(this, 'false');
         });
 
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used

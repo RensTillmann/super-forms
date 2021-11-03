@@ -4925,6 +4925,8 @@ textarea
 // @since 5.0.100 - International Phonenumber
 .super-form
   .super-int-phone-field    
+    .super-int-phone_divider
+      list-style: none
     &.super-focus
       .super-int-phone
         .super-int-phone_flag-container
@@ -4982,11 +4984,12 @@ textarea
   .super-int-phone_country-list
     z-index: 10
     box-shadow: initial
-    //border-color: #4EB1B6
     border-top-left-radius: 0px
     border-top-right-radius: 0px
     border-bottom-left-radius: 0px
     border-bottom-right-radius: 0px
+    margin: 0px
+    margin-left: -1px
     &:not(.super-int-phone_country-list--dropup)
       border-top: 0
     &.super-int-phone_country-list--dropup

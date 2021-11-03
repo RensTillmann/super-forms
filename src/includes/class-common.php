@@ -917,7 +917,9 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
-    public static function generate_random_code($codesettings){
+    public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
+        global $wpdb;
+        // First check if we are submitting the form or not
         $length = $codesettings['len'];
         $characters = $codesettings['char'];
         $prefix = $codesettings['pre'];
@@ -942,40 +944,33 @@ class SUPER_Common {
         for ($i = 0; $i < $length; $i++) {
             $code .= $char[rand(0, $charactersLength - 1)];
         }
-
         // @since 2.8.0 - invoice numbers
-        $code_without_invoice_number = $prefix.$code.$suffix;
         if( $invoice=='true' ) {
             if ( ctype_digit( (string)$invoice_padding ) ) {
-                $number = get_option('_super_form_invoice_number', 0);
-                $number = $number+1;
-                $code .= sprintf('%0'.$invoice_padding.'d', $number );
+                $table = $wpdb->prefix . 'options';
+                $invoiceNumber = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name = '_super_form_invoice_number'");
+                if($submittingForm){
+                    $invoiceNumber = $invoiceNumber+1;
+                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '_super_form_invoice_number'", $invoiceNumber));
+                }
+                $updatedInvoiceNumber = $wpdb->get_var("SELECT option_value  FROM $wpdb->options WHERE option_name = '_super_form_invoice_number'");
+                $code .= sprintf('%0'.$invoice_padding.'d', $updatedInvoiceNumber );
             }
         }
         $code = $prefix.$code.$suffix;
-
         // Now we have generated the code check if it already exists
-        global $wpdb;
         $table = $wpdb->prefix . 'postmeta';
-        $transient = '_super_contact_entry_code-' . $code_without_invoice_number;
-        if( get_transient($transient)!=false) {
+        $key = '_super_contact_entry_code-' . $code;
+        // For backwards compatiblity we will also check for old generated codes
+        $exists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `$table` WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", $code));
+        if( $exists==0 && get_option($key)==false ) {
+            add_option( $key, $code, '', 'no' );
             return $code;
         }
-        if( (get_transient($transient)==false) && (get_option($transient)==false) ) {
-            // For backwards compatiblity we will also check for old generated codes
-            $exists = $wpdb->get_var( 
-                $wpdb->prepare( 
-                    "SELECT COUNT(*) FROM `$table` WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", 
-                    $code_without_invoice_number
-                ) 
-            );
-            if( $exists==0 ) {
-                // Set expiration to 12 hours
-                $result = set_transient( $transient, $code_without_invoice_number, 12 * HOUR_IN_SECONDS );
-                return $code;
-            }
+        if($counter<50){ // just to make sure there won't be an endless loop
+            $counter++;
+            return self::generate_random_code(array('len' => $length, 'char' => $characters, 'pre' => $prefix, 'inv' => $invoice, 'invp' => $invoice_padding, 'suf' => $suffix, 'upper' => $uppercase, 'lower' => $lowercase), $submittingForm, $counter);
         }
-        return self::generate_random_code($length, $characters, $prefix, $invoice, $invoice_padding, $suffix, $uppercase, $lowercase);
     }
     
     
@@ -1649,6 +1644,18 @@ class SUPER_Common {
                         $allFileUrls = array();
                         $allFileLinks = array();
                         foreach($v['files'] as $fk => $fv){
+                            if(!isset($fv['url']) && isset($fv['datauristring'])){ 
+                                $fv['url'] = $fv['datauristring']; 
+                                $v['files'][$fk]['url'] = $fv['datauristring']; 
+                            }
+                            if(!isset($fv['type']) && isset($fv['datauristring'])){ 
+                                $fv['type'] = 'pdf'; 
+                                $v['files'][$fk]['type'] = 'pdf'; 
+                            }
+                            if(!isset($fv['attachment']) && isset($fv['datauristring'])){ 
+                                $fv['attachment'] = 0; 
+                                $v['files'][$fk]['attachment'] = 0; 
+                            }
                             $allFileNames[] = self::decode($fv['value']);
                             $allFileUrls[] = self::decode($fv['url']);
                             $allFileLinks[] = self::decode('<a href="'.esc_attr($fv['url']).'">'.$fv['value'].'</a>');

@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Password Protect
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.3.21
+ * Version:     1.3.22
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.3.21';
+        public $version = '1.3.22';
 
 
         /**
@@ -208,6 +208,9 @@ if(!class_exists('SUPER_Password_Protect')) :
          *  @since      1.0.0
         */
         public static function before_sending_email( $atts ) {
+            // $atts should contain 'id' and 'settings'
+            $form_id = $atts['data']['hidden_form_id']['value'];
+            $atts['id'] = $form_id;
             SUPER_Password_Protect()->locked_msg( '', $atts );
         }
 
