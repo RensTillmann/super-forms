@@ -8,12 +8,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 04, 2021 - Version 5.0.107
+## Nov 04, 2021 - Version 5.0.110
 
 - **Added:** International Phonenumber field
 - **Added:** Option for WooCommerce Checkout Add-on to hide product gallery on single product page so that only the Super Form is visible
 - **Improved:** Improved CSS for dropdown placeholder and radio/checkbox items for compatibility
 - **Improved:** Replace `file_get_contents()` with `wp_safe_remote_get()` for improved security and compatibility accross hosting providers
+- **Fix:** Slider amount/label update positioning based on default value after becoming conditionally visible, or when inside tab/accordion
+- **Fix:** JS error in back-end builder with renaming field names automatically to avoid duplicate field names
 - **Fix:** JS error in firefox for focusin method and missing `e.target.closest` function
 - **Fix:** JS error with file uploads
 - **Fix:** Text field `keyword field` method not working with retrieve method `Specific posts (post_type)`

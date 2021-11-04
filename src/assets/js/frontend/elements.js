@@ -1687,7 +1687,7 @@
                 for(i=0; i<nodes.length; i++){
                     if(nodes[i].querySelector('.slider')){
                         var field = nodes[i].querySelector('.super-shortcode-field');
-                        SUPER.reposition_slider_amount_label(field, field.value);
+                        SUPER.reposition_slider_amount_label(field, field.value, true);
                     }
                 }
             }

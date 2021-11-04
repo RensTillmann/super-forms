@@ -409,7 +409,8 @@
         if ($field.length == 1) {
             if (typeof $field !== 'undefined') {
                 if (typeof $field.attr('name') !== 'undefined') {
-                    if($field.closest('.super-file')){
+                    var $parent = $field.parents('.super-file');
+                    if($parent.length!==0){
                         $field = $element.find('.super-active-files');
                     }
                     var $name = $field.attr('name').replace('[', '').replace(']', '');
