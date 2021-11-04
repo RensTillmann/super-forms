@@ -1026,7 +1026,12 @@
                         if (typeof this.options.customPlaceholder === "function") {
                             placeholder = this.options.customPlaceholder(placeholder, this.selectedCountryData);
                         }
-                        this.telInput.setAttribute("placeholder", placeholder);
+                        var el = this.telInput;
+                        var adaptivePlaceholder = el.closest('.super-field-wrapper').querySelector('.super-adaptive-placeholder');
+                        if(!adaptivePlaceholder){
+                            this.telInput.setAttribute("placeholder", placeholder);
+                        }
+
                     }
                 }
             }, {

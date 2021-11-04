@@ -920,6 +920,7 @@ class SUPER_Common {
     public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
         global $wpdb;
         // First check if we are submitting the form or not
+        $invoice_key = (!empty($codesettings['invoice_key']) ? $codesettings['invoice_key'] : '');
         $length = $codesettings['len'];
         $characters = $codesettings['char'];
         $prefix = $codesettings['pre'];
@@ -948,28 +949,54 @@ class SUPER_Common {
         if( $invoice=='true' ) {
             if ( ctype_digit( (string)$invoice_padding ) ) {
                 $table = $wpdb->prefix . 'options';
-                $invoiceNumber = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name = '_super_form_invoice_number'");
+                // This is the global invoice key ID, if user defines a custom one, we will save it under a different option name.
+                // This allows for multiple usecases, for instance if you have a form that needs to generate a invoice, and if you have 
+                // a seperate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
+                $option_name_old = '_super_form_invoice_number';
+                $option_name = '_sf_invoice_number';
+                if(!empty($invoice_key)){
+                    $option_name_old .= '_' . $invoice_key;
+                    $option_name .= '_' . $invoice_key;
+                }
+                $invoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'  ", $option_name_old, $option_name));
+                // If this number doesn't exist yet create it
+                if(!$invoiceNumber){
+                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, 0, 'no' ) ) );
+                }
+                $invoiceNumber = intval($invoiceNumber);
                 if($submittingForm){
                     $invoiceNumber = $invoiceNumber+1;
-                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '_super_form_invoice_number'", $invoiceNumber));
+                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s'", $invoiceNumber, $option_name));
+                }else{
+                    if($invoiceNumber===0){
+                        $invoiceNumber = 1;
+                    }
                 }
-                $updatedInvoiceNumber = $wpdb->get_var("SELECT option_value  FROM $wpdb->options WHERE option_name = '_super_form_invoice_number'");
-                $code .= sprintf('%0'.$invoice_padding.'d', $updatedInvoiceNumber );
+                $code .= sprintf('%0'.$invoice_padding.'d', $invoiceNumber );
             }
         }
         $code = $prefix.$code.$suffix;
-        // Now we have generated the code check if it already exists
-        $table = $wpdb->prefix . 'postmeta';
-        $key = '_super_contact_entry_code-' . $code;
-        // For backwards compatiblity we will also check for old generated codes
-        $exists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `$table` WHERE meta_key = '_super_contact_entry_code' AND meta_value = '%s'", $code));
-        if( $exists==0 && get_option($key)==false ) {
-            add_option( $key, $code, '', 'no' );
+        if($submittingForm===false){
+            // If we are not submitting the form we can return the code instantly
             return $code;
-        }
-        if($counter<50){ // just to make sure there won't be an endless loop
-            $counter++;
-            return self::generate_random_code(array('len' => $length, 'char' => $characters, 'pre' => $prefix, 'inv' => $invoice, 'invp' => $invoice_padding, 'suf' => $suffix, 'upper' => $uppercase, 'lower' => $lowercase), $submittingForm, $counter);
+        }else{
+            // Upon submitting the form, make sure code doesn't exist yet, if it does generate a new one
+            $option_name_old = '_super_contact_entry_code-' . $code;
+            $option_name = '_sf_unique_code-' . $code;
+            $currentCode = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_value = '%s'", $option_name_old, $option_name));
+            // If this code doesn't exist yet create it
+            if(!$currentCode){
+                $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, %s ) ", array( $option_name, $code, 'no' ) ) );
+                return $code;
+            }
+            if($counter<50){ // just to make sure there won't be an endless loop
+                $counter++;
+                return self::generate_random_code(
+                    array('invoice_key' => $invoice_key, 'len' => $length, 'char' => $characters, 'pre' => $prefix, 'inv' => $invoice, 'invp' => $invoice_padding, 'suf' => $suffix, 'upper' => $uppercase, 'lower' => $lowercase),
+                    $submittingForm, 
+                    $counter
+                );
+            }
         }
     }
     
