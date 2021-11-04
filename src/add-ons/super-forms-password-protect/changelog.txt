@@ -1,4 +1,4 @@
-Nov 03, 2021 - Version 1.3.22
+Nov 04, 2021 - Version 1.3.23
 - Fix: Compatibility issue with latest super forms version
 
 Oct 15, 2021 - Version 1.3.1

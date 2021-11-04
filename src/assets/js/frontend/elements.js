@@ -1141,8 +1141,7 @@
         var $doc = $(document);
 
         $doc.on('focusin', function(e){
-            if(!e.target.tagName) return true;
-
+            if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
             if(e.target.closest('.super-timepicker-dialog')){
                 // timepicker element was clicked
                 SUPER.focusForm(e.relatedTarget);
