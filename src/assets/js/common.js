@@ -1736,7 +1736,7 @@ function SUPERreCaptcha(){
                                         var $field = $wrapper.children('.super-shortcode-field'); 
                                         var $value = $field.val();
                                         if($wrapper.children('.slider').length){
-                                            SUPER.reposition_slider_amount_label($field[0], $value);
+                                            SUPER.reposition_slider_amount_label($field[0], $value, true);
                                         }
                                     }else{
                                         var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
@@ -1746,7 +1746,7 @@ function SUPERreCaptcha(){
                                             var $field = $wrapper.children('.super-shortcode-field'); 
                                             var $value = $field.val();
                                             if($wrapper.children('.slider').length){
-                                                SUPER.reposition_slider_amount_label($field[0], $value);
+                                                SUPER.reposition_slider_amount_label($field[0], $value, true);
                                             }
                                         });
                                     }
@@ -6240,7 +6240,8 @@ function SUPERreCaptcha(){
     };
 
     // Reposition slider amount label
-    SUPER.reposition_slider_amount_label = function(field, value){
+    SUPER.reposition_slider_amount_label = function(field, value, conditionalUpdate){
+        if(typeof conditionalUpdate === 'undefined') conditionalUpdate = false;
         if(typeof value === 'undefined') {
             value = field.value;
             $(field).simpleSlider("setValue", 0);
@@ -6249,6 +6250,11 @@ function SUPERreCaptcha(){
             if(value !== field.value){
                 $(field).simpleSlider("setValue", 0);
                 $(field).simpleSlider("setValue", value);
+            }else{
+                if(conditionalUpdate){
+                    $(field).simpleSlider("setValue", 0);
+                    $(field).simpleSlider("setValue", value);
+                }
             }
         }
     };
