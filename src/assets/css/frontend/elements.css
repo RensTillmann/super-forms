@@ -831,6 +831,23 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   padding-right: 0px;
 }
 
+.super-form .super-heading-title,
+.super-form .super-heading-description {
+  display: flex;
+}
+.super-form .super-heading-title.super-align-left,
+.super-form .super-heading-description.super-align-left {
+  justify-content: flex-start;
+}
+.super-form .super-heading-title.super-align-center,
+.super-form .super-heading-description.super-align-center {
+  justify-content: center;
+}
+.super-form .super-heading-title.super-align-right,
+.super-form .super-heading-description.super-align-right {
+  justify-content: flex-end;
+}
+
 .super-field-wrapper {
   width: 100%;
   max-width: 100%;

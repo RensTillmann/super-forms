@@ -3417,6 +3417,14 @@ $array['form_elements'] = array(
                             'parent'=>'enable_random_code',
                             'filter_value'=>'true'
                         ),
+                        'code_invoice_key' => array(
+                            'name' => esc_html__( '(optional) Unique invoice key', 'super-forms' ), 
+                            'label' => esc_html__( 'Normally you should leave this empty, but if you require to generate both invoice numbers and quote numbers then you should enter a unique ID for both e.g "invoice" and "quote" respectively. If you require different numbers for multiple forms it is recommended to give an extra identifier such as the form ID or form name e.g: "1234_invoice" or "1235_quote". When using a unique invoice key, you must also provide either a prefix or suffix. For instance, for invoice numbers you could use "I" or "INV" as your prefix, while for quotes you could use "Q" or "QUOTE" as the prefix.', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['code_invoice_key']) ? '' : $attributes['code_invoice_key']),
+                            'filter'=>true,
+                            'parent'=>'code_invoice',
+                            'filter_value'=>'true'                            
+                        ),
                         'code_invoice_padding' => array(
                             'name'=>esc_html__( 'Invoice number padding (leading zero\'s)', 'super-forms' ),
                             'label' => esc_html__( 'Enter "4" to display 16 as 0016', 'super-forms' ),

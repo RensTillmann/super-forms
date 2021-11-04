@@ -4193,6 +4193,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['enable_random_code'] ) ) $atts['enable_random_code'] = '';
         $codeSettings = array();
         if($atts['enable_random_code']=='true'){
+            if( !isset( $atts['code_invoice_key'] ) ) $atts['code_invoice_key'] = '';
             if( !isset( $atts['code_length'] ) ) $atts['code_length'] = 7;
             if( !isset( $atts['code_characters'] ) ) $atts['code_characters'] = '1';
             if( !isset( $atts['code_prefix'] ) ) $atts['code_prefix'] = '';
@@ -4200,6 +4201,7 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_uppercase'] ) ) $atts['code_uppercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
             $codeSettings = array(
+                'invoice_key' => $atts['code_invoice_key'],
                 'len' => $atts['code_length'],
                 'char' => $atts['code_characters'],
                 'pre' => $atts['code_prefix'],
@@ -4213,10 +4215,20 @@ class SUPER_Shortcodes {
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+        
+        // When invoice_key is not empty, and either of prefix/suffix is empty display error message
+        if($atts['enable_random_code']=='true'){
+            $atts['value'] = SUPER_Common::generate_random_code($codeSettings, false);
+            if($codeSettings['invoice_key']!==''){
+                if($codeSettings['pre']==='' && $codeSettings['suf']===''){
+                    return '<p style="color:red;"><strong>Error:</strong> when using a "Unique invoice key" you must either set a "Code prefix" or "Code suffix" to avoid possible number conflicts</p>';
+                }
+            }
+        }
 
         $classes = ' hidden';
         $result = self::opening_tag( $tag, $atts, $classes );
-
+        
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
         $result .= ' value="' . esc_attr($atts['value']) . '" data-default-value="' . esc_attr($atts['value']) . '" data-absolute-default="' . esc_attr($atts['value']) . '"';
@@ -4339,12 +4351,15 @@ class SUPER_Shortcodes {
 
         $result = self::opening_tag( $tag, $atts );
         if( !empty($atts['title']) ) {
-            $result .= '<div class="super-heading-title">';
+            $result .= '<div class="super-heading-title';
+            if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') {
+                $result .= ' super-align-'.$atts['heading_align']; 
+            } 
+            $result .= '">';
             $styles = '';
             if(!empty($atts['heading_size']) && $atts['heading_size']!=='-1') $styles .= 'font-size:'.$atts['heading_size'].'px;'; 
             if(!empty($atts['heading_color'])) $styles .= 'color:'.$atts['heading_color'].';'; 
             if(!empty($atts['heading_weight']) && $atts['heading_weight']!=='none') $styles .= 'font-weight:'.$atts['heading_weight'].';'; 
-            if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') $styles .= 'text-align:'.$atts['heading_align'].';'; 
             if(!empty($atts['heading_margin'])) $styles .= 'margin:'.$atts['heading_margin'].';'; 
             if(!empty($atts['heading_line_height'])){
                 if($atts['heading_line_height']!=='-1'){
@@ -4366,7 +4381,6 @@ class SUPER_Shortcodes {
             if(!empty($atts['desc_size']) && $atts['desc_size']!=='-1') $styles .= 'font-size:'.$atts['desc_size'].'px;'; 
             if(!empty($atts['desc_color'])) $styles .= 'color:'.$atts['desc_color'].';'; 
             if(!empty($atts['desc_weight']) && $atts['desc_weight']!=='none') $styles .= 'font-weight:'.$atts['desc_weight'].';'; 
-            if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') $styles .= 'text-align:'.$atts['desc_align'].';'; 
             if(!empty($atts['desc_margin'])) $styles .= 'margin:'.$atts['desc_margin'].';'; 
             if(!empty($atts['desc_line_height'])){
                 if($atts['desc_line_height']!=='-1'){
@@ -4378,8 +4392,12 @@ class SUPER_Shortcodes {
                 }
             }
             if(!empty($styles)) $styles = ' style="'.$styles.'"';
-            $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles . '>';
-            $result .= stripslashes($atts['desc']);
+            $result .= '<div class="super-heading-description' . ($atts['class']!='' ? ' ' . $atts['class'] : '');
+            if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') {
+                $result .= ' super-align-'.$atts['desc_align']; 
+            } 
+            $result .= '"' . $styles . '>';
+            $result .= '<div>' . stripslashes($atts['desc']) . '</div>';
             $result .= '</div>';
         }
         $result .= self::loop_conditions( $atts, $tag );

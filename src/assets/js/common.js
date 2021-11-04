@@ -2006,6 +2006,11 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
+        if(args.form.classList.contains('super-generating-pdf')){
+            // Must reference to original form (which is currently the placeholder)
+            var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+            args.form = document.querySelector('#super-form-'+formId+'-placeholder');
+        }
         if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.target === 'undefined') args.target = null;
@@ -4821,7 +4826,8 @@ function SUPERreCaptcha(){
     // Replace HTML element {tags} with field values
     // @since 1.2.7
     SUPER.init_replace_html_tags = function(args){
-        var $i,
+        var originalFormReference,
+            $i,
             $v,
             $row_regex,
             $html_fields,
@@ -4918,7 +4924,13 @@ function SUPERreCaptcha(){
                     if($return==='') continue;
                     $i = 1;
                     $rows = '';
-                    while( SUPER.field(args.form, $field_name) ) {
+
+                    // When generating PDF, we must have a reference to the original form
+                    originalFormReference = args.form;
+                    if(args.form.classList.contains('super-generating-pdf')){
+                        originalFormReference = document.querySelector('#super-form-'+formId+'-placeholder');
+                    }
+                    while( SUPER.field(originalFormReference, $field_name) ) {
                         $row_regex = /<%(.*?)%>/g;
                         $row = $return;
                         while (($rv = $row_regex.exec($row)) !== null) {
@@ -5948,7 +5960,7 @@ function SUPERreCaptcha(){
             data: {
                 action: 'super_update_unique_code',
                 submittingForm: submittingForm,
-                codesettings: el.dataset.codesettings // {"len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+                codesettings: el.dataset.codesettings // {"invoice_key:"","len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
             },
             success: function (result) {
                 console.log(result);
@@ -5972,11 +5984,6 @@ function SUPERreCaptcha(){
             return true;
         }
       
-        // @since 4.9.46 - Generate random codes
-        $('.super-shortcode-field[data-code="true"]:not(.super-generated)').each(function(){
-            SUPER.update_unique_code(this, 'false');
-        });
-
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
             var field = this;
@@ -6236,7 +6243,6 @@ function SUPERreCaptcha(){
                 clearInterval($handle_columns_interval);
             }
         }, 100);
-        
     };
 
     // Reposition slider amount label
@@ -7420,6 +7426,9 @@ function SUPERreCaptcha(){
         args._pdf.setFontType('normal');
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
         if(el.classList.contains('super-heading-title')){
+            el = nodes[i].children[0];
+        }
+        if(el.classList.contains('super-heading-description')){
             el = nodes[i].children[0];
         }
         if(el.classList.contains('super-toggle-switch')){
