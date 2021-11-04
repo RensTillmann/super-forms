@@ -8,12 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 04, 2021 - Version 5.0.110
+## Nov 04, 2021 - Version 5.0.111
 
 - **Added:** International Phonenumber field
 - **Added:** Option for WooCommerce Checkout Add-on to hide product gallery on single product page so that only the Super Form is visible
 - **Improved:** Improved CSS for dropdown placeholder and radio/checkbox items for compatibility
 - **Improved:** Replace `file_get_contents()` with `wp_safe_remote_get()` for improved security and compatibility accross hosting providers
+- **Fix:** Issue with PDF Generator and Visual Compose/WP Bakery builder when form is inside a Accordion element
 - **Fix:** Slider amount/label update positioning based on default value after becoming conditionally visible, or when inside tab/accordion
 - **Fix:** JS error in back-end builder with renaming field names automatically to avoid duplicate field names
 - **Fix:** JS error in firefox for focusin method and missing `e.target.closest` function
