@@ -6223,7 +6223,7 @@ function SUPERreCaptcha(){
         });
 
         $(window).resize(function() {
-            var i, nodes = document.querySelectorAll('.super-form');
+            var i, nodes = document.querySelectorAll('.super-form:not(.super-generating-pdf)');
             for(i=0; i<nodes.length; i++){
                 SUPER.init_super_responsive_form_fields({form: nodes[i]});
             }
