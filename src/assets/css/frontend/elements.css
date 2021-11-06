@@ -3482,6 +3482,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-filled .super-adaptive-placeholder > span {
   margin-top: -8px;
 }
+.super-form .super-has-label-desc.super-slider .super-field-wrapper {
+  margin-top: 26px;
+}
 .super-form.super-adaptive .super-item.super-placeholder {
   visibility: hidden;
 }

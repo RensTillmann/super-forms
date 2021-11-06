@@ -1879,6 +1879,14 @@ class SUPER_Ajax {
         $action = $_POST['action'];
         $form_id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
         $title = (!empty($_POST['title']) ? $_POST['title'] : esc_html__( 'Form Name', 'super-forms' ));
+        
+        // Check if one of the keys doesn't exist, this is the case when the server was unable to process this request
+        // because the form is to large to be saved by this specific server
+        if(!isset($_POST['formElements']) || !isset($_POST['formSettings']) || !isset($_POST['translationSettings'])){
+            // Failed, notify user
+            SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+        }
+
         $_super_elements = wp_unslash($_POST['formElements']);
         $_super_form_settings = wp_unslash($_POST['formSettings']);
         $_super_translations = wp_unslash($_POST['translationSettings']);

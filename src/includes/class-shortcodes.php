@@ -4480,8 +4480,7 @@ class SUPER_Shortcodes {
             $html = $atts['html'];
 
             if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_listings_edit_entry' || $_POST['action']=='super_language_switcher') ) ) {
-                if( !empty($atts['nl2br']) ) $html = nl2br($html);
-                $html_code = do_shortcode(stripslashes($html));
+                $html_code = '';
             }else{
                 if( !empty($_POST['action']) && $_POST['action']=='super_load_preview' && is_admin()){
                     if( !empty($atts['nl2br']) ) $html = nl2br($html);
