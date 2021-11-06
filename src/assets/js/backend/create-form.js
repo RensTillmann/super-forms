@@ -952,37 +952,43 @@
                 if (this.status == 200) {
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
                     var response = this.responseText;
-                    $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
-                    $('.super-create-form input[name="form_id"]').val(response);
-                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
-                    if ($method == 3) { // When switching from language
-                        if (typeof callback === "function") { 
-                            callback($button); // safe to trigger callback
-                            return false;
-                        }
-                    } else {
-                        if ($method == 1) {
-                            var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
+                    response = JSON.parse(response);
+                    if(response.error===true){
+                        // Display error message
+                        alert(response.msg);
+                    }else{
+                        $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
+                        $('.super-create-form input[name="form_id"]').val(response);
+                        if ($method == 3) { // When switching from language
                             if (typeof callback === "function") { 
-                                callback(); // safe to trigger callback
+                                callback($button); // safe to trigger callback
+                                return false;
                             }
-                            SUPER.preview_form($this);
-                            return false;
                         } else {
-                            var href = window.location.href;
-                            var page = href.substr(href.lastIndexOf('/') + 1);
-                            var str2 = "admin.php?page=super_create_form&id";
-                            if (page.indexOf(str2) == -1) {
-                                window.location.href = "admin.php?page=super_create_form&id=" + response;
+                            if ($method == 1) {
+                                var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
+                                if (typeof callback === "function") { 
+                                    callback(); // safe to trigger callback
+                                }
+                                SUPER.preview_form($this);
+                                return false;
                             } else {
-                                if ($method == 2) {
-                                    location.reload();
+                                var href = window.location.href;
+                                var page = href.substr(href.lastIndexOf('/') + 1);
+                                var str2 = "admin.php?page=super_create_form&id";
+                                if (page.indexOf(str2) == -1) {
+                                    window.location.href = "admin.php?page=super_create_form&id=" + response;
+                                } else {
+                                    if ($method == 2) {
+                                        location.reload();
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 // Complete:
+                $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                 if (typeof callback === "function") { 
                     callback(); // safe to trigger callback
                 }

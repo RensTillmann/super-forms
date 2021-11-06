@@ -1600,7 +1600,7 @@ class SUPER_Settings {
                     'default' => self::get_value( $default, 'form_locker', $settings, '' ),
                     'type' => 'checkbox',
                     'values' => array(
-                        'true' => esc_html__( 'Enable form lock / submission limit', 'super-forms' ),
+                        'true' => esc_html__( 'Enable', 'super-forms' ),
                     ),
                     'filter'=>true
                 ),
@@ -1615,7 +1615,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent' => 'form_locker',
                     'filter_value' => 'true'
-                ),                
+                ),
                 'form_locker_msg' => array(
                     'default' => self::get_value( $default, 'form_locker_msg', $settings, 'true' ),
                     'type' => 'checkbox',
