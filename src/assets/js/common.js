@@ -6258,7 +6258,11 @@ function SUPERreCaptcha(){
                 $(field).simpleSlider("setValue", value);
             }else{
                 if(conditionalUpdate){
-                    $(field).simpleSlider("setValue", 0);
+                    if(value===0 || value==="0"){
+                        $(field).simpleSlider("setValue", 1);
+                    }else{
+                        $(field).simpleSlider("setValue", 0);
+                    }
                     $(field).simpleSlider("setValue", value);
                 }
             }
