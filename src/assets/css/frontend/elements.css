@@ -1372,6 +1372,18 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   box-shadow: inherit;
   border: 0px;
 }
+.super-slider .super-field-wrapper {
+  margin-top: 0px;
+}
+.super-slider.super-has-only-label .super-field-wrapper {
+  margin-top: 20px;
+}
+.super-slider.super-has-only-desc .super-field-wrapper {
+  margin-top: 20px;
+}
+.super-slider.super-has-label-desc .super-field-wrapper {
+  margin-top: 20px;
+}
 
 .ui-datepicker {
   display: none;
@@ -3482,9 +3494,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-filled .super-adaptive-placeholder > span {
   margin-top: -8px;
 }
-.super-form .super-has-label-desc.super-slider .super-field-wrapper {
-  margin-top: 26px;
-}
 .super-form.super-adaptive .super-item.super-placeholder {
   visibility: hidden;
 }
@@ -3493,9 +3502,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-adaptive .super-has-label-desc .super-field-wrapper {
   margin-top: 6px;
-}
-.super-form.super-adaptive .super-has-label-desc.super-slider .super-field-wrapper {
-  margin-top: 26px;
 }
 .super-form .display-vertical .super-item.super-has-image {
   flex-direction: row;
@@ -3569,7 +3575,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   margin-top: 8px;
 }
 .super-form .super-slider .amount {
-  bottom: 20px;
+  bottom: 25px;
   left: 0px;
   padding: 0px;
 }

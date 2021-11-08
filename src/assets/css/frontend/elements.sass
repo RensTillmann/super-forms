@@ -1144,6 +1144,18 @@ textarea
       background: none
       +boxShadow(inherit)
       border: 0px
+  .super-field-wrapper
+    margin-top: 0px
+  &.super-has-only-label
+    .super-field-wrapper
+      margin-top: 20px
+  &.super-has-only-desc
+    .super-field-wrapper
+      margin-top: 20px
+  &.super-has-label-desc
+    .super-field-wrapper
+      margin-top: 20px
+      
 
 .ui-datepicker
   display: none
@@ -2684,10 +2696,6 @@ textarea
       align-items: flex-start
       > span
         margin-top: -8px
-  .super-has-label-desc
-    &.super-slider
-      .super-field-wrapper
-        margin-top: 26px
   &.super-adaptive
     .super-item.super-placeholder
       visibility: hidden
@@ -2697,9 +2705,6 @@ textarea
     .super-has-label-desc
       .super-field-wrapper
         margin-top: 6px
-      &.super-slider
-        .super-field-wrapper
-          margin-top: 26px
   .display-vertical 
     .super-item 
       &.super-has-image 
@@ -2769,7 +2774,7 @@ textarea
     margin-top: 8px
   .super-slider
     .amount
-      bottom: 20px
+      bottom: 25px
       left: 0px
       padding: 0px
     .dragger
