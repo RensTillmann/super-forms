@@ -1394,6 +1394,13 @@ class SUPER_Shortcodes {
         $result .= ' class="super-shortcode super-field super-' . $tag;
         if( !empty($atts['label'])  && (!empty($atts['description'])) ) {
             $result .= ' super-has-label-desc';
+        }else{
+            if( !empty($atts['label'])  && (empty($atts['description'])) ) {
+                $result .= ' super-has-only-label';
+            }
+            if( empty($atts['label'])  && (!empty($atts['description'])) ) {
+                $result .= ' super-has-only-desc';
+            }
         }
         $result .= ' ' . (!empty($atts['icon']) ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '');
         if(!empty($atts['value'])) $result .= ' super-filled';
@@ -4481,6 +4488,10 @@ class SUPER_Shortcodes {
 
             if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_listings_edit_entry' || $_POST['action']=='super_language_switcher') ) ) {
                 $html_code = '';
+                if(empty($field_names)){
+                    if( !empty($atts['nl2br']) ) $html = nl2br($html);
+                    $html_code = do_shortcode(stripslashes($html));
+                }
             }else{
                 if( !empty($_POST['action']) && $_POST['action']=='super_load_preview' && is_admin()){
                     if( !empty($atts['nl2br']) ) $html = nl2br($html);
