@@ -90,7 +90,6 @@ return $import_fonts."
     line-height: normal;
     letter-spacing: 0;
 }
-// Labels
 ".$s.".super-label,
 ".$s.".super-group-title {
     font-size: ".$v['font_label_size']."px;
@@ -98,7 +97,6 @@ return $import_fonts."
     line-height: normal;
     letter-spacing: 0;
 }
-// Descriptions
 ".$s.".super-description {
     font-size: ".$v['font_description_size']."px;
     font-weight: ".$v['font_description_weight'].";
@@ -129,7 +127,6 @@ return $import_fonts."
     line-height: normal;
     letter-spacing: 0;
 }
-// Labels
 ".$rs1.".super-label,
 ".$rs1.".super-group-title {
     font-size: ".$v['font_label_size_mobile']."px;
@@ -137,7 +134,6 @@ return $import_fonts."
     line-height: normal; 
     letter-spacing: 0;
 }
-// Descriptions
 ".$rs1.".super-description {
     font-size: ".$v['font_description_size_mobile']."px;
     font-weight: ".$v['font_description_weight_mobile'].";

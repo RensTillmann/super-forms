@@ -8,9 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 06, 2021 - Version 5.0.114
+## Nov 08, 2021 - Version 5.0.115
 
-- **Added:** Option for hidden field `Unique code generation` to define a `Unique invoice key` which allows you to generate multiple invoice numbers. This is usefule for when you require both Invoice numbers and Quote numbers
+- **Added:** Option for hidden field `Unique code generation` to define a `Unique invoice key` which allows you to generate multiple invoice numbers. This is useful for when you require both Invoice numbers and Quote numbers
 - **Fix:** HTML element causing 404 when using {tag} to apply dynamic source tag on images
 - **Fix:** Issue with HTML not being generated when no {tags} are used, due to above 404 bug fix 
 - **Fix:** Slider label positioning on theme `minimal` and when `adaptive placeholders` are enabled
