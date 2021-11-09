@@ -5804,37 +5804,37 @@ class SUPER_Shortcodes {
             // If Admin, we are allowed to access this data directly
             if( current_user_can('administrator') ) {
                 $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
-                if(!empty($entry_data)){
-                    unset($entry_data['hidden_form_id']);
-                }
             }else{
-                // User must be logged in to access this data
-                $current_user_id = get_current_user_id();
-                if( $current_user_id!=0 ) {
-                    // By default retrieve entry data based on this form ID
-                    $form_ids = array($form_id);
-                    // Check if we are retrieving entry data based on other form ID
-                    if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
-                        $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
-                    }
-                    $form_ids = implode("','", $form_ids);
-                    // Lookup contact entries based on this user ID and form ID(s)
-                    global $wpdb;
-                    $table = $wpdb->prefix . 'posts';
-                    $table_meta = $wpdb->prefix . 'postmeta';
-                    $entry = $wpdb->get_results("
-                    SELECT  ID 
-                    FROM    $table 
-                    WHERE   post_author = $current_user_id AND
-                            post_parent IN ('$form_ids') AND
-                            post_status IN ('publish','super_unread','super_read') AND 
-                            post_type = 'super_contact_entry'
-                    ORDER BY ID DESC
-                    LIMIT 1");
-                    if( isset($entry[0])) {
-                        $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-                        if(!empty($entry_data)){
-                            unset($entry_data['hidden_form_id']);
+                // User must be logged in to access this data, or transient with entry ID should be available
+                $authenticated_entry_id = get_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+                if($authenticated_entry_id!==false){
+                    $entry_data = get_post_meta( $authenticated_entry_id, '_super_contact_entry_data', true );
+                    delete_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+                }else{
+                    $current_user_id = get_current_user_id();
+                    if( $current_user_id!=0 ) {
+                        // By default retrieve entry data based on this form ID
+                        $form_ids = array($form_id);
+                        // Check if we are retrieving entry data based on other form ID
+                        if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
+                            $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
+                        }
+                        $form_ids = implode("','", $form_ids);
+                        // Lookup contact entries based on this user ID and form ID(s)
+                        global $wpdb;
+                        $table = $wpdb->prefix . 'posts';
+                        $table_meta = $wpdb->prefix . 'postmeta';
+                        $entry = $wpdb->get_results("
+                        SELECT  ID 
+                        FROM    $table 
+                        WHERE   post_author = $current_user_id AND
+                                post_parent IN ('$form_ids') AND
+                                post_status IN ('publish','super_unread','super_read') AND 
+                                post_type = 'super_contact_entry'
+                        ORDER BY ID DESC
+                        LIMIT 1");
+                        if( isset($entry[0])) {
+                            $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                         }
                     }
                 }
@@ -5872,12 +5872,12 @@ class SUPER_Shortcodes {
                             $contact_entry_id = absint($entry[0]->ID);
                         }
                         $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-                        if(!empty($entry_data)){
-                            unset($entry_data['hidden_form_id']);
-                        }
                     }
                 }
             }
+        }
+        if(!empty($entry_data)){
+            unset($entry_data['hidden_form_id']);
         }
 
         // @since 3.2.0 - if entry data was not found based on user last entry, proceed and check if we need to get form progress for this form
