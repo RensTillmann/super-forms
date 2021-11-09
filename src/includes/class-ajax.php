@@ -2786,6 +2786,9 @@ class SUPER_Ajax {
             }
             $contact_entry_id = wp_insert_post($post);
 
+            // Store entry ID for later use
+            set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
+
             // Check if we prevent saving duplicate entry titles
             // Return error message to user
             $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );

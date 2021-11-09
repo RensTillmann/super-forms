@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Mailchimp
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.7.1
+ * Version:     1.7.2
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.7.1';
+        public $version = '1.7.2';
 
         
         /**
@@ -350,7 +350,8 @@ if(!class_exists('SUPER_Mailchimp')) :
             $result = '<div class="super-grid super-shortcode">';
             $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional-action="show" data-conditional-trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
-            $classes = ' display-' . $atts['display'];
+            $classes = ' super-mailchimp';
+            $classes .= ' display-' . $atts['display'];
             $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
 
             $show_hidden_field = true;
