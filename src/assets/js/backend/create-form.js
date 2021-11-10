@@ -950,6 +950,7 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
                     var response = this.responseText;
                     response = JSON.parse(response);
@@ -971,6 +972,7 @@
                                     callback(); // safe to trigger callback
                                 }
                                 SUPER.preview_form($this);
+                                $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                                 return false;
                             } else {
                                 var href = window.location.href;
@@ -988,7 +990,6 @@
                     }
                 }
                 // Complete:
-                $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                 if (typeof callback === "function") { 
                     callback(); // safe to trigger callback
                 }
