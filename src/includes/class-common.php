@@ -764,6 +764,7 @@ class SUPER_Common {
                     array( 'name' => 'init_carouseljs' ),
                     array( 'name' => 'init_tooltips' ),
                     array( 'name' => 'init_datepicker' ),
+                    array( 'name' => 'init_adaptive_placeholder' ),
                     array( 'name' => 'init_masked_input' ),
                     array( 'name' => 'init_currency_input' ),
                     array( 'name' => 'init_colorpicker' ),

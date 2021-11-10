@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 10, 2021 - Version 5.0.118
+## Nov 10, 2021 - Version 5.0.119
 
+- **Added:** Ability to use `{dynamic_column_counter}` inside conditional logic and variable conditions, can be used to hide/display elements inside a specific dyanmically added column
 - **Added:** Option for hidden field `Unique code generation` to define a `Unique invoice key` which allows you to generate multiple invoice numbers. This is useful for when you require both Invoice numbers and Quote numbers
 - **Fix:** HTML element automatic linebreak not working when using {tags} inside the HTML
 - **Fix:** HTML element causing 404 when using {tag} to apply dynamic source tag on images

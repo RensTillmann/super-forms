@@ -192,6 +192,65 @@
         return nextField;
     };
 
+    SUPER.init_adaptive_placeholder = function(){
+        var nodes = document.querySelectorAll('.super-adaptive-placeholder');
+        for (var i = 0; i < nodes.length; i++) {
+            var input = nodes[i].parentNode.querySelector('.super-shortcode-field');
+            if(!input) continue;
+
+            input.onclick = input.onfocus = function () {
+            }
+            input.onblur = function () {
+            }
+            input.addEventListener('keyup', function () {
+                var wrapper = this.closest('.super-field-wrapper');
+                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
+                var span = placeholder.children[0];
+                var filled = true,
+                    parent = this.closest('.super-field');
+                if(parent.classList.contains('super-currency')){
+                    if($(this).maskMoney('unmasked')[0]===0){
+                        filled = false;
+                    }
+                }
+                if (this.value.length === 0) filled = false;
+                if(filled){
+                    parent.classList.add('super-filled');
+                    span.innerHTML = placeholder.dataset.placeholderfilled;
+                }else{
+                    parent.classList.remove('super-filled');
+                    span.innerHTML = placeholder.dataset.placeholder;
+                }
+            });
+            input.oncut = input.onpaste = function (event) {
+                var wrapper = this.closest('.super-field-wrapper');
+                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
+                var span = placeholder.children[0];
+                var filled = true,
+                    input = event.target,
+                    parent = event.target.closest('.super-field');
+
+                if(parent.classList.contains('super-currency')){
+                    if($(input).maskMoney('unmasked')[0]===0){
+                        filled = false;
+                    }
+                }
+                if (event.type == 'cut' || event.type == 'paste') {
+                    setTimeout(function () {
+                        if (input.value.length === 0) filled = false;
+                        if(filled){
+                            parent.classList.add('super-filled');
+                            span.innerHTML = placeholder.dataset.placeholderfilled;
+                        }else{
+                            parent.classList.remove('super-filled');
+                            span.innerHTML = placeholder.dataset.placeholder;
+                        }
+                    }, 100);
+                }
+            }
+        }
+    };
+
     // @since 1.3   - input mask
     SUPER.init_masked_input = function(){
         $('.super-shortcode-field[data-mask]').each(function(){
@@ -2854,62 +2913,7 @@
         });
 
         // @since 4.9.3 - Adaptive Placeholders
-        var nodes = document.querySelectorAll('.super-adaptive-placeholder');
-        for (var i = 0; i < nodes.length; i++) {
-            var input = nodes[i].parentNode.querySelector('.super-shortcode-field');
-            if(!input) continue;
-
-            input.onclick = input.onfocus = function () {
-            }
-            input.onblur = function () {
-            }
-            input.addEventListener('keyup', function () {
-                var wrapper = this.closest('.super-field-wrapper');
-                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
-                var span = placeholder.children[0];
-                var filled = true,
-                    parent = this.closest('.super-field');
-                if(parent.classList.contains('super-currency')){
-                    if($(this).maskMoney('unmasked')[0]===0){
-                        filled = false;
-                    }
-                }
-                if (this.value.length === 0) filled = false;
-                if(filled){
-                    parent.classList.add('super-filled');
-                    span.innerHTML = placeholder.dataset.placeholderfilled;
-                }else{
-                    parent.classList.remove('super-filled');
-                    span.innerHTML = placeholder.dataset.placeholder;
-                }
-            });
-            input.oncut = input.onpaste = function (event) {
-                var wrapper = this.closest('.super-field-wrapper');
-                var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
-                var span = placeholder.children[0];
-                var filled = true,
-                    input = event.target,
-                    parent = event.target.closest('.super-field');
-
-                if(parent.classList.contains('super-currency')){
-                    if($(input).maskMoney('unmasked')[0]===0){
-                        filled = false;
-                    }
-                }
-                if (event.type == 'cut' || event.type == 'paste') {
-                    setTimeout(function () {
-                        if (input.value.length === 0) filled = false;
-                        if(filled){
-                            parent.classList.add('super-filled');
-                            span.innerHTML = placeholder.dataset.placeholderfilled;
-                        }else{
-                            parent.classList.remove('super-filled');
-                            span.innerHTML = placeholder.dataset.placeholder;
-                        }
-                    }, 100);
-                }
-            }
-        }
+        SUPER.init_adaptive_placeholder();
     });
 
 
