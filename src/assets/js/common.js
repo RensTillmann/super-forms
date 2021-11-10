@@ -1470,6 +1470,7 @@ function SUPERreCaptcha(){
         Object.keys(args.conditionalLogic).forEach(function(key) {
             $prev_match_found = false;
             $this = args.conditionalLogic[key];
+            args.currentTextarea = $this;
             $wrapper = $this.closest('.super-shortcode');
             $field = $wrapper.querySelector('.super-shortcode-field');
             $is_variable = false;
@@ -1530,6 +1531,9 @@ function SUPERreCaptcha(){
                                     $regex.lastIndex++;
                                 }
                                 $field_name = $v[1].split(';')[0];
+                                if($field_name=='dynamic_column_counter'){
+                                    continue;
+                                }
                                 $shortcode_field = SUPER.field(args.form, $field_name);
                                 if(!$shortcode_field) {
                                     $continue = true;
@@ -1546,6 +1550,9 @@ function SUPERreCaptcha(){
                                         $regex.lastIndex++;
                                     }
                                     $field_name = $v[1].split(';')[0];
+                                    if($field_name=='dynamic_column_counter'){
+                                        continue;
+                                    }
                                     $shortcode_field_and = SUPER.field(args.form, $field_name);
                                     if(!$shortcode_field_and){
                                         $continue_and = true;
@@ -2060,6 +2067,11 @@ function SUPERreCaptcha(){
                 if(args.target){
                     args.value = $(args.target).parents('.super-duplicate-column-fields:eq(0)').index()+1;
                     return args.value;
+                }else{
+                    if(args.currentTextarea){
+                        args.value = $(args.currentTextarea).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                        return args.value;
+                    }
                 }
             }
             
@@ -5963,10 +5975,8 @@ function SUPERreCaptcha(){
                 codesettings: el.dataset.codesettings // {"invoice_key:"","len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
             },
             success: function (result) {
-                console.log(result);
                 el.value = result;
                 el.classList.add('super-generated');
-                //el.removeAttribute("data-codesettings"); 
                 SUPER.after_field_change_blur_hook({el: el});
             },
             error: function (xhr, ajaxOptions, thrownError) {
