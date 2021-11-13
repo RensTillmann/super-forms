@@ -1303,7 +1303,8 @@ class SUPER_Shortcodes {
             if( empty($data) ) $data = null;
             if( empty($inner) ) $inner = null;
             $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-            $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, $builder );
+            //$result .= 'tag2: ' . $tag;
+            $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, $builder );
             return $result;
         }
 
@@ -1351,7 +1352,8 @@ class SUPER_Shortcodes {
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
                     $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-                    $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, true );
+                    //$result .= 'tag3: ' . $tag;
+                    $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, true );
                 $result .= '</div>';
             }else{
                 $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -1359,7 +1361,8 @@ class SUPER_Shortcodes {
                         if( empty($data) ) $data = null;
                         if( empty($inner) ) $inner = null;
                         $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-                        $result .= self::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
+                        //$result .= 'tag4: ' . $tag;
+                        $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
                     }
                     if( !empty( $inner ) ) {
                         foreach( $inner as $k => $v ) {
@@ -1600,6 +1603,10 @@ class SUPER_Shortcodes {
         if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
 
         $result = '';
+
+        if( !empty($atts['originalFieldName']) ) {
+            $result .= ' data-oname="' . $atts['originalFieldName'] . '"'; // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
+        }
 
         if(!empty($atts['type']) && $atts['type']==='int-phone'){
             $data_attributes['int-phone'] = json_encode(array(
@@ -2064,7 +2071,8 @@ class SUPER_Shortcodes {
                                         $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                     }else{
                                         $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
-                                        $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                                        //$result .= 'tag5: ' . $iv['tag'];
+                                        $result .= self::output_element_html( $grid=null, $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                 }
                                 // Restore amount of columns found
@@ -2175,7 +2183,8 @@ class SUPER_Shortcodes {
                                             $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
                                         }else{
                                             $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
-                                            $result .= self::output_element_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                                            //$result .= 'tag6: ' . $iv['tag'];
+                                            $result .= self::output_element_html( $grid=null, $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                                         }
                                     }
                                     // Restore amount of columns found
@@ -2269,7 +2278,8 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                //$result .= 'tag7: ' . $v['tag'];
+                $result .= self::output_element_html( $grid=null, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
             }
         }
         unset($GLOBALS['super_grid_system']);
@@ -2345,6 +2355,8 @@ class SUPER_Shortcodes {
         if( !isset( $GLOBALS['super_grid_system'] ) ) {
             $GLOBALS['super_grid_system'] = array(
                 'level' => 0,
+                'dynamicLevel' => -1,
+                'dynamicLevelId' => array(),
                 'width' => 0,
                 'columns' => array()
             );
@@ -2368,6 +2380,7 @@ class SUPER_Shortcodes {
 
         $result = '';
         $close_grid = false;
+        
 
         $sizes = array(
             '1/5'=>array('one_fifth',20),
@@ -2416,7 +2429,7 @@ class SUPER_Shortcodes {
 
         $conditionAttributes = self::conditional_attributes( $atts );
         $class .= $conditionAttributes['class'];
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' column-number-'.$grid['columns'][$grid['level']]['current'].' grid-level-'.$grid['level'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
+        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' grid-level-'.$grid['level'].' column-number-'.$grid['columns'][$grid['level']]['current'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= $conditionAttributes['dataset']; 
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -2431,6 +2444,10 @@ class SUPER_Shortcodes {
         }
         $result .= self::pdf_attributes($atts);
         $result .= '>';
+        //if( $atts['duplicate']=='enabled' ) {
+        //    $grid['dynamicLevel']++;
+        //    $result .= $grid['dynamicLevel'];
+        //}
         
         // @since   1.3   - column custom padding
         $close_custom_padding = false;
@@ -2444,7 +2461,7 @@ class SUPER_Shortcodes {
         }
 
         if( !empty( $inner ) ) {
-            if($atts['duplicate']=='enabled' && $entry_data){
+            if($atts['duplicate']==='enabled' && $entry_data){
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
 
@@ -2487,6 +2504,29 @@ class SUPER_Shortcodes {
                             $re = '/\{(.*?)\}/';
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
                                 $grid['level']++;
+                                // -1
+                                if($dv['duplicate']==='enabled') {
+                                    //$grid['dynamicLevel']++;
+                                    //$grid['dynamicLevelId'] = array();
+                                    // 0
+                                    //if($grid['dynamicLevel']>0) 
+
+
+                                    // We start with empty array:
+
+                                    // array()
+
+                                    // Output: a
+
+                                    // Next output should be  b[0]
+
+                                    // 
+                                    // temp disabled if(isset($grid['dynamicLevelId'][$grid['dynamicLevel']])){
+
+                                    // temp disabled }else{
+                                    // temp disabled     $grid['dynamicLevelId'][$grid['dynamicLevel']] = array($grid['dynamicLevel'] = array());
+                                    // temp disabled }
+                                }
                                 $GLOBALS['super_grid_system'] = $grid;
                                 $GLOBALS['super_column_found'] = 0;
                                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
@@ -2497,7 +2537,8 @@ class SUPER_Shortcodes {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
                                         $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv);
-                                        $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names, $formProgress );
+                                        //$result .= 'tag8: ' . $v['tag'];
+                                        $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -2505,6 +2546,10 @@ class SUPER_Shortcodes {
                                     $result .= '</div>';
                                 $result .= '</div>';
                                 $grid['level']--;
+                                if($dv['duplicate']==='enabled') {
+                                    //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
+                                    //$grid['dynamicLevel']--;
+                                }
                                 $i++;
                             }
                         }else{
@@ -2514,7 +2559,12 @@ class SUPER_Shortcodes {
                         $no_data = true;
                     }
                     if($no_data){
+                        var_dump('test1');
                         $grid['level']++;
+                        if($atts['duplicate']==='enabled') {
+                            //$grid['dynamicLevel']++;
+                            //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
+                        }
                         $GLOBALS['super_grid_system'] = $grid;
                         $GLOBALS['super_column_found'] = 0;
                         // No data found, let's generate at least 1 column
@@ -2525,7 +2575,8 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                                //$result .= 'tag10: ' . $v['tag'];
+                                $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -2533,6 +2584,12 @@ class SUPER_Shortcodes {
                             $result .= '</div>';
                         $result .= '</div>';
                         $grid['level']--;
+                        if($atts['duplicate']==='enabled') {
+                            //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
+                            //$grid['dynamicLevel']--;
+                        }
+                    }else{
+                        var_dump('test2');
                     }
                 }
             }else{
@@ -2547,9 +2604,14 @@ class SUPER_Shortcodes {
                 }
                 
                 $grid['level']++;
+                if($atts['duplicate']==='enabled') {
+                    $grid['dynamicLevel']++;
+                    //$result .= $grid['dynamicLevel'];
+                    //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
+                }
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
-                if( $atts['duplicate']=='enabled' ) {
+                if( $atts['duplicate']==='enabled' ) {
                     $result .= '<div class="super-shortcode super-duplicate-column-fields">';
                 }
                 foreach( $inner as $k => $v ) {
@@ -2560,10 +2622,17 @@ class SUPER_Shortcodes {
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
+                    if(isset($v['data']['duplicate']) && $v['data']['duplicate']==='enabled') {
+                        //$grid['dynamicLevel']++;
+                        //$result .= '['.$grid['dynamicLevel'].']';
+                        //$result .= 'tag0: ' . $v['tag'];
+                        //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
+                    }
                     $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names);
-                    $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                    //$result .= 'tag9: ' . $v['tag'];
+                    $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                 }
-                if( $atts['duplicate']=='enabled' ) {
+                if( $atts['duplicate']==='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
                     $result .= '<span class="super-add-duplicate"></span>';
                     $result .= '<span class="super-delete-duplicate"></span>';
@@ -2571,6 +2640,10 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $grid['level']--;
+                if($atts['duplicate']==='enabled') {
+                    //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
+                    //$grid['dynamicLevel']--;
+                }
             }
             $GLOBALS['super_grid_system'] = $grid;      
         }
@@ -3022,6 +3095,7 @@ class SUPER_Shortcodes {
         }
 
         $result .= ' name="' . $atts['name'] . '"';
+
         if( $atts['value']!=='' ) {
             $result .= ' value="' . esc_attr($atts['value']) . '"';
         }
@@ -3375,6 +3449,7 @@ class SUPER_Shortcodes {
 
             $result .= '<textarea tabindex="-1" class="super-shortcode-field' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
             $result .= ' name="' . $atts['name'] . '"';
+
             if( $atts['height']>0 ) {
                 $result .= ' style="min-height:' . $atts['height'] . 'px;" ';
             }
@@ -4845,6 +4920,7 @@ class SUPER_Shortcodes {
     /** 
      *  Output the shortcode element on front-end
      *
+     * @param  int  $dynamicLevel
      * @param  string  $tag
      * @param  string  $group
      * @param  array   $data
@@ -4860,13 +4936,39 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
+    public static function output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
         // The below `absolute_default` will be retrieved on the elements attribute called `data-absolute-default=""`
         // This value is then used when a column is duplicated so we can reset each field to it's initial default value
         if(!empty($data['name'])){
+            $data['originalFieldName'] = $data['name'];
+            // temp disabled if($grid){
+            // temp disabled     $level = $grid['level'] - 2;
+            // temp disabled     $suffix = array();
+            // temp disabled     while($level > -1){
+            // temp disabled         $suffix[] = '['.($level).']';
+            // temp disabled         $level--;
+            // temp disabled     }
+            // temp disabled     $data['name'] = $data['name'].implode('', array_reverse($suffix)).'['.$grid['dynamicLevel'].']';
+            // temp disabled     //    var_dump($grid['dynamicLevelId']);
+            // temp disabled     //    //if(!empty($grid['dynamicLevelId'])){
+            // temp disabled     //    //    $dynamicLevelId = '['.implode("][", $grid['dynamicLevelId']).']';
+            // temp disabled     //    //    $data['name'] = $data['name'].$dynamicLevelId;
+            // temp disabled     //    //}
+            // temp disabled }
+            //if($grid && $grid['dynamicLevel']===0){
+            //    //$level = $grid['level'] - 1;
+            //}else{
+            //    $data['name'] = $data['name'].$dynamicLevelId;
+            //    //$level = $grid['level'] - 1;
+            //    //$data['name'] = $data['name'].'['.$grid['dynamicLevel'].']['.$level.']['.$grid['columns'][$level]['current'].']';
+            //}
+            //if($grid && $grid['dynamicLevel']>0){
+            //}else{
+
+            //}
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
         }
@@ -6184,7 +6286,8 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                //$result .= 'tag1: ' . $v['tag'];
+                $result .= self::output_element_html( $grid=null, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
             }
         }
         

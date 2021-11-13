@@ -2311,7 +2311,7 @@ class SUPER_Ajax {
             }else{
                 if($from==0){
                     // Output element HTML only
-                    $result = SUPER_Shortcodes::output_element_html( $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
+                    $result = SUPER_Shortcodes::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
                 }else{
                     // Output builder HTML (element and with action buttons)
                     $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
