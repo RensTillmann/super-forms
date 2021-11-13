@@ -1917,11 +1917,11 @@
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
-            column = ( el.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
+            column = ( parent.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form({el: el, form: form});
             var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
             firstColumn = duplicateColumns[0];
-            found = column.querySelectorAll('.super-duplicate-column-fields').length;
+            found = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
                 return false;
@@ -1934,6 +1934,9 @@
             nodes = firstColumn.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
                 field = nodes[i];
+                //if(firstColumn !== field.closest('.super-duplicate-column-fields')){
+                //    continue; // skip
+                //}
                 if(field.classList.contains('super-fileupload')){
                     field = field.parentNode.querySelector('.super-active-files');
                 }
@@ -1944,7 +1947,7 @@
                 counter++;
             }
 
-            counter = column.querySelectorAll('.super-duplicate-column-fields').length;
+            counter = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
             clone = firstColumn.cloneNode(true);
             column.appendChild(clone);
 
@@ -1968,40 +1971,156 @@
             added_fields_without_suffix = [];
             field_counter = 0;
 
+
+
+            // Loop over all fields that are inside dynamic column and rename them accordingly
+            //var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
             nodes = clone.querySelectorAll('.super-shortcode-field[name]');
             for (i = 0; i < nodes.length; ++i) {
-                field = nodes[i];
-                parent = field.closest('.super-field');
-                if(field.classList.contains('super-fileupload')){
-                     field.classList.remove('super-rendered');
-                     field = field.parentNode.querySelector('.super-active-files');
+                debugger;
+                // Figure out how deep this node is inside dynamic columns
+                var cloneIndex = $(clone).index();
+                var dynamicParent = nodes[i].closest('.super-duplicate-column-fields');
+                var parentIndex = $(dynamicParent).index();  // e.g: 0, 1, 2
+                var nameSuffix = '';
+                if(cloneIndex>0 && clone===dynamicParent){
+                    nameSuffix = '_'+(cloneIndex+1);
                 }
-                // Keep valid TAB index
-                if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
-                    last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
-                    parent.dataset.superTabIndex = last_tab_index;
-                }
-                added_fields[field.name] = field;
-                field.name = field_names[field_counter]+'_'+(counter+1);
-                // Replace %d with counter if found, otherwise append it
-                // Remove whitespaces from start and end
-                if(typeof field_labels[field_counter] !== 'undefined'){
-                    field_labels[field_counter] = field_labels[field_counter].trim();
-                    if(field_labels[field_counter].indexOf("%d")===-1){
-                        // Not found, just return with counter appended at the end
-                        field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
-                    }else{
-                        // Found, return with counter replaced at correct position
-                        field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
+                //if(parentIndex===0) nameSuffix = '';
+                //var cloneIndex = $(clone).index();
+                //var level = -1;
+                var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
+                var suffix = [];
+                debugger;
+                $(allParents).each(function(key){
+                    debugger;
+                    // Skip first parent, because we don't need it
+                    if(allParents.length===1){
+                        return;
                     }
-                    field.dataset.email = field_labels[field_counter];
+                    if(this===clone && cloneIndex>0){
+                        suffix.push('['+cloneIndex+']');
+                        return;
+                    }
+                    debugger;
+                    var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
+                    if(key===0 && currentParentIndex===0){
+                        return;
+                    }
+                    suffix.push('['+currentParentIndex+']');
+                });
+                debugger;
+                var levels = suffix.reverse().join('');
+                var field = nodes[i];
+                if(field.classList.contains('super-fileupload')){
+                        field.classList.remove('super-rendered');
+                        field = field.parentNode.querySelector('.super-active-files');
                 }
-                added_fields_with_suffix[field_names[field_counter]] = field_names[field_counter]+'_'+(counter+1);
-                added_fields_without_suffix.push(field_names[field_counter]+'_'+(counter+1));
-                if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
-                if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
-                field_counter++;
+                debugger;
+
+                var originalFieldName = nodes[i].dataset.oname;
+                //var newName = originalFieldName; //+nameSuffix;
+                //nodes[i].name = newName;
+                field.name = originalFieldName+levels+nameSuffix; //+'_'+(parentIndex+1);
+                field.value = field.name; 
+                debugger;
+                //while(level > -1){
+                //    if(level===0){
+                //        suffix.push('['+parentIndex+']');
+                //    }else{
+                //        suffix.push('['+level+']');
+                //    }
+                //    level--;
+                //}
             }
+
+
+
+
+
+
+
+
+
+            //debugger;
+            //nodes = clone.querySelectorAll('.super-shortcode-field[name]');
+            //for (i = 0; i < nodes.length; ++i) {
+            //    // Figure out how deep this node is inside dynamic columns
+            //    debugger;
+            //    var originalFieldName = nodes[i].dataset.oname;
+            //    var cloneIndex = $(clone).index();
+            //    var level = -1;
+            //    var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
+            //    $(allParents).each(function(){
+            //        debugger;
+            //        if(this !== clone){
+            //            level++;
+            //        }
+            //    });
+            //    //Object.keys(allParents).forEach(function(index) {
+            //    //    debugger;
+            //    //    if(allParents[index] !== clone){
+            //    //        level++;
+            //    //    }
+            //    //});
+            //    var suffix = [];
+            //    while(level > -1){
+            //        if(level===0){
+            //            suffix.push('['+cloneIndex+']');
+            //        }else{
+            //            suffix.push('['+level+']');
+            //        }
+            //        level--;
+            //    }
+            //    var levels = suffix.reverse().join('');
+            //    //$data['name'] = $data['name'].implode('', array_reverse($suffix)).'['.$grid['dynamicLevel'].']';
+            //    debugger;
+            //    field = nodes[i];
+            //    if(field.classList.contains('super-fileupload')){
+            //         field.classList.remove('super-rendered');
+            //         field = field.parentNode.querySelector('.super-active-files');
+            //    }
+            //    field.name = originalFieldName+levels+'_'+(cloneIndex+1);
+
+            //    // temp disabled parent = el.closest('.super-duplicate-column-fields');
+
+            //    // temp disabled debugger;
+            //    // temp disabled field = nodes[i];
+            //    // temp disabled parent = field.closest('.super-field');
+            //    // temp disabled if(field.classList.contains('super-fileupload')){
+            //    // temp disabled      field.classList.remove('super-rendered');
+            //    // temp disabled      field = field.parentNode.querySelector('.super-active-files');
+            //    // temp disabled }
+            //    // temp disabled debugger;
+            //    // temp disabled // Keep valid TAB index
+            //    // temp disabled if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
+            //    // temp disabled     last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
+            //    // temp disabled     parent.dataset.superTabIndex = last_tab_index;
+            //    // temp disabled }
+            //    // temp disabled debugger;
+            //    // temp disabled added_fields[field.name] = field;
+            //    // temp disabled field.name = field_names[field_counter]+'_'+(counter+1);
+            //    // temp disabled // Replace %d with counter if found, otherwise append it
+            //    // temp disabled // Remove whitespaces from start and end
+            //    // temp disabled debugger;
+            //    // temp disabled if(typeof field_labels[field_counter] !== 'undefined'){
+            //    // temp disabled     field_labels[field_counter] = field_labels[field_counter].trim();
+            //    // temp disabled     if(field_labels[field_counter].indexOf("%d")===-1){
+            //    // temp disabled         // Not found, just return with counter appended at the end
+            //    // temp disabled         field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
+            //    // temp disabled     }else{
+            //    // temp disabled         // Found, return with counter replaced at correct position
+            //    // temp disabled         field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
+            //    // temp disabled     }
+            //    // temp disabled     field.dataset.email = field_labels[field_counter];
+            //    // temp disabled }
+            //    // temp disabled debugger;
+            //    // temp disabled added_fields_with_suffix[field_names[field_counter]] = field_names[field_counter]+'_'+(counter+1);
+            //    // temp disabled added_fields_without_suffix.push(field_names[field_counter]+'_'+(counter+1));
+            //    // temp disabled if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
+            //    // temp disabled if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
+            //    // temp disabled field_counter++;
+            //}
             
             // @since 4.6.0 - update html field tags attribute
             // @since 4.6.0 - update accordion title and description field tags attribute
