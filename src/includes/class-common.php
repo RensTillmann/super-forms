@@ -544,22 +544,42 @@ class SUPER_Common {
 
     /**
      * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
+     * $names array()
+     * $value string
+     * $bwc bool
+     * $asAttribute bool
      */
-    public static function get_data_fields_attribute($field_names=array(), $str, $bwc=false){
-        if($bwc){
+    public static function get_data_fields_attribute($atts){
+        extract($atts);
+        if(!isset($names)) $names = array();
+        if(empty($value)) {
+            return $names;
+        }
+        if(!isset($bwc)) $bwc = false;
+        if(!isset($asAttr)) $asAttr = true;
+        if($bwc===true){
             // If field name doesn't contain any curly braces, then append and prepend them and continue;
             if ( strpos( $str, '{') === false ) {
                 $str = '{'.$str.'}';   
             } 
         }
-        $re = '/{([^"\']*?)}/m';
-        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-        foreach($matches as $mk => $mv){
-            $values = explode(";", $mv[1]);
-            $field_names[$values[0]] = $values[0];
+        $r = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
+        preg_match_all($r, $value, $m, PREG_SET_ORDER, 0);
+        foreach($m as $k => $v){
+            $l = count($v);
+            if(empty($v[$l-1])) continue;
+            $n = $v[$l-1];
+            $names[$n] = $n;
         }
-        return $field_names;
+        if($asAttribute===true){
+            if(!empty($names)) {
+                return ' data-fields="{' . implode('}{', $names) . '}"';
+            }
+        }
+        return $names;
     }
+
+
     public static function _cleanup_transients($transient_key='') { if(!empty($transient_key)) { global $wpdb; $key = self::_get_transient_key(); $name = self::_get_transient_name($transient_key); if(!empty($name)){ $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key); $name = strrev($name); $namel = strlen($name)+1; $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP 's:$namel:\"_$name\";'", $prepare_values); $results = $wpdb->get_results( $sql , ARRAY_A ); foreach( $results as $rk => $rv ) { $meta_value = maybe_unserialize($rv['meta_value']); if( isset( $meta_value['_'.$name]) ) { unset( $meta_value['_'.$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); } } delete_option('_site_transient_sf_' . $transient_key); return 'done'; } } return ''; }
 
     /**

@@ -1162,7 +1162,7 @@ function SUPERreCaptcha(){
             didLoop = false,
             form = SUPER.get_frontend_or_backend_form(args);
         if(typeof args.el !== 'undefined'){
-            logic = form.querySelectorAll('.super-conditional-logic[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+            logic = form.querySelectorAll('.super-conditional-logic[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"]');
         }else{
             logic = form.querySelectorAll('.super-conditional-logic');
         }
@@ -1811,13 +1811,15 @@ function SUPERreCaptcha(){
     };
 
     // @since 5.0.120 Filter foreach() statements
-    SUPER.filter_foreach_statements = function($html, $fileLoopRows, formId, originalFormReference){
+    SUPER.filter_foreach_statements = function($counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
+        if(typeof $counter === 'undefined') $counter = 0;
+        if(typeof $fileLoopRows === 'undefined') $fileLoopRows = [];
         // Check if endforeach; was found otherwise skip it
         if($html.indexOf('endforeach;')===-1) {
             return $html;  
         }
         var $chars = $html.split(''),
-            $depth = 0,
+            //$depth = 0,
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
             $suffix = '', // any content after loop ends
@@ -1916,113 +1918,207 @@ function SUPERreCaptcha(){
                     $prefix += $v; // any content before loop starts
                 }
             }else{
-                //if((($chars[$k]) && $chars[$k]==='f') &&
-                //(($chars[$k+1]) && $chars[$k+1]==='o') &&
-                //(($chars[$k+2]) && $chars[$k+2]==='r') &&
-                //(($chars[$k+3]) && $chars[$k+3]==='e') &&
-                //(($chars[$k+4]) && $chars[$k+4]==='a') &&
-                //(($chars[$k+5]) && $chars[$k+5]==='c') &&
-                //(($chars[$k+6]) && $chars[$k+6]==='h') &&
-                //(($chars[$k+7]) && $chars[$k+7]==='(')){
-                //    $depth++;
-                //    $captureContent = true;
-                //    $skipUpTo = $k+8; // Skip up to key 8
-                //    return;
-                //}
+                //console.log('Depth is greater than 0:', $depth);
             }
         });
 
-        // echo 'Depth: '.($depth).'<br />';
-        // echo 'Prefix: '.($prefix).'<br />';
-        // echo 'Field name: '.($fieldName).'<br />';
-        // echo 'Inner content: '.($innerContent).'<br />';
-        // echo 'Suffix: '.($suffix).'<br />';
-
-        //$i = 1;
-        //$rows = '';
-        //$data = array(
-        //    'data' => array(
-        //        'a' => array(
-        //            'value' => 'a@test.com'
-        //        ),
-        //        'b' => array(
-        //            'value' => 'b@test.com'
-        //        ),
-        //        'b_2' => array(
-        //            'value' => 'b2@test.com'
-        //        )
-        //    )
-        //);
+        //console.log('Depth: ',$depth);
+        //console.log('Prefix: ',$prefix);
+        //console.log('Field name: ',$fieldName);
+        //console.log('Inner content: ',$innerContent);
+        //console.log('Suffix: ',$suffix);
 
         var $original = $innerContent,
+            $row = $innerContent,
             $field_name = $fieldName,
             $splitName = $field_name.split(';'),
             $field_name = $splitName[0],
             $value_n = ($splitName[1] ? $splitName[1] : ''),
             $original_field_name = $field_name,
             $i = 1,
+            $ii = 0,
             $rows = '';
 
-        while( SUPER.field(originalFormReference, $field_name) ) {
-            var $row_regex = /<%(.*?)%>|{(.*?)}/g;     //      /<%(.*?)%>/g;
-            var $row = $original; // $original;
-            //var $row = $return;
-            var $rv;
-            while (($rv = $row_regex.exec($row)) !== null) {
-                if(typeof $rv[1] === 'undefined'){
-                    $rv[1] = $rv[2];
+        var currentField = SUPER.field(originalFormReference, $field_name);
+        while( currentField ) {
+            var dynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index();
+            var totalDynamicParents = $(currentField).parents('.super-duplicate-column-fields').length;
+            var absolutDynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields').last().index();
+            // @temp disabled@ if(dynamicParentIndex===0 && totalDynamicParents===1 && absolutDynamicParentIndex===0) {
+            // @temp disabled@     $rows += $row;
+            // @temp disabled@     $i++;
+            // @temp disabled@     $field_name = $original_field_name+'_'+$i;
+            // @temp disabled@     currentField = SUPER.field(originalFormReference, $field_name);
+            // @temp disabled@     continue;
+            // @temp disabled@ }
+            var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+            var m;
+            $row = $original;
+            var replaceTagsWithValue = {};
+            //replaceTagsWithValue['<%counter%>'] = '';
+            while ((m = regex.exec($row)) !== null) {
+                // This is necessary to avoid infinite loops with zero-width matches
+                if (m.index === regex.lastIndex) {
+                    regex.lastIndex++;
                 }
-                if($value_n==='loop'){
-                    // Loop over all current files
-                    if(SUPER.files[formId]){
-                        if(SUPER.files[formId][$field_name]){
-                            if(!$fileLoopRows[$field_name]) $fileLoopRows[$field_name] = [];
-                            var x, files = SUPER.files[formId][$field_name];
-                            for(x=0; x<files.length; x++){
-                                if(!$fileLoopRows[$field_name][x]) $fileLoopRows[$field_name][x] = $row;
-                                if($rv[1]==='counter'){
-                                    $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], (x+1));
-                                    continue;
-                                }
-                                $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], '{'+$field_name+';'+$rv[1]+'['+(x)+']}'); 
+                var $o = (m[0] ? m[0] : ''); // original name
+                var $start = (m[1] ? m[1] : ''); // starts with e.g: foreach( or <%
+                var $n = (m[2] ? m[2] : ''); // name
+                var $d = (m[3] ? m[3] : ''); // depth
+                var $c = (m[4] ? m[4] : ''); // counter e.g: _2 or _3 etc.
+                var $s = (m[5] ? m[5] : ''); // suffix
+                if($s!=='') $s = ';'+$s;
+                var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
+                var fieldName = $n+$d+$c;
+                if(fieldName==='counter'){
+                    if($i>1) {
+                        replaceTagsWithValue['<%counter%>'] = $i;
+                    }else{
+                        replaceTagsWithValue['<%counter%>'] = '';
+                    }
+                    continue;
+                }
+                if(dynamicParentIndex>=1 && absolutDynamicParentIndex>=0){
+                    if($d==='' && totalDynamicParents>=1){
+                        replaceTagsWithValue[$o] = $start+$n+'_'+(dynamicParentIndex+1)+$s+$end;
+                        continue;
+                    }
+
+                    if($d!==''){
+                        var $dsplit = $d.split('][');
+                        var newD = '';
+                        debugger;
+                        for(var i=0; i<$dsplit.length; i++){
+                            if(!$dsplit[i]) continue;
+                            if(i>0){
+                                debugger;
+                                var dsplitNew = $dsplit[i].replaceAll('[', '');
+                                dsplitNew = dsplitNew.replaceAll(']', '');
+                                newD += '['+dsplitNew+']';
                             }
                         }
+                        debugger;
+                        $d = '['+(absolutDynamicParentIndex)+']'+newD;
                     }
-                }else{
-                    if($rv[1]==='counter'){
-                        $row = $row.replace( $rv[0], $i); 
+                    if($d!=='' && totalDynamicParents===1){
+                        replaceTagsWithValue[$o] = $start+$n+$d+$s+$end;
                         continue;
                     }
-                    if($i<2){
-                        $row = $row.replace( $rv[0], '{'+$rv[1]+'}'); 
+                    if($d!=='' && totalDynamicParents>1){
+                        replaceTagsWithValue[$o] = $start+$n+$d+'_'+(dynamicParentIndex+1)+$s+$end;
                         continue;
                     }
-                    $splitName = $rv[1].split(';');
-                    var $newName = $splitName[0]+'_'+$i;
-                    if($splitName.length>1){
-                        $newName += ';'+$splitName[1];
-                    }
-                    $row = $row.replace( $rv[0], '{'+$newName+'}'); 
                 }
             }
-            if($value_n==='loop'){
-                for(var z=0; z<$fileLoopRows[$field_name].length; z++){
-                    $rows += $fileLoopRows[$field_name][z];
-                }
-            }else{
-                $rows += $row;
+            debugger;
+            var key;
+            for(key in replaceTagsWithValue) {
+                debugger;
+                $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
+            $rows += $row;
+            console.log('rows: ', $rows);
             $i++;
             $field_name = $original_field_name+'_'+$i;
+            currentField = SUPER.field(originalFormReference, $field_name);
+            
+            // @TEMP DISABLED@ //var newN = $original_field_name.replaceAll("[", "\\[");
+            // @TEMP DISABLED@ //    newN = newN.replaceAll("]", "\\]");
+            // @TEMP DISABLED@ //var $row_regex = RegExp("<%("+newN+")%>", "g");
+            // @TEMP DISABLED@ //var $row = $innerContent; // $original;
+            // @TEMP DISABLED@ //var $row = $return;
+            // @TEMP DISABLED@ var $rv;
+            // @TEMP DISABLED@ //var $iii = 0;
+            // @TEMP DISABLED@ var $row_regex = /<%(.*?)%>|{(.*?)}/g;     //      /<%(.*?)%>/g;
+            // @TEMP DISABLED@ var $rv;
+            // @TEMP DISABLED@ while (($rv = $row_regex.exec($row)) !== null) {
+            // @TEMP DISABLED@     //var $row_regex = /<%(.*?)%>|{(.*?)}/g;     //      /<%(.*?)%>/g;
+            // @TEMP DISABLED@     //var $row = $original; // $original;
+            // @TEMP DISABLED@     ////var $row = $return;
+            // @TEMP DISABLED@     //var $rv;
+            // @TEMP DISABLED@     //while (($rv = $row_regex.exec($row)) !== null) {
+            // @TEMP DISABLED@     if(typeof $rv[1] === 'undefined'){
+            // @TEMP DISABLED@         $rv[1] = $rv[2];
+            // @TEMP DISABLED@     }
+            // @TEMP DISABLED@     if($value_n==='loop'){
+            // @TEMP DISABLED@         // Loop over all current files
+            // @TEMP DISABLED@         if(SUPER.files[formId]){
+            // @TEMP DISABLED@             if(SUPER.files[formId][$field_name]){
+            // @TEMP DISABLED@                 if(!$fileLoopRows[$field_name]) $fileLoopRows[$field_name] = [];
+            // @TEMP DISABLED@                 var x, files = SUPER.files[formId][$field_name];
+            // @TEMP DISABLED@                 for(x=0; x<files.length; x++){
+            // @TEMP DISABLED@                     if(!$fileLoopRows[$field_name][x]) $fileLoopRows[$field_name][x] = $row;
+            // @TEMP DISABLED@                     if($rv[1]==='counter'){
+            // @TEMP DISABLED@                         $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], (x+1));
+            // @TEMP DISABLED@                         continue;
+            // @TEMP DISABLED@                     }
+            // @TEMP DISABLED@                     $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], '{'+$field_name+';'+$rv[1]+'['+(x)+']}'); 
+            // @TEMP DISABLED@                 }
+            // @TEMP DISABLED@             }
+            // @TEMP DISABLED@         }
+            // @TEMP DISABLED@     }else{
+            // @TEMP DISABLED@         if($rv[1]==='counter'){
+            // @TEMP DISABLED@             $row = $row.replace( $rv[0], $i); 
+            // @TEMP DISABLED@             continue;
+            // @TEMP DISABLED@         }
+            // @TEMP DISABLED@         if($i<2){
+            // @TEMP DISABLED@             $row = $row.replace( $rv[0], '{'+$rv[1]+'}'); 
+            // @TEMP DISABLED@             continue;
+            // @TEMP DISABLED@         }
+            // @TEMP DISABLED@         $splitName = $rv[1].split(';');
+            // @TEMP DISABLED@         var $newName = $splitName[0]+'_'+$i;
+            // @TEMP DISABLED@         if($splitName.length>1){
+            // @TEMP DISABLED@             $newName += ';'+$splitName[1];
+            // @TEMP DISABLED@         }
+            // @TEMP DISABLED@         $row = $row.replace( $rv[0], '{'+$newName+'}'); 
+            // @TEMP DISABLED@     }
+            // @TEMP DISABLED@ }
+            // @TEMP DISABLED@ if($value_n==='loop'){
+            // @TEMP DISABLED@     for(var z=0; z<$fileLoopRows[$field_name].length; z++){
+            // @TEMP DISABLED@         $rows += $fileLoopRows[$field_name][z];
+            // @TEMP DISABLED@     }
+            // @TEMP DISABLED@ }else{
+            // @TEMP DISABLED@     $rows += $row;
+            // @TEMP DISABLED@ }
         }
 
         $rows = $prefix + $rows + $suffix;
         $innerContent = $innerContent.split($original).join($rows);
-        return SUPER.filter_foreach_statements($innerContent, $fileLoopRows, formId, originalFormReference);
+        $ii++;
+        $counter++;
+        return SUPER.filter_foreach_statements($counter, $depth, $innerContent, $fileLoopRows, formId, originalFormReference);
     };
 
     // @since 4.6.0 Filter if() statements
     SUPER.filter_if_statements = function($html){
+        // If does not contain 'endif;' we can just return the `$html` without doing anything
+        if($html.indexOf('endif;')===-1) {
+            return $html;  
+        }
+        var re = /\s*['|"]?(.*?)['|"]?\s*(==|!=|>=|<=|>|<|\?\?|!\?\?)\s*['|"]?(.*?)['|"]?\s*$/,
+            m,
+            v,
+            show_counter,
+            method,
+            conditions,
+            array = $html.split(''),
+            if_index = 0,
+            skip_up_to = 0,
+            capture_elseifcontent = false,
+            capture_conditions = false,
+            capture_suffix = false,
+            statements = [],
+            prefix = '',
+            first_if_found = false,
+            depth = 0,
+            result = '',
+            i,
+            ci,
+            cv,
+            v1,
+            v2,
+            show,
+            operator;
 
         Object.keys(array).forEach(function(k) {
             k = parseInt(k, 10);
@@ -2197,7 +2293,7 @@ function SUPERreCaptcha(){
     // @since 1.4 - Update variable fields
     SUPER.update_variable_fields = function(args){
         if(typeof args.el !== 'undefined'){
-            args.conditionalLogic = args.form.querySelectorAll('.super-variable-conditions[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+            args.conditionalLogic = args.form.querySelectorAll('.super-variable-conditions[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"]');
         }else{
             args.conditionalLogic = args.form.querySelectorAll('.super-variable-conditions');
         }
@@ -2337,6 +2433,18 @@ function SUPERreCaptcha(){
                     }else{
                         $text_field = true;
                         $parent = $element.closest('.super-field');
+
+                        if($value_n=='index') {
+                            var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
+                            //var totalDynamicParents = $($element).parents('.super-duplicate-column-fields').length;
+                            //var absolutDynamicParentIndex = $($element).parents('.super-duplicate-column-fields').last().index();
+                            if(dynamicParentIndex>0){
+                                args.value = args.value.replace('{'+$old_name+'}', dynamicParentIndex+1);
+                            }else{
+                                args.value = args.value.replace('{'+$old_name+'}', '');
+                            }
+                            continue;
+                        }
 
                         // Check if international phonenumber field
                         if($parent.classList.contains('super-int-phone-field')){
@@ -4092,6 +4200,9 @@ function SUPERreCaptcha(){
     SUPER.get_field_name = function($field){
         if($field.name) return $field.name;
     };
+    SUPER.get_original_field_name = function($field){
+        if($field.dataset.oname) return $field.dataset.oname;
+    };
 
     SUPER.strip_tags = function(input,allowed){
         allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
@@ -4116,7 +4227,7 @@ function SUPERreCaptcha(){
         if(!args.el){
             $maps = args.form.querySelectorAll('.super-google-map:not(.super-map-rendered)');
         }else{
-            var field_name = SUPER.get_field_name(args.el);
+            var field_name = SUPER.get_original_field_name(args.el);
             $maps = args.form.querySelectorAll('.super-google-map[data-fields*="{'+field_name+'}"]');
         }
 
@@ -5073,7 +5184,7 @@ function SUPERreCaptcha(){
             if(typeof args.el === 'undefined') {
                 $html_fields = args.form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
             }else{
-                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_field_name(args.el)+'}"]');
+                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"]');
             }
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
@@ -5093,62 +5204,58 @@ function SUPERreCaptcha(){
             if($html===''){
                 return true;
             }
+            
+            // When generating PDF, we must have a reference to the original form
+            originalFormReference = args.form;
+            if(args.form.classList.contains('super-generating-pdf')){
+                originalFormReference = document.querySelector('#super-form-'+formId+'-placeholder');
+            }
+
+            // @since 5.0.120 - foreach statement compatibility
+            $html = SUPER.filter_foreach_statements(0, 0, $html, undefined, formId, originalFormReference);
+            $html = $html.replaceAll('<%', '{');
+            $html = $html.replaceAll('%>', '}');
+
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
             var $skipUpdate = true;
-            $regex = /{([^\\\/\s"'+]*?)}/g;
-            if($regex.exec($html)){
+            $regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([a-zA-Z0-9]{1,}))?(}|\):)/g;
+            // If it has {tags} then continue
+            var m;
+            var replaceTagsWithValue = {};
+            while ((m = $regex.exec($html)) !== null) {
                 $skipUpdate = false;
+                // This is necessary to avoid infinite loops with zero-width matches
+                if (m.index === $regex.lastIndex) {
+                    $regex.lastIndex++;
+                }
+                var $n = (m[2] ? m[2] : ''); // name
+                var $d = (m[3] ? m[3] : ''); // depth
+                var $s = (m[4] ? m[4] : ''); // suffix
+                if($s!=='') $s = ';'+$s;
+                $values = $n+$d+$s;
+                args.value = '{'+$values+'}'; //values[1];
+                args.target = $target;
+                $new_value = SUPER.update_variable_fields.replace_tags(args);
+                delete args.target;
+                if( ($values.indexOf('allFileNames')!==-1) || ($values.indexOf('allFileUrls')!==-1) || ($values.indexOf('allFileLinks')!==-1) ){
+                    // We do not want to decode HTML
+                }else{
+                    $new_value = SUPER.html_encode($new_value);
+                }
+                replaceTagsWithValue[$values] = $new_value;
             }
-            $regex = /foreach\s?\(\s?['|"|\s|]?(.*?)['|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/g;
-            if($regex.exec($html)){
-                $skipUpdate = false;
-            }
-            if($html.indexOf('endif;')!==-1){
-                $skipUpdate = false;
+            var key;
+            for(key in replaceTagsWithValue) {
+                $html = $html.replaceAll('{'+key+'}', replaceTagsWithValue[key]);
             }
             if($skipUpdate) return true;
-
-            // If it has {tags} then continue
-            if( $html!=='' ) {
-                // When generating PDF, we must have a reference to the original form
-                originalFormReference = args.form;
-                if(args.form.classList.contains('super-generating-pdf')){
-                    originalFormReference = document.querySelector('#super-form-'+formId+'-placeholder');
-                }
-
-                // @since 5.0.120 - foreach statement compatibility
-                $html = SUPER.filter_foreach_statements($html, $fileLoopRows, formId, originalFormReference);
-
-                $array = [];
-                $regex = /{([^\\\/\s"'+]*?)}/g;
-                while (($match = $regex.exec($html)) !== null) {
-                    $array[$counter] = $match[1];
-                    $counter++;
-                }
-                if( $array.length>0 ) {
-                    for ($counter = 0; $counter < $array.length; $counter++) {
-                        $values = $array[$counter];
-                        args.value = '{'+$values+'}'; //values[1];
-                        args.target = $target;
-                        $new_value = SUPER.update_variable_fields.replace_tags(args);
-                        delete args.target;
-                        if( ($values.indexOf('allFileNames')!==-1) || ($values.indexOf('allFileUrls')!==-1) || ($values.indexOf('allFileLinks')!==-1) ){
-                            // We do not want to decode HTML
-                        }else{
-                            $new_value = SUPER.html_encode($new_value);
-                        }
-                        $html = $html.replace('{'+$values+'}', $new_value);
-                    }
-                }
-
-                //// @since 4.6.0 - if statement compatibility
-                //$html = SUPER.filter_if_statements($html);
-                $target.innerHTML = $html;
-            }
+            // @temp disabled@ // @since 4.6.0 - if statement compatibility
+            $html = SUPER.filter_if_statements($html);
+            $target.innerHTML = $html;
         });
     };
 
@@ -5465,7 +5572,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 2.0.0 - clear / reset form fields
-    SUPER.init_clear_form = function(args){ //form, clone){
+    SUPER.init_clear_form = function(args){
         var field, nodes, innerNodes, i, ii,
             children, index, element, dropdownItem, 
             option, switchBtn, activeItem,
@@ -5742,7 +5849,7 @@ function SUPERreCaptcha(){
         }
 
         SUPER.after_field_change_blur_hook({form: main_form});
-
+        
         // After form cleared
         SUPER.after_form_cleared_hook(args.form);
     };
@@ -6209,8 +6316,10 @@ function SUPERreCaptcha(){
         });
 
         // Loop over all fields that are inside dynamic column and rename them accordingly
+        debugger;
         var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
         for (i = 0; i < nodes.length; ++i) {
+            debugger;
             // Figure out how deep this node is inside dynamic columns
             var parent = nodes[i].closest('.super-duplicate-column-fields');
             var parentIndex = $(parent).index();  // e.g: 0, 1, 2
@@ -6224,7 +6333,6 @@ function SUPERreCaptcha(){
             var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
             var suffix = [];
             $(allParents).each(function(key){
-                debugger;
                 // Skip last parent, because we don't need it
                 if(allParents.length===(key+1)){
                     return;
@@ -6238,8 +6346,11 @@ function SUPERreCaptcha(){
                     field.classList.remove('super-rendered');
                     field = field.parentNode.querySelector('.super-active-files');
             }
+            debugger;
             field.name = originalFieldName+levels; //+'_'+(parentIndex+1);
             field.value = field.name; 
+            field.dataset.olevels = levels;
+            debugger;
             //while(level > -1){
             //    if(level===0){
             //        suffix.push('['+parentIndex+']');
