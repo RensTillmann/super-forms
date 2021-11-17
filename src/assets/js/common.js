@@ -1943,7 +1943,9 @@ function SUPERreCaptcha(){
         while( currentField ) {
             var dynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index();
             var totalDynamicParents = $(currentField).parents('.super-duplicate-column-fields').length;
+            var dynamicParentIndexUp = $(currentField).parents('.super-duplicate-column-fields:eq(1)');
             var absolutDynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields').last().index();
+            var absolutDynamicParent = $(currentField).parents('.super-duplicate-column-fields').last();
             // @temp disabled@ if(dynamicParentIndex===0 && totalDynamicParents===1 && absolutDynamicParentIndex===0) {
             // @temp disabled@     $rows += $row;
             // @temp disabled@     $i++;
@@ -1980,6 +1982,7 @@ function SUPERreCaptcha(){
                 }
                 if(dynamicParentIndex>=1 && absolutDynamicParentIndex>=0){
                     if($d==='' && totalDynamicParents>=1){
+                        debugger;
                         replaceTagsWithValue[$o] = $start+$n+'_'+(dynamicParentIndex+1)+$s+$end;
                         continue;
                     }
@@ -1987,33 +1990,54 @@ function SUPERreCaptcha(){
                     if($d!==''){
                         var $dsplit = $d.split('][');
                         var newD = '';
-                        debugger;
                         for(var i=0; i<$dsplit.length; i++){
                             if(!$dsplit[i]) continue;
                             if(i>0){
-                                debugger;
                                 var dsplitNew = $dsplit[i].replaceAll('[', '');
                                 dsplitNew = dsplitNew.replaceAll(']', '');
                                 newD += '['+dsplitNew+']';
                             }
                         }
-                        debugger;
                         $d = '['+(absolutDynamicParentIndex)+']'+newD;
                     }
                     if($d!=='' && totalDynamicParents===1){
+                        debugger;
                         replaceTagsWithValue[$o] = $start+$n+$d+$s+$end;
                         continue;
                     }
                     if($d!=='' && totalDynamicParents>1){
-                        replaceTagsWithValue[$o] = $start+$n+$d+'_'+(dynamicParentIndex+1)+$s+$end;
+                        debugger;
+                        // Check if field exists
+                        var refField = SUPER.field(originalFormReference, $n+$d+'_'+(dynamicParentIndex+1));
+                        if(refField){
+                            debugger;
+                            var rdynamicParentIndex = $(refField).parents('.super-duplicate-column-fields:eq(0)').index();
+                            var rTotalDynamicParents = $(refField).parents('.super-duplicate-column-fields').length;
+                            var rDynamicParentIndexUp = $(refField).parents('.super-duplicate-column-fields:eq(1)');
+                            var rAbsolutDynamicParent = $(refField).parents('.super-duplicate-column-fields').last();
+                            if( dynamicParentIndex!==rdynamicParentIndex ||
+                                absolutDynamicParent[0]!==rAbsolutDynamicParent[0] ||
+                                dynamicParentIndexUp[0]!==rDynamicParentIndexUp[0] ) {
+                                debugger;
+                                replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                                continue;
+                            }
+                            if($start==='foreach('){
+                                replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                                continue;
+                            }
+                            replaceTagsWithValue[$o] = $start+$n+$d+'_'+(dynamicParentIndex+1)+$s+$end;
+                            continue;
+                        }else{
+                            replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                            continue;
+                        }
                         continue;
                     }
                 }
             }
-            debugger;
             var key;
             for(key in replaceTagsWithValue) {
-                debugger;
                 $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
             $rows += $row;
@@ -6316,10 +6340,8 @@ function SUPERreCaptcha(){
         });
 
         // Loop over all fields that are inside dynamic column and rename them accordingly
-        debugger;
         var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
         for (i = 0; i < nodes.length; ++i) {
-            debugger;
             // Figure out how deep this node is inside dynamic columns
             var parent = nodes[i].closest('.super-duplicate-column-fields');
             var parentIndex = $(parent).index();  // e.g: 0, 1, 2
@@ -6346,11 +6368,9 @@ function SUPERreCaptcha(){
                     field.classList.remove('super-rendered');
                     field = field.parentNode.querySelector('.super-active-files');
             }
-            debugger;
             field.name = originalFieldName+levels; //+'_'+(parentIndex+1);
             field.value = field.name; 
             field.dataset.olevels = levels;
-            debugger;
             //while(level > -1){
             //    if(level===0){
             //        suffix.push('['+parentIndex+']');
