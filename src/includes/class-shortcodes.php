@@ -1767,22 +1767,19 @@ class SUPER_Shortcodes {
 
         // @since 4.9.0 - Validate field only if condition is met
         if( (!empty($atts['may_be_empty'])) && ($atts['may_be_empty']=='conditions') ) {
-            $field_names = array();
+            $names = array();
             if(is_array($atts['may_be_empty_conditions'])){
                 foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
                     if( !empty($v['field']) ) {
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                     }
                     if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
                 }
-
-                $dataFields = '';
-                if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-                $result .= '<textarea class="super-validate-conditions"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
+                $result .= '<textarea class="super-validate-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
             }
         }
 
@@ -1795,22 +1792,21 @@ class SUPER_Shortcodes {
             }
             // @since 2.3.0 - speed improvement for conditional logics
             // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
-            $field_names = array();
-            foreach( $atts['conditional_items'] as $k => $v ) {
-                // @since 3.5.0 - also check if variable field contains tags and if so, update the correct values
-                if( !empty($v['field']) ) {
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
-                }
-                if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
-                    $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
+            $names = array();
+            if(is_array($atts['conditional_items'])){
+                foreach( $atts['conditional_items'] as $k => $v ) {
+                    if( !empty($v['field']) ) {
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
+                    }
+                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
+                    }
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            $dataFields = '';
-            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-            $result .= '<textarea class="super-conditional-logic"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
+            $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
         }
 
         // Display errors that need to be positioned below the field
@@ -1878,24 +1874,24 @@ class SUPER_Shortcodes {
                 }
                 // @since 2.3.0 - speed improvement for variable field
                 // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
-                $field_names = array();
-                foreach( $atts['conditional_items'] as $k => $v ) {
-                    if( !empty($v['field']) ) {
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field'], true);
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value']);
-                    }
-                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['field_and'], true);
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['value_and']);
-                    }
-                    if( !empty($v['new_value']) ) {
-                        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $v['new_value']);
+                $names = array();
+                if(is_array($atts['conditional_items'])){
+                    foreach( $atts['conditional_items'] as $k => $v ) {
+                        if( !empty($v['field']) ) {
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
+                        }
+                        if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
+                        }
+                        if( !empty($v['new_value']) ) {
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['new_value']));
+                        }
                     }
                 }
                 // @since 1.7 - use json instead of HTML for speed improvements
-                $dataFields = '';
-                if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-                return '<textarea class="super-variable-conditions"' . ($dataFields ? $dataFields : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
+                return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
             }
         }
     }
@@ -2144,15 +2140,10 @@ class SUPER_Shortcodes {
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                                 $result .= '<div class="super-accordion-image"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
-                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['title'], false);
-                            $dataFields = '';
-                            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-                            $result .= '<div class="super-accordion-title"' . ($dataFields ? $dataFields : '') . ' data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
-                            
-                            $field_names = SUPER_Common::get_data_fields_attribute(array(), $v['desc'], false);
-                            $dataFields = '';
-                            if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-                            $result .= '<div class="super-accordion-desc"' . ($dataFields ? $dataFields : '') . ' data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
+                            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['title']));
+                            $result .= '<div class="super-accordion-title"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
+                            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['desc']));
+                            $result .= '<div class="super-accordion-desc"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
@@ -4515,52 +4506,18 @@ class SUPER_Shortcodes {
         }
         if(!isset($atts['html'])) $atts['html'] = '';
         if( $atts['html']!='' ) { 
-            
-            // @since 2.3.0 - speed improvements for replacing {tags} in HTML fields
-            preg_match_all('/{\K[^}]*(?=})/m', $atts['html'], $matches);
-            
-            // @since 3.8.0 - strip the advanced tags and only return the field name
+            $re = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
+            $str = $atts['html'];
+            preg_match_all($re, $atts['html'], $matches, PREG_SET_ORDER, 0);
             $data_fields = array();
-            foreach($matches[0] as $k => $v){
-                $v = explode(";", $v);
-                $data_fields[$v[0]] = $v[0];
-            }
-
-            // @since 4.6.0 - also check for foreach loops, and also add those field tags as attribute
-            $match = preg_match_all('/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
-                $original = $v[0];
-                $data_fields[$v[1]] = $v[1];
-                if( isset( $v[2] ) ) {
-                    preg_match_all('/<%\K[^%>]*(?=%>)/m', $v[2], $matches, PREG_SET_ORDER, 0);
-                    foreach($matches as $k => $v){
-                        $v = explode(";", $v[0]);
-                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
-                    }
-                }
-            }
-
-            // @since 4.6.0 - also check for if statements and also add those field tags as attribute
-            $match = preg_match_all('/if\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(==|!=|>=|<=|>|<|\?\?|!\?\?)\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/', $atts['html'], $matches, PREG_SET_ORDER, 0);
-            foreach($matches as $k => $v){
-                if( isset( $v[1] ) ) {
-                    preg_match_all('/{\K[^}]*(?=})/m', $v[1], $matches, PREG_SET_ORDER, 0);
-                    foreach($matches as $k => $v){
-                        $v = explode(";", $v[0]);
-                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
-                    }
-                }
-                if( isset( $v[3] ) ) {
-                    preg_match_all('/{\K[^}]*(?=})/m', $v[3], $matches, PREG_SET_ORDER, 0);
-                    foreach($matches as $k => $v){
-                        $v = explode(";", $v[0]);
-                        if($v[0]!=='counter') $data_fields[$v[0]] = $v[0];
-                    }
-                }
+                $length = count($v);
+                if(empty($v[$length-1])) continue;
+                $fieldName = $v[$length-1];
+                $data_fields[$fieldName] = $fieldName;
             }
             $field_names = implode('}{', $data_fields);
             $html = $atts['html'];
-
             if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_listings_edit_entry' || $_POST['action']=='super_language_switcher') ) ) {
                 $html_code = '';
                 if( !empty($atts['nl2br']) ) $html = nl2br($html);
@@ -4676,33 +4633,33 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
 
         // Add field attributes if {tags} are being used
-        $field_names = array();
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['address']);
+        $value = $atts['address'];
         // Directions API (route)
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['origin']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['destination']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['directionsPanel']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['travelMode']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['unitSystem']);
+        $value .= $atts['origin'];
+        $value .= $atts['destination'];
+        $value .= $atts['directionsPanel'];
+        $value .= $atts['travelMode'];
+        $value .= $atts['unitSystem'];
         // Waypoints
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['waypoints']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['optimizeWaypoints']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['provideRouteAlternatives']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidFerries']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidHighways']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['avoidTolls']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['region']);
-        // we will implement this in a later version   // drivingOptions (only when travelMode is DRIVING)
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['departureTime']);
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['trafficModel']);
-        // we will implement this in a later version   // transitOptions (only when travelMode is TRANSIT)
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['arrivalTime']);
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitDepartureTime']);
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['transitModes']);
-        // we will implement this in a later version   $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['routingPreference']);
+        $value .= $atts['waypoints'];
+        $value .= $atts['optimizeWaypoints'];
+        $value .= $atts['provideRouteAlternatives'];
+        $value .= $atts['avoidFerries'];
+        $value .= $atts['avoidHighways'];
+        $value .= $atts['avoidTolls'];
+        $value .= $atts['region'];
         // UI settings
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['zoom']);
-        $field_names = SUPER_Common::get_data_fields_attribute($field_names, $atts['disableDefaultUI']);
+        $value .= $atts['zoom'];
+        $value .= $atts['disableDefaultUI'];
+        // we will implement this in a later version   // drivingOptions (only when travelMode is DRIVING)
+        // we will implement this in a later version   $atts['departureTime']);
+        // we will implement this in a later version   $atts['trafficModel']);
+        // we will implement this in a later version   // transitOptions (only when travelMode is TRANSIT)
+        // we will implement this in a later version   $atts['arrivalTime']);
+        // we will implement this in a later version   $atts['transitDepartureTime']);
+        // we will implement this in a later version   $atts['transitModes']);
+        // we will implement this in a later version   $atts['routingPreference']);
+        $names = SUPER_Common::get_data_fields_attribute(array('value'=>$value));
 
         // Polylines
         if( !empty($atts['enable_polyline']) ) {
@@ -4714,28 +4671,15 @@ class SUPER_Shortcodes {
                 }else{
                     $lat = $coordinates[0];
                     $lng = $coordinates[1];
-                    if( preg_match("/{(.*?)}/", $lat) ) {
-                        $origin_name = str_replace("{", "",$lat);
-                        $origin_name = str_replace("}", "", $origin_name);
-                        $field_names[$origin_name] = $origin_name;
-                    }
-                    if( preg_match("/{(.*?)}/", $lng) ) {
-                        $origin_name = str_replace("{", "",$lng);
-                        $origin_name = str_replace("}", "", $origin_name);
-                        $field_names[$origin_name] = $origin_name;
-                    }
+                    $names = SUPER_Common::get_data_fields_attribute(array('value'=>$lat.$lng));
                 }
             }
         }
-
-        $map_id = 'super-google-map-' . self::$current_form_id;
-
-        $dataFields = '';
-        if(!empty($field_names)) $dataFields = ' data-fields="{' . implode('}{', $field_names) . '}"';
-        $result = '<div class="super-google-map"' . ($dataFields ? $dataFields : '') . '>';
+        $result = '<div class="super-google-map"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>';
         if( (is_admin()) && (!empty($error)) ) {
             $result .= '<p><strong style="color:red;">' . $error . '</strong></p>';
         }
+        $map_id = 'super-google-map-' . self::$current_form_id;
         $result .= '<div class="' . $map_id . '" id="' . $map_id . '" style="' . $map_styles . '">';
         if( empty($atts['api_key']) ) {
             $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your "Google API key" and make sure you enabled the "Google Maps JavaScript API" library in order to generate a map', 'super-forms' ) . '</strong>';
