@@ -1,3 +1,6 @@
+Nov 18, 2021 - Version 1.2.1
+- Added: Option to translate email Title, Subtitle and Copyright when using the build in translation feature in Super Forms
+
 Oct 15, 2021 - Version 1.2.0
 - Compatibility with Super Forms v5.0.0
 
