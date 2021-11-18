@@ -1354,29 +1354,31 @@
                         e.preventDefault();
                         return false;
                     }
+                    if( field.classList.contains('super-textarea') ) {
+                        // Allow to add line breaks on textarea elements
+                        return true;
+                    }
                     form = field.closest('.super-form');
                     // @since 3.3.0 - Do not submit form if Enter is disabled
                     if(form && form.dataset.disableEnter=='true'){
                         e.preventDefault();
                         return false;
                     }
-                    if( !field.classList.contains('super-textarea') ) {
-                        if(!form.querySelector('.super-form-button.super-loading')){
-                            submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
-                            if(submitButton) {
-                                var args = {
-                                    el: undefined,
-                                    form: form,
-                                    submitButton: submitButton.parentNode,
-                                    validateMultipart: undefined,
-                                    event: e,
-                                    doingSubmit: true
-                                };
-                                SUPER.validate_form(args);
-                            }
+                    if(!form.querySelector('.super-form-button.super-loading')){
+                        submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        if(submitButton) {
+                            var args = {
+                                el: undefined,
+                                form: form,
+                                submitButton: submitButton.parentNode,
+                                validateMultipart: undefined,
+                                event: e,
+                                doingSubmit: true
+                            };
+                            SUPER.validate_form(args);
                         }
-                        e.preventDefault();
                     }
+                    e.preventDefault();
                 }
             }
             // 37 = left arrow
@@ -2721,6 +2723,7 @@
                             $form.removeClass('super-rtl');
                         }
                         $form.find('form').html(data.html);
+                        $form.data('i18n', $i18n);
                     },
                     complete: function(){
                         $form.removeClass('super-initialized');
