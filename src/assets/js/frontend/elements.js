@@ -1354,6 +1354,11 @@
                         e.preventDefault();
                         return false;
                     }
+                    if( field.classList.contains('super-textarea') ) {
+                        // Allow to add line breaks on textarea elements
+                        e.preventDefault();
+                        return false;
+                    }
                     form = field.closest('.super-form');
                     // @since 3.3.0 - Do not submit form if Enter is disabled
                     if(form && form.dataset.disableEnter=='true'){
