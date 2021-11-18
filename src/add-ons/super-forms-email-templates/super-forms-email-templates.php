@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - E-mail Templates
  * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra email template to choose from
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.2.0';
+        public $version = '1.2.1';
 
         
         /**
@@ -247,6 +247,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
+                    'i18n'=>true
             	),
             	'email_template_1_confirm_title' => array(
 	                'name' => esc_html__( 'E-mail title (confirm)', 'super-forms' ),
@@ -256,6 +257,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
+                    'i18n'=>true
 	            ),
 	            'email_template_1_subtitle' => array(
 	                'name' => esc_html__( 'E-mail subtitle', 'super-forms' ),
@@ -265,6 +267,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
+                    'i18n'=>true
 	            ),
 	            'email_template_1_confirm_subtitle' => array(
 	                'name' => esc_html__( 'E-mail subtitle (confirm)', 'super-forms' ),
@@ -274,6 +277,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1', 
                     'allow_empty' => true,
+                    'i18n'=>true
 	            ),
 	            'email_template_1_copyright' => array(
 	                'name' => esc_html__( 'E-mail copyright', 'super-forms' ),
@@ -285,6 +289,7 @@ if( !class_exists( 'SUPER_Email_Templates' ) ) :
 	                'parent' => 'email_template',
 	                'filter_value' => 'email_template_1',
                     'allow_empty' => true,
+                    'i18n'=>true
 	            ),
 	            'email_template_1_socials' => array(
 	                'name' => esc_html__( 'E-mail social icons', 'super-forms' ),

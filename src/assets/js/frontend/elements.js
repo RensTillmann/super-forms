@@ -2667,6 +2667,7 @@
                             $form.removeClass('super-rtl');
                         }
                         $form.find('form').html(data.html);
+                        $form.data('i18n', $i18n);
                     },
                     complete: function(){
                         $form.removeClass('super-initialized');
