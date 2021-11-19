@@ -1941,6 +1941,10 @@ function SUPERreCaptcha(){
 
         var currentField = SUPER.field(originalFormReference, $field_name);
         while( currentField ) {
+            if($field_name==='d[0][1][0]_2'){
+                debugger;
+            }
+            var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
             var dynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index();
             var totalDynamicParents = $(currentField).parents('.super-duplicate-column-fields').length;
             var dynamicParentIndexUp = $(currentField).parents('.super-duplicate-column-fields:eq(1)');
@@ -1967,11 +1971,49 @@ function SUPERreCaptcha(){
                 var $start = (m[1] ? m[1] : ''); // starts with e.g: foreach( or <%
                 var $n = (m[2] ? m[2] : ''); // name
                 var $d = (m[3] ? m[3] : ''); // depth
+                var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
                 var $c = (m[4] ? m[4] : ''); // counter e.g: _2 or _3 etc.
                 var $s = (m[5] ? m[5] : ''); // suffix
                 if($s!=='') $s = ';'+$s;
                 var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
                 var fieldName = $n+$d+$c;
+                //if(fieldName==='d[0][0][0]'){
+                //    debugger;
+                //}
+                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+                if(findChildField.length===0) continue;
+                //if(findChildField[0]===currentField){
+                //    // Skip it
+                //    continue;
+                //}
+                // data-oname="c" data-olevels="[0][0]"
+                var allParents = $(findChildField).parents('.super-duplicate-column-fields');
+                var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
+                var suffix = [];
+                $(allParents).each(function(key){
+                    var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
+                    if(key===0 && currentParentIndex===0){
+                        return;
+                    }
+                    suffix.push('['+currentParentIndex+']');
+                });
+                if(childParentIndex!==0){
+                    delete suffix[0];
+                }
+                var levels = suffix.reverse().join('');
+                if(childParentIndex!==0){
+                    replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
+                    continue;
+                }
+                replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
+
+                //var cdynamicParentIndex = $(currentFieldParent).parents('.super-duplicate-column-fields:eq(0)').index();
+                //var cTotalDynamicParents = $(currentFieldParent).parents('.super-duplicate-column-fields').length;
+                //var cDynamicParentIndexUp = $(currentFieldParent).parents('.super-duplicate-column-fields:eq(1)');
+                //var cAbsolutDynamicParent = $(currentFieldParent).parents('.super-duplicate-column-fields').last();
+                continue;
+
+
                 if(fieldName==='counter'){
                     if($i>1) {
                         replaceTagsWithValue['<%counter%>'] = $i;
@@ -1982,7 +2024,6 @@ function SUPERreCaptcha(){
                 }
                 if(dynamicParentIndex>=1 && absolutDynamicParentIndex>=0){
                     if($d==='' && totalDynamicParents>=1){
-                        debugger;
                         replaceTagsWithValue[$o] = $start+$n+'_'+(dynamicParentIndex+1)+$s+$end;
                         continue;
                     }
@@ -2001,16 +2042,13 @@ function SUPERreCaptcha(){
                         $d = '['+(absolutDynamicParentIndex)+']'+newD;
                     }
                     if($d!=='' && totalDynamicParents===1){
-                        debugger;
                         replaceTagsWithValue[$o] = $start+$n+$d+$s+$end;
                         continue;
                     }
                     if($d!=='' && totalDynamicParents>1){
-                        debugger;
                         // Check if field exists
                         var refField = SUPER.field(originalFormReference, $n+$d+'_'+(dynamicParentIndex+1));
                         if(refField){
-                            debugger;
                             var rdynamicParentIndex = $(refField).parents('.super-duplicate-column-fields:eq(0)').index();
                             var rTotalDynamicParents = $(refField).parents('.super-duplicate-column-fields').length;
                             var rDynamicParentIndexUp = $(refField).parents('.super-duplicate-column-fields:eq(1)');
@@ -2018,18 +2056,21 @@ function SUPERreCaptcha(){
                             if( dynamicParentIndex!==rdynamicParentIndex ||
                                 absolutDynamicParent[0]!==rAbsolutDynamicParent[0] ||
                                 dynamicParentIndexUp[0]!==rDynamicParentIndexUp[0] ) {
-                                debugger;
                                 replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                                debugger;
                                 continue;
                             }
                             if($start==='foreach('){
                                 replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                                debugger;
                                 continue;
                             }
                             replaceTagsWithValue[$o] = $start+$n+$d+'_'+(dynamicParentIndex+1)+$s+$end;
+                            debugger;
                             continue;
                         }else{
                             replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
+                            debugger;
                             continue;
                         }
                         continue;
@@ -2044,6 +2085,12 @@ function SUPERreCaptcha(){
             console.log('rows: ', $rows);
             $i++;
             $field_name = $original_field_name+'_'+$i;
+
+
+            if($field_name==='d[0][1][0]_2'){
+                debugger;
+            }
+
             currentField = SUPER.field(originalFormReference, $field_name);
             
             // @TEMP DISABLED@ //var newN = $original_field_name.replaceAll("[", "\\[");
