@@ -1155,42 +1155,146 @@
     SUPER.getAllUrlParams = function(url) {
         var queryString = url ? url.split('?')[1] : window.location.search.slice(1);
         var obj = {};
-
         if (queryString) {
-        queryString = queryString.split('#')[0];
-        var arr = queryString.split('&');
-
-        for (var i = 0; i < arr.length; i++) {
-            var a = arr[i].split('=');
-            var paramName = a[0];
-            var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
-
-            paramName = paramName.toLowerCase();
-            if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
-
-            if (paramName.match(/\[(\d+)?\]$/)) {
-            var key = paramName.replace(/\[(\d+)?\]/, '');
-            if (!obj[key]) obj[key] = [];
-
-            if (paramName.match(/\[\d+\]$/)) {
-                var index = /\[(\d+)\]/.exec(paramName)[1];
-                obj[key][index] = paramValue;
-            } else {
-                obj[key].push(paramValue);
+            queryString = queryString.split('#')[0];
+            var arr = queryString.split('&');
+            for (var i = 0; i < arr.length; i++) {
+                var a = arr[i].split('=');
+                var paramName = a[0];
+                var paramValue = typeof (a[1]) === 'undefined' ? true : a[1];
+                paramName = paramName.toLowerCase();
+                if (typeof paramValue === 'string') paramValue = paramValue.toLowerCase();
+                if (paramName.match(/\[(\d+)?\]$/)) {
+                    var key = paramName.replace(/\[(\d+)?\]/, '');
+                    if (!obj[key]) obj[key] = [];
+                    if (paramName.match(/\[\d+\]$/)) {
+                        var index = /\[(\d+)\]/.exec(paramName)[1];
+                        obj[key][index] = paramValue;
+                    } else {
+                        obj[key].push(paramValue);
+                    }
+                } else {
+                    if (!obj[paramName]) {
+                        obj[paramName] = paramValue;
+                    } else if (obj[paramName] && typeof obj[paramName] === 'string'){
+                        obj[paramName] = [obj[paramName]];
+                        obj[paramName].push(paramValue);
+                    } else {
+                        obj[paramName].push(paramValue);
+                    }
+                }
             }
-            } else {
-            if (!obj[paramName]) {
-                obj[paramName] = paramValue;
-            } else if (obj[paramName] && typeof obj[paramName] === 'string'){
-                obj[paramName] = [obj[paramName]];
-                obj[paramName].push(paramValue);
-            } else {
-                obj[paramName].push(paramValue);
-            }
-            }
-        }
         }
         return obj;
+    };
+    // Get index of element based on parent node
+    SUPER.index = function (node, class_name) {
+        var index = 0;
+        while (node.previousElementSibling) {
+            node = node.previousElementSibling;
+            // Based on specified class name
+            if (class_name) {
+                if (node.classList.contains(class_name)) {
+                    index++;
+                }
+            } else {
+                index++;
+            }
+
+        }
+        return index;
+    };
+    SUPER.get_dynamic_column_depth = function(field, nameSuffix, clone, cloneIndex){
+        if(typeof nameSuffix === 'undefined') nameSuffix = '';
+        if(typeof cloneIndex === 'undefined') cloneIndex = 0;
+        var allParents = $(field).parents('.super-duplicate-column-fields');
+        var suffix = [];
+        $(allParents).each(function(key){
+            if(key+1 >= allParents.length){
+                return
+            }
+            var currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
+            suffix.push('['+currentParentIndex+']');
+            //// Skip first parent, because we don't need it
+            //if(allParents.length===1){
+            //    return;
+            //}
+            //// If has multiple parents skip last one, we don't need it
+            //if(allParents.length>1 && allParents.length===(key+1)){
+            //    return;
+            //}
+            //if(this===clone && cloneIndex>0){
+            //    if(nameSuffix!==''){
+            //        return
+            //    }
+            //    suffix.push('['+cloneIndex+']');
+            //    return;
+            //}
+            //var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
+            //// Get index of element based on parent node
+            //currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
+            //if(key===0 && currentParentIndex===0){
+            //    return;
+            //}
+        });
+        return suffix.reverse().join('');
+    }
+    SUPER.append_dynamic_column_depth = function(clone){
+        var added_fields = {},
+            added_fields_with_suffix = {},
+            added_fields_without_suffix = [],
+            i, field, parent, last_tab_index,
+            nodes = clone.querySelectorAll('.super-shortcode-field[name]');
+
+        for (i = 0; i < nodes.length; ++i) {
+            field = nodes[i];
+            parent = field.closest('.super-field');
+            if(field.classList.contains('super-fileupload')){
+                field.classList.remove('super-rendered');
+                field = field.parentNode.querySelector('.super-active-files');
+            }
+            // Keep valid TAB index
+            if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
+                last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
+                parent.dataset.superTabIndex = last_tab_index;
+            }
+            added_fields[field.name] = field;
+
+            // Figure out how deep this node is inside dynamic columns
+            var cloneIndex = $(clone).index();
+            var dynamicParent = nodes[i].closest('.super-duplicate-column-fields');
+            var nameSuffix = '';
+            if(cloneIndex>0 && clone===dynamicParent){
+                nameSuffix = '_'+(cloneIndex+1);
+            }
+            var levels = SUPER.get_dynamic_column_depth(field, nameSuffix, clone, cloneIndex);
+            var originalFieldName = nodes[i].dataset.oname;
+            field.name = originalFieldName+levels+nameSuffix;
+            field.value = field.name; 
+            field.dataset.levels = levels;
+            added_fields_with_suffix[originalFieldName] = field.name; 
+            added_fields_without_suffix.push(field.name);
+            // @temp disabled@ // Replace %d with counter if found, otherwise append it
+            // @temp disabled@ // Remove whitespaces from start and end
+            // @temp disabled@ if(typeof field_labels[field_counter] !== 'undefined'){
+            // @temp disabled@     field_labels[field_counter] = field_labels[field_counter].trim();
+            // @temp disabled@     if(field_labels[field_counter].indexOf("%d")===-1){
+            // @temp disabled@         // Not found, just return with counter appended at the end
+            // @temp disabled@         field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
+            // @temp disabled@     }else{
+            // @temp disabled@         // Found, return with counter replaced at correct position
+            // @temp disabled@         field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
+            // @temp disabled@     }
+            // @temp disabled@     field.dataset.email = field_labels[field_counter];
+            // @temp disabled@ }
+            if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
+            if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
+        }
+        return {
+            added_fields: added_fields,
+            added_fields_with_suffix: added_fields_with_suffix,
+            added_fields_without_suffix: added_fields_without_suffix
+        }
     };
 
     jQuery(document).ready(function ($) {
@@ -1968,84 +2072,12 @@
             last_tab_index = parseFloat(last_tab_index);
             
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
-            added_fields = {};
-            added_fields_with_suffix = {};
-            added_fields_without_suffix = [];
-
             // Loop over all fields that are inside dynamic column and rename them accordingly
-            //var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
-            nodes = clone.querySelectorAll('.super-shortcode-field[name]');
-            for (i = 0; i < nodes.length; ++i) {
-                field = nodes[i];
-                parent = field.closest('.super-field');
-                if(field.classList.contains('super-fileupload')){
-                     field.classList.remove('super-rendered');
-                     field = field.parentNode.querySelector('.super-active-files');
-                }
-                // Keep valid TAB index
-                if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
-                    last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
-                    parent.dataset.superTabIndex = last_tab_index;
-                }
-                added_fields[field.name] = field;
-
-                // Figure out how deep this node is inside dynamic columns
-                var cloneIndex = $(clone).index();
-                var dynamicParent = nodes[i].closest('.super-duplicate-column-fields');
-                var parentIndex = $(dynamicParent).index();  // e.g: 0, 1, 2
-                var nameSuffix = '';
-                if(cloneIndex>0 && clone===dynamicParent){
-                    nameSuffix = '_'+(cloneIndex+1);
-                }
-                //if(parentIndex===0) nameSuffix = '';
-                //var cloneIndex = $(clone).index();
-                //var level = -1;
-                var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
-                var suffix = [];
-                $(allParents).each(function(key){
-                    // Skip first parent, because we don't need it
-                    if(allParents.length===1){
-                        return;
-                    }
-                    if(this===clone && cloneIndex>0){
-                        if(nameSuffix!==''){
-                            return
-                        }
-                        suffix.push('['+cloneIndex+']');
-                        return;
-                    }
-                    var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-                    if(key===0 && currentParentIndex===0){
-                        return;
-                    }
-                    suffix.push('['+currentParentIndex+']');
-                });
-                var levels = suffix.reverse().join('');
-                var originalFieldName = nodes[i].dataset.oname;
-                //var newName = originalFieldName; //+nameSuffix;
-                //nodes[i].name = newName;
-                field.name = originalFieldName+levels+nameSuffix; //+'_'+(parentIndex+1);
-                field.value = field.name; 
-                field.dataset.levels = levels;
-                added_fields_with_suffix[originalFieldName] = field.name; 
-                added_fields_without_suffix.push(field.name);
-                // @temp disabled@ // Replace %d with counter if found, otherwise append it
-                // @temp disabled@ // Remove whitespaces from start and end
-                // @temp disabled@ if(typeof field_labels[field_counter] !== 'undefined'){
-                // @temp disabled@     field_labels[field_counter] = field_labels[field_counter].trim();
-                // @temp disabled@     if(field_labels[field_counter].indexOf("%d")===-1){
-                // @temp disabled@         // Not found, just return with counter appended at the end
-                // @temp disabled@         field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
-                // @temp disabled@     }else{
-                // @temp disabled@         // Found, return with counter replaced at correct position
-                // @temp disabled@         field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
-                // @temp disabled@     }
-                // @temp disabled@     field.dataset.email = field_labels[field_counter];
-                // @temp disabled@ }
-                if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
-                if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
-            }
-            
+            var $info = SUPER.append_dynamic_column_depth(clone);
+            //var added_fields = $info.added_fields;
+            added_fields_with_suffix = $info.added_fields_with_suffix;
+            //var added_fields_without_suffix = $info.added_fields_without_suffix;
+ 
             // @since 4.6.0 - update html field tags attribute
             // @since 4.6.0 - update accordion title and description field tags attribute
             // @since 4.9.6 - update google maps field tags attribute

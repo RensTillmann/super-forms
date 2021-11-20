@@ -721,7 +721,6 @@ function SUPERreCaptcha(){
         return false;
     };
 
-
     // Get/Set session data based on pointer
     SUPER.get_session_pointer = function(key){
         function getUrlVars() {
@@ -1819,7 +1818,6 @@ function SUPERreCaptcha(){
             return $html;  
         }
         var $chars = $html.split(''),
-            //$depth = 0,
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
             $suffix = '', // any content after loop ends
@@ -1886,10 +1884,6 @@ function SUPERreCaptcha(){
                         $captureContent = false;
                         $captureSuffix = true;
                         $skipUpTo = $k+11; // Skip up to key 11
-                        // do something with it's inner content?
-                        // var_dump('foreach ended...');
-                        // var_dump($innerContent);
-                        // exit;
                         return;
                     }
                     // capture inner content including inner foreach items
@@ -1921,13 +1915,6 @@ function SUPERreCaptcha(){
                 //console.log('Depth is greater than 0:', $depth);
             }
         });
-
-        //console.log('Depth: ',$depth);
-        //console.log('Prefix: ',$prefix);
-        //console.log('Field name: ',$fieldName);
-        //console.log('Inner content: ',$innerContent);
-        //console.log('Suffix: ',$suffix);
-
         var $original = $innerContent,
             $row = $innerContent,
             $field_name = $fieldName,
@@ -1945,18 +1932,6 @@ function SUPERreCaptcha(){
                 debugger;
             }
             var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
-            var dynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index();
-            var totalDynamicParents = $(currentField).parents('.super-duplicate-column-fields').length;
-            var dynamicParentIndexUp = $(currentField).parents('.super-duplicate-column-fields:eq(1)');
-            var absolutDynamicParentIndex = $(currentField).parents('.super-duplicate-column-fields').last().index();
-            var absolutDynamicParent = $(currentField).parents('.super-duplicate-column-fields').last();
-            // @temp disabled@ if(dynamicParentIndex===0 && totalDynamicParents===1 && absolutDynamicParentIndex===0) {
-            // @temp disabled@     $rows += $row;
-            // @temp disabled@     $i++;
-            // @temp disabled@     $field_name = $original_field_name+'_'+$i;
-            // @temp disabled@     currentField = SUPER.field(originalFormReference, $field_name);
-            // @temp disabled@     continue;
-            // @temp disabled@ }
             var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
             var m;
             $row = $original;
@@ -1976,17 +1951,8 @@ function SUPERreCaptcha(){
                 var $s = (m[5] ? m[5] : ''); // suffix
                 if($s!=='') $s = ';'+$s;
                 var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
-                var fieldName = $n+$d+$c;
-                //if(fieldName==='d[0][0][0]'){
-                //    debugger;
-                //}
                 var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
                 if(findChildField.length===0) continue;
-                //if(findChildField[0]===currentField){
-                //    // Skip it
-                //    continue;
-                //}
-                // data-oname="c" data-olevels="[0][0]"
                 var allParents = $(findChildField).parents('.super-duplicate-column-fields');
                 var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
                 var suffix = [];
@@ -2006,93 +1972,15 @@ function SUPERreCaptcha(){
                     continue;
                 }
                 replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
-
-                //var cdynamicParentIndex = $(currentFieldParent).parents('.super-duplicate-column-fields:eq(0)').index();
-                //var cTotalDynamicParents = $(currentFieldParent).parents('.super-duplicate-column-fields').length;
-                //var cDynamicParentIndexUp = $(currentFieldParent).parents('.super-duplicate-column-fields:eq(1)');
-                //var cAbsolutDynamicParent = $(currentFieldParent).parents('.super-duplicate-column-fields').last();
-                continue;
-
-
-                if(fieldName==='counter'){
-                    if($i>1) {
-                        replaceTagsWithValue['<%counter%>'] = $i;
-                    }else{
-                        replaceTagsWithValue['<%counter%>'] = '';
-                    }
-                    continue;
-                }
-                if(dynamicParentIndex>=1 && absolutDynamicParentIndex>=0){
-                    if($d==='' && totalDynamicParents>=1){
-                        replaceTagsWithValue[$o] = $start+$n+'_'+(dynamicParentIndex+1)+$s+$end;
-                        continue;
-                    }
-
-                    if($d!==''){
-                        var $dsplit = $d.split('][');
-                        var newD = '';
-                        for(var i=0; i<$dsplit.length; i++){
-                            if(!$dsplit[i]) continue;
-                            if(i>0){
-                                var dsplitNew = $dsplit[i].replaceAll('[', '');
-                                dsplitNew = dsplitNew.replaceAll(']', '');
-                                newD += '['+dsplitNew+']';
-                            }
-                        }
-                        $d = '['+(absolutDynamicParentIndex)+']'+newD;
-                    }
-                    if($d!=='' && totalDynamicParents===1){
-                        replaceTagsWithValue[$o] = $start+$n+$d+$s+$end;
-                        continue;
-                    }
-                    if($d!=='' && totalDynamicParents>1){
-                        // Check if field exists
-                        var refField = SUPER.field(originalFormReference, $n+$d+'_'+(dynamicParentIndex+1));
-                        if(refField){
-                            var rdynamicParentIndex = $(refField).parents('.super-duplicate-column-fields:eq(0)').index();
-                            var rTotalDynamicParents = $(refField).parents('.super-duplicate-column-fields').length;
-                            var rDynamicParentIndexUp = $(refField).parents('.super-duplicate-column-fields:eq(1)');
-                            var rAbsolutDynamicParent = $(refField).parents('.super-duplicate-column-fields').last();
-                            if( dynamicParentIndex!==rdynamicParentIndex ||
-                                absolutDynamicParent[0]!==rAbsolutDynamicParent[0] ||
-                                dynamicParentIndexUp[0]!==rDynamicParentIndexUp[0] ) {
-                                replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
-                                debugger;
-                                continue;
-                            }
-                            if($start==='foreach('){
-                                replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
-                                debugger;
-                                continue;
-                            }
-                            replaceTagsWithValue[$o] = $start+$n+$d+'_'+(dynamicParentIndex+1)+$s+$end;
-                            debugger;
-                            continue;
-                        }else{
-                            replaceTagsWithValue[$o] = $start+$n+'['+(absolutDynamicParentIndex)+']['+(dynamicParentIndex)+']'+$s+$end;
-                            debugger;
-                            continue;
-                        }
-                        continue;
-                    }
-                }
             }
             var key;
             for(key in replaceTagsWithValue) {
                 $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
             $rows += $row;
-            console.log('rows: ', $rows);
             $i++;
             $field_name = $original_field_name+'_'+$i;
-
-
-            if($field_name==='d[0][1][0]_2'){
-                debugger;
-            }
-
             currentField = SUPER.field(originalFormReference, $field_name);
-            
             // @TEMP DISABLED@ //var newN = $original_field_name.replaceAll("[", "\\[");
             // @TEMP DISABLED@ //    newN = newN.replaceAll("]", "\\]");
             // @TEMP DISABLED@ //var $row_regex = RegExp("<%("+newN+")%>", "g");
@@ -2152,7 +2040,6 @@ function SUPERreCaptcha(){
             // @TEMP DISABLED@     $rows += $row;
             // @TEMP DISABLED@ }
         }
-
         $rows = $prefix + $rows + $suffix;
         $innerContent = $innerContent.split($original).join($rows);
         $ii++;

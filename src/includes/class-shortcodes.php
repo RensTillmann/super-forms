@@ -1293,6 +1293,9 @@ class SUPER_Shortcodes {
             $class .= ' super-builder-align-inner-elements-' . $data['align_elements'];
         }
 
+        if(!empty($data['duplicate']) && $data['duplicate']==='enabled'){
+            $class .= ' super-duplicate-column-fields';
+        }
         $result = '';
         
         // If we are updating a TAB element, we will send back a json string with all the content
