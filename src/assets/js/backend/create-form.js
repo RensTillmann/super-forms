@@ -403,46 +403,98 @@
     };
 
     // Check if the added field has an unique field name
-    SUPER.check_for_unique_field_name = function ($element) {
-        var $field = $element.find('.super-shortcode-field');
-        // @since v1.2.3 check if we are not importing predefined element
-        if ($field.length == 1) {
-            if (typeof $field !== 'undefined') {
-                if (typeof $field.attr('name') !== 'undefined') {
-                    var $parent = $field.parents('.super-file');
-                    if($parent.length!==0){
-                        $field = $element.find('.super-active-files');
-                    }
-                    var $name = $field.attr('name').replace('[', '').replace(']', '');
-                    var form = document.querySelector('.super-preview-elements');
-                    var $exists = SUPER.field(form, $name);
-                    if ($exists) {
-                        var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
-                        $field.attr('name', $unique_name);
-                        var $data = $.parseJSON($element.children('textarea[name="element-data"]').val());
-                        $data.name = $unique_name;
-                        // @since 3.7.0 - change unique field name on the fly
-                        $element.find('.super-title > input').val($unique_name);
-                        $data = JSON.stringify($data);
-                        $element.children('textarea[name="element-data"]').val($data);
-                    }
+    SUPER.check_for_unique_field_name = function ($element, dragDrop) {
+        if(typeof dragDrop === 'undefined') dragDrop = false;
+        debugger;
+        var i, nodes = $element.querySelectorAll('.super-shortcode-field');
+        for(i=0; i<nodes.length; i++){
+            var field = nodes[i];
+            if (typeof field.name !== 'undefined') {
+                var elementWrapper = field.closest('.super-element');
+                if(field.classList.contains('super-fileupload')){
+                    field = elementWrapper.querySelector('.super-active-files');
+                }
+                debugger;
+                var name = field.name; // strip levels from field name if any
+                var form = field.closest('.super-preview-elements');
+                if(SUPER.field(form, name)){
+                    var uniqueName = SUPER.generate_unique_field_name(field, name, undefined, undefined, dragDrop);
+                    // Now set the new field name for this element
+                    field.name = uniqueName;
+                    elementWrapper.querySelector('.super-title > input').value = uniqueName;
+                    var elementDataField = elementWrapper.querySelector('textarea[name="element-data"]');
+                    var elementData = JSON.parse(elementDataField.value);
+                    elementData.name = uniqueName;
+                    elementData = JSON.stringify(elementData);
+                    elementDataField.value = elementData;
                 }
             }
         }
+        //var $field = $element.find('.super-shortcode-field');
+        //// @since v1.2.3 check if we are not importing predefined element
+        //if ($field.length == 1) {
+        //    if (typeof $field !== 'undefined') {
+        //        if (typeof $field.attr('name') !== 'undefined') {
+        //            var $parent = $field.parents('.super-file');
+        //            if($parent.length!==0){
+        //                $field = $element.find('.super-active-files');
+        //            }
+        //            var $name = $field.attr('name').replace('[', '').replace(']', '');
+        //            var form = document.querySelector('.super-preview-elements');
+        //            var $exists = SUPER.field(form, $name);
+        //            if ($exists) {
+        //                var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
+        //                $field.attr('name', $unique_name);
+        //                var $data = $.parseJSON($element.children('textarea[name="element-data"]').val());
+        //                $data.name = $unique_name;
+        //                // @since 3.7.0 - change unique field name on the fly
+        //                $element.find('.super-title > input').val($unique_name);
+        //                $data = JSON.stringify($data);
+        //                $element.children('textarea[name="element-data"]').val($data);
+        //            }
+        //        }
+        //    }
+        //}
     };
 
     // Generate unique field name for a given element
-    SUPER.generate_unique_field_name = function (field, name, newName, counter) {
+    SUPER.generate_unique_field_name = function (field, name, newName, counter, dragDrop) {
+        debugger;
+        if(typeof newName === 'undefined') newName = name;
+        if(typeof counter === 'undefined') counter = 1;
+        if(typeof dragDrop === 'undefined') dragDrop = false;
         var form = document.querySelector('.super-preview-elements'),
-            exists = SUPER.field(form, newName, 'all');
+            fields = SUPER.field(form, newName, 'all'),
+            levels = SUPER.get_dynamic_column_depth(fields[0]);
 
-        if (exists.length > 1) {
+        debugger;
+        // Lookup field name after levels are added
+        if(counter>1){
+            field.name = name+'_'+counter+levels;
+        }else{
+            if(dragDrop){
+                name = name.split('[')[0]; // strip levels from field name if any
+                field.name = name+levels;
+                newName = name;
+            }else{
+                field.name = newName+levels;
+            }
+        }
+        fields = SUPER.field(form, newName+levels, 'all');
+        debugger;
+        if (fields.length > 1) {
+            debugger;
             counter++;
-            newName = name + '_' + counter;
-            field.attr('name', newName);
-            return SUPER.generate_unique_field_name(field, name, newName, counter);
+            debugger;
+            newName = field.name;
+            return SUPER.generate_unique_field_name(field, name, newName, counter, dragDrop);
         } else {
-            return newName;
+            return field.name;
+            //// If inside dynamic column we will want to append the "depth" after the field name
+            //debugger;
+            //var levels = SUPER.get_dynamic_column_depth(fields[0]);
+            //debugger;
+            //return newName+levels;
         }
     };
 
@@ -593,6 +645,7 @@
             forceHelperSize: true,
             connectWith: ".super-preview-elements, .super-preview-elements > .super-element .super-element-inner",
             stop: function (event, ui) {
+                debugger;
                 var $tag = ui.item.data('shortcode-tag');
                 var $parent_tag = ui.item.parents('.super-element:eq(0)').data('shortcode-tag');
                 if (typeof $parent_tag !== 'undefined') {
@@ -601,6 +654,8 @@
                         return false;
                     }
                 }
+                debugger;
+                SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
             }
@@ -858,9 +913,11 @@
                         if (this.readyState == 4) {
                             if (this.status == 200) {
                                 // Success:
-                                var $element = $(this.responseText).appendTo($target);
+                                var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
-                                SUPER.check_for_unique_field_name($element);
+                                $elements.each(function(){
+                                    SUPER.check_for_unique_field_name(this);
+                                });
                                 SUPER.regenerate_element_inner();
                                 SUPER.init_common_fields();
                                 SUPER.init_drop_here_placeholder();
@@ -2007,7 +2064,15 @@
         });
 
         // @since 3.7.0 - change unique field name on the fly
+        $doc.on('focus', '.super-element-header .super-title > input', function () {
+            this.value = this.value.split('[')[0];
+        });
+        $doc.on('blur', '.super-element-header .super-title > input', function () {
+            console.log('blur');
+            SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
+        });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
+            console.log('keyup change');
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
             var $old_name = $parent.find('.super-shortcode-field').attr('name');
