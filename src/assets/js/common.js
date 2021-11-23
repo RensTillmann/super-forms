@@ -1912,7 +1912,7 @@ function SUPERreCaptcha(){
                     $prefix += $v; // any content before loop starts
                 }
             }else{
-                //console.log('Depth is greater than 0:', $depth);
+                // Depth is not 0
             }
         });
         var $original = $innerContent,
@@ -6284,8 +6284,6 @@ function SUPERreCaptcha(){
             var originalFieldName = nodes[i].dataset.oname;
             var newName = originalFieldName+nameSuffix;
             nodes[i].name = newName;
-            //var cloneIndex = $(clone).index();
-            //var level = -1;
             var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
             var suffix = [];
             $(allParents).each(function(key){
@@ -6302,17 +6300,9 @@ function SUPERreCaptcha(){
                     field.classList.remove('super-rendered');
                     field = field.parentNode.querySelector('.super-active-files');
             }
-            field.name = originalFieldName+levels; //+'_'+(parentIndex+1);
+            field.name = originalFieldName+levels;
             field.value = field.name; 
             field.dataset.olevels = levels;
-            //while(level > -1){
-            //    if(level===0){
-            //        suffix.push('['+parentIndex+']');
-            //    }else{
-            //        suffix.push('['+level+']');
-            //    }
-            //    level--;
-            //}
         }
 
 
