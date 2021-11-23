@@ -2387,6 +2387,46 @@ function SUPERreCaptcha(){
                             $value = $new_value;
                         }
 
+                        // Check if datepicker field
+                        if($parent.classList.contains('super-date')){
+                            debugger;
+                            $text_field = false;
+                            if($element.value===''){
+                                $value = '';
+                            }else{
+                                $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
+                            }
+                            if($value_n === 'day' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
+                                if($value_n === 'day'){
+                                    $value = ($element.getAttribute('data-math-day')) ? parseFloat($element.getAttribute('data-math-day')) : 0;
+                                }
+                                if($value_n === 'month'){
+                                    $value = ($element.getAttribute('data-math-month')) ? parseFloat($element.getAttribute('data-math-month')) : 0;
+                                }
+                                if($value_n === 'year'){
+                                    $value = ($element.getAttribute('data-math-year')) ? parseFloat($element.getAttribute('data-math-year')) : 0;
+                                }
+                                if($value_n === 'timestamp'){
+                                    $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
+                                }
+                            }else{
+
+                                if($element.getAttribute('data-return_age')=='true'){
+                                    $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
+                                }
+                                // @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
+                                if($element.getAttribute('data-date-math')=='years'){
+                                    $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
+                                }
+                                if($element.getAttribute('data-date-math')=='months'){
+                                    $value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
+                                }
+                                if($element.getAttribute('data-date-math')=='days'){
+                                    $value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
+                                }
+                            }
+                        }
+
                         if( $text_field===true ) {
                             // Check if text field is a auto-suggest, if so grab the value from the selected item
                             if($element.closest('.super-shortcode').classList.contains('super-auto-suggest') || $element.closest('.super-shortcode').classList.contains('super-wc-order-search')){
@@ -5018,6 +5058,43 @@ function SUPERreCaptcha(){
                 $target.innerHTML = $html;
             }
         });
+    };
+
+    // Replace datepickers default value {tags} with field values
+    SUPER.init_replace_datepicker_default_value_tags = function(args){
+        var i, nodes;
+        if(typeof args.el === 'undefined') {
+            nodes = args.form.querySelectorAll('.super-shortcode-field.super-datepicker');
+        }else{
+            nodes = args.form.querySelectorAll('.super-shortcode-field.super-datepicker[data-absolute-default*="{'+SUPER.get_field_name(args.el)+'}"]');
+        }
+        // Update default value for datepickers in case they contain {tags}
+        for(i=0; i<nodes.length; i++){
+            var absoluteDefault = nodes[i].dataset.absoluteDefault,
+                $match,
+                $regex = /{([^\\\/\s"'+]*?)}/g,
+                $array = [],
+                $counter = 0,
+                $values,
+                $new_value;
+            while (($match = $regex.exec(absoluteDefault)) !== null) {
+                $array[$counter] = $match[1];
+                $counter++;
+            }
+            if( $array.length>0 ) {
+                for ($counter = 0; $counter < $array.length; $counter++) {
+                    $values = $array[$counter];
+                    args.value = '{'+$values+'}';
+                    args.target = args.form;
+                    $new_value = SUPER.update_variable_fields.replace_tags(args);
+                    delete args.target;
+                    absoluteDefault = absoluteDefault.replace('{'+$values+'}', $new_value);
+                }
+            }
+            nodes[i].classList.remove('super-picker-initialized');
+            SUPER.init_datepicker(nodes[i]);
+            $(nodes[i]).datepicker('setDate', absoluteDefault);
+        }
     };
 
     // Replace form action attribute {tags} with field values
