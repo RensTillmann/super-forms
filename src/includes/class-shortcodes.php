@@ -1608,7 +1608,7 @@ class SUPER_Shortcodes {
         $result = '';
 
         if( !empty($atts['originalFieldName']) ) {
-            $result .= ' data-oname="' . $atts['originalFieldName'] . '"'; // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
+            $result .= ' data-oname="' . explode('[', $atts['originalFieldName'])[0] . '"'; // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
         }
 
         if(!empty($atts['type']) && $atts['type']==='int-phone'){

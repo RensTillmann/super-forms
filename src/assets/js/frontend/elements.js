@@ -1210,32 +1210,20 @@
         var allParents = $(field).parents('.super-duplicate-column-fields');
         var suffix = [];
         $(allParents).each(function(key){
-            if(key+1 >= allParents.length){
-                return
+            if(key===0){
+                if(clone===this){
+                    if(cloneIndex>0){
+                        return;
+                    }
+                }
             }
+            var currentParent = this;
             var currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
+            if(currentParentIndex===0 && key===0){
+                // Skip it
+                return;
+            }
             suffix.push('['+currentParentIndex+']');
-            //// Skip first parent, because we don't need it
-            //if(allParents.length===1){
-            //    return;
-            //}
-            //// If has multiple parents skip last one, we don't need it
-            //if(allParents.length>1 && allParents.length===(key+1)){
-            //    return;
-            //}
-            //if(this===clone && cloneIndex>0){
-            //    if(nameSuffix!==''){
-            //        return
-            //    }
-            //    suffix.push('['+cloneIndex+']');
-            //    return;
-            //}
-            //var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-            //// Get index of element based on parent node
-            //currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
-            //if(key===0 && currentParentIndex===0){
-            //    return;
-            //}
         });
         return suffix.reverse().join('');
     }
