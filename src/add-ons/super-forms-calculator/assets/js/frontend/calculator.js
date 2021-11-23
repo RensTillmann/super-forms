@@ -466,18 +466,33 @@
 			if( parent.classList.contains('super-date') ) {
 				text_field = false;
 				value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
-				if(element.getAttribute('data-return_age')=='true'){
-					value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
-				}
-				// @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-				if(target.getAttribute('data-date-math')=='years'){
-					value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
-				}
-				if(target.getAttribute('data-date-math')=='months'){
-					value = (element.getAttribute('data-math-age-months')) ? parseFloat(element.getAttribute('data-math-age-months')) : 0;
-				}
-				if(target.getAttribute('data-date-math')=='days'){
-					value = (element.getAttribute('data-math-age-days')) ? parseFloat(element.getAttribute('data-math-age-days')) : 0;
+				if(value_n === 'day' || value_n === 'month' || value_n === 'year' || value_n === 'timestamp'){
+					if(value_n === 'day'){
+						value = (element.getAttribute('data-math-day')) ? parseFloat(element.getAttribute('data-math-day')) : 0;
+					}
+					if(value_n === 'month'){
+						value = (element.getAttribute('data-math-month')) ? parseFloat(element.getAttribute('data-math-month')) : 0;
+					}
+					if(value_n === 'year'){
+						value = (element.getAttribute('data-math-year')) ? parseFloat(element.getAttribute('data-math-year')) : 0;
+					}
+					if(value_n === 'timestamp'){
+						value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
+					}
+				}else{
+					if(element.getAttribute('data-return_age')=='true'){
+						value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
+					}
+					// @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
+					if(target.getAttribute('data-date-math')=='years'){
+						value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
+					}
+					if(target.getAttribute('data-date-math')=='months'){
+						value = (element.getAttribute('data-math-age-months')) ? parseFloat(element.getAttribute('data-math-age-months')) : 0;
+					}
+					if(target.getAttribute('data-date-math')=='days'){
+						value = (element.getAttribute('data-math-age-days')) ? parseFloat(element.getAttribute('data-math-age-days')) : 0;
+					}
 				}
 			}
 			// Check if timepicker field

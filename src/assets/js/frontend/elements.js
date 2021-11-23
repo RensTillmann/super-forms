@@ -362,7 +362,7 @@
     };
 
     // init connected datepickers
-    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
+    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay, skipFieldChangeForElement){
         if(selectedDate===''){
             $this.closest('.super-field').classList.remove('super-filled');
         }else{
@@ -468,7 +468,8 @@
     };
 
     // init Datepicker
-    SUPER.init_datepicker = function(){
+    SUPER.init_datepicker = function(skipFieldChangeForElement){
+        if(typeof skipFieldChangeForElement === 'undefined') skipFieldChangeForElement = ''
         var i;
 
         // Init datepickers
@@ -594,7 +595,7 @@
                     $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
                     if($date!==null){
                         $date = $date.toString("dd-MM-yyyy");
-                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay);
+                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay, skipFieldChangeForElement);
                     }
                 }
             }else{
@@ -609,7 +610,7 @@
                 singleDatesClassName = 'super-datepicker-singledates';
             var options = {
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
+                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay, skipFieldChangeForElement);
                 },
                 beforeShowDay: function(dt) {
                     workDays = (this.dataset.workDays == 'true');
