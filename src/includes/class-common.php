@@ -728,20 +728,23 @@ class SUPER_Common {
             array(
                 // @since 1.0.0
                 'before_validating_form_hook' => array(
+                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_html_tags' ),
-                    array( 'name' => 'init_replace_post_url_tags' )
+                    array( 'name' => 'init_replace_post_url_tags' ),
                 ),
                 'after_validating_form_hook' => array(),
 
                 'after_initializing_forms_hook' => array(
+                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
                 ),
                 'after_field_change_blur_hook' => array(
+                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'calculate_distance' ),
                     array( 'name' => 'google_maps_init' ),
