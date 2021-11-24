@@ -1056,6 +1056,7 @@
                         $this.html('Builder');
                     }
                     // Complete:
+                    SUPER.files = [];
                     SUPER.handle_columns();
                     SUPER.init_button_colors();
                     SUPER.init_super_responsive_form_fields({form: $('.super-live-preview > .super-form')[0]});

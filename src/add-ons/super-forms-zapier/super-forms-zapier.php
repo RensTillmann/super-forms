@@ -11,7 +11,7 @@
  * Plugin Name: Super Forms - Zapier
  * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Allows you to connect Super Forms with Zapier (zapier.com)
- * Version:     1.3.0
+ * Version:     1.3.1
  * Author:      feeling4design
  * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
@@ -39,7 +39,7 @@ if(!class_exists('SUPER_Zapier')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.3.0';
+        public $version = '1.3.1';
 
 
         /**
@@ -204,6 +204,7 @@ if(!class_exists('SUPER_Zapier')) :
         */
         public static function zapier_static_web_hook( $atts ) {
             extract($atts); // post, data, settings, entry_id, attachments
+            $data = wp_unslash($data);
 
             // Create array for all files with numbered indexes , so that the index on zapier is always the same
             // because the filenames are dynamic and we can't rely on that
