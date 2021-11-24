@@ -546,22 +546,12 @@ class SUPER_Common {
      * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
      * $names array()
      * $value string
-     * $bwc bool
-     * $asAttribute bool
      */
     public static function get_data_fields_attribute($atts){
         extract($atts);
         if(!isset($names)) $names = array();
         if(empty($value)) {
             return $names;
-        }
-        if(!isset($bwc)) $bwc = false;
-        if(!isset($asAttr)) $asAttr = true;
-        if($bwc===true){
-            // If field name doesn't contain any curly braces, then append and prepend them and continue;
-            if ( strpos( $str, '{') === false ) {
-                $str = '{'.$str.'}';   
-            } 
         }
         $r = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
         preg_match_all($r, $value, $m, PREG_SET_ORDER, 0);
@@ -570,11 +560,6 @@ class SUPER_Common {
             if(empty($v[$l-1])) continue;
             $n = $v[$l-1];
             $names[$n] = $n;
-        }
-        if($asAttribute===true){
-            if(!empty($names)) {
-                return ' data-fields="{' . implode('}{', $names) . '}"';
-            }
         }
         return $names;
     }
