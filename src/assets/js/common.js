@@ -2389,7 +2389,6 @@ function SUPERreCaptcha(){
 
                         // Check if datepicker field
                         if($parent.classList.contains('super-date')){
-                            debugger;
                             $text_field = false;
                             if($element.value===''){
                                 $value = '';
@@ -7228,11 +7227,9 @@ function SUPERreCaptcha(){
             args.pageOrientationChanges = {};
             for(i=0; i<nodes.length; i++){
                 var pos = nodes[i].getBoundingClientRect();
-                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
-                //var belongsToPage = args.scrollAmount/pos.top;
-                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
-                var headerHeight = pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                dynamicHeight = dynamicHeight+headerHeight;
+                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                var belongsToPage = Math.ceil((pos.top-headerHeight)/args.scrollAmount)-1;
+                var dynamicHeight = (args.scrollAmount*(belongsToPage+1)) - (pos.top - headerHeight);
                 nodes[i].style.height = dynamicHeight+'px';
                 args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
                 if(nodes[i].classList.contains('pdf-orientation-portrait')){
@@ -7309,15 +7306,26 @@ function SUPERreCaptcha(){
             }
             // Reset scroll
             form.querySelector('form').style.marginTop = '';
+
             // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
             nodes = form.querySelectorAll('.super-pdf_page_break');
+            args.pageOrientationChanges = {};
             for(i=0; i<nodes.length; i++){
                 var pos = nodes[i].getBoundingClientRect();
-                var belongsToPage = Math.ceil(pos.top/args.scrollAmount)-1;
-                var dynamicHeight = args.scrollAmount - (pos.top - (args.scrollAmount*belongsToPage));
                 var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                dynamicHeight = dynamicHeight+headerHeight;
+                var belongsToPage = Math.ceil((pos.top-headerHeight)/args.scrollAmount)-1;
+                var dynamicHeight = (args.scrollAmount*(belongsToPage+1)) - (pos.top - headerHeight);
                 nodes[i].style.height = dynamicHeight+'px';
+                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
+                if(nodes[i].classList.contains('pdf-orientation-portrait')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-landscape')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
+                }
+                if(nodes[i].classList.contains('pdf-orientation-default')){
+                    args.pageOrientationChanges[belongsToPage+2] = 'default';
+                }
             }
             args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
             args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
