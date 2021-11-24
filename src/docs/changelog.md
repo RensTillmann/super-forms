@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 24, 2021 - Version 5.0.125
+## Nov 24, 2021 - Version 5.0.126
 
 - **Added:** Option for datepicker to use {tags} inside the `Default value` setting
 - **Added:** Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
