@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 25, 2021 - Version 5.0.127
+## Nov 25, 2021 - Version 5.0.128
 
 - **Added:** Option for datepicker to use {tags} inside the `Default value` setting
 - **Added:** Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
@@ -24,6 +24,7 @@
 - **Fix:** Issue with HTML not being generated when no {tags} are used, due to above 404 bug fix 
 - **Fix:** Slider label positioning on theme `minimal` and when `adaptive placeholders` are enabled
 - **Fix:** Slider amount positioning incorrect when conditionally became visible and when value was the same as last known value
+- **Fix:** JS error `Uncaught ReferenceError: nodes is not defined`
 
 ## Nov 04, 2021 - Version 5.0.111
 
