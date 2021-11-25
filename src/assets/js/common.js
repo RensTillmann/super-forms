@@ -5071,10 +5071,12 @@ function SUPERreCaptcha(){
                 $counter = 0,
                 $values,
                 $new_value;
+            if(absoluteDefault==='') continue;
             while (($match = $regex.exec(absoluteDefault)) !== null) {
                 $array[$counter] = $match[1];
                 $counter++;
             }
+            if( $array.length===0 ) continue;
             if( $array.length>0 ) {
                 for ($counter = 0; $counter < $array.length; $counter++) {
                     $values = $array[$counter];
