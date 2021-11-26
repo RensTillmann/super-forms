@@ -8,12 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Nov 25, 2021 - Version 5.0.128
+## Nov 26, 2021 - Version 5.0.130
 
 - **Added:** Option for datepicker to use {tags} inside the `Default value` setting
 - **Added:** Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
 - **Added:** Ability to use `{dynamic_column_counter}` inside conditional logic and variable conditions, can be used to hide/display elements inside a specific dyanmically added column
 - **Added:** Option for hidden field `Unique code generation` to define a `Unique invoice key` which allows you to generate multiple invoice numbers. This is useful for when you require both Invoice numbers and Quote numbers
+- **Fix:** When using SMTP on WP v5.5+ make sure to include the PHPMailer `Exceptions.php` file
 - **Fix:** Bug with datepicker being cleared upon form submission
 - **Fix:** `PDF Generator Add-on` Issue with Cyrillic/Arabic text rendering for PDF file, when copying text it would give you strange characters
 - **Fix:** `PDF Generator Add-on` PDF Page break sometimes generating white/blank page
