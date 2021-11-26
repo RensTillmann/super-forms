@@ -1882,7 +1882,9 @@ class SUPER_Ajax {
         
         // Check if one of the keys doesn't exist, this is the case when the server was unable to process this request
         // because the form is to large to be saved by this specific server
-        if(!isset($_POST['formElements']) || !isset($_POST['formSettings']) || !isset($_POST['translationSettings'])){
+        if((!isset($_POST['formElements']) && ($_POST['elements']==='true')) || 
+           (!isset($_POST['formSettings']) && ($_POST['settings']==='true')) || 
+           (!isset($_POST['translationSettings']) && ($_POST['translations']==='true')) ){
             // Failed, notify user
             SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
         }
