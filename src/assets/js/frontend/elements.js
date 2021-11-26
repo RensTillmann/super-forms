@@ -1293,6 +1293,7 @@
         var $doc = $(document);
 
         $doc.on('focusin', function(e){
+            var i, nodes;
             if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
             if(e.target.closest('.super-timepicker-dialog')){
                 // timepicker element was clicked
@@ -1316,11 +1317,11 @@
                     SUPER.focusForm(e.target);
                     SUPER.lastFocussedForm = e.target;
                     var form = SUPER.lastFocussedForm;
-                    var i, field, visibleNodes = [];
+                    var field, visibleNodes = [];
                     if(SUPER.lastTabKey==='tab'){
                         e.target.blur();
                         // the form became focus via regular tab, so we must focus the first field
-                        i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
                             if(SUPER.has_hidden_parent(nodes[i])) continue;
                             visibleNodes.push(nodes[i]);
@@ -1336,7 +1337,7 @@
                         }
                         e.target.blur();
                         // the form became focus via shift+tab, so we must focus the last field
-                        i, nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
+                        nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
                             if(SUPER.has_hidden_parent(nodes[i])) continue;
                             visibleNodes.push(nodes[i]);
