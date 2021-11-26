@@ -2331,12 +2331,13 @@ class SUPER_Common {
                 require_once(ABSPATH . WPINC . "/class-phpmailer.php");
                 require_once(ABSPATH . WPINC . "/class-smtp.php");
                 require_once(ABSPATH . WPINC . "/class-pop3.php");
-				$phpmailer = new PHPMailer();
+                $phpmailer = new PHPMailer();
             }else{
-				require_once(ABSPATH . WPINC . "/PHPMailer/PHPMailer.php");
-          		require_once(ABSPATH . WPINC . "/PHPMailer/SMTP.php");
-          		require_once(ABSPATH . WPINC . "/class-pop3.php");
-				$phpmailer = new \PHPMailer\PHPMailer\PHPMailer();
+                require_once(ABSPATH . WPINC . "/PHPMailer/PHPMailer.php");
+                require_once(ABSPATH . WPINC . "/PHPMailer/SMTP.php");
+                require_once(ABSPATH . WPINC . "/PHPMailer/Exception.php");
+                require_once(ABSPATH . WPINC . "/class-pop3.php");
+                $phpmailer = new \PHPMailer\PHPMailer\PHPMailer();
             }
 
             // Set mailer to use SMTP
@@ -2360,6 +2361,9 @@ class SUPER_Common {
             if( $global_settings['smtp_secure']!='' ) {
                 $phpmailer->SMTPSecure = $global_settings['smtp_secure']; 
             }
+
+            // Disable SMTPAutoTLS to avoid issues on servers with invalid certificates
+            $phpmailer->SMTPAutoTLS = false;
 
             // TCP port to connect to
             $phpmailer->Port = $global_settings['smtp_port'];
