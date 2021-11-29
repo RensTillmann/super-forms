@@ -335,22 +335,6 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public function __construct(){
-            // temp disabled $html = "[prefix]
-            // temp disabled foreach(a):
-            // temp disabled     -- A start --
-            // temp disabled     E-mail: <%a%>
-            // temp disabled     foreach(b):
-            // temp disabled         -- B start --
-            // temp disabled         E-mail B: <%b%>
-            // temp disabled         -- B end --
-            // temp disabled     endforeach;
-            // temp disabled     --A end--
-            // temp disabled endforeach;
-            // temp disabled [suffix]";
-            // temp disabled echo nl2br(self::filter_foreach_statements($html));
-
-            //$rows = $rows; //SUPER_Common::email_tags( $rows, $data['data'], $data['settings'] );
-            //echo nl2br( ($prefix) . ($innerContent) .  ($suffix));
             $this->define_constants();
             $this->includes();
             $this->init_hooks();

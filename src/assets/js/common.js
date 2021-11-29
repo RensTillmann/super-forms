@@ -1735,27 +1735,10 @@ function SUPERreCaptcha(){
                                     if(typeof SUPER.refresh_signatures === 'function'){
                                         SUPER.refresh_signatures('', $show_wrappers[key]);
                                     }
-                                    // Fix bug with slider element not having correct default position when initially conditionally hidden upon page load
-                                    if($show_wrappers[key].classList.contains('super-slider')){
-                                        var $element = $($show_wrappers[key]);
-                                        var $wrapper = $element.children('.super-field-wrapper');
-                                        var $field = $wrapper.children('.super-shortcode-field'); 
-                                        var $value = $field.val();
-                                        if($wrapper.children('.slider').length){
-                                            SUPER.reposition_slider_amount_label($field[0], $value, true);
-                                        }
-                                    }else{
-                                        var $sliders = $show_wrappers[key].querySelectorAll('.super-slider');
-                                        Object.keys($sliders).forEach(function(skey) {
-                                            var $element = $($sliders[skey]);
-                                            var $wrapper = $element.children('.super-field-wrapper');
-                                            var $field = $wrapper.children('.super-shortcode-field'); 
-                                            var $value = $field.val();
-                                            if($wrapper.children('.slider').length){
-                                                SUPER.reposition_slider_amount_label($field[0], $value, true);
-                                            }
-                                        });
-                                    }
+                                    // Resize toggle elements
+                                    SUPER.resize_toggle_element($show_wrappers[key]);
+                                    // Reposition slider dragger
+                                    SUPER.reposition_slider_element($show_wrappers[key], true);
                                 });
                                 // @since 2.4.0 - call change blur hook on the fields inside the update column
                                 Object.keys($changed_wrappers).forEach(function(key) {
@@ -1928,9 +1911,6 @@ function SUPERreCaptcha(){
 
         var currentField = SUPER.field(originalFormReference, $field_name);
         while( currentField ) {
-            if($field_name==='d[0][1][0]_2'){
-                debugger;
-            }
             var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
             var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
             var m;
@@ -2332,6 +2312,7 @@ function SUPERreCaptcha(){
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
+            debugger;
             if(typeof $options[1] === 'undefined'){
                 $value_n = 0;
             }else{
@@ -2349,6 +2330,7 @@ function SUPERreCaptcha(){
                 }
             }
 
+            debugger;
             $default_value = '';
             if($value_type=='int'){
                 $default_value = 0;
@@ -2375,6 +2357,7 @@ function SUPERreCaptcha(){
                 $name = $name.replace('$','');
                 $element = SUPER.field(args.form, $name, '$');
             }
+            debugger;
             if(!$element) $element = SUPER.field(args.form, $name);
             if($element){
                 if($element[0]) $element = $element[0];
@@ -2576,8 +2559,12 @@ function SUPERreCaptcha(){
                         
                         // Check if file upload field
                         if($parent.classList.contains('super-file')){
+                            debugger;
                             $text_field = false;
                             $new_value = '';
+                            if($value_n===0) {
+                                $value_n = 'allFileNames';
+                            }
                             if($value_n=='label'){
                                 $new_value = $parent.querySelector('.super-active-files').dataset.email;
                             }else{
@@ -2587,6 +2574,7 @@ function SUPERreCaptcha(){
                                     totalFiles=0,
                                     files, formId = parseInt(args.form.id.replace('super-form-', ''), 10);
                                 if($value_n=='allFileNames' || $value_n=='allFileUrls' || $value_n=='allFileLinks' ){
+                                    debugger;
                                     var allFileNames = '';
                                     var allFileUrls = '';
                                     var allFileLinks = '';
@@ -2600,6 +2588,7 @@ function SUPERreCaptcha(){
                                             }
                                         }
                                     }
+                                    debugger;
                                     if($value_n=='allFileNames'){ $new_value = allFileNames; }
                                     if($value_n=='allFileUrls'){ $new_value = allFileUrls; }
                                     if($value_n=='allFileLinks'){ $new_value = allFileLinks; }
@@ -2610,6 +2599,7 @@ function SUPERreCaptcha(){
                                             m = regex.exec($value_n);
                                             if(m) i = parseInt(m[1],10);
                                             // This retrieves the total amount of files (uploaded and yet to be uploaded)
+                                            debugger;
                                             if($value_n.substring(0, 11)==='total_files' || $value_n.substring(0, 5)==='total' || $value_n.substring(0, 5)==='count'){
                                                 totalFiles = $parent.querySelectorAll('.super-fileupload-files > div').length;
                                                 $new_value = totalFiles;
@@ -2698,9 +2688,11 @@ function SUPERreCaptcha(){
                                     if(typeof $new_value==='undefined'){
                                         $new_value = '';
                                     }
+                                    debugger;
                                     $value = $new_value;
                                 }
                             }else{
+                                debugger;
                                 $value = $element.value;
                             }
                             if( args.target ) {
@@ -2713,13 +2705,16 @@ function SUPERreCaptcha(){
                             }
                         }
                         if( ($value_type=='int') && (isNaN($value)) ) {
+                            debugger;
                             $value = $default_value;
                         }
+                        debugger;
                         args.value = args.value.replace('{'+$old_name+'}', $value);
                     }
                 }
             }
         }
+        debugger;
         return args.value;
     };
 
@@ -5233,6 +5228,7 @@ function SUPERreCaptcha(){
                 args.target = $target;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
                 delete args.target;
+                debugger;
                 if( ($values.indexOf('allFileNames')!==-1) || ($values.indexOf('allFileUrls')!==-1) || ($values.indexOf('allFileLinks')!==-1) ){
                     // We do not want to decode HTML
                 }else{
@@ -5245,8 +5241,9 @@ function SUPERreCaptcha(){
                 $html = $html.replaceAll('{'+key+'}', replaceTagsWithValue[key]);
             }
             if($skipUpdate) return true;
-            // @temp disabled@ // @since 4.6.0 - if statement compatibility
+            // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
+            debugger;
             $target.innerHTML = $html;
         });
     };
@@ -6563,19 +6560,37 @@ function SUPERreCaptcha(){
         if(typeof conditionalUpdate === 'undefined') conditionalUpdate = false;
         if(typeof value === 'undefined') {
             value = field.value;
+            // Set a class so that we don't focus this field
+            if(conditionalUpdate) field.classList.add('super-prevent-focus');
             $(field).simpleSlider("setValue", 0);
+            // Set a class so that we don't focus this field
+            if(conditionalUpdate) field.classList.add('super-prevent-focus');
             $(field).simpleSlider("setValue", value);
         }else{
             if(value !== field.value){
+                debugger;
+                // Set a class so that we don't focus this field
+                if(conditionalUpdate) field.classList.add('super-prevent-focus');
                 $(field).simpleSlider("setValue", 0);
+                // Set a class so that we don't focus this field
+                if(conditionalUpdate) field.classList.add('super-prevent-focus');
                 $(field).simpleSlider("setValue", value);
             }else{
                 if(conditionalUpdate){
                     if(value===0 || value==="0"){
+                        debugger;
+                        // Set a class so that we don't focus this field
+                        if(conditionalUpdate) field.classList.add('super-prevent-focus');
                         $(field).simpleSlider("setValue", 1);
                     }else{
+                        debugger;
+                        // Set a class so that we don't focus this field
+                        if(conditionalUpdate) field.classList.add('super-prevent-focus');
                         $(field).simpleSlider("setValue", 0);
                     }
+                    debugger;
+                    // Set a class so that we don't focus this field
+                    if(conditionalUpdate) field.classList.add('super-prevent-focus');
                     $(field).simpleSlider("setValue", value);
                 }
             }
@@ -6633,9 +6648,14 @@ function SUPERreCaptcha(){
                 $wrapper = $field.parents('.super-field-wrapper:eq(0)');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
                 $field.on("slider:changed", function ($event, $data) {
+                    debugger;
                     // Only focus form/field when form is already initialized
-                    SUPER.focusForm(this);
-                    SUPER.focusField(this);
+                    if(this.classList.contains('super-prevent-focus')){
+                        this.classList.remove('super-prevent-focus');
+                    }else{
+                        SUPER.focusForm(this);
+                        SUPER.focusField(this);
+                    }
                     $number = parseFloat($data.value).toFixed(Math.max(0, ~~$decimals));
                     $number = ($decimal_separator ? $number.replace('.', $decimal_separator) : $number).replace(new RegExp($regex, 'g'), '$&' + ($thousand_separator || ''));
                     $amount = $wrapper.children('.amount');
@@ -6756,6 +6776,70 @@ function SUPERreCaptcha(){
         SUPER.after_init_common_fields();
     };
 
+    SUPER.resize_toggle_element = function(p){
+        var i, nodes = [];
+        if(p.classList.contains('super-toggle')){
+            nodes.push(p);
+        }else{
+            nodes = p.querySelectorAll('.super-toggle');
+        }
+        for( i=0; i<nodes.length; i++ ) {
+            // Grab on/off nodes
+            var sw = nodes[i].querySelector('.super-toggle-switch');
+            var gr = nodes[i].querySelector('.super-toggle-group');
+            var on = nodes[i].querySelector('.super-toggle-on');
+            var ha = nodes[i].querySelector('.super-toggle-handle');
+            var off = nodes[i].querySelector('.super-toggle-off');
+            // Reset width for both
+            sw.style.width = '';
+            gr.style.width = '';
+            on.style.width = '';
+            off.style.width = '';
+            ha.style.width = '';
+            // Grab the width
+            var width = 0;
+            var onWidth = on.offsetWidth+40; // padding left/right 20px
+            var offWidth = off.offsetWidth+40; // padding left/right 20px
+            var haWidth = ha.offsetWidth+4;
+            ha.style.width = haWidth+'px';
+            // Now compare, and set new width
+            width = onWidth;
+            if(onWidth < offWidth){
+                width = offWidth;
+            }
+            sw.style.width = width+(haWidth/2)+'px';
+            gr.style.width = ((width+(haWidth/2))*2)-2+'px';
+            on.style.width = width+'px';
+            off.style.width = width+'px';
+        }
+    };
+    SUPER.reposition_slider_element = function(p, conditionalUpdate){
+        if(typeof conditionalUpdate === 'undefined') conditionalUpdate = false;
+        var i, nodes = [];
+        if(p.classList.contains('super-slider')){
+            nodes.push(p);
+        }else{
+            nodes = p.querySelectorAll('.super-slider');
+        }
+        for( i=0; i<nodes.length; i++ ) {
+            var $element = $(nodes[i]);
+            var $wrapper = $element.children('.super-field-wrapper');
+            var $field = $wrapper.children('.super-shortcode-field'); 
+            if(typeof $field.data("slider-object") === 'undefined'){
+                // Regenerate slider because this is a cloned form
+                if(nodes[i].querySelector('.slider')){
+                    nodes[i].querySelector('.slider').remove();
+                }
+                SUPER.init_slider_field();
+            }else{
+                var $value = $field.val();
+                if($wrapper.children('.slider').length){
+                    SUPER.reposition_slider_amount_label($field[0], $value, conditionalUpdate);
+                }
+            }
+        }
+    };
+
     // Handle the responsiveness of the form
     SUPER.responsive_form_fields_timeout = {};
     SUPER.init_super_responsive_form_fields = function(args){
@@ -6869,88 +6953,10 @@ function SUPERreCaptcha(){
                 }
             }
 
-            // Check for slider fields, reposition "Dragger" element based on "Track" width
-            // If the dragger position exceeds the track width adjust it to be 
-            // selector.simpleSlider("setValue", value);
-            // Sets the value of the slider.
-            // selector.simpleSlider("setRatio", ratio);
-            var nodes = $this[0].querySelectorAll('.super-slider');
-            for(var i=0; i < nodes.length; i++){
-                var $field = $(nodes[i].querySelector('.super-shortcode-field'));
-                if(!$field) continue;
-                // Must trigger a change:
-                var originalValue = $field.val();
-                if(typeof $field.data("slider-object") === 'undefined'){
-                    // Must re-generate slider field, because this is a cloned form
-                    if(nodes[i].querySelector('.slider')){
-                        nodes[i].querySelector('.slider').remove();
-                    }
-                    SUPER.init_slider_field();
-                }else{
-                    SUPER.reposition_slider_amount_label($field[0], originalValue);
-                }
-            }
-
-            // Check for toggle element, we will need to resize the "On/Off" options so they are equal in size
-            nodes = args.form.querySelectorAll('.super-toggle');
-            for( i=0; i<nodes.length; i++ ) {
-                // Grab on/off nodes
-                var sw = nodes[i].querySelector('.super-toggle-switch');
-                var gr = nodes[i].querySelector('.super-toggle-group');
-                var on = nodes[i].querySelector('.super-toggle-on');
-                var ha = nodes[i].querySelector('.super-toggle-handle');
-                var off = nodes[i].querySelector('.super-toggle-off');
-                // Reset width for both
-                sw.style.width = '';
-                gr.style.width = '';
-                on.style.width = '';
-                off.style.width = '';
-                ha.style.width = '';
-                // Grab the width
-                var width = 0;
-                var onWidth = on.offsetWidth+40; // padding left/right 20px
-                var offWidth = off.offsetWidth+40; // padding left/right 20px
-                var haWidth = ha.offsetWidth+4;
-                ha.style.width = haWidth+'px';
-                // Now compare, and set new width
-                width = onWidth;
-                if(onWidth < offWidth){
-                    width = offWidth;
-                }
-                sw.style.width = width+(haWidth/2)+'px';
-                gr.style.width = ((width+(haWidth/2))*2)-2+'px';
-                on.style.width = width+'px';
-                off.style.width = width+'px';
-            }
-
-            // Check for checkbox/radio slider/grid element
-            // nodes = args.form.querySelectorAll('.super-toggle');
-            // var containers = [];
-            // containers.push({
-            //     wrapper: wrapper,
-            //     dots: dots,
-            //     container: container,
-            //     carousel: carousel,
-            //     settings: customSettings
-            // });
-            // CarouselJS.redraw(fn, _, containers[key]);
-
-            ///var formId = 0;
-            ///if(this.querySelector('input[name="hidden_form_id"]')){
-            ///    formId = this.querySelector('input[name="hidden_form_id"]').value;
-            ///}
-            ///// First disable the UI on the map for nicer print of the map
-            ///// And make map fullwidth and directions fullwidth
-            ///for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-            ///    nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
-            ///    for(var x=0; x < nodes.length; x++){
-            ///        nodes[x].style.width = '100%';
-            ///        if(nodes[x].classList.contains('super-google-map-directions')){
-            ///            nodes[x].style.overflowY = 'initial';
-            ///            nodes[x].style.height = 'auto';
-            ///        }
-            ///    }
-            ///}
+            // Resize toggle elements
+            SUPER.resize_toggle_element(args.form);
+            // Reposition slider dragger
+            SUPER.reposition_slider_element(args.form);
 
             // @since 1.3
             SUPER.after_responsive_form_hook($classes, args.form, $new_class, $window_classes, $new_window_class);

@@ -1608,7 +1608,8 @@ class SUPER_Shortcodes {
         $result = '';
 
         if( !empty($atts['originalFieldName']) ) {
-            $result .= ' data-oname="' . explode('[', $atts['originalFieldName'])[0] . '"'; // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
+            // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
+            $result .= ' data-oname="' . explode('[', $atts['originalFieldName'])[0] . '"';
         }
 
         if(!empty($atts['type']) && $atts['type']==='int-phone'){
@@ -2498,29 +2499,6 @@ class SUPER_Shortcodes {
                             $re = '/\{(.*?)\}/';
                             foreach($_super_dynamic_data[$field_name] as $dk => $dv){
                                 $grid['level']++;
-                                // -1
-                                if($dv['duplicate']==='enabled') {
-                                    //$grid['dynamicLevel']++;
-                                    //$grid['dynamicLevelId'] = array();
-                                    // 0
-                                    //if($grid['dynamicLevel']>0) 
-
-
-                                    // We start with empty array:
-
-                                    // array()
-
-                                    // Output: a
-
-                                    // Next output should be  b[0]
-
-                                    // 
-                                    // temp disabled if(isset($grid['dynamicLevelId'][$grid['dynamicLevel']])){
-
-                                    // temp disabled }else{
-                                    // temp disabled     $grid['dynamicLevelId'][$grid['dynamicLevel']] = array($grid['dynamicLevel'] = array());
-                                    // temp disabled }
-                                }
                                 $GLOBALS['super_grid_system'] = $grid;
                                 $GLOBALS['super_column_found'] = 0;
                                 $result .= '<div class="super-shortcode super-duplicate-column-fields">';
@@ -2531,7 +2509,6 @@ class SUPER_Shortcodes {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
                                         $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv);
-                                        //$result .= 'tag8: ' . $v['tag'];
                                         $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names, $formProgress );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
@@ -2540,10 +2517,6 @@ class SUPER_Shortcodes {
                                     $result .= '</div>';
                                 $result .= '</div>';
                                 $grid['level']--;
-                                if($dv['duplicate']==='enabled') {
-                                    //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
-                                    //$grid['dynamicLevel']--;
-                                }
                                 $i++;
                             }
                         }else{
@@ -2555,10 +2528,6 @@ class SUPER_Shortcodes {
                     if($no_data){
                         var_dump('test1');
                         $grid['level']++;
-                        if($atts['duplicate']==='enabled') {
-                            //$grid['dynamicLevel']++;
-                            //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
-                        }
                         $GLOBALS['super_grid_system'] = $grid;
                         $GLOBALS['super_column_found'] = 0;
                         // No data found, let's generate at least 1 column
@@ -2569,7 +2538,6 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                //$result .= 'tag10: ' . $v['tag'];
                                 $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
                             }
                             $result .= '<div class="super-duplicate-actions">';
@@ -2578,10 +2546,6 @@ class SUPER_Shortcodes {
                             $result .= '</div>';
                         $result .= '</div>';
                         $grid['level']--;
-                        if($atts['duplicate']==='enabled') {
-                            //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
-                            //$grid['dynamicLevel']--;
-                        }
                     }else{
                         var_dump('test2');
                     }
@@ -2600,8 +2564,6 @@ class SUPER_Shortcodes {
                 $grid['level']++;
                 if($atts['duplicate']==='enabled') {
                     $grid['dynamicLevel']++;
-                    //$result .= $grid['dynamicLevel'];
-                    //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
                 }
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
@@ -2616,14 +2578,7 @@ class SUPER_Shortcodes {
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    if(isset($v['data']['duplicate']) && $v['data']['duplicate']==='enabled') {
-                        //$grid['dynamicLevel']++;
-                        //$result .= '['.$grid['dynamicLevel'].']';
-                        //$result .= 'tag0: ' . $v['tag'];
-                        //$grid['dynamicLevelId'][$grid['dynamicLevel']] = $grid['dynamicLevel'];
-                    }
                     $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names);
-                    //$result .= 'tag9: ' . $v['tag'];
                     $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
                 }
                 if( $atts['duplicate']==='enabled' ) {
@@ -2634,10 +2589,6 @@ class SUPER_Shortcodes {
                     $result .= '</div>';
                 }
                 $grid['level']--;
-                if($atts['duplicate']==='enabled') {
-                    //unset($grid['dynamicLevelId'][$grid['dynamicLevel']]);
-                    //$grid['dynamicLevel']--;
-                }
             }
             $GLOBALS['super_grid_system'] = $grid;      
         }
@@ -4307,6 +4258,10 @@ class SUPER_Shortcodes {
         
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
+        if( !empty($atts['originalFieldName']) ) {
+            // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
+            $result .= ' data-oname="' . explode('[', $atts['originalFieldName'])[0] . '"';
+        }
         $result .= ' value="' . esc_attr($atts['value']) . '" data-default-value="' . esc_attr($atts['value']) . '" data-absolute-default="' . esc_attr($atts['value']) . '"';
         if( !empty($atts['email']) ) $result .= ' data-email="' . $atts['email'] . '"';
         if( !empty($atts['exclude']) ) $result .= ' data-exclude="' . $atts['exclude'] . '"';
@@ -4891,31 +4846,6 @@ class SUPER_Shortcodes {
         // This value is then used when a column is duplicated so we can reset each field to it's initial default value
         if(!empty($data['name'])){
             $data['originalFieldName'] = $data['name'];
-            // temp disabled if($grid){
-            // temp disabled     $level = $grid['level'] - 2;
-            // temp disabled     $suffix = array();
-            // temp disabled     while($level > -1){
-            // temp disabled         $suffix[] = '['.($level).']';
-            // temp disabled         $level--;
-            // temp disabled     }
-            // temp disabled     $data['name'] = $data['name'].implode('', array_reverse($suffix)).'['.$grid['dynamicLevel'].']';
-            // temp disabled     //    var_dump($grid['dynamicLevelId']);
-            // temp disabled     //    //if(!empty($grid['dynamicLevelId'])){
-            // temp disabled     //    //    $dynamicLevelId = '['.implode("][", $grid['dynamicLevelId']).']';
-            // temp disabled     //    //    $data['name'] = $data['name'].$dynamicLevelId;
-            // temp disabled     //    //}
-            // temp disabled }
-            //if($grid && $grid['dynamicLevel']===0){
-            //    //$level = $grid['level'] - 1;
-            //}else{
-            //    $data['name'] = $data['name'].$dynamicLevelId;
-            //    //$level = $grid['level'] - 1;
-            //    //$data['name'] = $data['name'].'['.$grid['dynamicLevel'].']['.$level.']['.$grid['columns'][$level]['current'].']';
-            //}
-            //if($grid && $grid['dynamicLevel']>0){
-            //}else{
-
-            //}
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
         }
