@@ -1727,6 +1727,8 @@ class SUPER_Common {
                             // Type
                             $value = str_replace( '{' . $k . ';type}', self::decode($fv['type']), $value );
                             $value = str_replace( '{' . $k . ';type['.$fk.']}', self::decode($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';mime}', self::decode($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';mime['.$fk.']}', self::decode($fv['type']), $value );
                             // Name
                             $value = str_replace( '{' . $k . ';name}', self::decode($fv['value']), $value );
                             $value = str_replace( '{' . $k . ';name['.$fk.']}', self::decode($fv['value']), $value );
