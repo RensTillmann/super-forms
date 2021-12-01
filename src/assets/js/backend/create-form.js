@@ -99,6 +99,16 @@
     SUPER.update_translation_settings = function(string){
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(string);
     };
+    SUPER.formatUniqueFieldName = function(value){
+        value = value.replace(/\s+/gi, '_');
+        value = value.replace(/ /g, "_");
+        value = value.replace(/\//g, "");
+        value = value.replace(/[^a-zA-Z0-9-_.]+/g, "");
+        value = value.replace(/\.+/g, "_");
+        value = value.replace(/[--]+/g, "-");
+        value = value.replace(/[__]+/g, "_");
+        return value;
+    };
     SUPER.get_form_elements = function(string){
         var $elements = SUPER.regenerate_element_inner.get_elements();
         if(string===true) {
@@ -483,9 +493,11 @@
             newName = field.name;
             return SUPER.generate_unique_field_name(field, name, newName, counter, dragDrop);
         } else {
-            var settingsName = document.querySelector('.super-element.super-element-settings input[name="name"]');
-            if(settingsName){
-                settingsName.value = field.name;
+            if(field.closest('.super-element').classList.contains('editing')){
+                var settingsName = document.querySelector('.super-element.super-element-settings input[name="name"]');
+                if(settingsName){
+                    settingsName.value = field.name;
+                }
             }
             return field.name;
         }
@@ -1367,26 +1379,19 @@
             }
         });
         $doc.on('change keyup blur', '.super-secrets input[name="secretName"]', function () {
-            var value = this.value.replace(/\s+/gi, '_');
-            value = value.replace(/ /g, "_");
-            value = value.replace(/\//g, "");
-            value = value.replace(/[^a-zA-Z0-9-_.]+/g, "");
-            value = value.replace(/\.+/g, "_");
-            value = value.replace(/[--]+/g, "-");
-            value = value.replace(/[__]+/g, "_");
-            this.value = value;
+            this.value = SUPER.formatUniqueFieldName(this.value);
             // Update the {@tag}
-            if(value===''){
+            if(this.value===''){
                 this.closest('li').querySelector('.super-secret-tag').innerHTML = '';
             }else{
-                this.closest('li').querySelector('.super-secret-tag').innerHTML = '{@'+value+'}';
+                this.closest('li').querySelector('.super-secret-tag').innerHTML = '{@'+this.value+'}';
             }
             // Check if exact same secret name exists, if so notify user visually about it
             var nodes = document.querySelectorAll('.super-secrets input[name="secretName"]');
             var duplicateFound = false;
             for(var i=0; i<nodes.length; i++){
                 if(nodes[i]===this || nodes[i].value==='') continue;
-                if(nodes[i].value === value){
+                if(nodes[i].value === this.value){
                     nodes[i].classList.add('super-error');
                     duplicateFound = true;
                 }else{
@@ -1958,21 +1963,24 @@
             this.value = this.value.split('[')[0];
         });
         $doc.on('change keyup blur', '.super-element.super-element-settings input[name="name"]', function (e) {
+            var $this = $(this);
             var $editing = $('.super-preview-elements .super-element.editing');
-            var $tag = $editing.data('shortcode-tag');
-            if ($tag != 'button') {
-                var $value = $(this).val().replace(/\s+/gi, '_');
-                $value = $value.replace(/ /g, "_");
-                $value = $value.replace(/\//g, "");
-                $value = $value.replace(/[^a-zA-Z0-9-_.]+/g, "");
-                $value = $value.replace(/\.+/g, "_");
-                $value = $value.replace(/[--]+/g, "-");
-                $value = $value.replace(/[__]+/g, "_");
-                $editing.find('.super-shortcode-field').attr('name', $value);
-                $(this).val($value);
-                if(e.type==='focusout'){
-                    SUPER.check_for_unique_field_name($editing[0], false);
-                }
+            var $parent = $editing;
+            var $field = $parent.find('.super-shortcode-field');
+            var $old_name = $field.attr('name');
+            if($field.hasClass('super-fileupload')){
+                $field = $field.next()
+                $old_name = $field.attr('name');
+            }
+            var $new_field_name = SUPER.formatUniqueFieldName($this.val());
+            $this.val($new_field_name);
+            $field.attr('name', $new_field_name);
+            var $element_data_field = $parent.children('textarea[name="element-data"]');
+            var $element_data = $element_data_field.val();
+            $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $new_field_name + '"');
+            $element_data_field.val($element_data);
+            if ($parent.hasClass('editing')) {
+                $parent.find('.super-title > input').val($new_field_name);
             }
         });
 
@@ -2006,10 +2014,15 @@
 
             // @since 3.7.0 - automatically rename duplicated fields for more user-friendly work flow
             $new.find('.super-shortcode-field').each(function () {
-                var $old_name = $(this).attr('name');
+                var $field = $(this)
+                var $old_name = $field.attr('name');
+                if($field.hasClass('super-fileupload')){
+                    $field = $field.next()
+                    $old_name = $field.attr('name');
+                }
                 var $new_field_name = SUPER.generate_new_field_name();
-                $(this).attr('name', $new_field_name);
-                var $parent = $(this).parents('.super-element:eq(0)');
+                $field.attr('name', $new_field_name);
+                var $parent = $field.parents('.super-element:eq(0)');
                 $parent.find('.super-title > input').val($new_field_name);
                 var $element_data_field = $parent.children('textarea[name="element-data"]');
                 var $element_data = $element_data_field.val();
@@ -2059,22 +2072,22 @@
             this.value = this.value.split('[')[0];
         });
         $doc.on('blur', '.super-element-header .super-title > input', function () {
+            console.log('blur');
             SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
         });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
+            console.log('change');
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
-            var $old_name = $parent.find('.super-shortcode-field').attr('name');
-            var $new_field_name = $this.val();
-            $new_field_name = $this.val().replace(/\s+/gi, '_');
-            $new_field_name = $new_field_name.replace(/ /g, "_");
-            $new_field_name = $new_field_name.replace(/\//g, "");
-            $new_field_name = $new_field_name.replace(/[^a-zA-Z0-9-_.]+/g, "");
-            $new_field_name = $new_field_name.replace(/\.+/g, "_");
-            $new_field_name = $new_field_name.replace(/[--]+/g, "-");
-            $new_field_name = $new_field_name.replace(/[__]+/g, "_");
+            var $field = $parent.find('.super-shortcode-field');
+            var $old_name = $field.attr('name');
+            if($field.hasClass('super-fileupload')){
+                $field = $field.next()
+                $old_name = $field.attr('name');
+            }
+            var $new_field_name = SUPER.formatUniqueFieldName($this.val());
             $this.val($new_field_name);
-            $parent.find('.super-shortcode-field').attr('name', $new_field_name);
+            $field.attr('name', $new_field_name);
             var $element_data_field = $parent.children('textarea[name="element-data"]');
             var $element_data = $element_data_field.val();
             $element_data = $element_data.replace('"name":"' + $old_name + '"', '"name":"' + $new_field_name + '"');

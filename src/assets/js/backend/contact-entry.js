@@ -240,7 +240,8 @@
                         for ( ii = 0; ii < files.length; ii++ ) {
                             url = files[ii].href;
                             fileName = files[ii].innerText;
-                            fileExtension = url.split('.').pop().toLowerCase();
+                            var f = SUPER.get_file_name_and_extension(url);
+                            fileExtension = f.ext.toLowerCase();
                             if(ii>0) html += '<br /><br />';
                             if(imageExtensions.indexOf(fileExtension)!==-1){
                                 html += '['+fileName+']<br /><img class="super-image" src="'+url+'" />';

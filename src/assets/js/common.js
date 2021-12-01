@@ -254,6 +254,14 @@ function SUPERreCaptcha(){
             SUPER.process_form_data(args);
         }
     };
+    SUPER.get_file_name_and_extension = function(fileName){
+        var m, n, e, regex = /(^.*)\.([^.]+)$/;
+        if ((m = regex.exec(fileName)) !== null) {
+            n = (m[1] ? m[1] : '');
+            e = (m[2] ? m[2] : '');
+        }
+        return {name: n, ext: e};
+    };
     SUPER.get_single_uploaded_file_html = function(withoutHeader, uploaded, fileName, fileType, fileUrl){
         var html = '', classes = '';
         if(uploaded) classes = ' class="super-uploaded"';
@@ -271,14 +279,12 @@ function SUPERreCaptcha(){
         }
         html += '<span class="super-fileupload-info">';
             // Truncate file if it's too long
-            var split = fileName.split('.');
-            var filename = split[0];
-            var ext = split[1];
-            if (filename.length > 10) filename = filename.substring(0, 10)+'...';
+            var f = SUPER.get_file_name_and_extension(fileName);
+            if (f.name.length > 10) f.name = f.name.substring(0, 10)+'...';
             if(uploaded){
-                html += '<a href="'+fileUrl+'" target="_blank">'+filename+'.'+ext+'</a>';
+                html += '<a href="'+fileUrl+'" target="_blank">'+f.name+'.'+f.ext+'</a>';
             }else{
-                html += '<span class="super-fileupload-name">'+filename+'.'+ext+'</span>';
+                html += '<span class="super-fileupload-name">'+f.name+'.'+f.ext+'</span>';
                 html += '<span class="super-fileupload-delete"></span>';
             }
         html += '</span>';
@@ -374,7 +380,6 @@ function SUPERreCaptcha(){
                         if(!filesWrapper) return true; // continue to next field
                         for(i=0; i<field.files.length; i++){
                             file = field.files[i];
-                            //html[fieldName] += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
                             updateHtml[fieldName].html += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
                             if(args.data[fieldName]){
                                 args.data[fieldName]['files'][i]['value'] = file.value;
@@ -915,8 +920,8 @@ function SUPERreCaptcha(){
                         el.parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div').last().remove();
                         alert(super_common_i18n.errors.file_upload.upload_limit_reached);
                     }else{
-                        var ext = file.name.split('.').pop();
-                        if( (file_types_object.indexOf(ext)!=-1) || (accepted_file_types==='') ) {
+                        var f = SUPER.get_file_name_and_extension(file.name);
+                        if( (file_types_object.indexOf(f.ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
                             data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
                             if(typeof SUPER.files[formId] === 'undefined'){
@@ -1793,13 +1798,65 @@ function SUPERreCaptcha(){
     };
 
     // @since 5.0.120 Filter foreach() statements
-    SUPER.filter_foreach_statements = function($counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
+    SUPER.filter_foreach_statements = function($htmlElement, $counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
+        // Before we continue replace any foreach(file_upload_fieldname)
+        var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+        var m;
+        var $originalHtml = $html;
+        var replaceTagsWithValue = {};
+        //replaceTagsWithValue['<%counter%>'] = '';
+        while ((m = regex.exec($html)) !== null) {
+            // This is necessary to avoid infinite loops with zero-width matches
+            if (m.index === regex.lastIndex) {
+                regex.lastIndex++;
+            }
+            var $o = (m[0] ? m[0] : ''); // original name
+            var $start = (m[1] ? m[1] : ''); // starts with e.g: foreach( or <%
+            var $n = (m[2] ? m[2] : ''); // name
+            var $d = (m[3] ? m[3] : ''); // depth
+            var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
+            var $c = (m[4] ? m[4] : ''); // counter e.g: _2 or _3 etc.
+            var $s = (m[5] ? m[5] : ''); // suffix
+            if($s!=='') $s = ';'+$s;
+            var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
+            var fieldType = SUPER.get_field_type(originalFormReference, $n+$d);
+            if(fieldType.type==='file'){
+                var childParentIndex = $($htmlElement).parents('.super-duplicate-column-fields:eq(0)').index();
+                if(childParentIndex!==0){
+                    $html = $html.replaceAll('foreach('+$n+$d+')', 'foreach('+$n+$d+'_'+(childParentIndex+1)+')');
+                }
+            }
+        }
+        // var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+        // if(findChildField.length===0) continue;
+        // var allParents = $(findChildField).parents('.super-duplicate-column-fields');
+        // var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
+        // var suffix = [];
+        // $(allParents).each(function(key){
+        //     var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
+        //     if(key===0 && currentParentIndex===0){
+        //         return;
+        //     }
+        //     suffix.push('['+currentParentIndex+']');
+        // });
+        // if(childParentIndex!==0){
+        //     delete suffix[0];
+        // }
+        // var levels = suffix.reverse().join('');
+        // if(childParentIndex!==0){
+        //     replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
+        //     continue;
+        // }
+        // replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
+
+
         if(typeof $counter === 'undefined') $counter = 0;
         if(typeof $fileLoopRows === 'undefined') $fileLoopRows = [];
         // Check if endforeach; was found otherwise skip it
         if($html.indexOf('endforeach;')===-1) {
             return $html;  
         }
+        debugger;
         var $chars = $html.split(''),
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
@@ -1812,6 +1869,7 @@ function SUPERreCaptcha(){
             $k,
             $v;
 
+        debugger;
         Object.keys($chars).forEach(function(k) {
             $k = parseInt(k, 10);
             $v = $chars[k];
@@ -1898,6 +1956,7 @@ function SUPERreCaptcha(){
                 // Depth is not 0
             }
         });
+        debugger;
         var $original = $innerContent,
             $row = $innerContent,
             $field_name = $fieldName,
@@ -1909,7 +1968,9 @@ function SUPERreCaptcha(){
             $ii = 0,
             $rows = '';
 
+        debugger;
         var currentField = SUPER.field(originalFormReference, $field_name);
+        var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
             var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
             var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
@@ -1931,100 +1992,111 @@ function SUPERreCaptcha(){
                 var $s = (m[5] ? m[5] : ''); // suffix
                 if($s!=='') $s = ';'+$s;
                 var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
-                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
-                if(findChildField.length===0) continue;
-                var allParents = $(findChildField).parents('.super-duplicate-column-fields');
-                var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
-                var suffix = [];
-                $(allParents).each(function(key){
-                    var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-                    if(key===0 && currentParentIndex===0){
-                        return;
+                var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
+                debugger;
+                if(fieldType.type==='file'){
+                    // Loop over all current files
+                    if(SUPER.files[formId]){
+                        var files = SUPER.files[formId][$field_name];
+                        if(!files){
+                            $row = '';
+                        }else{
+                            if(files.length===0) $row = '';
+                            //$rows = '';
+                            for(var x=0; x<files.length; x++){
+                                replaceTagsWithValue = [];
+                                replaceTagsWithValue['<%counter%>'] = (x+1);
+                                // This retrieves the total amount of files (uploaded and yet to be uploaded)
+                                var totalFiles = currentField.closest('.super-shortcode').querySelectorAll('.super-fileupload-files > div').length;
+                                replaceTagsWithValue['<%total_files%>'] = totalFiles;
+                                replaceTagsWithValue['<%total%>'] = totalFiles;
+                                replaceTagsWithValue['<%count%>'] = totalFiles;
+                                // This retrieves the total amount of files selected for upload (yet to be uploaded files)
+                                totalFiles = currentField.closest('.super-shortcode').querySelectorAll('.super-fileupload-files > div:not(.super-uploaded)').length;
+                                replaceTagsWithValue['<%new_count%>'] = totalFiles;
+                                // This retrieves the total amount of files that are already uploaded previously
+                                totalFiles = currentField.closest('.super-shortcode').querySelectorAll('.super-fileupload-files > div.super-uploaded').length;
+                                replaceTagsWithValue['<%existing_count%>'] = totalFiles;
+                                // Field label
+                                replaceTagsWithValue['<%label%>'] = currentField.dataset.email;
+                                replaceTagsWithValue['<%email%>'] = currentField.dataset.email;
+                                replaceTagsWithValue['<%email_label%>'] = currentField.dataset.email;
+                                // Name
+                                replaceTagsWithValue['<%name%>'] = files[x].name;
+                                replaceTagsWithValue['<%basename%>'] = files[x].name;
+                                // URL
+                                replaceTagsWithValue['<%url%>'] = files[x].url;
+                                replaceTagsWithValue['<%src%>'] = files[x].url;
+                                // Size
+                                replaceTagsWithValue['<%filesize%>'] = files[x].size;
+                                replaceTagsWithValue['<%size%>'] = files[x].size;
+                                // Type
+                                replaceTagsWithValue['<%type%>'] = files[x].type;
+                                replaceTagsWithValue['<%mime%>'] = files[x].type;
+                                // Field Label
+                                replaceTagsWithValue['<%label%>'] = files[x].label;
+                                // Extension
+                                var f = SUPER.get_file_name_and_extension(files[x].name);
+                                replaceTagsWithValue['<%ext%>'] = f.ext.toLowerCase();
+                                replaceTagsWithValue['<%extension%>'] = f.ext.toLowerCase();
+                                // Attachment
+                                replaceTagsWithValue['<%attachment_id%>'] = files[x].name;
+                                replaceTagsWithValue['<%attachment%>'] = files[x].name;
+                                var key;
+                                $row = $original;
+                                for(key in replaceTagsWithValue) {
+                                    $row = $row.replaceAll(key, replaceTagsWithValue[key]);
+                                }
+                                $rows += $row;
+                            }
+                            replaceTagsWithValue = [];
+                            $row = '';
+                        }
                     }
-                    suffix.push('['+currentParentIndex+']');
-                });
-                if(childParentIndex!==0){
-                    delete suffix[0];
+                }else{
+                    var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+                    if(findChildField.length===0) continue;
+                    var allParents = $(findChildField).parents('.super-duplicate-column-fields');
+                    var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
+                    var suffix = [];
+                    $(allParents).each(function(key){
+                        var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
+                        if(key===0 && currentParentIndex===0){
+                            return;
+                        }
+                        suffix.push('['+currentParentIndex+']');
+                    });
+                    if(childParentIndex!==0){
+                        delete suffix[0];
+                    }
+                    var levels = suffix.reverse().join('');
+                    if(childParentIndex!==0){
+                        replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
+                        continue;
+                    }
+                    replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
                 }
-                var levels = suffix.reverse().join('');
-                if(childParentIndex!==0){
-                    replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
-                    continue;
-                }
-                replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
             }
             var key;
             for(key in replaceTagsWithValue) {
                 $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
             $rows += $row;
+            debugger;
+            if($htmlElement.closest('.super-duplicate-column-fields')){
+                debugger;
+                break;
+            }
             $i++;
             $field_name = $original_field_name+'_'+$i;
             currentField = SUPER.field(originalFormReference, $field_name);
-            // @TEMP DISABLED@ //var newN = $original_field_name.replaceAll("[", "\\[");
-            // @TEMP DISABLED@ //    newN = newN.replaceAll("]", "\\]");
-            // @TEMP DISABLED@ //var $row_regex = RegExp("<%("+newN+")%>", "g");
-            // @TEMP DISABLED@ //var $row = $innerContent; // $original;
-            // @TEMP DISABLED@ //var $row = $return;
-            // @TEMP DISABLED@ var $rv;
-            // @TEMP DISABLED@ //var $iii = 0;
-            // @TEMP DISABLED@ var $row_regex = /<%(.*?)%>|{(.*?)}/g;     //      /<%(.*?)%>/g;
-            // @TEMP DISABLED@ var $rv;
-            // @TEMP DISABLED@ while (($rv = $row_regex.exec($row)) !== null) {
-            // @TEMP DISABLED@     //var $row_regex = /<%(.*?)%>|{(.*?)}/g;     //      /<%(.*?)%>/g;
-            // @TEMP DISABLED@     //var $row = $original; // $original;
-            // @TEMP DISABLED@     ////var $row = $return;
-            // @TEMP DISABLED@     //var $rv;
-            // @TEMP DISABLED@     //while (($rv = $row_regex.exec($row)) !== null) {
-            // @TEMP DISABLED@     if(typeof $rv[1] === 'undefined'){
-            // @TEMP DISABLED@         $rv[1] = $rv[2];
-            // @TEMP DISABLED@     }
-            // @TEMP DISABLED@     if($value_n==='loop'){
-            // @TEMP DISABLED@         // Loop over all current files
-            // @TEMP DISABLED@         if(SUPER.files[formId]){
-            // @TEMP DISABLED@             if(SUPER.files[formId][$field_name]){
-            // @TEMP DISABLED@                 if(!$fileLoopRows[$field_name]) $fileLoopRows[$field_name] = [];
-            // @TEMP DISABLED@                 var x, files = SUPER.files[formId][$field_name];
-            // @TEMP DISABLED@                 for(x=0; x<files.length; x++){
-            // @TEMP DISABLED@                     if(!$fileLoopRows[$field_name][x]) $fileLoopRows[$field_name][x] = $row;
-            // @TEMP DISABLED@                     if($rv[1]==='counter'){
-            // @TEMP DISABLED@                         $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], (x+1));
-            // @TEMP DISABLED@                         continue;
-            // @TEMP DISABLED@                     }
-            // @TEMP DISABLED@                     $fileLoopRows[$field_name][x] = $fileLoopRows[$field_name][x].replace( $rv[0], '{'+$field_name+';'+$rv[1]+'['+(x)+']}'); 
-            // @TEMP DISABLED@                 }
-            // @TEMP DISABLED@             }
-            // @TEMP DISABLED@         }
-            // @TEMP DISABLED@     }else{
-            // @TEMP DISABLED@         if($rv[1]==='counter'){
-            // @TEMP DISABLED@             $row = $row.replace( $rv[0], $i); 
-            // @TEMP DISABLED@             continue;
-            // @TEMP DISABLED@         }
-            // @TEMP DISABLED@         if($i<2){
-            // @TEMP DISABLED@             $row = $row.replace( $rv[0], '{'+$rv[1]+'}'); 
-            // @TEMP DISABLED@             continue;
-            // @TEMP DISABLED@         }
-            // @TEMP DISABLED@         $splitName = $rv[1].split(';');
-            // @TEMP DISABLED@         var $newName = $splitName[0]+'_'+$i;
-            // @TEMP DISABLED@         if($splitName.length>1){
-            // @TEMP DISABLED@             $newName += ';'+$splitName[1];
-            // @TEMP DISABLED@         }
-            // @TEMP DISABLED@         $row = $row.replace( $rv[0], '{'+$newName+'}'); 
-            // @TEMP DISABLED@     }
-            // @TEMP DISABLED@ }
-            // @TEMP DISABLED@ if($value_n==='loop'){
-            // @TEMP DISABLED@     for(var z=0; z<$fileLoopRows[$field_name].length; z++){
-            // @TEMP DISABLED@         $rows += $fileLoopRows[$field_name][z];
-            // @TEMP DISABLED@     }
-            // @TEMP DISABLED@ }else{
-            // @TEMP DISABLED@     $rows += $row;
-            // @TEMP DISABLED@ }
         }
+
         $rows = $prefix + $rows + $suffix;
         $innerContent = $innerContent.split($original).join($rows);
         $ii++;
         $counter++;
-        return SUPER.filter_foreach_statements($counter, $depth, $innerContent, $fileLoopRows, formId, originalFormReference);
+        return SUPER.filter_foreach_statements($htmlElement, $counter, $depth, $innerContent, $fileLoopRows, formId, originalFormReference);
     };
 
     // @since 4.6.0 Filter if() statements
@@ -2312,7 +2384,6 @@ function SUPERreCaptcha(){
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
-            debugger;
             if(typeof $options[1] === 'undefined'){
                 $value_n = 0;
             }else{
@@ -2330,7 +2401,6 @@ function SUPERreCaptcha(){
                 }
             }
 
-            debugger;
             $default_value = '';
             if($value_type=='int'){
                 $default_value = 0;
@@ -2357,7 +2427,6 @@ function SUPERreCaptcha(){
                 $name = $name.replace('$','');
                 $element = SUPER.field(args.form, $name, '$');
             }
-            debugger;
             if(!$element) $element = SUPER.field(args.form, $name);
             if($element){
                 if($element[0]) $element = $element[0];
@@ -2559,7 +2628,6 @@ function SUPERreCaptcha(){
                         
                         // Check if file upload field
                         if($parent.classList.contains('super-file')){
-                            debugger;
                             $text_field = false;
                             $new_value = '';
                             if($value_n===0) {
@@ -2574,7 +2642,6 @@ function SUPERreCaptcha(){
                                     totalFiles=0,
                                     files, formId = parseInt(args.form.id.replace('super-form-', ''), 10);
                                 if($value_n=='allFileNames' || $value_n=='allFileUrls' || $value_n=='allFileLinks' ){
-                                    debugger;
                                     var allFileNames = '';
                                     var allFileUrls = '';
                                     var allFileLinks = '';
@@ -2588,7 +2655,6 @@ function SUPERreCaptcha(){
                                             }
                                         }
                                     }
-                                    debugger;
                                     if($value_n=='allFileNames'){ $new_value = allFileNames; }
                                     if($value_n=='allFileUrls'){ $new_value = allFileUrls; }
                                     if($value_n=='allFileLinks'){ $new_value = allFileLinks; }
@@ -2599,7 +2665,6 @@ function SUPERreCaptcha(){
                                             m = regex.exec($value_n);
                                             if(m) i = parseInt(m[1],10);
                                             // This retrieves the total amount of files (uploaded and yet to be uploaded)
-                                            debugger;
                                             if($value_n.substring(0, 11)==='total_files' || $value_n.substring(0, 5)==='total' || $value_n.substring(0, 5)==='count'){
                                                 totalFiles = $parent.querySelectorAll('.super-fileupload-files > div').length;
                                                 $new_value = totalFiles;
@@ -2628,9 +2693,8 @@ function SUPERreCaptcha(){
                                                     $new_value = files[i].name;
                                                 }
                                                 if($value_n.substring(0, 3)==='ext'){
-                                                    var split = files[i].name.split('.');
-                                                    var ext = (split[1] ? split[1] : '');
-                                                    $new_value = ext.toLowerCase();
+                                                    var f = SUPER.get_file_name_and_extension(files[i].name);
+                                                    $new_value = f.ext.toLowerCase();
                                                 }
                                             }
                                         }
@@ -2688,11 +2752,9 @@ function SUPERreCaptcha(){
                                     if(typeof $new_value==='undefined'){
                                         $new_value = '';
                                     }
-                                    debugger;
                                     $value = $new_value;
                                 }
                             }else{
-                                debugger;
                                 $value = $element.value;
                             }
                             if( args.target ) {
@@ -2705,16 +2767,13 @@ function SUPERreCaptcha(){
                             }
                         }
                         if( ($value_type=='int') && (isNaN($value)) ) {
-                            debugger;
                             $value = $default_value;
                         }
-                        debugger;
                         args.value = args.value.replace('{'+$old_name+'}', $value);
                     }
                 }
             }
         }
-        debugger;
         return args.value;
     };
 
@@ -4190,6 +4249,17 @@ function SUPERreCaptcha(){
     SUPER.get_original_field_name = function($field){
         if($field.dataset.oname) return $field.dataset.oname;
     };
+    SUPER.get_field_type = function(form, name){
+        var node = form.querySelector('.super-shortcode-field[name="'+name+'"]');
+        if(node) {
+            return {field: node, type: node.type}
+        }
+        node = form.querySelector('.super-active-files[name="'+name+'"]');
+        if(node) {
+            return {field: node, type: 'file'}
+        }
+        return {field: undefined, type: 'text'}
+    };
 
     SUPER.strip_tags = function(input,allowed){
         allowed = (((allowed || "") + "").toLowerCase().match(/<[a-z][a-z0-9]*>/g) || []).join(''); // making sure the allowed arg is a string containing only tags in lowercase (<a><b><c>)
@@ -5134,6 +5204,7 @@ function SUPERreCaptcha(){
     // @since 1.2.7
     SUPER.init_replace_html_tags = function(args){
         var originalFormReference,
+            decodeHtml,
             $i,
             $v,
             $row_regex,
@@ -5199,7 +5270,13 @@ function SUPERreCaptcha(){
             }
 
             // @since 5.0.120 - foreach statement compatibility
-            $html = SUPER.filter_foreach_statements(0, 0, $html, undefined, formId, originalFormReference);
+            $regex = /<%(.*?)%>|{(.*?)}/;
+            var $skipUpdate = true;
+            if ((m = $regex.exec($html)) !== null) {
+                $skipUpdate = false;
+            }
+            debugger;
+            $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
             $html = $html.replaceAll('<%', '{');
             $html = $html.replaceAll('%>', '}');
 
@@ -5208,12 +5285,12 @@ function SUPERreCaptcha(){
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
-            var $skipUpdate = true;
             $regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([a-zA-Z0-9]{1,}))?(}|\):)/g;
             // If it has {tags} then continue
             var m;
             var replaceTagsWithValue = {};
             while ((m = $regex.exec($html)) !== null) {
+                decodeHtml = true;
                 $skipUpdate = false;
                 // This is necessary to avoid infinite loops with zero-width matches
                 if (m.index === $regex.lastIndex) {
@@ -5222,16 +5299,23 @@ function SUPERreCaptcha(){
                 var $n = (m[2] ? m[2] : ''); // name
                 var $d = (m[3] ? m[3] : ''); // depth
                 var $s = (m[4] ? m[4] : ''); // suffix
+                if($s==='allFileNames' || $s==='allFileUrls' || $s==='allFileLinks'){
+                    decodeHtml = false;
+                }else{
+                    var fieldType = SUPER.get_field_type(originalFormReference, $n);
+                    debugger;
+                    if($s==='' && fieldType.type==='file'){
+                        decodeHtml = false;
+                    }
+                }
+                // Get field type
                 if($s!=='') $s = ';'+$s;
                 $values = $n+$d+$s;
                 args.value = '{'+$values+'}'; //values[1];
                 args.target = $target;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
                 delete args.target;
-                debugger;
-                if( ($values.indexOf('allFileNames')!==-1) || ($values.indexOf('allFileUrls')!==-1) || ($values.indexOf('allFileLinks')!==-1) ){
-                    // We do not want to decode HTML
-                }else{
+                if(decodeHtml){
                     $new_value = SUPER.html_encode($new_value);
                 }
                 replaceTagsWithValue[$values] = $new_value;
@@ -5243,7 +5327,6 @@ function SUPERreCaptcha(){
             if($skipUpdate) return true;
             // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
-            debugger;
             $target.innerHTML = $html;
         });
     };
@@ -6273,8 +6356,8 @@ function SUPERreCaptcha(){
         SUPER.init_text_editors();
 
         // @since 2.3.0 - init file upload fields
+        console.log($('.super-fileupload:not(.super-rendered)'));
         SUPER.init_fileupload_fields();
-
 
         SUPER.init_international_phonenumber_fields();
 
@@ -6346,14 +6429,18 @@ function SUPERreCaptcha(){
         // Loop over all fields that are inside dynamic column and rename them accordingly
         var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
         for (i = 0; i < nodes.length; ++i) {
+            var field = nodes[i];
+            if(field.classList.contains('super-fileupload')){
+                field = field.parentNode.querySelector('.super-active-files');
+            }
             // Figure out how deep this node is inside dynamic columns
             var parent = nodes[i].closest('.super-duplicate-column-fields');
             var parentIndex = $(parent).index();  // e.g: 0, 1, 2
             var nameSuffix = '_'+parentIndex;
             if(parentIndex===0) nameSuffix = '';
-            var originalFieldName = nodes[i].dataset.oname;
+            var originalFieldName = field.dataset.oname;
             var newName = originalFieldName+nameSuffix;
-            nodes[i].name = newName;
+            field.name = newName;
             var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
             var suffix = [];
             $(allParents).each(function(key){
@@ -6365,11 +6452,6 @@ function SUPERreCaptcha(){
                 suffix.push('['+currentParentIndex+']');
             });
             var levels = suffix.reverse().join('');
-            var field = nodes[i];
-            if(field.classList.contains('super-fileupload')){
-                    field.classList.remove('super-rendered');
-                    field = field.parentNode.querySelector('.super-active-files');
-            }
             field.name = originalFieldName+levels;
             field.value = field.name; 
             field.dataset.olevels = levels;
@@ -6568,7 +6650,6 @@ function SUPERreCaptcha(){
             $(field).simpleSlider("setValue", value);
         }else{
             if(value !== field.value){
-                debugger;
                 // Set a class so that we don't focus this field
                 if(conditionalUpdate) field.classList.add('super-prevent-focus');
                 $(field).simpleSlider("setValue", 0);
@@ -6578,17 +6659,14 @@ function SUPERreCaptcha(){
             }else{
                 if(conditionalUpdate){
                     if(value===0 || value==="0"){
-                        debugger;
                         // Set a class so that we don't focus this field
                         if(conditionalUpdate) field.classList.add('super-prevent-focus');
                         $(field).simpleSlider("setValue", 1);
                     }else{
-                        debugger;
                         // Set a class so that we don't focus this field
                         if(conditionalUpdate) field.classList.add('super-prevent-focus');
                         $(field).simpleSlider("setValue", 0);
                     }
-                    debugger;
                     // Set a class so that we don't focus this field
                     if(conditionalUpdate) field.classList.add('super-prevent-focus');
                     $(field).simpleSlider("setValue", value);
@@ -6648,7 +6726,6 @@ function SUPERreCaptcha(){
                 $wrapper = $field.parents('.super-field-wrapper:eq(0)');
                 $wrapper.append('<span class="amount"><i>'+$currency+''+$value+''+$format+'</i></span>');
                 $field.on("slider:changed", function ($event, $data) {
-                    debugger;
                     // Only focus form/field when form is already initialized
                     if(this.classList.contains('super-prevent-focus')){
                         this.classList.remove('super-prevent-focus');

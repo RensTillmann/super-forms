@@ -1251,13 +1251,13 @@
 
             // Figure out how deep this node is inside dynamic columns
             var cloneIndex = $(clone).index();
-            var dynamicParent = nodes[i].closest('.super-duplicate-column-fields');
+            var dynamicParent = field.closest('.super-duplicate-column-fields');
             var nameSuffix = '';
             if(cloneIndex>0 && clone===dynamicParent){
                 nameSuffix = '_'+(cloneIndex+1);
             }
             var levels = SUPER.get_dynamic_column_depth(field, nameSuffix, clone, cloneIndex);
-            var originalFieldName = nodes[i].dataset.oname;
+            var originalFieldName = field.dataset.oname;
             field.name = originalFieldName+levels+nameSuffix;
             field.value = field.name; 
             field.dataset.levels = levels;
@@ -2078,12 +2078,21 @@
             $.each(added_fields_with_suffix, function( index ) {
                 html_fields = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
                 for (i = 0; i < html_fields.length; ++i) {
-                    if(!html_fields[i].closest('.super-duplicate-column-fields')){
-                        found = false;
-                        for (ii = 0; ii < foundElements.length; ++ii) {
-                            if($(foundElements[ii]).is(html_fields[i])) found = true;
+                    found = false;
+                    for (ii = 0; ii < foundElements.length; ++ii) {
+                        if($(foundElements[ii]).is(html_fields[i])) found = true;
+                    }
+                    if(!found) foundElements.push(html_fields[i]);
+                    // Is inside dynamic column, must update foreach(fieldNames) accordingly
+                    var duplicateIndex = $(html_fields[i].closest('.super-duplicate-column-fields')).index();
+                    if(duplicateIndex>0){
+                        var fieldType = SUPER.get_field_type(form, index);
+                        if(fieldType.type==='file'){
+                            debugger;
+                            var htmlValue = html_fields[i].parentNode.querySelector('textarea').value;
+                            htmlValue = htmlValue.replaceAll('foreach('+index+')', 'foreach('+index+'_'+(duplicateIndex+1)+')');
+                            html_fields[i].parentNode.querySelector('textarea').value = htmlValue;
                         }
-                        if(!found) foundElements.push(html_fields[i]);
                     }
                 }
             });
@@ -2095,7 +2104,8 @@
             for (i = 0; i < foundElements.length; ++i) {
                 //foundElements[i].dataset.fields = foundElements[i].dataset.fields+'{' + added_fields_without_suffix.join('}{') + '}';
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
-                html = SUPER.filter_foreach_statements(0, 0, html, undefined, formId, form);
+                debugger;
+                html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
                 html = html.replaceAll('<%', '{');
                 html = html.replaceAll('%>', '}');
                 foundElements[i].innerHTML = html;
@@ -2300,7 +2310,8 @@
             }
             for (i = 0; i < foundElements.length; ++i) {
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
-                html = SUPER.filter_foreach_statements(0, 0, html, undefined, formId, form);
+                debugger;
+                html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
                 html = html.replaceAll('<%', '{');
                 html = html.replaceAll('%>', '}');
                 foundElements[i].innerHTML = html;
