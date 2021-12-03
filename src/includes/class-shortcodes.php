@@ -2004,8 +2004,16 @@ class SUPER_Shortcodes {
                             if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                             $tab_html .= '<div class="super-tab-image"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $tab_html .= '<div class="super-tab-title">' . $v['title'] . '</div>';
-                        $tab_html .= '<div class="super-tab-desc">' . $v['desc'] . '</div>';
+                        // Tab title
+                        $tab_html .= '<div class="super-tab-title"';
+                        $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['title']));
+                        $tab_html .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['title']) . '"';
+                        $tab_html .= '>' . $v['title'] . '</div>';
+                        // Tab description
+                        $tab_html .= '<div class="super-tab-desc"';
+                        $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['desc']));
+                        $tab_html .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['desc']) . '"';
+                        $tab_html .= '>' . $v['desc'] . '</div>';
                         $tab_html .= '<span class="super-tab-prev"></span>';
                         $tab_html .= '<span class="super-tab-next"></span>';
                     $tab_html .= '</div>';
@@ -4386,7 +4394,11 @@ class SUPER_Shortcodes {
             if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') {
                 $result .= ' super-align-'.$atts['heading_align']; 
             } 
-            $result .= '">';
+            $result .= '"';
+            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$atts['title']));
+            $result .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($atts['title']) . '"';
+            $result .= '>';
+
             $styles = '';
             if(!empty($atts['heading_size']) && $atts['heading_size']!=='-1') $styles .= 'font-size:'.$atts['heading_size'].'px;'; 
             if(!empty($atts['heading_color'])) $styles .= 'color:'.$atts['heading_color'].';'; 
@@ -4427,7 +4439,11 @@ class SUPER_Shortcodes {
             if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') {
                 $result .= ' super-align-'.$atts['desc_align']; 
             } 
-            $result .= '"' . $styles . '>';
+            $result .= '"';
+            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$atts['desc']));
+            $result .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($atts['desc']) . '"';
+            $result .= ' ' . $styles;
+            $result .= '>';
             $result .= '<div>' . stripslashes($atts['desc']) . '</div>';
             $result .= '</div>';
         }
