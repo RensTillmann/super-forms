@@ -315,8 +315,6 @@ function SUPERreCaptcha(){
         if(args.form_id) args.formData.append('form_id', args.form_id);
         if(args.entry_id) args.formData.append('entry_id', args.entry_id);
         if(args.list_id) args.formData.append('list_id', args.list_id);
-        if(args.token) args.formData.append('token', args.token);
-        if(args.version) args.formData.append('version', args.version);
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,
