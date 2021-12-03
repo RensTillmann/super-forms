@@ -414,6 +414,7 @@
 
     // Check if the added field has an unique field name
     SUPER.check_for_unique_field_name = function ($element, dragDrop) {
+        debugger;
         if(typeof dragDrop === 'undefined') dragDrop = false;
         var i, nodes = $element.querySelectorAll('.super-shortcode-field');
         for(i=0; i<nodes.length; i++){
@@ -439,31 +440,6 @@
                 }
             }
         }
-        //var $field = $element.find('.super-shortcode-field');
-        //// @since v1.2.3 check if we are not importing predefined element
-        //if ($field.length == 1) {
-        //    if (typeof $field !== 'undefined') {
-        //        if (typeof $field.attr('name') !== 'undefined') {
-        //            var $parent = $field.parents('.super-file');
-        //            if($parent.length!==0){
-        //                $field = $element.find('.super-active-files');
-        //            }
-        //            var $name = $field.attr('name').replace('[', '').replace(']', '');
-        //            var form = document.querySelector('.super-preview-elements');
-        //            var $exists = SUPER.field(form, $name);
-        //            if ($exists) {
-        //                var $unique_name = SUPER.generate_unique_field_name($field, $name, $name, 0);
-        //                $field.attr('name', $unique_name);
-        //                var $data = $.parseJSON($element.children('textarea[name="element-data"]').val());
-        //                $data.name = $unique_name;
-        //                // @since 3.7.0 - change unique field name on the fly
-        //                $element.find('.super-title > input').val($unique_name);
-        //                $data = JSON.stringify($data);
-        //                $element.children('textarea[name="element-data"]').val($data);
-        //            }
-        //        }
-        //    }
-        //}
     };
 
     // Generate unique field name for a given element
@@ -637,6 +613,7 @@
                         return false;
                     }
                 }
+                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -659,6 +636,7 @@
                         return false;
                     }
                 }
+                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -920,6 +898,7 @@
                                 var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
                                 $elements.each(function(){
+                                    debugger;
                                     SUPER.check_for_unique_field_name(this);
                                 });
                                 SUPER.regenerate_element_inner();
@@ -1962,7 +1941,12 @@
         $doc.on('focus', '.super-element.super-element-settings input[name="name"]', function () {
             this.value = this.value.split('[')[0];
         });
-        $doc.on('change keyup blur', '.super-element.super-element-settings input[name="name"]', function (e) {
+        $doc.on('blur', '.super-element.super-element-settings input[name="name"]', function (e) {
+            var $this = $(this);
+            var $editing = $('.super-preview-elements .super-element.editing');
+            SUPER.check_for_unique_field_name($editing[0], true);
+        });
+        $doc.on('change keyup', '.super-element.super-element-settings input[name="name"]', function (e) {
             var $this = $(this);
             var $editing = $('.super-preview-elements .super-element.editing');
             var $parent = $editing;
@@ -2073,6 +2057,7 @@
         });
         $doc.on('blur', '.super-element-header .super-title > input', function () {
             console.log('blur');
+            debugger;
             SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
         });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {

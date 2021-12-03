@@ -1822,7 +1822,7 @@ function SUPERreCaptcha(){
             var fieldType = SUPER.get_field_type(originalFormReference, $n+$d);
             if(fieldType.type==='file'){
                 var childParentIndex = $($htmlElement).parents('.super-duplicate-column-fields:eq(0)').index();
-                if(childParentIndex!==0){
+                if(childParentIndex>0){
                     $html = $html.replaceAll('foreach('+$n+$d+')', 'foreach('+$n+$d+'_'+(childParentIndex+1)+')');
                 }
             }
@@ -1856,7 +1856,6 @@ function SUPERreCaptcha(){
         if($html.indexOf('endforeach;')===-1) {
             return $html;  
         }
-        debugger;
         var $chars = $html.split(''),
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
@@ -1869,7 +1868,6 @@ function SUPERreCaptcha(){
             $k,
             $v;
 
-        debugger;
         Object.keys($chars).forEach(function(k) {
             $k = parseInt(k, 10);
             $v = $chars[k];
@@ -1956,7 +1954,6 @@ function SUPERreCaptcha(){
                 // Depth is not 0
             }
         });
-        debugger;
         var $original = $innerContent,
             $row = $innerContent,
             $field_name = $fieldName,
@@ -1968,7 +1965,6 @@ function SUPERreCaptcha(){
             $ii = 0,
             $rows = '';
 
-        debugger;
         var currentField = SUPER.field(originalFormReference, $field_name);
         var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
@@ -1993,7 +1989,6 @@ function SUPERreCaptcha(){
                 if($s!=='') $s = ';'+$s;
                 var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
                 var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
-                debugger;
                 if(fieldType.type==='file'){
                     // Loop over all current files
                     if(SUPER.files[formId]){
@@ -2082,9 +2077,7 @@ function SUPERreCaptcha(){
                 $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
             $rows += $row;
-            debugger;
             if($htmlElement.closest('.super-duplicate-column-fields')){
-                debugger;
                 break;
             }
             $i++;
@@ -4243,11 +4236,17 @@ function SUPERreCaptcha(){
         SUPER.google_maps_api.initMaps(args);
     };
 
-    SUPER.get_field_name = function($field){
-        if($field.name) return $field.name;
+    SUPER.get_field_name = function(field){
+        if(field.classList.contains('super-fileupload')){
+            field = field.parentNode.querySelector('.super-active-files');
+        }
+        if(field.name) return field.name;
     };
-    SUPER.get_original_field_name = function($field){
-        if($field.dataset.oname) return $field.dataset.oname;
+    SUPER.get_original_field_name = function(field){
+        if(field.classList.contains('super-fileupload')){
+            field = field.parentNode.querySelector('.super-active-files');
+        }
+        if(field.dataset.oname) return field.dataset.oname;
     };
     SUPER.get_field_type = function(form, name){
         var node = form.querySelector('.super-shortcode-field[name="'+name+'"]');
@@ -5240,9 +5239,10 @@ function SUPERreCaptcha(){
             $html_fields = args.foundElements;
         }else{
             if(typeof args.el === 'undefined') {
-                $html_fields = args.form.querySelectorAll('.super-html-content, .super-accordion-title, super-accordion-desc');
+                $html_fields = args.form.querySelectorAll('.super-html-content, .super-heading-title, .super-heading-description, .super-tab-title, .super-tab-desc, .super-accordion-title, super-accordion-desc');
             }else{
-                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"], .super-accordion-title[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"], .super-accordion-desc[data-fields*="{'+SUPER.get_original_field_name(args.el)+'}"]');
+                var n = SUPER.get_original_field_name(args.el);
+                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+n+'}"], .super-heading-title[data-fields*="{'+n+'}"], .super-heading-description[data-fields*="{'+n+'}"], .super-tab-title[data-fields*="{'+n+'}"], .super-tab-desc[data-fields*="{'+n+'}"], .super-accordion-title[data-fields*="{'+n+'}"], .super-accordion-desc[data-fields*="{'+n+'}"]');
             }
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
@@ -5250,7 +5250,9 @@ function SUPERreCaptcha(){
             var $counter = 0;
             $target = $html_fields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
-            if( $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
+            if( $target.classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
+                $target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
+                $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
                 $html = $target.dataset.original;
             }else{
                 if(!$target.parentNode.querySelector('textarea')){
@@ -5275,7 +5277,6 @@ function SUPERreCaptcha(){
             if ((m = $regex.exec($html)) !== null) {
                 $skipUpdate = false;
             }
-            debugger;
             $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
             $html = $html.replaceAll('<%', '{');
             $html = $html.replaceAll('%>', '}');
@@ -5303,7 +5304,6 @@ function SUPERreCaptcha(){
                     decodeHtml = false;
                 }else{
                     var fieldType = SUPER.get_field_type(originalFormReference, $n);
-                    debugger;
                     if($s==='' && fieldType.type==='file'){
                         decodeHtml = false;
                     }
@@ -5959,7 +5959,11 @@ function SUPERreCaptcha(){
             element.value = value;
         }
 
-        SUPER.after_field_change_blur_hook({form: main_form});
+        if(typeof args.clone !== 'undefined') {
+            // A column was duplicated
+        }else{
+            SUPER.after_field_change_blur_hook({form: main_form});
+        }
         
         // After form cleared
         SUPER.after_form_cleared_hook(args.form);
