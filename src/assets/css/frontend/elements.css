@@ -4078,6 +4078,12 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   margin-right: 0px;
   margin-left: 5px;
 }
+.super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
+  border-radius: 0px 4px 4px 0px;
+}
+.super-form.super-rtl.super-default-rounded .super-quantity .super-plus-button {
+  border-radius: 4px 0px 0px 4px;
+}
 .super-form.super-rtl .super-toggle-prefix-label {
   padding: 0px 0px 0px 10px;
 }
@@ -4141,9 +4147,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   margin-right: 0;
   margin-left: 5px;
 }
-.super-form.super-rtl .super-fileupload-files > div {
-  flex-direction: row;
-}
 .super-form.super-rtl .super-rating .super-rating {
   float: right;
 }
@@ -4154,6 +4157,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-rtl .display-grid .super-items-list {
   flex-direction: row-reverse;
+  flex-grow: 1;
 }
 .super-form.super-rtl .display-horizontal .super-field-wrapper {
   justify-content: flex-end;
@@ -4238,6 +4242,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
   width: 100%;
+  flex-direction: row-reverse;
 }
 .super-form.super-rtl .super-prev-multipart {
   float: right;
@@ -6171,6 +6176,116 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form .super-slider.super-has-label-desc .super-field-wrapper {
   margin-top: 20px;
+}
+
+.super-rtl .super-heading-title,
+.super-rtl .super-heading-description {
+  justify-content: flex-end;
+}
+.super-rtl .super-heading-title.super-align-left,
+.super-rtl .super-heading-description.super-align-left {
+  justify-content: flex-start;
+}
+.super-rtl .super-heading-title.super-align-center,
+.super-rtl .super-heading-description.super-align-center {
+  justify-content: center;
+}
+.super-rtl .super-heading-title.super-align-right,
+.super-rtl .super-heading-description.super-align-right {
+  justify-content: flex-end;
+}
+.super-rtl .super-checkbox.display-slider .carouseljs-track,
+.super-rtl .super-radio.display-slider .carouseljs-track {
+  flex-grow: 1;
+}
+.super-rtl .super-checkbox.display-slider .carouseljs-track .super-item,
+.super-rtl .super-radio.display-slider .carouseljs-track .super-item {
+  flex-grow: 1;
+}
+
+html[dir=rtl] .super-timepicker-dialog .ui-timepicker-list li {
+  padding-left: 0;
+  padding-right: 15px;
+}
+html[dir=rtl] .super-form.super-rtl .super-heading-title,
+html[dir=rtl] .super-form.super-rtl .super-heading-description {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-left,
+html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-left {
+  justify-content: flex-end;
+}
+html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-center,
+html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-center {
+  justify-content: center;
+}
+html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-right,
+html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-right {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-multipart-steps {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .super-checkbox .super-item,
+html[dir=rtl] .super-form.super-rtl .super-radio .super-item {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
+  border-radius: 0px 4px 4px 0px;
+}
+html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-plus-button {
+  border-radius: 4px 0px 0px 4px;
+}
+html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-checkbox .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-radio .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-rating .super-field-wrapper {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .display-horizontal .super-field-wrapper {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .super-multipart-progress-inner {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .display-grid .super-items-list {
+  flex-direction: row;
+  flex-grow: 1;
+}
+html[dir=rtl] .super-form.super-rtl .super-checkbox.display-slider .carouseljs-track,
+html[dir=rtl] .super-form.super-rtl .super-radio.display-slider .carouseljs-track {
+  flex-grow: 1;
+}
+html[dir=rtl] .super-form.super-rtl .super-checkbox.display-slider .carouseljs-track .super-item,
+html[dir=rtl] .super-form.super-rtl .super-radio.display-slider .carouseljs-track .super-item {
+  flex-grow: 1;
+}
+html[dir=rtl] .super-form.super-rtl .super-toggle {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .super-color .super-field-wrapper {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
+  flex-direction: row;
+}
+html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
+  justify-content: flex-end;
+}
+html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
+  justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper {
+  align-items: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
+  flex-direction: row;
 }
 
 /*# sourceMappingURL=elements.css.map */
