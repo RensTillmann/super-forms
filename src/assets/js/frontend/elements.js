@@ -1288,14 +1288,12 @@
         // Update conditional logic names
         // Update validate condition names
         // Update variable condition names 
-        debugger;
         var nodes = clone.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
             //var conditions = JSON.parse(nodes[i].value);
             //if(typeof conditions !== 'undefined'){
             console.log(nodes[i].value);
             $.each(added_fields_with_suffix, function( index ) {
-                debugger;
                 console.log(index);
                 console.log(added_fields_with_suffix[index]);
             });
@@ -1303,7 +1301,6 @@
             // Before we continue replace any foreach(file_upload_fieldname)
             var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
             var m;
-            debugger;
             var conditions = nodes[i].value;
             var replaceTagsWithValue = {};
             while ((m = regex.exec(conditions)) !== null) {
@@ -1341,7 +1338,6 @@
                 }
                 replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
             }
-            debugger;
             var key;
             for(key in replaceTagsWithValue) {
                 nodes[i].value = nodes[i].value.replaceAll(key, replaceTagsWithValue[key]);
@@ -1351,7 +1347,6 @@
         console.log(added_fields_with_suffix);
         console.log(added_fields_without_suffix);
         $.each(added_fields, function(name, field) {
-            debugger;
             console.log(name);
             console.log(field);
             SUPER.after_field_change_blur_hook({form: clone, el: field});
@@ -2137,7 +2132,6 @@
             
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
             // Loop over all fields that are inside dynamic column and rename them accordingly
-            debugger;
             var $info = SUPER.append_dynamic_column_depth(clone);
             added_fields_with_suffix = $info.added_fields_with_suffix;
  
@@ -2148,13 +2142,9 @@
             // Then convert it to an array and append the missing field names
             // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
             foundElements = [];
-            debugger;
             $.each(added_fields_with_suffix, function( index ) {
-                debugger;
-                html_fields = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-heading-title[data-fields*="{'+index+'}"], .super-heading-description[data-fields*="{'+index+'}"], .super-tab-title[data-fields*="{'+index+'}"], .super-tab-desc[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
-                debugger;
+                html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
                 for (i = 0; i < html_fields.length; ++i) {
-                    debugger;
                     found = false;
                     for (x=0; x<foundElements.length; x++) {
                         if($(foundElements[x]).is(html_fields[i])) found = true;
@@ -2167,7 +2157,6 @@
             if(form.querySelector('input[name="hidden_form_id"]')){
                 formId = form.querySelector('input[name="hidden_form_id"]').value;
             }
-            debugger;
             for(i=0; i<foundElements.length; i++) {
                 if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
@@ -2197,15 +2186,15 @@
                 //     }
             
             // Now replace {tags} inside HTML element
-            debugger;
             for(i=0; i<foundElements.length; i++) {
                 var html;
                 // @since 4.9.0 - accordion title description {tags} compatibility
-                debugger;
-                if( foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
-                    foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
-                    foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
+                if( foundElements[i].dataset.tags ) {
+                    debugger;
                     html = foundElements[i].dataset.original;
+                    //foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
+                    //foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
+                    //foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
                 }else{
                     if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                     html = foundElements[i].parentNode.querySelector('textarea').value;
@@ -2222,7 +2211,6 @@
                 // Before we continue replace any foreach(file_upload_fieldname)
                 var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
                 var m;
-                debugger;
                 var replaceTagsWithValue = {};
                 while ((m = regex.exec(html)) !== null) {
                     // This is necessary to avoid infinite loops with zero-width matches
@@ -2259,27 +2247,30 @@
                     }
                     replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
                 }
-                debugger;
                 var key;
                 for(key in replaceTagsWithValue) {
                     html = html.replaceAll(key, replaceTagsWithValue[key]);
                 }
-                debugger;
-                if( foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
-                    foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
-                    foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
-                    foundElements[i].dataset.original = html;
+                if( foundElements[i].dataset.tags ) {
+                    debugger;
+                    if(foundElements[i].value || foundElements[i].dataset.value){
+                        if(foundElements[i].value) foundElements[i].value = html;
+                        if(foundElements[i].dataset.value) foundElements[i].dataset.value = html;
+                    }else{
+                        foundElements[i].dataset.original = html;
+                    }
+                    //foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
+                    //foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
+                    //foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
                 }else{
                     if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                     foundElements[i].parentNode.querySelector('textarea').value = html;
                 }
 
             }
-            debugger;
             
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
             
-            debugger;
             // @since 2.4.0 - hook after adding new column
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
             
@@ -2341,7 +2332,7 @@
             // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
             foundElements = [];
             $.each(removedFields, function( index ) {
-                var html_fields = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-heading-title[data-fields*="{'+index+'}"], .super-heading-description[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
+                var html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
                 for (i = 0; i < html_fields.length; ++i) {
                     if(!html_fields[i].closest('.super-duplicate-column-fields')){
                         found = false;

@@ -2371,10 +2371,12 @@ function SUPERreCaptcha(){
             
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
             $old_name = $name;
+            debugger;
             $options = $name.toString().split(';');
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
+            debugger;
             if(typeof $options[1] === 'undefined'){
                 $value_n = 0;
             }else{
@@ -2392,6 +2394,7 @@ function SUPERreCaptcha(){
                 }
             }
 
+            debugger;
             $default_value = '';
             if($value_type=='int'){
                 $default_value = 0;
@@ -2528,6 +2531,7 @@ function SUPERreCaptcha(){
                                 $sum = 0;
                             }
                             // @since 3.6.0 - check if we want to return the label instead of a value
+                            debugger;
                             if($value_n=='label'){
                                 $sum += $values;
                             }else{
@@ -2624,7 +2628,7 @@ function SUPERreCaptcha(){
                             if($value_n===0) {
                                 $value_n = 'allFileNames';
                             }
-                            if($value_n=='label'){
+                            if($value_n=='email' || $value_n=='email_label' || $value_n=='emailLabel'){
                                 $new_value = $parent.querySelector('.super-active-files').dataset.email;
                             }else{
                                 var regex = /\[(\d*)\]/,
@@ -2729,6 +2733,7 @@ function SUPERreCaptcha(){
                             }
                         }
 
+                        debugger;
                         if( $text_field===true ) {
                             // Check if text field is a auto-suggest, if so grab the value from the selected item
                             if($element.closest('.super-shortcode').classList.contains('super-auto-suggest') || $element.closest('.super-shortcode').classList.contains('super-wc-order-search')){
@@ -2755,6 +2760,16 @@ function SUPERreCaptcha(){
                             }
                             if( $value_type=='int' ) {
                                 $value = ($value) ? parseFloat($value) : '';
+                            }
+                        }
+                        // Grab E-mail Label
+                        if($value_n=='email' || $value_n=='email_label' || $value_n=='emailLabel'){
+                            debugger;
+                            $value = $element.dataset.email;
+                            if($value.indexOf('%d')!==-1){
+                                debugger;
+                                var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
+                                $value = $value.replaceAll('%d', dynamicParentIndex+1);
                             }
                         }
                         if( ($value_type=='int') && (isNaN($value)) ) {
@@ -5227,31 +5242,37 @@ function SUPERreCaptcha(){
             $fileLoopRows = [],
             formId = parseInt(args.form.id.replace('super-form-', ''), 10);
 
+        debugger;
         // Only when not on canvas in builder mode
         if(args.form.classList.contains('super-preview-elements')){
             return false;
         }
 
         // Continue otherwise
+        debugger;
         if(typeof args.foundElements !== 'undefined') {
             $html_fields = args.foundElements;
         }else{
             if(typeof args.el === 'undefined') {
-                $html_fields = args.form.querySelectorAll('.super-html-content, .super-heading-title, .super-heading-description, .super-tab-title, .super-tab-desc, .super-accordion-title, super-accordion-desc');
+                $html_fields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
             }else{
                 var n = SUPER.get_original_field_name(args.el);
-                $html_fields = args.form.querySelectorAll('.super-html-content[data-fields*="{'+n+'}"], .super-heading-title[data-fields*="{'+n+'}"], .super-heading-description[data-fields*="{'+n+'}"], .super-tab-title[data-fields*="{'+n+'}"], .super-tab-desc[data-fields*="{'+n+'}"], .super-accordion-title[data-fields*="{'+n+'}"], .super-accordion-desc[data-fields*="{'+n+'}"]');
+                $html_fields = args.form.querySelectorAll('[data-tags*="{'+n+'}"], .super-google-map[data-fields*="{'+n+'}"], .super-html-content[data-fields*="{'+n+'}"]');
             }
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
+        debugger;
         Object.keys($html_fields).forEach(function(key) {
+            debugger;
             var $counter = 0;
             $target = $html_fields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
-            if( $target.classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
-                $target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
-                $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
+            if( $target.dataset.tags ) {
+                debugger;
                 $html = $target.dataset.original;
+                //classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
+                //$target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
+                //$target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
             }else{
                 if(!$target.parentNode.querySelector('textarea')){
                     return true;
@@ -5264,6 +5285,7 @@ function SUPERreCaptcha(){
             }
             
             // When generating PDF, we must have a reference to the original form
+            debugger;
             originalFormReference = args.form;
             if(args.form.classList.contains('super-generating-pdf')){
                 originalFormReference = document.querySelector('#super-form-'+formId+'-placeholder');
@@ -5271,14 +5293,18 @@ function SUPERreCaptcha(){
 
             // @since 5.0.120 - foreach statement compatibility
             $regex = /<%(.*?)%>|{(.*?)}/;
+            debugger;
             var $skipUpdate = true;
             if ((m = $regex.exec($html)) !== null) {
                 $skipUpdate = false;
             }
+            debugger;
             $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
+            debugger;
             $html = $html.replaceAll('<%', '{');
             $html = $html.replaceAll('%>', '}');
 
+            debugger;
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
             // That use shortcodes to initialize elements, which initialization would be lost
@@ -5289,15 +5315,18 @@ function SUPERreCaptcha(){
             var m;
             var replaceTagsWithValue = {};
             while ((m = $regex.exec($html)) !== null) {
+                debugger;
                 decodeHtml = true;
                 $skipUpdate = false;
                 // This is necessary to avoid infinite loops with zero-width matches
                 if (m.index === $regex.lastIndex) {
                     $regex.lastIndex++;
                 }
+                debugger;
                 var $n = (m[2] ? m[2] : ''); // name
                 var $d = (m[3] ? m[3] : ''); // depth
                 var $s = (m[4] ? m[4] : ''); // suffix
+                debugger;
                 if($s==='allFileNames' || $s==='allFileUrls' || $s==='allFileLinks'){
                     decodeHtml = false;
                 }else{
@@ -5306,27 +5335,43 @@ function SUPERreCaptcha(){
                         decodeHtml = false;
                     }
                 }
+                debugger;
                 // Get field type
                 if($s!=='') $s = ';'+$s;
                 $values = $n+$d+$s;
                 args.value = '{'+$values+'}'; //values[1];
                 args.target = $target;
+                debugger;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
+                debugger;
                 delete args.target;
                 if(decodeHtml){
                     $new_value = SUPER.html_encode($new_value);
                 }
+                debugger;
                 replaceTagsWithValue[$values] = $new_value;
             }
+            debugger;
             var key;
             for(key in replaceTagsWithValue) {
                 $html = $html.replaceAll('{'+key+'}', replaceTagsWithValue[key]);
             }
+            debugger;
             if($skipUpdate) return true;
+            debugger;
             // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
-            $target.innerHTML = $html;
+            debugger;
+            if($target.value || $target.dataset.value){
+                debugger;
+                if($target.value) $target.value = $html;
+                if($target.dataset.value) $target.dataset.value = $html;
+            }else{
+                $target.innerHTML = $html;
+            }
+            debugger;
         });
+        debugger;
     };
 
     // Replace datepickers default value {tags} with field values
