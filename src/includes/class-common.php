@@ -547,6 +547,29 @@ class SUPER_Common {
      * $names array()
      * $value string
      */
+    public static function get_tags_attributes($value){
+        if($value==='') return '';
+        $names = array();
+        $r = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
+        $str = $value;
+        preg_match_all($r, $str, $m, PREG_SET_ORDER, 0);
+        foreach($m as $k => $v){
+            $l = count($v);
+            if(empty($v[$l-1])) continue;
+            $n = $v[$l-1];
+            $names[$n] = $n;
+        }
+        if(!empty($names)){
+            return ' data-tags="{' . implode('}{', $names) . '}" data-original="' . esc_attr($value) . '"';
+        }
+        return '';
+    }
+
+    /**
+     * Get data-fields attribute based on value that contains tags e.g: {option;2}_{color;3} would convert to [option][color]
+     * $names array()
+     * $value string
+     */
     public static function get_data_fields_attribute($atts){
         extract($atts);
         if(!isset($names)) $names = array();

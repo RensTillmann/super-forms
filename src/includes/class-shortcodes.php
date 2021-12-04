@@ -206,11 +206,11 @@ class SUPER_Shortcodes {
                 $item .= '<span class="super-item-label">';
                     // Shop title (post title)
                     if($atts['display_title']=='true'){
-                        $item .= '<span class="super-title">' . esc_html($v['post_title']) . '</span>';
+                        $item .= '<span class="super-title"' . SUPER_Common::get_tags_attributes($v['post_title']) . '>' . ($v['post_title']) . '</span>';
                     }
                     // Show excerpt (post/product short description)
                     if($atts['display_excerpt']=='true' && !empty($v['post_excerpt']) ){
-                        $item .= '<span class="super-excerpt">' . esc_html($v['post_excerpt']) . '</span>';
+                        $item .= '<span class="super-excerpt"' . SUPER_Common::get_tags_attributes($v['post_excerpt']) . '>' . ($v['post_excerpt']) . '</span>';
                     }
                     // Show product price
                     if( function_exists('wc_price') ) {
@@ -292,7 +292,7 @@ class SUPER_Shortcodes {
                             $placeholder[] = $v['label'];
                         }
                     }
-                    $items[] = '<li class="super-item' . ( !empty($class) ? ' ' . $class : '') . '" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . esc_html($v['label']) . '</li>'; 
+                    $items[] = '<li class="super-item' . ( !empty($class) ? ' ' . $class : '') . '" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . '><div' . SUPER_Common::get_tags_attributes($v['label']) . '>' . ($v['label']) . '</div></li>'; 
                     $items_values[] = $v['value'];
                 }
             }
@@ -305,9 +305,9 @@ class SUPER_Shortcodes {
                             if( ($v['checked']==='true' || $v['checked']===true || $v['checked']===1) ) {
                                 $selected_items[] = $v['value'];
                                 $atts['value'] = $v['value'];
-                                $items[] = '<li class="super-item super-active super-default-selected" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                                $items[] = '<li class="super-item super-active super-default-selected" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . '><div' . SUPER_Common::get_tags_attributes($v['label']) . '>' . ($v['label']) . '</div></li>'; 
                             }else{
-                                $items[] = '<li class="super-item' . ($atts['value']==$v['value'] ? ' super-active' : '') . '" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . stripslashes($v['label']) . '</li>'; 
+                                $items[] = '<li class="super-item' . ($atts['value']==$v['value'] ? ' super-active' : '') . '" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . '><div' . SUPER_Common::get_tags_attributes($v['label']) . '>' . ($v['label']) . '</div></li>'; 
                             }
                             $items_values[] = $v['value'];
                         }
@@ -320,11 +320,11 @@ class SUPER_Shortcodes {
                         foreach( $atts['keywords_items'] as $k => $v ) {
                             if( ($v['checked']==='true' || $v['checked']===true || $v['checked']===1) ) {
                                 $selected_items[] = $v['value'];
-                                $item = '<li class="super-item super-active" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                                $item = '<li class="super-item super-active" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '"' . SUPER_Common::get_tags_attributes($v['value']) . '>';
                             }else{
-                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '">';
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($v['value']) . '" data-search-value="' . esc_attr($v['label']) . '"' . SUPER_Common::get_tags_attributes($v['value']) . '>';
                             }
-                            $item .= '<span class="super-wp-tag">' . stripslashes($v['label']) . '</span>'; 
+                            $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($v['label']) . '>' . ($v['label']) . '</span>'; 
                             $item .= '</li>';
                             $items[] = $item;
                             $items_values[] = $v['value'];
@@ -371,13 +371,14 @@ class SUPER_Shortcodes {
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                             $item .= '<div class="super-image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '" />';
-                        if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
+                        $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . ' />';
+                        if($v['label']!='') $item .= '<span class="super-item-label"' . SUPER_Common::get_tags_attributes($v['label']) . '>' . $v['label'] . '</span>';
                         $item .='</label>';
                     }else{
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         $item .= '<span class="super-before"><span class="super-after"></span></span>';
-                        $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '" /><div>' . $v['label'] . '</div>';
+                        $item .= '<input type="checkbox" value="' . esc_attr( $v['value'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . ' />';
+                        $item .= '<div' . SUPER_Common::get_tags_attributes($v['label']) . '>' . $v['label'] . '</div>';
                         $item .= '</label>';
                     }
                     $items[] = $item;
@@ -427,13 +428,13 @@ class SUPER_Shortcodes {
                             $image = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                             $item .= '<div class="super-image" style="background-image:url(\'' . $image . '\');"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                         }
-                        $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '" />';
-                        if($v['label']!='') $item .= '<span class="super-item-label">' . $v['label'] . '</span>';
+                        $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . ' />';
+                        if($v['label']!='') $item .= '<span class="super-item-label"' . SUPER_Common::get_tags_attributes($v['label']) . '>' . $v['label'] . '</span>';
                         $item .='</label>';
                     }else{
                         $item = '<label ' . ( !empty($class) ? 'class="'.$class.'" ' : '') . '>';
                         $item .= '<span class="super-before"><span class="super-after"></span></span>';
-                        $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '" /><div>' . $v['label'] . '</div>';
+                        $item .= '<input type="radio" value="' . esc_attr( $v['value'] ) . '"' . SUPER_Common::get_tags_attributes($v['value']) . ' /><div' . SUPER_Common::get_tags_attributes($v['label']) . '>' . $v['label'] . '</div>';
                         $item .= '</label>';
                     }
                     $items[] = $item;
@@ -473,18 +474,18 @@ class SUPER_Shortcodes {
                 if($tag=='text') {
                     if($prefix=='keywords_'){
                         // text - keywords - taxonomy
-                        $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($v->name) . '"><span class="super-wp-tag">' . $v->name . '</span></li>';
+                        $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($v->name) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</span></li>';
                     }else{
                         // text - autosuggest - taxonomy
-                        $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
+                        $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></li>'; 
                     }
                 }   
                 // dropdown - taxonomy
-                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>'; 
+                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></li>'; 
                 // checkbox - taxonomy
-                if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($data_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($data_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" /><div>' . $v->name . '</div></label>';
+                if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($data_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($data_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></label>';
                 // radio - taxonomy
-                if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$data_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '" /><div>' . $v->name . '</div></label>';
+                if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$data_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></label>';
                 $items_values[] = $data_value;
             }
         }
@@ -652,12 +653,12 @@ class SUPER_Shortcodes {
                         }
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"><span class="super-wp-tag">' . $vv['post_title'] . '</span></li>';
+                                $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title']) . $sku . '"' . SUPER_Common::get_tags_attributes($data_value) . '><span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($vv['post_title']) . '>' . $vv['post_title'] . '</span></li>';
                             }else{
-                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
+                                $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($vv['post_title']) . '>' . $vv['post_title'] . '</div></li>'; 
                             }
                         }   
-                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '">' . $vv['post_title'] . '</li>'; 
+                        if($tag=='dropdown')    $items[] = '<li class="super-item"  data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $vv['post_title'] ) . $sku . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($vv['post_title']) . '>' . $vv['post_title'] . '</div></li>'; 
                         if($tag=='checkbox'){
                             $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $vv, $final_featured_image_url);
                         }
@@ -721,13 +722,13 @@ class SUPER_Shortcodes {
                     $item_value = $data_value;
                     if($tag=='text') {
                         if($prefix=='keywords_'){
-                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"><span class="super-wp-tag">' . esc_html($v['post_title']) . '</span></li>';
+                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($v['post_title']) . '>' . ($v['post_title']) . '</span></li>';
                         }else{
-                            $items[] = '<li class="super-item ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '">' . esc_html($v['post_title']) . '</li>';
+                            $items[] = '<li class="super-item ' . ( $atts['value']==explode(';', $data_value)[0] ? ' super-active' : '' ) . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v['post_title']) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v['post_title']) . '>' . ($v['post_title']) . '</div></li>';
                             $item_value = explode(';', $data_value)[0];
                         }
                     }
-                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title']) . '">' . esc_html($v['post_title']) . '</li>'; 
+                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v['post_title']) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v['post_title']) . '>' . ($v['post_title']) . '</div></li>'; 
                     if($tag=='checkbox'){
                         $items[] = self::get_item_html($prefix, $tag, $atts, $data_value, $selected_items, $v, $main_featured_image_url);
                     }
@@ -758,14 +759,14 @@ class SUPER_Shortcodes {
                         foreach( $attributes as $v ) {
                             if($tag=='text') {
                                 if($prefix=='keywords_'){
-                                    $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"><span class="super-wp-tag">' . $v . '</span></li>'; 
+                                    $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"' . SUPER_Common::get_tags_attributes($v) . '><span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($v) . '>' . $v . '</span></li>'; 
                                 }else{
-                                    $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+                                    $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"' . SUPER_Common::get_tags_attributes($v) . '><div' . SUPER_Common::get_tags_attributes($v) . '>' . $v . '</div></li>'; 
                                 }
                             }
-                            if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>';  
-                            if($tag=='checkbox')    $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="checkbox" value="' . esc_attr( $v ) . '" /><div>' . $v . '</div></label>';
-                            if($tag=='radio')       $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $v ) . '" /><div>' . $v . '</div></label>';
+                            if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $v ) . '" data-search-value="' . esc_attr( $v ) . '"' . SUPER_Common::get_tags_attributes($v) . '><div' . SUPER_Common::get_tags_attributes($v) . '>' . $v . '</div></li>';  
+                            if($tag=='checkbox')    $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="checkbox" value="' . esc_attr( $v ) . '"' . SUPER_Common::get_tags_attributes($v) . ' /><div' . SUPER_Common::get_tags_attributes($v) . '>' . $v . '</div></label>';
+                            if($tag=='radio')       $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $v ) . '"' . SUPER_Common::get_tags_attributes($v) . ' /><div' . SUPER_Common::get_tags_attributes($v) . '>' . $v . '</div></label>';
                             $items_values[] = $v;
                         }
                     }
@@ -796,22 +797,22 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '">';
-                        $item .= '<span class="super-wp-tag">' . $v->name . '</span>'; 
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr($v->name) . '"' . SUPER_Common::get_tags_attributes($data_value) . '>';
+                        $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</span>'; 
                         $item .= '<span class="super-wp-tag-count">×&nbsp;' . $v->count . '</span>'; 
                         if( !empty($v->description) ) {
                             $item .= '<span class="super-flex-clear"></span>';
-                            $item .= '<span class="super-wp-tag-desc">' . $v->description . '</span>'; 
+                            $item .= '<span class="super-wp-tag-desc"' . SUPER_Common::get_tags_attributes($v->description) . '>' . $v->description . '</span>'; 
                         }
                         $item .= '</li>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>';
+                        $items[] = '<li class="super-item" data-value="' . esc_attr($data_value) . '" data-search-value="' . esc_attr( $v->name ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></li>';
                     }
                 }
-                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '">' . $v->name . '</li>';  
-                if($tag=='checkbox')    $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="checkbox" value="' . esc_attr( $data_value ) . '" /><div>' . $v->name . '</div></label>';
-                if($tag=='radio')       $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '" /><div>' . $v->name . '</div></label>';
+                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $v->name ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></li>';  
+                if($tag=='checkbox')    $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="checkbox" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></label>';
+                if($tag=='radio')       $items[] = '<label class="super-item' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($v->name) . '>' . $v->name . '</div></label>';
                 $items_values[] = $data_value;
             }
         }
@@ -847,16 +848,16 @@ class SUPER_Shortcodes {
                     if($tag=='text') {
                         // text - autosuggest - csv
                         if( !empty($atts['enable_auto_suggest']) ) {
-                            $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                            $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
                         }else{
                             // text - keywords - csv
                             if($prefix=='keywords_'){
-                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '">';
-                                $item .= '<span class="super-wp-tag">' . $title . '</span>'; 
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '"' . SUPER_Common::get_tags_attributes($value) . '>';
+                                $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</span>'; 
                                 $item .= '</li>';
                                 $items[] = $item;
                             }else{
-                                $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                                $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
                             }
                         }    
                     }
@@ -868,13 +869,13 @@ class SUPER_Shortcodes {
                             $class .= ' super-active';
                             $placeholder[] = $title;
                         }
-                        $items[] = '<li class="super-item' . (!empty($class) ? ' ' . $class : '' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '">' . $title . '</li>';
+                        $items[] = '<li class="super-item' . (!empty($class) ? ' ' . $class : '' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
                     }
                     if($tag=='checkbox') {
-                        $items[] = '<label class="super-item' . ( !in_array($value, $selected_values, true ) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array( $value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" /><div>' . $title . '</div></label>';
+                        $items[] = '<label class="super-item' . ( !in_array($value, $selected_values, true ) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array( $value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '' . SUPER_Common::get_tags_attributes($value) . '" /><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></label>';
                     }
                     if($tag=='radio') {
-                        $items[] = '<label class="super-item' . ( ($atts['value']!=$value) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '" /><div>' . $title . '</div></label>';
+                        $items[] = '<label class="super-item' . ( ($atts['value']!=$value) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></label>';
                     }
                     $items_values[] = $value;
                 }
@@ -939,17 +940,17 @@ class SUPER_Shortcodes {
 
                         if($tag=='text') {
                             if($prefix=='keywords_'){
-                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
-                                $item .= '<span class="super-wp-tag">' . $label . '</span>'; 
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '>';
+                                $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</span>'; 
                                 $item .= '</li>';
                                 $items[] = $item;
                             }else{
-                                $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
+                                $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></li>';
                             }
                         }
-                        if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
-                        if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" /><div>' . $label . '</div></label>';
-                        if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '" /><div>' . $label . '</div></label>';
+                        if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></li>';
+                        if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></label>';
+                        if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></label>';
                         $items_values[] = $value;
                     }
                 }
@@ -985,18 +986,18 @@ class SUPER_Shortcodes {
                     if($tag=='text') {
                         if($prefix=='keywords_'){
                             // text - keywords - taxonomy
-                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($data_label) . '"><span class="super-wp-tag">' . $data_label . '</span></li>';
+                            $items[] = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr($data_label) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($data_label) . '>' . $data_label . '</span></li>';
                         }else{
                             // text - autosuggest - taxonomy
-                            $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '">' . $data_label . '</li>'; 
+                            $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($data_label) . '>' . $data_label . '</div></li>'; 
                         }
                     }   
                     // dropdown - taxonomy
-                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '">' . $data_label . '</li>'; 
+                    if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $data_value ) . '" data-search-value="' . esc_attr( $data_label ) . '"' . SUPER_Common::get_tags_attributes($data_value) . '><div' . SUPER_Common::get_tags_attributes($data_label) . '>' . $data_label . '</div></li>'; 
                     // checkbox - taxonomy
-                    if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($data_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($data_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '" /><div>' . $data_label . '</div></label>';
+                    if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($data_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($data_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($data_label) . '>' . $data_label . '</div></label>';
                     // radio - taxonomy
-                    if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$data_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '" /><div>' . $data_label . '</div></label>';
+                    if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$data_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $data_value ) . '"' . SUPER_Common::get_tags_attributes($data_value) . ' /><div' . SUPER_Common::get_tags_attributes($data_label) . '>' . $data_label . '</div></label>';
                     $items_values[] = $data_value;
                 }
             }
@@ -1086,22 +1087,22 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">';
-                        $item .= '<span class="super-wp-tag">' . $label . '</span>'; 
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '>';
+                        $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<li class="super-item' . ($selected || $active ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
+                        $items[] = '<li class="super-item' . ($selected || $active ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></li>';
                     }
                 }
                 if($tag=='dropdown'){
-                    $items[] = '<li class="super-item' . ($selected || $active ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '">' . $label . '</li>';
+                    $items[] = '<li class="super-item' . ($selected || $active ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $label ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></li>';
                 }
                 if($tag=='checkbox'){
-                    $items[] = '<label class="super-item' . ( !in_array($value, $selected_items, true ) || $active ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($value, $selected_items, true ) || $active ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '" /><div>' . $label . '</div></label>';
+                    $items[] = '<label class="super-item' . ( !in_array($value, $selected_items, true ) || $active ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($value, $selected_items, true ) || $active ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></label>';
                 }
                 if($tag=='radio'){
-                    $items[] = '<label class="super-item' . ( $selected || $active ? ' super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '" /><div>' . $label . '</div></label>';
+                    $items[] = '<label class="super-item' . ( $selected || $active ? ' super-active super-default-selected' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($label) . '>' . $label . '</div></label>';
                 }
                 $items_values[] = $value;
             }
@@ -1164,17 +1165,17 @@ class SUPER_Shortcodes {
                 }
                 if($tag=='text') {
                     if($prefix=='keywords_'){
-                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">';
-                        $item .= '<span class="super-wp-tag">' . $final_label . '</span>'; 
+                        $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '"' . SUPER_Common::get_tags_attributes($final_value) . '>';
+                        $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($final_label) . '>' . $final_label . '</span>'; 
                         $item .= '</li>';
                         $items[] = $item;
                     }else{
-                        $items[] = '<li class="super-item" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">' . $final_label . '</li>';
+                        $items[] = '<li class="super-item" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '"' . SUPER_Common::get_tags_attributes($final_value) . '><div' . SUPER_Common::get_tags_attributes($final_label) . '>' . $final_label . '</div></li>';
                     }
                 }
-                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '">' . $final_label . '</li>';
-                if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($final_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($final_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $final_value ) . '" /><div>' . $final_label . '</div></label>';
-                if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$final_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $final_value ) . '" /><div>' . $final_label . '</div></label>';
+                if($tag=='dropdown')    $items[] = '<li class="super-item" data-value="' . esc_attr( $final_value ) . '" data-search-value="' . esc_attr( $final_label ) . '"' . SUPER_Common::get_tags_attributes($final_value) . '><div' . SUPER_Common::get_tags_attributes($final_label) . '>' . $final_label . '</div></li>';
+                if($tag=='checkbox')    $items[] = '<label class="super-item' . ( !in_array($final_value, $selected_items, true ) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array($final_value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $final_value ) . '"' . SUPER_Common::get_tags_attributes($final_value) . ' /><div' . SUPER_Common::get_tags_attributes($final_label) . '>' . $final_label . '</div></label>';
+                if($tag=='radio')       $items[] = '<label class="super-item' . ( ($atts['value']!=$final_value) ? '' : ' super-active super-default-selected') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $final_value ) . '"' . SUPER_Common::get_tags_attributes($final_value) . ' /><div' . SUPER_Common::get_tags_attributes($final_label) . '>' . $final_label . '</div></label>';
                 $items_values[] = $final_value;
             }
         }
@@ -2006,13 +2007,11 @@ class SUPER_Shortcodes {
                         }
                         // Tab title
                         $tab_html .= '<div class="super-tab-title"';
-                        $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['title']));
-                        $tab_html .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['title']) . '"';
+                        $tab_html .= SUPER_Common::get_tags_attributes($v['title']);
                         $tab_html .= '>' . $v['title'] . '</div>';
                         // Tab description
                         $tab_html .= '<div class="super-tab-desc"';
-                        $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['desc']));
-                        $tab_html .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['desc']) . '"';
+                        $tab_html .= SUPER_Common::get_tags_attributes($v['desc']);
                         $tab_html .= '>' . $v['desc'] . '</div>';
                         $tab_html .= '<span class="super-tab-prev"></span>';
                         $tab_html .= '<span class="super-tab-next"></span>';
@@ -2152,10 +2151,10 @@ class SUPER_Shortcodes {
                                 if( $v['max_height']!='' ) $img_styles .= 'max-height:' . $v['max_height'] . 'px;';
                                 $result .= '<div class="super-accordion-image"><img src="' . esc_url($image) . '"' . ($img_styles!='' ? ' style="' . $img_styles . '"' : '') . '></div>';
                             }
-                            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['title']));
-                            $result .= '<div class="super-accordion-title"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['title']) . '">' . esc_html($v['title']) . '</div>';
-                            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$v['desc']));
-                            $result .= '<div class="super-accordion-desc"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($v['desc']) . '">' . esc_html($v['desc']) . '</div>';
+                            // Title
+                            $result .= '<div class="super-accordion-title"' . SUPER_Common::get_tags_attributes($v['title']) . '>' . ($v['title']) . '</div>';
+                            // Description
+                            $result .= '<div class="super-accordion-desc"' . SUPER_Common::get_tags_attributes($v['desc']) . '>' . ($v['desc']) . '</div>';
                         $result .= '</div>';
                         $result .= '<div class="super-accordion-content' . ($atts['content_class']!='' ? ' ' . $atts['content_class'] : '') . '">';
                             $result .= '<div class="super-padding">';
@@ -3183,12 +3182,12 @@ class SUPER_Shortcodes {
                     $tags = explode(',', $atts['value']);
                     if( empty( $items) ) { // User can input his own tags, no predefined items here
                         foreach( $tags as $tag ) {
-                            $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag) . '" title="remove this tag">' . esc_html($tag) . '</span>';
+                            $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag) . '" title="remove this tag"' . SUPER_Common::get_tags_attributes($tag) . '><span' . SUPER_Common::get_tags_attributes($tag) . '>' . ($tag) . '</span></span>';
                         }
                     }else{
                         foreach( $atts['keywords_items'] as $tag ) {
                             if(in_array($tag['value'], $tags, true )) {
-                                $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag['value']) . '" title="remove this tag">' . esc_html($tag['label']) . '</span>';
+                                $result .= '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="' . esc_attr($tag['value']) . '" title="remove this tag"' . SUPER_Common::get_tags_attributes($tag['value']) . '><span' . SUPER_Common::get_tags_attributes($tag['label']) . '>' . ($tag['label']) . '</span></span>';
                             }
                         }
                     }
@@ -3783,7 +3782,7 @@ class SUPER_Shortcodes {
             if($img_styles!='') $img_styles = 'style="' . esc_attr($img_styles) . '" ';
             $result .= '<img src="' . esc_url($url) . '" ' . $img_styles . 'alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" />';
         }else{
-            $result .= '<i class="fas fa-plus"></i><span class="super-fileupload-button-text">' . esc_html($atts['placeholder']) . '</span>';
+            $result .= '<i class="fas fa-plus"></i><span class="super-fileupload-button-text"' . SUPER_Common::get_tags_attributes($atts['placeholder']) . '>' . ($atts['placeholder']) . '</span>';
         }
 
         $result .= '</div>';
@@ -4394,10 +4393,7 @@ class SUPER_Shortcodes {
             if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') {
                 $result .= ' super-align-'.$atts['heading_align']; 
             } 
-            $result .= '"';
-            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$atts['title']));
-            $result .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($atts['title']) . '"';
-            $result .= '>';
+            $result .= '"' . SUPER_Common::get_tags_attributes($atts['title']) . '>';
 
             $styles = '';
             if(!empty($atts['heading_size']) && $atts['heading_size']!=='-1') $styles .= 'font-size:'.$atts['heading_size'].'px;'; 
@@ -4439,11 +4435,7 @@ class SUPER_Shortcodes {
             if(!empty($atts['desc_align']) && $atts['desc_align']!=='none') {
                 $result .= ' super-align-'.$atts['desc_align']; 
             } 
-            $result .= '"';
-            $names = SUPER_Common::get_data_fields_attribute(array('value'=>$atts['desc']));
-            $result .= (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-original="' . esc_attr($atts['desc']) . '"';
-            $result .= ' ' . $styles;
-            $result .= '>';
+            $result .= '"' . SUPER_Common::get_tags_attributes($atts['desc']) . ' ' . $styles . '>';
             $result .= '<div>' . stripslashes($atts['desc']) . '</div>';
             $result .= '</div>';
         }
