@@ -651,11 +651,16 @@
     padding-right: 10px;
 }
 
-.super-settings .super-export-import-entries input {
+.super-settings .super-export-import-entries input,
+.super-settings .super-export-import-entries select {
     float: left;
     width: 100px;
     text-align: center;
     margin-right: 25px;
+}
+.super-settings .super-export-import-entries select {
+    width: 250px;
+    text-align: left;
 }
 
 .super-settings .super-export-import-entries input[name="delimiter"],

@@ -1,5 +1,6 @@
 <?php
 $s = '.super-form-'.$form_id.' ';
+$srtl = '.super-form-'.$form_id.'.super-rtl ';
 $rs1 = '.super-form-'.$form_id.'.super-window-first-responsiveness ';
 $rs2 = '.super-form-'.$form_id.'.super-window-second-responsiveness ';
 $rs3 = '.super-form-'.$form_id.'.super-window-third-responsiveness ';
@@ -12,10 +13,11 @@ $extra_styles = '';
 if( (isset($v['theme_multipart_progress_bar'])) && ($v['theme_multipart_progress_bar']!='true') ) {
     $extra_styles .= $s.".super-multipart-progress {
     display:none;
-}\n";  
+}\n";
 }
 if( (isset($v['theme_multipart_steps'])) && ($v['theme_multipart_steps']!='true') ) {
-    $extra_styles .= $s.".super-multipart-steps {
+    $extra_styles .= $s.".super-multipart-steps,
+    ".$srtl.".super-multipart-steps {
     display:none;
 }\n";
 }else{

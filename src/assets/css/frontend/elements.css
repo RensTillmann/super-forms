@@ -6287,5 +6287,11 @@ html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper {
 html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
   flex-direction: row;
 }
+html[dir=rtl] .super-form.super-rtl .super-tabs-menu,
+html[dir=rtl] .super-form.super-rtl .super-accordion-header,
+html[dir=rtl] .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag,
+html[dir=rtl] .super-form.super-rtl .super-int-phone_country-list .super-int-phone_country {
+  flex-direction: row;
+}
 
 /*# sourceMappingURL=elements.css.map */

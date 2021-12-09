@@ -233,7 +233,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                                     if( $fk==0 ) {
                                         $files .= $fv['url'];
                                     }else{
-                                        $files .= "\n" . $fv['url'];
+                                        $files .= PHP_EOL . $fv['url'];
                                     }
                                 }
                             }
@@ -259,7 +259,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
                     $fp = fopen( $filename, 'w' );
                     fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
                     foreach ( $rows as $fields ) {
-                        fputcsv( $fp, $fields, $delimiter, $enclosure );
+                        fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
                     }
                     fclose( $fp );
                     $attachment = array(
