@@ -500,7 +500,21 @@ $array['layout_elements'] = array(
                     'group' => 'layout_elements',
                     'inner' => '',
                     'data' => array(
-                        'layout' => 'tabs'
+                        'layout' => 'tabs',
+                        'items' => array(
+                            array(
+                                'title' => esc_html__('Tab 1', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            ),
+                            array(
+                                'title' => esc_html__('Tab 2', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            ),
+                            array(
+                                'title' => esc_html__('Tab 3', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            )
+                        )
                     )
                 )
             ),
@@ -515,7 +529,21 @@ $array['layout_elements'] = array(
                     'group' => 'layout_elements',
                     'inner' => '',
                     'data' => array(
-                        'layout' => 'accordion'
+                        'layout' => 'accordion',
+                        'items' => array(
+                            array(
+                                'title' => esc_html__('Tab 1', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            ),
+                            array(
+                                'title' => esc_html__('Tab 2', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            ),
+                            array(
+                                'title' => esc_html__('Tab 3', 'super-forms'),
+                                'desc' => esc_html__('Description', 'super-forms')
+                            )
+                        )
                     )
                 )
             ),

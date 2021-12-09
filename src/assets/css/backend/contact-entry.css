@@ -134,6 +134,28 @@ input[name="sffrom"], input[name="sfto"] {
     width:100%;
     margin:0px 0px 10px 0px;
 }
+.super-contact-entries-export-modal label {
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background-color: #f8f8f8;
+    padding: 3px 3px 3px 10px;
+    margin: 0 3px 0 0;
+    float: left;
+    font-size: 12px;
+}
+.super-contact-entries-export-modal label input[name="delimiter"],
+.super-contact-entries-export-modal label input[name="enclosure"],
+.super-contact-entries-export-modal label select[name="order_by"] {
+    width: 35px;
+    text-align: center;
+    font-size: 12px;
+    height: 26px;
+    min-height: auto;
+}
+.super-contact-entries-export-modal label select[name="order_by"] {
+    width: 175px;
+    text-align: left;
+}
 .super-export-selected-columns.super-loading {
     display: flex;
     justify-content: center;

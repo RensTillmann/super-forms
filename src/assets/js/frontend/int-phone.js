@@ -159,18 +159,6 @@
                     if (this.options.separateDialCode) {
                         this.options.autoHideDialCode = this.options.nationalMode = false;
                     }
-                    // we cannot just test screen size as some smartphones/website meta tags will report desktop
-                    // resolutions
-                    // Note: for some reason jasmine breaks if you put this in the main Plugin function with the
-                    // rest of these declarations
-                    // Note: to target Android Mobiles (and not Tablets), we must find 'Android' and 'Mobile'
-                    this.isMobile = /Android.+Mobile|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                    if (this.isMobile) {
-                        // trigger the mobile dropdown css
-                        document.body.classList.add("super-int-phone-mobile");
-                        // on mobile, we want a full screen dropdown, so we must append it to the body
-                        if (!this.options.dropdownContainer) this.options.dropdownContainer = document.body;
-                    }
                     // these promises get resolved when their individual requests complete
                     // this way the dev can do something like super_int_phone.promise.then(...) to know when all requests are
                     // complete
@@ -675,34 +663,6 @@
                     if (this.options.dropdownContainer) {
                         this.options.dropdownContainer.appendChild(this.dropdown);
                     }
-                    if (!this.isMobile) {
-                        var pos = this.telInput.getBoundingClientRect();
-                        // windowTop from https://stackoverflow.com/a/14384091/217866
-                        var windowTop = window.pageYOffset || document.documentElement.scrollTop;
-                        var inputTop = pos.top + windowTop;
-                        var dropdownHeight = this.countryList.offsetHeight;
-                        // dropdownFitsBelow = (dropdownBottom < windowBottom)
-                        var dropdownFitsBelow = inputTop + this.telInput.offsetHeight + dropdownHeight < windowTop + window.innerHeight;
-                        var dropdownFitsAbove = inputTop - dropdownHeight > windowTop;
-                        // by default, the dropdown will be below the input. If we want to position it above the
-                        // input, we add the dropup class.
-                        this._toggleClass(this.countryList, "super-int-phone_country-list--dropup", !dropdownFitsBelow && dropdownFitsAbove);
-                        this._toggleClass(this.countryList.closest('.super-shortcode'), "super-dropup", !dropdownFitsBelow && dropdownFitsAbove);
-                        // if dropdownContainer is enabled, calculate postion
-                        if (this.options.dropdownContainer) {
-                            // by default the dropdown will be directly over the input because it's not in the flow.
-                            // If we want to position it below, we need to add some extra top value.
-                            var extraTop = !dropdownFitsBelow && dropdownFitsAbove ? 0 : this.telInput.offsetHeight;
-                            // calculate placement
-                            this.dropdown.style.top = "".concat(inputTop + extraTop, "px");
-                            this.dropdown.style.left = "".concat(pos.left + document.body.scrollLeft, "px");
-                            // close menu on window scroll
-                            this._handleWindowScroll = function() {
-                                return _this8._closeDropdown();
-                            };
-                            window.addEventListener("scroll", this._handleWindowScroll);
-                        }
-                    }
                 }
             }, {
                 key: "_getClosestListItem",
@@ -1065,7 +1025,7 @@
                     this.countryList.removeEventListener("click", this._handleClickCountryList);
                     // remove menu from container
                     if (this.options.dropdownContainer) {
-                        if (!this.isMobile) window.removeEventListener("scroll", this._handleWindowScroll);
+                        window.removeEventListener("scroll", this._handleWindowScroll);
                         if (this.dropdown.parentNode) this.dropdown.parentNode.removeChild(this.dropdown);
                     }
                     this._trigger("close:countrydropdown");

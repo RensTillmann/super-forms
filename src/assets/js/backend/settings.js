@@ -239,6 +239,8 @@
             var $oldHtml = $this.html();
             var $type = $this.data('type');
             var $from = $('.super-export-import-entries input[name="from"]').val();
+            var $form_ids = $('.super-export-import-entries input[name="form_ids"]').val();
+            var $order_by = $('.super-export-import-entries select[name="order_by"]').val();
             var $till = $('.super-export-import-entries input[name="till"]').val();
             var $delimiter = $('.super-export-import-entries input[name="delimiter"]').val();
             var $enclosure = $('.super-export-import-entries input[name="enclosure"]').val();
@@ -250,6 +252,8 @@
                     action: 'super_export_entries',
                     type: $type,
                     from: $from,
+                    form_ids: $form_ids,
+                    order_by: $order_by,
                     till: $till,
                     delimiter: $delimiter,
                     enclosure: $enclosure

@@ -8,13 +8,17 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Dec 04, 2021 - Version 5.0.132
+## Dec 09, 2021 - Version 5.0.200
 
+- **Added:** Option to filter based on form ID when exporting entries to CSV via `Super Forms > Settings > Export & Import` 
+- **Added:** Option to sort by oldest or newest first when exporting entries to CSV via `Super Forms > Settings > Export & Import` and `Super Forms > Contact Enties`
+- **Added:** Option to define custom delimiter and enclosure when exportin entries to CSV via `Super Forms > Contact Enties`
 - **Added:** Option for datepicker to use {tags} inside the `Default value` setting
 - **Added:** Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
 - **Added:** Ability to use `{dynamic_column_counter}` inside conditional logic and variable conditions, can be used to hide/display elements inside a specific dyanmically added column
 - **Added:** Option for hidden field `Unique code generation` to define a `Unique invoice key` which allows you to generate multiple invoice numbers. This is useful for when you require both Invoice numbers and Quote numbers
 - **Improved:** RTL layout for elements when site uses dir="rtl" on html tag
+- **Fix:** International Phonenumber bug on mobile devices
 - **Fix:** Issue with reCapthca validation when files are being uploaded
 - **Fix:** When using SMTP on WP v5.5+ make sure to include the PHPMailer `Exceptions.php` file
 - **Fix:** Bug with datepicker being cleared upon form submission
