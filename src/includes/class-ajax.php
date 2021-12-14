@@ -986,16 +986,21 @@ class SUPER_Ajax {
             $rows[0][$k] = $v;
         }
 
+        $order_by = 'ASC'; // Default
+        if( isset( $_POST['order_by'] ) ) {
+            $order_by = sanitize_text_field($_POST['order_by']);
+        }
+        $order_by_filter = "entry.post_date $order_by";
+
         global $wpdb;
-        $delimiter = ',';
-        $enclosure = '"';
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
         $entries = $wpdb->get_results("
         SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
         FROM $table AS entry
         INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
-        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)");
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)
+        ORDER BY $order_by_filter");
 
         foreach( $entries as $k => $v ) {
             $data = unserialize( $v->data );
@@ -1024,7 +1029,7 @@ class SUPER_Ajax {
                                 if( $fk==0 ) {
                                     $files .= $fv['url'];
                                 }else{
-                                    $files .= "\n" . $fv['url'];
+                                    $files .= PHP_EOL . $fv['url'];
                                 }
                             }
                         }
@@ -1047,8 +1052,12 @@ class SUPER_Ajax {
             $filename = trailingslashit($d['path']) . $basename;
             $fp = fopen( $filename, 'w' );
             fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+            $delimiter = wp_unslash(sanitize_text_field($_POST['delimiter']));
+            $enclosure = wp_unslash(sanitize_text_field($_POST['enclosure']));
+            if(empty($delimiter)) $delimiter = ',';
+            if(empty($enclosure)) $enclosure = '"';
             foreach ( $rows as $fields ) {
-                fputcsv( $fp, $fields, $delimiter, $enclosure );
+                fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
             }
             fclose( $fp );
             $attachment = array(
@@ -1134,6 +1143,9 @@ class SUPER_Ajax {
             }
             echo '</ul>';
             echo '<input type="hidden" name="query" value="' . $query . '" />';
+            echo '<label>Delimiter: <input type="text" name="delimiter" value="," /></label>';
+            echo '<label>Enclosure: <input type="text" name="enclosure" value="' . esc_attr('"') . '" /></label>';
+            echo '<label>Sort: <select name="order_by"><option value="ASC">ASC - Oldest first (default)</option><option value="DESC">DESC - Newest first</option></select></label>';
             echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 0px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
         echo '</div>';
         die();
@@ -1685,6 +1697,27 @@ class SUPER_Ajax {
         if( isset( $_POST['type'] ) ) {
             $type = $_POST['type'];
         }
+        $form_ids = '';
+        if( isset( $_POST['form_ids'] ) ) {
+            $ids = trim(sanitize_text_field($_POST['form_ids']));
+            $ids = explode(',', $ids);
+            $form_ids = array();
+            foreach($ids as $k => $v){
+                if(empty($v)) continue;
+                $form_ids[absint($v)] = absint($v);
+            }
+            unset($ids);
+        }
+        if(!empty($form_ids)){
+            $form_ids = implode(', ', $form_ids);
+            $form_filter = " AND entry.post_parent IN ($form_ids)";
+        }
+        $order_by = 'ASC'; // Default
+        if( isset( $_POST['order_by'] ) ) {
+            $order_by = sanitize_text_field($_POST['order_by']);
+        }
+        $order_by_filter = "entry.post_date $order_by";
+
         $from = '';
         $till = '';
         $range_query = '';
@@ -1710,11 +1743,11 @@ class SUPER_Ajax {
         }
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
-        $entries = $wpdb->get_results("
-        SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
+        $entries = $wpdb->get_results("SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
         FROM $table AS entry
         INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
-        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry'$range_query");
+        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' $form_filter $range_query
+        ORDER BY $order_by_filter");
 
         $rows = array();
         $columns = array();
@@ -1761,7 +1794,7 @@ class SUPER_Ajax {
                                 if( $fk==0 ) {
                                     $files .= $fv['url'];
                                 }else{
-                                    $files .= "\n" . $fv['url'];
+                                    $files .= PHP_EOL . $fv['url'];
                                 }
                             }
                         }
@@ -1785,7 +1818,7 @@ class SUPER_Ajax {
             $fp = fopen( $filename, 'w' );
             fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
             foreach ( $rows as $fields ) {
-                fputcsv( $fp, $fields, $delimiter, $enclosure );
+                fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
             }
             fclose( $fp );
             $attachment = array(
