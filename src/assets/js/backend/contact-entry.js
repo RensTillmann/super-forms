@@ -18,6 +18,12 @@
             });
             $columns = JSON.stringify($columns.reverse());
             localStorage.setItem('_super_entry_order', $columns);
+            var $delimiter = $('.super-contact-entries-export-modal input[name="delimiter"]').val();
+            var $enclosure = $('.super-contact-entries-export-modal input[name="enclosure"]').val();
+            var $order_by = $('.super-contact-entries-export-modal select[name="order_by"]').val();
+            localStorage.setItem('_super_export_single_entries_delimiter', $delimiter);
+            localStorage.setItem('_super_export_single_entries_enclosure', $enclosure);
+            localStorage.setItem('_super_export_single_entries_order_by', $order_by);
         }
 
         var $doc = $(document);
@@ -115,6 +121,9 @@
                     complete: function() {
                         $button.html($oldHtml).removeClass('disabled');
                         // Reorder and re-check based on local storage
+                        var $delimiter = localStorage.getItem('_super_export_single_entries_delimiter');
+                        var $enclosure = localStorage.getItem('_super_export_single_entries_enclosure');
+                        var $order_by = localStorage.getItem('_super_export_single_entries_order_by');
                         var $columns = localStorage.getItem('_super_entry_order');
                         $columns = JSON.parse($columns);
                         if($columns){
@@ -130,6 +139,9 @@
                                 }
                             });
                         }
+                        if($delimiter) $('.super-contact-entries-export-modal input[name="delimiter"]').val($delimiter); 
+                        if($enclosure) $('.super-contact-entries-export-modal input[name="enclosure"]').val($enclosure);
+                        if($order_by) $('.super-contact-entries-export-modal select[name="order_by"]').val($order_by);
                     }
                 });
             }
@@ -157,6 +169,9 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_export_selected_entries',
+                    delimiter: $('.super-contact-entries-export-modal input[name="delimiter"]').val(),
+                    enclosure: $('.super-contact-entries-export-modal input[name="enclosure"]').val(),
+                    order_by: $('.super-contact-entries-export-modal select[name="order_by"]').val(),
                     columns: $columns,
                     query: $query
                 },

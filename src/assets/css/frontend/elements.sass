@@ -3256,6 +3256,12 @@ textarea
             margin-left: 5px
   // RTL
   &.super-rtl
+    &.super-default-rounded 
+      .super-quantity 
+        .super-minus-button
+          border-radius: 0px 4px 4px 0px
+        .super-plus-button
+          border-radius: 4px 0px 0px 4px
     .super-toggle-prefix-label
       padding: 0px 0px 0px 10px
     .super-toggle-suffix-label
@@ -3308,8 +3314,6 @@ textarea
         .super-before
           margin-right: 0
           margin-left: 5px
-    .super-fileupload-files > div
-      flex-direction: row
     .super-rating .super-rating
       float: right
     .super-color,
@@ -3320,6 +3324,7 @@ textarea
     .display-grid
       .super-items-list
         flex-direction: row-reverse
+        flex-grow: 1
     .display-horizontal
       .super-field-wrapper
         justify-content: flex-end
@@ -3390,6 +3395,7 @@ textarea
           float: none
         .super-fileupload-files
           width: 100%
+          flex-direction: row-reverse
     .super-prev-multipart
       float: right
     .super-next-multipart
@@ -5402,3 +5408,98 @@ textarea
     &.super-has-label-desc
       .super-field-wrapper
         margin-top: 20px
+
+.super-rtl
+  .super-heading-title,
+  .super-heading-description
+    justify-content: flex-end
+    &.super-align-left
+      justify-content: flex-start
+    &.super-align-center
+      justify-content: center
+    &.super-align-right
+      justify-content: flex-end
+  .super-checkbox,
+  .super-radio
+    &.display-slider
+      .carouseljs-track
+        flex-grow: 1
+        .super-item
+          flex-grow: 1
+
+// HTML dir="rtl" and RTL enabled on form:
+html[dir="rtl"]
+  .super-timepicker-dialog .ui-timepicker-list li
+    padding-left: 0
+    padding-right: 15px
+  .super-form
+    &.super-rtl
+      .super-heading-title,
+      .super-heading-description
+        justify-content: flex-start
+        &.super-align-left
+          justify-content: flex-end
+        &.super-align-center
+          justify-content: center
+        &.super-align-right
+          justify-content: flex-start
+      .super-multipart-steps
+        flex-direction: row
+      .display-horizontal
+        .super-items-list
+          flex-direction: row
+      .super-checkbox,
+      .super-radio
+        .super-item
+          flex-direction: row
+      &.super-default-rounded
+        .super-quantity
+          .super-minus-button
+            border-radius: 0px 4px 4px 0px
+          .super-plus-button
+            border-radius: 4px 0px 0px 4px
+      .super-field:not(.super-icon-outside,.super-icon-inside)
+        &.super-checkbox,
+        &.super-radio,
+        &.super-rating
+          .super-field-wrapper
+            justify-content: flex-start
+      .display-horizontal
+        .super-field-wrapper
+          justify-content: flex-start
+        .super-items-list
+          flex-direction: row
+      .super-multipart-progress-inner
+        flex-direction: row
+      .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
+        justify-content: flex-start
+      .display-grid .super-items-list
+        flex-direction: row
+        flex-grow: 1
+      .super-checkbox,
+      .super-radio
+        &.display-slider
+          .carouseljs-track
+            flex-grow: 1
+            .super-item
+              flex-grow: 1
+      .super-toggle
+        flex-direction: row
+      .super-color .super-field-wrapper
+        justify-content: flex-start
+      .super-file .super-field-wrapper .super-fileupload-button
+        flex-direction: row
+      .super-calculator.super-align-left .super-field-wrapper
+        justify-content: flex-end
+      .super-calculator.super-align-right .super-field-wrapper
+        justify-content: flex-start
+      .super-file
+        .super-field-wrapper
+          align-items: flex-start
+          .super-fileupload-files
+            flex-direction: row
+      .super-tabs-menu,
+      .super-accordion-header,
+      .super-int-phone_flag-container .super-int-phone_selected-flag,
+      .super-int-phone_country-list .super-int-phone_country
+        flex-direction: row
