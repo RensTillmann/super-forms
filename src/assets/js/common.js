@@ -1978,6 +1978,12 @@ function SUPERreCaptcha(){
                     regex.lastIndex++;
                 }
                 var $o = (m[0] ? m[0] : ''); // original name
+                if($o==='<%counter%>'){
+                    //console.log($original);
+                    //console.log($row);
+                    //console.log($rows);
+                    //debugger;
+                }
                 var $start = (m[1] ? m[1] : ''); // starts with e.g: foreach( or <%
                 var $n = (m[2] ? m[2] : ''); // name
                 var $d = (m[3] ? m[3] : ''); // depth
@@ -1987,6 +1993,10 @@ function SUPERreCaptcha(){
                 if($s!=='') $s = ';'+$s;
                 var $end = (m[6] ? m[6] : ''); // ends with e.g: ): or %>
                 var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
+                //replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
+                //debugger;
+                //var dynamicColumnIndex = $(fieldType.field).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                //replaceTagsWithValue['<%counter%>'] = dynamicColumnIndex;
                 if(fieldType.type==='file'){
                     // Loop over all current files
                     if(SUPER.files[formId]){
@@ -2048,7 +2058,30 @@ function SUPERreCaptcha(){
                     }
                 }else{
                     var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
-                    if(findChildField.length===0) continue;
+                    if(findChildField.length===0) {
+                        continue;
+                        //// If <%counter%>
+                        //if($o==='<%counter%>'){
+                        //    console.log($i);
+                        //    console.log($row);
+                        //    $i++;
+                        //    console.log($i);
+                        //    console.log($row);
+                        //    debugger;
+                        //    $field_name = $original_field_name+'_'+$i;
+                        //    debugger;
+                        //    currentField = SUPER.field(originalFormReference, $field_name);
+                        //    if(currentField){
+                        //        debugger;
+                        //        var dynamicColumnIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                        //        replaceTagsWithValue[$o] = dynamicColumnIndex;
+                        //        continue;
+                        //        //$row = $row.replaceAll('<%counter%>', dynamicColumnIndex);
+                        //    }
+                        //}else{
+                            //continue;
+                        //}
+                    } 
                     var allParents = $(findChildField).parents('.super-duplicate-column-fields');
                     var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
                     var suffix = [];
@@ -2063,26 +2096,50 @@ function SUPERreCaptcha(){
                         delete suffix[0];
                     }
                     var levels = suffix.reverse().join('');
+                    debugger;
                     if(childParentIndex!==0){
+                        //replaceTagsWithValue['<%counter%>'] = (childParentIndex+1);
                         replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
+                        if($start!=='foreach('){
+                            replaceTagsWithValue['<%counter%>'] = $start+$n+levels+'_'+(childParentIndex+1)+';index'+$end;
+                        }
                         continue;
                     }
                     replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
+                    if($start!=='foreach('){
+                        replaceTagsWithValue['<%counter%>'] = $start+$n+levels+$c+';index'+$end;
+                    }
+                    //$row = $row.replaceAll('<%counter%>', '<%'+$field_name+';index%>');
                 }
             }
             var key;
+            debugger;
             for(key in replaceTagsWithValue) {
                 $row = $row.replaceAll(key, replaceTagsWithValue[key]);
             }
-            $rows += $row;
             if($htmlElement.closest('.super-duplicate-column-fields')){
+                $rows += $row;
                 break;
+            }else{
+                $i++;
+                $field_name = $original_field_name+'_'+$i;
+                currentField = SUPER.field(originalFormReference, $field_name);
+                if(currentField){
+                    //$row = $row.replaceAll('<%counter%>', '<%'+$field_name+';index%>');
+                    //var dynamicColumnIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                    //$row = $row.replaceAll('<%counter%>', dynamicColumnIndex);
+                }
+                $rows += $row;
             }
-            $i++;
-            $field_name = $original_field_name+'_'+$i;
-            currentField = SUPER.field(originalFormReference, $field_name);
         }
 
+        //debugger;
+        //console.log($field_name);
+        //console.log($depth);
+        //console.log($counter);
+        //console.log($i);
+        //console.log($ii);
+        debugger;
         $rows = $prefix + $rows + $suffix;
         $innerContent = $innerContent.split($original).join($rows);
         $ii++;
@@ -2307,6 +2364,7 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
+        debugger;
         if(args.form.classList.contains('super-generating-pdf')){
             // Must reference to original form (which is currently the placeholder)
             var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
@@ -2371,12 +2429,10 @@ function SUPERreCaptcha(){
             
             // @since 3.2.0 - Compatibility with advanced tags {option;2;int}
             $old_name = $name;
-            debugger;
             $options = $name.toString().split(';');
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
-            debugger;
             if(typeof $options[1] === 'undefined'){
                 $value_n = 0;
             }else{
@@ -2394,7 +2450,6 @@ function SUPERreCaptcha(){
                 }
             }
 
-            debugger;
             $default_value = '';
             if($value_type=='int'){
                 $default_value = 0;
@@ -2438,15 +2493,11 @@ function SUPERreCaptcha(){
                         $text_field = true;
                         $parent = $element.closest('.super-field');
 
+                        debugger;
                         if($value_n=='index') {
+                            debugger;
                             var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
-                            //var totalDynamicParents = $($element).parents('.super-duplicate-column-fields').length;
-                            //var absolutDynamicParentIndex = $($element).parents('.super-duplicate-column-fields').last().index();
-                            if(dynamicParentIndex>0){
-                                args.value = args.value.replace('{'+$old_name+'}', dynamicParentIndex+1);
-                            }else{
-                                args.value = args.value.replace('{'+$old_name+'}', '');
-                            }
+                            args.value = args.value.replace('{'+$old_name+'}', dynamicParentIndex+1);
                             continue;
                         }
 
@@ -2531,7 +2582,6 @@ function SUPERreCaptcha(){
                                 $sum = 0;
                             }
                             // @since 3.6.0 - check if we want to return the label instead of a value
-                            debugger;
                             if($value_n=='label'){
                                 $sum += $values;
                             }else{
@@ -2733,7 +2783,6 @@ function SUPERreCaptcha(){
                             }
                         }
 
-                        debugger;
                         if( $text_field===true ) {
                             // Check if text field is a auto-suggest, if so grab the value from the selected item
                             if($element.closest('.super-shortcode').classList.contains('super-auto-suggest') || $element.closest('.super-shortcode').classList.contains('super-wc-order-search')){
@@ -2764,10 +2813,8 @@ function SUPERreCaptcha(){
                         }
                         // Grab E-mail Label
                         if($value_n=='email' || $value_n=='email_label' || $value_n=='emailLabel'){
-                            debugger;
                             $value = $element.dataset.email;
                             if($value.indexOf('%d')!==-1){
-                                debugger;
                                 var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
                                 $value = $value.replaceAll('%d', dynamicParentIndex+1);
                             }
@@ -5215,6 +5262,7 @@ function SUPERreCaptcha(){
     // Replace HTML element {tags} with field values
     // @since 1.2.7
     SUPER.init_replace_html_tags = function(args){
+        debugger;
         var originalFormReference,
             decodeHtml,
             $i,
@@ -5242,14 +5290,12 @@ function SUPERreCaptcha(){
             $fileLoopRows = [],
             formId = parseInt(args.form.id.replace('super-form-', ''), 10);
 
-        debugger;
         // Only when not on canvas in builder mode
         if(args.form.classList.contains('super-preview-elements')){
             return false;
         }
 
         // Continue otherwise
-        debugger;
         if(typeof args.foundElements !== 'undefined') {
             $html_fields = args.foundElements;
         }else{
@@ -5261,14 +5307,11 @@ function SUPERreCaptcha(){
             }
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
-        debugger;
         Object.keys($html_fields).forEach(function(key) {
-            debugger;
             var $counter = 0;
             $target = $html_fields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
             if( $target.dataset.tags ) {
-                debugger;
                 $html = $target.dataset.original;
                 //classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
                 //$target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
@@ -5285,7 +5328,6 @@ function SUPERreCaptcha(){
             }
             
             // When generating PDF, we must have a reference to the original form
-            debugger;
             originalFormReference = args.form;
             if(args.form.classList.contains('super-generating-pdf')){
                 originalFormReference = document.querySelector('#super-form-'+formId+'-placeholder');
@@ -5293,18 +5335,15 @@ function SUPERreCaptcha(){
 
             // @since 5.0.120 - foreach statement compatibility
             $regex = /<%(.*?)%>|{(.*?)}/;
-            debugger;
             var $skipUpdate = true;
             if ((m = $regex.exec($html)) !== null) {
                 $skipUpdate = false;
             }
             debugger;
             $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
-            debugger;
             $html = $html.replaceAll('<%', '{');
             $html = $html.replaceAll('%>', '}');
 
-            debugger;
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
             // That use shortcodes to initialize elements, which initialization would be lost
@@ -5322,11 +5361,9 @@ function SUPERreCaptcha(){
                 if (m.index === $regex.lastIndex) {
                     $regex.lastIndex++;
                 }
-                debugger;
                 var $n = (m[2] ? m[2] : ''); // name
                 var $d = (m[3] ? m[3] : ''); // depth
                 var $s = (m[4] ? m[4] : ''); // suffix
-                debugger;
                 if($s==='allFileNames' || $s==='allFileUrls' || $s==='allFileLinks'){
                     decodeHtml = false;
                 }else{
@@ -5335,43 +5372,36 @@ function SUPERreCaptcha(){
                         decodeHtml = false;
                     }
                 }
-                debugger;
                 // Get field type
                 if($s!=='') $s = ';'+$s;
                 $values = $n+$d+$s;
                 args.value = '{'+$values+'}'; //values[1];
                 args.target = $target;
-                debugger;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
-                debugger;
                 delete args.target;
                 if(decodeHtml){
+                    debugger;
                     $new_value = SUPER.html_encode($new_value);
                 }
-                debugger;
                 replaceTagsWithValue[$values] = $new_value;
             }
-            debugger;
             var key;
+            debugger;
             for(key in replaceTagsWithValue) {
                 $html = $html.replaceAll('{'+key+'}', replaceTagsWithValue[key]);
             }
-            debugger;
             if($skipUpdate) return true;
-            debugger;
             // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
-            debugger;
             if($target.value || $target.dataset.value){
                 debugger;
                 if($target.value) $target.value = $html;
                 if($target.dataset.value) $target.dataset.value = $html;
             }else{
+                debugger;
                 $target.innerHTML = $html;
             }
-            debugger;
         });
-        debugger;
     };
 
     // Replace datepickers default value {tags} with field values
@@ -5797,11 +5827,12 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].value = '';
         }
-        nodes = args.form.querySelectorAll('.super-keyword-tags');
-        for (i = 0; i < nodes.length; i++) {
-            field = nodes[i].querySelector('.super-keyword-filter');
-            field.placeholder = field.dataset.placeholder;
-        }
+        //nodes = args.form.querySelectorAll('.super-keyword-tags');
+        //for (i = 0; i < nodes.length; i++) {
+        //    debugger;
+        //    field = nodes[i].querySelector('.super-keyword-filter');
+        //    field.placeholder = field.dataset.placeholder;
+        //}
         // @since 4.8.0 - reset TABs to it's initial state (always first TAB active)
         nodes = args.form.querySelectorAll('.super-tabs-menu .super-tabs-tab');
         if(nodes){
@@ -6500,7 +6531,7 @@ function SUPERreCaptcha(){
             });
             var levels = suffix.reverse().join('');
             field.name = originalFieldName+levels;
-            field.value = field.name; 
+            //field.value = field.name; 
             field.dataset.olevels = levels;
         }
 

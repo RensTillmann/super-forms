@@ -414,7 +414,6 @@
 
     // Check if the added field has an unique field name
     SUPER.check_for_unique_field_name = function ($element, dragDrop) {
-        debugger;
         if(typeof dragDrop === 'undefined') dragDrop = false;
         var i, nodes = $element.querySelectorAll('.super-shortcode-field');
         for(i=0; i<nodes.length; i++){
@@ -613,7 +612,6 @@
                         return false;
                     }
                 }
-                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -636,7 +634,6 @@
                         return false;
                     }
                 }
-                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -898,7 +895,6 @@
                                 var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
                                 $elements.each(function(){
-                                    debugger;
                                     SUPER.check_for_unique_field_name(this);
                                 });
                                 SUPER.regenerate_element_inner();
@@ -2057,7 +2053,6 @@
         });
         $doc.on('blur', '.super-element-header .super-title > input', function () {
             console.log('blur');
-            debugger;
             SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
         });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
