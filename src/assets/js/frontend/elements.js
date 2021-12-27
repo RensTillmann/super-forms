@@ -1259,7 +1259,7 @@
             var levels = SUPER.get_dynamic_column_depth(field, nameSuffix, clone, cloneIndex);
             var originalFieldName = field.dataset.oname;
             field.name = originalFieldName+levels+nameSuffix;
-            field.value = field.name; 
+            //field.value = field.name; 
             field.dataset.levels = levels;
             added_fields_with_suffix[originalFieldName] = field.name; 
             added_fields_without_suffix.push(field.name);
@@ -2190,7 +2190,6 @@
                 var html;
                 // @since 4.9.0 - accordion title description {tags} compatibility
                 if( foundElements[i].dataset.tags ) {
-                    debugger;
                     html = foundElements[i].dataset.original;
                     //foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
                     //foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
@@ -2252,7 +2251,6 @@
                     html = html.replaceAll(key, replaceTagsWithValue[key]);
                 }
                 if( foundElements[i].dataset.tags ) {
-                    debugger;
                     if(foundElements[i].value || foundElements[i].dataset.value){
                         if(foundElements[i].value) foundElements[i].value = html;
                         if(foundElements[i].dataset.value) foundElements[i].dataset.value = html;
@@ -2269,6 +2267,7 @@
 
             }
             
+            debugger;
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
             
             // @since 2.4.0 - hook after adding new column
@@ -2403,6 +2402,7 @@
             // @temp disabled@ parent.remove();
             
             // Now we need to update the html elements
+            debugger;
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
 
             // Reload google maps

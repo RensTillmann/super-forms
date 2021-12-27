@@ -4168,7 +4168,7 @@ class SUPER_Shortcodes {
 
         foreach( $countries as $k => $v ){
             $v = trim($v);
-            $result .= '<li class="super-item" data-value="' . ( is_string($k) ? esc_attr($k) : esc_attr($v) ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
+            $result .= '<li class="super-item" data-value="' . esc_attr( is_string($k) ? esc_attr($k) : esc_attr($v) ) . '" data-search-value="' . esc_attr( $v ) . '">' . $v . '</li>'; 
         }
         $result .= '</ul>';
         $result .= '<span class="super-dropdown-arrow"><span class="super-after"><i class="fas fa-caret-down"></i></span></span>';
