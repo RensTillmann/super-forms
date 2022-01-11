@@ -4,21 +4,26 @@
  *
  * @package   Super Forms
  * @author    feeling4design
- * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
 // build-SUPER_FORMS_BUNDLE
- * Plugin Name: Super Forms - All In One Bundle
+ * Plugin Name:       Super Forms - All In One Bundle
 // build-SUPER_FORMS_BUNDLE_END
- * Plugin Name: Super Forms - Drag & Drop Form Builder
- * Plugin URI:  http://codecanyon.net/user/feeling4design
- * Description: The most advanced, flexible and easy to use form builder for WordPress!
- * Version:     5.0.200
- * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
- * Text Domain: super-forms
- * Domain Path: /i18n/languages/
+ * Plugin Name:       Super Forms - Drag & Drop Form Builder
+ * Description:       The most advanced, flexible and easy to use form builder for WordPress!
+ * Version:           5.1.0
+ * Plugin URI:        http://f4d.nl/super-forms
+ * Author URI:        http://f4d.nl/super-forms
+ * Author:            feeling4design
+ * Text Domain:       super-forms
+ * Domain Path:       /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,7 +46,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.0.200';
+        public $version = '5.1.0';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -133,201 +138,6 @@ if(!class_exists('SUPER_Forms')) :
             return self::$_instance;
         }
 
-        // temp disabled public static function filter_foreach_statements($html){
-        // temp disabled     // Check if endforeach; was found otherwise skip it
-        // temp disabled     if(strpos($html, 'endforeach;')===false) {
-        // temp disabled         return $html;
-        // temp disabled     }
-        // temp disabled     $chars = str_split($html);
-        // temp disabled     $depth = 0;
-        // temp disabled     $prefix = ''; // any content before loop starts
-        // temp disabled     $innerContent = ''; // any content inside the loop
-        // temp disabled     $suffix = ''; // any content after loop ends
-        // temp disabled     $captureSuffix = false;
-        // temp disabled     $captureFieldname = false;
-        // temp disabled     $captureContent = false;
-        // temp disabled     $fieldName = '';
-        // temp disabled     $skipUpTo = 0;
-        // temp disabled     foreach($chars as $k => $v){
-        // temp disabled         if($skipUpTo!==0 && $skipUpTo > $k){
-        // temp disabled             continue;
-        // temp disabled         }
-        // temp disabled         if($captureSuffix){
-        // temp disabled             $suffix .= $v;
-        // temp disabled             continue;
-        // temp disabled         }
-        // temp disabled         if($captureFieldname){
-        // temp disabled             if(isset($chars[$k]) && $chars[$k]===')' &&
-        // temp disabled             isset($chars[$k+1]) && $chars[$k+1]===':') {
-        // temp disabled                 $captureFieldname = false;
-        // temp disabled                 $captureSuffix = false;
-        // temp disabled                 $captureContent = true;
-        // temp disabled                 $skipUpTo = $k+2; // Skip up to key 8
-        // temp disabled                 continue;
-        // temp disabled             }else{
-        // temp disabled                 $fieldName .= $v;
-        // temp disabled             }
-        // temp disabled         }
-        // temp disabled         if($captureContent){
-        // temp disabled             if(isset($chars[$k]) && $chars[$k]==='f' &&
-        // temp disabled             isset($chars[$k+1]) && $chars[$k+1]==='o' &&
-        // temp disabled             isset($chars[$k+2]) && $chars[$k+2]==='r' &&
-        // temp disabled             isset($chars[$k+3]) && $chars[$k+3]==='e' &&
-        // temp disabled             isset($chars[$k+4]) && $chars[$k+4]==='a' &&
-        // temp disabled             isset($chars[$k+5]) && $chars[$k+5]==='c' &&
-        // temp disabled             isset($chars[$k+6]) && $chars[$k+6]==='h' &&
-        // temp disabled             isset($chars[$k+7]) && $chars[$k+7]==='('){
-        // temp disabled                 $depth++;
-        // temp disabled             }
-        // temp disabled             if(isset($chars[$k]) && $chars[$k]==='e' &&
-        // temp disabled             isset($chars[$k+1]) && $chars[$k+1]==='n' &&
-        // temp disabled             isset($chars[$k+2]) && $chars[$k+2]==='d' &&
-        // temp disabled             isset($chars[$k+3]) && $chars[$k+3]==='f' &&
-        // temp disabled             isset($chars[$k+4]) && $chars[$k+4]==='o' &&
-        // temp disabled             isset($chars[$k+5]) && $chars[$k+5]==='r' &&
-        // temp disabled             isset($chars[$k+6]) && $chars[$k+6]==='e' &&
-        // temp disabled             isset($chars[$k+7]) && $chars[$k+7]==='a' &&
-        // temp disabled             isset($chars[$k+8]) && $chars[$k+8]==='c' &&
-        // temp disabled             isset($chars[$k+9]) && $chars[$k+9]==='h' &&
-        // temp disabled             isset($chars[$k+10]) && $chars[$k+10]===';'){
-        // temp disabled                 $depth--;
-        // temp disabled                 $captureFieldname = false;
-        // temp disabled                 $captureContent = true;
-        // temp disabled                 $captureSuffix = false;
-        // temp disabled                 if($depth===0){
-        // temp disabled                     // foreach ended
-        // temp disabled                     // capture suffix
-        // temp disabled                     $captureFieldname = false;
-        // temp disabled                     $captureContent = false;
-        // temp disabled                     $captureSuffix = true;
-        // temp disabled                     $skipUpTo = $k+11; // Skip up to key 11
-        // temp disabled                     // do something with it's inner content?
-        // temp disabled                     // var_dump('foreach ended...');
-        // temp disabled                     // var_dump($innerContent);
-        // temp disabled                     // exit;
-        // temp disabled                     continue;
-        // temp disabled                 }
-        // temp disabled                 // capture inner content including inner foreach items
-        // temp disabled                 $innerContent .= $v;
-        // temp disabled                 continue;
-        // temp disabled             }
-        // temp disabled             // capture inner content including inner foreach items
-        // temp disabled             $innerContent .= $v;
-        // temp disabled         }
-        // temp disabled         if($depth===0){
-        // temp disabled             if(isset($chars[$k]) && $chars[$k]==='f' &&
-        // temp disabled             isset($chars[$k+1]) && $chars[$k+1]==='o' &&
-        // temp disabled             isset($chars[$k+2]) && $chars[$k+2]==='r' &&
-        // temp disabled             isset($chars[$k+3]) && $chars[$k+3]==='e' &&
-        // temp disabled             isset($chars[$k+4]) && $chars[$k+4]==='a' &&
-        // temp disabled             isset($chars[$k+5]) && $chars[$k+5]==='c' &&
-        // temp disabled             isset($chars[$k+6]) && $chars[$k+6]==='h' &&
-        // temp disabled             isset($chars[$k+7]) && $chars[$k+7]==='('){
-        // temp disabled                 $depth++;
-        // temp disabled                 $captureSuffix = false;
-        // temp disabled                 $captureContent = false;
-        // temp disabled                 $captureFieldname = true;
-        // temp disabled                 $skipUpTo = $k+8; // Skip up to key 8
-        // temp disabled                 continue;
-        // temp disabled             }else{
-        // temp disabled                 $prefix .= $v; // any content before loop starts
-        // temp disabled             }
-        // temp disabled         }else{
-        // temp disabled             //if(isset($chars[$k]) && $chars[$k]==='f' &&
-        // temp disabled             //isset($chars[$k+1]) && $chars[$k+1]==='o' &&
-        // temp disabled             //isset($chars[$k+2]) && $chars[$k+2]==='r' &&
-        // temp disabled             //isset($chars[$k+3]) && $chars[$k+3]==='e' &&
-        // temp disabled             //isset($chars[$k+4]) && $chars[$k+4]==='a' &&
-        // temp disabled             //isset($chars[$k+5]) && $chars[$k+5]==='c' &&
-        // temp disabled             //isset($chars[$k+6]) && $chars[$k+6]==='h' &&
-        // temp disabled             //isset($chars[$k+7]) && $chars[$k+7]==='('){
-        // temp disabled             //    $depth++;
-        // temp disabled             //    $captureContent = true;
-        // temp disabled             //    $skipUpTo = $k+8; // Skip up to key 8
-        // temp disabled             //    continue;
-        // temp disabled             //}
-        // temp disabled         }
-        // temp disabled     }
-
-        // temp disabled     // echo 'Depth: '.($depth).'<br />';
-        // temp disabled     // echo 'Prefix: '.($prefix).'<br />';
-        // temp disabled     // echo 'Field name: '.($fieldName).'<br />';
-        // temp disabled     // echo 'Inner content: '.($innerContent).'<br />';
-        // temp disabled     // echo 'Suffix: '.($suffix).'<br />';
-
-        // temp disabled     $i = 1;
-        // temp disabled     $rows = '';
-        // temp disabled     $data = array(
-        // temp disabled         'data' => array(
-        // temp disabled             'a' => array(
-        // temp disabled                 'value' => 'a@test.com'
-        // temp disabled             ),
-        // temp disabled             'b' => array(
-        // temp disabled                 'value' => 'b@test.com'
-        // temp disabled             ),
-        // temp disabled             'b_2' => array(
-        // temp disabled                 'value' => 'b2@test.com'
-        // temp disabled             )
-        // temp disabled         )
-        // temp disabled     );
-
-        // temp disabled     $fileLoopRows = array();
-        // temp disabled     $original = $innerContent; //$v[0];
-        // temp disabled     $field_name = $fieldName; //$v[1];
-        // temp disabled     $splitName = explode(';', $field_name);
-        // temp disabled     $field_name = $splitName[0];
-        // temp disabled     $value_n = (isset($splitName[1]) ? $splitName[1] : '');
-        // temp disabled     $original_field_name = $field_name;
-        // temp disabled     $i = 1;
-        // temp disabled     $rows = '';
-        // temp disabled     while( isset( $data['data'][$field_name] ) ){
-        // temp disabled         $row_regex = '/<%(.*?)%>/';
-        // temp disabled         $row = $original; // $original;
-        // temp disabled         $row_match = preg_match_all($row_regex, $row, $row_matches, PREG_SET_ORDER, 0);
-        // temp disabled         foreach($row_matches as $rk => $rv){
-        // temp disabled             if($value_n==='loop'){
-        // temp disabled                 // Loop over all current files
-        // temp disabled                 $files = $data['data'][$field_name]['files'];
-        // temp disabled                 if(!isset($fileLoopRows[$field_name])) $fileLoopRows[$field_name] = array();
-        // temp disabled                 foreach($files as $x => $fv){
-        // temp disabled                     if(!isset($fileLoopRows[$field_name][$x])) $fileLoopRows[$field_name][$x] = $row;
-        // temp disabled                     if($rv[1]==='counter'){
-        // temp disabled                         $fileLoopRows[$field_name][$x] = str_replace( $rv[0], $x+1, $fileLoopRows[$field_name][$x]);
-        // temp disabled                         continue;
-        // temp disabled                     }
-        // temp disabled                     $fileLoopRows[$field_name][$x] = str_replace( $rv[0], '{'.$field_name.';'.$rv[1].'['.($x).']}', $fileLoopRows[$field_name][$x]);
-        // temp disabled                 }
-        // temp disabled             }else{
-        // temp disabled                 if($rv[1]==='counter'){
-        // temp disabled                     $row = str_replace( $rv[0], $i, $row);
-        // temp disabled                     continue;
-        // temp disabled                 }
-        // temp disabled                 if($i<2){
-        // temp disabled                     $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
-        // temp disabled                     continue;
-        // temp disabled                 }
-        // temp disabled                 $splitName = explode(';', $rv[1]);
-        // temp disabled                 $newName = $splitName[0].'_'.$i;
-        // temp disabled                 if(count($splitName)>1){
-        // temp disabled                     $newName .= ';'.$splitName[1];
-        // temp disabled                 }
-        // temp disabled                 $row = str_replace( $rv[0], '{'.$newName.'}', $row);
-        // temp disabled             }
-        // temp disabled         }
-        // temp disabled         if($value_n==='loop'){
-        // temp disabled             foreach($fileLoopRows[$field_name] as $value){
-        // temp disabled                 $rows .= $value;
-        // temp disabled             }
-        // temp disabled         }else{
-        // temp disabled             $rows .= $row;
-        // temp disabled         }
-        // temp disabled         $i++;
-        // temp disabled         $field_name = $original_field_name.'_'.$i;
-        // temp disabled     }
-        // temp disabled     $rows = $prefix . $rows . $suffix;
-        // temp disabled     $innerContent = str_replace( $original, $rows, $innerContent);
-        // temp disabled     return self::filter_foreach_statements($innerContent);
-        // temp disabled }
         
         /**
          * SUPER_Forms Constructor.
@@ -1554,7 +1364,10 @@ if(!class_exists('SUPER_Forms')) :
                 'errors'=>SUPER_Forms()->common_i18n['errors'],
                 // @since 3.6.0 - google tracking
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
+                'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
+                'fonts' => array(
+                    'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                ),
             );
             wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
@@ -2140,7 +1953,10 @@ if(!class_exists('SUPER_Forms')) :
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
                         'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
-                        'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
+                        'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
+                        'fonts' => array(
+                            'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                        ),
                     )
                 );
                 wp_enqueue_script( $handle );
@@ -2465,6 +2281,17 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'enqueue',
                     ),
 
+                    // @since 5.0.300 - tinymce
+                    'super-tinymce' => array(
+                        'src'     => $lib_path . 'tinymce/tinymce.min.js',
+                        'deps'    => array(),
+                        'version' => SUPER_VERSION,
+                        'footer'  => false,
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
                     // @since 4.0.0 - hints/introduction
                     'hints' => array(
                         'src'     => $backend_path . 'hints.js',
@@ -2478,7 +2305,7 @@ if(!class_exists('SUPER_Forms')) :
                     ),
                     'super-create-form' => array(
                         'src'     => $backend_path . 'create-form.js',
-                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'hints' ),
+                        'deps'    => array( 'super-backend-common', 'jquery-ui-sortable', 'hints', 'super-tinymce' ),
                         'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array(

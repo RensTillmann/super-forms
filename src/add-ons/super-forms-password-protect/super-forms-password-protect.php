@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Password Protect
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Password Protect
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Password protect your forms or lock out specific user roles from submitting the form
- * Version:     1.3.23
+ * Version:     1.4.0
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Password_Protect')) :
+if( !class_exists('SUPER_Password_Protect') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Password_Protect')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.3.23';
+        public $version = '1.4.0';
 
 
         /**
@@ -637,7 +642,7 @@ endif;
  *
  * @return SUPER_Password_Protect
  */
-if(!function_exists('SUPER_Password_Protect')){
+if( !function_exists('SUPER_Password_Protect') ){
     function SUPER_Password_Protect() {
         return SUPER_Password_Protect::instance();
     }

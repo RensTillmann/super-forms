@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Mailchimp
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Mailchimp
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Subscribes and unsubscribes users from a specific Mailchimp list
- * Version:     1.7.2
+ * Version:     1.7.3
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Mailchimp')) :
+if( !class_exists('SUPER_Mailchimp') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.7.2';
+        public $version = '1.7.3';
 
         
         /**
@@ -326,8 +331,9 @@ if(!class_exists('SUPER_Mailchimp')) :
          *
          *  @since      1.0.0
         */
-        public static function mailchimp( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
-          
+        public static function mailchimp($x) {
+            extract( shortcode_atts( array( 'tag'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null), $x ) );
+
             wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
 
             // Fallback check for older super form versions
@@ -835,7 +841,7 @@ endif;
  *
  * @return SUPER_Mailchimp
  */
-if(!function_exists('SUPER_Mailchimp')){
+if( !function_exists('SUPER_Mailchimp') ){
     function SUPER_Mailchimp() {
         return SUPER_Mailchimp::instance();
     }

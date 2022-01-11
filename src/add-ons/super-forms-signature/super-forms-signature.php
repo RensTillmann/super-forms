@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Signature
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Signature
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
- * Version:     1.8.1
+ * Version:     1.8.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Signature')) :
+if( !class_exists('SUPER_Signature') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Signature')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.8.1';
+        public $version = '1.8.2';
 
 
         /**
@@ -357,7 +362,9 @@ if(!class_exists('SUPER_Signature')) :
          *
          *  @since      1.0.0
         */
-        public static function signature( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress ) {
+        public static function signature($x) {
+            extract( shortcode_atts( array( 'tag'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>array(), 'i18n'=>null, 'entry_data'=>null, 'formProgress'=>false), $x ) );
+
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
                 $defaults = SUPER_Common::generate_array_default_element_settings($shortcodes, 'form_elements', $tag);
@@ -587,7 +594,7 @@ endif;
  *
  * @return SUPER_Signature
  */
-if(!function_exists('SUPER_Signature')){
+if( !function_exists('SUPER_Signature') ){
     function SUPER_Signature() {
         return SUPER_Signature::instance();
     }

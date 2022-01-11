@@ -1,3 +1,7 @@
+Jan 10, 2022 - Version 1.5.1
+- Added: Compatibility with latest version of Super Forms
+- Added: Ability to use tags `{field_user_pass}`, `{user_pass}`, `{register_generated_password}` inside payment completed email, when using `Register & login Add-on` when you generated a password for the user upon form submission.
+
 Oct 15, 2021 - Version 1.5.0
 - Compatibility with Super Forms v5.0.0
 - Fix: Subscriptions with trial periods were not handled properly by IPN

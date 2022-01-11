@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - CSV Attachment
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2016 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - CSV Attachment
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Sends a CSV file with the form data to the admin email as an attachment
- * Version:     1.4.0
+ * Version:     1.4.1
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_CSV_Attachment')) :
+if( !class_exists('SUPER_CSV_Attachment') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_CSV_Attachment')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.4.0';
+        public $version = '1.4.1';
 
 
         /**
@@ -396,7 +401,7 @@ endif;
  *
  * @return SUPER_CSV_Attachment
  */
-if(!function_exists('SUPER_CSV_Attachment')){
+if( !function_exists('SUPER_CSV_Attachment') ){
     function SUPER_CSV_Attachment() {
         return SUPER_CSV_Attachment::instance();
     }

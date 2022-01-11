@@ -53,7 +53,14 @@ class SUPER_Session {
 		
 		// let users change the session cookie name
 		if( ! defined( 'SUPER_SESSION_COOKIE' ) ) define( 'SUPER_SESSION_COOKIE', 'super_session' );
-		if ( ! class_exists( 'Recursive_ArrayAccess' ) ) include 'sessions/class-recursive-arrayaccess.php';
+
+		if (version_compare(phpversion(), '8.0.0', '<')) {
+			// PHP 7
+			if ( ! class_exists( 'Recursive_ArrayAccess' ) ) include 'sessions/class-recursive-arrayaccess.php';
+		}else{
+			// PHP 8
+			if ( ! class_exists( 'Recursive_ArrayAccess' ) ) include 'sessions/class-recursive-arrayaccess-php8.php';
+		}
 		
 		// Include utilities class
 		if ( ! class_exists( 'SUPER_WP_Session_Utils' ) ) include 'sessions/class-wp-session-utils.php';

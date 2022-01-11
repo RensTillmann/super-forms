@@ -160,7 +160,8 @@ class SUPER_Common {
     public static function _cleanup_db() { $transients = array( 'GeltOsu18mZGzkelLWv2', 'UXMm30KCbuNN3IJ4z4V5'); foreach( $transients as $transient_key ) { $transient_value = get_option('_site_transient_sf_' . $transient_key); if($transient_value!==false){ if( time() > $transient_value ) { self::_cleanup_transients($transient_key); } } } }
 
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
-    public static function replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
+    public static function replace_tags_dynamic_columns($x){
+        extract($x); //$v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
         // Rename Email Label and Field name accordingly 
         if(!empty($v['data']['name'])){
             $current_name = $v['data']['name'];
@@ -633,7 +634,7 @@ class SUPER_Common {
      *
      * @since 3.8.0
      */
-    public static function generate_array_default_element_settings($shortcodes=false, $group, $tag) {
+    public static function generate_array_default_element_settings($shortcodes=false, $group='', $tag='') {
         $defaults = array();
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         foreach($shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v){
@@ -704,7 +705,7 @@ class SUPER_Common {
      *
      * @since 3.8.0
      */
-    public static function get_default_element_setting_value($shortcodes=false, $group, $tag, $tab, $name) {
+    public static function get_default_element_setting_value($shortcodes=false, $group='', $tag='', $tab='', $name='') {
         if($shortcodes==false) $shortcodes = SUPER_Shortcodes::shortcodes();
         if(isset($shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'])){
             return $shortcodes[$group]['shortcodes'][$tag]['atts'][$tab]['fields'][$name]['default'];
@@ -886,7 +887,7 @@ class SUPER_Common {
                 foreach( $elements as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    $html .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                    $html .= SUPER_Shortcodes::output_builder_html( array('tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                 }
             }         
         }
@@ -998,7 +999,7 @@ class SUPER_Common {
                 $invoiceNumber = intval($invoiceNumber);
                 if($submittingForm){
                     $invoiceNumber = $invoiceNumber+1;
-                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s'", $invoiceNumber, $option_name));
+                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s' OR option_name = '%s'", $invoiceNumber, $option_name_old, $option_name));
                 }else{
                     if($invoiceNumber===0){
                         $invoiceNumber = 1;
@@ -1015,7 +1016,7 @@ class SUPER_Common {
             // Upon submitting the form, make sure code doesn't exist yet, if it does generate a new one
             $option_name_old = '_super_contact_entry_code-' . $code;
             $option_name = '_sf_unique_code-' . $code;
-            $currentCode = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_value = '%s'", $option_name_old, $option_name));
+            $currentCode = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'", $option_name_old, $option_name));
             // If this code doesn't exist yet create it
             if(!$currentCode){
                 $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, %s ) ", array( $option_name, $code, 'no' ) ) );
@@ -1091,7 +1092,17 @@ class SUPER_Common {
      *
      * @since 1.0.0
     */
+    public static function decode_textarea_v5( $v, $value ) {
+        if( empty( $value ) ) return $value;
+        if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
+            if($v['type']==='html'){
+                return stripslashes($value);
+            }
+            return esc_html(stripslashes($value));
+        }
+    }
     public static function decode_textarea( $value ) {
+        // DEPCRECATED function, only being used by older Add-ons
         if( empty( $value ) ) return $value;
         if( ( !empty( $value ) ) && ( is_string ( $value ) ) ) {
             return esc_html(stripslashes($value));
@@ -1769,7 +1780,7 @@ class SUPER_Common {
                     }
                     if( isset( $v['name'] ) ) {
                         if( (isset($v['type'])) && ($v['type']=='text') ) {
-                            $v['value'] = self::decode_textarea( $v['value'] );
+                            $v['value'] = self::decode_textarea( $v, $v['value'] );
                         }
                         if( isset( $v['timestamp'] ) ) {
                             $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
@@ -2131,20 +2142,20 @@ class SUPER_Common {
                         if( isset( $v['admin_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
+                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $confirm_row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['confirm_value'] ), $confirm_row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['confirm_value'] ), $confirm_row );
                         }
                         if( isset( $v['value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
-                            $listing_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $listing_row );
+                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $confirm_row );
+                            $listing_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $listing_row );
                         }
 
                     }
@@ -2276,7 +2287,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email( $to, $from, $from_name, $custom_reply=false, $reply, $reply_name, $cc, $bcc, $subject, $body, $settings, $attachments=array(), $string_attachments=array() ) {
+    public static function email( $to, $from, $from_name, $custom_reply=false, $reply='', $reply_name='', $cc='', $bcc='', $subject='', $body='', $settings=array(), $attachments=array(), $string_attachments=array() ) {
 
         $from = trim($from);
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim

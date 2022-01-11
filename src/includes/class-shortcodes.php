@@ -32,6 +32,9 @@ class SUPER_Shortcodes {
     
     public static $form_fields = array();
 
+    public static function extract($x){
+        return shortcode_atts( array( 'grid'=>null, 'tag'=>'', 'group'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>null, 'i18n'=>null, 'builder'=>false, 'entry_data'=>null, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>false ), $x );
+    } 
 
     // @since 4.7.5 - wrapper function to get the value for this field from entry data
     public static function get_entry_data_value($tag, $value, $name, $entry_data){
@@ -233,7 +236,8 @@ class SUPER_Shortcodes {
         }
         return $item;
     }
-    public static function get_items($items=array(), $tag, $atts, $prefix='', $settings=array(), $entry_data=array()){
+    public static function get_items($x){
+        extract( shortcode_atts( array( 'items'=>array(), 'tag'=>'', 'atts'=>array(), 'prefix'=>'', 'settings'=>array(), 'entry_data'=>array() ), $x ) );
 
         // When advanced tags is being used get the first value
         if(isset($atts['value']) && $atts['value'] !== '') $real_value = explode(';', $atts['value'])[0];       
@@ -1201,8 +1205,8 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_builder_html( $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $predefined=false, $builder=false ) {
-
+    public static function output_builder_html($x) {
+        extract( shortcode_atts( array( 'tag'=>'', 'group'=>'', 'data'=>array(), 'inner'=>array(), 'shortcodes'=>array(), 'settings'=>array(), 'predefined'=>false, 'builder'=>false), $x ) );
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
@@ -1308,7 +1312,7 @@ class SUPER_Shortcodes {
             if( empty($inner) ) $inner = null;
             $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
             //$result .= 'tag2: ' . $tag;
-            $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, $builder );
+            $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder) );
             return $result;
         }
 
@@ -1357,7 +1361,7 @@ class SUPER_Shortcodes {
                     if( empty($inner) ) $inner = null;
                     $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
                     //$result .= 'tag3: ' . $tag;
-                    $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, true );
+                    $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>true) );
                 $result .= '</div>';
             }else{
                 $result .= '<div class="super-element-inner' . $inner_class . '">';
@@ -1366,13 +1370,13 @@ class SUPER_Shortcodes {
                         if( empty($inner) ) $inner = null;
                         $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
                         //$result .= 'tag4: ' . $tag;
-                        $result .= self::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
+                        $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false) );
                     }
                     if( !empty( $inner ) ) {
                         foreach( $inner as $k => $v ) {
                             if( empty($v['data'] ) ) $v['data'] = null;
                             if( empty($v['inner'] ) ) $v['inner'] = null;
-                            $result .= self::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings );
+                            $result .= self::output_builder_html( array('tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                         }
                     }
                 $result .= '</div>';
@@ -1398,7 +1402,7 @@ class SUPER_Shortcodes {
         }
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
-        $result .= ' class="super-shortcode super-field super-' . $tag;
+        $result .= ' class="super-shortcode super-field super-' . ($tag==='tinymce' ? 'html' : $tag);
         if( !empty($atts['label'])  && (!empty($atts['description'])) ) {
             $result .= ' super-has-label-desc';
         }else{
@@ -1961,7 +1965,8 @@ class SUPER_Shortcodes {
         }
         return $styles;
     }
-    public static function tabs( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
+    public static function tabs($x) {
+        extract(self::extract($x));
         $group = 'layout_elements';
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, $group, $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -2075,11 +2080,11 @@ class SUPER_Shortcodes {
                                     if( empty($iv['data']) ) $iv['data'] = null;
                                     if( empty($iv['inner']) ) $iv['inner'] = null;
                                     if($builder){
-                                        $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                        $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                     }else{
-                                        $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
+                                        $iv = SUPER_Common::replace_tags_dynamic_columns( array($iv, $re, $i, $dynamic_field_names, $inner_field_names) );
                                         //$result .= 'tag5: ' . $iv['tag'];
-                                        $result .= self::output_element_html( $grid=null, $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                                        $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                     }
                                 }
                                 // Restore amount of columns found
@@ -2182,11 +2187,10 @@ class SUPER_Shortcodes {
                                         if( empty($iv['data']) ) $iv['data'] = null;
                                         if( empty($iv['inner']) ) $iv['inner'] = null;
                                         if($builder){
-                                            $result .= self::output_builder_html( $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings );
+                                            $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                         }else{
-                                            $iv = SUPER_Common::replace_tags_dynamic_columns($iv, $re, $i, $dynamic_field_names, $inner_field_names);
-                                            //$result .= 'tag6: ' . $iv['tag'];
-                                            $result .= self::output_element_html( $grid=null, $iv['tag'], $iv['group'], $iv['data'], $iv['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                                            $iv = SUPER_Common::replace_tags_dynamic_columns( array($iv, $re, $i, $dynamic_field_names, $inner_field_names) );
+                                            $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                         }
                                     }
                                     // Restore amount of columns found
@@ -2217,8 +2221,8 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function multipart( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
-      
+    public static function multipart($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2280,16 +2284,15 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                //$result .= 'tag7: ' . $v['tag'];
-                $result .= self::output_element_html( $grid=null, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
             }
         }
         unset($GLOBALS['super_grid_system']);
         $result .= '</div>';
         return $result;
     }
-    public static function column( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress ) {
-
+    public static function column($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'layout_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
        
@@ -2515,8 +2518,8 @@ class SUPER_Shortcodes {
                                     foreach( $inner as $k => $v ) {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
-                                        $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv);
-                                        $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $i, $dynamic_field_names, $inner_field_names, $formProgress );
+                                        $v = SUPER_Common::replace_tags_dynamic_columns( array($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv) );
+                                        $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
                                     $result .= '<span class="super-add-duplicate"></span>';
@@ -2533,7 +2536,6 @@ class SUPER_Shortcodes {
                         $no_data = true;
                     }
                     if($no_data){
-                        var_dump('test1');
                         $grid['level']++;
                         $GLOBALS['super_grid_system'] = $grid;
                         $GLOBALS['super_column_found'] = 0;
@@ -2545,7 +2547,7 @@ class SUPER_Shortcodes {
                             foreach( $inner as $k => $v ) {
                                 if( empty($v['data']) ) $v['data'] = null;
                                 if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                                $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
                             }
                             $result .= '<div class="super-duplicate-actions">';
                             $result .= '<span class="super-add-duplicate"></span>';
@@ -2554,7 +2556,6 @@ class SUPER_Shortcodes {
                         $result .= '</div>';
                         $grid['level']--;
                     }else{
-                        var_dump('test2');
                     }
                 }
             }else{
@@ -2585,8 +2586,8 @@ class SUPER_Shortcodes {
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    $v = SUPER_Common::replace_tags_dynamic_columns($v, $re, $i, $dynamic_field_names, $inner_field_names);
-                    $result .= self::output_element_html( $grid, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+                    $v = SUPER_Common::replace_tags_dynamic_columns( array($v, $re, $i, $dynamic_field_names, $inner_field_names) );
+                    $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                 }
                 if( $atts['duplicate']==='enabled' ) {
                     $result .= '<div class="super-duplicate-actions">';
@@ -2623,8 +2624,8 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function quantity_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function quantity_field($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2677,8 +2678,8 @@ class SUPER_Shortcodes {
      *
      *  @since      2.9.0
     */    
-    public static function toggle_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function toggle_field($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2750,8 +2751,8 @@ class SUPER_Shortcodes {
      *
      *  @since      3.1.0
     */    
-    public static function color( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function color($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2804,8 +2805,8 @@ class SUPER_Shortcodes {
      *
      *  @since      1.2.1
     */    
-    public static function slider_field( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function slider_field($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -2839,7 +2840,8 @@ class SUPER_Shortcodes {
      *
      *  @since      2.1.0
     */ 
-    public static function currency( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function currency($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
@@ -2885,7 +2887,8 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function text( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function text($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3007,7 +3010,7 @@ class SUPER_Shortcodes {
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
             // Check if value exist in one of the items
             // If so add overlap class, otherwise don't and check if user is allowed to enter none-existing values (manual input)
-            $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+            $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'', 'settings'=>$settings, 'entry_data'=>$entry_data));
             $firstItemValues = array();
             foreach($get_items['items_values'] as $v){
                 $firstValue = explode(';', $v)[0];
@@ -3041,7 +3044,7 @@ class SUPER_Shortcodes {
         }
 
         if( $atts['enable_auto_suggest']=='true' ) {
-            $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+            $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'', 'settings'=>$settings, 'entry_data'=>$entry_data));
             $items = $get_items['items'];
             $atts = $get_items['atts'];
         }
@@ -3171,7 +3174,7 @@ class SUPER_Shortcodes {
         // @since 2.9.0 - entered keywords
         if( !empty($atts['enable_keywords']) ) {
             
-            $get_items = self::get_items(array(), $tag, $atts, 'keywords_', $settings, $entry_data);
+            $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'keywords_', 'settings'=>$settings, 'entry_data'=>$entry_data));
             $items = $get_items['items'];
             $atts = $get_items['atts'];
 
@@ -3198,7 +3201,7 @@ class SUPER_Shortcodes {
                 $result .= self::common_attributes( $atts, $tag, $settings );
                 $result .= ' data-method="' . esc_attr($atts['keywords_retrieve_method']) . '"';
                 $result .= ' data-split-method="' . esc_attr($atts['keyword_split_method']) . '"';
-                $result .= ' sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter","click,mousedown":"focusField"}') . '"';
+                $result .= ' sfevents="' . esc_attr('{"onblur":"unfocusField","keyup,keydown":"keywords.filter"}') . '"';
                 $result .= ' />';
             $result .= '</div>';
 
@@ -3232,8 +3235,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function textarea( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function textarea($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3424,9 +3427,9 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function dropdown( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function dropdown($x) {
+        extract(self::extract($x));
         global $woocommerce;
-
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3460,7 +3463,7 @@ class SUPER_Shortcodes {
         // @since   4.7.7 - make sure we do not lose the default placeholder
         // This is required for dynamic columns
         $atts['default_placeholder'] = $atts['placeholder'];
-        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+        $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'', 'settings'=>$settings, 'entry_data'=>$entry_data));
         if(empty($atts['language_switch'])){
             $items = $get_items['items'];
         }else{
@@ -3533,8 +3536,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;    
     }
-    public static function checkbox( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function checkbox($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3555,7 +3558,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+        $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'', 'settings'=>$settings, 'entry_data'=>$entry_data));
         $items = $get_items['items'];
         $atts = $get_items['atts'];
         $selected_items = explode( ",", $atts['value'] );
@@ -3624,8 +3627,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function radio( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function radio($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3646,7 +3649,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';     
 
-        $get_items = self::get_items(array(), $tag, $atts, '', $settings, $entry_data);
+        $get_items = self::get_items(array('items'=>array(), 'tag'=>$tag, 'atts'=>$atts, 'prefix'=>'', 'settings'=>$settings, 'entry_data'=>$entry_data));
         $items = $get_items['items'];
         $atts = $get_items['atts'];
 
@@ -3715,8 +3718,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function file( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function file($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -3857,8 +3860,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function date( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function date($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4040,7 +4043,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function time( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function time($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4079,8 +4083,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }    
-    public static function rating( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function rating($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4116,9 +4120,9 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function countries( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
+    public static function countries($x) {
+        extract(self::extract($x));
         $tag = 'dropdown';
-
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4180,8 +4184,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function password( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null ) {
-
+    public static function password($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4211,8 +4215,8 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function hidden( $tag, $atts, $inner, $shortcodes=null, $settings=null, $entry_data=null ) {
-
+    public static function hidden($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -4285,7 +4289,7 @@ class SUPER_Shortcodes {
     }
 
     public static function recaptcha( $tag, $atts ) {
-
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         
@@ -4333,8 +4337,8 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function image( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-
+    public static function image($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4381,8 +4385,8 @@ class SUPER_Shortcodes {
     }
 
     // @since 1.2.5
-    public static function heading( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-
+    public static function heading($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4444,8 +4448,8 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function html( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-
+    public static function html($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4491,24 +4495,32 @@ class SUPER_Shortcodes {
                     $html_code = do_shortcode(stripslashes($html));
                 }
             }else{
-                if( !empty($_POST['action']) && $_POST['action']=='super_load_preview' && is_admin()){
+                if( !empty($_POST['action']) && ($_POST['action']==='super_load_preview' || $_POST['action']==='elementor_ajax') && is_admin()){
                     if( !empty($atts['nl2br']) ) $html = nl2br($html);
+                    $html_code = stripslashes($html);
+                }else{
+                    $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
                 }
-                $html_code = '<pre>'.htmlspecialchars(stripslashes($html)).'</pre>';
             }
 
             $dataFields = '';
             if(!empty($field_names)) $dataFields = ' data-fields="{' . $field_names . '}"';
             $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . ($dataFields ? $dataFields : '') . '>' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
+            if(!empty($atts['name'])) {
+                $result .= '<textarea class="super-shortcode-field super-hidden"';
+                $result .= ' name="' . $atts['name'] . '"';
+                $result .= self::common_attributes( $atts, $tag, $settings );
+                $result .= ' >' . do_shortcode( stripslashes($html) ) . '</textarea>';
+            }
         }
         $result .= self::loop_conditions( $atts, $tag );
         $result .= '</div>';
         return $result;
     }
 
-    public static function divider( $tag, $atts ) {
-
+    public static function divider($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -4547,7 +4559,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function spacer( $tag, $atts ) {
-
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -4561,6 +4573,7 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function pdf_page_break( $tag, $atts ) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $class = '';
@@ -4583,6 +4596,7 @@ class SUPER_Shortcodes {
         //wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
         //wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
         
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
@@ -4665,8 +4679,8 @@ class SUPER_Shortcodes {
      *
      *  @since      1.1.6
     */
-    public static function button( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
-
+    public static function button($x) {
+        extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
@@ -4846,7 +4860,9 @@ class SUPER_Shortcodes {
      *
      *  @since      1.0.0
     */
-    public static function output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes=null, $settings=null, $i18n=null, $builder=false, $entry_data=null, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress=false ) {
+    public static function output_element_html($x){
+        extract( shortcode_atts( array( 'grid'=>null, 'tag'=>'', 'group'=>'', 'data'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>null, 'i18n'=>null, 'builder'=>false, 'entry_data'=>null, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>false ), $x ) );
+
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)
@@ -4883,7 +4899,8 @@ class SUPER_Shortcodes {
             unset($data['icon_align']);
             unset($data['icon_position']);
         }
-        return call_user_func( array( $class, $function ), $tag, $data, $inner, $shortcodes, $settings, $i18n, $builder, $entry_data, $dynamic, $dynamic_field_names, $inner_field_names, $formProgress );
+
+        return call_user_func( array( $class, $function ), array('tag'=>$tag, 'atts'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
     }
 
     
@@ -6171,18 +6188,17 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                //$result .= 'tag1: ' . $v['tag'];
-                $result .= self::output_element_html( $grid=null, $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, $i18n, false, $entry_data, $dynamic=0, $dynamic_field_names=array(), $inner_field_names=array(), $formProgress );
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
             }
         }
         
         // Make sure to only return the default submit button if no custom button was used
         if(!isset($GLOBALS['super_custom_button_used'])){
-            $result .= self::button( 'button', array(), '', '', $settings, $i18n );
+            $result .= self::button( array( 'tag'=>'button', 'atts'=>array(), 'settings'=>$settings, 'i18n'=>$i18n));
         }
         // In case of editing an entry via Listings Add-on, make sure we add a submit button
         if( !isset($GLOBALS['super_submit_button_found']) && $editingContactEntry===true ){
-            $result .= self::button( 'button', array('name'=>esc_html__( 'Update', 'super-forms' )), '', '', $settings, $i18n );
+            $result .= self::button( array( 'tag'=>'button', 'atts'=>array( 'name'=>esc_html__( 'Update', 'super-forms' )), 'settings'=>$settings, 'i18n'=>$i18n));
         }
 
         // Always unset after all elements have been processed

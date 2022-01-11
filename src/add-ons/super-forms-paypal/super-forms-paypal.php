@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - PayPal Checkout
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - PayPal Checkout
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
- * Version:     1.5.0
+ * Version:     1.5.1
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if (!defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-if (!class_exists('SUPER_PayPal')):
+if( !class_exists('SUPER_PayPal') ) :
 	
 
 	/**
@@ -38,7 +43,7 @@ if (!class_exists('SUPER_PayPal')):
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version = '1.5.0';
+		public $version = '1.5.1';
 
 		
 		/**
@@ -1639,6 +1644,7 @@ if (!class_exists('SUPER_PayPal')):
 						);
 					}
 					// Update user status after succesfull payment (only used for Register & Login add-on)
+					$user_id = 0;
 					if( !empty($settings['register_login_action']) ) {
 						if( $settings['register_login_action']=='register' ) {
 							$user_id = absint($custom[5]);
@@ -1786,21 +1792,21 @@ if (!class_exists('SUPER_PayPal')):
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $confirm_row );
 										}
 										if( isset( $v['paypal_completed_value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['paypal_completed_value'] = str_replace( ',', $v['replace_commas'], $v['paypal_completed_value'] );
 											
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['paypal_completed_value'] ), $confirm_row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['paypal_completed_value'] ), $confirm_row );
 										}
 										if( isset( $v['value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $confirm_row );
 										}
 									}
 								}
@@ -1822,6 +1828,24 @@ if (!class_exists('SUPER_PayPal')):
 						if(!empty($settings['paypal_completed_body'])) $settings['paypal_completed_body'] = $settings['paypal_completed_body'] . '<br /><br />';
 						$email_body = $settings['paypal_completed_body_open'] . $settings['paypal_completed_body'] . $settings['paypal_completed_body_close'];
 						$email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
+
+						// Set new password, but only if `{register_generated_password}` tag is found and if we are sending an email to the user
+						if( $user_id!=0 ) {
+							if( !empty($contact_entry_id) && !empty($settings['paypal_completed_email']) ) {
+								if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
+									// Only if passwords tags are found in the email body
+									if(strpos($email_body, '{field_user_pass}')!==false || strpos($email_body, '{user_pass}')!==false || strpos($email_body, '{register_generated_password}')!==false){
+										add_filter( 'send_password_change_email', '__return_false' );
+										$password = wp_generate_password();
+										$user_id = wp_update_user( array( 'ID' => $user_id, 'user_pass' => $password ) );
+										$email_body = str_replace( '{field_user_pass}', $password, $email_body );
+										$email_body = str_replace( '{user_pass}', $password, $email_body );
+										$email_body = str_replace( '{register_generated_password}', $password, $email_body );
+									}
+								}
+							}
+						}
+
 						$email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 
 						// @since 3.1.0 - optionally automatically add line breaks
@@ -3132,7 +3156,7 @@ endif;
  *
  * @return SUPER_PayPal
  */
-if(!function_exists('SUPER_PayPal')){
+if( !function_exists('SUPER_PayPal') ){
 	function SUPER_PayPal() {
 		return SUPER_PayPal::instance();
 	}

@@ -1263,41 +1263,17 @@
             field.dataset.levels = levels;
             added_fields_with_suffix[originalFieldName] = field.name; 
             added_fields_without_suffix.push(field.name);
-            // @temp disabled@ // Replace %d with counter if found, otherwise append it
-            // @temp disabled@ // Remove whitespaces from start and end
-            // @temp disabled@ if(typeof field_labels[field_counter] !== 'undefined'){
-            // @temp disabled@     field_labels[field_counter] = field_labels[field_counter].trim();
-            // @temp disabled@     if(field_labels[field_counter].indexOf("%d")===-1){
-            // @temp disabled@         // Not found, just return with counter appended at the end
-            // @temp disabled@         field_labels[field_counter] = field_labels[field_counter] + ' ' + counter;
-            // @temp disabled@     }else{
-            // @temp disabled@         // Found, return with counter replaced at correct position
-            // @temp disabled@         field_labels[field_counter] = field_labels[field_counter].replace('%d', counter+1);
-            // @temp disabled@     }
-            // @temp disabled@     field.dataset.email = field_labels[field_counter];
-            // @temp disabled@ }
             if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
             if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
         }
 
 
         // Now replace {tags} inside conditional logic/variable logic
-        //$info.added_fields: added_fields,
-        //$info.added_fields_with_suffix: added_fields_with_suffix,
-        //$info.added_fields_without_suffix: added_fields_without_suffix
         // Update conditional logic names
         // Update validate condition names
         // Update variable condition names 
         var nodes = clone.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
-            //var conditions = JSON.parse(nodes[i].value);
-            //if(typeof conditions !== 'undefined'){
-            console.log(nodes[i].value);
-            $.each(added_fields_with_suffix, function( index ) {
-                console.log(index);
-                console.log(added_fields_with_suffix[index]);
-            });
-
             // Before we continue replace any foreach(file_upload_fieldname)
             var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
             var m;
@@ -1343,12 +1319,7 @@
                 nodes[i].value = nodes[i].value.replaceAll(key, replaceTagsWithValue[key]);
             }
         }
-        console.log(added_fields);
-        console.log(added_fields_with_suffix);
-        console.log(added_fields_without_suffix);
         $.each(added_fields, function(name, field) {
-            console.log(name);
-            console.log(field);
             SUPER.after_field_change_blur_hook({form: clone, el: field});
         });
         return {
@@ -2020,6 +1991,7 @@
         
         // @since 1.7 - improved dynamic columns
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
+            
             var i, x, y,
                 nodes,
                 v,vv,
@@ -2082,6 +2054,7 @@
                 return replace_names;
             }
 
+            
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
@@ -2095,6 +2068,7 @@
                 return false;
             }
 
+            
             unique_field_names = {}; // @since 2.4.0
             field_names = {};
             field_labels = {};
@@ -2117,9 +2091,11 @@
             column.appendChild(clone);
 
             // @since 3.3.0 - hook after appending new column
+            
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
 
             // Now reset field values to default
+            
             SUPER.init_clear_form({form: form, clone: clone});
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
@@ -2165,25 +2141,6 @@
                 html = html.replaceAll('%>', '}');
                 foundElements[i].innerHTML = html;
             }
-
-                // Object.keys($html_fields).forEach(function(key) {
-                //     var $counter = 0;
-                //     $target = $html_fields[key];
-                //     // @since 4.9.0 - accordion title description {tags} compatibility
-                //     if( $target.classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
-                //         $target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
-                //         $target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
-                //         $html = $target.dataset.original;
-                //     }else{
-                //         if(!$target.parentNode.querySelector('textarea')){
-                //             return true;
-                //         }
-                //         $html = $target.parentNode.querySelector('textarea').value;
-                //     }
-                //     // If empty skip
-                //     if($html===''){
-                //         return true;
-                //     }
             
             // Now replace {tags} inside HTML element
             for(i=0; i<foundElements.length; i++) {
@@ -2191,9 +2148,6 @@
                 // @since 4.9.0 - accordion title description {tags} compatibility
                 if( foundElements[i].dataset.tags ) {
                     html = foundElements[i].dataset.original;
-                    //foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
-                    //foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
-                    //foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
                 }else{
                     if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                     html = foundElements[i].parentNode.querySelector('textarea').value;
@@ -2202,11 +2156,6 @@
                 if(html===''){
                     continue;
                 }
-                //var html = foundElements[i].parentNode.querySelector('textarea').value;
-                //html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                //html = html.replaceAll('<%', '{');
-                //html = html.replaceAll('%>', '}');
-                //foundElements[i].innerHTML = html;
                 // Before we continue replace any foreach(file_upload_fieldname)
                 var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
                 var m;
@@ -2257,9 +2206,6 @@
                     }else{
                         foundElements[i].dataset.original = html;
                     }
-                    //foundElements[i].classList.contains('super-heading-title') || foundElements[i].classList.contains('super-heading-description') || 
-                    //foundElements[i].classList.contains('super-tab-title') || foundElements[i].classList.contains('super-tab-desc') || 
-                    //foundElements[i].classList.contains('super-accordion-title') || foundElements[i].classList.contains('super-accordion-desc') ) {
                 }else{
                     if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                     foundElements[i].parentNode.querySelector('textarea').value = html;
@@ -2267,7 +2213,6 @@
 
             }
             
-            debugger;
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
             
             // @since 2.4.0 - hook after adding new column
@@ -2355,54 +2300,13 @@
                 foundElements[i].innerHTML = html;
             }
 
-            //Object.keys(removedFields).forEach(function(index) {
-            //    nodes = form.querySelectorAll('.super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"], .super-accordion-title[data-fields*="{'+index+'}"], .super-accordion-desc[data-fields*="{'+index+'}"]');
-            //    for (i = 0; i < nodes.length; i++) {
-            //        if(!nodes[i].closest('.super-duplicate-column-fields')){
-            //            found = false;
-            //            for(var x=0; x < foundElements.length; x++){
-            //                if(foundElements[i] === nodes[i]){
-            //                    found = true;
-            //                    break;
-            //                }
-            //            }
-            //            if(!found){
-            //                foundElements.push(nodes[i]);
-            //            }
-            //        }
-            //    }
-            //});
-            //// Update fields attribute and remove all {tags} which where removed/deleted from the DOM
-            //for (i = 0; i < foundElements.length; ++i) {
-            //    dataFields = foundElements[i].dataset.fields;
-            //    $.each(removedFields, function( index ) {
-            //        dataFields = dataFields.replace('{'+index+'}','');
-            //    });
-            //    foundElements[i].dataset.fields = dataFields;
-            //}
-
-            // @temp disabled@ // Because we must trigger field change, we can not delete the nodes just yet
-            // @temp disabled@ // Instead we make this dynamic column hidden, and then trigger field change hook
-            // @temp disabled@ // This way the form thinks the fields do not exists (are hidden)
-            // @temp disabled@ // After that, we can remove the dynamic column
-            // @temp disabled@ parent.style.display = 'none';
-
             // @IMPORTANT
             // The below hook should come before the field change hook
             // This is because it will update the fields attribute on for instance the calculator element
             // If this hook is placed below the field change hook it would cause incorrect results
             SUPER.after_duplicating_column_hook(form, removedFields);
 
-            // @temp disabled@ // Update conditional logic and other variable fields based on the removed fields in this dynamic column
-            // @temp disabled@ Object.keys(removedFields).forEach(function(index) {
-            // @temp disabled@     SUPER.after_field_change_blur_hook({el: removedFields[index], form: form});
-            // @temp disabled@ });
-
-            // @temp disabled@ // Now we can remove the dynamic column
-            // @temp disabled@ parent.remove();
-            
             // Now we need to update the html elements
-            debugger;
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
 
             // Reload google maps

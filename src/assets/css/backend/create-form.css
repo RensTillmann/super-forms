@@ -1776,6 +1776,9 @@
     min-height: 20px;
     border-radius: 0px;
     margin: 0;
+    background-color: #fff;
+    color: #2c3338;
+    border: 1px solid #ccc;
 }
 
 .super-element-settings .super-field input[type="checkbox"], .super-form-settings .super-field input[type="checkbox"] {
@@ -2921,4 +2924,67 @@
 .sfui-setting .sfui-setting .sfui-setting .sfui-vertical > label {
   padding-top: 0;
   padding-bottom: 0;
+}
+
+.super-forms_page_super_create_form.tox-fullscreen #wpadminbar,
+.super-forms_page_super_create_form.tox-fullscreen #adminmenumain,
+.super-forms_page_super_create_form.tox-fullscreen .super-wrapper .super-header,
+.super-forms_page_super_create_form.tox-fullscreen .super-elements .super-tooltip {
+  display: none!important;
+}
+
+body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mbtn {
+  height: auto !important;
+}
+.super-builder .tox-editor-header .tox-menubar {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.super-builder .tox-editor-header .tox-menubar .tox-mbtn {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  padding: 3px !important;
+  font-size: 12px !important;
+}
+.super-builder .tox-menu.tox-collection.tox-collection--list {
+  margin-top: -1px !important;
+}
+.super-builder .tox-statusbar {
+  border: 0 !important;
+}
+.super-builder .tox-statusbar .tox-statusbar__text-container {
+  display: none !important;
+}
+.super-builder .tox-menu-nav__js.tox-collection__item .tox-collection__item-icon {
+  transform: scale(0.7) !important;
+}
+.super-builder .tox-menu-nav__js.tox-collection__item .tox-collection__item-label {
+  font-size: 12px !important;
+}
+.super-builder .tox .tox-collection--list .tox-collection__item {
+  padding: 0 5px !important;
+}
+.super-builder .tox-toolbar__group {
+  height: auto !important;
+  border-bottom: 1px solid #d2d2d2 !important;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+.super-builder .tox-toolbar__group .tox-split-button {
+  margin: 1px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+.super-builder .tox-toolbar__group .tox-tbtn {
+  margin: 1px !important;
+  padding: 0 !important;
+  border-radius: 0;
+  font-size: 12px;
+  width: auto;
+  height: 20px;
+}
+.super-builder .tox-toolbar__group .tox-tbtn .tox-icon {
+  transform: scale(0.7);
 }

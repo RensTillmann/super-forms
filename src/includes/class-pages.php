@@ -491,6 +491,7 @@ class SUPER_Pages {
                         ($v['type']=='varchar') || 
                         ($v['type']=='var') || 
                         ($v['type']=='text') || 
+                        ($v['type']=='html') || 
                         ($v['type']=='google_address') || 
                         ($v['type']=='field') || 
                         ($v['type']=='barcode') || 
@@ -673,6 +674,11 @@ class SUPER_Pages {
                                                         echo '<textarea class="super-shortcode-field" name="' . esc_attr( $v['name'] ) . '">' . esc_html( $v['value'] ) . '</textarea>';
                                                         echo '</span>';
                                                         echo '</td>';
+                                                        echo '</tr>';
+                                                    }else if( $v['type']=='html' ) {
+                                                        echo '<tr>';
+                                                        echo '<th align="right">' . esc_html( $v['label'] ) . '</th>';
+                                                        echo '<td style="vertical-align:top;padding:6px 5px 5px 0px;">' . $v['value'] . '</td>';
                                                         echo '</tr>';
                                                     }
                                                 }

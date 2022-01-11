@@ -259,16 +259,6 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'email_body_close' => array(
-                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
-                    'desc' => esc_html__( 'This content will be placed after the body content of the email.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'email_body_close', $settings, esc_html__( "Best regards, {option_blogname}", "super-forms" ) ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
                 'email_loop' => array(
                     'name' => esc_html__( 'Field Loop:', 'super-forms' ),
                     'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ),
@@ -278,6 +268,16 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                ),
+                'email_body_close' => array(
+                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
+                    'desc' => esc_html__( 'This content will be placed after the body content of the email.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'email_body_close', $settings, esc_html__( "Best regards, {option_blogname}", "super-forms" ) ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent'=>'send',
+                    'filter_value'=>'yes',
+                    'i18n'=>true
                 ),
                 // @since 4.5.0 - exclude empty values from email loop
                 'email_exclude_empty' => array(
@@ -469,16 +469,6 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'confirm_body_close' => array(
-                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
-                    'desc' => esc_html__( 'This content will be placed after the confirmation email body.', 'super-forms' ),
-                    'default' => self::get_value( $default, 'confirm_body_close', $settings, esc_html__( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
                 'confirm_email_loop' => array(
                     'name' => esc_html__( 'Field Loop:', 'super-forms' ),
                     'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ),
@@ -488,6 +478,16 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes'
+                ),
+                'confirm_body_close' => array(
+                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
+                    'desc' => esc_html__( 'This content will be placed after the confirmation email body.', 'super-forms' ),
+                    'default' => self::get_value( $default, 'confirm_body_close', $settings, esc_html__( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms" ) ),
+                    'type'=>'textarea',
+                    'filter'=>true,
+                    'parent'=>'confirm',
+                    'filter_value'=>'yes',
+                    'i18n'=>true
                 ),
                 // @since 4.5.0 - exclude empty values from email loop
                 'confirm_exclude_empty' => array(

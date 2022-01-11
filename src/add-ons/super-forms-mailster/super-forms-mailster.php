@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Mailster
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Mailster
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Register subscribers for Mailster with Super Forms
- * Version:     1.3.1
+ * Version:     1.3.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Mailster')) :
+if( !class_exists('SUPER_Mailster') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Mailster')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.3.1';
+        public $version = '1.3.2';
 
 
         /**
@@ -370,7 +375,7 @@ endif;
  *
  * @return SUPER_Mailster
  */
-if(!function_exists('SUPER_Mailster')){
+if( !function_exists('SUPER_Mailster') ){
     function SUPER_Mailster() {
         return SUPER_Mailster::instance();
     }

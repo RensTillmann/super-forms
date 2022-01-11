@@ -435,7 +435,6 @@
                     elementData.name = uniqueName;
                     elementData = JSON.stringify(elementData);
                     elementDataField.value = elementData;
-                    return uniqueName;
                 }
             }
         }
@@ -1224,6 +1223,23 @@
         return 'field_' + field_name;
     };
 
+    SUPER.initTinyMCE = function(selector){
+        tinymce.remove();
+        tinymce.init({
+            selector: selector, 
+            toolbar_mode: 'scrolling', //'floating', 'sliding', 'scrolling', or 'wrap'
+            contextmenu: false,
+            plugins: [
+                'advlist anchor charmap code fullscreen hr image importcss link lists media paste preview searchreplace table visualblocks'
+                // not working as of now: 'wordpress wpautoresize wpdialogs wpeditimage wpemoji wpgallery wplink wptextpattern wpview',
+            ],
+            fontsize_formats: '8pt 9pt 10pt 11pt 12pt 13pt 14pt 16pt 18pt 20pt 22pt 24pt 36pt 48pt',
+            menubar: 'edit view insert format',
+            toolbar1: 'bold italic forecolor backcolor alignleft aligncenter alignright alignjustify outdent indent',
+            toolbar2: 'numlist bullist image link media table code preview fullscreen',
+            content_style: 'body {margin:5px 10px 5px 10px; color:#2c3338; font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+        });
+    };
 
     jQuery(document).ready(function ($) {
 
@@ -1242,6 +1258,7 @@
 
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
+
 
         // Check if there is an active panel
         if($activePanel){
@@ -2259,7 +2276,11 @@
                     elementFields = nodes[i].querySelectorAll('.super-element-field');
                     for (x = 0; x < elementFields.length; ++x) {
                         elementField = elementFields[x];
-                        value = elementField.value;
+                        if(elementField.tagName==='TEXTAREA' && tinymce.get('super-tinymce-instance-'+elementField.name)){
+                            value = tinymce.get('super-tinymce-instance-'+elementField.name).getContent();
+                        }else{
+                            value = elementField.value;
+                        }
                         if(elementField.type=='radio'){
                             radios = nodes[i].querySelectorAll('input[name="'+elementField.name+'"]');
                             for (y = 0; y < radios.length; ++y) {
@@ -2428,10 +2449,18 @@
                             '1/4': 'super_one_fourth',
                             '1/5': 'super_one_fifth'
                         };
-                        if ($fields.align_elements !== ''){
-                            $element.attr('class', 'super-element ' + $sizes[$fields.size] + ' super-column drop-here super-builder-align-inner-elements-' + $fields.align_elements + ' ui-sortable-handle editing');
-                        }else{
-                            $element.attr('class', 'super-element ' + $sizes[$fields.size] + ' super-column drop-here ui-sortable-handle editing');
+                        if(!$fields.size) $fields.size = '1/1';
+                        var className = 'super-element super-column drop-here ui-sortable-handle ' + $sizes[$fields.size];
+                        if($fields.align_elements && $fields.align_elements!==''){
+                             className += ' super-builder-align-inner-elements-' + $fields.align_elements;
+                        }
+                        if($fields.duplicate && $fields.duplicate==='enabled'){
+                            className += ' super-duplicate-column-fields';
+                        }
+                        className += ' editing';
+                        $element.attr('class', className);
+                        if($fields.duplicate && $fields.duplicate==='enabled'){
+                            SUPER.check_for_unique_field_name($element[0], true);
                         }
                         $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);
                     }
@@ -2623,6 +2652,7 @@
                     if (this.status == 200) {
                         $target.html(this.responseText);
                         init_form_settings_container_heights();
+                        SUPER.initTinyMCE('.super-element-settings .super-textarea-tinymce');
                         // Open up last element settings tab
                         $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab')
                         if($activeElementSettingsTab){

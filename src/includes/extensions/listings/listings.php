@@ -466,7 +466,7 @@ if(!class_exists('SUPER_Listings')) :
             echo '<div class="sfui-repeater" data-k="lists">';
             // Repeater Item
             foreach($lists as $k => $v){
-                //// Set default values if they don't exist
+                // Set default values if they don't exist
                 $v = self::get_default_listings_settings($v);
                 echo '<div class="sfui-repeater-item">';
                     echo '<div class="sfui-inline">';
@@ -1443,7 +1443,10 @@ if(!class_exists('SUPER_Listings')) :
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
                     'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                    'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
+                    'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
+                    'fonts' => array(
+                        'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                    ),
                 )
             );
             wp_enqueue_script( $handle );
@@ -1814,22 +1817,6 @@ END AS paypalSubscriptionId
             if( !empty($having) ) {
                 $hasFilters = true;
             }
-
-            // temp disabled // Custom field filters
-            // temp disabled $custom_fields_filters = '';
-            // temp disabled foreach( $_GET as $k => $v ) {
-            // temp disabled     // Check if this is a custom field, by checking if first character of the string is a _ "underscore"
-            // temp disabled     if(substr($k, 0, 1)=='_'){
-            // temp disabled         // Get field_name of this custom column by removing the _ "underscore"
-            // temp disabled         $field_name = sanitize_text_field(substr($k, 1));
-            // temp disabled         $value = sanitize_text_field($v);
-            // temp disabled         if( !empty($custom_fields_filters) ) $custom_fields_filters .= ' OR';
-            // temp disabled         $custom_fields_filters .= ' meta.meta_value REGEXP \'.*s:4:"name";s:[0-9]+:"' . $field_name . '";s:5:"value";s:[0-9]+:"(' . $value . ')";\'';
-            // temp disabled     }
-            // temp disabled }
-            // temp disabled if( !empty($custom_fields_filters) ) {
-            // temp disabled     $where .= ' AND (' . $custom_fields_filters . ')';
-            // temp disabled }
 
             $count_query = "SELECT COUNT(entry_id) AS total
             FROM (

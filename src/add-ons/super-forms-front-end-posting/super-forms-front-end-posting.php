@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Front-end Posting
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Front-end Posting
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Let visitors create posts from your front-end website
- * Version:     1.6.0
+ * Version:     1.6.1
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Frontend_Posting')) :
+if( !class_exists('SUPER_Frontend_Posting') ) :
 
 
     /**
@@ -38,7 +43,7 @@ if(!class_exists('SUPER_Frontend_Posting')) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.6.0';
+        public $version = '1.6.1';
 
         
         /**
@@ -1388,7 +1393,7 @@ endif;
  *
  * @return SUPER_Frontend_Posting
  */
-if(!function_exists('SUPER_Frontend_Posting')){
+if( !function_exists('SUPER_Frontend_Posting') ){
     function SUPER_Frontend_Posting() {
         return SUPER_Frontend_Posting::instance();
     }

@@ -1,3 +1,6 @@
+Jan 10, 2022 - Version 2.3.3
+- Added: Compatibility with latest version of Super Forms
+
 Nov 23, 2021 - Version 2.3.2
 - Added: Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
 

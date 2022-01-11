@@ -2830,7 +2830,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 //          *
 //          *  @since      1.0.0
 //         */
-//         public static function stripe_element( $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null ) {
+//         public static function stripe_element($x) {
+//             extract($x); // $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null
 //             self::stripe_element_scripts();
 //             $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
 //             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
