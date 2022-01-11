@@ -571,11 +571,14 @@ class SUPER_Common {
      * $names array()
      * $value string
      */
-    public static function get_data_fields_attribute($atts){
-        extract($atts);
-        if(!isset($names)) $names = array();
-        if(empty($value)) {
-            return $names;
+    public static function get_data_fields_attribute($x){
+        extract( shortcode_atts( array( 'names'=>array(), 'value'=>'', 'bwc'=>false ), $x ) );
+        if(empty($value)) return $names;
+        // If field name doesn't contain any curly braces, then append and prepend them and continue;
+        if($bwc===true){
+            if ( strpos( $value, '{') === false ) {
+                $value = '{'.$value.'}';   
+            } 
         }
         $r = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
         preg_match_all($r, $value, $m, PREG_SET_ORDER, 0);

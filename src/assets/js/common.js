@@ -1778,7 +1778,7 @@ function SUPERreCaptcha(){
         if($is_validate){
             return $validation_error;
         }
-
+        
         // @since 2.3.0 - update conditional logic and other variable fields based on the updated variable field
         $.each($updated_variable_fields, function( index, field ) {
             if(field.value===''){
@@ -7243,7 +7243,6 @@ function SUPERreCaptcha(){
                                             // tabloid
                                             // credit-card
 
-        debugger;
         args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', super_common_i18n.fonts.NotoSans.regular);
         args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
         args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
