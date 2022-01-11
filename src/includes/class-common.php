@@ -161,7 +161,7 @@ class SUPER_Common {
 
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($x){
-        extract($x); //$v, $re, $i, $dynamic_field_names, $inner_field_names, $dv=array()){
+        extract( shortcode_atts( array( 'v'=>'', 're'=>'', 'i'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'dv'=>array()), $x ) );
         // Rename Email Label and Field name accordingly 
         if(!empty($v['data']['name'])){
             $current_name = $v['data']['name'];
