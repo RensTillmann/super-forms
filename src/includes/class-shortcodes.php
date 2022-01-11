@@ -33,7 +33,26 @@ class SUPER_Shortcodes {
     public static $form_fields = array();
 
     public static function extract($x){
-        return shortcode_atts( array( 'grid'=>null, 'tag'=>'', 'group'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>null, 'i18n'=>null, 'builder'=>false, 'entry_data'=>null, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>false ), $x );
+        return shortcode_atts( array( 
+            'grid'=>null, 
+            'tag'=>'', 
+            'group'=>'', 
+            'atts'=>array(), 
+            'inner'=>array(), 
+            'shortcodes'=>null, 
+            'settings'=>null, 
+            'i18n'=>null, 
+            'builder'=>false, 
+            'entry_data'=>null, 
+            'dynamic'=>0, 
+            'dynamic_field_names'=>array(), 
+            'inner_field_names'=>array(), 
+            'formProgress'=>false,
+            'items'=>array(), // used by get_items()
+            'prefix'=>'', // used by get_items()
+            'data'=>array(), // used by output_builder_html()
+            'predefined'=>false // used by output_builder_html()
+        ), $x );
     } 
 
     // @since 4.7.5 - wrapper function to get the value for this field from entry data
@@ -237,7 +256,7 @@ class SUPER_Shortcodes {
         return $item;
     }
     public static function get_items($x){
-        extract( shortcode_atts( array( 'items'=>array(), 'tag'=>'', 'atts'=>array(), 'prefix'=>'', 'settings'=>array(), 'entry_data'=>array() ), $x ) );
+        extract(self::extract($x));
 
         // When advanced tags is being used get the first value
         if(isset($atts['value']) && $atts['value'] !== '') $real_value = explode(';', $atts['value'])[0];       
@@ -1206,7 +1225,7 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_builder_html($x) {
-        extract( shortcode_atts( array( 'tag'=>'', 'group'=>'', 'data'=>array(), 'inner'=>array(), 'shortcodes'=>array(), 'settings'=>array(), 'predefined'=>false, 'builder'=>false), $x ) );
+        extract(self::extract($x));
 
         // @since 3.5.0 - backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
         if( ($group=='form_elements') && ($tag=='image' || $tag=='heading' || $tag=='html' || $tag=='divider' || $tag=='spacer' || $tag=='google_map' ) ) {
@@ -2082,7 +2101,7 @@ class SUPER_Shortcodes {
                                     if($builder){
                                         $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                     }else{
-                                        $iv = SUPER_Common::replace_tags_dynamic_columns( array($iv, $re, $i, $dynamic_field_names, $inner_field_names) );
+                                        $iv = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$iv, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
                                         //$result .= 'tag5: ' . $iv['tag'];
                                         $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                     }
@@ -2189,7 +2208,7 @@ class SUPER_Shortcodes {
                                         if($builder){
                                             $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                         }else{
-                                            $iv = SUPER_Common::replace_tags_dynamic_columns( array($iv, $re, $i, $dynamic_field_names, $inner_field_names) );
+                                            $iv = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$iv, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
                                             $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                         }
                                     }
@@ -2449,10 +2468,6 @@ class SUPER_Shortcodes {
         }
         $result .= self::pdf_attributes($atts);
         $result .= '>';
-        //if( $atts['duplicate']=='enabled' ) {
-        //    $grid['dynamicLevel']++;
-        //    $result .= $grid['dynamicLevel'];
-        //}
         
         // @since   1.3   - column custom padding
         $close_custom_padding = false;
@@ -2518,7 +2533,7 @@ class SUPER_Shortcodes {
                                     foreach( $inner as $k => $v ) {
                                         if( empty($v['data']) ) $v['data'] = null;
                                         if( empty($v['inner']) ) $v['inner'] = null;
-                                        $v = SUPER_Common::replace_tags_dynamic_columns( array($v, $re, $i, $dynamic_field_names, $inner_field_names, $dv) );
+                                        $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'dv'=>$dv) );
                                         $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                     }
                                     $result .= '<div class="super-duplicate-actions">';
@@ -2586,7 +2601,7 @@ class SUPER_Shortcodes {
                 foreach( $inner as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    $v = SUPER_Common::replace_tags_dynamic_columns( array($v, $re, $i, $dynamic_field_names, $inner_field_names) );
+                    $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
                     $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                 }
                 if( $atts['duplicate']==='enabled' ) {
@@ -4861,8 +4876,7 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html($x){
-        extract( shortcode_atts( array( 'grid'=>null, 'tag'=>'', 'group'=>'', 'data'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>null, 'i18n'=>null, 'builder'=>false, 'entry_data'=>null, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>false ), $x ) );
-
+        extract(self::extract($x));
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
         // This is not what we want, because when duplicating a column we would like to reset each element to it's original state (Default value)

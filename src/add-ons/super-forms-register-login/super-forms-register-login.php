@@ -1205,9 +1205,8 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public static function before_sending_email( $atts ) {
-            extract($atts); // data, post, settings
-            
+        public static function before_sending_email( $x ) {
+            extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
             if($post['action']==='super_upload_files') return true;
             if( !isset( $settings['register_login_action'] ) ) return true;
             if( $settings['register_login_action']=='none' ) return true;
