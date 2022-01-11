@@ -4303,7 +4303,7 @@ class SUPER_Shortcodes {
         return $result;
     }
 
-    public static function recaptcha( $tag, $atts ) {
+    public static function recaptcha($x){
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -4573,7 +4573,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function spacer( $tag, $atts ) {
+    public static function spacer($x){
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -4587,7 +4587,7 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
-    public static function pdf_page_break( $tag, $atts ) {
+    public static function pdf_page_break($x){
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -4606,11 +4606,10 @@ class SUPER_Shortcodes {
      *
      *  @since      3.5.0
     */
-    public static function google_map( $tag, $atts ) {
+    public static function google_map($x){
         // In order to print google map load the libraries:
         //wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'lib/super-html-canvas.min.js', array(), SUPER_VERSION, false );   
         //wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'lib/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );          
-        
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
@@ -5964,9 +5963,9 @@ class SUPER_Shortcodes {
                             $translations[$tk]['checked'] = 'true';
                         }
                     }
-                    $result .= self::dropdown( 
-                        $tag = 'dropdown',
-                        $atts = array(
+                    $result .= self::dropdown(array(
+                        'tag'=>'dropdown',
+                        'atts'=>array(
                             'language_switch' => true,
                             'default_language' => $default_language,
                             'name' => 'title',
@@ -5977,8 +5976,9 @@ class SUPER_Shortcodes {
                             'validation' => 'none',
                             'absolute_default' => ''
                         ),
-                        $inner=array(), $shortcodes=null, $settings, $i18n, $builder=false, $entry_data=null
-                    );
+                        'settings'=>$settings, 
+                        'i18n'=>$i18n
+                    ));
                     $result .= '</div>';
                 }
             }
