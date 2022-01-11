@@ -1799,11 +1799,11 @@ class SUPER_Shortcodes {
             if(is_array($atts['may_be_empty_conditions'])){
                 foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
                     if( !empty($v['field']) ) {
-                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field']));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                     }
                     if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and']));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
                 }
@@ -1824,11 +1824,11 @@ class SUPER_Shortcodes {
             if(is_array($atts['conditional_items'])){
                 foreach( $atts['conditional_items'] as $k => $v ) {
                     if( !empty($v['field']) ) {
-                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field']));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                     }
                     if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and']));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
                 }
@@ -1906,11 +1906,11 @@ class SUPER_Shortcodes {
                 if(is_array($atts['conditional_items'])){
                     foreach( $atts['conditional_items'] as $k => $v ) {
                         if( !empty($v['field']) ) {
-                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field']));
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                         }
                         if( !empty($v['and_method']) && !empty($v['field_and']) ) {
-                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and']));
+                            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                         }
                         if( !empty($v['new_value']) ) {
