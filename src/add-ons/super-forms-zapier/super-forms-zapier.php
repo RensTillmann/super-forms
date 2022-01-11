@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Zapier
  * @author    feeling4design
- * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2016 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Zapier
- * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Allows you to connect Super Forms with Zapier (zapier.com)
- * Version:     1.3.1
+ * Version:     1.3.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Zapier')) :
+if( !class_exists('SUPER_Zapier') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Zapier')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.3.1';
+        public $version = '1.3.2';
 
 
         /**
@@ -319,7 +324,7 @@ endif;
  *
  * @return SUPER_Zapier
  */
-if(!function_exists('SUPER_Zapier')){
+if( !function_exists('SUPER_Zapier') ){
     function SUPER_Zapier() {
         return SUPER_Zapier::instance();
     }

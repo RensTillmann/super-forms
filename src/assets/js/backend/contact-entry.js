@@ -242,15 +242,12 @@
                 html += '<td>';
                     if(nodes[i].querySelector('input')){
                         html += nodes[i].querySelector('input').value;
-                    }
-                    if(nodes[i].querySelector('textarea')){
+                    }else if(nodes[i].querySelector('textarea')){
                         html += nodes[i].querySelector('textarea').value;
-                    }
-                    if(nodes[i].classList.contains('super-signature')){
+                    }else if(nodes[i].classList.contains('super-signature')){
                         url = nodes[i].querySelector('img').src;
                         html += '<img src="'+url+'" />';
-                    }
-                    if(nodes[i].classList.contains('super-file-upload')){
+                    }else if(nodes[i].classList.contains('super-file-upload')){
                         files = nodes[i].querySelectorAll('.super-file');
                         for ( ii = 0; ii < files.length; ii++ ) {
                             url = files[ii].href;
@@ -264,6 +261,9 @@
                                 html += '['+fileName+']<br />('+url+')';
                             }
                         }
+                    }else{
+                        // Just get the HTML
+                        html += nodes[i].querySelector('td').innerHTML;
                     }
                 html += '</td>';
                 html += '</tr>';

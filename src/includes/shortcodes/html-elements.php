@@ -321,13 +321,15 @@ $array['html_elements'] = array(
         ),
 
         'html_predefined' => array(
-            'name' => esc_html__( 'HTML', 'super-forms' ),
+            'name' => esc_html__( 'HTML (raw)', 'super-forms' ),
             'icon' => 'file-code;far',
             'predefined' => array(
                 array(
                     'tag' => 'html',
                     'group' => 'html_elements',
                     'data' => array(
+                        'name' => esc_html__( 'html', 'super-forms' ),
+                        'email' => esc_html__( 'HTML:', 'super-forms' ),
                         'html' => esc_html__( 'Your HTML here...', 'super-forms' )
                     )
                 )
@@ -336,12 +338,14 @@ $array['html_elements'] = array(
         'html' => array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::html',
-            'name' => esc_html__( 'HTML', 'super-forms' ),
+            'name' => esc_html__( 'HTML (raw)', 'super-forms' ),
             'icon' => 'file-code;far',
             'atts' => array(
                 'general' => array(
                     'name' => esc_html__( 'General', 'super-forms' ),
                     'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, '' ),
+                        'email' => SUPER_Shortcodes::email($attributes, '' ),
                         'title' => array(
                             'name'=>esc_html__( 'Title', 'super-forms' ),
                             'desc'=>'('.esc_html__( 'optional', 'super-forms' ).')',
@@ -361,7 +365,6 @@ $array['html_elements'] = array(
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                             'i18n' => true
                         ),
-                        
                         // @since 4.2.0 - automatically convert linebreaks to <br />
                         'nl2br' => array(
                             'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
@@ -373,9 +376,10 @@ $array['html_elements'] = array(
                             ),
                             'allow_empty' => true,
                         ),
+                        'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry // @since 3.3.0 - exclude data from being saved into contact entry
                     ),
                 ),
-
                 // @since 1.9
                 'advanced' => array(
                     'name' => esc_html__( 'Advanced', 'super-forms' ),
@@ -384,7 +388,54 @@ $array['html_elements'] = array(
                         'wrapper_class' => $wrapper_class,
                     ),
                 ),
-
+                'conditional_logic' => $conditional_logic_array
+            ),
+        ),
+        'tinymce_predefined' => array(
+            'name' => esc_html__( 'TinyMCE', 'super-forms' ),
+            'icon' => 'file-code;far',
+            'predefined' => array(
+                array(
+                    'tag' => 'tinymce',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'html', 'super-forms' ),
+                        'email' => esc_html__( 'HTML:', 'super-forms' ),
+                        'html' => esc_html__( 'Your HTML here...', 'super-forms' )
+                    )
+                )
+            ),
+        ),
+        'tinymce' => array(
+            'hidden' => true,
+            'callback' => 'SUPER_Shortcodes::html',
+            'name' => esc_html__( 'TinyMCE', 'super-forms' ),
+            'icon' => 'file-code;far',
+            'atts' => array(
+                'general' => array(
+                    'name' => esc_html__( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'name' => SUPER_Shortcodes::name($attributes, '' ),
+                        'email' => SUPER_Shortcodes::email($attributes, '' ),
+                        'html' => array(
+                            'name'=>esc_html__( 'HTML', 'super-forms' ),
+                            'label'=>esc_html__( 'Use {tags} if needed, you can also use third party [shortcodes] if needed. But please note that if you are using {tags} in combination with [shortcodes] from third parties, this might cause problems with initialized DOM elements. This is because when using {tags} the HTML will be updated to reflect the value change of a field, which causes the HTML to be reloaded, losing any initialized DOM elements. Best practise would be to not mix {tags} and [shortcodes] in a single HTML element.', 'super-forms' ),
+                            'type'=>'tinymce',
+                            'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
+                            'i18n' => true
+                        ),
+                        'exclude' => $exclude,
+                        'exclude_entry' => $exclude_entry // @since 3.3.0 - exclude data from being saved into contact entry
+                    ),
+                ),
+                // @since 1.9
+                'advanced' => array(
+                    'name' => esc_html__( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                    ),
+                ),
                 'conditional_logic' => $conditional_logic_array
             ),
         ),

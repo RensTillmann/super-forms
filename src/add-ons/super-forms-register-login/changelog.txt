@@ -1,3 +1,6 @@
+Jan 10, 2022 - Version 1.9.2
+- Added: Compatibility with latest version of Super Forms
+
 Oct 19, 2021 - Version 1.9.1
 - Fix bug with registering new user when file upload element is present
 

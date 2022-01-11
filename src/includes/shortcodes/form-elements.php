@@ -54,6 +54,8 @@ $set_empty_attributes = array(
     'display_excerpt',
     'display_price'
 );
+
+$attributes=array();
 foreach($set_empty_attributes as $v){
     if(!isset($attributes[$v]))
         $attributes[$v] = null;

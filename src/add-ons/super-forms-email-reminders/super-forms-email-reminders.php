@@ -4,18 +4,23 @@
  *
  * @package   Super Forms - E-mail Reminders
  * @author    feeling4design
- * @link      http://codecanyon.net/user/feeling4design
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - E-mail Reminders
- * Plugin URI:  http://codecanyon.net/user/feeling4design
  * Description: Send email appointment reminders at specific times based on form submission date or user selected date with an optional offset
- * Version:     1.2.0
+ * Version:     1.2.1
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-if(!class_exists('SUPER_Email_Reminders')) :
+if( !class_exists('SUPER_Email_Reminders') ) :
 
 
     /**
@@ -40,7 +45,7 @@ if(!class_exists('SUPER_Email_Reminders')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.2.0';
+        public $version = '1.2.1';
 
 
         /**
@@ -350,11 +355,11 @@ if(!class_exists('SUPER_Email_Reminders')) :
                                     }
                                     if( isset( $v['admin_value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
                                     }
 
                                 }
@@ -678,7 +683,7 @@ endif;
  *
  * @return SUPER_Email_Reminders
  */
-if(!function_exists('SUPER_Email_Reminders')){
+if( !function_exists('SUPER_Email_Reminders') ){
     function SUPER_Email_Reminders() {
         return SUPER_Email_Reminders::instance();
     }

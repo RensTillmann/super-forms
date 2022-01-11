@@ -4,24 +4,30 @@
  *
  * @package   Super Forms - Popups
  * @author    feeling4design 
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Popups
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Create fully customizable popups for Super Forms
- * Version:     1.7.1
+ * Version:     1.7.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if( !class_exists( 'SUPER_Popup' ) ) :
+if( !class_exists('SUPER_Popup') ) :
 
 
     /**
@@ -38,7 +44,7 @@ if( !class_exists( 'SUPER_Popup' ) ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.7.1';
+        public $version = '1.7.2';
 
 
         /**
@@ -1357,7 +1363,7 @@ endif;
  *
  * @return SUPER_Popup
  */
-if(!function_exists('SUPER_Popup')){
+if( !function_exists('SUPER_Popup') ){
     function SUPER_Popup() {
         return SUPER_Popup::instance();
     }

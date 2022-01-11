@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - WooCommerce Checkout
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - WooCommerce Checkout
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.9.1
+ * Version:     1.9.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_WooCommerce')) :
+if( !class_exists('SUPER_WooCommerce') ) :
 
 
     /**
@@ -38,7 +43,7 @@ if(!class_exists('SUPER_WooCommerce')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.1';
+        public $version = '1.9.2';
 
 
         /**
@@ -1018,13 +1023,13 @@ if(!class_exists('SUPER_WooCommerce')) :
                                         // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
                                         
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['admin_value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
                                         // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                                         
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea( $v['value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
                                     }
 
                                 }
@@ -1924,7 +1929,7 @@ endif;
  *
  * @return SUPER_WooCommerce
  */
-if(!function_exists('SUPER_WooCommerce')){
+if( !function_exists('SUPER_WooCommerce') ){
     function SUPER_WooCommerce() {
         return SUPER_WooCommerce::instance();
     }

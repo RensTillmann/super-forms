@@ -467,7 +467,7 @@ class SUPER_Field_Types {
             'rows'    => 3,
             'default' => ''
         ) );
-        $return = '<textarea name="' . $id . '" id="super-generator-attr-' . $id . '" ';
+        $return = '<textarea name="' . $id . '" ';
         if(isset($field['placeholder'])){
             $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
         }        
@@ -476,6 +476,22 @@ class SUPER_Field_Types {
         }
         $value = esc_textarea(wp_unslash($field['default']));
         $return .= 'rows="' . $field['rows'] . '" class="super-element-field">' . $value . '</textarea>';
+        return $return;
+    }
+    public static function tinymce( $id, $field ) {
+        $field = wp_parse_args( $field, array(
+            'rows'    => 3,
+            'default' => ''
+        ) );
+        $return = '<textarea name="' . $id . '" id="super-tinymce-instance-' . $id . '" ';
+        if(isset($field['placeholder'])){
+            $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
+        }        
+        if(isset($field['required'])){
+            $return .= ($field['required']==true ? 'required="true" ' : '');
+        }
+        $value = esc_textarea(wp_unslash($field['default']));
+        $return .= 'rows="' . $field['rows'] . '" class="super-element-field super-textarea-tinymce">' . $value . '</textarea>';
         return $return;
     }
     

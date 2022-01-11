@@ -1,3 +1,6 @@
+Jan 10, 2022 - Version 1.7.2
+- Added: Compatibility with latest version of Super Forms
+
 Nov 25, 2021 - Version 1.7.1
 - Fix: when no background image is set, try not to load it via styles to avoid unnecessary requests
 

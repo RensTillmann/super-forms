@@ -4,25 +4,30 @@
  *
  * @package   Super Forms - Register & Login
  * @author    feeling4design
- * @link      http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
- * @copyright 2019 by feeling4design
+ * @link      http://f4d.nl/super-forms
+ * @copyright 2022 by feeling4design
+ * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
- * Plugin URI:  http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.1
+ * Version:     1.9.2
+ * Plugin URI:  http://f4d.nl/super-forms
+ * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
- * Author URI:  http://codecanyon.net/user/feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
+ * License:           GPL v2 or later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Requires at least: 4.9
+ * Requires PHP:      5.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_Register_Login')) :
+if( !class_exists('SUPER_Register_Login') ) :
 
 
     /**
@@ -39,7 +44,7 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.1';
+        public $version = '1.9.2';
 
 
         /**
@@ -519,7 +524,8 @@ if(!class_exists('SUPER_Register_Login')) :
          *
          *  @since      1.0.0
         */
-        public static function activation_code( $tag, $atts, $inner, $shortcodes=null, $settings=null ) {
+        public static function activation_code($x) {
+            extract($x); // $tag, $atts, $inner, $shortcodes=null, $settings=null
             $return = false;
             if( ( SUPER_Forms::is_request( 'frontend' ) ) && ( isset( $_GET['code'] ) ) ) {
                 $code = sanitize_text_field( $_GET['code'] );
@@ -1833,7 +1839,7 @@ endif;
  *
  * @return SUPER_Register_Login
  */
-if(!function_exists('SUPER_Register_Login')){
+if( !function_exists('SUPER_Register_Login') ){
     function SUPER_Register_Login() {
         return SUPER_Register_Login::instance();
     }

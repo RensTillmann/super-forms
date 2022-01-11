@@ -2304,7 +2304,7 @@ class SUPER_Ajax {
                 // Output builder HTML (element and with action buttons)
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= SUPER_Shortcodes::output_builder_html( $v['tag'], $v['group'], $v['data'], $v['inner'], $shortcodes, $settings, true );
+                $result .= SUPER_Shortcodes::output_builder_html( array( 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'predefined'=>true));
             }
         }else{
             if($tag==null){
@@ -2342,14 +2342,14 @@ class SUPER_Ajax {
                     $builder[1] = $from;
                     $data['layout'] = $from;
                 }
-                $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings, false, $builder );
+                $result = SUPER_Shortcodes::output_builder_html( array('tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'builder'=>$builder) );
             }else{
                 if($from==0){
                     // Output element HTML only
-                    $result = SUPER_Shortcodes::output_element_html( $grid=null, $tag, $group, $data, $inner, $shortcodes, $settings, $i18n, false );
+                    $result = SUPER_Shortcodes::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false) );
                 }else{
                     // Output builder HTML (element and with action buttons)
-                    $result = SUPER_Shortcodes::output_builder_html( $tag, $group, $data, $inner, $shortcodes, $settings );
+                    $result = SUPER_Shortcodes::output_builder_html( array('tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                 }
             }
         }
