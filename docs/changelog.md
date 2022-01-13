@@ -8,12 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 10, 2022 - Version 5.1.0
+## Jan 13, 2022 - Version 5.1.0
 
 - **Added:** `TinyMCE` element, allows you to add HTML by using the WordPress rich text editor.
 - **Added:** `HTML (raw)` and `TinyMCE` elements are now treated as fields, meaning they can be retrieved and included inside emails and stored as data inside contact entries. Optionally you can exclude them from being retrieved in your emails and stored as entry data just like all other fields.
 - **Added:** Ability to insert dynamic columns inside other dyanmic columns.
 - **Added:** Ability to use `foreach()` loop inside other foreach loops inside `HTML (raw)` elements (this doesn't work directly inside email body settings, so if you need to use this you must use a `HTML (raw)` element instead), maybe in a future version it will be possible to use it directly in the emails too.
+- **Added:** New filter hook `super_csv_bom_header_filter` to alter/delete the byte order mark added for Excel compatibility
 - **Fix:** Some PHP version 8.0+ warnings
 - **Fix:** Bug with generating invoice numbers on the `Hidden` field (depending on what settings are defined by the user)
 
