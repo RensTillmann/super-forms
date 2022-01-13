@@ -1,4 +1,4 @@
-Jan 10, 2022 - Version 1.7.2
+Jan 13, 2022 - Version 1.7.2
 - Added: Compatibility with latest version of Super Forms
 
 Nov 25, 2021 - Version 1.7.1

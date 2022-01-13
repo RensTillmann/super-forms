@@ -215,12 +215,6 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                 if(!isset($data['settings']['csv_attachment_exclude'])) $data['settings']['csv_attachment_exclude'] = '';
                 $excluded_fields = explode( "\n", $data['settings']['csv_attachment_exclude'] );
 
-                // @since 1.1.1 - custom settings for delimiter and enclosure
-                if(!isset($data['settings']['csv_attachment_delimiter'])) $data['settings']['csv_attachment_delimiter'] = ',';
-                if(!isset($data['settings']['csv_attachment_enclosure'])) $data['settings']['csv_attachment_enclosure'] = '"';
-                $delimiter = $data['settings']['csv_attachment_delimiter'];
-                $enclosure = $data['settings']['csv_attachment_enclosure'];
-
                 $rows = array();
                 foreach( $data['data'] as $k => $v ) {
                     if( !isset($v['name']) ) continue;
@@ -262,7 +256,22 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     $basename = sanitize_title_with_dashes($csv_attachment_name) . '.csv';
                     $filename = trailingslashit($d['path']) . $basename;
                     $fp = fopen( $filename, 'w' );
-                    fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+                    // @since 3.1.0 - write file header (byte order mark) for correct encoding to fix UTF-8 in Excel
+                    $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
+                    if(fwrite($fp, $bom)===false){
+                        // Print error message
+                        SUPER_Common::output_message(
+                            $error = true,
+                            "Unable to write to file ($filename)"
+                        );
+                    }
+                    // @since 1.1.1 - custom settings for delimiter and enclosure
+                    if(!isset($data['settings']['csv_attachment_delimiter'])) $data['settings']['csv_attachment_delimiter'] = ',';
+                    if(!isset($data['settings']['csv_attachment_enclosure'])) $data['settings']['csv_attachment_enclosure'] = '"';
+                    $delimiter = wp_unslash(sanitize_text_field($data['settings']['csv_attachment_delimiter']));
+                    $enclosure = wp_unslash(sanitize_text_field($data['settings']['csv_attachment_enclosure']));
+                    if(empty($delimiter)) $delimiter = ',';
+                    if(empty($enclosure)) $enclosure = '"';
                     foreach ( $rows as $fields ) {
                         fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
                     }
