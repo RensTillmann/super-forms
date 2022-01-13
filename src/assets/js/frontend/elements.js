@@ -806,7 +806,9 @@
                 }else{
                     $(el).datepicker(options);
                 }
-                $(el).datepicker('option', 'minDate', min );
+                if(typeof min !== 'undefined'){ 
+                    $(el).datepicker('option', 'minDate', min );
+                }
 
                 // @since 4.9.3 - Datepicker localization (language and format)
                 if(localization!==''){
