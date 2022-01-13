@@ -1829,20 +1829,19 @@ if( !class_exists('SUPER_PayPal') ) :
 						$email_body = $settings['paypal_completed_body_open'] . $settings['paypal_completed_body'] . $settings['paypal_completed_body_close'];
 						$email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
 
-						// Set new password, but only if `{register_generated_password}` tag is found and if we are sending an email to the user
-						if( $user_id!=0 ) {
-							if( !empty($contact_entry_id) && !empty($settings['paypal_completed_email']) ) {
-								if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
-									// Only if passwords tags are found in the email body
-									if(strpos($email_body, '{field_user_pass}')!==false || strpos($email_body, '{user_pass}')!==false || strpos($email_body, '{register_generated_password}')!==false){
-										add_filter( 'send_password_change_email', '__return_false' );
-										$password = wp_generate_password();
-										$user_id = wp_update_user( array( 'ID' => $user_id, 'user_pass' => $password ) );
-										$email_body = str_replace( '{field_user_pass}', $password, $email_body );
-										$email_body = str_replace( '{user_pass}', $password, $email_body );
-										$email_body = str_replace( '{register_generated_password}', $password, $email_body );
-									}
-								}
+						// Set a new password when a user registered and when `{register_generated_password}` tag is found and if we are sending an email to the user
+						if( $user_id!=0 && !empty($settings['paypal_completed_email']) && $settings['paypal_completed_email']==='true' ) {
+							// Please note that if this tag is being used, while a password field existed in the form named "user_pass" the user defined password will be reset to a new one.
+							// It's better to not use a "user_pass" field when using a registration form in combination with Paypal payment and the option to send a "completed email" via Paypal
+							// Only if passwords tags are found in the email body
+							if(strpos($email_body, '{field_user_pass}')!==false || strpos($email_body, '{user_pass}')!==false || strpos($email_body, '{register_generated_password}')!==false){
+								// Prevent sending default WP email
+								add_filter( 'send_password_change_email', '__return_false' );
+								$password = wp_generate_password();
+								$user_id = wp_update_user( array( 'ID' => $user_id, 'user_pass' => $password ) );
+								$email_body = str_replace( '{field_user_pass}', $password, $email_body );
+								$email_body = str_replace( '{user_pass}', $password, $email_body );
+								$email_body = str_replace( '{register_generated_password}', $password, $email_body );
 							}
 						}
 
