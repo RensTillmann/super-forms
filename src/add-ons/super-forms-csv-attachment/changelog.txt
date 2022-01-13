@@ -1,5 +1,6 @@
-Jan 10, 2022 - Version 1.4.1
+Jan 13, 2022 - Version 1.4.1
 - Added: Compatibility with latest version of Super Forms
+- Added: New filter hook `super_csv_bom_header_filter` to alter/delete the byte order mark added for Excel compatibility
 
 Oct 15, 2021 - Version 1.4.0
 - Compatibility with Super Forms v5.0.0

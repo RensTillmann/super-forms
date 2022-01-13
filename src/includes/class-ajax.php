@@ -1051,7 +1051,15 @@ class SUPER_Ajax {
             $basename = 'super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
             $filename = trailingslashit($d['path']) . $basename;
             $fp = fopen( $filename, 'w' );
-            fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+            // @since 3.1.0 - write file header (byte order mark) for correct encoding to fix UTF-8 in Excel
+            $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
+            if(fwrite($fp, $bom)===false){
+                // Print error message
+                SUPER_Common::output_message(
+                    $error = true,
+                    "Unable to write to file ($filename)"
+                );
+            }
             $delimiter = wp_unslash(sanitize_text_field($_POST['delimiter']));
             $enclosure = wp_unslash(sanitize_text_field($_POST['enclosure']));
             if(empty($delimiter)) $delimiter = ',';
@@ -1732,15 +1740,6 @@ class SUPER_Ajax {
             $till = date_i18n( 'Y-m-d', strtotime( $till ) );
             $range_query = " AND ((entry.post_date LIKE '$from%' OR entry.post_date LIKE '$till%') OR (entry.post_date BETWEEN '$from' AND '$till'))";
         }
-
-        $delimiter = ',';
-        if( isset( $_POST['delimiter'] ) ) {
-            $delimiter = $_POST['delimiter'];
-        }
-        $enclosure = '"';
-        if( isset( $_POST['enclosure'] ) ) {
-            $enclosure = stripslashes($_POST['enclosure']);
-        }
         $table = $wpdb->prefix . 'posts';
         $table_meta = $wpdb->prefix . 'postmeta';
         $entries = $wpdb->get_results("SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
@@ -1816,7 +1815,19 @@ class SUPER_Ajax {
             $basename = 'super-contact-entries-'.strtotime(date_i18n('Y-m-d H:i:s')).'.csv';
             $filename = trailingslashit($d['path']) . $basename;
             $fp = fopen( $filename, 'w' );
-            fprintf($fp, chr(0xEF).chr(0xBB).chr(0xBF)); // @since 3.1.0 - write file header for correct encoding
+            // @since 3.1.0 - write file header (byte order mark) for correct encoding to fix UTF-8 in Excel
+            $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
+            if(fwrite($fp, $bom)===false){
+                // Print error message
+                SUPER_Common::output_message(
+                    $error = true,
+                    "Unable to write to file ($filename)"
+                );
+            }
+            $delimiter = wp_unslash(sanitize_text_field($_POST['delimiter']));
+            $enclosure = wp_unslash(sanitize_text_field($_POST['enclosure']));
+            if(empty($delimiter)) $delimiter = ',';
+            if(empty($enclosure)) $enclosure = '"';
             foreach ( $rows as $fields ) {
                 fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
             }
