@@ -296,32 +296,6 @@ class SUPER_Ajax {
     public static function api_checkout() {
         $custom_args = array('body' => $_POST);
         self::api_do_request('addons/checkout', $custom_args);
-        //if(isset($_POST['method']) && $_POST['method']==='paypal'){
-        //    // PayPal checkout
-        //    $custom_args = array(
-        //        'body' => $_POST
-        //        //'body' => (array(
-        //        //    'plans' => $_POST['plans'],
-        //        //    'method' => 'paypal',
-        //        //    'billing_cycle' => 'yearly',
-        //        //    'order_id' => (isset($_POST['order_id']) ? $_POST['order_id'] : ''),
-        //        //    'data' => $_POST['data']
-        //        //))
-        //    );
-        //}else{
-        //    // Stripe checkout
-        //    $custom_args = array(
-        //        'body' => $_POST
-        //        //(array($_POST)
-        //        //    'plans' => $_POST['plans'],
-        //        //    'method' => 'stripe',
-        //        //    'billing_cycle' => $_POST['billing_cycle'],
-        //        //    'payment_method_id' => $_POST['payment_method_id'],
-        //        //    'invoice_id' => $_POST['invoice_id'],
-        //        //    'data' => $_POST['data']
-        //        //))
-        //    );
-        //}
     }
 
     public static function api_do_request($route, $custom_args, $method='echo'){
