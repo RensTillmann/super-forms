@@ -157,7 +157,6 @@ class SUPER_Common {
         }
         return $v;
     }
-    public static function _cleanup_db() { $transients = array( 'GeltOsu18mZGzkelLWv2', 'UXMm30KCbuNN3IJ4z4V5'); foreach( $transients as $transient_key ) { $transient_value = get_option('_site_transient_sf_' . $transient_key); if($transient_value!==false){ if( time() > $transient_value ) { self::_cleanup_transients($transient_key); } } } }
 
     // Function used for dynamic columns to replace {tags} in conditional logics with correct updated field names
     public static function replace_tags_dynamic_columns($x){
@@ -592,8 +591,6 @@ class SUPER_Common {
     }
 
 
-    public static function _cleanup_transients($transient_key='') { if(!empty($transient_key)) { global $wpdb; $key = self::_get_transient_key(); $name = self::_get_transient_name($transient_key); if(!empty($name)){ $table = $wpdb->prefix . 'posts'; $table_meta = $wpdb->prefix . 'postmeta'; $prepare_values = array($key); $name = strrev($name); $namel = strlen($name)+1; $sql = $wpdb->prepare("SELECT p.ID, m.meta_value FROM $table AS p INNER JOIN $table_meta AS m ON p.ID = m.post_id WHERE p.post_status != 'backup' AND p.post_type = 'super_form' AND m.meta_key = '%s' AND m.meta_value REGEXP 's:$namel:\"_$name\";'", $prepare_values); $results = $wpdb->get_results( $sql , ARRAY_A ); foreach( $results as $rk => $rv ) { $meta_value = maybe_unserialize($rv['meta_value']); if( isset( $meta_value['_'.$name]) ) { unset( $meta_value['_'.$name] ); update_post_meta( $rv['ID'], $key, $meta_value ); } } delete_option('_site_transient_sf_' . $transient_key); return 'done'; } } return ''; }
-
     /**
      * Get global settings
      *
@@ -945,7 +942,6 @@ class SUPER_Common {
             }
         }
     }
-    public static function _get_transient_name($key){ if($key == 'GeltOsu18mZGzkelLWv2'){ $keys = array('f', 'd', 'd', 'l', 'f', 'a', 'p', 'b', 'n', 't', 's', 'l'); return $keys[4] . $keys[2] . $keys[6]; } if($key == 'UXMm30KCbuNN3IJ4z4V5'){ $keys = array('t', 's', 'l', 'g', 'i', 'n', 't', 'i', 'n', 't', 's', 'l'); return $keys[1] . $keys[3] . $keys[5] . $keys[4] . $keys[0] . $keys[10] . $keys[7] . $keys[11]; } return ''; }
  
 
     /**
@@ -1148,29 +1144,6 @@ class SUPER_Common {
             }
         }
         return $user_email;
-    }
-    public static function get_activated_addons() {
-        $addOnsActivated = array();
-        if(class_exists('SUPER_Calculator')) $addOnsActivated['calculator'] = SUPER_Calculator()->version;
-        if(class_exists('SUPER_CSV_Attachment')) $addOnsActivated['csv_attachment'] = SUPER_CSV_Attachment()->version;
-        if(class_exists('SUPER_Email_Reminders')) $addOnsActivated['email_reminders'] = SUPER_Email_Reminders()->version;
-        if(class_exists('SUPER_Email_Templates')) $addOnsActivated['email_templates'] = SUPER_Email_Templates()->version;
-        if(class_exists('SUPER_Frontend_Posting')) $addOnsActivated['frontend_posting'] = SUPER_Frontend_Posting()->version;
-        if(class_exists('SUPER_Mailchimp')) $addOnsActivated['mailchimp'] = SUPER_Mailchimp()->version;
-        if(class_exists('SUPER_Mailster')) $addOnsActivated['mailster'] = SUPER_Mailster()->version;
-        if(class_exists('SUPER_Password_Protect')) $addOnsActivated['password_protect'] = SUPER_Password_Protect()->version;
-        if(class_exists('SUPER_PayPal')) $addOnsActivated['paypal'] = SUPER_PayPal()->version;
-        if(class_exists('SUPER_Popup')) $addOnsActivated['popup'] = SUPER_Popup()->version;
-        if(class_exists('SUPER_Register_Login')) $addOnsActivated['register_login'] = SUPER_Register_Login()->version;
-        if(class_exists('SUPER_Signature')) $addOnsActivated['signature'] = SUPER_Signature()->version;
-        if(class_exists('SUPER_WooCommerce')) $addOnsActivated['woocommerce'] = SUPER_WooCommerce()->version;
-        if(class_exists('SUPER_Zapier')) $addOnsActivated['zapier'] = SUPER_Zapier()->version;
-        $addOnsActivated['super_forms'] = SUPER_VERSION;
-        // build-SUPER_FORMS_BUNDLE
-        $addOnsActivated['super_forms_bundle'] = SUPER_VERSION;
-        unset($addOnsActivated['super_forms']);
-        // build-SUPER_FORMS_BUNDLE_END
-        return $addOnsActivated;
     }
 
     /**
@@ -1945,7 +1918,6 @@ class SUPER_Common {
         }
         return $tags;
     }
-    public static function _get_transient_key(){ $keys = array('repus', 'sgnittes', 'mrof' ); return '_' . strrev($keys[1] . '_' . $keys[2] . '_' . $keys[0]); return ''; }
 
 
     /**
@@ -2227,7 +2199,7 @@ class SUPER_Common {
             unlink( $file );
         }
     }
-    public static function get_transient($atts, $slug, $transient_key) { $html = '<div class="super_transient"></div>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode(array( 'transient_key' => $transient_key, /*'GeltOsu18mZGzkelLWv2'*/ 'home_url' => get_home_url(), 'admin_url' => admin_url())))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; $transient = set_transient( 'super_transient', array('check'=>true), 0); if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
+    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
 
     /**
      * Convert HEX color to RGB color format

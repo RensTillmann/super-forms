@@ -498,7 +498,9 @@ function SUPERreCaptcha(){
             if(target.classList.contains('super-field')){
                 target.classList.add('super-focus');
             }else{
-                target.closest('.super-field').classList.add('super-focus');
+                if(target.closest('.super-field')) {
+                    target.closest('.super-field').classList.add('super-focus');
+                }
             }
         }
     };

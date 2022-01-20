@@ -287,6 +287,7 @@ class SUPER_Ajax {
         $custom_args = array(
             'body' => (array(
                 'slug' => $_POST['slug'],
+                'l' => (isset($_POST['l']) ? $_POST['l'] : ''),
                 'data' => $_POST['data']
             ))
         );
