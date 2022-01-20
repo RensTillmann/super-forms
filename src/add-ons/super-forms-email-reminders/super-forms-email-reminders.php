@@ -155,11 +155,8 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             // Upon activating & deactivating the plugin
             register_deactivation_hook(__FILE__, array( $this, 'plugin_deactivation' ) );
 
-            // build-SUPER_FORMS_BUNDLE
             // Upon activating & deactivating the bundled plugin
             add_action( 'after_super_forms_deactivated', array( $this, 'plugin_deactivation' ) );
-            // build-SUPER_FORMS_BUNDLE_END            
-
 
             if ( $this->is_request( 'admin' ) ) {
                 // Filters since 1.0.0

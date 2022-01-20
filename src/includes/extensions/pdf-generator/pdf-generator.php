@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 if(!class_exists('SUPER_PDF_Generator')) :
     final class SUPER_PDF_Generator {
         public $add_on_slug = 'pdf';
-        public $transient_key = 'GeltOsu18mZGzkelLWv2';
         protected static $_instance = null;
         public static function instance() {
             if(is_null( self::$_instance)){
@@ -66,9 +65,6 @@ if(!class_exists('SUPER_PDF_Generator')) :
         }
         public static function add_tab_content($atts){
             $slug = SUPER_PDF_Generator()->add_on_slug;
-            $transient_key = SUPER_PDF_Generator()->transient_key;
-            echo SUPER_Common::get_transient($atts, $slug, $transient_key);
-
             $settings = (isset($atts['settings']['_'.$slug]) ? $atts['settings']['_'.$slug] : array());
             $s = self::get_default_pdf_settings($settings);
             

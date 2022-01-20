@@ -28,7 +28,6 @@ class SUPER_Pages {
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
         $userEmail = SUPER_Common::get_user_email();
-        $addOnsActivated = SUPER_Common::get_activated_addons();
         $custom_args = array(
             'body' => array(
                 'action' => 'super_api_subscribe_addon',
@@ -39,13 +38,13 @@ class SUPER_Pages {
                 'site_url' => site_url(),
                 'protocol' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http",
                 'email' => $userEmail,
-                'addons_activated' => $addOnsActivated,
+                'addons_activated' => array('super-forms'=>SUPER_VERSION),
                 'addons_url' => admin_url( 'admin.php?page=super_addons' ),
                 'ajax_url' => admin_url( 'admin-ajax.php', 'relative' ),
                 'reset_password' => (isset($_GET['reset_password']) ? $_GET['reset_password'] : '')
             )
         );
-        echo SUPER_Ajax::api_do_request('addons/list', $custom_args);
+        echo SUPER_Ajax::api_do_request('addons/list', $custom_args, 'return');
     }
 
 

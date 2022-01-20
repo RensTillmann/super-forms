@@ -20,7 +20,6 @@ if(!class_exists('SUPER_Listings')) :
          *  @since      1.0.0
         */
         public $add_on_slug = 'listings';
-        public $transient_key = 'UXMm30KCbuNN3IJ4z4V5';
 
         
         /**
@@ -437,9 +436,6 @@ if(!class_exists('SUPER_Listings')) :
         }
         public static function add_tab_content($atts){
             $slug = SUPER_Listings()->add_on_slug;
-            $transient_key = SUPER_Listings()->transient_key;
-            echo SUPER_Common::get_transient($atts, $slug, $transient_key);
-            
             $form_id = absint($atts['form_id']);
             $lists = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
