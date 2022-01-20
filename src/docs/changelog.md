@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 13, 2022 - Version 5.1.0
+## Jan 20, 2022 - Version 6.0.0
 
 - **Added:** `TinyMCE` element, allows you to add HTML by using the WordPress rich text editor.
 - **Added:** `HTML (raw)` and `TinyMCE` elements are now treated as fields, meaning they can be retrieved and included inside emails and stored as data inside contact entries. Optionally you can exclude them from being retrieved in your emails and stored as entry data just like all other fields.
