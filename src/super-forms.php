@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.0.0
+ * Version:           6.0.1
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.0.0';
+        public $version = '6.0.1';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1397,7 +1397,7 @@ if(!class_exists('SUPER_Forms')) :
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
                 'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
                 'fonts' => array(
-                    'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                    'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
                 ),
             );
             wp_localize_script($handle, $name, $i18n);
@@ -1941,7 +1941,7 @@ if(!class_exists('SUPER_Forms')) :
                         'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
                         'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
                         'fonts' => array(
-                            'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                            'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
                         ),
                     )
                 );
