@@ -1441,7 +1441,7 @@ if(!class_exists('SUPER_Listings')) :
                     'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
                     'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
                     'fonts' => array(
-                        'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts.json'), true)
+                        'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
                     ),
                 )
             );

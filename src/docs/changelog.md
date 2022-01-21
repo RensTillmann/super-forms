@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 21, 2022 - Version 6.0.1
+
+- **Fix:** PHP Warning when calling `file_get_contents()` to load PDF generator fonts
+
 ## Jan 20, 2022 - Version 6.0.0
 
 - **Added:** `TinyMCE` element, allows you to add HTML by using the WordPress rich text editor.
