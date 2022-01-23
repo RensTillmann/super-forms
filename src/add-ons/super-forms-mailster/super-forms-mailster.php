@@ -207,17 +207,16 @@ if( !class_exists('SUPER_Mailster') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_subscriber( $atts ) {
+        public static function add_subscriber( $x ) {
 
             if (function_exists('mailster_subscribe')) {
-                extract($atts); // data, post, settings
+                extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
                 if( (isset($settings['mailster_enabled'])) && ($settings['mailster_enabled']=='true') ) {
-                    $data = wp_unslash($atts['post']['data']);
+                    $data = wp_unslash($post['data']);
                     $data = json_decode($data, true);
                     $save_subscriber = 'yes';
                     // @since 1.0.2 - check if we do not want to save subscriber conditionally
                     if( !empty($settings['mailster_conditionally_save']) ) {
-                        $settings = $atts['settings'];
                         $save_subscriber = 'no';
                         if( !empty($settings['mailster_conditionally_save_check']) ) {
                             $values = explode(',', $settings['mailster_conditionally_save_check']);

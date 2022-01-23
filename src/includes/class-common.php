@@ -1745,10 +1745,10 @@ class SUPER_Common {
                             $value = str_replace( '{' . $k . ';basename}', self::decode($fv['value']), $value );
                             $value = str_replace( '{' . $k . ';basename['.$fk.']}', self::decode($fv['value']), $value );
                             // Attachment
-                            $value = str_replace( '{' . $k . ';attachment_id}', self::decode($fv['attachment']), $value );
-                            $value = str_replace( '{' . $k . ';attachment_id['.$fk.']}', self::decode($fv['attachment']), $value );
-                            $value = str_replace( '{' . $k . ';attachment}', self::decode($fv['attachment']), $value );
-                            $value = str_replace( '{' . $k . ';attachment['.$fk.']}', self::decode($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id}', self::decode($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id['.$fk.']}', self::decode($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment}', self::decode($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment['.$fk.']}', self::decode($fv['attachment']), $value );
                             // E-mail label
                             $value = str_replace( '{' . $k . ';label}', self::decode($v['label']), $value );
                         }
@@ -2077,6 +2077,7 @@ class SUPER_Common {
                                 }else{
                                     // See if this was a secure file upload
                                     if(!empty($value['path'])) $fileValue = wp_normalize_path(trailingslashit($value['path']) . $value['value']);
+                                    if(!empty($value['subdir'])) $fileValue = $value['subdir'];
                                 }
                                 // 1 = Exclude from confirmation email
                                 if( $v['exclude']==1 ) {
@@ -2279,9 +2280,10 @@ class SUPER_Common {
                 $path = str_replace(str_replace('https://', 'http://', content_url()), '', $filePath);
                 $filePath = WP_CONTENT_DIR . $path;
             }else{
-                // Do nothing
                 // This is uploaded to a custom dir outside the wp content directory
-                // meaning we already have the absolute path
+                // Try to grab the real path
+                $filePath = ABSPATH . str_replace('__/', '../', $filePath);
+                $filePath = realpath($filePath);
             }
             $attachmentPaths[] = $filePath;
         }

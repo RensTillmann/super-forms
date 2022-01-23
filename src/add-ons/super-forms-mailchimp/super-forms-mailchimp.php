@@ -631,6 +631,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
         */
         public static function update_mailchimp_subscribers( $atts ) {
             extract($atts); // data, post, settings
+            if(!isset($atts['post']['data'])) return false;
             $data = wp_unslash($atts['post']['data']);
             $data = json_decode($data, true);
             if( isset( $data['mailchimp_list_id'] ) ) {

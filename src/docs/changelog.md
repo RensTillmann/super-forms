@@ -8,6 +8,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 23, 2022 - Version 6.0.2
+
+- **Fix:** Issue with files not being attached to E-mails when upload directory was setup to be outside the site root (secure file uploads)
+- **Fix:** PHP Warning related to `MailChimp`, `Mailster` and `Password Protect` Add-ons
+
 ## Jan 21, 2022 - Version 6.0.1
 
 - **Fix:** PHP Warning when calling `file_get_contents()` to load PDF generator fonts

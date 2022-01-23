@@ -2701,6 +2701,7 @@ class SUPER_Ajax {
                                         $fileUrl = trailingslashit($d['baseurl']) . 'sfgtfi' . trailingslashit($d['subdir']) . $basename; 
                                         $fileUrl = str_replace('../', '__/', $fileUrl); // replace `../` with `##/`
                                         $value['url'] = $fileUrl;
+                                        $value['subdir'] = trailingslashit($d['subdir']) . $basename;
                                         $value['path'] = $filename;
                                     }else{
                                         // Always unset after all elements have been processed
