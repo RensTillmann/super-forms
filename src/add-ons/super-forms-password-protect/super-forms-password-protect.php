@@ -212,11 +212,13 @@ if( !class_exists('SUPER_Password_Protect') ) :
          *
          *  @since      1.0.0
         */
-        public static function before_sending_email( $atts ) {
-            // $atts should contain 'id' and 'settings'
-            $form_id = $atts['data']['hidden_form_id']['value'];
-            $atts['id'] = $form_id;
-            SUPER_Password_Protect()->locked_msg( '', $atts );
+        public static function before_sending_email( $x ) {
+            extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
+            if(!isset($data)) return false;
+            if(!isset($data['hidden_form_id'])) return false;
+            $form_id = $data['hidden_form_id']['value'];
+            $x['id'] = $form_id;
+            SUPER_Password_Protect()->locked_msg( '', $x );
         }
 
 
@@ -309,8 +311,8 @@ if( !class_exists('SUPER_Password_Protect') ) :
          *
          *  @since      1.0.2
         */
-        public static function locked_msg( $result, $atts ) {
-            extract($atts);
+        public static function locked_msg( $result, $x ) {
+            extract( shortcode_atts( array( 'id'=>'', 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
             $form_id = $id;
 
             if( !isset( $settings['password_protect'] ) ) $settings['password_protect'] = '';
