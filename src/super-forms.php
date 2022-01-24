@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.0.2
+ * Version:           6.0.3
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.0.2';
+        public $version = '6.0.3';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1390,15 +1390,13 @@ if(!class_exists('SUPER_Forms')) :
                 'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                 'loading'=>SUPER_Forms()->common_i18n['loading'],
                 'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                'fonts' => SUPER_Forms()->common_i18n['fonts'],
                 'elementor'=>SUPER_Forms()->common_i18n['elementor'],
                 'directions'=>SUPER_Forms()->common_i18n['directions'],
                 'errors'=>SUPER_Forms()->common_i18n['errors'],
                 // @since 3.6.0 - google tracking
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
-                'fonts' => array(
-                    'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
-                ),
+                'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
             );
             wp_localize_script($handle, $name, $i18n);
             wp_enqueue_script( $handle );
@@ -1563,6 +1561,11 @@ if(!class_exists('SUPER_Forms')) :
 
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => '.super-prev-multipart,.super-next-multipart,.super-calculator,.super-spacer,.super-divider,.super-recaptcha,.super-heading,.super-image,.hidden,.super-hidden,.super-html,.super-pdf_page_break',
+                    
+                    // Fonts used by PDF Generator
+                    'fonts' => array(
+                        'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
+                    ),
 
                     // Loading overlay text
                     'loadingOverlay' => array(
@@ -1934,15 +1937,13 @@ if(!class_exists('SUPER_Forms')) :
                         'loadingOverlay'=>$this->common_i18n['loadingOverlay'],
                         'loading'=>$this->common_i18n['loading'],
                         'tab_index_exclusion'=>$this->common_i18n['tab_index_exclusion'],
+                        'fonts' => $this->common_i18n['fonts'],
                         'elementor'=>$this->common_i18n['elementor'],
                         'directions'=>$this->common_i18n['directions'],
                         'errors'=>$this->common_i18n['errors'],
                         // @since 3.6.0 - google tracking
                         'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
                         'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
-                        'fonts' => array(
-                            'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
-                        ),
                     )
                 );
                 wp_enqueue_script( $handle );
@@ -2248,11 +2249,12 @@ if(!class_exists('SUPER_Forms')) :
                             'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                             'loading' => SUPER_Forms()->common_i18n['loading'],
                             'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                            'fonts' => SUPER_Forms()->common_i18n['fonts'],
                             'elementor' => SUPER_Forms()->common_i18n['elementor'],
                             'directions' => SUPER_Forms()->common_i18n['directions'],
                             'errors' => SUPER_Forms()->common_i18n['errors'],
                             // @since 3.6.0 - google tracking
-                            'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
+                            'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] )
                         )
                     ),
                     'super-backend-common' => array(

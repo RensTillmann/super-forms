@@ -1435,14 +1435,12 @@ if(!class_exists('SUPER_Listings')) :
                     'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
                     'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
+                    'fonts' => SUPER_Forms()->common_i18n['fonts'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking
                     'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
-                    'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
-                    'fonts' => array(
-                        'NotoSans' => json_decode(file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'), true)
-                    ),
+                    'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
                 )
             );
             wp_enqueue_script( $handle );

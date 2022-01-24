@@ -329,7 +329,7 @@ class SUPER_Ajax {
             $err = $r->get_error_message();
             $body .= '<div class="error notice" style="margin-top:50px;">';
                 $body .= '<p>'.esc_html__('Unable to load content, please refresh the page, or try again later.', 'super-forms').'</p>';
-                $body .= '<textarea style="display:none;opacity:0;">' . $err . '</textarea>';
+                $body .= '<p>Error returned by server:</p><textarea style="width:100%;height:50px;">' . $err . '</textarea>';
             $body .= '</div>';
         }else{
             // Just an API error/notice/success message or HTML payload
@@ -3386,6 +3386,11 @@ class SUPER_Ajax {
                                 if(!empty($file['attachment'])){
                                     wp_delete_attachment( absint($file['attachment']), true );
                                 }else{
+                                    if(!empty($file['subdir'])){
+                                        $filePath = realpath(ABSPATH . $file['subdir']);
+                                        SUPER_Common::delete_dir( dirname($filePath) );
+                                        continue;
+                                    }
                                     if(!empty($file['path'])){
                                         SUPER_Common::delete_dir( $file['path'] );
                                     }
