@@ -8,8 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 23, 2022 - Version 6.0.2
+## Jan 24, 2022 - Version 6.0.3
 
+- **Fix:** Option `Delete files from server after the form was submitted` wasn't working properly when storing files outside site root (secure file uploads)
+- **Fix:** Back-end preview not generating the PDF due to fonts not being enqueued
 - **Fix:** Issue with files not being attached to E-mails when upload directory was setup to be outside the site root (secure file uploads)
 - **Fix:** PHP Warning related to `MailChimp`, `Mailster` and `Password Protect` Add-ons
 
