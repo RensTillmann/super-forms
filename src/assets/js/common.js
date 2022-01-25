@@ -3057,7 +3057,7 @@ function SUPERreCaptcha(){
             }
             if(parent.classList.contains('super-keyword-tags')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
+                total = parent.querySelectorAll('.super-autosuggest-tags > span').length;
                 if(total < attr) error = true;
             }
             if(text_field===true){
@@ -3082,7 +3082,7 @@ function SUPERreCaptcha(){
             }
             if(parent.classList.contains('super-keyword-tags')){
                 text_field = false;
-                total = parent.querySelectorAll('.super-autosuggest-tags > div > span').length;
+                total = parent.querySelectorAll('.super-autosuggest-tags > span').length;
                 if(total > attr) error = true;
             }
             if(text_field===true){
@@ -5786,7 +5786,7 @@ function SUPERreCaptcha(){
             nodes[i].style.display = 'block';
             nodes[i].value = '';
         }
-        nodes = args.form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags > div > span');
+        nodes = args.form.querySelectorAll('.super-keyword-tags .super-autosuggest-tags > span');
         for (i = 0; i < nodes.length; i++) { 
             nodes[i].remove();
         }

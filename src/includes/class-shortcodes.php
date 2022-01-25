@@ -3194,7 +3194,7 @@ class SUPER_Shortcodes {
             $atts = $get_items['atts'];
 
             $result .= '<div class="super-autosuggest-tags">';
-                $result .= '<div>';
+                //$result .= '<div>';
                 // Populate form with data
                 if(!empty($atts['value'])){
                     $tags = explode(',', $atts['value']);
@@ -3210,7 +3210,7 @@ class SUPER_Shortcodes {
                         }
                     }
                 }
-                $result .= '</div>';
+                //$result .= '</div>';
                 if( empty($atts['keywords_retrieve_method']) ) $atts['keywords_retrieve_method'] = 'free';
                 $result .= '<input tabindex="-1" class="super-keyword-filter" type="text"';
                 $result .= self::common_attributes( $atts, $tag, $settings );

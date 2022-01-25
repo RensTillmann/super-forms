@@ -3045,7 +3045,7 @@
         app.autosuggestTagsTimeout = null;
         app.keywords = {
             updateValue: function(field, tagsContainer, keywordField, filterField, wrapper){
-                var i, values=[], nodes = wrapper.querySelectorAll('.super-autosuggest-tags > div > span');
+                var i, values=[], nodes = wrapper.querySelectorAll('.super-autosuggest-tags > span');
                 for(i=0; i<nodes.length; i++){
                     values.push(nodes[i].dataset.value);
                 }
@@ -3069,7 +3069,7 @@
                     searchValue = target.dataset.searchValue, // First choice
                     wrapper = target.closest('.super-field-wrapper'),
                     keywordField = wrapper.querySelector('.super-shortcode-field'),
-                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags'),
                     tags = tagsContainer.querySelectorAll('.super-keyword-tag'),
                     filterField = wrapper.querySelector('.super-keyword-filter'),
                     maxlength = parseInt(keywordField.dataset.maxlength, 10),
@@ -3107,7 +3107,7 @@
                     keywordField = wrapper.querySelector('.super-shortcode-field'),
                     filterField = wrapper.querySelector('.super-keyword-filter'),
                     field = target.closest('.super-field'),
-                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div');
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags');
 
                 target.remove();
                 filterField.focus();
@@ -3132,8 +3132,9 @@
                     stringBold,
                     wrapper = target.closest('.super-field-wrapper'),
                     field = target.closest('.super-field'),
-                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags > div'),
+                    tagsContainer = wrapper.querySelector('.super-autosuggest-tags'),
                     keywordField = wrapper.querySelector('.super-shortcode-field'),
+                    filterField = wrapper.querySelector('.super-keyword-filter'),
                     max = (keywordField.dataset.maxlength ? parseInt(keywordField.dataset.maxlength, 10) : 0),
                     nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item');
 
@@ -3150,12 +3151,25 @@
                                 if(max===0 || counter<=max){
                                     if(splitMethod!='comma') tag = tag.replace(/ /g,'');
                                     if( (tag!=='') && (tag.length>1) ) {
-                                        html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
+                                        var node = document.createElement('span');
+                                        node.className = 'super-noselect super-keyword-tag';
+                                        node.setAttribute('sfevents', '{"click":"keywords.remove"}');
+                                        node.dataset.value = tag;
+                                        node.title = 'remove this tag4';
+                                        node.innerHTML = tag;
+                                        //filterField.prepend(span);
+                                        //html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
+                                        //var prev = filterField.previousSibling;
+                                        //previousElementSibling
+                                        filterField.parentNode.insertBefore(node, filterField);
+                                        //tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                                        target.classList.add('super-active');
+                                        //html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
                                     }
                                 }
                             }
                             duplicates[tag] = tag;
-                            tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                            //tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                         }
                         app.keywords.updateValue(field, tagsContainer, keywordField, target, wrapper);
                     }
