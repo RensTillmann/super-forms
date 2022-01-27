@@ -3381,21 +3381,22 @@ function SUPERreCaptcha(){
                 }else{
                     clearInterval(completeSubmitInterval);
                     // Prepare arguments
-                    var formData = SUPER.prepare_form_data($(args.form)); // returns {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
-                    args = {
-                        event: args.event,
-                        form: args.form,
-                        data: formData.data,
-                        form_id: formData.form_id,
-                        entry_id: formData.entry_id,
-                        list_id: formData.list_id,
-                        oldHtml: oldHtml,
-                        sf_nonce: formData.sf_nonce
-                    };
-                    args.callback = function(){
-                        SUPER.complete_submit(args);
-                    };
-                    SUPER.before_submit_hook(args);
+                    SUPER.prepare_form_data($(args.form), function(formData){
+                        args = {
+                            event: args.event,
+                            form: args.form,
+                            data: formData.data,
+                            form_id: formData.form_id,
+                            entry_id: formData.entry_id,
+                            list_id: formData.list_id,
+                            oldHtml: oldHtml,
+                            sf_nonce: formData.sf_nonce
+                        };
+                        args.callback = function(){
+                            SUPER.complete_submit(args);
+                        };
+                        SUPER.before_submit_hook(args);
+                    }); 
                 }
             }, 100);
 
@@ -3685,17 +3686,18 @@ function SUPERreCaptcha(){
             clearTimeout(SUPER.save_form_progress_timeout);
         }
         SUPER.save_form_progress_timeout = setTimeout(function () {
-            var $data = SUPER.prepare_form_data($(args.form));
-            var $form_id = $data.form_id;
-            $data = SUPER.after_form_data_collected_hook($data.data);
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_save_form_progress',
-                    data: $data,
-                    form_id: $form_id
-                }
+            SUPER.prepare_form_data($(args.form), function(formData){
+                var $form_id = formData.form_id;
+                formData = SUPER.after_form_data_collected_hook(formData.data);
+                $.ajax({
+                    url: super_common_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_save_form_progress',
+                        data: formData,
+                        form_id: $form_id
+                    }
+                });
             });
         }, 1000); 
         // 1 second timeout, to make sure that we do not make unnecessary requests to the server
@@ -4065,7 +4067,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.2.0 - prepare form data
-    SUPER.prepare_form_data = function($form){
+    SUPER.prepare_form_data = function($form, callback){
         var $data = SUPER.prepare_form_data_fields($form),
             $form_id = '',
             $entry_id = '',
@@ -4137,13 +4139,37 @@ function SUPERreCaptcha(){
         if($form.find('input[name="hidden_list_id"]').length !== 0) {
             $list_id = $form.find('input[name="hidden_list_id"]').val();
         }
-        return {
-            data:$data, 
-            form_id:$form_id, 
-            entry_id:$entry_id, 
-            list_id:$list_id,
-            sf_nonce: $form.find('input[name="sf_nonce"]').val()
-        };
+
+        // Generate new nonce
+        $.ajax({
+            url: super_common_i18n.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'super_create_nonce'
+            },
+            success: function (nonce) {
+                // Update new nonce
+                $('input[name="sf_nonce"]').val(nonce);
+            },
+            complete: function(){
+                if(typeof callback === 'function'){
+                    callback({
+                        data:$data, 
+                        form_id:$form_id, 
+                        entry_id:$entry_id, 
+                        list_id:$list_id,
+                        sf_nonce: $form.find('input[name="sf_nonce"]').val()
+                    });
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Could not generate nonce');
+            }
+        });
+
     };
 
     // @since 1.3
@@ -5648,33 +5674,34 @@ function SUPERreCaptcha(){
         if( $print_file && $print_file.value!=='' && $print_file.value!='0' ) {
             // @since 3.9.0 - print custom HTML
             $file_id = $print_file.value;
-            $data = SUPER.prepare_form_data($(args.form));
-            $data = SUPER.after_form_data_collected_hook($data.data);
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_print_custom_html',
-                    data: $data,
-                    file_id: $file_id
-                },
-                success: function (result) {
-                    win.document.write(result);
-                    win.document.close();
-                    win.focus();
-                    // @since 2.3 - chrome browser bug
-                    setTimeout(function() {
-                        win.print();
-                        win.close();
-                    }, 250);
-                    return false;
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    // eslint-disable-next-line no-console
-                    console.log(xhr, ajaxOptions, thrownError);
-                    alert(super_common_i18n.errors.failed_to_process_data);
-                    return false;
-                }
+            SUPER.prepare_form_data($(args.form), function(formData){
+                formData = SUPER.after_form_data_collected_hook(formData.data);
+                $.ajax({
+                    url: super_common_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_print_custom_html',
+                        data: formData,
+                        file_id: $file_id
+                    },
+                    success: function (result) {
+                        win.document.write(result);
+                        win.document.close();
+                        win.focus();
+                        // @since 2.3 - chrome browser bug
+                        setTimeout(function() {
+                            win.print();
+                            win.close();
+                        }, 250);
+                        return false;
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        // eslint-disable-next-line no-console
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert(super_common_i18n.errors.failed_to_process_data);
+                        return false;
+                    }
+                });
             });
         }else{
             $css = "<style type=\"text/css\">";
@@ -8153,7 +8180,7 @@ function SUPERreCaptcha(){
         });
     };
 
-
+    
     jQuery(document).ready(function ($) {
         
         var $doc = $(document);

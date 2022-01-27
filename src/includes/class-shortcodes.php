@@ -5945,7 +5945,7 @@ class SUPER_Shortcodes {
 
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
-            if($settings['i18n_switch']=='true'){
+            if(empty($i18n) && $settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
                 if(!empty($translations) && is_array($translations) && count($translations)>1 ){
                     wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
