@@ -42,8 +42,9 @@ class SUPER_Ajax {
             'load_preview'                  => false,
             'switch_language'               => false, // @since 4.7.0
 
-            'upload_files'                    => true,
-            'submit_form'                    => true,
+            'create_nonce'                  => true,
+            'upload_files'                  => true,
+            'submit_form'                   => true,
             'language_switcher'             => true,  // @since 4.7.0
 
             'load_default_settings'         => false,
@@ -112,7 +113,10 @@ class SUPER_Ajax {
             }
         }
     }
-
+    public static function create_nonce(){
+        echo SUPER_Common::generate_nonce();
+        die();
+    }
     public static function listings_view_entry(){
         require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
         require_once( SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php' );
@@ -358,18 +362,38 @@ class SUPER_Ajax {
     public static function language_switcher() {
         $atts = array(
             'id' => absint($_POST['form_id']),
-            'i18n' => sanitize_text_field($_POST['i18n']),
-            'parameters' => $_POST['parameters']
+            'i18n' => (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : ''),
+            'parameters' => (isset($_POST['parameters']) ? $_POST['parameters'] : array()),
         );
+        // Check if languages are used
+        $verified = true;
+        $settings = SUPER_Common::get_form_settings($atts['id']);
+        if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+        if($settings['i18n_switch']!=='true'){
+            // No need to do this, return message
+            $verified = false;
+        }
+        $translations = SUPER_Common::get_form_translations($atts['id']);
+        if( (!is_array($translations)) || ((is_array($translations)) && (count($translations)<2)) ) {
+            // No need to do this, return message
+            $verified = false;
+        }
+        $csrfValidation = SUPER_Common::verifyCSRF();
+        if(!$csrfValidation){
+            $verified = false;
+        }
+        if($verified===false){
+            SUPER_Common::output_message( 
+                $error = true, 
+                esc_html__( 'Unable to switch language, session expired!', 'super-forms' )
+            );
+        }
         // @since 4.7.0 - translation RTL
         // check if the translation has enable RTL mode
         $rtl = false;
-        $translations = SUPER_Common::get_form_translations($atts['id']);
-        if(is_array($translations)){
-            if( !empty($translations[$atts['i18n']]) && !empty($translations[$atts['i18n']]['rtl']) ){
-                if($translations[$atts['i18n']]['rtl']=='true'){
-                    $rtl = true;
-                }
+        if(!empty($translations[$atts['i18n']]) && !empty($translations[$atts['i18n']]['rtl'])){
+            if($translations[$atts['i18n']]['rtl']=='true'){
+                $rtl = true;
             }
         }
         // This will grab only the elements of the form. We can then return it and add it inside the <form> tag
@@ -2408,16 +2432,6 @@ class SUPER_Ajax {
         $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
         $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
         
-        // Temporarily deprecated till found a solution with caching plugins
-        // // @since 4.6.0 - Check if ajax request is valid based on nonce field
-        // if ( !wp_verify_nonce( $_POST['super_ajax_nonce'], 'super_submit_' . $form_id ) ) {
-        //     SUPER_Common::output_message( 
-        //         $error = true, 
-        //         esc_html__( 'Failed to verify nonce! You either do not have permission to submit this form or caching is enabled. If caching is enabled make sure to exclude this page from being cached.', 'super-forms' )
-        //     );
-        // }
-        // check_ajax_referer( 'super_submit_' . $form_id, 'super_ajax_nonce' );
-        
         // @since 4.6.0 - verify reCAPTCHA token
         if(!empty($_POST['version'])){
             $version = sanitize_text_field( $_POST['version'] );
@@ -2647,6 +2661,13 @@ class SUPER_Ajax {
         die();
     }
     public static function submit_form( $settings=null ) {
+        $csrfValidation = SUPER_Common::verifyCSRF();
+        if(!$csrfValidation){
+            SUPER_Common::output_message( 
+                $error = true, 
+                esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
+            );
+        }
         $atts = self::submit_form_checks($settings);
         $data = $atts['data'];
         $form_id = $atts['form_id'];
@@ -3448,6 +3469,9 @@ class SUPER_Ajax {
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             
+            // Destroy nonce, and generate new one for next form
+            SUPER_Forms()->session->set( 'sf_nonce', false );
+            $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
             SUPER_Common::output_message(
                 $error=false, 
                 $msg = $msg,

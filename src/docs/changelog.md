@@ -8,6 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 26, 2022 - Version 6.0.4
+
+- **Fix:** When `editing` is enabled for a `Listings` (Listings Add-on) make sure the styles/scripts are loaded so that normal form functions and styles are applied
+- **Fix:** Validate requests made to switch form language by using a custom nonce system
+- **Fix:** PHP parse error when loading a php file used for PHP versions below v8
+
+
 ## Jan 24, 2022 - Version 6.0.3
 
 - **Fix:** Option `Delete files from server after the form was submitted` wasn't working properly when storing files outside site root (secure file uploads)
