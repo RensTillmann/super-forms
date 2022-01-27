@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 27, 2022 - Version 6.0.5
+
+- **Fix:** Regenerate nonce for sites that use cache
+
 ## Jan 26, 2022 - Version 6.0.4
 
 - **Fix:** When `editing` is enabled for a `Listings` (Listings Add-on) make sure the styles/scripts are loaded so that normal form functions and styles are applied
