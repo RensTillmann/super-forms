@@ -135,11 +135,11 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 
 		$this->dirty = true;
 	}
-
-
-
 	
 	
+
+
+
 	/*****************************************************************/
 	/*                     Iterator Implementation                   */
 	/*****************************************************************/
@@ -166,7 +166,6 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 		return key( $this->container );
 	}
 
-
 	/**
 	 * Move the internal point of the container array to the next item
 	 *
@@ -174,7 +173,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return void
 	 */
-	public function next(): void {
+	public function next() {
 		next( $this->container );
 	}
 
@@ -185,7 +184,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return void
 	 */
-	public function rewind(): void {
+	public function rewind() {
 		reset( $this->container );
 	}
 
@@ -200,7 +199,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 		return $this->offsetExists( $this->key() );
 	}
 
-
+	
 	/*****************************************************************/
 	/*                    Countable Implementation                   */
 	/*****************************************************************/
@@ -212,7 +211,7 @@ class Recursive_ArrayAccess implements ArrayAccess, Iterator, Countable {
 	 *
 	 * @return int
 	 */
-	public function count(): int {
+	public function count() {
 		return count( $this->container );
 	}
 }

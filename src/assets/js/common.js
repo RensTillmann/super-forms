@@ -182,9 +182,6 @@ function SUPERreCaptcha(){
             return false;
         }
 
-        // @since 4.6.0 - Send ajax nonce
-        args.super_ajax_nonce = args.form.find('input[name="super_ajax_nonce"]').val();
-
         // @since 2.9.0 - json data POST
         json_data = JSON.stringify(args.data);
         args.form.find('textarea[name="json_data"]').val(json_data);
@@ -315,6 +312,7 @@ function SUPERreCaptcha(){
         if(args.form_id) args.formData.append('form_id', args.form_id);
         if(args.entry_id) args.formData.append('entry_id', args.entry_id);
         if(args.list_id) args.formData.append('list_id', args.list_id);
+        if(args.sf_nonce) args.formData.append('sf_nonce', args.sf_nonce);
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,
@@ -2857,7 +2855,6 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // We do not want to display a thank you message, but might want to display a Download PDF button
-
                 if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
                     args.loadingOverlay.classList.add('super-success');
                     SUPER.show_pdf_download_btn(args);
@@ -3393,6 +3390,7 @@ function SUPERreCaptcha(){
                         entry_id: formData.entry_id,
                         list_id: formData.list_id,
                         oldHtml: oldHtml,
+                        sf_nonce: formData.sf_nonce
                     };
                     args.callback = function(){
                         SUPER.complete_submit(args);
@@ -4138,9 +4136,14 @@ function SUPERreCaptcha(){
         // When editing entry via Listings add-on
         if($form.find('input[name="hidden_list_id"]').length !== 0) {
             $list_id = $form.find('input[name="hidden_list_id"]').val();
-            //SUPER.form_js[$form_id]._pdf.generate = 'false';
         }
-        return {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
+        return {
+            data:$data, 
+            form_id:$form_id, 
+            entry_id:$entry_id, 
+            list_id:$list_id,
+            sf_nonce: $form.find('input[name="sf_nonce"]').val()
+        };
     };
 
     // @since 1.3
@@ -8056,10 +8059,10 @@ function SUPERreCaptcha(){
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         var formData = new FormData();
         formData.append('action', 'super_submit_form');
-        if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
         if(args.form_id) formData.append('form_id', args.form_id);
         if(args.entry_id) formData.append('entry_id', args.entry_id);
         if(args.list_id) formData.append('list_id', args.list_id);
+        if(args.sf_nonce) formData.append('sf_nonce', args.sf_nonce);
         if(args.token) formData.append('token', args.token);
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
@@ -8097,6 +8100,10 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
+                    // Update new nonce
+                    if(result.response_data && result.response_data.sf_nonce){
+                        $('input[name="sf_nonce"]').val(result.response_data.sf_nonce);
+                    }
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {
                         $.ajax({

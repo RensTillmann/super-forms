@@ -3465,10 +3465,14 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   pointer-events: none;
   z-index: 2;
+  overflow: initial;
+  margin: 0;
 }
 .super-form .super-adaptive-placeholder > span {
   margin-left: -5px;
   margin-top: -1px;
+  margin-top: 0;
+  margin-bottom: 0;
   padding: 0px 5px 0px 5px;
   line-height: normal;
 }

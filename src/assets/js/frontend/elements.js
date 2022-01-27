@@ -1274,7 +1274,7 @@
         // Update conditional logic names
         // Update validate condition names
         // Update variable condition names 
-        var nodes = clone.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
+        nodes = clone.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
             // Before we continue replace any foreach(file_upload_fieldname)
             var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
@@ -1309,7 +1309,7 @@
                 if(childParentIndex!==0){
                     delete suffix[0];
                 }
-                var levels = suffix.reverse().join('');
+                levels = suffix.reverse().join('');
                 if(childParentIndex!==0){
                     replaceTagsWithValue[$o] = '{'+$n+levels+'_'+(childParentIndex+1)+$s+'}';
                     continue;
@@ -2667,52 +2667,82 @@
 
             // Switch to different language when clicked
             if(field.closest('.super-i18n-switcher')){
-                var $this = $(this),
-                    $form = $this.closest('.super-form'),
-                    $form_id = $form.find('input[name="hidden_form_id"]').val(),
-                    $i18n = $this.attr('data-value');
-
-                $this.parent().children('.super-item').removeClass('super-active');
-                $this.addClass('super-active');
-                // Also move to placeholder
-                $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
-                
+                // Generate new nonce
+                var $this = $(this), $form = $this.closest('.super-form');
                 // Remove initialized class
-                $form.find('form').html('');
+                $form.find('.super-button').remove();
                 $form.removeClass('super-initialized');
-
-                // Get URL parameters
-                var $queryString = window.location.search;
-                var $parameters = SUPER.getAllUrlParams($queryString);
-                $.ajax({
-                    url: super_elements_i18n.ajaxurl,
-                    type: 'post',
-                    data: {
-                        action: 'super_language_switcher',
-                        form_id: $form_id,
-                        i18n: $i18n,
-                        parameters: $parameters
+                $.ajax({ 
+                    url: super_elements_i18n.ajaxurl, 
+                    type: 'post', 
+                    data: { 
+                        action: 'super_create_nonce'
                     },
-                    success: function (result) {
-                        var data = JSON.parse(result);
-                        if(data.rtl==true){
-                            $form.addClass('super-rtl');
-                        }else{
-                            $form.removeClass('super-rtl');
-                        }
-                        $form.find('form').html(data.html);
-                        $form.data('i18n', $i18n);
+                    success: function (nonce) {
+                        $form.find('input[name="sf_nonce"]').val(nonce);
                     },
                     complete: function(){
-                        $form.removeClass('super-initialized');
-                        $form.removeClass('super-rendered');
-                        $form.find('.super-multipart-progress').remove();
-                        $form.find('.super-multipart-steps').remove();
+                        var $form_id = $form.find('input[name="hidden_form_id"]').val(),
+                            $sf_nonce = $form.find('input[name="sf_nonce"]').val(),
+                            $i18n = $this.attr('data-value');
+
+                        $this.parent().children('.super-item').removeClass('super-active');
+                        $this.addClass('super-active');
+                        // Also move to placeholder
+                        $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
+                        
+                        // Get URL parameters
+                        var $queryString = window.location.search;
+                        var $parameters = SUPER.getAllUrlParams($queryString);
+                        $.ajax({
+                            url: super_elements_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_language_switcher',
+                                form_id: $form_id,
+                                i18n: $i18n,
+                                parameters: $parameters,
+                                sf_nonce: $sf_nonce,
+                            },
+                            success: function (result) {
+                                var data = JSON.parse(result);
+                                if(data.error && data.error===true){
+                                    var i, nodes = document.querySelectorAll('.super-msg');
+                                    for (i = 0; i < nodes.length; i++) { 
+                                        nodes[i].remove();
+                                    }
+                                    var $html = '<div class="super-msg super-error">';                            
+                                    $html += data.msg;
+                                    $html += '<span class="super-close"></span>';
+                                    $html += '</div>';
+                                    $($html).prependTo($form);
+                                }else{
+                                    if(data.rtl==true){
+                                        $form.addClass('super-rtl');
+                                    }else{
+                                        $form.removeClass('super-rtl');
+                                    }
+                                    $form.find('form').html(data.html);
+                                    $form.data('i18n', $i18n);
+                                }
+                            },
+                            complete: function(){
+                                $form.removeClass('super-initialized');
+                                $form.removeClass('super-rendered');
+                                $form.find('.super-multipart-progress').remove();
+                                $form.find('.super-multipart-steps').remove();
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                // eslint-disable-next-line no-console
+                                console.log(xhr, ajaxOptions, thrownError);
+                                alert(super_elements_i18n.failed_to_process_data);
+                            }
+                        });
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         // eslint-disable-next-line no-console
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert(super_elements_i18n.failed_to_process_data);
+                        alert('Failed to generate nonce!');
                     }
                 });
                 return true;
