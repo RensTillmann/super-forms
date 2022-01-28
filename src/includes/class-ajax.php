@@ -380,7 +380,16 @@ class SUPER_Ajax {
         }
         $csrfValidation = SUPER_Common::verifyCSRF();
         if(!$csrfValidation){
-            $verified = false;
+            // Only check when not disabled by the user.
+            // Some users want to use/load their forms via an iframe from a different domain name
+            // In this case sessions won't work  because of browsers "SameSite by default cookies"
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
+                // Check was disabled by the user, skip it
+            }else{
+                // Return error
+                $verified = false;
+            }
         }
         if($verified===false){
             SUPER_Common::output_message( 
@@ -2663,10 +2672,19 @@ class SUPER_Ajax {
     public static function submit_form( $settings=null ) {
         $csrfValidation = SUPER_Common::verifyCSRF();
         if(!$csrfValidation){
-            SUPER_Common::output_message( 
-                $error = true, 
-                esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
-            );
+            // Only check when not disabled by the user.
+            // Some users want to use/load their forms via an iframe from a different domain name
+            // In this case sessions won't work  because of browsers "SameSite by default cookies"
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
+                // Check was disabled by the user, skip it
+            }else{
+                // Return error
+                SUPER_Common::output_message( 
+                    $error = true, 
+                    esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
+                );
+            }
         }
         $atts = self::submit_form_checks($settings);
         $data = $atts['data'];
