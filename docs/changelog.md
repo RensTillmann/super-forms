@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 27, 2022 - Version 6.0.5
+## Jan 28, 2022 - Version 6.0.6
 
+- **Added:** Option to disable CSRF check under `Super Forms > Settings > Form Settings > Cross-Site Request Forgery (CSRF) check`. This allows a user to submit the form that was loaded via an iframe from a different origin address
 - **Fix:** Regenerate nonce for sites that use cache
 
 ## Jan 26, 2022 - Version 6.0.4
