@@ -19,6 +19,24 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+    
+    public static function generate_nonce(){
+        $sf_nonce = SUPER_Forms()->session->get( 'sf_nonce' );
+        if( $sf_nonce===false ) {
+            $sf_nonce = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
+            SUPER_Forms()->session->set( 'sf_nonce', $sf_nonce );
+        }
+        return $sf_nonce;
+    }
+
+    public static function verifyCSRF(){
+        $sf_nonce = SUPER_Forms()->session->get( 'sf_nonce' );
+        $v = filter_input(INPUT_POST, 'sf_nonce', FILTER_SANITIZE_STRING);
+        if(!$v || $v !== $sf_nonce){
+            return false; // invalid
+        }
+        return true; // valid
+    }
      
     // @since 4.7.7 - US states (currently used by dropdown element only)
     public static function us_states(){

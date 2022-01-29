@@ -5945,9 +5945,9 @@ class SUPER_Shortcodes {
 
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
-            if($settings['i18n_switch']=='true'){
+            if(empty($i18n) && $settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
-                if(!empty($translations) && is_array($translations)){
+                if(!empty($translations) && is_array($translations) && count($translations)>1 ){
                     wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
                     $default_language = current($translations);
                     // Set default language to current language if not empty
@@ -6148,9 +6148,8 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.6.0 - add nonce field
-        $super_ajax_nonce = wp_create_nonce( 'super_submit_' . $form_id );
-        $result .= '<input type="hidden" name="super_ajax_nonce" value="' . esc_attr($super_ajax_nonce) . '" />';
-
+        $result .= '<input type="hidden" name="sf_nonce" value="' . SUPER_Common::generate_nonce() . '" />';
+        
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
 

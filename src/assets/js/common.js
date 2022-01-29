@@ -182,9 +182,6 @@ function SUPERreCaptcha(){
             return false;
         }
 
-        // @since 4.6.0 - Send ajax nonce
-        args.super_ajax_nonce = args.form.find('input[name="super_ajax_nonce"]').val();
-
         // @since 2.9.0 - json data POST
         json_data = JSON.stringify(args.data);
         args.form.find('textarea[name="json_data"]').val(json_data);
@@ -280,7 +277,6 @@ function SUPERreCaptcha(){
         html += '<span class="super-fileupload-info">';
             // Truncate file if it's too long
             var f = SUPER.get_file_name_and_extension(fileName);
-            if (f.name.length > 10) f.name = f.name.substring(0, 10)+'...';
             if(uploaded){
                 html += '<a href="'+fileUrl+'" target="_blank">'+f.name+'.'+f.ext+'</a>';
             }else{
@@ -315,6 +311,7 @@ function SUPERreCaptcha(){
         if(args.form_id) args.formData.append('form_id', args.form_id);
         if(args.entry_id) args.formData.append('entry_id', args.entry_id);
         if(args.list_id) args.formData.append('list_id', args.list_id);
+        if(args.sf_nonce) args.formData.append('sf_nonce', args.sf_nonce);
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,
@@ -2857,7 +2854,6 @@ function SUPERreCaptcha(){
                 }
             }else{
                 // We do not want to display a thank you message, but might want to display a Download PDF button
-
                 if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
                     args.loadingOverlay.classList.add('super-success');
                     SUPER.show_pdf_download_btn(args);
@@ -3384,20 +3380,22 @@ function SUPERreCaptcha(){
                 }else{
                     clearInterval(completeSubmitInterval);
                     // Prepare arguments
-                    var formData = SUPER.prepare_form_data($(args.form)); // returns {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
-                    args = {
-                        event: args.event,
-                        form: args.form,
-                        data: formData.data,
-                        form_id: formData.form_id,
-                        entry_id: formData.entry_id,
-                        list_id: formData.list_id,
-                        oldHtml: oldHtml,
-                    };
-                    args.callback = function(){
-                        SUPER.complete_submit(args);
-                    };
-                    SUPER.before_submit_hook(args);
+                    SUPER.prepare_form_data($(args.form), function(formData){
+                        args = {
+                            event: args.event,
+                            form: args.form,
+                            data: formData.data,
+                            form_id: formData.form_id,
+                            entry_id: formData.entry_id,
+                            list_id: formData.list_id,
+                            oldHtml: oldHtml,
+                            sf_nonce: formData.sf_nonce
+                        };
+                        args.callback = function(){
+                            SUPER.complete_submit(args);
+                        };
+                        SUPER.before_submit_hook(args);
+                    }); 
                 }
             }, 100);
 
@@ -3687,17 +3685,18 @@ function SUPERreCaptcha(){
             clearTimeout(SUPER.save_form_progress_timeout);
         }
         SUPER.save_form_progress_timeout = setTimeout(function () {
-            var $data = SUPER.prepare_form_data($(args.form));
-            var $form_id = $data.form_id;
-            $data = SUPER.after_form_data_collected_hook($data.data);
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_save_form_progress',
-                    data: $data,
-                    form_id: $form_id
-                }
+            SUPER.prepare_form_data($(args.form), function(formData){
+                var $form_id = formData.form_id;
+                formData = SUPER.after_form_data_collected_hook(formData.data);
+                $.ajax({
+                    url: super_common_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_save_form_progress',
+                        data: formData,
+                        form_id: $form_id
+                    }
+                });
             });
         }, 1000); 
         // 1 second timeout, to make sure that we do not make unnecessary requests to the server
@@ -4067,7 +4066,7 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.2.0 - prepare form data
-    SUPER.prepare_form_data = function($form){
+    SUPER.prepare_form_data = function($form, callback){
         var $data = SUPER.prepare_form_data_fields($form),
             $form_id = '',
             $entry_id = '',
@@ -4138,9 +4137,38 @@ function SUPERreCaptcha(){
         // When editing entry via Listings add-on
         if($form.find('input[name="hidden_list_id"]').length !== 0) {
             $list_id = $form.find('input[name="hidden_list_id"]').val();
-            //SUPER.form_js[$form_id]._pdf.generate = 'false';
         }
-        return {data:$data, form_id:$form_id, entry_id:$entry_id, list_id:$list_id};
+
+        // Generate new nonce
+        $.ajax({
+            url: super_common_i18n.ajaxurl,
+            type: 'post',
+            data: {
+                action: 'super_create_nonce'
+            },
+            success: function (nonce) {
+                // Update new nonce
+                $('input[name="sf_nonce"]').val(nonce);
+            },
+            complete: function(){
+                if(typeof callback === 'function'){
+                    callback({
+                        data:$data, 
+                        form_id:$form_id, 
+                        entry_id:$entry_id, 
+                        list_id:$list_id,
+                        sf_nonce: $form.find('input[name="sf_nonce"]').val()
+                    });
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+                alert('Could not generate nonce');
+            }
+        });
+
     };
 
     // @since 1.3
@@ -5645,33 +5673,34 @@ function SUPERreCaptcha(){
         if( $print_file && $print_file.value!=='' && $print_file.value!='0' ) {
             // @since 3.9.0 - print custom HTML
             $file_id = $print_file.value;
-            $data = SUPER.prepare_form_data($(args.form));
-            $data = SUPER.after_form_data_collected_hook($data.data);
-            $.ajax({
-                url: super_common_i18n.ajaxurl,
-                type: 'post',
-                data: {
-                    action: 'super_print_custom_html',
-                    data: $data,
-                    file_id: $file_id
-                },
-                success: function (result) {
-                    win.document.write(result);
-                    win.document.close();
-                    win.focus();
-                    // @since 2.3 - chrome browser bug
-                    setTimeout(function() {
-                        win.print();
-                        win.close();
-                    }, 250);
-                    return false;
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    // eslint-disable-next-line no-console
-                    console.log(xhr, ajaxOptions, thrownError);
-                    alert(super_common_i18n.errors.failed_to_process_data);
-                    return false;
-                }
+            SUPER.prepare_form_data($(args.form), function(formData){
+                formData = SUPER.after_form_data_collected_hook(formData.data);
+                $.ajax({
+                    url: super_common_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_print_custom_html',
+                        data: formData,
+                        file_id: $file_id
+                    },
+                    success: function (result) {
+                        win.document.write(result);
+                        win.document.close();
+                        win.focus();
+                        // @since 2.3 - chrome browser bug
+                        setTimeout(function() {
+                            win.print();
+                            win.close();
+                        }, 250);
+                        return false;
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        // eslint-disable-next-line no-console
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert(super_common_i18n.errors.failed_to_process_data);
+                        return false;
+                    }
+                });
             });
         }else{
             $css = "<style type=\"text/css\">";
@@ -8056,10 +8085,10 @@ function SUPERreCaptcha(){
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         var formData = new FormData();
         formData.append('action', 'super_submit_form');
-        if(args.super_ajax_nonce) formData.append('super_ajax_nonce', args.super_ajax_nonce);
         if(args.form_id) formData.append('form_id', args.form_id);
         if(args.entry_id) formData.append('entry_id', args.entry_id);
         if(args.list_id) formData.append('list_id', args.list_id);
+        if(args.sf_nonce) formData.append('sf_nonce', args.sf_nonce);
         if(args.token) formData.append('token', args.token);
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
@@ -8097,6 +8126,10 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
+                    // Update new nonce
+                    if(result.response_data && result.response_data.sf_nonce){
+                        $('input[name="sf_nonce"]').val(result.response_data.sf_nonce);
+                    }
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {
                         $.ajax({
@@ -8146,7 +8179,7 @@ function SUPERreCaptcha(){
         });
     };
 
-
+    
     jQuery(document).ready(function ($) {
         
         var $doc = $(document);
