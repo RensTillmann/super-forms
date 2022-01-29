@@ -1413,6 +1413,10 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             $settings = SUPER_Common::get_form_settings($form_id);
+            
+            // Load styles and scripts
+            SUPER_Forms()->enqueue_element_styles();
+            SUPER_Forms()->enqueue_element_scripts($settings, false, $form_id);
 
             // Enqueue scripts and styles
             $handle = 'super-common';
@@ -2399,6 +2403,12 @@ END AS paypalSubscriptionId
                     $result .= '</div>';
                 }
             $result .= '</div>';
+
+            $css = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+            $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
+            $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
+            if( $css!='' ) $result .= '<style type="text/css">' . $css . '</style>';
+
             return $result;
         }
         public static function get_action_permissions($atts){

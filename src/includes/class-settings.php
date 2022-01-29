@@ -1344,6 +1344,17 @@ class SUPER_Settings {
                         '1' => esc_html__( 'Enabled', 'super-forms' ),
                     ),
                 ),
+                'csrf_check' => array(
+                    'hidden' => true,
+                    'name' => esc_html__( 'Cross-Site Request Forgery (CSRF) check', 'super-forms' ),
+                    'desc' => esc_html__( 'If you are loading forms through iframes that have a different origin you will require to disable the CSRF check in order to be able to submit forms. This is not recommended. Only use this if you have no other solution.', 'super-forms' ),
+                    'type'=>'select',
+                    'default' => self::get_value( $default, 'csrf_check', $settings, 'true' ),
+                    'values'=>array(
+                        'true' => esc_html__( 'Enabled (recommended)', 'super-forms' ),
+                        'false' => esc_html__( 'Disabled (not recommended)', 'super-forms' )
+                    ),
+                ),
                 'allow_storing_cookies' => array(
                     'hidden' => true,
                     'name' => esc_html__( 'Allow storing cookies', 'super-forms' ),

@@ -123,8 +123,12 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
  	* @uses apply_filters Calls `super_session_cookie_httponly` to set the $httponly parameter of setcookie()
  	*/
 	protected function set_cookie() {
-        $secure = apply_filters('super_session_cookie_secure', false);
-        $httponly = apply_filters('super_session_cookie_httponly', false);
+		$secure = false;
+		if(!empty($_SERVER["HTTPS"])){
+			$secure = true;
+		}
+		$secure = apply_filters('super_session_cookie_secure', $secure);
+		$httponly = apply_filters('super_session_cookie_httponly', true);
         // Only retrieve settings from front-end
         if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
         	$global_settings = SUPER_Common::get_global_settings();
