@@ -277,7 +277,6 @@ function SUPERreCaptcha(){
         html += '<span class="super-fileupload-info">';
             // Truncate file if it's too long
             var f = SUPER.get_file_name_and_extension(fileName);
-            if (f.name.length > 10) f.name = f.name.substring(0, 10)+'...';
             if(uploaded){
                 html += '<a href="'+fileUrl+'" target="_blank">'+f.name+'.'+f.ext+'</a>';
             }else{

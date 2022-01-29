@@ -1067,9 +1067,13 @@ textarea
           content: unicode("f15b")
           font-size: 43px
       .super-fileupload-info
-        padding: 5px 10px 10px 10px
+        padding: 5px 10px 5px 10px
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-direction: column
         .super-fileupload-delete
-          padding: 0px 10px 0px 10px
+          padding: 5px 10px 5px 10px
       &[data-type*="application/zip"],
       &[data-type*="application/x-zip-compressed"],
       &[data-type*="application/x-gzip"]
@@ -2175,8 +2179,8 @@ textarea
     flex-direction: row-reverse
     align-items: center
     .super-fileupload-name
-      padding: 0px 0px 0px 0px
-
+      padding: 0px 0px 5px 0px
+      text-align: center
 .display-grid
   .super-field-wrapper
     display: flex
