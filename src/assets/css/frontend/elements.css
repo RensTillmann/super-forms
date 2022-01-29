@@ -1278,10 +1278,14 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-size: 43px;
 }
 .super-form .super-fileupload-files > div .super-fileupload-info {
-  padding: 5px 10px 10px 10px;
+  padding: 5px 10px 5px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 .super-form .super-fileupload-files > div .super-fileupload-info .super-fileupload-delete {
-  padding: 0px 10px 0px 10px;
+  padding: 5px 10px 5px 10px;
 }
 .super-form .super-fileupload-files > div[data-type*="application/zip"] .super-fileupload-document:after, .super-form .super-fileupload-files > div[data-type*="application/x-zip-compressed"] .super-fileupload-document:after, .super-form .super-fileupload-files > div[data-type*="application/x-gzip"] .super-fileupload-document:after {
   content: "\f1c6";
@@ -2794,7 +2798,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
 }
 .super-fileupload-files > div .super-fileupload-name {
-  padding: 0px 0px 0px 0px;
+  padding: 0px 0px 5px 0px;
+  text-align: center;
 }
 
 .display-grid .super-field-wrapper {
