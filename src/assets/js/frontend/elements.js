@@ -2452,6 +2452,10 @@
                 }
                 nodes = document.querySelectorAll('.super-focus');
                 for(i = 0; i < nodes.length; i++){
+                    if(nodes[i].classList.contains('super-keyword-tags')){
+                        var f = nodes[i].querySelector('.super-keyword-filter');
+                        if(f) f.value = ''; // empty value
+                    }
                     nodes[i].classList.remove('super-focus');
                     nodes[i].classList.remove('super-open');
                 }

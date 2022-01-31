@@ -124,9 +124,11 @@ final class SUPER_WP_Session extends Recursive_ArrayAccess {
  	*/
 	protected function set_cookie() {
 		$secure = false;
-		if(!empty($_SERVER["HTTPS"])){
-			$secure = true;
-		}
+		// Returns true if the page is using SSL (checks if HTTPS or on Port 443).
+		// NB: this won’t work for websites behind some load balancers, especially Network Solutions hosted websites. To body up a fix, save this gist into the plugins folder and enable it. For details, read WordPress is_ssl() doesn’t work behind some load balancers.
+		// Websites behind load balancers or reverse proxies that support HTTP_X_FORWARDED_PROTO can be fixed by adding the following code to the wp-config.php file, above the require_once call:
+		// `if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') $_SERVER['HTTPS'] = 'on';`
+		if(is_ssl()) $secure = true;
 		$secure = apply_filters('super_session_cookie_secure', $secure);
 		$httponly = apply_filters('super_session_cookie_httponly', true);
         // Only retrieve settings from front-end

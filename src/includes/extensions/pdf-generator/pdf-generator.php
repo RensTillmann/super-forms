@@ -289,6 +289,19 @@ if(!class_exists('SUPER_PDF_Generator')) :
                             echo '<span class="sfui-label">' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
+                    // This allows to copy cyrillic text
+                    echo '<div class="sfui-setting">';
+                        echo '<div class="sfui-sub-settings" data-f="textRendering;true">';
+                            // PDF Cyrillic text
+                            echo '<div class="sfui-setting sfui-inline">';
+                                echo '<span class="sfui-title">' . esc_html__( 'Cyrillic text', 'super-forms' ) . ':</span>';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="checkbox" name="cyrillicText" value="true"' . ($s['cyrillicText']==='true' ? ' checked="checked"' : '') . ' />';
+                                    echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses cyrillic text)', 'super-forms' ) . '</span>';
+                                echo '</label>';
+                            echo '</div>';
+                        echo '</div>';
+                    echo '</div>';
                     // PDF render scale
                     echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'PDF render scale', 'super-forms' ) . ':</span>';
@@ -321,6 +334,16 @@ if(!class_exists('SUPER_PDF_Generator')) :
             if(empty($s['format'])) $s['format'] = 'a4';
             if(empty($s['customFormat'])) $s['customFormat'] = '';
             if(empty($s['textRendering'])) $s['textRendering'] = 'true';
+            // Only if form already exists otherwise set to false by default
+            if(!empty($_GET['id'])){
+                // Form already exists (previously saved)
+                if(!isset($s['cyrillicText'])) {
+                    $s['cyrillicText'] = 'true'; // makes sure that we don't break existing PDF Generations
+                }else{
+                    $s['cyrillicText'] = 'false'; // false by default
+                }
+            }
+            if(empty($s['cyrillicText'])) $s['cyrillicText'] = 'false'; // disabled by default, unless otherwise specified
             if(empty($s['renderScale'])) $s['renderScale'] = '2';
             if(empty($s['margins'])) $s['margins'] = array(
                 'body' => array(

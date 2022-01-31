@@ -1,7 +1,7 @@
 /* globals jQuery, SUPER, wp */
 "use strict";
 (function($) { // Hide scope, no $ conflict
-
+    
     // Init WP Image Browser
     SUPER.init_image_browser = function(){
 
@@ -126,6 +126,15 @@
     };
 
     jQuery(document).ready(function ($) {
+
+        // temp // Reset setting to default or global value
+        // temp var i, nodes = document.querySelectorAll('.super-reset-default-value');
+        // temp for(i=0; i<nodes.length; i++){
+        // temp     nodes[i].addEventListener('click',function(){
+        // temp         console.log(this.dataset.value);
+        // temp     });
+        // temp }
+
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
             var args = {
                 el: undefined,

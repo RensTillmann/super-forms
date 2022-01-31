@@ -484,6 +484,10 @@ function SUPERreCaptcha(){
     SUPER.resetFocussedFields = function(){
         var i, nodes = document.querySelectorAll('.super-focus');
         for(i=0; i<nodes.length; i++){
+            if(nodes[i].classList.contains('super-keyword-tags')){
+                var f = nodes[i].querySelector('.super-keyword-filter');
+                if(f) f.value = ''; // empty value
+            }
             nodes[i].classList.remove('super-focus');
         }
     };
@@ -7274,10 +7278,12 @@ function SUPERreCaptcha(){
                                             // tabloid
                                             // credit-card
 
-        args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', super_common_i18n.fonts.NotoSans.regular);
-        args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
-        args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
-        args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
+        if(super_common_i18n.fonts){
+            args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', super_common_i18n.fonts.NotoSans.regular);
+            args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
+            args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
+            args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
+        }
 
         // PDF width: 595.28 pt
         // PDF height: 841.89 pt
@@ -7875,7 +7881,12 @@ function SUPERreCaptcha(){
         formWidth = formWidth + bodyMargins.left + bodyMargins.right;
         pdfPageWidth = args._pdf.internal.pageSize.getWidth()*convertToPixel;
         scale = formWidth / pdfPageWidth;
-        args._pdf.setFont('NotoSans-Regular');
+
+        if(super_common_i18n.fonts){
+            args._pdf.setFont('NotoSans-Regular');
+        }else{
+            args._pdf.setFont('Helvetica');
+        }
         args._pdf.setTextColor('red');
         args._pdf.setLineWidth(1*convertFromPixel);
 
@@ -7911,7 +7922,11 @@ function SUPERreCaptcha(){
     };
     // PDF Draw text
     SUPER.pdf_generator_draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
-        args._pdf.setFont('NotoSans-Regular');
+        if(super_common_i18n.fonts){
+            args._pdf.setFont('NotoSans-Regular');
+        }else{
+            args._pdf.setFont('Helvetica');
+        }
         args._pdf.setFontType('normal');
 
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
@@ -7959,7 +7974,11 @@ function SUPERreCaptcha(){
         var posTop = ((tmpPosTop)/scale)*convertFromPixel;
         if(el.classList.contains('super-pdf-text')){
             if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
-                args._pdf.setFont('NotoSans-Bold');
+                if(super_common_i18n.fonts){
+                    args._pdf.setFont('NotoSans-Bold');
+                }else{
+                    args._pdf.setFont('Helvetica');
+                }
                 args._pdf.setFontType('bold');
             }
             posWidth = ((pos.width+1)/scale)*convertFromPixel;

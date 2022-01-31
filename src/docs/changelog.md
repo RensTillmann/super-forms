@@ -8,34 +8,26 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jan 28, 2022 - Version 6.0.7
+## Feb 01, 2022 - Version 6.1.0
 
-- **Changed:** File upload names are now fully visible when user added a file on the file upload element, they are no longer truncated. If you still want the truncated version you will have to apply custom CSS and and set overflow to ellipsis method
-- **Changed:** By default the `secure` parameter for cookies is now set to true, you can still filter this with `super_session_cookie_secure` hook if needed
-- **Changed:** By default the `httponly` parameter for cookies is now set to true, you can still filter this with `super_session_cookie_httponly` hook if needed
-
-## Jan 28, 2022 - Version 6.0.6
-
+- **Added:** Predefined `Tags/Keyword` element
+- **Added:** Predefined `Autosuggest` element
 - **Added:** Option to disable CSRF check under `Super Forms > Settings > Form Settings > Cross-Site Request Forgery (CSRF) check`. This allows a user to submit the form that was loaded via an iframe from a different origin address
+- **Improved:** Only load Cyrillic text font for PDF Generator if the option to do so is enabled and if Text rendering is enabled, there is no need to load these fonts otherwise
+- **Improved:** Tags/Keyword field improvements
+- **Fix:** If thousand seperator and decimal seperator was set to the same value, set the thousand seperator to an empty value, since it shouldn't be possible to have the same values, it would throw a JS error and prevent the form from loading
 - **Fix:** Regenerate nonce for sites that use cache
-
-## Jan 26, 2022 - Version 6.0.4
-
 - **Fix:** When `editing` is enabled for a `Listings` (Listings Add-on) make sure the styles/scripts are loaded so that normal form functions and styles are applied
 - **Fix:** Validate requests made to switch form language by using a custom nonce system
 - **Fix:** PHP parse error when loading a php file used for PHP versions below v8
-
-
-## Jan 24, 2022 - Version 6.0.3
-
 - **Fix:** Option `Delete files from server after the form was submitted` wasn't working properly when storing files outside site root (secure file uploads)
 - **Fix:** Back-end preview not generating the PDF due to fonts not being enqueued
 - **Fix:** Issue with files not being attached to E-mails when upload directory was setup to be outside the site root (secure file uploads)
 - **Fix:** PHP Warning related to `MailChimp`, `Mailster` and `Password Protect` Add-ons
-
-## Jan 21, 2022 - Version 6.0.1
-
 - **Fix:** PHP Warning when calling `file_get_contents()` to load PDF generator fonts
+- **Changed:** File upload names are now fully visible when user added a file on the file upload element, they are no longer truncated. If you still want the truncated version you will have to apply custom CSS and and set overflow to ellipsis method
+- **Changed:** By default the `secure` parameter for cookies is now set to true, you can still filter this with `super_session_cookie_secure` hook if needed
+- **Changed:** By default the `httponly` parameter for cookies is now set to true, you can still filter this with `super_session_cookie_httponly` hook if needed
 
 ## Jan 20, 2022 - Version 6.0.0
 

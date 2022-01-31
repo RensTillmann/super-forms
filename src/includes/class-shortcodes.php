@@ -2862,17 +2862,20 @@ class SUPER_Shortcodes {
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation  
         wp_enqueue_script( 'super-masked-currency', SUPER_PLUGIN_FILE . 'assets/js/frontend/masked-currency.js', array( 'jquery' ), SUPER_VERSION, false ); 
         
-        // Get default value
-        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
-
-        $result = self::opening_tag( $tag, $atts );
-        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
-        
         if( !isset( $atts['format'] ) ) $atts['format'] = '';
         if( !isset( $atts['currency'] ) ) $atts['currency'] = '$';
         if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
         if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
         if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
+        if( $atts['thousand_separator']==$atts['decimal_separator'] ){
+            $atts['thousand_separator'] = ''; // Can't be the same, set it to empty value
+        }
+
+        // Get default value
+        $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
+
+        $result = self::opening_tag( $tag, $atts );
+        $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
@@ -6269,6 +6272,27 @@ class SUPER_Shortcodes {
                 }
             }
             if( $css!='' ) $result .= '<style type="text/css">' . $global_css . $css . '</style>';
+        }
+
+        // Load PDF Generator fonts (only if enabled)
+        if(!empty($settings['_pdf'])) {
+            if($settings['_pdf']['generate']==='true') {
+                // When value is not set, but PDF is activated, set it to true, to not break existing forms that might require it
+                if(!isset($settings['_pdf']['textRendering'])) $settings['_pdf']['textRendering'] = 'true';
+                if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'true'; 
+                // Only if text rendering is enabled, and cyrillic text is enabled
+                if($settings['_pdf']['textRendering']==='true' && $settings['_pdf']['cyrillicText']==='true') {
+                    add_action( 'wp_footer', function(){
+                        ?>
+                        <script>
+                        super_common_i18n.fonts = {
+                            NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'); ?>')
+                        };
+                        </script>
+                        <?php
+                    }, 100 );
+                }
+            }
         }
 
         return do_shortcode( $result );

@@ -1439,7 +1439,6 @@ if(!class_exists('SUPER_Listings')) :
                     'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                     'loading'=>SUPER_Forms()->common_i18n['loading'],
                     'tab_index_exclusion' => SUPER_Forms()->common_i18n['tab_index_exclusion'],
-                    'fonts' => SUPER_Forms()->common_i18n['fonts'],
                     'directions'=>SUPER_Forms()->common_i18n['directions'],
                     'errors'=>SUPER_Forms()->common_i18n['errors'],
                     // @since 3.6.0 - google tracking

@@ -3059,7 +3059,57 @@ $array['form_elements'] = array(
                 'conditional_logic' => $conditional_logic_array
             ),
         ),
-
+        'tags_predefined' => array(
+            'name' => esc_html__( 'Tags/Keywords', 'super-forms' ),
+            'icon' => 'tag',
+            'predefined' => array(
+                array(
+                    'tag' => 'text',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'tags', 'super-forms' ),
+                        'email' => esc_html__( 'Tags', 'super-forms' ) . ':',
+                        'placeholder' => esc_html__( 'Enter tags (comma seperated)', 'super-forms' ),
+                        'placeholderFilled' => esc_html__( 'Tags', 'super-forms' ),
+                        'type' => 'text',
+                        'enable_keywords' => 'true',
+                        'keyword_split_method' => 'comma',
+                        'icon' => 'tag'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
+        'autosuggest_predefined' => array(
+            'name' => esc_html__( 'Autosuggest', 'super-forms' ),
+            'icon' => 'magic',
+            'predefined' => array(
+                array(
+                    'tag' => 'text',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'autosuggest', 'super-forms' ),
+                        'email' => esc_html__( 'Autosuggest', 'super-forms' ) . ':',
+                        'placeholder' => esc_html__( 'Start typing and find a color', 'super-forms' ),
+                        'placeholderFilled' => esc_html__( 'Selected color', 'super-forms' ),
+                        'type' => 'text',
+                        'enable_auto_suggest' => 'true',
+                        'autosuggest_items' => array(
+                            array( 'checked' => false, 'label' => 'Red', 'value' => 'red'),
+                            array( 'checked' => false, 'label' => 'Green', 'value' => 'green'),
+                            array( 'checked' => false, 'label' => 'Orange', 'value' => 'orange'),
+                            array( 'checked' => false, 'label' => 'Blue', 'value' => 'blue'),
+                            array( 'checked' => false, 'label' => 'Purple', 'value' => 'purple'),
+                            array( 'checked' => false, 'label' => 'Pink', 'value' => 'pink'),
+                            array( 'checked' => false, 'label' => 'Black', 'value' => 'black'),
+                            array( 'checked' => false, 'label' => 'White', 'value' => 'white'),
+                        ),
+                        'icon' => 'magic'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'rating_predefined' => array(
             'name' => esc_html__( 'Rating', 'super-forms' ),
             'icon' => 'star;far',
