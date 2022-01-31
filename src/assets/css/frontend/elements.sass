@@ -2968,87 +2968,6 @@ textarea
   .super-slider
     .dragger
       border-radius: 100px
-  /* Keyword tags */
-  .super-keyword-tags
-    .super-keyword-tag
-      cursor: pointer
-      display: flex
-      align-items: center
-      &:after
-        font-family: 'Font Awesome 5 Free'
-        font-weight: 900
-        content: '\f057'
-        font-size: 15px
-        height: 15px
-        line-height: normal
-        height: auto
-        padding: 0px 0px 0px 5px
-    .super-shortcode-field
-      flex-grow: 0!important
-      opacity: 0!important
-      width: 0px!important
-      height: 0px!important
-      padding: 0px!important
-      border: none!important
-    .super-field-wrapper
-      display: flex
-      flex-wrap: wrap
-      flex-direction: row
-      &:after
-        content: ""
-        flex: 0 0 100%
-        height: 0
-      .super-autosuggest-tags
-        display: flex
-        flex-grow: 1
-        > div
-          display: flex
-          align-items: center
-          .super-keyword-tag
-            display: flex
-            align-items: center
-      .super-autosuggest-tags-list
-        width: 100%
-        position: absolute
-        top: 33px
-        display: none
-        z-index: 9999
-        flex-wrap: wrap
-        flex-flow: wrap
-        align-content: flex-start
-        padding: 5px 5px 0px 5px
-        .super-no-results
-          padding: 8px 10px 8px 10px
-          margin: 0px 0px 5px 0px
-        .super-item
-          justify-content: flex-start
-          flex: initial
-          width: auto
-          flex-wrap: wrap
-          padding: 8px 10px 8px 10px
-          margin: 0px 5px 5px 0px
-          &.super-active
-            display: flex!important
-          .super-wp-tag
-            padding: 0px 10px 0px 10px
-            position: relative
-            > span
-              font-weight: bold
-              text-decoration: underline
-          .super-wp-tag-count
-            padding: 0px 0px 0px 5px
-          .super-wp-tag-desc
-            padding-top: 5px
-    &.super-string-found.super-focus
-      .super-autosuggest-tags-list
-        display: flex
-    .super-no-results
-      display: none
-    &.super-no-match
-      .super-autosuggest-tags-list
-        display: flex
-      .super-no-results
-        display: block
   .super-open.super-focus
     .super-dropdown-list
       position: absolute
@@ -5512,3 +5431,189 @@ html[dir="rtl"]
       .super-int-phone_flag-container .super-int-phone_selected-flag,
       .super-int-phone_country-list .super-int-phone_country
         flex-direction: row
+
+
+
+.super-form
+  /* Keyword tags */
+  .super-keyword-tags
+    .super-keyword-tag
+      cursor: pointer
+      display: flex
+      align-items: center
+      &:after
+        font-family: 'Font Awesome 5 Free'
+        font-weight: 900
+        content: '\f057'
+        font-size: 15px
+        height: 15px
+        line-height: normal
+        height: auto
+        padding: 0px 0px 0px 5px
+    .super-shortcode-field
+      flex-grow: 0!important
+      opacity: 0!important
+      width: 0px!important
+      height: 0px!important
+      padding: 0px!important
+      border: none!important
+    .super-field-wrapper
+      display: flex
+      flex-wrap: wrap
+      flex-direction: row
+      &:after
+        content: ""
+        flex: 0 0 100%
+        height: 0
+      .super-autosuggest-tags
+        display: flex
+        flex-grow: 1
+        > div
+          display: flex
+          align-items: center
+          .super-keyword-tag
+            display: flex
+            align-items: center
+      .super-autosuggest-tags-list
+        width: 100%
+        position: absolute
+        top: 33px
+        display: none
+        z-index: 9999
+        flex-wrap: wrap
+        flex-flow: wrap
+        align-content: flex-start
+        padding: 5px 5px 0px 5px
+        .super-no-results
+          padding: 8px 10px 8px 10px
+          margin: 0px 0px 5px 0px
+        .super-item
+          justify-content: flex-start
+          flex: initial
+          width: auto
+          flex-wrap: wrap
+          padding: 8px 10px 8px 10px
+          margin: 0px 5px 5px 0px
+          &.super-active
+            display: flex!important
+          .super-wp-tag
+            padding: 0px 10px 0px 10px
+            position: relative
+            > span
+              font-weight: bold
+              text-decoration: underline
+          .super-wp-tag-count
+            padding: 0px 0px 0px 5px
+          .super-wp-tag-desc
+            padding-top: 5px
+    &.super-string-found.super-focus
+      .super-autosuggest-tags-list
+        display: flex
+    .super-no-results
+      display: none
+    &.super-no-match
+      .super-autosuggest-tags-list
+        display: flex
+      .super-no-results
+        display: block
+    .super-autosuggest-tags
+      flex-wrap: wrap
+      align-items: center
+      justify-content: flex-start
+      .super-keyword-tag
+        margin: 2px 0px 2px 4px
+        flex-grow: 0
+        flex-shrink: 1
+      .super-keyword-filter
+        width: 50px
+        flex-grow: 1
+        flex-shrink: 1
+        border: none
+        height: calc(34px - 2px)
+    &.super-focus
+      .super-keyword-filter
+        border: none!important
+    &.super-filled
+      .super-autosuggest-tags
+        padding-top: 2px
+        padding-right: 4px
+        padding-bottom: 2px
+      .super-keyword-filter
+        height: calc(34px - 10px)
+        padding-left: 4px
+  &.super-default-rounded
+    .super-autosuggest-tags
+      border-radius: 4px
+  &.super-full-rounded
+    .super-autosuggest-tags
+      border-top-left-radius: 17px
+      border-top-right-radius: 17px
+      border-bottom-right-radius: 17px
+      border-bottom-left-radius: 17px
+    .super-filled
+      .super-autosuggest-tags
+        .super-keyword-filter
+          margin-left:10px
+  &.super-style-one
+    .super-autosuggest-tags
+      border: none!important
+  // Large
+  &.super-field-size-large
+    // Default squared
+    .super-keyword-tags
+      .super-autosuggest-tags
+        padding-top: 0px!important
+        padding-right: 0px!important
+        padding-bottom: 0px!important
+        padding-left: 0px!important
+      .super-keyword-tag
+        padding: 10px 10px 10px 15px!important
+        margin: 4px 4px 0px 0px!important
+      .super-keyword-filter
+        height: calc(34px + 10px)!important
+      &.super-filled
+        .super-autosuggest-tags
+          padding-top: 0px!important
+          padding-right: 0px!important
+          padding-bottom: 4px!important
+          padding-left: 4px!important
+        .super-keyword-filter
+          height: calc(34px + 2px)!important
+          margin-top: 4px
+    // Full rounded
+    &.super-full-rounded
+      .super-autosuggest-tags
+        border-top-left-radius: 23px
+        border-top-right-radius: 23px
+        border-bottom-right-radius: 23px
+        border-bottom-left-radius: 23px 
+  // Huge
+  &.super-field-size-huge
+    // Default squared
+    .super-keyword-tags
+      .super-autosuggest-tags
+        padding-top: 0px!important
+        padding-right: 0px!important
+        padding-bottom: 0px!important
+        padding-left: 0px!important
+      .super-keyword-tag
+        padding: 10px 10px 10px 15px!important
+        margin: 9px 9px 0px 0px!important
+      .super-keyword-filter
+        height: calc(34px + 20px)!important
+      &.super-filled
+        .super-autosuggest-tags
+          padding-top: 0px!important
+          padding-right: 0px!important
+          padding-bottom: 9px!important
+          padding-left: 10px!important
+        .super-keyword-filter
+          height: calc(34px + 2px)!important
+          margin-top: 9px
+    // Full rounded
+    &.super-full-rounded
+      .super-autosuggest-tags
+        border-top-left-radius: 28px
+        border-top-right-radius: 28px
+        border-bottom-right-radius: 28px
+        border-bottom-left-radius: 28px 

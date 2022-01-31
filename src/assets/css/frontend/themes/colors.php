@@ -171,7 +171,9 @@ return "
 ".$s.".super-msg.super-success:after {
     color: ".$v['theme_success_msg_icon_color'].";
 }
+
 ".$s.".super-shortcode-field,
+".$s.".super-autosuggest-tags,
 ".$s.".super-keyword-filter,
 ".$s.".super-fileupload-button,
 ".$s.".super-dropdown-list,
@@ -286,6 +288,7 @@ return "
   border: 1px solid ".$v['theme_icon_border'].";
 }
 ".$s.".super-focus:not(.super-rating) .super-shortcode-field,
+".$s.".super-focus:not(.super-rating) .super-autosuggest-tags,
 ".$s.".super-focus:not(.super-rating) .super-keyword-filter,
 ".$s.".super-focus:not(.super-rating) .super-fileupload-button,
 ".$s.".super-focus:not(.super-rating) .super-dropdown-list,
