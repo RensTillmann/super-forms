@@ -163,16 +163,9 @@ if( !class_exists('SUPER_Email_Templates') ) :
                 
                 // Filters since 1.0.0
                 add_filter( 'super_settings_after_email_template_filter', array( $this, 'add_settings' ), 10, 2 );
-
-                // Filters since 1.0.2
-                add_action( 'init', array( $this, 'update_plugin' ) );
-
-                // Actions since 1.0.3
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) ); 
-
             }
-            // Following filters must be called outside "admin" scope, because some Add-ons will trigger outside of it
-            // For instance with the WooCommerce Checkout Add-on whenever the Order status changed to "completed" it should fire the below filters
+            // Following filters must be called outside "admin" scope, because some features will trigger outside of it
+            // For instance with the WooCommerce Checkout feature whenever the Order status changed to "completed" it should fire the below filters
             add_filter( 'super_before_sending_email_body_filter', array( $this, 'create_new_body' ), 50, 2 );
             add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'create_new_confirm_body' ), 50, 2 );
         }
@@ -189,43 +182,6 @@ if( !class_exists('SUPER_Email_Templates') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
         
-
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        }
-
 
         /**
          * Hook into settings and add Register & Login settings

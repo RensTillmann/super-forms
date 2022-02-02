@@ -3300,7 +3300,7 @@
                     },
                     {
                         selector: '.super-element.super-form-settings .super-elements-container',
-                        description: '<h1>Great, now you know how to change all the settings related to a specific form!</h1><span class="super-tip">Please note that in some cases you have to change settings under [Super Forms > Settings] (WordPress menu). For instance if you require to setup SMTP you can do it only via the global settings and not individually per form. The same goes for reCAPTCHA API key and secret. For some <a target="_blank" href="' + $git + 'add-ons">Add-ons</a> you will also only find the settings under [Super Forms > Settings] and not under the "Form Settings" panel on the builder page.</span>',
+                        description: '<h1>Great, now you know how to change all the settings related to a specific form!</h1><span class="super-tip">Please note that in some cases you have to change settings under [Super Forms > Settings] (WordPress menu). For instance if you require to setup SMTP you can do it only via the global settings and not individually per form. The same goes for reCAPTCHA API key and secret.</span>',
                         timeout: $timeout_s
                     },
                     {
@@ -3369,7 +3369,7 @@
                     },
                     {
                         selector: '.wp-submenu a[href*="page=super_demos"]',
-                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Demos with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="' + $git + '">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span><span class="super-tip">Want to do more? Check out these awesome <a target="_blank" href="' + $git + 'add-ons">Add-ons</a> for Super Forms!</span>',
+                        description: '<h1>You finished the tutorial! Now you know how to navigate around in Super Forms and create awesome forms with it.<br /><br />Please check out the Demos with awesome one click installable forms that can get you up and running in no time!</h1><span class="super-tip">We hope you will enjoy the plugin, if you have future questions do not hesitate to contact support!</span><span class="super-tip">Don\'t forget to checkout the <a target="_blank" href="' + $git + '">Documentation</a> whenever you need more information about the plugin and all of it\'s features :)</i></span>',
                         nextButton: {
                             text: "Finish"
                         },

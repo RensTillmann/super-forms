@@ -318,8 +318,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 //                 add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
 //                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
-//                 add_action( 'init', array( $this, 'update_plugin' ) );
-//                 add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
 // 
 //                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
 //                 add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
@@ -453,12 +451,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             if( !empty($contact_entry_id) ) {
 //                 wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
 //             }
-//             // Delete post after failed payment (only used for Front-end Posting add-on)
+//             // Delete post after failed payment (only used for Front-end Posting feature)
 //             $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
 //             if( !empty($frontend_post_id) ) {
 //                 wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
 //             }
-//             // Delete user after failed payment (only used for Register & Login add-on)
+//             // Delete user after failed payment (only used for Register & Login feature)
 //             $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
 //             if( !empty($frontend_user_id) ) {
 //                 require_once( ABSPATH . 'wp-admin/includes/user.php' );
@@ -513,7 +511,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['stripe_completed_entry_status'] );
 //                     }
 //                 }
-//                 // Update post status after succesfull payment (only used for Front-end Posting add-on)
+//                 // Update post status after succesfull payment (only used for Front-end Posting feature)
 //                 $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
 //                 if( !empty($frontend_post_id) ) {
 //                     if( (!empty($settings['stripe_completed_post_status'])) && (!empty($frontend_post_id)) ) {
@@ -525,7 +523,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         );
 //                     }
 //                 }
-//                 // Update user status after succesfull payment (only used for Register & Login add-on)
+//                 // Update user status after succesfull payment (only used for Register & Login feature)
 //                 $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
 //                 if( !empty($frontend_user_id) ) {
 //                     if( (!empty($settings['register_login_action'])) && ($settings['register_login_action']=='register') && (!empty($frontend_user_id)) ) {
@@ -1531,7 +1529,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 // 
 //         /**
-//          * Save Post ID into session after inserting post with Front-end Posting Add-on
+//          * Save Post ID into session after inserting post with Front-end Posting
 //          * This way we can add it to the Stripe metadata and use it later to update the post status after payment is completed
 //          * array( 'post_id'=>$post_id, 'data'=>$data, 'atts'=>$atts )
 //          *
@@ -1543,7 +1541,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 // 
 //         /**
-//          * Save User ID into session after creating user Register & Login add-on
+//          * Save User ID into session after creating user Register & Login
 //          * This way we can add it to the Stripe metadata and use it later to update the user status after payment is completed
 //          * array( 'user_id'=>$user_id, 'atts'=>$atts )
 //          *
@@ -3102,45 +3100,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 // 
 //         /**
-//          * Display activation message for automatic updates
-//          *
-//          *  @since      1.0.0
-//         */
-//         public function display_activation_msg() {
-//             if( !class_exists('SUPER_Forms') ) {
-//                 echo '<div class="notice notice-error">'; // notice-success
-//                     echo '<p>';
-//                     echo sprintf( 
-//                         esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-//                         '<strong>', 
-//                         '</strong>', 
-//                         'Super Forms - ' . $this->add_on_name, 
-//                         '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-//                         '</a>' 
-//                     );
-//                     echo '</p>';
-//                 echo '</div>';
-//             }
-//         }
-// 
-// 
-//         /**
-//          * Automatically update plugin from the repository
-//         */
-//         public function update_plugin() {
-//             if( defined('SUPER_PLUGIN_DIR') ) {
-//                 if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-//                     $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-//                         'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-//                         __FILE__, //Full path to the main plugin file.
-//                         'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-//                     );
-//                 }
-//             }
-//         }
-// 
-// 
-//         /**
 //          * Hook into settings and add Stripe settings
 //          *
 //          *  @since      1.0.0
@@ -3460,7 +3419,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 }
 //                 $array['stripe_checkout']['fields']['stripe_completed_signup_status'] = array(
 //                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-//                     'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+//                     'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
 //                     'default' => SUPER_Settings::get_value(0, 'stripe_completed_signup_status', $settings['settings'], 'active' ),
 //                     'type' => 'select',
 //                     'values' => array(
@@ -3474,7 +3433,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 );
 // 				$array['stripe_checkout']['fields']['stripe_completed_user_role'] = array(
 // 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
-// 					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+// 					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
 // 					'default' => SUPER_Settings::get_value(0, 'stripe_completed_user_role', $settings['settings'], '' ),
 // 					'type' => 'select',
 // 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),

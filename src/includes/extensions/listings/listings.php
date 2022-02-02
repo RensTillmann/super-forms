@@ -1400,6 +1400,10 @@ if(!class_exists('SUPER_Listings')) :
                 'list' => '' // Determine what list settings to use
             ), $atts ) );
 
+            if(!empty($_POST['action']) && ($_POST['action']==='elementor_ajax') && is_admin()){
+                return '<p style="color:red;font-size:12px;"><strong>' . esc_html__('Note', 'super-forms' ).':</strong> ' . esc_html__('Super Forms Listings will only be generated on the front-end', 'super-forms' ) . ' - <code>' . sprintf('[super_listings list="%d" id="%d"]', $list, $id) . '</code></p>';
+            }
+
             // Sanitize the ID
             $form_id = absint($id);
             $post_status = get_post_status($form_id);
@@ -1730,13 +1734,13 @@ END AS paypalSubscriptionId
                 $originalSc = $sc;
                 // Entry date
                 if($sc==='entry_date') $sc = 'post_date';
-                // Paypal transactions (Add-on
+                // Paypal transactions
                 if($sc==='paypal_order') $sc = 'paypalTxnId';
                 if($sc==='paypal_order_status') $sc = 'paypalTxnStatus';
-                // Paypal subscriptions (Add-on)
+                // Paypal subscriptions
                 if($sc==='paypal_subscription') $sc = 'paypalSubscriptionId';
                 if($sc==='paypal_subscription_status') $sc = 'paypalSubscriptionStatus';
-                // Generated PDF file (Add-on)
+                // Generated PDF file
                 if($sc==='generated_pdf'){
                     $order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:19:\"_generated_pdf_file\";', -1), '\";s:5:\"value\";', 1), ':\"', -1) AS orderValue";
                 } 
@@ -2120,12 +2124,12 @@ END AS paypalSubscriptionId
                                                     $linkType = 'edit';
                                                     $linkTitle = esc_html__( 'Edit contact entry', 'super-forms' );
                                                 }elseif($lt=='wc_order_backend'){
-                                                    // WooCommerce order backend (edit) (WC Checkout Add-on)
+                                                    // WooCommerce order backend (edit) (WC Checkout)
                                                     $linkUrl = get_edit_post_link($entry->wc_order_number);
                                                     $linkType = 'edit';
                                                     $linkTitle = esc_html__( 'Edit order', 'super-forms' );
                                                 }elseif($lt=='wc_order_frontend'){
-                                                    // WooCommerce order front-end (view) (WC Checkout Add-on)
+                                                    // WooCommerce order front-end (view) (WC Checkout)
                                                     if (function_exists('wc_get_order')) {
                                                         $order = wc_get_order($entry->wc_order_number);
                                                         if($order) {
@@ -2135,17 +2139,17 @@ END AS paypalSubscriptionId
                                                         }
                                                     }
                                                 }elseif($lt=='paypal_order'){
-                                                    // Paypal order (Paypal Add-on)
+                                                    // Paypal order (Paypal)
                                                     $linkUrl = admin_url() . 'admin.php?page=super_paypal_txn&id=' . $entry->paypalOrderId;
                                                     $linkType = 'view';
                                                     $linkTitle = esc_html__( 'View order', 'super-forms' );
                                                 }elseif($lt=='paypal_subscription'){
-                                                    // Paypal subscription (Paypal Add-on)
+                                                    // Paypal subscription (Paypal)
                                                     $linkUrl = admin_url() . 'admin.php?page=super_paypal_sub&id=' . $entry->paypalOrderId;
                                                     $linkType = 'view';
                                                     $linkTitle = esc_html__( 'View subscription', 'super-forms' );
                                                 }elseif($lt=='generated_pdf'){
-                                                    // Generated PDF file (PDF Generator Add-on)
+                                                    // Generated PDF file (PDF Generator)
                                                     if( isset( $data['_generated_pdf_file']['files'] ) ) {
                                                         foreach( $data['_generated_pdf_file']['files'] as $fk => $fv ) {
                                                             $linkUrl = $fv['url'];
@@ -2158,12 +2162,12 @@ END AS paypalSubscriptionId
                                                         }
                                                     }
                                                 }elseif($lt=='post_backend'){
-                                                    // Created post (Front-end Posting Add-on)
+                                                    // Created post (Front-end Posting)
                                                     $linkUrl = get_edit_post_link($entry->created_post_id);
                                                     $linkType = 'edit';
                                                     $linkTitle = esc_html__( 'Edit post', 'super-forms' );
                                                 }elseif($lt=='post_frontend'){
-                                                    // Created post (Front-end Posting Add-on)
+                                                    // Created post (Front-end Posting)
                                                     $linkUrl = get_permalink($entry->created_post_id);
                                                     $linkType = 'view';
                                                     $linkTitle = esc_html__( 'View post', 'super-forms' );

@@ -23,8 +23,7 @@ Jan 08, 2021 - Version 1.7.3
 completed
 
 Dec 17, 2020 - Version 1.7.2
-- Fix: `{loop_value}` not being replaced if value was empty when `WooCommerce Checkout`
-Add-on is used in combination with the `Send email after order completed`
+- Fix: `{loop_value}` not being replaced if value was empty when `WooCommerce Checkout` is used in combination with the `Send email after order completed`
 
 Dec 15, 2020 - Version 1.7.1
 - Fix: When defining `Add custom checkout fields(s)` the field name required
@@ -33,7 +32,7 @@ have a different field name on checkout and still retrieve the value from the
 form via tags
 
 May 13, 2020 - Version 1.7.0
-- Added: Option to update registered user role after payment completed (for `Register & Login Add-on` only)
+- Added: Option to update registered user role after payment completed (for `Register & Login` only)
 - Update: hooks from main plugin
 
 Jan 07, 2020 - Version 1.6.0
@@ -52,7 +51,7 @@ May 11, 2019 - Version 1.5.1
 Apr 22, 2019 - Version 1.5.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
-- Add-on now included in the `Super Forms - All In One Bundle` package :)
+- WooCommerce Checkout now included in the `Super Forms - All In One Bundle` package :)
 
 Nov 28, 2018 - Version 1.4.2
 - Fix: Tax option not working for "Add checkout fee(s)" setting

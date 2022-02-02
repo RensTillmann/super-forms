@@ -20,7 +20,7 @@ The datepicker element is an advanced element with tons of options. On this page
   * [Show the week of the year](#show-the-week-of-the-year)
   * [Display dates in other months at the start or end of the current month](#display-dates-in-other-months-at-the-start-or-end-of-the-current-month)
   * [The number of months to show at once](#the-number-of-months-to-show-at-once)
-* [Return age in years/months/days (Calculator Add-on)](#return-age-in-yearsmonthsdays-calculator-add-on)
+* [Return age in years/months/days (Calculator element)](#return-age-in-yearsmonthsdays-calculator)
 * [Localization](#localization)
 * [Demo Forms](#demo-forms)
 * [Example & Tutorial](#example-amp-tutorial)
@@ -198,13 +198,13 @@ By default this is set to `1`, which means only one month will be visible at onc
 
 When you increase this number to for instance `3`, it will show the months `Jan, Feb, Mar` at once. When the user clicks to view the next months, it will display `Apr, May, Jun`.
 
-### Return age in years/months/days (Calculator Add-on)
+### Return age in years/months/days (Calculator element)
 
 By default when you use a datepicker in combination with the calculator element, the datepicker will contain the timestamp of the selected date.
 
 With this you can basically do any tipe of manipulation and calculation required.
 
-To make things easier for you the [Calculator Add-on](#calculator-add-on) simply adds an option for the **Datepicker** element called `General > Return age as value instead of the date`.
+To make things easier for you the [Calculator element](#calculator) simply adds an option for the **Datepicker** element called `General > Return age as value instead of the date`.
 
 When enabled the datepicker will not return the date, but instead it will return the age in years.
 
@@ -296,8 +296,8 @@ You can change the localization (language and format) of the datepicker via `Gen
 
 The following demo forms are available under `Super Forms > Demos`:
 
-* Calculate Days Between Dates (requires Calculator Add-on)
-* Calculate Age (requires Calculator Add-on)
+* Calculate Days Between Dates (requires Calculator element)
+* Calculate Age (requires Calculator element)
 
 ### Example & Tutorial
 

@@ -165,8 +165,6 @@ if( !class_exists('SUPER_Mailchimp') ) :
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_mailchimp_settings' ), 10, 2 );
                 add_filter( 'super_enqueue_styles', array( $this, 'add_stylesheet' ), 10, 1 );
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );   
-                add_action( 'init', array( $this, 'update_plugin' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -220,43 +218,6 @@ if( !class_exists('SUPER_Mailchimp') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
         
-
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-        
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        }
-
 
         /**
          * Hook into elements and add Mailchimp element

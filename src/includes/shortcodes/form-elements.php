@@ -2995,12 +2995,12 @@ $array['form_elements'] = array(
                         'step' => SUPER_Shortcodes::slider($attributes, $default=15, $min=1, $max=60, $steps=1, esc_html__( 'Steps between times in minutes', 'super-forms' ), '', $key='step'),
                         'minlength' => array(
                             'name'=>esc_html__( 'The time that should appear first in the dropdown list (Minimum Time)', 'super-forms' ),
-                            'label'=>sprintf( esc_html__( 'Example: 09:00%sYou can also use {tags}, for instance to dynamically retrieve a timestamp (epoch). This way you can use it in combination with the Calculator Add-on to calculate a time in the future, for instance 2 hours in the future (leave blank to disable this feature)', 'super-forms' ), '<br />' ),
+                            'label'=>sprintf( esc_html__( 'Example: 09:00%sYou can also use {tags}, for instance to dynamically retrieve a timestamp (epoch). This way you can use it in combination with the Calculator element to calculate a time in the future, for instance 2 hours in the future (leave blank to disable this feature)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['minlength']) ? '' : $attributes['minlength'])
                         ),
                         'maxlength' => array(
                             'name'=>esc_html__( 'The time that should appear last in the dropdown list (Maximum Time)', 'super-forms' ),
-                            'label'=>sprintf( esc_html__( 'Example: 17:00%sYou can also use {tags}, for instance to dynamically retrieve a timestamp (epoch). This way you can use it in combination with the Calculator Add-on to calculate a time in the future, for instance 2 hours in the future (leave blank to disable this feature)', 'super-forms' ), '<br />' ),
+                            'label'=>sprintf( esc_html__( 'Example: 17:00%sYou can also use {tags}, for instance to dynamically retrieve a timestamp (epoch). This way you can use it in combination with the Calculator element to calculate a time in the future, for instance 2 hours in the future (leave blank to disable this feature)', 'super-forms' ), '<br />' ),
                             'default'=> ( !isset( $attributes['maxlength']) ? '' : $attributes['maxlength'])
                         ),
                         'range' => array(

@@ -1,6 +1,6 @@
 Jan 20, 2022 - Version 1.5.1
 - Added: Compatibility with latest version of Super Forms
-- Added: Ability to use tags `{field_user_pass}`, `{user_pass}`, `{register_generated_password}` inside payment completed email, when using `Register & login Add-on` to register a new user, without a "user_pass" field.
+- Added: Ability to use tags `{field_user_pass}`, `{user_pass}`, `{register_generated_password}` inside payment completed email, when using `Register & login feature` to register a new user, without a "user_pass" field.
 
 Oct 15, 2021 - Version 1.5.0
 - Compatibility with Super Forms v5.0.0
@@ -11,7 +11,7 @@ Mar 26, 2021 - Version 1.4.1
 
 May 13, 2020 - Version 1.4.0
 - Added: Option to send custom email after payment completed
-- Added: Option to update registered user role after payment completed (for `Register & Login Add-on` only)
+- Added: Option to update registered user role after payment completed (for `Register & Login feature` only)
 - Update: hooks from main plugin
 
 Feb 03, 2020 - Version 1.3.0
@@ -35,7 +35,7 @@ May 11, 2019 - Version 1.1.2
 Apr 22, 2019 - Version 1.1.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
-- Add-on now included in the `Super Forms - All In One Bundle` package :)
+- PayPal now included in the `Super Forms - All In One Bundle` package :)
 - Fix: When either price or quantity is empty or 0 we should skip adding the product, paypal doesn't accept this!
 
 Mar 20, 2018 - Version 1.0.4
@@ -48,7 +48,7 @@ Feb 15, 2018 - Version 1.0.2
 - Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
 
 Jan 19, 2018 - Version 1.0.1
-- Fix: When a user was created with Register & Login add-on, and later deleted PHP would throw error on txn page under "Created User".
+- Fix: When a user was created with Register & Login feature, and later deleted PHP would throw error on txn page under "Created User".
 
 Nov 30, 2017 - Version 1.0.0
 - Initial release!

@@ -23,13 +23,13 @@ Jun 14, 2019 - Version 1.1.1
 Apr 22, 2019 - Version 1.1.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
-- Add-on now included in the `Super Forms - All In One Bundle` package :)
+- Zapier now included in the `Super Forms - All In One Bundle` package :)
 
 Feb 21, 2019 - Version 1.0.3
 - Added: Possibility to transfer uploaded files from forms submissions to for instance DropBox or Google Drive through your Zap
 
 May 11, 2018 - Version 1.0.2
-- Improved: Now also compatible in combination with WooCommerce Checkout Add-on
+- Improved: Now also compatible in combination with WooCommerce Checkout
 
 Feb 18, 2018 - Version 1.0.1
 - Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)

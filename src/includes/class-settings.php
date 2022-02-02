@@ -1049,7 +1049,7 @@ class SUPER_Settings {
                 'email_template' => array(
                     'name' => esc_html__( 'Select email template', 'super-forms' ),
                     'desc' => esc_html__( 'Choose which email template you would like to use', 'super-forms' ),
-                    'info'=>'<a target="_blank" href="http://codecanyon.net/user/feeling4design/portfolio">'.esc_html__('Click here to check out all available email templates!', 'super-forms' ).'</a>',
+                    'info'=>'',
                     'type'=>'select',
                     'default' => self::get_value( $default, 'email_template', $settings, 'default_email_template' ),
                     'filter'=>true,

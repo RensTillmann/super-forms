@@ -127,13 +127,17 @@
 
     jQuery(document).ready(function ($) {
 
-        // temp // Reset setting to default or global value
-        // temp var i, nodes = document.querySelectorAll('.super-reset-default-value');
-        // temp for(i=0; i<nodes.length; i++){
-        // temp     nodes[i].addEventListener('click',function(){
-        // temp         console.log(this.dataset.value);
-        // temp     });
-        // temp }
+        // Reset setting to default or global value
+        // temp disabled debugger;
+        // temp disabled var i, nodes = document.querySelectorAll('.super-reset-default-value');
+        // temp disabled debugger;
+        // temp disabled for(i=0; i<nodes.length; i++){
+        // temp disabled     debugger;
+        // temp disabled     nodes[i].addEventListener('click',function(){
+        // temp disabled         debugger;
+        // temp disabled         console.log(this.dataset.value);
+        // temp disabled     });
+        // temp disabled }
 
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
             var args = {

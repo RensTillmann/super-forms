@@ -139,7 +139,7 @@
       Can I do price calculations based on user selection?
   </summary>
 
-  Yes, you can do this with the [Calculator Add-on](https://codecanyon.net/item/super-forms-calculator/16045945) for Super Forms.
+  Yes, you can do this with the [Calculator Element]
 </details>
 
 <details>
@@ -163,7 +163,7 @@
       Is it compatible with MailChimp?
   </summary>
 
-  The [MailChimp Add-on](https://codecanyon.net/item/super-forms-mailchimp-addon/14126404) for Super Forms makes it possible to integrate your form(s) with MailChimp service.
+  The `MailChimp Element` makes it possible to integrate your form(s) with MailChimp service.
 </details>
 
 <details>
@@ -171,7 +171,7 @@
       Is it compatible with MyMail (Mailster) plugin?
   </summary>
 
-  The [MyMail (Mailster) Add-on](https://codecanyon.net/item/super-forms-mailster-addon/19735910) for Super Forms makes it possible to integrate your form(s) with MyMail (Mailster) plugin.
+  The `MyMail (Mailster)` integration makes it possible to integrate your form(s) with MyMail (Mailster) plugin.
 </details>
 
 <details>
