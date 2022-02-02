@@ -2714,6 +2714,9 @@ class SUPER_Shortcodes {
 
         $result = self::opening_tag( $tag, $atts );
         
+        // required to add a new line between label/description and the toggle itself
+        $result .= '<div class="super-break"></div>';
+
         if(!isset($atts['prefix_label'])) $atts['prefix_label'] = '';
         if(!isset($atts['prefix_tooltip'])) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
@@ -4185,7 +4188,7 @@ class SUPER_Shortcodes {
             $countries = explode( "\n", $countries );
         }
 
-        // @since 2.8.0 - give the possibility to filter countries list (currently used by register & login add-on for woocommerce countries)
+        // @since 2.8.0 - give the possibility to filter countries list (currently used by register & login for woocommerce countries)
         $countries = apply_filters( 'super_countries_list_filter', $countries, array( 'name'=>$atts['name'], 'settings'=>$settings ) );
 
         foreach( $countries as $k => $v ){

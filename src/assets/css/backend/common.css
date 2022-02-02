@@ -431,3 +431,121 @@
     font-size: 22px;
     color: white;
 }
+
+
+.super-color-picker-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 4px !important;
+}
+.super-color-picker-container:hover .super-reset-default-value,
+.super-color-picker-container:hover .super-reset-global-value {
+  display: flex;
+}
+.super-color-picker-container .super-reset-default-value,
+.super-color-picker-container .super-reset-global-value {
+  border-radius: 100px;
+  background-color: #eaeaea;
+  width: 24px;
+  height: 24px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  color: #999999;
+  font-size: 12px;
+  cursor: pointer;
+}
+.super-color-picker-container .super-reset-default-value:hover,
+.super-color-picker-container .super-reset-global-value:hover {
+  background-color: #49B4B6;
+  color: #fff;
+}
+.super-color-picker-container .super-color-picker-label {
+  font-size: 12px;
+  width: 160px;
+  line-height: normal;
+}
+.super-color-picker-container .super-color-picker {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+}
+.super-color-picker-container .super-color-picker .wp-picker-container {
+  width: auto;
+  margin: 0 10px 0 0;
+}
+.super-color-picker-container .super-color-picker .wp-picker-container > .button {
+  margin: 0;
+}
+.super-settings input,
+.super-settings textarea,
+.super-settings select {
+  border: 1px solid #cccccc;
+  color: #444;
+  min-height: 30px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  padding-right: 10px !important;
+}
+.super-settings input[type="text"] {
+  min-width: 320px;
+}
+.super-settings #field-form_locker_submission_reset {
+  width: 50%;
+}
+.super-settings .super-reset-submission-counter {
+  width: 50%;
+  margin-left: 5px;
+}
+.super-settings .super-field {
+  display: flex;
+  margin: 0 !important;
+  padding: 20px 0 20px 10px !important;
+}
+.super-settings .super-field:hover {
+  background-color: #fff9de;
+}
+.super-settings .super-field .super-field-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.super-settings .super-field .super-field-info .field-description {
+  text-align: left;
+  padding: 0 !important;
+}
+.super-settings .super-field .super-field-fields {
+  flex-direction: column;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.super-settings .super-field .super-field-fields .super-checkbox {
+  display: flex;
+}
+.super-settings .super-color-picker-label {
+  width: 300px;
+}
+.super-settings .slider-field {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.super-settings .slider-field .slider {
+  margin-bottom: 0 !important;
+}
+.super-settings .slider-field > input {
+  min-width: 50px;
+  height: 32px;
+  margin: -5px 10px 0 0;
+}
+.super-settings .super-export-import-entries input,
+.super-settings .super-export-import-entries select {
+  min-width: initial;
+  height: 30px;
+}

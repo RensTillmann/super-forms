@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.1.0
+ * Version:           6.1.2
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.1.0';
+        public $version = '6.1.2';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -360,7 +360,7 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
 
 
-            // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the calculator add-on to count words
+            // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the Calculator element to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
             add_filter('super_form_before_do_shortcode_filter', array( $this, 'before_do_shortcode' ), 10, 2 );
 
@@ -459,7 +459,7 @@ if(!class_exists('SUPER_Forms')) :
             return $url;
         }
         public static function include_extensions(){
-            // Include Add-ons
+            // Include extensions
             $directory = SUPER_PLUGIN_DIR . '/includes/extensions';
             $folders = array_diff(scandir($directory), array('..', '.'));
             foreach($folders as $k => $v){

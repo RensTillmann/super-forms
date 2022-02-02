@@ -2834,6 +2834,8 @@ function SUPERreCaptcha(){
                 // Check if this is an error message
                 if(result.error===true){
                     args.loadingOverlay.classList.add('super-error');
+                    // Display the error/success message
+                    if(innerText) innerText.innerHTML = result.msg;
                 }else{
                     args.loadingOverlay.classList.add('super-success');
                     if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
@@ -2843,9 +2845,18 @@ function SUPERreCaptcha(){
                     if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
                         SUPER.init_popups.close(true);
                     }
+                    if(result.redirect){
+                        // When redirecting to different page show redirect message instead of thank you message
+                        if(!args.pdfSettings.redirectingText || args.pdfSettings.redirectingText===''){
+                            args.pdfSettings.redirectingText = 'Redirecting, please wait...';
+                        }
+                        args.pdfSettings.redirectingText = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.redirectingText});
+                        innerText.innerHTML = args.pdfSettings.redirectingText;
+                    }else{
+                        // Display the error/success message
+                        if(innerText) innerText.innerHTML = result.msg;
+                    }
                 }
-                // Display the error/success message
-                if(innerText) innerText.innerHTML = result.msg;
                 // Convert any JS to executable JS
                 var node = innerText.querySelector('script');
                 if(node && node.tagName === 'SCRIPT'){
@@ -2871,40 +2882,45 @@ function SUPERreCaptcha(){
                 }
             }
         }else{
-            // Display message in legacy mode
-            // But only display if not empty
-            if(result.msg!==''){
-                // Remove existing messages
-                var ii,
-                    html,
-                    nodes = document.querySelectorAll('.super-msg');
-                for (ii = 0; ii < nodes.length; ii++) { 
-                    nodes[ii].remove();
-                }
-                // Check for errors, if there are any display them to the user 
-                if(result.error===true){
-                    html = '<div class="super-msg super-error">';
-                    if(typeof result.fields !== 'undefined'){
-                        $.each(result.fields, function( index, value ) {
-                            $(value+'[name="'+index+'"]').parent().addClass('error');
-                        });
-                    }                               
-                }else{
-                    html = '<div class="super-msg super-success"';
-                    // @since 3.4.0 - option to not display the message
-                    if(result.display===false){
-                        html += 'style="display:none;">';
+            // Redirect user to specified url
+            if(result.redirect){
+                window.location.href = result.redirect;
+            }else{
+                // Display message in legacy mode
+                // But only display if not empty
+                if(result.msg!==''){
+                    // Remove existing messages
+                    var ii,
+                        html,
+                        nodes = document.querySelectorAll('.super-msg');
+                    for (ii = 0; ii < nodes.length; ii++) { 
+                        nodes[ii].remove();
                     }
-                    html += '>';
-                }
-                html += result.msg;
-                html += '<span class="super-close"></span>';
-                html += '</div>';
-                if(args.form){
-                    $(html).prependTo($(args.form));
-                    $('html, body').animate({
-                        scrollTop: $(args.form).offset().top-200
-                    }, 1000);
+                    // Check for errors, if there are any display them to the user 
+                    if(result.error===true){
+                        html = '<div class="super-msg super-error">';
+                        if(typeof result.fields !== 'undefined'){
+                            $.each(result.fields, function( index, value ) {
+                                $(value+'[name="'+index+'"]').parent().addClass('error');
+                            });
+                        }                               
+                    }else{
+                        html = '<div class="super-msg super-success"';
+                        // @since 3.4.0 - option to not display the message
+                        if(result.display===false){
+                            html += 'style="display:none;">';
+                        }
+                        html += '>';
+                    }
+                    html += result.msg;
+                    html += '<span class="super-close"></span>';
+                    html += '</div>';
+                    if(args.form){
+                        $(html).prependTo($(args.form));
+                        $('html, body').animate({
+                            scrollTop: $(args.form).offset().top-200
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -3351,7 +3367,7 @@ function SUPERreCaptcha(){
         if(accordions && accordions[0]) accordions[0].querySelector('.super-accordion-header').click();
         if(error===false){
             // Check if there are other none standard elements that have an active error
-            // Currently used by Stripe Add-on to check for invalid card numbers for instance
+            // Currently used by Stripe feature to check for invalid card numbers for instance
             if(args.form.querySelectorAll('.super-error-active').length){
                 SUPER.scrollToError(args.form);
                 return true;
@@ -5161,7 +5177,7 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            // ... but for signatures (if add-on is active)
+            // ... but for signatures (if used)
             nodes = $this.querySelectorAll('.super-signature');
             for(i=0; i<nodes.length; i++){
                 value = nodes[i].querySelector('.super-signature-lines').value;
@@ -6130,7 +6146,7 @@ function SUPERreCaptcha(){
                     return true;
                 }
 
-                // Signature field (Add-on)
+                // Signature element
                 if(field.classList.contains('super-signature')){
                     if(typeof $.fn.signature === "function") {
                         signatureDataUrl = data[i].value;

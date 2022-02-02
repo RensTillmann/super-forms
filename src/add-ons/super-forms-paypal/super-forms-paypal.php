@@ -187,12 +187,10 @@ if( !class_exists('SUPER_PayPal') ) :
 				add_filter( 'super_enqueue_styles', array( $this, 'backend_styles' ) );
 
 				add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
-				add_action( 'init', array( $this, 'update_plugin'));
 				add_action( 'init', array( $this, 'custom_paypal_txn_status' ) );
 				add_action( 'admin_footer-post.php', array( $this, 'append_paypal_txn_status_list' ) );
 				add_action( 'manage_super_paypal_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 				add_action( 'manage_super_paypal_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
 
 				add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
 				add_action( 'current_screen', array( $this, 'reset_paypal_counter' ) );
@@ -222,42 +220,6 @@ if( !class_exists('SUPER_PayPal') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
         
-      
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        }  
 
 		public function set_payment_statuses(){
 			self::$paypal_payment_statuses = array(
@@ -450,7 +412,7 @@ if( !class_exists('SUPER_PayPal') ) :
 
 
 		/**
-		 * Save Post ID into session after inserting post with Front-end Posting Add-on
+		 * Save Post ID into session after inserting post with Front-end Posting feature
 		 * This way we can add it to the paypal custom data and use it later to update the user status after payment is completed
 		 *
 		 *  @since      1.0.0
@@ -460,7 +422,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		}
 
 		/**
-		 * Save User ID into session after creating user Register & Login add-on
+		 * Save User ID into session after creating user Register & Login feature
 		 * This way we can add it to the paypal custom data and use it later to update the user status after payment is completed
 		 *
 		 *  @since      1.0.0
@@ -1633,7 +1595,7 @@ if( !class_exists('SUPER_PayPal') ) :
 							update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['paypal_completed_entry_status'] );
 						}
 					}
-					// Update post status after succesfull payment (only used for Front-end Posting add-on)
+					// Update post status after succesfull payment (only used for Front-end Posting)
 					$post_id = absint($custom[4]);
 					if( ($post_id!=0) && (!empty($settings['paypal_completed_post_status'])) ) {
 						wp_update_post( 
@@ -1643,7 +1605,7 @@ if( !class_exists('SUPER_PayPal') ) :
 							)
 						);
 					}
-					// Update user status after succesfull payment (only used for Register & Login add-on)
+					// Update user status after succesfull payment (only used for Register & Login)
 					$user_id = 0;
 					if( !empty($settings['register_login_action']) ) {
 						if( $settings['register_login_action']=='register' ) {
@@ -1710,7 +1672,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				
 								/** 
 								 *  Filter to control the email loop when something special needs to happen
-								 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+								 *  e.g. Signature element needs to display image instead of the base64 code that the value contains
 								 *
 								 *  @param  string  $row
 								 *  @param  array   $data
@@ -2029,8 +1991,8 @@ if( !class_exists('SUPER_PayPal') ) :
 					$settings['paypal_payment_type'],
 					$atts['entry_id'],
 					get_current_user_id(),
-					absint($post_id), // Used only if Front-end Posting add-on is installed and enabled to update the post status after successfull payment.
-					absint($user_id) // Used only if Register & Login add-on is installed and enabled to update the user status after successfull payment.
+					absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+					absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
 				);
 				$home_url = get_home_url() . "/";
 				if (strstr($home_url, '?')) {
@@ -3121,7 +3083,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				}
 				$array['paypal_checkout']['fields']['paypal_completed_signup_status'] = array(
 					'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
 					'default' => SUPER_Settings::get_value(0, 'paypal_completed_signup_status', $settings['settings'], 'active' ),
 					'type' => 'select',
 					'values' => array(
@@ -3135,7 +3097,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				);
 				$array['paypal_checkout']['fields']['paypal_completed_user_role'] = array(
 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
-					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
 					'default' => SUPER_Settings::get_value(0, 'paypal_completed_user_role', $settings['settings'], '' ),
 					'type' => 'select',
 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),

@@ -8,6 +8,15 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 02, 2022 - Version 6.1.2
+
+- **Fix:** Toggle button alignment for `Field label` and `Field description`
+- **Improved:** Code cleanup
+
+## Feb 01, 2022 - Version 6.1.1
+
+- **Fix:** Issue with WooCommerce Checkout
+
 ## Feb 01, 2022 - Version 6.1.0
 
 - **Added:** Predefined `Tags/Keyword` element
@@ -23,7 +32,7 @@
 - **Fix:** Option `Delete files from server after the form was submitted` wasn't working properly when storing files outside site root (secure file uploads)
 - **Fix:** Back-end preview not generating the PDF due to fonts not being enqueued
 - **Fix:** Issue with files not being attached to E-mails when upload directory was setup to be outside the site root (secure file uploads)
-- **Fix:** PHP Warning related to `MailChimp`, `Mailster` and `Password Protect` Add-ons
+- **Fix:** PHP Warning related to `MailChimp`, `Mailster` and `Password Protect`
 - **Fix:** PHP Warning when calling `file_get_contents()` to load PDF generator fonts
 - **Changed:** File upload names are now fully visible when user added a file on the file upload element, they are no longer truncated. If you still want the truncated version you will have to apply custom CSS and and set overflow to ellipsis method
 - **Changed:** By default the `secure` parameter for cookies is now set to true, you can still filter this with `super_session_cookie_secure` hook if needed
@@ -370,11 +379,10 @@
 ## Jul 17, 2020 - Version 4.9.500
 
 - **NEW:** PDF Generator Add-on, read the docs for more info here: [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
-- **Added:** Documentation for [Register & Login Add-on](https://renstillmann.github.io/super-forms/#/register-login-add-on)
-- **Added:** Documentation for [Zapier Add-on](https://renstillmann.github.io/super-forms/#/zapier-add-on)
-- **Added:** Documentation for [MailChimp Add-on](https://renstillmann.github.io/super-forms/#/mailchimp-add-on)
-- **Added:** Documentation for [Mailster Add-on](https://renstillmann.github.io/super-forms/#/mailster-add-on)
-- **Added:** Documentation for [Mailster Add-on](https://renstillmann.github.io/super-forms/#/mailster-add-on)
+- **Added:** Documentation for [Register & Login Add-on](https://renstillmann.github.io/super-forms/#/register-login)
+- **Added:** Documentation for [Zapier Add-on](https://renstillmann.github.io/super-forms/#/zapier)
+- **Added:** Documentation for [MailChimp Add-on](https://renstillmann.github.io/super-forms/#/mailchimp)
+- **Added:** Documentation for [Mailster Add-on](https://renstillmann.github.io/super-forms/#/mailster)
 
 ## Jun 29, 2020 - Version 4.9.471
 
@@ -658,7 +666,7 @@ and Contact Entry
 - **Fixed:** Compatibility for Ajax handler with Multisites
 - **Fixed:** reCAPTCHA v2 bug
 - **Fixed:** HTML element in back-end not wrapping words
-- **Fixed:** Calculator add-on not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
+- **Fixed:** Calculator element not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
 
 ## Apr 22, 2019 - Version 4.6.0
 
@@ -702,7 +710,7 @@ and Contact Entry
 - **Improved:** Undo/Redo feature
 - **Improved:** Form elements json now saved in localStorage, instead of a textarea element
 - **Improved:** When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (useful for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
-- **Fixed:** WooCommerce Checkout add-on setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
+- **Fixed:** WooCommerce Checkout setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
 - **Fixed:** Issue with File Upload element when using custom Image button, it would still display the placeholder text
 - **Fixed:** Issue with WooCommerce Checkout not saving CC and BCC settings
 - **Fixed:** bug in Calculator Add-on when using advanced tags in combination with wildcards e.g: `{field_*;2}` inside math
@@ -796,7 +804,7 @@ and Contact Entry
 - **Fixed:** Website URL validation only allowed lowercase letters
 - **Fixed:** Google ReCAPTCHA no longer allows to use callback function that contains a . (dot) in the function name. Replaced `SUPER.reCaptcha` with `SUPERreCaptcha`
 - **Fixed:** Multi-part not autmoatically switching to next step (if enabled) when hidden field is located inside the mulit-part
-- **Fixed:** Bug with {tags} in combination with calculator add-on, would retrieve the HTML value version for calculations
+- **Fixed:** Bug with {tags} in combination with calculator element, would retrieve the HTML value version for calculations
 - **Fixed:** Make forms and entries none plublic so that search engines won't be able to index them
 - **Fixed:** Javascript Syntax Error in Safari
 
@@ -954,7 +962,7 @@ and Contact Entry
 - **Fixed:** Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
 - **Fixed:** Check if HTTP_REFERRER is defined, otherwise php will throw error
 - **Fixed:** `{tag;1}`, `{tag;2}` etc. where only accepting int types and not var types
-- **Fixed:** If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with calculator add-on
+- **Fixed:** If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with Calculator element
 - **Fixed:** In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
 - **Fixed:** Contact entry not updating if Contact Entry saving itself is disabled but Updating Contact Entries is enabled
 - **Updated:** Fontawesome to v4.7
@@ -1263,7 +1271,7 @@ and Contact Entry
 - **Added:** Option to export individual Contact entries and select the fields to export + rename the column names
 - **Added:** Option to filter contact entries based on a specific form
 - **Added:** Radio buttons now can return custom taxonomy, post type and CSV items
-- **Added:** Option to count words on textarea fields that can be used with the calculator add-on (useful for translation estimations)
+- **Added:** Option to count words on textarea fields that can be used with the Calculator element (useful for translation estimations)
 - **Improved:** Contact entry search query
 - **Improved:** Conditional logic speed
 - **Improved:** Variable conditions speed
@@ -1356,8 +1364,8 @@ and Contact Entry
 - **Fixed:** Uncaught TypeError when datepicker default value is empty
 - **Fixed:** Only apply meta_query custom search for super forms contact entries
 - **Fixed:** When WP network site is enabled, wrong directory is called for media uploads
-- **Added:** Option to calculate difference between 2 timepickers (calculator add-on required!)
-- **Added:** Option to calculate age based on birth date for datepickers (calculator add-on required!)
+- **Added:** Option to calculate difference between 2 timepickers (Calculator element required!)
+- **Added:** Option to calculate age based on birth date for datepickers (Calculator element required!)
 - **Added:** Date range option when exporting contact entries to CSV
 - **Added:** Labeling for Columns and Multi-parts on form builder page (easier to keep track of sections)
 - **Added:** Option to make hidden field a variable (change value dynamically with conditional logic)
@@ -1365,7 +1373,7 @@ and Contact Entry
 - **Added:** Option to use {tags} inside Additional headers setting
 - **Added:** Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
 - **Added:** `{field_label_****}` tag to use in emails and subjects etc.
-- **Added:** Option to do math between datepickers with calculator add-on
+- **Added:** Option to do math between datepickers with Calculator element
 - **Added:** new filter hook - super_common_attributes_filter
 - **Improved:** Contact entry export to CSV now includes: entry_id, entry_title, entry_date, entry_author, entry_status and entry_ip
 

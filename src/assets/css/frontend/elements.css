@@ -2699,7 +2699,19 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-weight: normal;
 }
 
+.super-toggle {
+  flex-wrap: wrap;
+}
+.super-toggle .super-label,
+.super-toggle .super-description {
+  width: 100%;
+}
+.super-toggle .super-break {
+  flex-basis: 100%;
+  height: 0;
+}
 .super-toggle .super-field-wrapper {
+  margin-top: 0 !important;
   width: auto;
 }
 

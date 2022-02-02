@@ -188,9 +188,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                 add_action( 'edit_user_profile', array( $this, 'add_customer_meta_fields' ) );
                 add_action( 'personal_options_update', array( $this, 'save_customer_meta_fields' ) );
                 add_action( 'edit_user_profile_update', array( $this, 'save_customer_meta_fields' ) );
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );               
-                add_action( 'init', array( $this, 'update_plugin' ) );
-
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -212,43 +209,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
         
-
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        } 
-
 
         /**
          * Return WC countries list for billing_country and shipping_country only
@@ -491,7 +451,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             $global_settings = get_option( 'super_settings' );
             $handle = 'super-register-login-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
+            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/common.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
             wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'duration'=>absint( $global_settings['form_duration'] ) ) );
             wp_enqueue_script( $handle );
         }
@@ -1356,7 +1316,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         );
                     }
 
-                    // @since v1.0.3 - currently used by the WooCommerce Checkout Add-on
+                    // @since v1.0.3 - currently used by the WooCommerce Checkout feature
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$atts ) );
        
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library

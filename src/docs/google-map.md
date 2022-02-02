@@ -10,8 +10,8 @@ You can find the google map element under `HTML Elements` > `Google Map`. When u
 - Option to `draw Route` from address A (origin) to address B (destination)
 - Option to optionally display the `directions panel` (list with route instructions)
 - Option to set it's travel mode `DRIVING`, `BICYCLKING`, `TRANSIT`, `WALKING`
-- Option to populate `distance` to field (including Calculator Add-on)
-- Option to populate `duration` to field (including Calculator Add-on)
+- Option to populate `distance` to field (including Calculator element)
+- Option to populate `duration` to field (including Calculator element)
 - Option to define the unit system `METRIC` or `IMPERIAL`
 - Option to draw Route with `Waypoints` (stops in between the route)
 - Option to optimize route with waypoints (to rearrange it in a more efficient order)

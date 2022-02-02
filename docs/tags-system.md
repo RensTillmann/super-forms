@@ -83,7 +83,7 @@ Now you might ask where should I actually place this tag? You can choose to use 
 
 ## Regular expressions
 
-?> Because this feature is especially useful in combination with the **Calculator** Add-on, you can read about using regular expressions within tags here: [Calculation examples](calculator-add-on?id=calculation-examples)
+?> Because this feature is especially useful in combination with the **Calculator** element, you can read about using regular expressions within tags here: [Calculation examples](calculator?id=calculation-examples)
 
 ## When and where can I use tags?
 

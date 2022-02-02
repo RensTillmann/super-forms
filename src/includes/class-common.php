@@ -826,7 +826,7 @@ class SUPER_Common {
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'set_keyword_tags_width' ),
                     array( 'name' => 'rating' ),
-                    array( 'name' => 'init_signature' ) // This should actually be called by the signature add-on, but it has been like this since the start.
+                    array( 'name' => 'init_signature' ) // This should actually be called by the signature element, but it has been like this since the start.
                 ),
             )
         );
@@ -1128,7 +1128,7 @@ class SUPER_Common {
     public static function decode( $value ) {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
-            // @since 3.9.0 - do not decode base64 images (signature add-on)
+            // @since 3.9.0 - do not decode base64 images (signature)
             if ( strpos( $value, 'data:image/png;base64,') !== false ) {
                 return $value;
             }else{
@@ -1983,7 +1983,7 @@ class SUPER_Common {
 
                 /** 
                  *  Filter to control the email loop when something special needs to happen
-                 *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+                 *  e.g. Signature element needs to display image instead of the base64 code that the value contains
                  *
                  *  @param  string  $row
                  *  @param  array   $data

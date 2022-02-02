@@ -111,6 +111,14 @@ if(!class_exists('SUPER_PDF_Generator')) :
                             echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
+                    // Redirecting text
+                    echo '<div class="sfui-setting sfui-inline">';
+                        echo '<span class="sfui-title">' . esc_html__( 'Redirecting text', 'super-forms' ) . ':</span>';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<input type="text" name="redirectingText" value="' . $s['redirectingText'] . '" />';
+                            echo '<span class="sfui-label">' . esc_html__( 'only required if you redirect after form ubmission', 'super-forms' ) . ', ' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+                        echo '</label>';
+                    echo '</div>';
                     // Attach generated PDF to admin e-mail
                     echo '<div class="sfui-setting">';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -329,6 +337,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
             if(empty($s['downloadBtn'])) $s['downloadBtn'] = 'false';
             if(empty($s['downloadBtnText'])) $s['downloadBtnText'] = esc_html__( 'Download Summary', 'super-forms' );
             if(empty($s['generatingText'])) $s['generatingText'] = esc_html__( 'Generating PDF file...', 'super-forms' );
+            if(empty($s['redirectingText'])) $s['redirectingText'] = esc_html__( 'Redirecting, please wait...', 'super-forms' );
             if(empty($s['orientation'])) $s['orientation'] = 'portrait';
             if(empty($s['unit'])) $s['unit'] = 'mm';
             if(empty($s['format'])) $s['format'] = 'a4';

@@ -7,8 +7,8 @@
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
 - [Execute custom JS when a column becomes conditionally visible](#execute-custom-js-when-a-column-becomes-conditionally-visible)
-- [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting Add-on](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting-add-on)
-- [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting Add-on](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting-add-on)
+- [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting)
+- [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 
 ## Track form submissions with third party
@@ -183,9 +183,9 @@ setInterval(function(){
 },100);
 ```
 
-## Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting Add-on
+## Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting
 
-The below code is useful for `Checkbox` fields made within Toolset plugin. Since Super Forms Front-end Posting Add-on saves them as a comma separated string, we must convert it to an array so that Toolset can properly retrieve these values.
+The below code is useful for `Checkbox` fields made within Toolset plugin. Since Super Forms Front-end Posting saves them as a comma separated string, we must convert it to an array so that Toolset can properly retrieve these values.
 
 ```php
 function f4d_convert_metadata( $attr ) {
@@ -205,9 +205,9 @@ function f4d_convert_metadata( $attr ) {
 add_action('super_front_end_posting_after_insert_post_action', 'f4d_convert_metadata', 10, 1);
 ```
 
-## Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting Add-on
+## Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting
 
-The below code is useful for `File` fields made within Toolset plugin. Since Super Forms Front-end Posting Add-on stores only the file ID, and Toolset requires the file URL, we must retrieve the file URL and override the meta value in order for Toolset to display the file.
+The below code is useful for `File` fields made within Toolset plugin. Since Super Forms Front-end Posting stores only the file ID, and Toolset requires the file URL, we must retrieve the file URL and override the meta value in order for Toolset to display the file.
 
 ```php
 function f4d_convert_file_id_to_url( $attr ) {

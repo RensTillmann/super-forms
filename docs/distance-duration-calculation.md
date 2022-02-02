@@ -41,8 +41,8 @@ When the field acts as **Start address**, you will have to define what the **Des
 When you have choosen to use the field as the Start address, you can now choose what value you wish to return from the API.
 You can choose one of the following options:
 
-* **Distance in meters** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
-* **Duration in seconds** (Tip: use this option in combination with [Calculator Add-on](calculator-add-on) to do calculations)
+* **Distance in meters** (Tip: use this option in combination with [Calculator element](calculator) to do calculations)
+* **Duration in seconds** (Tip: use this option in combination with [Calculator element](calculator) to do calculations)
 * **Distance text in km or miles**
 * **Duration text in minutes**
 

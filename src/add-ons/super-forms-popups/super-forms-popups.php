@@ -183,9 +183,6 @@ if( !class_exists('SUPER_Popup') ) :
                 add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
                 add_action( 'admin_print_scripts', array( $this, 'localize_printed_scripts' ), 5 );
                 add_action( 'admin_print_footer_scripts', array( $this, 'localize_printed_scripts' ), 5 );
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );               
-                add_action( 'init', array( $this, 'update_plugin' ) );
-
             }
             
         }
@@ -202,43 +199,6 @@ if( !class_exists('SUPER_Popup') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
         
-
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        }
-
 
         /**
          * Enqueue scripts for each admin page

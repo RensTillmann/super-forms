@@ -163,8 +163,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
                 add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'checkout_field_display_admin_order_meta' ), 10, 1 );
-                add_action( 'all_admin_notices', array( $this, 'display_activation_msg' ) );
-                add_action( 'init', array( $this, 'update_plugin' ) );
             }
             
             if ( $this->is_request( 'ajax' ) ) {
@@ -479,43 +477,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
             load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
-        
-        /**
-         * Display activation message for automatic updates
-        */
-        public function display_activation_msg() {
-            if( !class_exists('SUPER_Forms') ) {
-                echo '<div class="notice notice-error">'; // notice-success
-                    echo '<p>';
-                    echo sprintf( 
-                        esc_html__( '%sPlease note:%s You must install and activate %4$s%1$sSuper Forms%2$s%5$s in order to be able to use %1$s%s%2$s!', 'super_forms' ), 
-                        '<strong>', 
-                        '</strong>', 
-                        'Super Forms - ' . $this->add_on_name, 
-                        '<a target="_blank" href="https://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866">', 
-                        '</a>' 
-                    );
-                    echo '</p>';
-                echo '</div>';
-            }
-        }
-
-
-        /**
-         * Automatically update plugin from the repository
-        */
-        public function update_plugin() {
-            if( defined('SUPER_PLUGIN_DIR') ) {
-                if(include( SUPER_PLUGIN_DIR . '/includes/admin/plugin-update-checker/plugin-update-checker.php')){
-                    $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                        'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms-' . $this->add_on_slug,  //Metadata URL
-                        __FILE__, //Full path to the main plugin file.
-                        'super-forms-' . $this->add_on_slug //Plugin slug. Usually it's the same as the name of the directory.
-                    );
-                }
-            }
-        }
-
 
         /**
          * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
@@ -724,14 +685,14 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
 
         /**
-         * If Front-end posting add-on is activated and being used retrieve the inserted Post ID and save it to the WC Order
+         * If Front-end posting is being used retrieve the inserted Post ID and save it to the WC Order
          *
          *  @since      1.0.0
         */
         function save_wc_order_post_session_data( $data ) {
             global $woocommerce;
             if($woocommerce){
-                // Check if Front-end Posting add-on is activated
+                // Check if Front-end Posting is activated
                 if ( class_exists( 'SUPER_Frontend_Posting' ) ) {
                     $post_id = absint($data['post_id']);
                     $settings = $data['atts']['settings'];
@@ -748,14 +709,14 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
 
         /**
-         * If Register & Login add-on is activated and being used retrieve the created User ID and save it to the WC Order
+         * If Register & Login is being used retrieve the created User ID and save it to the WC Order
          *
          *  @since      1.0.0
         */
         function save_wc_order_signup_session_data( $data ) {
             global $woocommerce;
             if($woocommerce){
-                // Check if Register & Login add-on is activated
+                // Check if Register & Login is used
                 if ( class_exists( 'SUPER_Register_Login' ) ) {
                     $user_id = absint($data['user_id']);
                     $settings = $data['atts']['settings'];
@@ -860,6 +821,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                 // @since 1.3.8 - Check if sending email is enabled
                 $data = get_post_meta( $order_id, '_super_wc_entry_data', true);
+                if ( empty( $data ) ) return false;
                 $form_id = absint($data['hidden_form_id']['value']);
                 if (method_exists('SUPER_Common','get_form_settings')) {
                     $form_settings = SUPER_Common::get_form_settings($form_id);
@@ -871,7 +833,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     update_post_meta( $contact_entry_id, '_super_contact_entry_status', $form_settings['woocommerce_completed_entry_status'] );
                 }
                 if( !empty($form_settings['woocommerce_completed_email']) ) {
-                    
                     $global_settings = get_option( 'super_settings' );
                     if( $form_settings!=false ) {
                         // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
@@ -923,7 +884,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                             /** 
                              *  Filter to control the email loop when something special needs to happen
-                             *  e.g. Signature Add-on needs to display image instead of the base64 code that the value contains
+                             *  e.g. Signature element needs to display image instead of the base64 code that the value contains
                              *
                              *  @param  string  $row
                              *  @param  array   $data
@@ -1125,8 +1086,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
                         SUPER_Common::output_message( $error=true, $msg );
                     }
-
-
                 }
             }
         }
@@ -1892,7 +1851,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
                 $array['woocommerce_checkout']['fields']['woocommerce_signup_status'] = array(
                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
-                    'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
                     'default' => SUPER_Settings::get_value( 0, 'woocommerce_signup_status', $settings['settings'], 'active' ),
                     'type' => 'select',
                     'values' => array(
@@ -1906,7 +1865,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 );
 				$array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
-					'label' => esc_html__( 'Only used for Register & Login add-on', 'super-forms' ),
+					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
 					'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_user_role', $settings['settings'], '' ),
 					'type' => 'select',
 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),

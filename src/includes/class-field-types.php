@@ -825,8 +825,8 @@ class SUPER_Field_Types {
                 if(isset($v['label'])) $return .= '<div class="super-color-picker-label">'.$v['label'].'</div>';
                 $return .= '<div class="super-color-picker">';
                     $return .= '<input type="text" id="field-'.$k.'" name="'.$k.'" class="super-element-field" value="'.esc_attr($v['default']).'" />';
-                    // temp $return .= '<i class="fas fa-eraser super-reset-default-value super-tooltip" title="' . esc_html__( 'default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
-                    // temp $return .= '<i class="fas fa-undo-alt super-reset-global-value super-tooltip" title="' . esc_html__( 'global value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
+                    // temp disabled $return .= '<i class="fas fa-eraser super-reset-default-value super-tooltip" title="' . esc_html__( 'default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
+                    // temp disabled $return .= '<i class="fas fa-undo-alt super-reset-global-value super-tooltip" title="' . esc_html__( 'global value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
                 $return .= '</div>';
             $return .= '</div>';
         }

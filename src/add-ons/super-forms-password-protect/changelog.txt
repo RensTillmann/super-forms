@@ -23,7 +23,7 @@ Jun 14, 2019 - Version 1.1.1
 Apr 22, 2019 - Version 1.1.0
 - Compatibility with latest Super Forms
 - Improved: Update functionality
-- Add-on now included in the `Super Forms - All In One Bundle` package :)
+- Passowrd protect now included in the `Super Forms - All In One Bundle` package :)
 
 Apr 22, 2018 - Version 1.0.6
 - Fix: When password field would be inside a multi-part, it will no longer think the "password" field is missing

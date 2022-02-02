@@ -2840,7 +2840,7 @@ class SUPER_Ajax {
                 'post_type' => 'super_contact_entry' ,
                 'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
             );
-            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login Add-on)
+            // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)
             $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
             if( $post_author!=false ) {
                 $post['post_author'] = absint($post_author);
@@ -3478,7 +3478,7 @@ class SUPER_Ajax {
 
             /** 
              *  Filter to control the redirect URL
-             *  e.g. Currenlty used for Front-end Posting add-on to redirect to the created post
+             *  e.g. Currenlty used for Front-end Posting to redirect to the created post
              *
              *  @param  array  $data
              *  @param  array  $settings
