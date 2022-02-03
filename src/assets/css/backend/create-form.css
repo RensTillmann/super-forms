@@ -510,9 +510,11 @@
     font-family: Courier New;
     font-size: 11px;
     line-height: 30px;
+    letter-spacing: -0.6px;
     margin: 0px;
     float: left;
     text-align: center;
+    border: 2px dashed #000000;
 }
 
 .super-header p {
@@ -2987,4 +2989,88 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 }
 .super-builder .tox-toolbar__group .tox-tbtn .tox-icon {
   transform: scale(0.7);
+}
+
+.sfui-setting .sfui-setting .sfui-setting {
+  padding: 5px 5px 10px 10px !important;
+}
+.sfui-setting input,
+.sfui-setting textarea,
+.sfui-setting select {
+  padding: 5px;
+  border: 1px solid #cccccc;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+.super-color-picker-container:hover .super-reset-default-value,
+.super-color-picker-container:hover .super-reset-global-value {
+  display: flex;
+}
+.super-color-picker-container .super-reset-default-value,
+.super-color-picker-container .super-reset-global-value {
+  border-radius: 100px;
+  background-color: #eaeaea;
+  width: 24px;
+  height: 24px;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  margin-left: 5px;
+  color: #999999;
+  font-size: 12px;
+  cursor: pointer;
+}
+.super-color-picker-container .super-reset-default-value:hover,
+.super-color-picker-container .super-reset-global-value:hover {
+  background-color: #49B4B6;
+  color: #fff;
+}
+.super-color-picker-container .super-color-picker-label {
+  width: 180px;
+}
+.super-color-picker-container .super-color-picker {
+  width: auto;
+}
+.super-form-settings input,
+.super-form-settings textarea,
+.super-form-settings select {
+  border: 1px solid #cccccc;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+.super-form-settings .super-field {
+  margin: 0;
+  padding: 10px 5px;
+}
+.super-form-settings .super-field:hover {
+  background-color: #fff9de;
+}
+.super-form-settings .super-color-picker-label {
+  width: 300px;
+}
+.super-form-settings .slider-field {
+  display: flex;
+  flex-direction: row-reverse;
+}
+.super-form-settings .slider-field .slider {
+  border: none;
+  background: none;
+  margin-top: 6px !important;
+}
+.super-form-settings .slider-field > input {
+  min-width: auto;
+  width: 50px !important;
+  padding: 0 !important;
+  height: 22px !important;
+  margin: 3px 10px 0 0 !important;
+}
+.super-form-settings #field-form_locker_submission_reset {
+  border: 1px solid #F5234B;
+  margin: 5px 10px 5px 0;
+  height: 31.5px;
+  width: 100px;
+  text-align: center;
+}
+.super-form-settings .super-reset-user-submission-counter {
+  float: left;
 }
