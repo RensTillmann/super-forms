@@ -3181,29 +3181,21 @@
                         // First check if already exists
                         if(keywordField.value.split(',').indexOf(tag)===-1){
                             if(typeof duplicates[tag]==='undefined'){
-                                counter++;
-                                if(max===0 || counter<=max){
+                                counter = tagsContainer.querySelectorAll('.super-keyword-tag').length;
+                                if(max===0 || counter<max){
                                     if(splitMethod!='comma') tag = tag.replace(/ /g,'');
                                     if( (tag!=='') && (tag.length>1) ) {
                                         var node = document.createElement('span');
                                         node.className = 'super-noselect super-keyword-tag';
                                         node.setAttribute('sfevents', '{"click":"keywords.remove"}');
                                         node.dataset.value = tag;
-                                        node.title = 'remove this tag4';
                                         node.innerHTML = tag;
-                                        //filterField.prepend(span);
-                                        //html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
-                                        //var prev = filterField.previousSibling;
-                                        //previousElementSibling
                                         filterField.parentNode.insertBefore(node, filterField);
-                                        //tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                                         target.classList.add('super-active');
-                                        //html += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+tag+'" title="remove this tag">'+tag+'</span>';
                                     }
                                 }
                             }
                             duplicates[tag] = tag;
-                            //tagsContainer.innerHTML = tagsContainer.innerHTML + html;
                         }
                         app.keywords.updateValue(field, tagsContainer, keywordField, target, wrapper);
                     }

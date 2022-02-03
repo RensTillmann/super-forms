@@ -8,14 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 02, 2022 - Version 6.1.2
+## Feb 03, 2022 - Version 6.1.4
 
+- **Fix:** Redirect message undefined in JS, causing form not redirecting at all
 - **Fix:** Toggle button alignment for `Field label` and `Field description`
-- **Improved:** Code cleanup
-
-## Feb 01, 2022 - Version 6.1.1
-
 - **Fix:** Issue with WooCommerce Checkout
+- **Improved:** `Tags/Keyword` element `Advanced > Max char/selection` blocks user from adding more tags if limit was reached instead of validating on form submission
+- **Improved:** Code cleanup
 
 ## Feb 01, 2022 - Version 6.1.0
 

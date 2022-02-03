@@ -2847,11 +2847,7 @@ function SUPERreCaptcha(){
                     }
                     if(result.redirect){
                         // When redirecting to different page show redirect message instead of thank you message
-                        if(!args.pdfSettings.redirectingText || args.pdfSettings.redirectingText===''){
-                            args.pdfSettings.redirectingText = 'Redirecting, please wait...';
-                        }
-                        args.pdfSettings.redirectingText = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.redirectingText});
-                        innerText.innerHTML = args.pdfSettings.redirectingText;
+                        innerText.innerHTML = SUPER.update_variable_fields.replace_tags({form: args.form0, value: super_common_i18n.loadingOverlay.redirecting});
                     }else{
                         // Display the error/success message
                         if(innerText) innerText.innerHTML = result.msg;
