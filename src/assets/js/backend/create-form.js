@@ -769,13 +769,25 @@
                     // This is not allowed
                     $input_fields = $this.children('input[name="conditional_field"], input[name="conditional_value"], input[name="conditional_field_and"], input[name="conditional_value_and"], textarea[name="conditional_new_value"]');
                     $.each($input_fields, function (key, field) {
-                        // As soon a match was found, display the error and stop this loop
-                        if (field.value.indexOf($field_name) !== -1) {
-                            $error = true;
-                            field.classList.add('super-error');
-                            return false;
-                        } else {
-                            field.classList.remove('super-error');
+                        // Conditional logic `field` may not point to it's own field
+                        if(field.name==='conditional_field' || field.name==='conditional_field_and'){
+                            if (field.value.indexOf($field_name) !== -1) {
+                                $error = true;
+                                field.classList.add('super-error');
+                                return false;
+                            } else {
+                                field.classList.remove('super-error');
+                            }
+                        }
+                        // Conditional logic `value` can not compare against it's own field name...
+                        if(field.name==='conditional_value' || field.name==='conditional_value_and'){
+                            if ( (field.value.indexOf('{'+$field_name+'}') !== -1) || (field.value.indexOf('{'+$field_name+';') !== -1) ) {
+                                $error = true;
+                                field.classList.add('super-error');
+                                return false;
+                            } else {
+                                field.classList.remove('super-error');
+                            }
                         }
                     });
                     // Add the conditions to the object so we can store it later 
