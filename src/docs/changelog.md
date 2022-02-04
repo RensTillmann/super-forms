@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 03, 2022 - Version 6.1.4
+## Feb 04, 2022 - Version 6.1.5
 
+- **Fix:** In the back-end when defining condtional logic for a field the user was not able to define a `Value` comparison that had the same value as the current field name e.g: `DC` field name and having a conditional logic value equals to `DC` which should be allowed. However the `Field name` isn't allowed to point to the current field, so that still needs to be validated 
 - **Fix:** Redirect message undefined in JS, causing form not redirecting at all
 - **Fix:** Toggle button alignment for `Field label` and `Field description`
 - **Fix:** Issue with WooCommerce Checkout
