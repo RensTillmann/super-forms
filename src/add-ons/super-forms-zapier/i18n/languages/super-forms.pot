@@ -26,7 +26,7 @@ msgstr ""
 #: super-forms-zapier.php:284
 msgid ""
 "Click <a target=\"_blank\" href=\"https://zapier."
-"com/developer/invite/57527/bbb10ee808fe8a835a33e29f5249fd2d/\">here</a> to "
+"com/developer/public-invite/95800/cd2d01261e50358cd1e6c10b898d0c28/\">here</a> to "
 "get your webhook for Super Forms on Zapier"
 msgstr ""
 

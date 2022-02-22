@@ -262,7 +262,7 @@ if( !class_exists('SUPER_Zapier') ) :
                     'zapier_webhook' => array(
                         'name'=> esc_html__( 'Zapier webhook URL', 'super-forms' ),
                         'desc' => esc_html__( 'You can find your webhook URL when viewing your Zap on zapier.com', 'super-forms' ), 
-                        'label'=> sprintf( esc_html__( 'Click %shere%s to get your webhook for Super Forms on Zapier', 'super-forms' ), '<a target="_blank" href="https://zapier.com/developer/invite/57527/bbb10ee808fe8a835a33e29f5249fd2d/">', '</a>' ),
+                        'label'=> sprintf( esc_html__( 'Click %shere%s to get your webhook for Super Forms on Zapier', 'super-forms' ), '<a target="_blank" href="https://zapier.com/developer/public-invite/95800/cd2d01261e50358cd1e6c10b898d0c28/">', '</a>' ),
                         'default'=> SUPER_Settings::get_value( 0, 'zapier_webhook', $settings['settings'], '' ),
                         'filter'=>true,
                         'parent'=>'zapier_enable',

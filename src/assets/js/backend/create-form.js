@@ -1978,6 +1978,9 @@
         $doc.on('change keyup', '.super-element.super-element-settings input[name="name"]', function () {
             var $this = $(this);
             var $editing = $('.super-preview-elements .super-element.editing');
+            if($editing && $editing.data('shortcode-tag')==='button'){
+                return;
+            }
             var $parent = $editing;
             var $field = $parent.find('.super-shortcode-field');
             var $old_name = $field.attr('name');

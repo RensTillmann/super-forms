@@ -7,7 +7,7 @@ $v = $settings;
 
 // Google fonts
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
-$import_fonts = "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
+$import_fonts = ""; // example: "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
 if($v['font_google_fonts']!=''){
     $google_fonts = explode( "\n", $v['font_google_fonts'] );  
     foreach( $google_fonts as $font ) {

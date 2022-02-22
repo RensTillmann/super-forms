@@ -1310,9 +1310,7 @@
           Object.keys(SUPER.files[key][name]).forEach(function(fileKey) {
             var file = SUPER.files[key][name][fileKey];
             for(var i=0; i<files.length; i++){
-                if(i===0){
-                  var newName = files[i].name;
-                }
+                var newName = files[i].name;
                 if(newName===file.name){
                     var regex = /(^.*)(?:[\(])([\d]+)(?:[\)])\.([^.]+)|(^.*)\.([^.]+)$/;
                     var str = newName;
@@ -1379,6 +1377,7 @@
           fileInput: $(e.target),
           form: $(e.target.form)
         };
+      e.target.classList.remove('super-max-reached');
       this._getFileInputFiles(data.fileInput).always(function (files) {
         data.files = files;
         if (that.options.replaceFileInput) {
