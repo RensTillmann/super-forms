@@ -8,22 +8,19 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 22, 2022 - Version 6.1.6
+## Feb 22, 2022 - Version 6.2.0
 
 - **Improved:** Disable the browsers's font boosting and text inflation algorithm by using the `max-height:XXXXXem;` hack, and setting `text-size-adjust:none;` (which is used by some smartphones and tablets, some browsers will still ignore this property)
 - **Improved:** Do not load "Roboto" font, because no longer used
+- **Improved:** `Tags/Keyword` element `Advanced > Max char/selection` blocks user from adding more tags if limit was reached instead of validating on form submission
+- **Improved:** Code cleanup
 - **Fix:** When renaming the `Button` name, spaces were being replaced with underscores
 - **Fix:** Fix an issue with the `File upload` element when a maximum is set in combination with a user trying to add more files at once via the file explorer
 - **Fix:** When deleting a `CSV file` from a `Dropdown` element it would scroll the user to the top of the page
-
-## Feb 04, 2022 - Version 6.1.5
-
 - **Fix:** In the back-end when defining condtional logic for a field the user was not able to define a `Value` comparison that had the same value as the current field name e.g: `DC` field name and having a conditional logic value equals to `DC` which should be allowed. However the `Field name` isn't allowed to point to the current field, so that still needs to be validated 
 - **Fix:** Redirect message undefined in JS, causing form not redirecting at all
 - **Fix:** Toggle button alignment for `Field label` and `Field description`
 - **Fix:** Issue with WooCommerce Checkout
-- **Improved:** `Tags/Keyword` element `Advanced > Max char/selection` blocks user from adding more tags if limit was reached instead of validating on form submission
-- **Improved:** Code cleanup
 
 ## Feb 01, 2022 - Version 6.1.0
 
