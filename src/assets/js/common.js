@@ -375,8 +375,9 @@ function SUPERreCaptcha(){
                         if(!filesWrapper) return true; // continue to next field
                         for(i=0; i<field.files.length; i++){
                             file = field.files[i];
-                            updateHtml[fieldName].html += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
                             if(args.data[fieldName]){
+                                if(!args.data[fieldName]['files'][i]) continue;
+                                updateHtml[fieldName].html += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
                                 args.data[fieldName]['files'][i]['value'] = file.value;
                                 args.data[fieldName]['files'][i]['type'] = file.type;
                                 args.data[fieldName]['files'][i]['url'] = file.url;
@@ -898,18 +899,31 @@ function SUPERreCaptcha(){
                 if(form.querySelector('input[name="hidden_form_id"]')){
                     formId = form.querySelector('input[name="hidden_form_id"]').value;
                 }
+                var fieldName = $(this).parents('.super-field-wrapper:eq(0)').find('.super-active-files').attr("name");
+                var field = $(this).parents('.super-field-wrapper:eq(0)').find('.super-active-files')[0];
                 $(this).removeClass('finished');
                 $(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div.error').remove();
+                if(typeof SUPER.files[formId] === 'undefined'){
+                    SUPER.files[formId] = [];
+                }
+                if(typeof SUPER.files[formId][fieldName] === 'undefined'){
+                    SUPER.files[formId][fieldName] = [];
+                }
+                var totalFiles = SUPER.files[formId][fieldName].length;
+                var maxFiles = field.dataset.maxfiles;
+                if(totalFiles >= parseFloat(maxFiles)){
+                    if(!e.target.classList.contains('super-max-reached')){
+                        e.target.classList.add('super-max-reached');
+                        alert(super_common_i18n.errors.file_upload.upload_limit_reached);
+                    }
+                    return;
+                }
                 data.context = $('<div/>').appendTo($(this).parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files'));
-                var field = $(this).parents('.super-field-wrapper:eq(0)').find('.super-active-files')[0];
-                var fieldName = $(this).parents('.super-field-wrapper:eq(0)').find('.super-active-files').attr("name");
                 var el = $(this);
                 var accepted_file_types = el.data('accept-file-types');
                 var file_types_object = accepted_file_types.split('|');
-
                 // @since 4.4.0 - Upload limitation for all files combined
                 var upload_limit = $(this).data('upload-limit')*1000000; // e.g: 20 MB
-
                 $.each(data.files, function (index, file) {
                     var total = el.data('total-file-sizes');
                     if(typeof total === 'undefined'){
@@ -919,23 +933,17 @@ function SUPERreCaptcha(){
                     }
                     if( (total>upload_limit) && (upload_limit!==0) ) {
                         el.parents('.super-field-wrapper:eq(0)').find('.super-fileupload-files > div').last().remove();
-                        alert(super_common_i18n.errors.file_upload.upload_limit_reached);
+                        alert(super_common_i18n.errors.file_upload.upload_size_limit_reached);
+                        return;
                     }else{
                         var f = SUPER.get_file_name_and_extension(file.name);
                         if( (file_types_object.indexOf(f.ext)!=-1) || (accepted_file_types==='') ) {
                             el.data('total-file-sizes', total);
-                            data.context.parent('div').children('div[data-name="'+file.name+'"]').remove();
-                            if(typeof SUPER.files[formId] === 'undefined'){
-                                SUPER.files[formId] = [];
-                            }
-                            if(typeof SUPER.files[formId][fieldName] === 'undefined'){
-                                SUPER.files[formId][fieldName] = [];
-                            }
                             if(file.type && file.type.indexOf("image/") === 0){
                                 var src = URL.createObjectURL(file)
                             }
                             var totalFiles = SUPER.files[formId][fieldName].length;
-                            SUPER.files[formId][fieldName][totalFiles] = file; //SUPER.files[formId][totalFiles] = file;
+                            SUPER.files[formId][fieldName][totalFiles] = file;
                             SUPER.files[formId][fieldName][totalFiles]['url'] = src; // blob
                             var html = SUPER.get_single_uploaded_file_html(true, false, file.name, file.type, src);
                             data.context.data(data).attr('data-name',file.name).attr('title',file.name).attr('data-type',file.type).html(html);
@@ -947,10 +955,10 @@ function SUPERreCaptcha(){
                                 }
                             }
                             SUPER.after_field_change_blur_hook({el: field, form: form});
-                            //SUPER.init_replace_html_tags({el: el, form: form}); //undefined, form);
                         }else{
                             data.context.remove();
                             alert(super_common_i18n.errors.file_upload.incorrect_file_extension);
+                            return;
                         }
                     }
                 });
@@ -7415,6 +7423,7 @@ function SUPERreCaptcha(){
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
         // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
         css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
+        css += newNormalizeFontStylesNodesClasses + '{max-height:5000em!important;text-size-adjust:none!important;-webkit-text-size-adjust:none!important;-moz-text-size-adjust:none!important;-ms-text-size-adjust:none!important;}';
         // Remove any form padding
         css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
         // Hide none essential elements/styles from the PDF output
@@ -7457,6 +7466,21 @@ function SUPERreCaptcha(){
         } else {
             style.appendChild(document.createTextNode(css));
         }
+        // window.devicePixelRatio
+        // might need this in a future version $('.super-msg.super-info').html('devicePixelRatio: ' + window.devicePixelRatio);
+        // might need this in a future version // Prevent browser zoom
+        // might need this in a future version var currentViewport = document.querySelector("meta[name=viewport]");
+        // might need this in a future version SUPER.currentViewportContentValue = '';
+        // might need this in a future version if(currentViewport){
+        // might need this in a future version     SUPER.currentViewportContentValue = currentViewport.getAttribute('content');
+        // might need this in a future version     currentViewport.setAttribute('content', 'width=device-width, user-scalable=no' );
+        // might need this in a future version }else{
+        // might need this in a future version     // Create new viewport
+        // might need this in a future version     var newViewport = document.createElement('meta');
+        // might need this in a future version     newViewport.name = 'viewport';
+        // might need this in a future version     newViewport.setAttribute('content', 'width=device-width, user-scalable=no' );
+        // might need this in a future version     head.appendChild(newViewport);
+        // might need this in a future version }
 
         var formId = form.querySelector('input[name="hidden_form_id"]').value;
 
@@ -7505,9 +7529,9 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         //debugger;
-        //pdfPageContainer.style.zIndex = "9999999999";
-        //pdfPageContainer.style.left = "0px";
-        //pdfPageContainer.style.top = "0px";
+        // pdfPageContainer.style.zIndex = "9999999999";
+        // pdfPageContainer.style.left = "0px";
+        // pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
         pdfPageContainer.style.backgroundColor = "#ffffff";

@@ -33,7 +33,8 @@
                 $preview = $this.children('.file-preview');
             }
             
-            $preview.on('click', 'a.super-delete', function () {
+            $preview.on('click', 'a.super-delete', function (e) {
+                e.preventDefault();
                 var $this = $(this);
                 var $parent = $this.parents('ul:eq(0)');
                 $this.parents('li:eq(0)').remove();
