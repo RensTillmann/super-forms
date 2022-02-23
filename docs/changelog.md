@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 23, 2022 - Version 6.2.1
+## Feb 23, 2022 - Version 6.2.101
 
+- **Fix:** Issue with `Register & Login` when changing user status from Pending to Active in backend
 - **Fix:** Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
 
 ## Feb 22, 2022 - Version 6.2.0
