@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.3
+ * Version:     1.9.301
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.3';
+        public $version = '1.9.301';
 
 
         /**
@@ -1317,7 +1317,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
 
                     // @since v1.0.3 - currently used by the WooCommerce Checkout feature
-                    do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$atts ) );
+                    do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );
        
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
                     SUPER_Forms()->session->set( 'super_update_user_meta', $user_id );
