@@ -1,3 +1,6 @@
+Feb 23, 2022 - Version 1.9.3
+- Fix: Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
+
 Jan 20, 2022 - Version 1.9.2
 - Added: Compatibility with latest version of Super Forms
 
