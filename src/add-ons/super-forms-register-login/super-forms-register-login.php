@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.2
+ * Version:     1.9.3
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.2';
+        public $version = '1.9.3';
 
 
         /**
@@ -1472,17 +1472,15 @@ if( !class_exists('SUPER_Register_Login') ) :
                     $user_id = $user->ID;
                     $user = get_user_by( 'id', $user_id );
                     if( $user ) {
-
                         // First check if the user role is allowed to login
                         $allowed = false;
-                        if( ( !isset( $settings['login_user_role'] ) ) || ( $settings['login_user_role']=='' ) ) {
+                        if(!isset($settings['login_user_role'])) $settings['login_user_role'] = array();
+                        $loginUserRoles = array_filter($settings['login_user_role']);
+                        if(count($loginUserRoles)===0){
                             $allowed = true;
                         }else{
-                            if( empty($settings['login_user_role'])){
-                                $allowed = true;
-                            }
                             foreach( $user->roles as $role ) {
-                                if(in_array( $role, $settings['login_user_role'] )){
+                                if(in_array( $role, $loginUserRoles )){
                                     $allowed = true;
                                 }
                             }
