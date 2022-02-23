@@ -691,7 +691,10 @@ function SUPERreCaptcha(){
         if(name==='') return null; // Skip empty names due to "translation mode"
         return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
-    
+    SUPER.replaceAll = function(value, searchFor, replaceWith){
+        var re = new RegExp(searchFor, "g");
+        return value.replace(re, replaceWith);
+    };
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         if(changedField[0]) changedField = changedField[0];
         
@@ -1832,7 +1835,7 @@ function SUPERreCaptcha(){
             if(fieldType.type==='file'){
                 var childParentIndex = $($htmlElement).parents('.super-duplicate-column-fields:eq(0)').index();
                 if(childParentIndex>0){
-                    $html = $html.replaceAll('foreach('+$n+$d+')', 'foreach('+$n+$d+'_'+(childParentIndex+1)+')');
+                    $html = SUPER.replaceAll($html, 'foreach('+$n+$d+')', 'foreach('+$n+$d+'_'+(childParentIndex+1)+')');
                 }
             }
         }
@@ -2052,7 +2055,7 @@ function SUPERreCaptcha(){
                                 var key;
                                 $row = $original;
                                 for(key in replaceTagsWithValue) {
-                                    $row = $row.replaceAll(key, replaceTagsWithValue[key]);
+                                    $row = SUPER.replaceAll($row, key, replaceTagsWithValue[key])
                                 }
                                 $rows += $row;
                             }
@@ -2091,12 +2094,12 @@ function SUPERreCaptcha(){
                     if($start!=='foreach('){
                         replaceTagsWithValue['<%counter%>'] = $start+$n+levels+$c+';index'+$end;
                     }
-                    //$row = $row.replaceAll('<%counter%>', '<%'+$field_name+';index%>');
+                    //$row = SUPER.replaceAll($row, '<%counter%>', '<%'+$field_name+';index%>');
                 }
             }
             var key;
             for(key in replaceTagsWithValue) {
-                $row = $row.replaceAll(key, replaceTagsWithValue[key]);
+                $row = SUPER.replaceAll($row, key, replaceTagsWithValue[key]);
             }
             if($htmlElement.closest('.super-duplicate-column-fields')){
                 $rows += $row;
@@ -2106,9 +2109,9 @@ function SUPERreCaptcha(){
                 $field_name = $original_field_name+'_'+$i;
                 currentField = SUPER.field(originalFormReference, $field_name);
                 if(currentField){
-                    //$row = $row.replaceAll('<%counter%>', '<%'+$field_name+';index%>');
+                    //$row = SUPER.replaceAll($row, '<%counter%>', '<%'+$field_name+';index%>');
                     //var dynamicColumnIndex = $(currentField).parents('.super-duplicate-column-fields:eq(0)').index()+1;
-                    //$row = $row.replaceAll('<%counter%>', dynamicColumnIndex);
+                    //$row = SUPER.replaceAll($row, '<%counter%>', dynamicColumnIndex);
                 }
                 $rows += $row;
             }
@@ -2790,7 +2793,7 @@ function SUPERreCaptcha(){
                             $value = $element.dataset.email;
                             if($value.indexOf('%d')!==-1){
                                 var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
-                                $value = $value.replaceAll('%d', dynamicParentIndex+1);
+                                $value = SUPER.replaceAll($value, '%d', dynamicParentIndex+1);
                             }
                         }
                         if( ($value_type=='int') && (isNaN($value)) ) {
@@ -5363,8 +5366,9 @@ function SUPERreCaptcha(){
                 $skipUpdate = false;
             }
             $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
-            $html = $html.replaceAll('<%', '{');
-            $html = $html.replaceAll('%>', '}');
+
+            $html = SUPER.replaceAll($html, '<%', '{');
+            $html = SUPER.replaceAll($html, '%>', '}');
 
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
@@ -5407,7 +5411,7 @@ function SUPERreCaptcha(){
             }
             var key;
             for(key in replaceTagsWithValue) {
-                $html = $html.replaceAll('{'+key+'}', replaceTagsWithValue[key]);
+                $html = SUPER.replaceAll($html, '{'+key+'}', replaceTagsWithValue[key]);
             }
             if($skipUpdate) return true;
             // @since 4.6.0 - if statement compatibility

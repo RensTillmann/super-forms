@@ -1318,7 +1318,7 @@
             }
             var key;
             for(key in replaceTagsWithValue) {
-                nodes[i].value = nodes[i].value.replaceAll(key, replaceTagsWithValue[key]);
+                nodes[i].value = SUPER.replaceAll(nodes[i].value, key, replaceTagsWithValue[key]);
             }
         }
         $.each(added_fields, function(name, field) {
@@ -2139,8 +2139,8 @@
                 if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                html = html.replaceAll('<%', '{');
-                html = html.replaceAll('%>', '}');
+                html = SUPER.replaceAll(html, '<%', '{');
+                html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;
             }
             
@@ -2199,7 +2199,7 @@
                 }
                 var key;
                 for(key in replaceTagsWithValue) {
-                    html = html.replaceAll(key, replaceTagsWithValue[key]);
+                    html = SUPER.replaceAll(html, key, replaceTagsWithValue[key]);
                 }
                 if( foundElements[i].dataset.tags ) {
                     if(foundElements[i].value || foundElements[i].dataset.value){
@@ -2297,8 +2297,8 @@
             for (i = 0; i < foundElements.length; ++i) {
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                html = html.replaceAll('<%', '{');
-                html = html.replaceAll('%>', '}');
+                html = SUPER.replaceAll(html, '<%', '{');
+                html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;
             }
 
