@@ -1444,10 +1444,6 @@
     width: 100%;
 }
 
-.super-color-picker-container .wp-picker-container .wp-picker-open {
-    margin-bottom: 230px;
-}
-
 .super-color-picker-container .wp-picker-container .wp-picker-holder {
     position: absolute;
     z-index: 10;
