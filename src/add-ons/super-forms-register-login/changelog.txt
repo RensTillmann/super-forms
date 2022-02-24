@@ -1,3 +1,7 @@
+Feb 24, 2022 - Version 2.0.0
+- Improved: Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
+- Improved: Don't show activation status on profile page in back-end for current logged in user, no need
+
 Feb 23, 2022 - Version 1.9.4
 - Fix: Issue with changing user status from Pending to Active in backend
 - Fix: Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
