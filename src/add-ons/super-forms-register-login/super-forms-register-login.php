@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.301
+ * Version:     1.9.4
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.301';
+        public $version = '1.9.4';
 
 
         /**
@@ -360,7 +360,6 @@ if( !class_exists('SUPER_Register_Login') ) :
          * @since      1.0.3
          */
         public function save_customer_meta_fields( $user_id ) {
-
             // Get form data and settings
             $form_data = get_user_meta( $user_id, 'super_user_approve_data', true );
             if( ($form_data!='') && (isset($_POST['super_user_login_status'])) ) {
@@ -419,14 +418,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                             if( empty( $mail->ErrorInfo ) ) {
                                 delete_user_meta( $user_id, 'super_user_approve_data' );          
                             }
-
-                            exit;
-
                         }
                     }
                 }
             }
-
             $save_fields = $this->get_customer_meta_fields();
             foreach ( $save_fields as $fieldset ) {
                 foreach ( $fieldset['fields'] as $key => $field ) {
@@ -1082,9 +1077,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                             }else{
                                 // @since 1.0.3 - if no field exists, just save it as a string
                                 $string = SUPER_Common::email_tags( $field[0], $data, $settings );
-                                
+
                                 // @since 1.0.3 - check if string is serialized array
-                                $unserialize = unserialize($string);
+                                $unserialize = @unserialize($string);
                                 if ($unserialize !== false) {
                                     $meta_data[$field[1]] = $unserialize;
                                 }else{
@@ -1415,6 +1410,11 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                     // Check if automatically activate users
                     if( $settings['register_login_activation']=='activate' ) {
+                        update_user_meta( $user_id, 'super_account_status', 1 );
+                    }
+                    // When set to 'none' we update account status to 1 so that user is able to login, although they are not automatically logged in
+                    // When the login status of a new registered user is not set to "Active" then the user won't be able to login until an Admin has approved their account
+                    if( $settings['register_login_activation']=='none' ) {
                         update_user_meta( $user_id, 'super_account_status', 1 );
                     }
 

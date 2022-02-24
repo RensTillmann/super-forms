@@ -8,11 +8,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 23, 2022 - Version 6.2.102
+## Feb 23, 2022 - Version 6.2.103
 
 - **Fix:** JavaScript error in older Safari v12 browsers due to `replaceAll()` function not known by the browser, replaced with `replace()` with use of `RegExp()`
 - **Fix:** Issue with `Register & Login` when changing user status from Pending to Active in backend
 - **Fix:** Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
+- **Fix:** When setting `Send email confirmation/verification email` to `Do nothing` make sure to set user status to 1, since they are not required to confirm their E-mail address, they will still not be able to login in case the `User login status` is set to anything other than `Active`
 
 ## Feb 22, 2022 - Version 6.2.0
 
