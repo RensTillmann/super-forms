@@ -2976,6 +2976,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   transform: translate(-40px, 0);
 }
 
+.super-button .super-button-wrap {
+  position: relative;
+}
 .super-button.super-type-3d .super-button-wrap {
   border-bottom: 1px solid;
   -webkit-box-shadow: 0px 4px 0px;
