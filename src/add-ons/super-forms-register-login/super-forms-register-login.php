@@ -1276,7 +1276,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     $password = '';
                     if( !isset( $data['user_pass'] ) ) {
                         $send_password = true;
-                        $password = wp_generate_password();
+                        $password = wp_generate_password( 24, false );
                     }else{
                         $password = $data['user_pass']['value'];
                     }
@@ -1583,25 +1583,29 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $user = get_user_by( 'email', $user_email );
                 $msg = '';
                 if( !$user ) {
-                    if( ( isset( $settings['register_reset_password_not_exists_msg'] ) ) && ( $settings['register_reset_password_not_exists_msg']!='' ) ) {
-                        $msg = SUPER_Common::email_tags( $settings['register_reset_password_not_exists_msg'], $data, $settings, $user );
+                    // Also try to find by username
+                    $user = get_user_by( 'login', $user_email );
+                    if( !$user ) {
+                        if( ( isset( $settings['register_reset_password_not_exists_msg'] ) ) && ( $settings['register_reset_password_not_exists_msg']!='' ) ) {
+                            $msg = SUPER_Common::email_tags( $settings['register_reset_password_not_exists_msg'], $data, $settings, $user );
+                        }
+                        SUPER_Common::output_message(
+                            $error = true,
+                            $msg = $msg,
+                            $redirect = null
+                        );
                     }
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
                 }
 
                 // Disable the default lost password emails
                 add_filter( 'send_password_change_email', '__return_false' );
 
                 // Generate a new password for this user
-                $password = wp_generate_password( 8, false );
+                $password = wp_generate_password( 24, false );
                 // Update the new password for this user
                 $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
 
-                $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
+                $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>'', 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
 
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
@@ -1720,7 +1724,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             // Generate a password upon approval
             if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
                 add_filter( 'send_password_change_email', '__return_false' );
-                $password = wp_generate_password();
+                $password = wp_generate_password( 24, false );
                 $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
                 $message = str_replace( '{field_user_pass}', $password, $message );
                 $message = str_replace( '{user_pass}', $password, $message );
@@ -1801,41 +1805,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
             die();
         }
-
-
-        /** 
-         *  Send email with activation code
-         *
-         *  Generates the random activation code and adds it to the users table during user registration.
-         *
-         *  @since      1.0.0
-        */
-        public static function new_user_notification( $user_id, $notify='', $data=null, $settings=null, $password=null, $method=null, $send_password=false ) {
-
-            global $wpdb, $wp_hasher;
-            
-            do_action( 'super_before_new_user_notifcation_hook' );
-
-            // Generate a code and save it for the user
-            $code = wp_generate_password( 8 );
-            $wpdb->update(
-                $wpdb->users,
-                array(
-                    'super_activation_code' => $code,
-                    'super_user_status' => '0'
-                ),
-                array(
-                    'ID' => $user_id
-                )
-            );
-            $user = get_userdata( $user_id );
-            $user_login = $user->user_login; 
-            $user_email = $user->user_email;
-
-            do_action( 'super_after_new_user_notifcation_hook' );                        
-        
-        }
-
     }
         
 endif;

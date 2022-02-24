@@ -2394,14 +2394,11 @@ function SUPERreCaptcha(){
                 return SUPER.pdf_tags.pdf_total_pages;
             }
             if($name=='dynamic_column_counter'){
-                
                 if(args.target){
-                    
                     args.value = $(args.target).parents('.super-duplicate-column-fields:eq(0)').index()+1;
                     return args.value;
                 }else{
                     if(args.currentTextarea){
-                        
                         args.value = $(args.currentTextarea).parents('.super-duplicate-column-fields:eq(0)').index()+1;
                         return args.value;
                     }
@@ -2824,11 +2821,9 @@ function SUPERreCaptcha(){
 
     // Resend E-mail verification code
     SUPER.init_resend_verification_code = function(args){
-        debugger;
         var i, nodes = document.querySelectorAll('.super-inner-text .resend-code, .super-msg .resend-code');
         for(i=0; i<nodes.length; i++){
             nodes[i].addEventListener('click', function(){
-                debugger;
                 var el = this;
                 var container;
                 var formId = el.dataset.form;
@@ -2847,7 +2842,6 @@ function SUPERreCaptcha(){
                         data: data
                     },
                     success: function (result) {
-                        debugger;
                         result = JSON.parse(result);
                         if(args && args.showOverlay==="true"){
                             // Check if there is a message
@@ -2925,7 +2919,6 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
-                    debugger;
                     SUPER.init_resend_verification_code(args);
                 }else{
                     args.loadingOverlay.classList.add('super-success');
@@ -3000,7 +2993,6 @@ function SUPERreCaptcha(){
                 html += '</div>';
                 if(args.form){
                     $(html).prependTo($(args.form));
-                    debugger;
                     SUPER.init_resend_verification_code(args);
                     $('html, body').animate({
                         scrollTop: $(args.form).offset().top-200
@@ -3653,7 +3645,6 @@ function SUPERreCaptcha(){
                     html += '<span class="super-close"></span>';
                     html += '</div>';
                     $(html).prependTo($(args.form));
-                    debugger;
                     SUPER.init_resend_verification_code(args);
                     var btn = args.form.querySelector('.super-form-button.super-loading');
                     if(btn) {
@@ -5418,9 +5409,6 @@ function SUPERreCaptcha(){
             // @since 4.9.0 - accordion title description {tags} compatibility
             if( $target.dataset.tags ) {
                 $html = $target.dataset.original;
-                //classList.contains('super-heading-title') || $target.classList.contains('super-heading-description') || 
-                //$target.classList.contains('super-tab-title') || $target.classList.contains('super-tab-desc') || 
-                //$target.classList.contains('super-accordion-title') || $target.classList.contains('super-accordion-desc') ) {
             }else{
                 if(!$target.parentNode.querySelector('textarea')){
                     return true;
@@ -5501,6 +5489,10 @@ function SUPERreCaptcha(){
                 if($target.dataset.value) $target.dataset.value = $html;
             }else{
                 $target.innerHTML = $html;
+            }
+            // If field label or description we must skip because we don't want to override the field value
+            if($target.classList.contains('super-label') || $target.classList.contains('super-description')){
+                return true;
             }
             var $parent = $target.closest('.super-shortcode');
             if($parent){

@@ -2090,7 +2090,7 @@
 
             counter = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
             clone = firstColumn.cloneNode(true);
-            column.appendChild(clone);
+            firstColumn.parentNode.insertBefore(clone, firstColumn.nextElementSibling);
 
             // @since 3.3.0 - hook after appending new column
             

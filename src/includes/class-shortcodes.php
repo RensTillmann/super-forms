@@ -1528,10 +1528,12 @@ class SUPER_Shortcodes {
     public static function field_label( $label, $bottom_margin ) {
         $class = '';
         if( $bottom_margin==true ) $class = ' super-bottom-margin';
-        return '<div class="super-label' . $class . '">' . stripslashes($label) . '</div>';
+        $atts = SUPER_Common::get_tags_attributes(stripslashes($label));
+        return '<div class="super-label' . $class . '"'.$atts.'>' . stripslashes($label) . '</div>';
     }
     public static function field_description( $description ) {
-        return '<div class="super-description">' . stripslashes($description) . '</div>';
+        $atts = SUPER_Common::get_tags_attributes(stripslashes($description));
+        return '<div class="super-description"'.$atts.'>' . stripslashes($description) . '</div>';
     }
     public static function field_error_msg( $tag, $atts, $position ) {
         // Do not render error message for non fields (those that do not have a name)

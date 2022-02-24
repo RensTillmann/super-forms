@@ -8,9 +8,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 24, 2022 - Version 6.2.104
-- **Improved**: `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
-- **Improved**: `Register & Login` Don't show activation status on profile page in back-end for current logged in user, no need
+## Feb 24, 2022 - Version 6.2.200
+
+- **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
+- **Improved:** `Register & Login` Don't show activation status on profile page in back-end for current logged in user, no need
+- **Improved:** `{dynamic_column_counter}` can now be used on field label and description, when used inside a dynamic column
+- **Fix:** `{dynamic_column_counter}` not correctly counting when used in combination with a dynamic column that has conditional logic enabled
 - **Fix:** JavaScript error in older Safari v12 browsers due to `replaceAll()` function not known by the browser, replaced with `replace()` with use of `RegExp()`
 - **Fix:** Issue with `Register & Login` when changing user status from Pending to Active in backend
 - **Fix:** Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login

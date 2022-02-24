@@ -334,6 +334,7 @@
 
 .super-settings .super-checkbox input[type="checkbox"] {
     margin: 0px 5px 0px 0px;
+    min-height: initial;
 }
 
 .super-settings .super-wrapper .super-fields .super-field .input>br,
@@ -375,11 +376,6 @@
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container,
 .super-form-settings .super-color-picker-container .wp-picker-container {
     position: relative;
-}
-
-.super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-open,
-.super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-open {
-    margin-bottom: 230px;
 }
 
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder,

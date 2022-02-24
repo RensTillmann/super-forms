@@ -271,9 +271,6 @@
 .super-color-picker-container .wp-picker-container {
     position: relative;
 }
-.super-color-picker-container .wp-picker-container .wp-picker-open {
-    margin-bottom: 230px;
-}
 
 .super-color-picker-container .wp-picker-container .wp-picker-holder {
     position: absolute;
@@ -316,6 +313,87 @@
     top: 40px;
     width: 182px;
 }
+.super-color-picker-container .wp-picker-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 42px !important;
+  left: initial !important;
+  right: 10px !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap > label input {
+  height: 30px !important;
+  width: 80px !important;
+  min-width: initial !important;
+  text-align: center !important;
+  margin: 0 5px 0 0 !important;
+  padding: 0 !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap > input {
+  width: 50% !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder {
+  top: 34px !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker {
+  width: 205px !important;
+  background: none !important;
+  margin: 0 !important;
+  padding: 0 0 110px !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner {
+  background-color: #ffffff !important;
+  border-radius: 3px !important;
+  -webkit-box-shadow: 0 0 5px 0 #afafaf;
+  box-shadow: 0 0 5px 0 #afafaf;
+  height: 155px !important;
+  margin: 0 !important;
+  padding: 50px 10px 50px 23px !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner .iris-square {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 10px !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner .iris-slider {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-palette-container {
+  margin: 0 !important;
+  padding: 0 10px !important;
+  bottom: initial !important;
+  top: 200px !important;
+  left: initial !important;
+  right: 0 !important;
+  width: 180px !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-palette-container > a {
+  margin: 0 4px 4px 0 !important;
+  padding: 0 !important;
+}
+  
+
+
+
+
+
 .slider-field input {
     width: 60px;
     float: left;
