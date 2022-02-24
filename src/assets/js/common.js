@@ -24,7 +24,9 @@ if (!Element.prototype.closest) {
   };
 }
 
-window.SUPER = {};
+if(typeof window.SUPER === 'undefined'){
+    window.SUPER = {};
+}
 SUPER.files = [];
 
 // reCaptcha
@@ -2820,7 +2822,83 @@ function SUPERreCaptcha(){
         }
     };
 
+    // Resend E-mail verification code
+    SUPER.init_resend_verification_code = function(args){
+        debugger;
+        var i, nodes = document.querySelectorAll('.super-inner-text .resend-code, .super-msg .resend-code');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].addEventListener('click', function(){
+                debugger;
+                var el = this;
+                var container;
+                var formId = el.dataset.form;
+                var form = document.querySelector('.super-form-'+formId);
+                if(!form) return;
+                var data = {
+                    form: formId,
+                    username: el.dataset.user
+                };
+                el.classList.add('super-loading');
+                $.ajax({
+                    url: super_common_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_resend_activation',
+                        data: data
+                    },
+                    success: function (result) {
+                        debugger;
+                        result = JSON.parse(result);
+                        if(args && args.showOverlay==="true"){
+                            // Check if there is a message
+                            if(result.msg!==''){
+                                // Check if this is an error message
+                                if(result.error===true){
+                                    args.loadingOverlay.classList.remove('super-success');
+                                    args.loadingOverlay.classList.add('super-error');
+                                }else{
+                                    args.loadingOverlay.classList.remove('super-error');
+                                    args.loadingOverlay.classList.add('super-success');
+                                }
+                                // Display message inside overlay
+                                var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+                                if(innerText) innerText.innerHTML = '<span>'+result.msg+'</span>';
+                            }
+                        }else{
+                            if(el.closest('.super-msg')){
+                                container = el.closest('.super-msg');
+                                var html = '<div class="super-msg super-success">';
+                                if(result.error==true){
+                                    html = '<div class="super-msg error">';
+                                }
+                                html += result.msg;
+                                html += '<span class="super-close"></span>';
+                                html += '</div>';
+                                var $newMessage = $(html).insertBefore(container);
+                                container.remove();
+                                $('html, body').animate({
+                                    scrollTop: $newMessage.offset().top-200
+                                }, 1000);
+                            }
+                        }
+                        if(result.error!==true && result.redirect){
+                            window.location.replace(result.redirect);
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        console.log(xhr, ajaxOptions, thrownError);
+                        alert('Failed to resend activation code, please try again');
+                    },
+                    complete: function() {
+                        el.classList.remove('super-loading');
+                    }
+                });                    
+                return false;
+            });
 
+        }
+
+    };
     // Show PDF download button
     SUPER.show_pdf_download_btn = function(args){
         var btn = document.createElement('div');
@@ -2847,6 +2925,8 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
+                    debugger;
+                    SUPER.init_resend_verification_code(args);
                 }else{
                     args.loadingOverlay.classList.add('super-success');
                     if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
@@ -2889,50 +2969,47 @@ function SUPERreCaptcha(){
                 }
             }
         }else{
-            // Redirect user to specified url
-            if(result.redirect){
-                window.location.href = result.redirect;
-            }else{
-                // Display message in legacy mode
-                // But only display if not empty
-                if(result.msg!==''){
-                    // Remove existing messages
-                    var ii,
-                        html,
-                        nodes = document.querySelectorAll('.super-msg');
-                    for (ii = 0; ii < nodes.length; ii++) { 
-                        nodes[ii].remove();
+            // Display message in legacy mode
+            // But only display if not empty
+            if(result.msg!==''){
+                // Remove existing messages
+                var ii,
+                    html,
+                    nodes = document.querySelectorAll('.super-msg');
+                for (ii = 0; ii < nodes.length; ii++) { 
+                    nodes[ii].remove();
+                }
+                // Check for errors, if there are any display them to the user 
+                if(result.error===true){
+                    html = '<div class="super-msg super-error">';
+                    if(typeof result.fields !== 'undefined'){
+                        $.each(result.fields, function( index, value ) {
+                            $(value+'[name="'+index+'"]').parent().addClass('error');
+                        });
+                    }                               
+                }else{
+                    html = '<div class="super-msg super-success"';
+                    // @since 3.4.0 - option to not display the message
+                    if(result.display===false){
+                        html += 'style="display:none;">';
                     }
-                    // Check for errors, if there are any display them to the user 
-                    if(result.error===true){
-                        html = '<div class="super-msg super-error">';
-                        if(typeof result.fields !== 'undefined'){
-                            $.each(result.fields, function( index, value ) {
-                                $(value+'[name="'+index+'"]').parent().addClass('error');
-                            });
-                        }                               
-                    }else{
-                        html = '<div class="super-msg super-success"';
-                        // @since 3.4.0 - option to not display the message
-                        if(result.display===false){
-                            html += 'style="display:none;">';
-                        }
-                        html += '>';
-                    }
-                    html += result.msg;
-                    html += '<span class="super-close"></span>';
-                    html += '</div>';
-                    if(args.form){
-                        $(html).prependTo($(args.form));
-                        $('html, body').animate({
-                            scrollTop: $(args.form).offset().top-200
-                        }, 1000);
-                    }
+                    html += '>';
+                }
+                html += result.msg;
+                html += '<span class="super-close"></span>';
+                html += '</div>';
+                if(args.form){
+                    $(html).prependTo($(args.form));
+                    debugger;
+                    SUPER.init_resend_verification_code(args);
+                    $('html, body').animate({
+                        scrollTop: $(args.form).offset().top-200
+                    }, 1000);
                 }
             }
         }
         // Redirect user to specified url
-        if(result.redirect){
+        if(result.error!==true && result.redirect){
             window.location.href = result.redirect;
         }
         // @since 3.4.0 - keep loading state active
@@ -3576,6 +3653,8 @@ function SUPERreCaptcha(){
                     html += '<span class="super-close"></span>';
                     html += '</div>';
                     $(html).prependTo($(args.form));
+                    debugger;
+                    SUPER.init_resend_verification_code(args);
                     var btn = args.form.querySelector('.super-form-button.super-loading');
                     if(btn) {
                         var btnName = btn.querySelector('.super-button-name');
@@ -8267,6 +8346,8 @@ function SUPERreCaptcha(){
                 SUPER.calculate_distance({el: field});
             }, 1000);
         });
+
+        SUPER.init_resend_verification_code();
 
         SUPER.init_field_filter_visibility();
         $doc.on('change keyup keydown blur','.super-field.super-filter',function(){

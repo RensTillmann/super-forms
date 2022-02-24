@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Register & Login
  * Description: Makes it possible to let users register and login from the front-end
- * Version:     1.9.4
+ * Version:     2.0.0
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.4';
+        public $version = '2.0.0';
 
 
         /**
@@ -176,7 +176,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             add_filter( 'super_countries_list_filter', array( $this, 'return_wc_countries' ), 10, 2 );
 
             if ( $this->is_request( 'frontend' ) ) {
-                add_action( 'super_before_printing_message', array( $this, 'resend_activation_code_script' ) );
             }
             
             if ( $this->is_request( 'admin' ) ) {
@@ -323,6 +322,8 @@ if( !class_exists('SUPER_Register_Login') ) :
          * @since      1.0.3
          */
         public function add_customer_meta_fields( $user ) {
+            // Don't show this option to the current user
+            if(get_current_user_id()===$user->ID) return;
             $show_fields = $this->get_customer_meta_fields();
             foreach( $show_fields as $fieldset ) {
                 echo '<h3>' . $fieldset['title'] . '</h3>';
@@ -370,50 +371,8 @@ if( !class_exists('SUPER_Register_Login') ) :
                     if( (!empty($settings['register_approve_subject'])) && (!empty($settings['register_approve_email'])) ) {
                         $user = get_user_by( 'ID', $user_id );
                         if( $user ) {
-                            $username = $user->user_login;
-                            $user_email = $user->user_email;
-                            $name = $user->display_name;
-
-                            // Replace email tags with correct data
-                            $subject = SUPER_Common::email_tags( $settings['register_approve_subject'], $data, $settings );
-                            $message = $settings['register_approve_email'];
-                            $message = str_replace( '{field_user_login}', $username, $message );
-                            $message = str_replace( '{user_login}', $username, $message );
-                            $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-
-                            // Generate a password upon approval
-                            if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
-                                add_filter( 'send_password_change_email', '__return_false' );
-                                $password = wp_generate_password();
-                                $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
-                                $message = str_replace( '{field_user_pass}', $password, $message );
-                                $message = str_replace( '{user_pass}', $password, $message );
-                                $message = str_replace( '{register_generated_password}', $password, $message );
-                            }
-
-                            $message = SUPER_Common::email_tags( $message, $data, $settings );
-                            $message = nl2br( $message );
-                            $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings );
-                            $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings );
-                            $attachments = apply_filters( 'super_register_login_before_resend_activation_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-
-                            if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
-                            $reply = '';
-                            $reply_name = '';
-                            if( $settings['header_reply_enabled']==false ) {
-                                $custom_reply = false;
-                            }else{
-                                $custom_reply = true;
-                                if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
-                                if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                                $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
-                            }
-
-                            // Send the email
-                            $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
-                            $mail = SUPER_Common::email( $user_email, $from, $from_name, $custom_reply, $reply, $reply_name, '', '', $subject, $message, $settings, $attachments );
-                         
+                            $password = '';
+                            $mail = self::send_approve_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                             // After email is send, delete the email and subject (remove the password from database for security reasons)
                             if( empty( $mail->ErrorInfo ) ) {
                                 delete_user_meta( $user_id, 'super_user_approve_data' );          
@@ -434,21 +393,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
                 }
             }
-        }
-
-        
-        /**
-         * Hook into outputting the message and make sure to add the resend activation javascript
-         *
-         *  @since      1.0.0
-        */
-        public static function resend_activation_code_script( $data ) {
-            $global_settings = get_option( 'super_settings' );
-            $handle = 'super-register-login-common';
-            $name = str_replace( '-', '_', $handle ) . '_i18n';
-            wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/common.js', array( 'jquery' ), SUPER_Register_Login()->version, false );  
-            wp_localize_script( $handle, $name, array( 'ajaxurl'=>SUPER_Forms()->ajax_url(), 'duration'=>absint( $global_settings['form_duration'] ) ) );
-            wp_enqueue_script( $handle );
         }
 
 
@@ -606,6 +550,79 @@ if( !class_exists('SUPER_Register_Login') ) :
                             'reset_password' => esc_html__( 'Reset password (lost password)', 'super-forms' ),
                             'update' => esc_html__( 'Update current logged in user', 'super-forms' ),
                         ),
+                    ),
+                    'register_custom_email_header' => array(
+                        'name'=> esc_html__( 'E-mail headers', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'Inherit headers from your Admin or Confirmation email settings.%1$s%2$sNote:%3$s you must define custom headers in case you are not sending Admin or Confirmation emails.', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_custom_email_header', $settings['settings'], 'admin' ),
+                        'type'=>'select',
+                        'values'=>array(
+                            'custom' => esc_html__(  'Use custom headers', 'super-forms' ),
+                            'admin' => esc_html__(  'Use headers defined for Admin emails (default)', 'super-forms' ),
+                            'confirmation' => esc_html__(  'Use headers defined for Confirmation emails', 'super-forms' )
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'register,login,reset_password',
+                    ),
+                    'register_header_from_type' => array(
+                        'name'=> esc_html__( 'Send email from:', 'super-forms' ),
+                        'desc' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_from_type', $settings['settings'], '{option_admin_email}' ),
+                        'type'=>'select',
+                        'values'=>array(
+                            'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
+                            'custom' => esc_html__(  'Custom from', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_custom_email_header',
+                        'filter_value' => 'custom'
+                    ),
+                    'register_header_from' => array(
+                        'name' => esc_html__( 'From email:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_from', $settings['settings'], '{option_admin_email}' ),
+                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_from_type',
+                        'filter_value'=>'custom',
+                    ),
+                    'register_header_from_name' => array(
+                        'name' => esc_html__( 'From name:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_from_name', $settings['settings'], '{option_blogname}' ),
+                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_from_type',
+                        'filter_value'=>'custom',
+                    ),
+                    'register_header_reply_enabled' => array(
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply_enabled', $settings['settings'], '' ),
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_custom_email_header',
+                        'filter_value' => 'custom'
+                    ),
+                    'register_header_reply' => array(
+                        'name' => esc_html__( 'Reply to email:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply', $settings['settings'], '{option_admin_email}' ),
+                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_reply_enabled',
+                        'filter_value'=>'true',
+                    ),
+                    'register_header_reply_name' => array(
+                        'name' => esc_html__( 'Reply to name:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
+                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply_name', $settings['settings'], '{option_blogname}' ),
+                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_reply_enabled',
+                        'filter_value'=>'true',
                     ),
 
                     // @since 1.4.0 - option to register new user if user doesn't exists while updating user
@@ -1256,6 +1273,7 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                     // If user_pass field doesn't exist, we can generate one and send it by email to the registered user
                     $send_password = false;
+                    $password = '';
                     if( !isset( $data['user_pass'] ) ) {
                         $send_password = true;
                         $password = wp_generate_password();
@@ -1337,49 +1355,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         update_user_meta( $user_id, 'super_account_status', 0 ); // 0 = inactive, 1 = active
                         update_user_meta( $user_id, 'super_account_activation', $code ); 
                         $user = get_user_by( 'id', $user_id );
-
-                        // Replace email tags with correct data
-                        $subject = SUPER_Common::email_tags( $settings['register_activation_subject'], $data, $settings, $user );
-                        $message = $settings['register_activation_email'];
-                        $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-                        $message = str_replace( '{register_activation_code}', $code, $message );
-                        $message = str_replace( '{register_generated_password}', $password, $message );
-                        $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
-                        $message = nl2br( $message );
-
-                        // @since 1.6.1 - set native from headers
-                        if(!empty($settings['header_from'])){
-                            $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings, $user );
-                        }else{
-                            $urlparts = parse_url(home_url());
-                            $from = 'no-reply@' . $urlparts['host']; // returns domain name
-                        }
-                        if(!empty($settings['header_from_name'])){
-                            $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings, $user );
-                        }else{
-                            $from_name = get_bloginfo('name');
-                        }
-
-                        $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-
-                        // @since 1.3.0 - custom reply to headers
-                        if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
-                        $reply = '';
-                        $reply_name = '';
-                        if( $settings['header_reply_enabled']==false ) {
-                            $custom_reply = false;
-                        }else{
-                            $custom_reply = true;
-                            if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
-                            if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                            $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                            $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
-                        }
-
-                        // Send the email
-                        $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
-                        $mail = SUPER_Common::email( $user_email, $from, $from_name, $custom_reply, $reply, $reply_name, '', '', $subject, $message, $settings, $attachments );
-
+                        $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                         // Return message
                         if( !empty( $mail->ErrorInfo ) ) {
                             SUPER_Common::output_message(
@@ -1418,7 +1394,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         update_user_meta( $user_id, 'super_account_status', 1 );
                     }
 
-
                     // @since 1.1.0 - create multi-site
                     if( !isset($settings['register_login_multisite_enabled']) ) $settings['register_login_multisite_enabled'] = '';
                     if( $settings['register_login_multisite_enabled']=='true' ) {
@@ -1454,7 +1429,7 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
-                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
@@ -1501,8 +1476,13 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // Maybe this user was already registered before Super Forms was used, if so skip the test
                         if( ( !isset( $data['activation_code'] ) ) && ( $status==0 ) && ( $status!='' ) ) {
                             wp_logout();
-                            $msg = sprintf( esc_html__( 'You haven\'t verified your account yet. Please check your email or click %shere%s to resend your verification email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $atts['post']['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '">', '</a>' );
-                            SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
+                            $msg = sprintf( esc_html__( 'You haven\'t verified your account yet. Please check your email or click %shere%s to resend your verification email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $post['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '">', '</a>' );
+                            // Only store message in session, if overlay popup is not enabled
+                            if(!empty($settings['form_processing_overlay']) && $settings['form_processing_overlay']==='true'){
+                                // Overlay enabled
+                            }else{
+                                SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
+                            }
                             SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
@@ -1588,7 +1568,7 @@ if( !class_exists('SUPER_Register_Login') ) :
    
                 // Before we proceed, lets check if we have at least a user_email field
                 if( !isset( $data['user_email'] ) ) {
-                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
+                    $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = $msg,
@@ -1618,40 +1598,10 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                 // Generate a new password for this user
                 $password = wp_generate_password( 8, false );
-                
                 // Update the new password for this user
                 $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
 
-                // Replace the email subject tags with the correct data
-                $subject = SUPER_Common::email_tags( $settings['register_reset_password_subject'], $data, $settings, $user );
-
-                // Replace the email body tags with the correct data
-                $message = $settings['register_reset_password_email'];
-                $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-                $message = str_replace( '{register_generated_password}', $password, $message );
-                $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
-                $message = nl2br( $message );
-                $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings, $user );
-                $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings, $user );
-                $attachments = apply_filters( 'super_register_login_before_sending_reset_password_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-
-                // @since 1.3.0 - custom reply to headers
-                if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
-                $reply = '';
-                $reply_name = '';
-                if( $settings['header_reply_enabled']==false ) {
-                    $custom_reply = false;
-                }else{
-                    $custom_reply = true;
-                    if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
-                    if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                    $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                    $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
-                }
-
-                // Send the email
-                $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
-                $mail = SUPER_Common::email( $user_email, $from, $from_name, $custom_reply, $reply, $reply_name, '', '', $subject, $message, $settings, $attachments );
+                $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
 
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
@@ -1673,6 +1623,144 @@ if( !class_exists('SUPER_Register_Login') ) :
                 }
             }
         }
+        public static function get_email_headers($x){
+            extract( shortcode_atts( array( 'settings'=>array(), 'data'=>array(), 'user'=>null), $x ) );
+            if(empty($settings['register_custom_email_header'])) $settings['register_custom_email_header'] = 'admin';
+            if($settings['register_custom_email_header']==='admin'){
+                // Use admin headers
+                $header_from = $settings['header_from'];
+                $header_from_name = $settings['header_from_name'];
+                $header_reply_enabled = $settings['header_reply_enabled'];
+                $header_reply = $settings['header_reply'];
+                $header_reply_name = $settings['header_reply_name'];
+            }
+            if($settings['register_custom_email_header']==='confirmation'){
+                // Use confirmation email headers
+                $header_from = $settings['confirm_from'];
+                $header_from_name = $settings['confirm_from_name'];
+                $header_reply_enabled = $settings['confirm_header_reply_enabled'];
+                $header_reply = $settings['confirm_header_reply'];
+                $header_reply_name = $settings['confirm_header_reply_name'];
+            }
+            if($settings['register_custom_email_header']==='custom'){
+                // Use custom headers
+                $header_from = $settings['register_header_from'];
+                $header_from_name = $settings['register_header_from_name'];
+                $header_reply_enabled = $settings['register_header_reply_enabled'];
+                $header_reply = $settings['register_header_reply'];
+                $header_reply_name = $settings['register_header_reply_name'];
+            }
+
+            // @since 1.6.1 - set native from headers
+            if(!empty($header_from)){
+                $header_from = SUPER_Common::email_tags( $header_from, $data, $settings, $user );
+            }else{
+                $urlparts = parse_url(home_url());
+                $header_from = 'no-reply@' . $urlparts['host']; // returns domain name
+            }
+            if(!empty($header_from_name)){
+                $header_from_name = SUPER_Common::email_tags( $header_from_name, $data, $settings, $user );
+            }else{
+                $header_from_name = get_bloginfo('name');
+            }
+            // @since 1.3.0 - custom reply to headers
+            if( $header_reply_enabled=='false' ) {
+                $custom_reply = false;
+            }else{
+                $custom_reply = true;
+                $header_reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $header_reply, $data, $settings ) );
+                $header_reply_name = SUPER_Common::email_tags( $header_reply_name, $data, $settings );
+            }
+            return array(
+                'header_from' => $header_from,
+                'header_from_name' => $header_from_name,
+                'custom_reply' => $custom_reply,
+                'header_reply' => $header_reply,
+                'header_reply_name' => $header_reply_name
+            );
+        }
+        public static function send_verification_email($x){
+            extract( shortcode_atts( array( 'password'=>'', 'code'=>'', 'user'=>null, 'settings'=>array(), 'data'=>array(), 'message'=>''), $x ) );
+            $to = $user->user_email;
+            $username = $user->user_login;
+            // Replace email tags with correct data
+            $subject = SUPER_Common::email_tags( $settings['register_activation_subject'], $data, $settings );
+            $message = $settings['register_activation_email'];
+            $message = str_replace( '{field_user_login}', $username, $message );
+            $message = str_replace( '{user_login}', $username, $message );
+            $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
+            $message = str_replace( '{register_activation_code}', $code, $message );
+            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            if(!empty($password)){
+                $message = str_replace( '{register_generated_password}', $password, $message );
+            }
+            $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
+            $message = nl2br( $message );
+            // By default use Admin email settings
+            $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
+            // Send the email
+            $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = apply_filters( 'super_before_sending_verification_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
+            // Deprecated, but used as fallback for custome code by other devs
+            $attachments = apply_filters( 'super_register_login_before_resend_activation_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
+            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            return $mail;
+        }
+        public static function send_approve_email($x){
+            extract( shortcode_atts( array( 'password'=>'', 'code'=>'', 'user'=>null, 'settings'=>array(), 'data'=>array(), 'message'=>''), $x ) );
+            $username = $user->user_login;
+            $to = $user->user_email;
+            // Replace email tags with correct data
+            $subject = SUPER_Common::email_tags( $settings['register_approve_subject'], $data, $settings );
+            $message = $settings['register_approve_email'];
+            $message = str_replace( '{field_user_login}', $username, $message );
+            $message = str_replace( '{user_login}', $username, $message );
+            $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
+            // Generate a password upon approval
+            if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
+                add_filter( 'send_password_change_email', '__return_false' );
+                $password = wp_generate_password();
+                $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
+                $message = str_replace( '{field_user_pass}', $password, $message );
+                $message = str_replace( '{user_pass}', $password, $message );
+                $message = str_replace( '{register_generated_password}', $password, $message );
+            }
+            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            $message = nl2br( $message );
+            // By default use Admin email settings
+            $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
+            // Send the email
+            $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = apply_filters( 'super_before_sending_approve_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $attachments = apply_filters( 'super_register_login_before_approve_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
+            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            return $mail;
+        }
+        public static function send_reset_password_email($x){
+            extract( shortcode_atts( array( 'password'=>'', 'code'=>'', 'user'=>null, 'settings'=>array(), 'data'=>array(), 'message'=>''), $x ) );
+            $username = $user->user_login;
+            $to = $user->user_email;
+            // Replace email tags with correct data
+            $subject = SUPER_Common::email_tags( $settings['register_reset_password_subject'], $data, $settings, $user );
+            $message = $settings['register_reset_password_email'];
+            $message = str_replace( '{field_user_login}', $username, $message );
+            $message = str_replace( '{user_login}', $username, $message );
+            $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
+            $message = str_replace( '{field_user_pass}', $password, $message );
+            $message = str_replace( '{user_pass}', $password, $message );
+            $message = str_replace( '{register_generated_password}', $password, $message );
+            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            $message = nl2br( $message );
+            // By default use Admin email settings
+            $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
+            // Send the email
+            $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = apply_filters( 'super_before_sending_reset_password_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $attachments = apply_filters( 'super_register_login_before_sending_reset_password_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
+            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            return $mail;
+        }
 
 
         /** 
@@ -1681,58 +1769,20 @@ if( !class_exists('SUPER_Register_Login') ) :
          *  @since      1.0.0
         */
         public static function resend_activation() {
-            
-            $data = $_REQUEST['data'];
+            $data = $_POST['data'];
             $username = sanitize_user( $data['username'] );
             $form_id = absint( $data['form'] );
             $user = get_user_by( 'login', $username );
             if( $user ) {
-                $to = $user->user_email;
-                $name = $user->display_name;
                 $code = wp_generate_password( 8, false );
-                $password = wp_generate_password();
-                $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
                 update_user_meta( $user->ID, 'super_account_activation', $code );
-                
                 // Get the form settings, so we can setup the correct email message and subject
                 if (method_exists('SUPER_Common','get_form_settings')) {
                     $settings = SUPER_Common::get_form_settings($form_id);
                 }else{
                     $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
                 }
-
-                // Replace email tags with correct data
-                $subject = SUPER_Common::email_tags( $settings['register_activation_subject'], $data, $settings );
-                $message = $settings['register_activation_email'];
-                $message = str_replace( '{field_user_login}', $username, $message );
-                $message = str_replace( '{user_login}', $username, $message );
-                $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-                $message = str_replace( '{register_activation_code}', $code, $message );
-                $message = str_replace( '{register_generated_password}', $password, $message );
-                $message = SUPER_Common::email_tags( $message, $data, $settings );
-                $message = nl2br( $message );
-                $from = SUPER_Common::email_tags( $settings['header_from'], $data, $settings );
-                $from_name = SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings );
-                $attachments = apply_filters( 'super_register_login_before_resend_activation_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-
-                // @since 1.3.0 - custom reply to headers
-                if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
-                $reply = '';
-                $reply_name = '';
-                if( $settings['header_reply_enabled']==false ) {
-                    $custom_reply = false;
-                }else{
-                    $custom_reply = true;
-                    if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
-                    if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                    $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                    $reply_name = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
-                }
-
-                // Send the email
-                $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
-                $mail = SUPER_Common::email( $user_email, $from, $from_name, $custom_reply, $reply, $reply_name, '', '', $subject, $message, $settings, $attachments );
-
+                $mail = self::send_verification_email(array('password'=>'', 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
                     SUPER_Common::output_message(
