@@ -1,6 +1,7 @@
-Feb 23, 2022 - Version 1.9.301
-- Fix: Issue with chaning user status from Pending to Active in backend
+Feb 23, 2022 - Version 1.9.4
+- Fix: Issue with changing user status from Pending to Active in backend
 - Fix: Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
+- Fix: When setting `Send email confirmation/verification email` to `Do nothing` make sure to set user status to 1, since they are not required to confirm their E-mail address, they will still not be able to login in case the `User login status` is set to anything other than `Active`
 
 Jan 20, 2022 - Version 1.9.2
 - Added: Compatibility with latest version of Super Forms
