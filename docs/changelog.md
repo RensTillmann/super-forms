@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 04, 2022 - Version 6.2.201
+
+- **Fix:** An issue since v6.2.200 with dynamic columns where newly columns were inserted after the first column
+
 ## Feb 24, 2022 - Version 6.2.200
 
 - **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
