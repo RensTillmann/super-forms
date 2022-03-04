@@ -249,7 +249,9 @@ if( !class_exists('SUPER_Mailster') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             $array['mailster'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'Mailster Settings', 'super-forms' ),
@@ -257,7 +259,7 @@ if( !class_exists('SUPER_Mailster') ) :
                 'fields' => array(
                     'mailster_enabled' => array(
                         'desc' => esc_html__( 'This will save a subscriber for Mailster', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_enabled', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_enabled', $settings, '' ),
                         'type' => 'checkbox', 
                         'filter'=>true,
                         'values' => array(
@@ -268,7 +270,7 @@ if( !class_exists('SUPER_Mailster') ) :
                     // @since 1.0.2  - conditionally save mailster subscriber based on user input
                     'mailster_conditionally_save' => array(
                         'hidden_setting' => true,
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_conditionally_save', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_conditionally_save', $settings, '' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -282,7 +284,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'type' => 'conditional_check',
                         'name' => esc_html__( 'Only save subscriber when following condition is met', 'super-forms' ),
                         'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_conditionally_save_check', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_conditionally_save_check', $settings, '' ),
                         'placeholder' => "{fieldname},value",
                         'filter'=>true,
                         'parent' => 'mailster_conditionally_save',
@@ -293,7 +295,7 @@ if( !class_exists('SUPER_Mailster') ) :
                     'mailster_email' => array(
                         'name' => esc_html__( 'Subscriber email address', 'super-forms' ), 
                         'desc' => esc_html__( 'This will save the entered email by the user as the subsriber email address', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_email', $settings['settings'], '{email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_email', $settings, '{email}' ),
                         'filter'=>true,
                         'parent' => 'mailster_enabled',
                         'filter_value' => 'true',
@@ -303,7 +305,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'name' => esc_html__( 'Save Mailster user data', 'super-forms' ), 
                         'label' => sprintf( esc_html__( 'Seperate Mailster field and field_name by pipes "|" (put each on a new line).%sExample: mailster_field_name|super_forms_field_name%sWith this method you can save custom Mailster user data', 'super-forms' ), '<br />', '<br />' ),
                         'desc' => esc_html__( 'Enter the  fields that need to be saved for a subscriber', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_fields', $settings['settings'], "lastname|last_name\nfirstname|first_name" ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_fields', $settings, "lastname|last_name\nfirstname|first_name" ),
                         'type' => 'textarea',
                         'filter'=>true,
                         'parent' => 'mailster_enabled',
@@ -314,7 +316,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'name' => esc_html__( 'Subscriber list ID(\'s) seperated by comma\'s', 'super-forms' ), 
                         'label' => esc_html__( 'You are allowed to use a {tag} if you want to allow the user to choose a list from your form', 'super-forms' ),
                         'desc' => esc_html__( 'Enter the list ID\'s or enter a {tag}', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'mailster_lists', $settings['settings'], '{lists}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailster_lists', $settings, '{lists}' ),
                         'filter'=>true,
                         'parent' => 'mailster_enabled',
                         'filter_value' => 'true',

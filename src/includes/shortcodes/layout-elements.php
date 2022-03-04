@@ -75,7 +75,25 @@ $array['layout_elements'] = array(
             ),
             'atts' => array(),
             'html' => '<span>1/3</span><span>1/3</span><span>1/3</span>',
-        ),        
+        ),
+        'dyanmic_column_pre' => array(
+            'name' => esc_html__( 'Repeater column', 'super-forms' ),
+            'icon' => 'user',
+            'predefined' => array(
+                array(
+                    'tag' => 'column',
+                    'group' => 'layout_elements',
+                    'inner' => '',
+                    'data' => array(
+                        'size' => '1/1',
+                        'duplicate' => 'enabled',
+                        'label' => 'Dynamic Column'
+                    )
+                )            
+            ),
+            'atts' => array(),
+            'html' => '<span>' . esc_html__( 'Dynamic', 'super-forms' ) . '/' . esc_html__( 'Repeater', 'super-forms' ) . '<br />' . esc_html__( 'column', 'super-forms' ) . '</span>',
+        ),
         'column' => array(
             'callback' => 'SUPER_Shortcodes::column',
             'hidden' => true,
@@ -368,7 +386,7 @@ $array['layout_elements'] = array(
                 )            
             ),
             'atts' => array(),
-            'html' => '<span>' . esc_html__( 'Multi Part', 'super-forms' ) . '</span>',
+            'html' => '<span>' . esc_html__( 'Multi Part', 'super-forms' ) . '/' . esc_html__( 'Step', 'super-forms' ) . '</span>',
         ),
         'multipart' => array(
             'callback' => 'SUPER_Shortcodes::multipart',

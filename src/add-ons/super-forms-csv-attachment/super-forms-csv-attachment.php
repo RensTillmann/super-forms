@@ -290,8 +290,9 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
-
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             $array['csv_attachment'] = array(        
                 'hidden' => 'settings',
                 'name' => esc_html__( 'CSV Attachment', 'super-forms' ),
@@ -299,7 +300,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                 'fields' => array(
                     'csv_attachment_enable' => array(
                         'desc' => esc_html__( 'This will attach a CSV file to the admin email', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'csv_attachment_enable', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'csv_attachment_enable', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Send CSV attachment with form data to the admin email', 'super-forms' ),
@@ -308,7 +309,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     ),
                     'csv_attachment_name' => array(
                         'name'=> esc_html__( 'The filename of the attachment', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_name', $settings['settings'], 'super-csv-attachment' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'csv_attachment_name', $settings, 'super-csv-attachment' ),
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',
                         'filter_value'=>'true'
@@ -316,7 +317,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     'csv_attachment_save_as' => array(
                         'name'=> esc_html__( 'Choose what value to save for checkboxes & radio buttons', 'super-forms' ),
                         'desc'=> esc_html__( 'When editing a field you can change these settings', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_save_as', $settings['settings'], 'admin_email_value' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'csv_attachment_save_as', $settings, 'admin_email_value' ),
                         'type'=>'select', 
                         'values'=>array(
                             'admin_email_value' => esc_html__( 'Save the admin email value (default)', 'super-forms' ),
@@ -330,7 +331,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     'csv_attachment_exclude' => array(
                         'name'=> esc_html__( 'Exclude fields from CSV file (put each field name on a new line)', 'super-forms' ),
                         'desc'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_exclude', $settings['settings'], '' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'csv_attachment_exclude', $settings, '' ),
                         'type'=>'textarea', 
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',
@@ -341,7 +342,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     'csv_attachment_delimiter' => array(
                         'name'=> esc_html__( 'Custom delimiter', 'super-forms' ),
                         'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
-                        'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_delimiter', $settings['settings'], ',' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'csv_attachment_delimiter', $settings, ',' ),
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',
                         'filter_value'=>'true'
@@ -349,7 +350,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     'csv_attachment_enclosure' => array(
                         'name'=> esc_html__( 'Custom enclosure', 'super-forms' ),
                         'desc' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
-                        'default'=> SUPER_Settings::get_value( 0, 'csv_attachment_enclosure', $settings['settings'], '"' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'csv_attachment_enclosure', $settings, '"' ),
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',
                         'filter_value'=>'true'

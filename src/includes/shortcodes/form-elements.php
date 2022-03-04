@@ -3367,6 +3367,44 @@ $array['form_elements'] = array(
             ),
             'atts' => array(),
         ),
+        'variable_predefined' => array(
+            'name' => esc_html__( 'Variable field', 'super-forms' ),
+            'icon' => 'shuffle;far',
+            'predefined' => array(
+                array(
+                    'tag' => 'hidden',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'variable', 'super-forms' ),
+                        'email' => esc_html__( 'Variable', 'super-forms' ) . ':',
+                        'conditional_variable_action' => 'enabled',
+                        'conditional_variable_items' => array(
+                            array(
+                                'field' => '{field_name_here}',
+                                'logic' => 'equal',
+                                'value' => 'yes',
+                                'and_method' => '',
+                                'field_and' => '',
+                                'logic_and' => '',
+                                'value_and' => '',
+                                'new_value' => 'When value equals \"yes\" this will be the new value....'
+                            ),
+                            array(
+                                'field' => '{field_name_here}',
+                                'logic' => 'not_equal',
+                                'value' => 'no',
+                                'and_method' => '',
+                                'field_and' => '',
+                                'logic_and' => '',
+                                'value_and' => '',
+                                'new_value' => 'When value is not \"yes\" this will be the new value....'
+                            )
+                        )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'hidden' => array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::hidden',

@@ -1541,7 +1541,9 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
 			$statuses = SUPER_Settings::get_entry_statuses();
 			$new_statuses = array();
 			foreach($statuses as $k => $v) {
@@ -1560,7 +1562,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_hide_products_by_id_or_slug' => array(
                         'name' => esc_html__( 'Hide products from the shop', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When configured, the product(s) will not be listend on the Archive pages (shop, category, tag and search pages). This way the product can only be ordered by submitting the form.%1$s%1$sPut each product ID and or Category slug on a new line. For example:%1$s%1$s3245%1$s3246%1$s3247%1$sbooks%1$scars%1$scomputers', 'super-forms' ), '<br />' ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_hide_products_by_id_or_slug', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_hide_products_by_id_or_slug', $settings, '' ),
                         'type'=>'textarea'
                     ),
                     // Replace the default "Add to cart" area on the single product page with a form. 
@@ -1570,7 +1572,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_replace_add_to_cart_btn' => array(
                         'name' => esc_html__( 'Replace the default "Add to cart" area', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When configured, the single product page "Add to cart" section will be replaced with the defined form. It will also replace the "Add to cart" button with a "View Product" button on all Archive pages (shop, category, tag and search pages).%1$s%1$sThis setting will obviously become obsolete for products you are hiding from your shop in the above setting.%1$s%1$sDefine each on a new line formatted like so:%1$s%1$sFORM_ID|PRODUCT_ID%1$sFORM_ID|CATEGORY_SLUG', 'super-forms' ), '<br />' ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_replace_add_to_cart_btn', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_replace_add_to_cart_btn', $settings, '' ),
                         'type'=>'textarea',
                         'placeholder'=> esc_html__( "FORM_ID|PRODUCT_ID\nFORM_ID|CATEGORY_SLUG", 'super-forms' ),
                     ),
@@ -1578,7 +1580,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_remove_single_product_page_gallery' => array(
                         'name' => esc_html__( 'Remove gallery from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the gallery of the product will also be removed', 'super-forms' ) ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_gallery', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_remove_single_product_page_gallery', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove gallery (images) from single product page', 'super-forms' ),
@@ -1587,7 +1589,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_remove_single_product_page_title' => array(
                         'name' => esc_html__( 'Remove title from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the title of the product will also be removed', 'super-forms' ) ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_title', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_remove_single_product_page_title', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove title from single product page', 'super-forms' ),
@@ -1596,7 +1598,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_remove_single_product_page_rating' => array(
                         'name' => esc_html__( 'Remove rating from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the rating of the product will also be removed', 'super-forms' ) ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_rating', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_remove_single_product_page_rating', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove rating from single product page', 'super-forms' ),
@@ -1605,7 +1607,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_remove_single_product_page_price' => array(
                         'name' => esc_html__( 'Remove price from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the price of the product will also be removed', 'super-forms' ) ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_price', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_remove_single_product_page_price', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove price from single product page', 'super-forms' ),
@@ -1614,7 +1616,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'wc_remove_single_product_page_excerpt' => array(
                         'name' => esc_html__( 'Remove short description from single product page', 'super-forms' ),
                         'desc' => sprintf( esc_html__( 'When enabled and above setting replaced the "Add to cart" section with a form, the short description of the product will also be removed', 'super-forms' ) ),
-                        'default' => SUPER_Settings::get_value( 0, 'wc_remove_single_product_page_excerpt', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'wc_remove_single_product_page_excerpt', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove short description from single product page', 'super-forms' ),
@@ -1633,7 +1635,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 ),
                 'fields' => array(
                     'woocommerce_checkout' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout', $settings, '' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -1641,7 +1643,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         ),
                     ),               
                     'woocommerce_checkout_empty_cart' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_empty_cart', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_empty_cart', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Empty cart before adding products', 'super-forms' ),
@@ -1651,7 +1653,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'filter_value' => 'true',
                     ),
                     'woocommerce_checkout_remove_coupons' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_remove_coupons', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_remove_coupons', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove/clear coupons before redirecting to cart', 'super-forms' ),
@@ -1661,7 +1663,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'filter_value' => 'true',
                     ), 
                     'woocommerce_checkout_remove_fees' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_remove_fees', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_remove_fees', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Remove/clear fees before redirecting to cart', 'super-forms' ),
@@ -1674,7 +1676,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'name' => esc_html__( 'Enter the product(s) ID that needs to be added to the cart', 'super-forms' ) . '<br /><i>' . sprintf( esc_html__( 'If field is inside dynamic column, system will automatically add all the products. Put each product ID with it\'s quantity on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|{quantity}%1$s%2$sExample without tags:%3$s 82921|3%1$s%2$sExample with variations:%3$s {id}|{quantity}|{variation_id}%1$s%2$sExample with dynamic pricing:%3$s {id}|{quantity}|none|{price}%1$s%2$sAllowed values:%3$s integer|integer|integer|float%1$s(dynamic pricing requires %4$sWooCommerce Name Your Price add-on%5$s).', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a target="_blank" href="https://woocommerce.com/products/name-your-price/">', '</a>' ) . '</i>',
                         'desc' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_products', $settings['settings'], "{id}|{quantity}|none|{price}" ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_products', $settings, "{id}|{quantity}|none|{price}" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true',
@@ -1686,7 +1688,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'name' => sprintf( esc_html__( 'Enter the product(s) custom meta data (optional)', 'super-forms' ) . '<br /><i>' . esc_html__( 'If field is inside dynamic column, system will automatically add all the meta data. Put each product ID with it\'s meta data on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|Color|{color}%1$s%2$sExample without tags:%3$s 82921|Color|Red%1$s%2$sAllowed values:%3$s integer|string|string.', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '</i>',
                         'desc' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_products_meta', $settings['settings'], "{id}|Color|{color}" ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_products_meta', $settings, "{id}|Color|{color}" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true',
@@ -1695,7 +1697,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     'woocommerce_checkout_coupon' => array(
                         'name' => esc_html__( 'Apply the following coupon code (leave blank for none):', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_coupon', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_coupon', $settings, '' ),
                         'type' => 'text',
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
@@ -1705,7 +1707,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'name' => esc_html__( 'Add checkout fee(s)', 'super-forms' ) . '<br /><i>' . sprintf( esc_html__( 'Put each fee on a new line with values seperated by pipes "|".%1$s%2$sExample with tags:%3$s {fee_name}|{amount}|{taxable}|{tax_class}%1$s%2$sExample without tags:%3$s Administration fee|5|false|\'\'%1$s%2$sAllowed values:%3$s string|float|bool|string', 'super-forms' ), '<br />', '<strong>', '</strong>' ) . '</i>',
                         'desc' => esc_html__( 'Leave blank for no fees', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fees', $settings['settings'], "{fee_name}|{amount}|{taxable}|{tax_class}" ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_fees', $settings, "{fee_name}|{amount}|{taxable}|{tax_class}" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true',
@@ -1716,7 +1718,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'label' => sprintf( esc_html__( 'Example:%1$sbilling_first_name|{first_name}%1$sbilling_last_name|{last_name}%1$sbilling_postcode|{zipcode}%1$sbilling_city|{city}%1$s%1$sPossible field to populate on checkout page are:%1$s', 'super-forms' ), '<br />' ) . ' billing_country, shipping_country, billing_first_name, billing_last_name, billing_company, billing_country, billing_address_1, billing_address_2, billing_postcode, billing_city, billing_state, billing_phone, billing_email, order_comments',
                         'desc' => esc_html__( 'Leave blank to not populate any checkout fields', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_populate_checkout_fields', $settings['settings'], "" ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_populate_checkout_fields', $settings, "" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true'
@@ -1727,13 +1729,13 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         'label' => sprintf( esc_html__( 'Example:%1$sbilling_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green%1$s%2$sAvailable field options:%3$s%1$s%2$sname%3$s - the field name%1$s%2$svalue%3$s - the field value ({tags} can be used here)%1$s%2$slabel%3$s – label for the input field%1$s%2$splaceholder%3$s – placeholder for the input%1$s%2$stype%3$s – type of field (text, textarea, password, select)%1$s%2$ssection%3$s - billing, shipping, account, order%1$s%2$srequired%3$s – true or false, whether or not the field is require%1$s%2$sclear%3$s – true or false, applies a clear fix to the field/label%1$s%2$sclass%3$s – class for the input%1$s%2$slabel_class%3$s – class for the label element%1$s%2$soptions%3$s – for select boxes, array of options (key => value pairs)', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
                         'desc' => esc_html__( 'Leave blank for no custom fields', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields', $settings['settings'], "" ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_fields', $settings, "" ),
                         'filter' => true,
                         'parent' => 'woocommerce_checkout',
                         'filter_value' => 'true'
                     ),
                     'woocommerce_checkout_fields_skip_empty' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_checkout_fields_skip_empty', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_checkout_fields_skip_empty', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Only add custom field if field exists in form and not conditionally hidden', 'super-forms' ),
@@ -1745,7 +1747,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     'woocommerce_redirect' => array(
                         'name' => esc_html__( 'Redirect to Checkout page or Shopping Cart?', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_redirect', $settings['settings'], 'checkout' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_redirect', $settings, 'checkout' ),
                         'type' => 'select',
                         'values' => array(
                             'checkout' => esc_html__( 'Checkout page (default)', 'super-forms' ),
@@ -1761,7 +1763,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 					'woocommerce_completed_entry_status' => array(
 						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
 						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
-						'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_entry_status', $settings['settings'], 'completed' ),
+						'default' => SUPER_Settings::get_value( $default, 'woocommerce_completed_entry_status', $settings, 'completed' ),
 						'type' => 'select',
 						'values' => $statuses,
 						'filter' => true,
@@ -1774,7 +1776,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'woocommerce_completed_email' => array(
                         'name' => esc_html__( 'Send email after order completed', 'super-forms' ),
                         'label' => esc_html__( 'Note: this will only work if you save a contact entry', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'woocommerce_completed_email', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'woocommerce_completed_email', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Send email after order completed', 'super-forms' ),
@@ -1805,14 +1807,14 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
                 unset($fields[$k]);
                 $k = str_replace('confirm', 'woocommerce_completed', $k);
-                $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
+                $v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
                 $new_fields[$k] = $v;
             }
             $array['woocommerce_checkout']['fields'] = array_merge($array['woocommerce_checkout']['fields'], $new_fields);
             $array['woocommerce_checkout']['fields']['woocommerce_completed_attachments'] = array(
                 'name' => esc_html__( 'Attachments for woocommerce completed emails:', 'super-forms' ),
                 'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                'default' => SUPER_Settings::get_value( 0, 'woocommerce_completed_attachments', $settings['settings'], '' ),
+                'default' => SUPER_Settings::get_value( $default, 'woocommerce_completed_attachments', $settings, '' ),
                 'type' => 'file',
                 'multiple' => 'true',
                 'filter' => true,
@@ -1824,7 +1826,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 $array['woocommerce_checkout']['fields']['woocommerce_post_status'] = array(
                     'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
                     'label' => esc_html__( 'Only used for Front-end posting', 'super-forms' ),
-                    'default' => SUPER_Settings::get_value( 0, 'woocommerce_post_status', $settings['settings'], 'publish' ),
+                    'default' => SUPER_Settings::get_value( $default, 'woocommerce_post_status', $settings, 'publish' ),
                     'type' => 'select',
                     'values' => array(
                         'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
@@ -1852,7 +1854,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 $array['woocommerce_checkout']['fields']['woocommerce_signup_status'] = array(
                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
                     'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
-                    'default' => SUPER_Settings::get_value( 0, 'woocommerce_signup_status', $settings['settings'], 'active' ),
+                    'default' => SUPER_Settings::get_value( $default, 'woocommerce_signup_status', $settings, 'active' ),
                     'type' => 'select',
                     'values' => array(
                         'active' => esc_html__( 'Active (default)', 'super-forms' ),
@@ -1866,7 +1868,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 				$array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
 					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
-					'default' => SUPER_Settings::get_value(0, 'woocommerce_completed_user_role', $settings['settings'], '' ),
+					'default' => SUPER_Settings::get_value( $default, 'woocommerce_completed_user_role', $settings, '' ),
 					'type' => 'select',
 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
 					'filter' => true,

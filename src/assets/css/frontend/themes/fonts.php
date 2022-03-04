@@ -4,6 +4,9 @@ $rs1 = '.super-form-'.$form_id.'.super-window-first-responsiveness ';
 $rs2 = '.super-form-'.$form_id.'.super-window-second-responsiveness ';
 $rs3 = '.super-form-'.$form_id.'.super-window-third-responsiveness ';
 $v = $settings;
+$v = array_filter($settings);
+$global_settings = SUPER_Common::get_global_settings();
+$v = array_merge($global_settings, $v);
 
 // Google fonts
 if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
@@ -14,38 +17,6 @@ if($v['font_google_fonts']!=''){
         $import_fonts .= "@import url('".$font."');\n";
     }
 }
-// Font family
-if( empty( $v['font_global_family'] ) ) $v['font_global_family'] = '"Helvetica", "Arial", sans-serif';
-// Globals
-if( empty( $v['font_global_size'] ) ) $v['font_global_size'] = 12;
-if( empty( $v['font_global_weight'] ) ) { $v['font_global_weight'] = 'normal'; }else{ $v['font_global_weight']; }
-if( empty( $v['font_global_lineheight'] ) ) { $v['font_global_lineheight'] = '1.2'; }
-if( floatval($v['font_global_lineheight'])>5 ) { $v['font_global_lineheight'] = '1.2'; }
-// Labels
-if( empty( $v['font_label_size'] ) ) $v['font_label_size'] = 16;
-if( empty( $v['font_label_weight'] ) ) { $v['font_label_weight'] = 'normal'; }else{ $v['font_label_weight']; }
-if( empty( $v['font_label_lineheight'] ) ) { $v['font_label_lineheight'] = '1.2'; }
-if( floatval($v['font_label_lineheight'])>5 ) { $v['font_label_lineheight'] = '1.2'; }
-// Descriptions
-if( empty( $v['font_description_size'] ) ) $v['font_description_size'] = 14;
-if( empty( $v['font_description_weight'] ) ) { $v['font_description_weight'] = 'normal'; }else{ $v['font_description_weight']; }
-if( empty( $v['font_description_lineheight'] ) ) { $v['font_description_lineheight'] = '1.2'; }
-if( floatval($v['font_description_lineheight'])>5 ) { $v['font_description_lineheight'] = '1.2'; }
-// Globals (mobile)
-if( empty( $v['font_global_size_mobile'] ) ) $v['font_global_size_mobile'] = 16;
-if( empty( $v['font_global_weight_mobile'] ) ) { $v['font_global_weight_mobile'] = 'normal'; }else{ $v['font_global_weight_mobile']; }
-if( empty( $v['font_global_lineheight_mobile'] ) ) { $v['font_global_lineheight_mobile'] = '1.2'; }
-if( floatval($v['font_global_lineheight_mobile'])>5 ) { $v['font_global_lineheight_mobile'] = '1.2'; }
-// Labels (mobile)
-if( empty( $v['font_label_size_mobile'] ) ) $v['font_label_size_mobile'] = 20;
-if( empty( $v['font_label_weight_mobile'] ) ) { $v['font_label_weight_mobile'] = 'normal'; }else{ $v['font_label_weight_mobile']; }
-if( empty( $v['font_label_lineheight_mobile'] ) ) { $v['font_label_lineheight_mobile'] = '1.2'; }
-if( floatval($v['font_label_lineheight_mobile'])>5 ) { $v['font_label_lineheight_mobile'] = '1.2'; }
-// Descriptions (mobile)
-if( empty( $v['font_description_size_mobile'] ) ) $v['font_description_size_mobile'] = 16;
-if( empty( $v['font_description_weight_mobile'] ) ) { $v['font_description_weight_mobile'] = 'normal'; }else{ $v['font_description_weight_mobile']; }
-if( empty( $v['font_description_lineheight_mobile'] ) ) { $v['font_description_lineheight_mobile'] = '1.2'; }
-if( floatval($v['font_description_lineheight_mobile'])>5 ) { $v['font_description_lineheight_mobile'] = '1.2'; }
 
 return $import_fonts."
 
@@ -69,9 +40,9 @@ return $import_fonts."
 ".$s.".super-int-phone_country,
 ".$s.".super-int-phone_selected-dial-code,
 ".$s.".super-adaptive-placeholder {
-    font-family: ".$v['font_global_family'].";
-    font-size: ".$v['font_global_size']."px;
-    font-weight: ".$v['font_global_weight'].";
+    ".(!empty($v['font_global_family']) ? "font-family: ".$v['font_global_family'].";" : "")."
+    ".(!empty($v['font_global_size']) ? "font-size: ".$v['font_global_size']."px;" : "")."
+    ".(!empty($v['font_global_weight']) ? "font-weight: ".$v['font_global_weight'].";" : "")."
     line-height: normal;
     letter-spacing: 0;
 }
@@ -80,7 +51,7 @@ return $import_fonts."
     font-size: 10px;
 }
 ".$s.".super-icon {
-    font-size: ".$v['font_global_size']."px;
+    ".(!empty($v['font_global_size']) ? "font-size: ".$v['font_global_size']."px;" : "")."
     line-height: normal;
     letter-spacing: 0;
 }
@@ -92,14 +63,14 @@ return $import_fonts."
 }
 ".$s.".super-label,
 ".$s.".super-group-title {
-    font-size: ".$v['font_label_size']."px;
-    font-weight: ".$v['font_label_weight'].";
+    ".(!empty($v['font_label_size']) ? "font-size: ".$v['font_label_size']."px;" : "")."
+    ".(!empty($v['font_label_weight']) ? "font-weight: ".$v['font_label_weight'].";" : "")."
     line-height: normal;
     letter-spacing: 0;
 }
 ".$s.".super-description {
-    font-size: ".$v['font_description_size']."px;
-    font-weight: ".$v['font_description_weight'].";
+    ".(!empty($v['font_description_size']) ? "font-size: ".$v['font_description_size']."px;" : "")."
+    ".(!empty($v['font_description_weight']) ? "font-weight: ".$v['font_description_weight'].";" : "")."
     line-height: normal;
     letter-spacing: 0;
 }
@@ -122,21 +93,21 @@ return $import_fonts."
 ".$rs1.".super-tabs,
 ".$rs1.".super-int-phone_selected-dial-code,
 ".$rs1.".super-slider .amount {
-    font-size: ".$v['font_global_size_mobile']."px;
-    font-weight: ".$v['font_global_weight_mobile'].";
+    ".(!empty($v['font_global_size_mobile']) ? "font-size: ".$v['font_global_size_mobile']."px;" : "")."
+    ".(!empty($v['font_global_weight_mobile']) ? "font-weight: ".$v['font_global_weight_mobile'].";" : "")."
     line-height: normal;
     letter-spacing: 0;
 }
 ".$rs1.".super-label,
 ".$rs1.".super-group-title {
-    font-size: ".$v['font_label_size_mobile']."px;
-    font-weight: ".$v['font_label_weight_mobile'].";
+    ".(!empty($v['font_label_size_mobile']) ? "font-size: ".$v['font_label_size_mobile']."px;" : "")."
+    ".(!empty($v['font_label_weight_mobile']) ? "font-weight: ".$v['font_label_weight_mobile'].";" : "")."
     line-height: normal; 
     letter-spacing: 0;
 }
 ".$rs1.".super-description {
-    font-size: ".$v['font_description_size_mobile']."px;
-    font-weight: ".$v['font_description_weight_mobile'].";
+    ".(!empty($v['font_description_size_mobile']) ? "font-size: ".$v['font_description_size_mobile']."px;" : "")."
+    ".(!empty($v['font_description_weight_mobile']) ? "font-weight: ".$v['font_description_weight_mobile'].";" : "")."
     line-height: normal; 
     letter-spacing: 0;
 }

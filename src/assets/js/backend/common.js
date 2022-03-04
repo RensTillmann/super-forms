@@ -129,16 +129,37 @@
     jQuery(document).ready(function ($) {
 
         // Reset setting to default or global value
-        // temp disabled debugger;
-        // temp disabled var i, nodes = document.querySelectorAll('.super-reset-default-value');
-        // temp disabled debugger;
-        // temp disabled for(i=0; i<nodes.length; i++){
-        // temp disabled     debugger;
-        // temp disabled     nodes[i].addEventListener('click',function(){
-        // temp disabled         debugger;
-        // temp disabled         console.log(this.dataset.value);
-        // temp disabled     });
-        // temp disabled }
+        // debugger;
+        // var i, nodes = document.querySelectorAll('.super-reset-default-value');
+        // debugger;
+        // for(i=0; i<nodes.length; i++){
+        //     debugger;
+        //     nodes[i].addEventListener('click',function(){
+        //         debugger;
+        //         console.log(this.dataset.value);
+        //     });
+        // }
+        // var i, nodes = document.querySelectorAll('.super-reset-global-value');
+        // debugger;
+        // for(i=0; i<nodes.length; i++){
+        //     debugger;
+        //     nodes[i].addEventListener('click',function(){
+        //         debugger;
+        //         console.log(this.dataset.value);
+        //     });
+        // }
+        $(document).on('click', '.super-reset-default-value, .super-reset-global-value', function (e) {
+            debugger;
+            var value = this.dataset.value,
+                parent = this.closest('.super-color-picker'),
+                //picker = parent.querySelector('.wp-picker-container'),
+                input = parent.querySelector('input[type="text"]');
+            $(input).iris('color', value); // set the color to #000
+            ////input.value = value;
+            //debugger;
+            //input.wpColorpicker('color', '#000');
+            //input.wpWpColorPicker('color', '#000');
+        })
 
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
             var args = {

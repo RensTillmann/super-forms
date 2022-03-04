@@ -7017,6 +7017,7 @@ function SUPERreCaptcha(){
                         },
                         palettes: ['#FFFFFF', '#000000', '#444444', '#8E8E8E', '#9A9A9A', '#CDCDCD', '#6E7177', '#F26C68', '#49B4B6' ]
                     });
+                    $(this).children('input').wpColorPicker('color', 'red');//
                 }
             });
         }

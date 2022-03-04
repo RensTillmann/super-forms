@@ -499,8 +499,9 @@ if( !class_exists('SUPER_Email_Reminders') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
-            
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             // First reminder settings
             $array['email_reminders'] = array(        
                 'name' => esc_html__( 'E-mail Reminders', 'super-forms' ),
@@ -511,13 +512,13 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                         'hidden' => true,
                         'name' => esc_html__( 'Select how many individual E-mail reminders you require', 'super-forms' ),
                         'desc' => esc_html__( 'If you need to send 10 reminders enter: 10', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'email_reminder_amount', $settings['settings'], '3' )
+                        'default' => SUPER_Settings::get_value( $default, 'email_reminder_amount', $settings, '3' )
                     )
                 )
             );
              
-            if(empty($settings['settings']['email_reminder_amount'])) $settings['settings']['email_reminder_amount'] = 3;
-            $limit = absint($settings['settings']['email_reminder_amount']);
+            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
+            $limit = absint($settings['email_reminder_amount']);
             if($limit==0) $limit = 3;
 
             $x = 1;
@@ -527,7 +528,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     'email_reminder_'.$x => array(
                         'hidden_setting' => true,
                         'desc' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ), 
-                        'default' => SUPER_Settings::get_value( 0, 'email_reminder_'.$x, $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'email_reminder_'.$x, $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ),
@@ -538,7 +539,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                         'hidden_setting' => true,
                         'name'=> esc_html__( 'Send reminder based on the following date:', 'super-forms' ),
                         'label'=> esc_html__( 'Must be English formatted date e.g: "25-03-2020". When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_base_date', $settings['settings'], '' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_base_date', $settings, '' ),
                         'filter'=>true,
                         'parent'=>'email_reminder_'.$x,
                         'filter_value'=>'true'
@@ -547,7 +548,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                         'hidden_setting' => true,
                         'name' => esc_html__( 'Define how many days after or before the reminder should be send based of the base date', 'super-forms' ),
                         'label'=> esc_html__( '0 = The same day, 1 = Next day, 5 = Five days after, -1 = One day before, -3 = Three days before', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_date_offset', $settings['settings'], '0' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_date_offset', $settings, '0' ),
                         'filter'=>true,
                         'parent'=>'email_reminder_'.$x,
                         'filter_value'=>'true'
@@ -555,7 +556,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     'email_reminder_'.$x.'_time_method' => array(
                         'hidden_setting' => true,
                         'name' => esc_html__( 'Send reminder at a fixed time, or by offset', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_method', $settings['settings'], 'fixed' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_time_method', $settings, 'fixed' ),
                         'type' => 'select', 
                         'values' => array(
                             'fixed' => esc_html__( 'Fixed (e.g: always at 09:00)', 'super-forms' ), 
@@ -569,7 +570,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                         'hidden_setting' => true,
                         'name' => esc_html__( 'Define at what time the reminder should be send', 'super-forms' ),
                         'label'=> esc_html__( 'Use 24h format e.g: 13:00, 09:30 etc.', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_fixed', $settings['settings'], '09:00' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_time_fixed', $settings, '09:00' ),
                         'filter'=>true,
                         'parent'=>'email_reminder_'.$x.'_time_method',
                         'filter_value'=>'fixed'
@@ -578,7 +579,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                         'hidden_setting' => true,
                         'name' => esc_html__( 'Define at what offset the reminder should be send based of the base time', 'super-forms' ),
                         'label'=> esc_html__( 'Example: 2 = Two hours after, -5 = Five hours before<br />(the base time will be the time of the form submission)', 'super-forms' ),
-                        'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_time_offset', $settings['settings'], '0' ),
+                        'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_time_offset', $settings, '0' ),
                         'filter'=>true,
                         'parent'=>'email_reminder_'.$x.'_time_method',
                         'filter_value'=>'offset'
@@ -605,7 +606,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     unset($fields[$k]);
                     $k = str_replace('confirm_', 'email_reminder_'.$x.'_', $k);
                     if( !empty($v['default']) ) {
-                        $v['default'] = SUPER_Settings::get_value( 0, $k, $settings['settings'], $v['default'] );
+                        $v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
                     }
                     $v['hidden_setting'] = true;
                     $new_fields[$k] = $v;
@@ -614,7 +615,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     'hidden_setting' => true,
                     'name' => sprintf( esc_html__( 'Attachments for reminder email #%s', 'super-forms' ), $x ),
                     'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default'=> SUPER_Settings::get_value( 0, 'email_reminder_'.$x.'_attachments', $settings['settings'], '' ),
+                    'default'=> SUPER_Settings::get_value( $default, 'email_reminder_'.$x.'_attachments', $settings, '' ),
                     'type' => 'file',
                     'multiple' => 'true',
                     'filter'=>true,
