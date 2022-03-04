@@ -70,6 +70,7 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      4.2
         */
         public $global_settings;
+        public $default_settings;
 
 
         /**
@@ -477,6 +478,10 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfgtfi=$matches[1]', 
                 'top' 
             );
+            if(!get_option('_sf_permalinks_flushed')){
+                flush_rewrite_rules(false);
+                update_option('_sf_permalinks_flushed', 1);
+            }
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';

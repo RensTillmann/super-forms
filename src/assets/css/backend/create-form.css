@@ -1369,7 +1369,7 @@
     cursor: pointer;
     font-weight: 100;
     width: auto;
-    z-index: 9999;
+    z-index: 1;
     position: absolute;
     top: 10px;
     right: 2px;
@@ -1838,14 +1838,16 @@
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
-    display: block !important;
     float: left;
     width: 96%;
     margin: 0px 2% 0px 2%;
     height: 54px;
     text-align: center;
-    line-height: 54px;
+    line-height: normal;
     font-size: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .super-element.super-layout-elements > .super-elements-container > .super-element:hover {
@@ -3015,7 +3017,8 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
   display: none;
   justify-content: center;
   align-items: center;
-  margin-left: 5px;
+  margin-left: 0px;
+  margin-right: 5px;
   color: #999999;
   font-size: 12px;
   cursor: pointer;
@@ -3046,7 +3049,7 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
   background-color: #fff9de;
 }
 .super-form-settings .super-color-picker-label {
-  width: 300px;
+  width: 100%;
 }
 .super-form-settings .slider-field {
   display: flex;

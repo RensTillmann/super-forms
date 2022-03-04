@@ -2003,6 +2003,7 @@
                 column,
                 form,
                 firstColumn,
+                lastColumn,
                 found,
                 limit,
                 unique_field_names = {},
@@ -2060,6 +2061,7 @@
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
+            debugger;
             column = ( parent.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form({el: el, form: form});
             var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
@@ -2090,7 +2092,8 @@
 
             counter = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
             clone = firstColumn.cloneNode(true);
-            firstColumn.parentNode.insertBefore(clone, firstColumn.nextElementSibling);
+            lastColumn = duplicateColumns[(found-1)];
+            lastColumn.parentNode.insertBefore(clone, lastColumn.nextElementSibling);
 
             // @since 3.3.0 - hook after appending new column
             

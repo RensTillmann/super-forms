@@ -96,7 +96,6 @@ class SUPER_Settings {
 	 *	@since		1.0.0
 	 */
 	public static function fields( $settings=null, $default=0 ) {
-		
         global $wpdb;
 
         $mysql_version = $wpdb->get_var("SELECT VERSION() AS version");
@@ -132,7 +131,7 @@ class SUPER_Settings {
 
         $array = array();
         
-        $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_start_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         $backend_contact_entry_status = self::get_entry_statuses( null, true );
 
@@ -348,7 +347,7 @@ class SUPER_Settings {
                 )
             ),
         );
-        $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -558,7 +557,7 @@ class SUPER_Settings {
                 )
             ),
         );
-        $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         /** 
          *	Global Overriding
@@ -731,7 +730,7 @@ class SUPER_Settings {
                     'name' => esc_html__('Hide files from Media Library that were uploaded via forms', 'super-forms' ),
                     'desc' => esc_html__('Please note that when you are storing your files in a secure/private directory outside the root the files will automatically not be added to the Media Library.', 'super-forms' ),
                     // allow empty / allow_empty
-                    'default' => self::get_value( $default, 'file_upload_hide_from_media_library', $settings, 'true', true ),
+                    'default' => self::get_value( $default, 'file_upload_hide_from_media_library', $settings, 'true' ),
                     'values' => array(
                         'true' => esc_html__('Do not show file uploads in the Media Library', 'super-forms' )
                     ),
@@ -842,7 +841,7 @@ class SUPER_Settings {
                 // - upload somewhere else? (look at WP Migrate plugin for other good options)
             ),
         );
-        $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_file_upload_settings_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -975,7 +974,7 @@ class SUPER_Settings {
                 )
             )
         );
-        $array = apply_filters( 'super_settings_after_global_overriding_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_global_overriding_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1005,7 +1004,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         /** 
          *  Email Attachments
@@ -1034,7 +1033,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1059,7 +1058,7 @@ class SUPER_Settings {
                 )
             )
         );
-        $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1593,7 +1592,7 @@ class SUPER_Settings {
                 )
             )
         );
-        $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1690,7 +1689,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1787,7 +1786,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_locker_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -1863,7 +1862,7 @@ class SUPER_Settings {
                 'enable_adaptive_placeholders' => array(
                     'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
                     // allow empty / allow_empty
-                    'default' => self::get_value( $default, 'enable_adaptive_placeholders', $settings, 'true', true ),
+                    'default' => self::get_value( $default, 'enable_adaptive_placeholders', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
                     'values' => array(
@@ -1873,7 +1872,7 @@ class SUPER_Settings {
                 'placeholder_adaptive_positioning' => array(
                     'desc' => esc_html__( 'When enabled the placeholder will always be at it\'s adaptive position, even when the field is not focussed', 'super-forms' ),
                     // allow empty / allow_empty
-                    'default' => self::get_value( $default, 'placeholder_adaptive_positioning', $settings, '', true ),
+                    'default' => self::get_value( $default, 'placeholder_adaptive_positioning', $settings, '' ),
                     'type' => 'checkbox', 
                     'values' => array(
                         'true' => esc_html__( 'Use the adaptive positioning by default', 'super-forms' ),
@@ -1927,6 +1926,7 @@ class SUPER_Settings {
 
                 // @since 3.6.0 - option to center the form
                 'theme_center_form' => array(
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'theme_center_form', $settings, '' ),
                     'values' => array(
                         'true' => esc_html__('Center the form', 'super-forms' ),
@@ -2186,6 +2186,7 @@ class SUPER_Settings {
                 ),
                 'theme_field_transparent' => array(
                     'desc' => esc_html__( 'Allows you to set the field background to transparent', 'super-forms' ), 
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'theme_field_transparent', $settings, '' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
@@ -2356,6 +2357,7 @@ class SUPER_Settings {
                 // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
                 'theme_multipart_progress_bar' => array(
                     'desc' => esc_html__( 'Enable this if you want to show the progress bar for Multi-part', 'super-forms' ), 
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'theme_multipart_progress_bar', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
@@ -2390,6 +2392,7 @@ class SUPER_Settings {
                 // @since 3.3.0 - Option to show/hide the progress bar for mult-parts
                 'theme_multipart_steps' => array(
                     'desc' => esc_html__( 'Enable this if you want to show the steps for Multi-part', 'super-forms' ), 
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'theme_multipart_steps', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'filter'=>true,
@@ -2400,6 +2403,7 @@ class SUPER_Settings {
                 // @since 4.6.0 - option to hide steps on mobile devices
                 'theme_multipart_steps_hide_mobile' => array(
                     'desc' => esc_html__( 'Enable this if you want to hide the steps on mobile devices', 'super-forms' ), 
+                    // allow empty / allow_empty
                     'default' => self::get_value( $default, 'theme_multipart_steps_hide_mobile', $settings, 'true' ),
                     'type' => 'checkbox', 
                     'values' => array(
@@ -2530,7 +2534,7 @@ class SUPER_Settings {
                 )
             )
         );
-        $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_theme_colors_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         /** 
          *  Font families
@@ -2549,7 +2553,7 @@ class SUPER_Settings {
                 ),
                 'font_global_family' => array(
                     'name' => esc_html__( 'Global font family', 'super-forms' ),
-                    'label' => esc_html__( 'Defaults to "Helvetica", "Arial", sans-serif (when left blank). To use for example Raleway google font you can enter: \'Raleway\', sans-serif', 'super-forms' ),
+                    'label' => esc_html__( 'To use for example Raleway google font you can enter: \'Raleway\', sans-serif', 'super-forms' ),
                     'default' => self::get_value( $default, 'font_global_family', $settings, '"Helvetica", "Arial", sans-serif' ),
                 ),
             )
@@ -2745,7 +2749,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_font_styles_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_font_styles_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -2765,7 +2769,7 @@ class SUPER_Settings {
                 ),
             )
         );
-        $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_form_custom_css_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         
         /** 
@@ -2967,7 +2971,7 @@ class SUPER_Settings {
                 )
             ),
         );
-        $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_backend_settings_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
         
         /** 
          *	WooCommerce /my-account menu items
@@ -2993,7 +2997,7 @@ class SUPER_Settings {
                 ),
             ),
         );
-        $array = apply_filters( 'super_settings_after_wc_my_account_menu_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_wc_my_account_menu_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         /** 
          *  Custom CSS
@@ -3012,7 +3016,7 @@ class SUPER_Settings {
                 ),
             ),
         );
-        $array = apply_filters( 'super_settings_after_custom_css_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_custom_css_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
 
         /** 
@@ -3032,9 +3036,9 @@ class SUPER_Settings {
                 ),
             ),
         );
-        $array = apply_filters( 'super_settings_after_custom_js_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_custom_js_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
         // Old deprecated hook (keep for possible backward compatibility)
-        $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_smtp_server_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
 
         
         /** 
@@ -3050,7 +3054,7 @@ class SUPER_Settings {
                 '<span class="super-button super-restore-default super-delete">' . esc_html__( 'Restore Default Settings', 'super-forms' ) . '</span>',
             ),
         );
-        $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_restore_default_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
         
         
         /** 
@@ -3069,7 +3073,7 @@ class SUPER_Settings {
                 '<p><b>Super Forms ' . esc_html__('version', 'super-forms' ) . ':</b> ' . SUPER_VERSION . '</p>',
             ),
         );
-        $array = apply_filters( 'super_settings_after_system_status_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_system_status_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
         
          
         /** 
@@ -3175,9 +3179,9 @@ class SUPER_Settings {
                 '</div>'
             ),
         );
-        $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings ) );
-        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings ) );
-        $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings ) );
+        $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
+        $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
+        $array = apply_filters( 'super_settings_end_filter', $array, array( 'settings'=>$settings, 'default'=>$default ) );
         
         return $array;
         
@@ -3193,8 +3197,10 @@ class SUPER_Settings {
      *
      *	@since		1.0.0
     */
-    public static function get_value( $strict_default, $name, $settings, $default, $allow_empty=false ) {
-        if( $strict_default==1 ) return $default;
+    public static function get_value( $strict_default, $name, $settings, $default ) {
+        if( $strict_default==1 ) {
+            return $default;
+        } 
         // Check if this setting is allowd to be left empty
         if( !isset( $settings[$name] ) ) return $default;
         return $settings[$name];

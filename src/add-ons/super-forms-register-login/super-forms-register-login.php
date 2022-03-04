@@ -525,7 +525,9 @@ if( !class_exists('SUPER_Register_Login') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             global $wp_roles;
             $all_roles = $wp_roles->roles;
             $editable_roles = apply_filters( 'editable_roles', $all_roles );
@@ -540,7 +542,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_action' => array(
                         'name' => esc_html__( 'Actions', 'super-forms' ),
                         'label' => esc_html__( 'Select what the form should do (register, login, update or reset a password)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_action', $settings['settings'], 'none' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_action', $settings, 'none' ),
                         'filter' => true,
                         'type' => 'select',
                         'values' => array(
@@ -554,7 +556,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_custom_email_header' => array(
                         'name'=> esc_html__( 'E-mail headers', 'super-forms' ),
                         'label' => sprintf( esc_html__( 'Inherit headers from your Admin or Confirmation email settings.%1$s%2$sNote:%3$s you must define custom headers in case you are not sending Admin or Confirmation emails.', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_custom_email_header', $settings['settings'], 'admin' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_custom_email_header', $settings, 'admin' ),
                         'type'=>'select',
                         'values'=>array(
                             'custom' => esc_html__(  'Use custom headers', 'super-forms' ),
@@ -568,7 +570,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_header_from_type' => array(
                         'name'=> esc_html__( 'Send email from:', 'super-forms' ),
                         'desc' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_from_type', $settings['settings'], '{option_admin_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_from_type', $settings, '{option_admin_email}' ),
                         'type'=>'select',
                         'values'=>array(
                             'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
@@ -581,7 +583,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_header_from' => array(
                         'name' => esc_html__( 'From email:', 'super-forms' ),
                         'desc' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_from', $settings['settings'], '{option_admin_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_from', $settings, '{option_admin_email}' ),
                         'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
                         'filter'=>true,
                         'parent'=>'register_header_from_type',
@@ -590,14 +592,14 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_header_from_name' => array(
                         'name' => esc_html__( 'From name:', 'super-forms' ),
                         'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_from_name', $settings['settings'], '{option_blogname}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_from_name', $settings, '{option_blogname}' ),
                         'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
                         'filter'=>true,
                         'parent'=>'register_header_from_type',
                         'filter_value'=>'custom',
                     ),
                     'register_header_reply_enabled' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply_enabled', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_reply_enabled', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
@@ -609,7 +611,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_header_reply' => array(
                         'name' => esc_html__( 'Reply to email:', 'super-forms' ),
                         'desc' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply', $settings['settings'], '{option_admin_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_reply', $settings, '{option_admin_email}' ),
                         'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
                         'filter'=>true,
                         'parent'=>'register_header_reply_enabled',
@@ -618,7 +620,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_header_reply_name' => array(
                         'name' => esc_html__( 'Reply to name:', 'super-forms' ),
                         'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_header_reply_name', $settings['settings'], '{option_blogname}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_header_reply_name', $settings, '{option_blogname}' ),
                         'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
                         'filter'=>true,
                         'parent'=>'register_header_reply_enabled',
@@ -627,7 +629,7 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                     // @since 1.4.0 - option to register new user if user doesn't exists while updating user
                     'register_login_register_not_logged_in' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_register_not_logged_in', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_register_not_logged_in', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Register new user if user is not logged in', 'super-forms' ),
@@ -641,7 +643,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_user_id_update' => array(
                         'name' => esc_html__( 'Update based on user ID (user_id)', 'super-forms' ),
                         'label' => esc_html__( 'A hidden field named "user_id" must be present in your form in order for this to work', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_user_id_update', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_user_id_update', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Update user based on user_id field or GET or POST', 'super-forms' ),
@@ -654,7 +656,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // @since 1.2.6 - skip registration if user_login or user_email are not found
                     'register_login_action_skip_register' => array(
                         'label' => esc_html__( 'This option is only usefull whenever you conditionally hide the user_login or user_email field', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_action_skip_register', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_action_skip_register', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Skip registration if user_login or user_email are not found', 'super-forms' ),
@@ -669,7 +671,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'Which user roles are allowed to login?', 'super-forms' ),
                         'type' => 'select',
                         'multiple' => true,
-                        'default' => SUPER_Settings::get_value( 0, 'login_user_role', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'login_user_role', $settings, '' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'login',
@@ -679,7 +681,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'User role', 'super-forms' ),
                         'label' => esc_html__( 'What user role should this user get?', 'super-forms' ),
                         'type' => 'select',
-                        'default' => SUPER_Settings::get_value( 0, 'register_user_role', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_user_role', $settings, '' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,update',
@@ -689,7 +691,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Send email confirmation/verification email', 'super-forms' ),
                         'label' => esc_html__( 'Optionally let users verify their account or let them instantly login without verification', 'super-forms' ),
                         'type' => 'select',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_activation', $settings['settings'], 'verify' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_activation', $settings, 'verify' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'register',
@@ -704,7 +706,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_url' => array(
                         'name' => esc_html__( 'Login page URL', 'super-forms' ),
                         'label' => esc_html__( 'URL of your login page where you placed the login form, here users can verify their email address', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_url', $settings['settings'], get_site_url() . '/login/' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_url', $settings, get_site_url() . '/login/' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,login,reset_password,update',
@@ -713,7 +715,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_welcome_back_msg' => array(
                         'name' => esc_html__( 'Welcome back message', 'super-forms' ),
                         'label' => esc_html__( 'Display a welcome message after user has logged in (leave blank for no message)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_welcome_back_msg', $settings['settings'], esc_html__( 'Welcome back {user_login}!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_welcome_back_msg', $settings, esc_html__( 'Welcome back {user_login}!', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'login',
@@ -722,7 +724,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_incorrect_code_msg' => array(
                         'name' => esc_html__( 'Incorrect activation code message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when the activation code is incorrect', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_incorrect_code_msg', $settings['settings'], esc_html__( 'The combination username, password and activation code is incorrect!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_incorrect_code_msg', $settings, esc_html__( 'The combination username, password and activation code is incorrect!', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'login',
@@ -731,7 +733,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_account_activated_msg' => array(
                         'name' => esc_html__( 'Account verified message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when account has been verified', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_account_activated_msg', $settings['settings'], esc_html__( 'Hello {user_login}, your account has been verified!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_account_activated_msg', $settings, esc_html__( 'Hello {user_login}, your account has been verified!', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'login',
@@ -740,7 +742,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_activation_subject' => array(
                         'name' => esc_html__( 'Verification E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Verify your account', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_activation_subject', $settings['settings'], esc_html__( 'Verify your account', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_activation_subject', $settings, esc_html__( 'Verify your account', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
@@ -750,14 +752,14 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Activation E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message. You can use {activation_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_activation_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your activation code. You need this code to verify your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_activation_email', $settings, sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your activation code. You need this code to verify your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
                         'allow_empty' => true,
                     ),
                     'register_login_show_toolbar' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_show_toolbar', $settings['settings'], 'true' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_show_toolbar', $settings, 'true' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Show Toolbar when viewing site (enabled by default)', 'super-forms' ),
@@ -771,7 +773,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Save custom user meta', 'super-forms' ),
                         'label' => esc_html__( 'Useful for external plugins such as WooCommerce. Example: \'field_name|meta_key\' (each on a new line)', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_user_meta', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_user_meta', $settings, '' ),
                         'placeholder' => "field_name|meta_key\nbilling_first_name|billing_first_name\nbilling_last_name|billing_last_name\nbilling_company|billing_company\nbilling_address_1|billing_address_1\nbilling_address_2|billing_address_2\nbilling_city|billing_city\nbilling_postcode|billing_postcode\nbilling_country|billing_country\nbilling_state|billing_state\nbilling_phone|billing_phone\nbilling_email|billing_email\nshipping_first_name|shipping_first_name\nshipping_last_name|shipping_last_name\nshipping_company|shipping_company\nshipping_address_1|shipping_address_1\nshipping_address_2|shipping_address_2\nshipping_city|shipping_city\nshipping_postcode|shipping_postcode\nshipping_country|shipping_country\nshipping_state|shipping_state",
                         'filter' => true,
                         'parent' => 'register_login_action',
@@ -780,7 +782,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     ),
                     'register_login_multisite_enabled' => array(
                         'desc' => esc_html__( 'This will create a new site within your wordpress site network', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_enabled', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_enabled', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Create new Multi-site after registration', 'super-forms' ),
@@ -792,7 +794,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_multisite_domain' => array(
                         'name' => esc_html__( 'Domain name for blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_domain', $settings['settings'], '{user_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_domain', $settings, '{user_email}' ),
                         'filter' => true,
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
@@ -801,7 +803,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_multisite_path' => array(
                         'name' => esc_html__( 'Path to the blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_path', $settings['settings'], '{user_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_path', $settings, '{user_email}' ),
                         'filter' => true,
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
@@ -810,7 +812,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_multisite_title' => array(
                         'name' => esc_html__( 'Title for blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_title', $settings['settings'], '{user_email}' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_title', $settings, '{user_email}' ),
                         'filter' => true,
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
@@ -819,14 +821,14 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_login_multisite_id' => array(
                         'name' => esc_html__( 'Site ID, if running multiple networks', 'super-forms' ),
                         'label' => esc_html__( 'Default: 1', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_id', $settings['settings'], '1' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_id', $settings, '1' ),
                         'filter' => true,
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
                     ),
                     'register_login_multisite_email' => array(
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_multisite_email', $settings['settings'], 'true' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_multisite_email', $settings, 'true' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Send site credentials to the user email', 'super-forms' ),
@@ -839,7 +841,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_reset_password_success_msg' => array(
                         'name' => esc_html__( 'Success message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message after user has reset their password (leave blank for no message)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_success_msg', $settings['settings'], esc_html__( 'Your password has been reset. We have just send you a new password to your email address.', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_reset_password_success_msg', $settings, esc_html__( 'Your password has been reset. We have just send you a new password to your email address.', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -848,7 +850,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_reset_password_not_exists_msg' => array(
                         'name' => esc_html__( 'Not found message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when no user was found (leave blank for no message)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_not_exists_msg', $settings['settings'], esc_html__( 'We couldn\'t find a user with the given email address!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_reset_password_not_exists_msg', $settings, esc_html__( 'We couldn\'t find a user with the given email address!', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -857,7 +859,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_reset_password_subject' => array(
                         'name' => esc_html__( 'Lost Password E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your new password. You can use {user_login}', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_subject', $settings['settings'], esc_html__( 'Your new password', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_reset_password_subject', $settings, esc_html__( 'Your new password', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -867,7 +869,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Lost Password E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_reset_password_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_reset_password_email', $settings, sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
@@ -879,7 +881,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Not logged in message (leave blank for no message)', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when no user is logged in', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_not_logged_in_msg', $settings['settings'], sprintf( esc_html__( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_not_logged_in_msg', $settings, sprintf( esc_html__( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
@@ -890,7 +892,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'E.g: field_name|meta_key (each on a new line)', 'super-forms' ),
                         'desc' => esc_html__( 'Useful for external plugins such as WooCommerce.', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_login_update_user_meta', $settings['settings'], "billing_first_name|billing_first_name\nbilling_last_name|billing_last_name\nbilling_company|billing_company\nbilling_address_1|billing_address_1\nbilling_address_2|billing_address_2\nbilling_city|billing_city\nbilling_postcode|billing_postcode\nbilling_country|billing_country\nbilling_state|billing_state\nbilling_phone|billing_phone\nbilling_email|billing_email\nshipping_first_name|shipping_first_name\nshipping_last_name|shipping_last_name\nshipping_company|shipping_company\nshipping_address_1|shipping_address_1\nshipping_address_2|shipping_address_2\nshipping_city|shipping_city\nshipping_postcode|shipping_postcode\nshipping_country|shipping_country\nshipping_state|shipping_state" ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_login_update_user_meta', $settings, "billing_first_name|billing_first_name\nbilling_last_name|billing_last_name\nbilling_company|billing_company\nbilling_address_1|billing_address_1\nbilling_address_2|billing_address_2\nbilling_city|billing_city\nbilling_postcode|billing_postcode\nbilling_country|billing_country\nbilling_state|billing_state\nbilling_phone|billing_phone\nbilling_email|billing_email\nshipping_first_name|shipping_first_name\nshipping_last_name|shipping_last_name\nshipping_company|shipping_company\nshipping_address_1|shipping_address_1\nshipping_address_2|shipping_address_2\nshipping_city|shipping_city\nshipping_postcode|shipping_postcode\nshipping_country|shipping_country\nshipping_state|shipping_state" ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
@@ -900,7 +902,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'User login status after registration', 'super-forms' ),
                         'label' => esc_html__( 'Only set this to "Pending" if you wish to manually verify registrations of users.', 'super-forms' ),
                         'type' => 'select',
-                        'default' => SUPER_Settings::get_value( 0, 'register_user_signup_status', $settings['settings'], 'active' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_user_signup_status', $settings, 'active' ),
                         'filter' => true,
                         'parent' => 'register_login_action',
                         'filter_value' => 'register',
@@ -913,7 +915,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // @since 1.2.7 - Send activation email when account is activated by admin
                     'register_send_approve_email' => array(
                         'desc' => esc_html__( 'When admin approves registration this email will be send to the user', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_send_approve_email', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_send_approve_email', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Send approve email when account is activated by admin', 'super-forms' ),
@@ -925,7 +927,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_approve_subject' => array(
                         'name' => esc_html__( 'Approved E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your account has been approved', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_approve_subject', $settings['settings'], esc_html__( 'Account has been approved', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_approve_subject', $settings, esc_html__( 'Account has been approved', 'super-forms' ) ),
                         'filter' => true,
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
@@ -935,7 +937,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Approved E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( 0, 'register_approve_email', $settings['settings'], sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_approve_email', $settings, sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ) ),
                         'filter' => true,
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
@@ -944,7 +946,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'register_approve_generate_pass' => array(
                         'desc' => esc_html__( 'This will generate a new password as soon as the user account has been approved', 'super-forms' ),
                         'label' => esc_html__( 'You can retrieve the generated password with {register_generated_password} in the email', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'register_approve_generate_pass', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'register_approve_generate_pass', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Generate new password on the fly when sending approve email', 'super-forms' ),

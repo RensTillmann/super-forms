@@ -427,7 +427,9 @@ if( !class_exists('SUPER_Password_Protect') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $settings ) {
+        public static function add_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             global $wp_roles;
             $all_roles = $wp_roles->roles;
             $editable_roles = apply_filters( 'editable_roles', $all_roles );
@@ -442,7 +444,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                 'fields' => array(
                     'password_protect' => array(
                         'desc' => esc_html__( 'Use a password to protect the form', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect', $settings, '' ),
                         'type' => 'checkbox', 
                         'filter'=>true,
                         'values' => array(
@@ -452,7 +454,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     'password_protect_password' => array(
                         'name' => esc_html__( 'Password', 'super-forms' ),
                         'desc' => esc_html__( 'Enter a password to protect the form', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_password', $settings['settings'], wp_generate_password( 24 ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_password', $settings, wp_generate_password( 24 ) ),
                         'filter' => true,
                         'parent' => 'password_protect',
                         'filter_value' => 'true',
@@ -460,7 +462,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     'password_protect_incorrect_msg' => array(
                         'name' => esc_html__( 'Incorrect password message', 'super-forms' ), 
                         'desc' => esc_html__( 'The message to display when an incorrect password was entered', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_incorrect_msg', $settings['settings'], esc_html__( 'Incorrect password, please try again!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_incorrect_msg', $settings, esc_html__( 'Incorrect password, please try again!', 'super-forms' ) ),
                         'type' => 'textarea',
                         'filter'=>true,
                         'parent' => 'password_protect',
@@ -470,7 +472,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
 
                     'password_protect_roles' => array(
                         'desc' => esc_html__( 'Allows only specific user roles to submit the form', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_roles', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_roles', $settings, '' ),
                         'type' => 'checkbox', 
                         'filter'=>true,
                         'values' => array(
@@ -482,7 +484,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'desc' => esc_html__( 'Select all user roles who are allowed to submit the form', 'super-forms' ),
                         'type' => 'select',
                         'multiple' => true,
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_user_roles', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_user_roles', $settings, '' ),
                         'filter' => true,
                         'parent' => 'password_protect_roles',
                         'filter_value' => 'true',
@@ -490,7 +492,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     ),
                     'password_protect_hide' => array(
                         'desc' => esc_html__( 'Hide the form from locked out users', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_hide', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_hide', $settings, '' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -501,7 +503,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     ),
                     'password_protect_show_msg' => array(
                         'desc' => esc_html__( 'Display a message to the locked out user', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_show_msg', $settings['settings'], 'true' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_show_msg', $settings, 'true' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -514,7 +516,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     'password_protect_msg' => array(
                         'name' => esc_html__( 'Message for locked out users', 'super-forms' ), 
                         'desc' => esc_html__( 'The message to display to locked out users', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_msg', $settings['settings'], esc_html__( 'You do not have permission to submit this form!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_msg', $settings, esc_html__( 'You do not have permission to submit this form!', 'super-forms' ) ),
                         'type' => 'textarea',
                         'filter'=>true,
                         'parent' => 'password_protect_show_msg',
@@ -524,7 +526,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
 
                     'password_protect_login' => array(
                         'desc' => esc_html__( 'Allow only logged in users to submit the form', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_login', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_login', $settings, '' ),
                         'type' => 'checkbox', 
                         'filter'=>true,
                         'values' => array(
@@ -533,7 +535,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     ),
                     'password_protect_login_hide' => array(
                         'desc' => esc_html__( 'Hide the form from not logged in users', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_login_hide', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_login_hide', $settings, '' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -544,7 +546,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     ),
                     'password_protect_show_login_msg' => array(
                         'desc' => esc_html__( 'Display a message to the logged out user', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_show_login_msg', $settings['settings'], 'true' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_show_login_msg', $settings, 'true' ),
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -557,7 +559,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     'password_protect_login_msg' => array(
                         'name' => esc_html__( 'Message for not logged in users', 'super-forms' ), 
                         'desc' => esc_html__( 'The message to display to none logged in users', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_login_msg', $settings['settings'], esc_html__( 'You are currently not logged in. In order to submit the form make sure you are logged in!', 'super-forms' ) ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_login_msg', $settings, esc_html__( 'You are currently not logged in. In order to submit the form make sure you are logged in!', 'super-forms' ) ),
                         'type' => 'textarea',
                         'filter'=>true,
                         'parent' => 'password_protect_show_login_msg',
@@ -568,7 +570,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     // @since 1.0.1 - option to only display the error message after form submit (instead of both on form init and submit)
                     'password_protect_show_login_after_submit' => array(
                         'desc' => esc_html__( 'Only display the message after the user tried to submit the form', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_show_login_after_submit', $settings['settings'], 'true' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_show_login_after_submit', $settings, 'true' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Only display after user tried to submit the form', 'super-forms' ),
@@ -582,7 +584,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                     // @since 1.0.3 - option to hide form for logged in users
                     'password_protect_not_login_hide' => array(
                         'desc' => esc_html__( 'Hide the form from logged in users', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( 0, 'password_protect_not_login_hide', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'password_protect_not_login_hide', $settings, '' ),
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Hide form from logged in users', 'super-forms' ),

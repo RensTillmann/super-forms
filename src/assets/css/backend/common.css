@@ -517,6 +517,9 @@
   align-items: center;
   margin-top: 4px !important;
 }
+.super-color-picker-container:hover .super-color-picker {
+  margin-left: -29px;
+}
 .super-color-picker-container:hover .super-reset-default-value,
 .super-color-picker-container:hover .super-reset-global-value {
   display: flex;
@@ -530,7 +533,8 @@
   display: none;
   justify-content: center;
   align-items: center;
-  margin-left: 5px;
+  margin-left: 0px;
+  margin-right: 5px;
   color: #999999;
   font-size: 12px;
   cursor: pointer;
@@ -558,6 +562,9 @@
 }
 .super-color-picker-container .super-color-picker .wp-picker-container > .button {
   margin: 0;
+}
+.super-settings .super-reset-global-value {
+  display: none!important;
 }
 .super-settings input,
 .super-settings textarea,

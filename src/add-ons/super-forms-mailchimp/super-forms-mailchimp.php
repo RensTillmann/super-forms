@@ -568,7 +568,9 @@ if( !class_exists('SUPER_Mailchimp') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_mailchimp_settings( $array, $settings ) {
+        public static function add_mailchimp_settings( $array, $x ) {
+            $default = $x['default'];
+            $settings = $x['settings'];
             $array['mailchimp'] = array(        
                 'hidden' => true,
                 'name' => esc_html__( 'Mailchimp', 'super-forms' ),
@@ -576,7 +578,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 'fields' => array(
                     'mailchimp_key' => array(
                         'name' => esc_html__( 'API key', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( 0, 'mailchimp_key', $settings['settings'], '' ),
+                        'default' => SUPER_Settings::get_value( $default, 'mailchimp_key', $settings, '' ),
                     )
                 )
             );

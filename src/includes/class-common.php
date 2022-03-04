@@ -37,6 +37,16 @@ class SUPER_Common {
         }
         return true; // valid
     }
+
+    public static function reset_setting_icons($name, $default){
+        $default_settings = SUPER_Common::get_default_settings(null, 1);
+        $default = (isset($default_settings[$name]) ? $default_settings[$name] : '');
+        $global_settings = SUPER_Common::get_global_settings();
+        $global = (isset($global_settings[$name]) ? $global_settings[$name] : '');
+        $html = '<i class="fas fa-eraser super-reset-default-value" title="' . esc_html__( 'default value', 'super-forms' ) . '" data-value="'.esc_attr($default).'"></i>';
+        $html .= '<i class="fas fa-undo-alt super-reset-global-value" title="' . esc_html__( 'global value', 'super-forms' ) . '" data-value="'.esc_attr($global).'"></i>';
+        return $html;
+    }
      
     // @since 4.7.7 - US states (currently used by dropdown element only)
     public static function us_states(){
@@ -625,6 +635,39 @@ class SUPER_Common {
         }
         return SUPER_Forms()->global_settings;
     }
+
+
+    /**
+     * Get default settings
+     *
+     * @since 4.6.0
+     */
+    public static function get_default_settings($settings=null, $strict=1){
+        if(!isset(SUPER_Forms()->default_settings)){
+            // First retrieve all the fields and their default value
+            if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
+            $fields = SUPER_Settings::fields( $settings, $strict );
+            // Loop through all the settings and create a nice array so we can save it to our database
+            $array = array();
+            foreach( $fields as $k => $v ) {
+                if( !isset( $v['fields'] ) ) continue;
+                foreach( $v['fields'] as $fk => $fv ) {
+                    if( ( isset( $fv['type'] ) ) && ( $fv['type']=='multicolor' ) ) {
+                        foreach( $fv['colors'] as $ck => $cv ) {
+                            if( !isset( $cv['default'] ) ) $cv['default'] = '';
+                            $array[$ck] = $cv['default'];
+                        }
+                    }else{
+                        if( !isset( $fv['default'] ) ) $fv['default'] = '';
+                        $array[$fk] = $fv['default'];
+                    }
+                }
+            }
+            SUPER_Forms()->default_settings = $array;
+        }
+        return SUPER_Forms()->default_settings;
+    }
+
 
     /**
      * Get form settings
