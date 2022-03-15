@@ -2686,7 +2686,7 @@
                         action: 'super_create_nonce'
                     },
                     success: function (nonce) {
-                        $form.find('input[name="sf_nonce"]').val(nonce);
+                        $form.find('input[name="sf_nonce"]').val(nonce.trim());
                     },
                     complete: function(){
                         var $form_id = $form.find('input[name="hidden_form_id"]').val(),

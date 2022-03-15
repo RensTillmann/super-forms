@@ -3004,30 +3004,6 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .sfui-setting select {
   padding: 0 25px 0 5px !important;
 }
-.super-color-picker-container:hover .super-reset-default-value,
-.super-color-picker-container:hover .super-reset-global-value {
-  display: flex;
-}
-.super-color-picker-container .super-reset-default-value,
-.super-color-picker-container .super-reset-global-value {
-  border-radius: 100px;
-  background-color: #eaeaea;
-  width: 24px;
-  height: 24px;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  margin-left: 0px;
-  margin-right: 5px;
-  color: #999999;
-  font-size: 12px;
-  cursor: pointer;
-}
-.super-color-picker-container .super-reset-default-value:hover,
-.super-color-picker-container .super-reset-global-value:hover {
-  background-color: #49B4B6;
-  color: #fff;
-}
 .super-color-picker-container .super-color-picker-label {
   width: 180px;
 }

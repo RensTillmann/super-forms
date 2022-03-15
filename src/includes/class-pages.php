@@ -427,8 +427,8 @@ class SUPER_Pages {
         }
         $settings = SUPER_Common::get_form_settings($form_id);
 
-        // Retrieve all settings with the correct default values
-        $form_settings = SUPER_Settings::fields( $settings, 0 );
+        // Retrieve all form setting fields with the correct default values
+        $fields = SUPER_Settings::fields( $settings );
 
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();

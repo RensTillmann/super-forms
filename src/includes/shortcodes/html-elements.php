@@ -376,8 +376,8 @@ $array['html_elements'] = array(
                             ),
                             'allow_empty' => true,
                         ),
-                        'exclude' => $exclude,
-                        'exclude_entry' => $exclude_entry // @since 3.3.0 - exclude data from being saved into contact entry
+                        'exclude' => $exclude_for_html_element,
+                        'exclude_entry' => $exclude_entry_for_html_element // @since 3.3.0 - exclude data from being saved into contact entry
                     ),
                 ),
                 // @since 1.9

@@ -136,7 +136,10 @@
             $parent = $this.parents('.super-field');
             if ($hidden === false) {
                 var $name = $this.attr('name');
-                var $value = $this.val();
+                var $value = '_g_';
+                if(!$parent.hasClass('_g_')){
+                    $value = $this.val();
+                }
                 $settings[$name] = $value;
             }
         });
@@ -2316,7 +2319,7 @@
                                 fields[elementField.name] = value;
                             }
                         }else{
-                            if( value==='' ) {
+                            if( value==='' || (elementField.name==='exclude' && value==='0') ) {
                                 allowEmpty = undefined;
                                 if(elementField.closest('.super-field-input')) allowEmpty = elementField.closest('.super-field-input').dataset.allowEmpty;
                                 if( typeof allowEmpty !== 'undefined' ) {
@@ -2698,6 +2701,9 @@
             };
             xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            if($tag==='html' && (typeof $data.name === 'undefined' || $data.name === '')){
+                $data.name = SUPER.generate_new_field_name();
+            }
             var params = {
                 action: 'super_load_element_settings',
                 form_id: $('.super-create-form input[name="form_id"]').val(),

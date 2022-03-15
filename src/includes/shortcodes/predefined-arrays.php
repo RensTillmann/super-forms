@@ -5,23 +5,15 @@ $name = array(
     'default'=> (!isset($attributes['name']) ? '' : $attributes['name']),
     'required'=>true, 
 );
-$email = array(
-    'name'=>esc_html__( 'E-mail & Contact Entry Label', 'super-forms' ), 
-    'label' => esc_html__( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
-    'desc'=>esc_html__( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
-    'default'=> (!isset($attributes['email']) ? '' : $attributes['email']),
-    'required'=>true,
-    'i18n' => true
-);
 $label = array(
     'name'=>esc_html__( 'Field Label', 'super-forms' ), 
-    'desc'=>esc_html__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
+    'label'=>esc_html__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
     'default'=> (!isset($attributes['label']) ? '' : $attributes['label']),
     'i18n' => true
 );
 $description = array(
     'name'=>esc_html__( 'Field description', 'super-forms' ), 
-    'desc'=>esc_html__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
+    'label'=>esc_html__( 'Will be visible in front of your field. (leave blank to remove)', 'super-forms' ),
     'default'=> (!isset($attributes['description']) ? '' : $attributes['description']),
     'i18n' => true
 );
@@ -35,11 +27,11 @@ $extensions = array(
     'default'=> (!isset($attributes['extensions']) ? 'jpg|jpeg|png|gif|pdf' : $attributes['extensions']),
     'type' => 'textarea', 
     'name' => esc_html__( 'Allowed Extensions (seperated by pipes)', 'super-forms' ),
-    'desc' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
+    'label' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
 );
 $special_validations = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'label'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select',
     'values'=>array(
@@ -66,7 +58,7 @@ $custom_regex = array(
 );
 $validation_empty = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'label'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
@@ -77,7 +69,7 @@ $validation_empty = array(
 );
 $validation_empty_plus_regex = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'label'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'none' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
@@ -90,7 +82,7 @@ $validation_empty_plus_regex = array(
 
 $validation_not_empty = array(
     'name'=>esc_html__( 'Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
+    'label'=>esc_html__( 'How does this field need to be validated?', 'super-forms' ), 
     'default'=> (!isset($attributes['validation']) ? 'empty' : $attributes['validation']),
     'type'=>'select', 
     'values'=>array(
@@ -113,7 +105,7 @@ $emptyError = array(
 );
 $allow_empty = array(
     'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
-    'desc'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
+    'label'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
     'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
     'type'=>'select', 
     'values'=>array(
@@ -127,7 +119,7 @@ $allow_empty = array(
 );
 $allow_empty_no_filter = array(
     'name'=>esc_html__( 'Allow field to be empty', 'super-forms' ), 
-    'desc'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
+    'label'=>esc_html__( 'Only apply the validation if field is not empty', 'super-forms' ), 
     'default'=> (!isset($attributes['may_be_empty']) ? 'false' : $attributes['may_be_empty']),
     'type'=>'select', 
     'values'=>array(
@@ -139,7 +131,7 @@ $allow_empty_no_filter = array(
 );
 $allow_empty_conditions = array(
     'name'=>esc_html__( 'Conditions', 'super-forms' ), 
-    'desc'=>esc_html__( 'Validate the field when the following conditions are met.', 'super-forms' ),
+    'label'=>esc_html__( 'Validate the field when the following conditions are met.', 'super-forms' ),
     'type'=>'conditions',
     'default'=> (!isset($attributes['may_be_empty_conditions']) ? '' : $attributes['may_be_empty_conditions']),
     'filter'=>true,
@@ -150,7 +142,7 @@ $allow_empty_conditions = array(
 // @since   1.0.6
 $conditional_validation = array(
     'name'=>esc_html__( 'Conditional Validation', 'super-forms' ), 
-    'desc'=>esc_html__( 'Add some extra validation for this field', 'super-forms' ), 
+    'label'=>esc_html__( 'Add some extra validation for this field', 'super-forms' ), 
     'default'=> (!isset($attributes['conditional_validation']) ? 'none' : $attributes['conditional_validation']),
     'type'=>'select', 
     'filter'=>true,
@@ -186,7 +178,7 @@ $conditional_validation = array(
 );
 $conditional_validation_value = array(
     'name'=>esc_html__( 'Conditional Validation Value', 'super-forms' ), 
-    'desc'=>esc_html__( 'Enter the value you want to validate', 'super-forms' ), 
+    'label'=>esc_html__( 'Enter the value you want to validate', 'super-forms' ), 
     'default'=> (!isset($attributes['conditional_validation_value']) ? '' : $attributes['conditional_validation_value']),
     'filter'=>true,
     'parent'=>'conditional_validation',
@@ -194,7 +186,7 @@ $conditional_validation_value = array(
 );
 $conditional_validation_value2 = array(
     'name'=>esc_html__( 'Conditional Validation Value 2', 'super-forms' ), 
-    'desc'=>esc_html__( 'Enter the second value you want to validate', 'super-forms' ), 
+    'label'=>esc_html__( 'Enter the second value you want to validate', 'super-forms' ), 
     'default'=> (!isset($attributes['conditional_validation_value2']) ? '' : $attributes['conditional_validation_value2']),
     'filter'=>true,
     'parent'=>'conditional_validation',
@@ -202,7 +194,7 @@ $conditional_validation_value2 = array(
 );  
 $grouped = array(
     'name' => esc_html__( 'Individual / Grouped', 'super-forms' ), 
-    'desc' => esc_html__( 'Select grouped, if you wish to append the field next to it\'s previous field.', 'super-forms' ), 
+    'label' => esc_html__( 'Select grouped, if you wish to append the field next to it\'s previous field.', 'super-forms' ), 
     'default'=> (!isset($attributes['grouped']) ? 0 : $attributes['grouped']),
     'type' => 'select', 
     'values' => array(
@@ -213,7 +205,7 @@ $grouped = array(
 );
 $disabled = array(
     'name' => esc_html__( 'Disable the input field', 'super-forms' ), 
-    'desc' => esc_html__( 'Make this field disabled, this way a user cannot edit the field value', 'super-forms' ), 
+    'label' => esc_html__( 'Make this field disabled, this way a user cannot edit the field value', 'super-forms' ), 
     'default'=> (!isset($attributes['disabled']) ? '' : $attributes['disabled']),
     'type' => 'select', 
     'values' => array(
@@ -223,7 +215,7 @@ $disabled = array(
 );
 $readonly = array(
     'name' => esc_html__( 'Make field read-only', 'super-forms' ), 
-    'desc' => esc_html__( 'A read-only input field cannot be modified (however, a user can tab to it, highlight it, and copy the text from it).', 'super-forms' ), 
+    'label' => esc_html__( 'A read-only input field cannot be modified (however, a user can tab to it, highlight it, and copy the text from it).', 'super-forms' ), 
     'default'=> (!isset($attributes['readonly']) ? '' : $attributes['readonly']),
     'type' => 'checkbox', 
     'values' => array(
@@ -315,6 +307,10 @@ $exclude = array(
         '2'=>esc_html__( 'Exclude from all emails', 'super-forms' )
     )
 );
+// The following is required for backward compatibility with older HTML (raw) elements
+// When a user edits an old HTML element the setting to exclude it from entry should be activated by default
+$exclude_for_html_element = $exclude;
+$exclude_for_html_element['allow_empty'] = true;
 
 // @since 3.9.0 - replace comma's with specific html tag in emails for radio/checkbox/dropdown elements
 $replace_commas = array(
@@ -333,6 +329,10 @@ $exclude_entry = array(
         'true' => esc_html__( 'Do not save field in Contact Entry', 'super-forms' ),
     )
 );
+// The following is required for backward compatibility with older HTML (raw) elements
+// When a user edits an old HTML element the setting to exclude it from entry should be activated by default
+$exclude_entry_for_html_element = $exclude_entry;
+$exclude_entry_for_html_element['allow_empty'] = true;
 
 // @since 1.2.7
 $admin_email_value = array(

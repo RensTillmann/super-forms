@@ -128,37 +128,51 @@
 
     jQuery(document).ready(function ($) {
 
-        // Reset setting to default or global value
-        // debugger;
-        // var i, nodes = document.querySelectorAll('.super-reset-default-value');
-        // debugger;
-        // for(i=0; i<nodes.length; i++){
-        //     debugger;
-        //     nodes[i].addEventListener('click',function(){
-        //         debugger;
-        //         console.log(this.dataset.value);
-        //     });
-        // }
-        // var i, nodes = document.querySelectorAll('.super-reset-global-value');
-        // debugger;
-        // for(i=0; i<nodes.length; i++){
-        //     debugger;
-        //     nodes[i].addEventListener('click',function(){
-        //         debugger;
-        //         console.log(this.dataset.value);
-        //     });
-        // }
-        $(document).on('click', '.super-reset-default-value, .super-reset-global-value', function (e) {
-            debugger;
+        $(document).on('click', '.super-reset-default-value, .super-reset-global-value, .super-lock-global-setting', function () {
             var value = this.dataset.value,
-                parent = this.closest('.super-color-picker'),
-                //picker = parent.querySelector('.wp-picker-container'),
-                input = parent.querySelector('input[type="text"]');
-            $(input).iris('color', value); // set the color to #000
-            ////input.value = value;
-            //debugger;
-            //input.wpColorpicker('color', '#000');
-            //input.wpWpColorPicker('color', '#000');
+                colorPicker = this.closest('.super-color-picker');
+            if(colorPicker){
+                var input = colorPicker.querySelector('input[type="text"]');
+                $(input).iris('color', value); // set the color to #000
+                return;
+            }
+            var parent = this.closest('.super-field');
+            var field = parent.querySelector('.super-element-field');
+            var isCheckbox = parent.querySelector('.super-checkbox');
+            field.value = value;
+            if(isCheckbox){
+                var checkbox = isCheckbox.querySelector('input[type="checkbox"]');
+                if(checkbox){
+                    checkbox.checked = false;
+                    if(checkbox.value===value){
+                        checkbox.checked = true;
+                    }
+                }
+            }
+            if(parent.closest('.super-form-settings')){
+                SUPER.init_field_filter_visibility($(parent));
+            }else{
+                SUPER.init_field_filter_visibility($(parent), 'element_settings');
+            }
+            if(this.classList.contains('super-lock-global-setting')){
+                if(parent.classList.contains('_g_')){
+                    parent.classList.remove('_g_');
+                    field.disabled = false;
+                    if(isCheckbox && checkbox){
+                        checkbox.disabled = false;
+                    }
+                    this.title = "Lock to global setting";
+                    return;
+                }
+                parent.classList.add('_g_');
+                field.disabled = true;
+                if(isCheckbox && checkbox){
+                    checkbox.disabled = true;
+                }
+                this.title = "Unlock from global setting";
+                return;
+            }
+            return;
         })
 
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {

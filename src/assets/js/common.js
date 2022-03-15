@@ -3927,7 +3927,7 @@ function SUPERreCaptcha(){
                         };
                     });
                 }else{
-                    $data[$this.attr('name')] = { 
+                    $data[$this.attr('name')] = {
                         'name':$this.attr('name'),
                         'value':$this.val(),
                         'label':$this.data('email'),
@@ -4245,7 +4245,7 @@ function SUPERreCaptcha(){
             },
             success: function (nonce) {
                 // Update new nonce
-                $('input[name="sf_nonce"]').val(nonce);
+                $('input[name="sf_nonce"]').val(nonce.trim());
             },
             complete: function(){
                 if(typeof callback === 'function'){
