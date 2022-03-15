@@ -1603,7 +1603,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['conditional_validation_value2'] ) ) $atts['conditional_validation_value2'] = ''; // @since 3.6.0
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
-        if( !isset( $atts['email'] ) ) $atts['email'] = '';
+        if( !isset( $atts['email'] ) ) $atts['email'] = $atts['name'];
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
@@ -4979,11 +4979,11 @@ class SUPER_Shortcodes {
     }
     public static function email( $attributes=null, $default='' ) {
         $array = array(
-            'name' => esc_html__( 'E-mail & Contact Entry Label', 'super-forms' ) . ' *', 
-            'label' => esc_html__( 'When using dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
+            'name' => esc_html__( 'E-mail & Contact Entry Label', 'super-forms' ), 
+            'label' => esc_html__( 'When left blank it defaults to the field name defined above. Inside dynamic columns, you can use %d to determine where the counter should be placed e.g: "Product %d quantity:" would be converted into "Product 3 quantity:"', 'super-forms' ),
             'desc' => esc_html__( 'Indicates the field in emails and contact entries. (required)', 'super-forms' ),
             'default' => ( !isset( $attributes['email'] ) ? $default : $attributes['email'] ),
-            'required' => true,
+            'required' => false,
             'i18n' => true
         );
         return $array;

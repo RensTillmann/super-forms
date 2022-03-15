@@ -434,13 +434,13 @@ class SUPER_Ajax {
             }
         }
 
-        $form_settings = SUPER_Settings::fields( $settings, 0 );
+        $fields = SUPER_Settings::fields( $settings );
         $settings_html = '';
 
         $settings_html .= '<div class="super-form-settings-tabs">';
             $settings_html .= '<select>';
             $i = 0;
-            foreach( $form_settings as $key => $value ) { 
+            foreach( $fields as $key => $value ) { 
                 if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                     $settings_html .= '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
                     $i++;
@@ -450,7 +450,7 @@ class SUPER_Ajax {
         $settings_html .= '</div>';
         $counter = 0;
 
-        foreach( $form_settings as $key => $value ) { 
+        foreach( $fields as $key => $value ) { 
             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                 $settings_html .= '<div class="tab-content '.($counter==0 ? 'super-active' : '') . '">';
                 if( isset( $value['html'] ) ) {
@@ -1085,7 +1085,7 @@ class SUPER_Ajax {
             $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
             $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
             wp_update_attachment_metadata( $attachment_id,  $attach_data );
-            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            echo trailingslashit(home_url()) . 'sfdlfi/' . $attachment_id;
             die();
         } catch (Exception $e) {
             // Print error message
@@ -1502,7 +1502,7 @@ class SUPER_Ajax {
             $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
             $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
             wp_update_attachment_metadata( $attachment_id,  $attach_data );
-            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            echo trailingslashit(home_url()) . 'sfdlfi/' . $attachment_id;
             die();
         } catch (Exception $e) {
             // Print error message
@@ -1638,7 +1638,7 @@ class SUPER_Ajax {
             }
             echo json_encode(
                 array(
-                    'file_url' => trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id,
+                    'file_url' => trailingslashit(home_url()) . 'sfdlfi/' . $attachment_id,
                     'offset' => $offset+$limit,
                     'found' => $found
                 )
@@ -1849,7 +1849,7 @@ class SUPER_Ajax {
             $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
             $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
             wp_update_attachment_metadata( $attachment_id,  $attach_data );
-            echo trailingslashit(site_url()) . 'sfdlfi/' . $attachment_id;
+            echo trailingslashit(home_url()) . 'sfdlfi/' . $attachment_id;
             die();
         } catch (Exception $e) {
             // Print error message
@@ -1959,18 +1959,6 @@ class SUPER_Ajax {
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
-        // Loop trhough all form settings, and look for duplicates based on global settings
-        if(!empty($_super_form_settings)){
-            foreach( $_super_form_settings as $k => $v ) {
-                // Check if the setting exists on global level
-                if( isset( $global_settings[$k] ) ) {
-                    // Only unset key if value is exactly the same as global setting value
-                    if( $global_settings[$k] == $v ) {
-                        unset( $_super_form_settings[$k] );
-                    }
-                }
-            }
-        }
         // @since 4.7.0 - translation language switcher
         if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
         if( empty( $form_id ) ) {
@@ -2119,6 +2107,9 @@ class SUPER_Ajax {
         $result = '';
         foreach( $fields  as $fk => $fv ) {
             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+            if(isset($data[$fk])){
+                $fv['v'] = $data[$fk];
+            }
             $filter = '';
             $parent = '';
             $filtervalue = '';
@@ -2168,23 +2159,19 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_element_settings( $tag=null, $group=null, $data=null ) {
-        
-        if($tag==null){
-            $tag = $_POST['tag'];
-        }
-        if($group==null){
-            $group = $_POST['group'];
-        }
-        if($data==null){
-            $data = $_POST['data'];
-        }
+        if($tag==null) $tag = $_POST['tag'];
+        if($group==null) $group = $_POST['group'];
+        if($data==null) $data = $_POST['data'];
 
         $settings = SUPER_Common::get_form_settings($_POST['form_id']);
         $shortcodes = SUPER_Shortcodes::shortcodes( false, false, false );
         $array = SUPER_Shortcodes::shortcodes( false, $data, false );
         $tabs = $array[$group]['shortcodes'][$tag]['atts'];
         $result = '';
-        
+        if($tag==='html'){
+            if(!isset($data['exclude']))        $data['exclude'] = '2';
+            if(!isset($data['exclude_entry']))  $data['exclude_entry'] = 'true';
+        }
         $translating = $_POST['translating'];
         if($translating=='false'){
             $result .= '<div class="super-element-settings-tabs">';
@@ -2351,7 +2338,6 @@ class SUPER_Ajax {
             if(is_array($data)) {
                 $data = array_map('stripslashes_deep', $data);
             }
-
             // If updating TAB element, we only want to update the TABs, not the content
             $builder = explode(';', $builder);
             $from = $builder[0];

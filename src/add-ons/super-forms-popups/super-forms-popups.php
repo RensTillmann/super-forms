@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Popups
  * Description: Create fully customizable popups for Super Forms
- * Version:     1.7.2
+ * Version:     1.7.3
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Popup') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.7.2';
+        public $version = '1.7.3';
 
 
         /**

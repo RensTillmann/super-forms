@@ -38,13 +38,12 @@ class SUPER_Common {
         return true; // valid
     }
 
-    public static function reset_setting_icons($name, $default){
-        $default_settings = SUPER_Common::get_default_settings(null, 1);
-        $default = (isset($default_settings[$name]) ? $default_settings[$name] : '');
-        $global_settings = SUPER_Common::get_global_settings();
-        $global = (isset($global_settings[$name]) ? $global_settings[$name] : '');
-        $html = '<i class="fas fa-eraser super-reset-default-value" title="' . esc_html__( 'default value', 'super-forms' ) . '" data-value="'.esc_attr($default).'"></i>';
-        $html .= '<i class="fas fa-undo-alt super-reset-global-value" title="' . esc_html__( 'global value', 'super-forms' ) . '" data-value="'.esc_attr($global).'"></i>';
+    public static function reset_setting_icons($v){
+        $html  = '<div class="super-reset-settings-buttons">';
+            $html .= '<i class="fas fa-eraser super-reset-default-value" title="' . esc_html__( 'Reset to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
+            $html .= '<i class="fas fa-undo-alt super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+            $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+        $html .= '</div>';
         return $html;
     }
      
@@ -642,11 +641,11 @@ class SUPER_Common {
      *
      * @since 4.6.0
      */
-    public static function get_default_settings($settings=null, $strict=1){
+    public static function get_default_settings($settings=null){
         if(!isset(SUPER_Forms()->default_settings)){
             // First retrieve all the fields and their default value
             if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
-            $fields = SUPER_Settings::fields( $settings, $strict );
+            $fields = SUPER_Settings::fields( $settings );
             // Loop through all the settings and create a nice array so we can save it to our database
             $array = array();
             foreach( $fields as $k => $v ) {

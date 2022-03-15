@@ -182,62 +182,60 @@
 			SUPER.init_popups.set_expiration_cookie($wrapper, $settings);
 		}
 
-        setTimeout(function(){
-			$wrapper.css({ 
-				'z-index': 1999999999 // @since 1.2.1 - fix with reCAPTCHA puzzle overlay
-			}).animate({
-				opacity: 1
-			}, parseInt($settings.fade_duration, 10));
-			
-			// Default popup slide show
-			SUPER.reset_popup_origin_position($this, $settings);
-			if($settings.slide=='none'){
-				$this.fadeIn(parseInt($settings.fade_duration, 10));  
-			}
+		$wrapper.css({ 
+			'z-index': 1999999999 // @since 1.2.1 - fix with reCAPTCHA puzzle overlay
+		}).animate({
+			opacity: 1
+		}, parseInt($settings.fade_duration, 10));
+		
+		// Default popup slide show
+		SUPER.reset_popup_origin_position($this, $settings);
+		if($settings.slide=='none'){
+			$this.fadeIn(parseInt($settings.fade_duration, 10));  
+		}
 
-			// Slide from bottom
-			if($settings.slide=='from_bottom'){
-				$window_height = $(window).height();
-				$top_position = ($window_height-$this.outerHeight())/2;
-				$this.animate({
-					opacity: 1
-				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
-				$this.animate({
-					top: $top_position
-				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
-			}
-			// Slide from right
-			if($settings.slide=='from_right'){
-				right_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
-				$this.animate({
-					opacity: 1
-				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
-				$this.animate({
-					right: right_position + 'px'
-				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
-			}
-			// Slide from top
-			if($settings.slide=='from_top'){
-				$window_height = $(window).height();
-				$top_position = ($window_height-$this.outerHeight())/2;
-				$this.animate({
-					opacity: 1
-				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
-				$this.animate({
-					top: $top_position
-				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
-			}
-			// Slide from left
-			if($settings.slide=='from_left'){
-				left_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
-				$this.animate({
-					opacity: 1
-				}, { duration: parseInt($settings.fade_duration, 10), queue: false });
-				$this.animate({
-					left: left_position + 'px' 
-				}, { duration: parseInt($settings.slide_duration, 10), queue: false });
-			}
-		},500);
+		// Slide from bottom
+		if($settings.slide=='from_bottom'){
+			$window_height = $(window).height();
+			$top_position = ($window_height-$this.outerHeight())/2;
+			$this.animate({
+				opacity: 1
+			}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+			$this.animate({
+				top: $top_position
+			}, { duration: parseInt($settings.slide_duration, 10), queue: false });
+		}
+		// Slide from right
+		if($settings.slide=='from_right'){
+			right_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
+			$this.animate({
+				opacity: 1
+			}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+			$this.animate({
+				right: right_position + 'px'
+			}, { duration: parseInt($settings.slide_duration, 10), queue: false });
+		}
+		// Slide from top
+		if($settings.slide=='from_top'){
+			$window_height = $(window).height();
+			$top_position = ($window_height-$this.outerHeight())/2;
+			$this.animate({
+				opacity: 1
+			}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+			$this.animate({
+				top: $top_position
+			}, { duration: parseInt($settings.slide_duration, 10), queue: false });
+		}
+		// Slide from left
+		if($settings.slide=='from_left'){
+			left_position = (($(window).width() - $this.outerWidth()) / 2) + $(window).scrollLeft();
+			$this.animate({
+				opacity: 1
+			}, { duration: parseInt($settings.fade_duration, 10), queue: false });
+			$this.animate({
+				left: left_position + 'px' 
+			}, { duration: parseInt($settings.slide_duration, 10), queue: false });
+		}
 	};
 
 

@@ -510,7 +510,6 @@
     color: white;
 }
 
-
 .super-color-picker-container {
   display: flex;
   justify-content: flex-start;
@@ -519,30 +518,6 @@
 }
 .super-color-picker-container:hover .super-color-picker {
   margin-left: -29px;
-}
-.super-color-picker-container:hover .super-reset-default-value,
-.super-color-picker-container:hover .super-reset-global-value {
-  display: flex;
-}
-.super-color-picker-container .super-reset-default-value,
-.super-color-picker-container .super-reset-global-value {
-  border-radius: 100px;
-  background-color: #eaeaea;
-  width: 24px;
-  height: 24px;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  margin-left: 0px;
-  margin-right: 5px;
-  color: #999999;
-  font-size: 12px;
-  cursor: pointer;
-}
-.super-color-picker-container .super-reset-default-value:hover,
-.super-color-picker-container .super-reset-global-value:hover {
-  background-color: #49B4B6;
-  color: #fff;
 }
 .super-color-picker-container .super-color-picker-label {
   font-size: 12px;
@@ -563,7 +538,8 @@
 .super-color-picker-container .super-color-picker .wp-picker-container > .button {
   margin: 0;
 }
-.super-settings .super-reset-global-value {
+.super-settings .super-reset-global-value,
+.super-settings .super-lock-global-setting {
   display: none!important;
 }
 .super-settings input,

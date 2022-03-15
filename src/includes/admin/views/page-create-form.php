@@ -330,7 +330,7 @@
                         echo '<div class="super-form-settings-tabs">';
                             echo '<select>';
                             $i = 0;
-                            foreach( $form_settings as $key => $value ) { 
+                            foreach( $fields as $key => $value ) { 
                                 if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                                     echo '<option value="' . $i . '" ' . ( $i==0 ? 'selected="selected"' : '') . '>' . $value['name'] . '</option>';
                                     $i++;
@@ -340,7 +340,7 @@
                         echo '</div>';
 
                         $counter = 0;
-                        foreach( $form_settings as $key => $value ) { 
+                        foreach( $fields as $key => $value ) { 
                             if( ( (!isset($value['hidden'])) || ($value['hidden']==false) || ($value['hidden']==='settings') ) && (!empty($value['name'])) ) {
                                 $counter++;
                                 echo '<div class="tab-content '.($counter==1 ? 'super-active' : '') . '">';
@@ -360,8 +360,15 @@
                                                 if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
-                                            echo '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
-                                            echo '>';
+                                            echo '<div class="super-field' . $filter;
+                                            // If locked to global value `_g_` then add class
+                                            $v['lockToGlobalSetting'] = false;
+                                            if($v['v']==='_g_'){
+                                                $v['v'] = $v['g'];
+                                                $v['lockToGlobalSetting'] = true;
+                                                echo ' _g_';
+                                            }
+                                            echo '"' . $parent . $filtervalue . '>';
                                                 if( isset( $v['name'] ) ) echo '<div class="super-field-name">' . $v['name'] . '</div>';
                                                 if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
                                                 if( isset( $v['label'] ) ) echo '<div class="super-field-label">' . nl2br($v['label']) . '</div>';
