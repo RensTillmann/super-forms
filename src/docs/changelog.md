@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 17, 2022 - Version 6.2.202
+
+- **Fix:** Issue with `Exclude dates or a range of dates` setting for datepickers when being used on multiple datepickers in the form
+
 ## Mar 04, 2022 - Version 6.2.201
 
 - **Fix:** An issue since v6.2.200 with dynamic columns where newly columns were inserted after the first column
