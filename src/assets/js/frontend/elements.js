@@ -632,25 +632,25 @@
                                 date = ('0' + dt.getDate()).slice(-2);
                                 month = ('0' + (dt.getMonth()+1)).slice(-2);
                                 fullDate = dt.getFullYear() + '-' + month + '-' + date;
-                                i;
-                                for( i=0; i < exclDaysOverrideReplaced.length; i++ ) {
-                                    if(exclDaysOverrideReplaced[i]==='') continue;
+                                var x;
+                                for( x=0; x < exclDaysOverrideReplaced.length; x++ ) {
+                                    if(exclDaysOverrideReplaced[x]==='') continue;
                                     // If excluding a fixed day of month
-                                    if(exclDaysOverrideReplaced[i].length<=2){
-                                        if(exclDaysOverrideReplaced[i]==day){
+                                    if(exclDaysOverrideReplaced[x].length<=2){
+                                        if(exclDaysOverrideReplaced[x]==day){
                                             return [true, ""];
                                         }
                                     }
                                     // If excluding a specific month
-                                    if(exclDaysOverrideReplaced[i].length===3){
-                                        if(exclDaysOverrideReplaced[i].toLowerCase()==dt.toString('MMM').toLowerCase()){
+                                    if(exclDaysOverrideReplaced[x].length===3){
+                                        if(exclDaysOverrideReplaced[x].toLowerCase()==dt.toString('MMM').toLowerCase()){
                                             return [true, ""];
                                         }
                                     }
                                     // If excluding a date range
-                                    if(exclDaysOverrideReplaced[i].split(';').length>1){
-                                        dateFrom = exclDaysOverrideReplaced[i].split(';')[0];
-                                        dateTo = exclDaysOverrideReplaced[i].split(';')[1];
+                                    if(exclDaysOverrideReplaced[x].split(';').length>1){
+                                        dateFrom = exclDaysOverrideReplaced[x].split(';')[0];
+                                        dateTo = exclDaysOverrideReplaced[x].split(';')[1];
                                         d1 = dateFrom.split("-");
                                         d2 = dateTo.split("-");
                                         from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
@@ -661,7 +661,7 @@
                                         }
                                     }
                                     // If excluding single date
-                                    if(exclDaysOverrideReplaced[i]==fullDate){
+                                    if(exclDaysOverrideReplaced[x]==fullDate){
                                         return [true, ""];
                                     }
                                 }
@@ -679,25 +679,25 @@
                         date = ('0' + dt.getDate()).slice(-2);
                         month = ('0' + (dt.getMonth()+1)).slice(-2);
                         fullDate = dt.getFullYear() + '-' + month + '-' + date;
-                        i;
-                        for( i=0; i < exclDatesReplaced.length; i++ ) {
-                            if(exclDatesReplaced[i]==='') continue;
+                        var y;
+                        for( y=0; y < exclDatesReplaced.length; y++ ) {
+                            if(exclDatesReplaced[y]==='') continue;
                             // If excluding a fixed day of month
-                            if(exclDatesReplaced[i].length<=2){
-                                if(exclDatesReplaced[i]==day){
+                            if(exclDatesReplaced[y].length<=2){
+                                if(exclDatesReplaced[y]==day){
                                     return [false, "super-disabled-day"];
                                 }
                             }
                             // If excluding a specific month
-                            if(exclDatesReplaced[i].length===3){
-                                if(exclDatesReplaced[i].toLowerCase()==dt.toString('MMM').toLowerCase()){
+                            if(exclDatesReplaced[y].length===3){
+                                if(exclDatesReplaced[y].toLowerCase()==dt.toString('MMM').toLowerCase()){
                                     return [false, "super-disabled-day"];
                                 }
                             }
                             // If excluding a date range
-                            if(exclDatesReplaced[i].split(';').length>1){
-                                dateFrom = exclDatesReplaced[i].split(';')[0];
-                                dateTo = exclDatesReplaced[i].split(';')[1];
+                            if(exclDatesReplaced[y].split(';').length>1){
+                                dateFrom = exclDatesReplaced[y].split(';')[0];
+                                dateTo = exclDatesReplaced[y].split(';')[1];
                                 d1 = dateFrom.split("-");
                                 d2 = dateTo.split("-");
                                 from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
@@ -708,7 +708,7 @@
                                 }
                             }
                             // If excluding single date
-                            if(exclDatesReplaced[i]==fullDate){
+                            if(exclDatesReplaced[y]==fullDate){
                                 return [false, "super-disabled-day"];
                             }
                         }
