@@ -2107,6 +2107,7 @@ class SUPER_Ajax {
         $result = '';
         foreach( $fields  as $fk => $fv ) {
             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+            $fv['v'] = $default; // if doesn't exists, fallback to default value
             if(isset($data[$fk])){
                 $fv['v'] = $data[$fk];
             }
@@ -2232,6 +2233,10 @@ class SUPER_Ajax {
                                 }
                             }
                             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
+
+
+
+
                             $hidden = '';
                             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                                 $hidden = ' hidden';
@@ -2250,17 +2255,18 @@ class SUPER_Ajax {
                                 $result .= '>';
                                     if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
+                                        $fv['v'] = $default; // if doesn't exists, fallback to default value
                                         if(isset($data['i18n']) && isset($data['i18n'][$_POST['i18n']])){
                                             if( isset($data['i18n'][$_POST['i18n']][$fk]) ) {
-                                                $fv['default'] = $data['i18n'][$_POST['i18n']][$fk];
+                                                $fv['v'] = $data['i18n'][$_POST['i18n']][$fk];
                                             }else{
                                                 if( isset($data[$fk]) ) {
-                                                    $fv['default'] = $data[$fk];
+                                                    $fv['v'] = $data[$fk];
                                                 }
                                             }
                                         }else{
                                             if( isset($data[$fk]) ) {
-                                                $fv['default'] = $data[$fk];
+                                                $fv['v'] = $data[$fk];
                                             }
                                         }
                                         $result .= call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv, $data );
