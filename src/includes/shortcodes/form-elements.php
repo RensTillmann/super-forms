@@ -3369,7 +3369,7 @@ $array['form_elements'] = array(
         ),
         'variable_predefined' => array(
             'name' => esc_html__( 'Variable field', 'super-forms' ),
-            'icon' => 'shuffle;far',
+            'icon' => 'shuffle;fas',
             'predefined' => array(
                 array(
                     'tag' => 'hidden',

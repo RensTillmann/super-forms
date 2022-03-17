@@ -575,10 +575,6 @@
   justify-content: flex-start;
   align-items: flex-start;
 }
-.super-settings .super-field .super-field-info .field-description {
-  text-align: left;
-  padding: 0 !important;
-}
 .super-settings .super-field .super-field-fields {
   flex-direction: column;
   display: flex;
