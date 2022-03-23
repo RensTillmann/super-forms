@@ -8,12 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Mar 23, 2022 - Version 6.2.205
+## Mar 23, 2022 - Version 6.2.300
 
 - **Added:** `WooCommerce Checkout` Option to conditionally checkout to WooCommerce 
 - **Added:** Buttons/Icons to reset form settings to it's Default, Last known or Global value. Or to lock the setting to it's global value
 - **Fix:** Issue with `Print` button on Contact Entry page
-- **Fix:** Problem with multiple Datepicker that have date exclusion configured
+- **Fix:** Issue with `Exclude dates or a range of dates` setting for datepickers when being used on multiple datepickers in the form
+- **Fix:** An issue since v6.2.200 with dynamic columns where newly columns were inserted after the first column
 
 ## Feb 24, 2022 - Version 6.2.200
 
