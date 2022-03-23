@@ -40,9 +40,17 @@ class SUPER_Common {
 
     public static function reset_setting_icons($v){
         $html  = '<div class="super-reset-settings-buttons">';
-            $html .= '<i class="fas fa-eraser super-reset-default-value" title="' . esc_html__( 'Reset to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
-            $html .= '<i class="fas fa-undo-alt super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+        if($v['default']==='_reset_'){
+            $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset all to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
+            $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset all to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
+            $html .= '<i class="fas fa-globe super-reset-global-value" title="' . esc_html__( 'Reset all to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+            $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock all to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+        }else{
+            $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
+            $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
+            $html .= '<i class="fas fa-globe super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
             $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+        }
         $html .= '</div>';
         return $html;
     }

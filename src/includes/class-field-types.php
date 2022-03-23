@@ -57,8 +57,8 @@ class SUPER_Field_Types {
                     }
                 }
             echo '</div>';
-            echo '<div class="super-field-fields">';
-                if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+            if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
+            echo '<div class="super-field-fields super-field-type-'.$fv['type'].'">';
                 echo call_user_func( array( 'SUPER_Field_Types', $fv['type'] ), $fk, $fv );
                 // Loop over children (if this setting has any)
                 if(!empty($fv['children'])){
@@ -436,7 +436,11 @@ class SUPER_Field_Types {
         $return .= '<div class="input">';
             $return .= '<div class="super-checkbox">';
             foreach( $field['values'] as $k => $v ) {
-                $return .= '<label><input'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . ($field['v']==$k ? 'checked="checked"' : '') . '>' . $v . '</label>';
+                $return .= '<label>';
+                $return .= '<input'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . ($field['v']==$k ? 'checked="checked"' : '') . '>';
+                $return .= $v;
+                if( isset( $field['desc'] ) ) $return .= '<i class="info super-tooltip" title="' . esc_attr($field['desc']) . '"></i>';
+                $return .= '</label>';
             }
             $return .= '</div>';
             $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['v'] ) . '" id="field-' . $id . '" class="super-element-field" />';
@@ -826,9 +830,17 @@ class SUPER_Field_Types {
     
     //Multi Color picker
     public static function multicolor($id, $field){
-        $return = '<div class="input">';
+        $return = '<div class="input super-field-type-'.$field['type'].'">';
         foreach($field['colors'] as $k => $v){
-            $return .= '<div class="super-color-picker-container">';
+            $return .= '<div class="super-color-picker-container';
+            // If locked to global value `_g_` then add class
+            $v['lockToGlobalSetting'] = false;
+            if($v['v']==='_g_'){
+                $v['v'] = $v['g'];
+                $v['lockToGlobalSetting'] = true;
+                $return .= ' _g_';
+            }
+            $return .= '">';
                 if(isset($v['label'])) $return .= '<div class="super-color-picker-label">'.$v['label'].'</div>';
                 $return .= '<div class="super-color-picker">';
                     $return .= SUPER_Common::reset_setting_icons($v);

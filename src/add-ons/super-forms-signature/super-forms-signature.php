@@ -464,7 +464,7 @@ if( !class_exists('SUPER_Signature') ) :
                             'background_img' => array(
 				                'name' => esc_html__( 'Custom sign here image', 'super-forms' ),
 				                'desc' => esc_html__( 'Background image to show the user they can draw a signature', 'super-forms' ),
-				                'default' => SUPER_Settings::get_value( 1, 'background_img', null, '' ),
+				                'default' => '',
 				                'type' => 'image',
 				            ),
 	                        'bg_size' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=1000, $steps=10, $name=esc_html__( 'Image background size', 'super-forms' ), $desc=esc_html__( 'You can adjust the size of your background image here', 'super-forms' ) ),

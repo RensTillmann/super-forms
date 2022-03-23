@@ -52,7 +52,8 @@ class SUPER_Pages {
      * Handles the output for the settings page in admin
      */
     public static function settings() {
-    
+        $g = SUPER_Common::get_global_settings();
+
         // Get all available setting fields
         $fields = SUPER_Settings::fields();
         

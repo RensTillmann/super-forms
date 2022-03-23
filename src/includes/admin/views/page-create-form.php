@@ -337,6 +337,11 @@
                                 }
                             }
                             echo '</select>';
+                            echo SUPER_Common::reset_setting_icons(array(
+                                'default' => '_reset_',
+                                'g' => '_reset_',
+                                'v' => '_reset_'
+                            ));
                         echo '</div>';
 
                         $counter = 0;
@@ -352,6 +357,7 @@
                                 if( isset( $value['fields'] ) ) {
                                     foreach( $value['fields'] as $k => $v ) {
                                         if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
+                                            if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                             $filter = '';
                                             $parent = '';
                                             $filtervalue = '';
@@ -361,19 +367,40 @@
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
                                             echo '<div class="super-field' . $filter;
-                                            // If locked to global value `_g_` then add class
-                                            $v['lockToGlobalSetting'] = false;
-                                            if($v['v']==='_g_'){
-                                                $v['v'] = $v['g'];
-                                                $v['lockToGlobalSetting'] = true;
-                                                echo ' _g_';
+                                            if($v['type']!=='multicolor'){
+                                                // If locked to global value `_g_` then add class
+                                                $v['lockToGlobalSetting'] = false;
+                                                if($v['v']==='_g_'){
+                                                    $v['v'] = $v['g'];
+                                                    $v['lockToGlobalSetting'] = true;
+                                                    echo ' _g_';
+                                                }
                                             }
                                             echo '"' . $parent . $filtervalue . '>';
-                                                if( isset( $v['name'] ) ) echo '<div class="super-field-name">' . $v['name'] . '</div>';
-                                                if( isset( $v['desc'] ) ) echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
-                                                if( isset( $v['label'] ) ) echo '<div class="super-field-label">' . nl2br($v['label']) . '</div>';
+                                                if( isset( $v['name'] ) ) {
+                                                    echo '<div class="super-field-name">' . ($v['name']);
+                                                    if($v['type']!=='checkbox'){
+                                                        if( isset( $v['desc'] ) ) {
+                                                            echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                                        }
+                                                    }
+                                                }
+                                                if( isset( $v['label'] ) ) {
+                                                    echo '<div class="super-field-label">' . nl2br($v['label']);
+                                                    if($v['type']!=='checkbox'){
+                                                        if( !isset( $v['name'] ) && isset( $v['desc'] ) ) {
+                                                            echo '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                                        }
+                                                    }
+                                                }
+                                                if( isset( $v['label'] ) ) echo '</div>';
+                                                if( isset( $v['name'] ) ) echo '</div>';
                                                 echo '<div class="super-field-input">';
-                                                    if( !isset( $v['type'] ) ) $v['type'] = 'text';
+                                                    if($v['type']==='multicolor'){
+                                                        foreach($v['colors'] as $ck => $cv){
+                                                            if(isset($settings[$ck])) $v['colors'][$ck]['v'] = $settings[$ck];
+                                                        }
+                                                    }
                                                     echo call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
                                                 echo '</div>';
                                             echo '</div>';

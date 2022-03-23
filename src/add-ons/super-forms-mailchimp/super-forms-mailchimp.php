@@ -578,7 +578,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 'fields' => array(
                     'mailchimp_key' => array(
                         'name' => esc_html__( 'API key', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'mailchimp_key', $settings, '' ),
+                        'default' =>  '',
                     )
                 )
             );

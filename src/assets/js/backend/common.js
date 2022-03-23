@@ -128,15 +128,72 @@
 
     jQuery(document).ready(function ($) {
 
-        $(document).on('click', '.super-reset-default-value, .super-reset-global-value, .super-lock-global-setting', function () {
-            var value = this.dataset.value,
+        $(document).on('click', '.super-reset-default-value, .super-reset-last-value, .super-reset-global-value, .super-lock-global-setting', function () {
+            // If parent is settings tab
+            if(this.closest('.super-form-settings-tabs')){
+                var settingsTab = this.closest('.super-form-settings-tabs');
+                var select = settingsTab.querySelector('select');
+                var option = select.options[select.selectedIndex];
+                var i, nodes, 
+                    p = this.closest('.super-elements-container'),
+                    tab = p.querySelector('.tab-content.super-active');
+                // Reset settings for current tab
+                if(this.classList.contains('super-reset-default-value')) nodes = tab.querySelectorAll('.super-reset-default-value');
+                if(this.classList.contains('super-reset-last-value')) nodes = tab.querySelectorAll('.super-reset-last-value');
+                if(this.classList.contains('super-reset-global-value')) nodes = tab.querySelectorAll('.super-reset-global-value');
+                if(this.classList.contains('super-lock-global-setting')) {
+                    nodes = tab.querySelectorAll('.super-lock-global-setting');
+                    if(option.classList.contains('_g_')){
+                        option.classList.remove('_g_');
+                        settingsTab.classList.remove('_g_');
+                        this.title = "Lock all to global setting";
+                        for(i=0; i<nodes.length; i++){
+                            if(nodes[i].closest('._g_')){
+                                nodes[i].click();
+                            }
+                        }
+                        return;
+                    }
+                    option.classList.add('_g_');
+                    settingsTab.classList.add('_g_');
+                    this.title = "Unlock all from global setting";
+                    for(i=0; i<nodes.length; i++){
+                        if(!nodes[i].closest('._g_')){
+                            nodes[i].click();
+                        }
+                    }
+                    return;
+                }
+                for(i=0; i<nodes.length; i++){
+                    nodes[i].click();
+                }
+                return;
+            }
+            var parent, value = this.dataset.value,
                 colorPicker = this.closest('.super-color-picker');
             if(colorPicker){
                 var input = colorPicker.querySelector('input[type="text"]');
                 $(input).iris('color', value); // set the color to #000
+                parent = this.closest('.super-color-picker-container');
+                if(this.classList.contains('super-lock-global-setting')){
+                    //var field = parent.querySelector('.wp-color-result');
+                    //wp-picker-input-wrap
+                    if(parent.classList.contains('_g_')){
+                        parent.classList.remove('_g_');
+                        //field.disabled = false;
+                        this.title = "Lock to global setting";
+                        return;
+                    }
+                    parent.classList.add('_g_');
+                    //field.disabled = true;
+                    this.title = "Unlock from global setting";
+                    return;
+                }
+                parent.classList.remove('_g_');
+                this.title = "Lock from global setting";
                 return;
             }
-            var parent = this.closest('.super-field');
+            parent = this.closest('.super-field');
             var field = parent.querySelector('.super-element-field');
             var isCheckbox = parent.querySelector('.super-checkbox');
             field.value = value;
@@ -171,6 +228,10 @@
                 }
                 this.title = "Unlock from global setting";
                 return;
+            }
+            field.disabled = false;
+            if(isCheckbox && checkbox){
+                checkbox.disabled = false;
             }
             return;
         })

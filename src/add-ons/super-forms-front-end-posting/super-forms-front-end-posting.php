@@ -1043,7 +1043,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                 'fields' => array(
                     'frontend_posting_action' => array(
                         'name' => esc_html__( 'Actions', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_action', $settings, 'none' ),
+                        'default' =>  'none',
                         'filter' => true,
                         'type' => 'select',
                         'values' => array(
@@ -1054,7 +1054,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
 
                     // @since 1.2.2 - option to redirect to the newly created post
                     'frontend_posting_redirect' => array(
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_redirect', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Redirect to the created Post after form submission', 'super-forms' ),
@@ -1067,7 +1067,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_post_type' => array(
                         'name' => esc_html__( 'Post type', 'super-forms' ),
                         'desc' => esc_html__( 'Enter the name of the post type (e.g: post, page, product)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_post_type', $settings, 'page' ),
+                        'default' =>  'page',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1075,7 +1075,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_status' => array(
                         'name' => esc_html__( 'Status', 'super-forms' ),
                         'desc' => esc_html__( 'Select what the status should be', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_status', $settings, 'publish' ),
+                        'default' =>  'publish',
                         'type' => 'select',
                         'values' => array(
                             'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
@@ -1093,7 +1093,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_post_parent' => array(
                         'name' => esc_html__( 'Parent ID (leave blank for none)', 'super-forms' ),
                         'desc' => esc_html__( 'Enter a parent ID if you want the post to have a parent', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_post_parent', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1101,7 +1101,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_comment_status' => array(
                         'name' => esc_html__( 'Allow comments', 'super-forms' ),
                         'desc' => esc_html__( 'Whether the post can accept comments', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_comment_status', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'select',
                         'values' => array(
                             '' => esc_html__( 'Default (use the default_comment_status option)', 'super-forms' ),
@@ -1115,7 +1115,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_ping_status' => array(
                         'name' => esc_html__( 'Allow pings', 'super-forms' ),
                         'desc' => esc_html__( 'Whether the post can accept pings', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_ping_status', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'select',
                         'values' => array(
                             '' => esc_html__( 'Default (use the default_ping_status option)', 'super-forms' ),
@@ -1129,7 +1129,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_post_password' => array(
                         'name' => esc_html__( 'Password protect (leave blank for none)', 'super-forms' ),
                         'desc' => esc_html__( 'The password to access the post', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_post_password', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1137,7 +1137,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_menu_order' => array(
                         'name' => esc_html__( 'Menu order (blank = 0)', 'super-forms' ),
                         'desc' => esc_html__( 'The order the post should be displayed in', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_menu_order', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1147,7 +1147,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                         'desc' => esc_html__( 'Based on your form fields you can save custom meta for your post', 'super-forms' ),
                         'placeholder' => "field_name|meta_key\nfield_name2|meta_key2\nfield_name3|meta_key3",
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_meta', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1156,7 +1156,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_author' => array(
                         'name' => esc_html__( 'Author ID (default = current user ID if logged in)', 'super-forms' ),
                         'desc' => esc_html__( 'The ID of the user where the post will belong to', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_author', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1166,7 +1166,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                         'name' => esc_html__( 'Post categories', 'super-forms' ),
                         'label' => esc_html__( 'You can define multiple taxonomies and multipe categories, put each on a new line. Seperate each category by a comma.', 'super-forms' ) . ' <br /><strong>' . esc_html__( 'Example without {tags}', 'super-forms' ) . ':</strong><br />category|traveling,cultures<br />product_cat|shoes,hoodies<br /><strong>' . esc_html__( 'Example with {tags}', 'super-forms' ) . ':</strong><br />{taxonomy}|{post_categories}<br />product_cat|{product_categories}',
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_categories', $settings, '' ),
+                        'default' =>  '',
                         'placeholder' => 'taxonomy_slug|category_slug,category_slug2',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
@@ -1175,7 +1175,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_tags_input' => array(
                         'name' => esc_html__( 'The post tags', 'super-forms' ),
                         'desc' => esc_html__( 'Post tags separated by comma', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_tags_input', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1183,7 +1183,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_post_tag_taxonomy' => array(
                         'name' => esc_html__( 'The tag taxonomy name (e.g: post_tag or product_tag)', 'super-forms' ),
                         'desc' => esc_html__( 'Required to connect the post to categories (if found)', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_post_tag_taxonomy', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1191,7 +1191,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_post_format' => array(
                         'name' => esc_html__( 'The post format (e.g: quote, gallery, audio etc.)', 'super-forms' ),
                         'desc' => esc_html__( 'Leave blank for no post format', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_post_format', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1199,7 +1199,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_guid' => array(
                         'name' => esc_html__( 'GUID', 'super-forms' ),
                         'desc' => esc_html__( 'Global Unique ID for referencing the post', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_guid', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_action',
                         'filter_value' => 'create_post',
@@ -1207,7 +1207,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     'frontend_posting_product_type' => array(
                         'name' => esc_html__( 'Product Type (e.g: simple, grouped, external, variable)', 'super-forms' ),
                         'desc' => esc_html__( 'Leave blank to use the default product type: simple', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_type', $settings, '' ),
+                        'default' =>  '',
                         'filter' => true,
                         'parent' => 'frontend_posting_post_type',
                         'filter_value' => 'product',
@@ -1217,7 +1217,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                         'label' => sprintf( esc_html__( 'Enter the attributes that needs to be saved for this product%1$sPut each attribute category on a new line separated by pipes \"|\".%1$s%1$sDefine your values like so:%3$s Attribute Slug|Attribute value|Visible|Variation|Taxonomys%1$s%2$sExample with tags:%3$s colors|{color}|1|1|1%1$s%2$sExample without tags:%3$s colors|red,green,yellow|1|1|1%1$s%2$sAllowed values:%3$s string|string|integer|integer|integer', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
                         'desc' => esc_html__( 'Based on your form fields you can save product attributes', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_attributes', $settings, "color|{color}|1|1|1" ),
+                        'default' =>  "color|{color}|1|1|1",
                         'filter' => true,
                         'parent' => 'frontend_posting_post_type',
                         'filter_value' => 'product',
@@ -1225,7 +1225,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_featured' => array(
                         'name' => esc_html__( 'Featured product', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_featured', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'No (default)', 'super-forms' ),
@@ -1237,7 +1237,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_stock_status' => array(
                         'name' => esc_html__( 'In stock?', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_stock_status', $settings, 'instock' ),
+                        'default' =>  'instock',
                         'type' => 'select',
                         'values' => array(
                             'instock' => esc_html__( 'In stock (default)', 'super-forms' ),
@@ -1249,7 +1249,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_manage_stock' => array(
                         'name' => esc_html__( 'Manage stock?', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_manage_stock', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'No (default)', 'super-forms' ),
@@ -1261,7 +1261,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_stock' => array(
                         'name' => esc_html__( 'Stock Qty', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_stock', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'slider',
                         'min' => 0,
                         'max' => 100,
@@ -1272,7 +1272,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_backorders' => array(
                         'name' => esc_html__( 'Allow Backorders?', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_backorders', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'Do not allow (default)', 'super-forms' ),
@@ -1285,7 +1285,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_sold_individually' => array(
                         'name' => esc_html__( 'Sold individually?', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_sold_individually', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'No (default)', 'super-forms' ),
@@ -1297,7 +1297,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_downloadable' => array(
                         'name' => esc_html__( 'Downloadable product', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_downloadable', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'No (default)', 'super-forms' ),
@@ -1309,7 +1309,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_virtual' => array(
                         'name' => esc_html__( 'Virtual product', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_virtual', $settings, 'no' ),
+                        'default' =>  'no',
                         'type' => 'select',
                         'values' => array(
                             'no' => esc_html__( 'No (default)', 'super-forms' ),
@@ -1321,7 +1321,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_visibility' => array(
                         'name' => esc_html__( 'Product visibility', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'frontend_posting_product_visibility', $settings, 'visible' ),
+                        'default' =>  'visible',
                         'type' => 'select',
                         'values' => array(
                             'visible' => esc_html__( 'Catalog & search (default)', 'super-forms' ),

@@ -447,6 +447,11 @@ class SUPER_Ajax {
                 }
             }
             $settings_html .= '</select>';
+            $settings_html .= SUPER_Common::reset_setting_icons(array(
+                'default' => '_reset_',
+                'g' => '_reset_',
+                'v' => '_reset_'
+            ));
         $settings_html .= '</div>';
         $counter = 0;
 
@@ -472,9 +477,20 @@ class SUPER_Ajax {
                                 }
                                 $settings_html .= '<div class="super-field' . $filter . '"' . $parent . '' . $filtervalue;
                                 $settings_html .= '>';
-                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="super-field-name">' . esc_html($v['name']) . '</div>';
-                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
-                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="super-field-label">' . nl2br($v['label']) . '</div>';
+                                    if( isset( $v['name'] ) ) {
+                                        $settings_html .= '<div class="super-field-name">' . ($v['name']);
+                                        if( isset( $v['desc'] ) ) {
+                                            $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                        }
+                                    }
+                                    if( isset( $v['label'] ) ) {
+                                        $settings_html .= '<div class="super-field-label">' . nl2br($v['label']);
+                                        if( !isset( $v['name'] ) && isset( $v['desc'] ) ) {
+                                            $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                        }
+                                    }
+                                    if( isset( $v['label'] ) ) $settings_html .= '</div>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '</div>';
                                     $settings_html .= '<div class="super-field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                         $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
@@ -491,9 +507,20 @@ class SUPER_Ajax {
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
                                 $settings_html .= '<div class="super-field">';
-                                    if( isset( $v['name'] ) ) $settings_html .= '<div class="super-field-name">' . esc_html($v['name']) . '</div>';
-                                    if( isset( $v['desc'] ) ) $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
-                                    if( isset( $v['label'] ) ) $settings_html .= '<div class="super-field-label">' . nl2br($v['label']) . '</div>';
+                                    if( isset( $v['name'] ) ) {
+                                        $settings_html .= '<div class="super-field-name">' . ($v['name']);
+                                        if( isset( $v['desc'] ) ) {
+                                            $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                        }
+                                    }
+                                    if( isset( $v['label'] ) ) {
+                                        $settings_html .= '<div class="super-field-label">' . nl2br($v['label']);
+                                        if( !isset( $v['name'] ) && isset( $v['desc'] ) ) {
+                                            $settings_html .= '<i class="info super-tooltip" title="' . esc_attr($v['desc']) . '"></i>';
+                                        }
+                                    }
+                                    if( isset( $v['label'] ) ) $settings_html .= '</div>';
+                                    if( isset( $v['name'] ) ) $settings_html .= '</div>';
                                     $settings_html .= '<div class="super-field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                         $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
@@ -2124,9 +2151,21 @@ class SUPER_Ajax {
                 $hidden = ' super-hidden';
             }
             $result .= '<div class="super-field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
-                if( isset( $fv['name'] ) ) $result .= '<div class="super-field-name">' . $fv['name'] . '</div>';
-                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
-                if( isset( $fv['label'] ) ) $result .= '<div class="super-field-label">' . nl2br($fv['label']) . '</div>';
+                if( isset( $fv['name'] ) ) {
+                    $result .= '<div class="super-field-name">' . ($fv['name']);
+                    if( isset( $fv['desc'] ) ) {
+                        $result .= '<i class="info super-tooltip" title="' . esc_attr($fv['desc']) . '"></i>';
+                    }
+                }
+                if( isset( $fv['label'] ) ) {
+                    $result .= '<div class="super-field-label">' . nl2br($fv['label']);
+                    if( !isset( $fv['name'] ) && isset( $fv['desc'] ) ) {
+                        $result .= '<i class="info super-tooltip" title="' . esc_attr($fv['desc']) . '"></i>';
+                    }
+                }
+                if( isset( $fv['label'] ) ) $result .= '</div>';
+                if( isset( $fv['name'] ) ) $result .= '</div>';
+
                 $result .= '<div class="super-field-input"';
                 if( !empty($fv['allow_empty']) ) {
                     $result .= ' data-allow-empty="true"';
@@ -2242,9 +2281,21 @@ class SUPER_Ajax {
                                 $hidden = ' hidden';
                             }
                             $result .= '<div class="super-field' . $hidden . '">';
-                                if( isset( $fv['name'] ) ) $result .= '<div class="super-field-name">' . $fv['name'] . '</div>';
-                                if( isset( $fv['desc'] ) ) $result .= '<i class="info super-tooltip" title="' . $fv['desc'] . '"></i>';
-                                if( isset( $fv['label'] ) ) $result .= '<div class="super-field-label">' . nl2br($fv['label']) . '</div>';
+                                if( isset( $fv['name'] ) ) {
+                                    $result .= '<div class="super-field-name">' . ($fv['name']);
+                                    if( isset( $fv['desc'] ) ) {
+                                        $result .= '<i class="info super-tooltip" title="' . esc_attr($fv['desc']) . '"></i>';
+                                    }
+                                }
+                                if( isset( $fv['label'] ) ) {
+                                    $result .= '<div class="super-field-label">' . nl2br($fv['label']);
+                                    if( !isset( $fv['name'] ) && isset( $fv['desc'] ) ) {
+                                        $result .= '<i class="info super-tooltip" title="' . esc_attr($fv['desc']) . '"></i>';
+                                    }
+                                }
+                                if( isset( $fv['label'] ) ) $result .= '</div>';
+                                if( isset( $fv['name'] ) ) $result .= '</div>';
+
                                 $result .= '<div class="super-field-input"';
                                 if( !empty($fv['allow_empty']) ) {
                                     $result .= ' data-allow-empty="true"';

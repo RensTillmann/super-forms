@@ -516,9 +516,6 @@
   align-items: center;
   margin-top: 4px !important;
 }
-.super-color-picker-container:hover .super-color-picker {
-  margin-left: -29px;
-}
 .super-color-picker-container .super-color-picker-label {
   font-size: 12px;
   width: 160px;
@@ -605,4 +602,205 @@
 .super-settings .super-export-import-entries select {
   min-width: initial;
   height: 30px;
+}
+.super-reset-settings-buttons {
+  display: none;
+  flex-direction: row;
+}
+.super-reset-settings-buttons > i {
+  display: flex;
+  border-radius: 100px;
+  background-color: #eaeaea;
+  color: #999999;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: -1px 0 0 5px;
+  font-size: 10px;
+  cursor: pointer !important;
+}
+.super-reset-settings-buttons > i:hover {
+  background-color: #49B4B6;
+  color: #fff;
+}
+.super-form-settings-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.super-form-settings-tabs:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-settings .super-field .input,
+.super-form-settings .super-field .input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.super-settings .super-field .input:hover .super-reset-settings-buttons,
+.super-form-settings .super-field .input:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons),
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) label,
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) input,
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) label,
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) input {
+  cursor: not-allowed;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons {
+  display: flex;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons > i,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting:hover,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-form-settings .super-field select:disabled,
+.super-form-settings .super-field input[type="text"]:disabled,
+.super-form-settings .super-field textarea:disabled {
+  opacity: 0.5;
+}
+.super-form-settings .input.super-field-type-multicolor {
+  flex-direction: column;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-reset-settings-buttons {
+  margin-right: 5px;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-color-picker-container:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-color-picker-container:hover .super-reset-settings-buttons > i {
+  display: flex;
+}
+.super-form-settings .input:not(.super-field-type-multicolor) .super-color-picker-container .super-color-picker {
+  display: flex;
+  flex-direction: row-reverse;
+}
+.super-form-settings .super-color-picker-container._g_ .wp-picker-input-wrap,
+.super-form-settings .super-color-picker-container._g_ .wp-picker-holder {
+  display: none;
+}
+.super-form-settings .super-color-picker-container._g_ .wp-color-result:focus {
+  box-shadow: none;
+}
+.super-form-settings .super-color-picker-container._g_ .super-color-picker {
+  margin: 0;
+}
+.super-form-settings .super-color-picker-container._g_ * {
+  cursor: not-allowed;
+}
+.super-form-settings .super-color-picker-container._g_ *.wp-color-result {
+  opacity: 0.5;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons {
+  display: flex;
+  margin-right: 5px;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons > i {
+  display: none !important;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex !important;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-form-settings .super-export-import-single-form {
+  display: flex;
+  flex-direction: column;
+}
+.super-form-settings .super-export-import-single-form .super-checkbox {
+  display: flex;
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-info {
+  padding-right: 35px !important;
+}
+.super-settings .super-fields .super-field .super-field-fields {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields .super-field {
+  padding: 10px 0 0 !important;
+}
+.super-settings .super-fields .super-field .super-field-fields .input {
+  display: flex;
+  width: 100%;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-reset-settings-buttons {
+  width: auto;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-reset-settings-buttons > i {
+  margin: 0 5px 0 0;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-tags {
+  width: auto;
+  font-size: 12px;
+  padding: 3px 5px;
+}
+.super-settings .super-fields .super-field .super-field-fields .input textarea {
+  padding: 5px;
+}
+.super-settings .super-fields .super-field .super-field-fields .input:hover {
+  margin-left: -50px;
+  width: calc(100% + 50px);
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover {
+  padding-left: 0;
+  margin-left: -0px;
+  width: calc(100% + 0px);
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-reset-settings-buttons {
+  display: none;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-color-picker-container .super-color-picker {
+  margin: 0;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-color-picker-container:hover .super-reset-settings-buttons {
+  display: flex;
 }
