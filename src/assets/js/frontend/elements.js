@@ -1991,7 +1991,6 @@
             }
         });
         
-        // @since 1.7 - improved dynamic columns
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
             
             var i, x, y,
@@ -2095,11 +2094,9 @@
             lastColumn.parentNode.insertBefore(clone, lastColumn.nextElementSibling);
 
             // @since 3.3.0 - hook after appending new column
-            
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
 
             // Now reset field values to default
-            
             SUPER.init_clear_form({form: form, clone: clone});
 
             // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
