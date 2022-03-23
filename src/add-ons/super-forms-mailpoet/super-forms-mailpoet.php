@@ -270,7 +270,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                 'fields' => array(
                     'mailpoet_enabled' => array(
                         'desc' => esc_html__( 'This will save a subscriber for MailPoet', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_enabled', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'checkbox', 
                         'filter'=>true,
                         'values' => array(
@@ -279,7 +279,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     ),
                     'mailpoet_conditionally_save' => array(
                         'hidden_setting' => true,
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_conditionally_save', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'checkbox',
                         'filter'=>true,
                         'values' => array(
@@ -293,7 +293,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'type' => 'conditional_check',
                         'name' => esc_html__( 'Only save subscriber when following condition is met', 'super-forms' ),
                         'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_conditionally_save_check', $settings, '' ),
+                        'default' =>  '',
                         'placeholder' => "{fieldname},value",
                         'filter'=>true,
                         'parent' => 'mailpoet_conditionally_save',
@@ -303,7 +303,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     'mailpoet_email' => array(
                         'name' => esc_html__( 'Subscriber email address', 'super-forms' ), 
                         'desc' => esc_html__( 'This will save the entered email by the user as the subsriber email address', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_email', $settings, '{email}' ),
+                        'default' =>  '{email}',
                         'filter'=>true,
                         'parent' => 'mailpoet_enabled',
                         'filter_value' => 'true',
@@ -311,7 +311,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     ),
                     'mailpoet_fname' => array(
                         'name' => esc_html__( 'First name (optional)', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_fname', $settings, '{first_name}' ),
+                        'default' =>  '{first_name}',
                         'filter'=>true,
                         'parent' => 'mailpoet_enabled',
                         'filter_value' => 'true',
@@ -319,7 +319,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     ),
                     'mailpoet_lname' => array(
                         'name' => esc_html__( 'Last name (optional)', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_lname', $settings, '{last_name}' ),
+                        'default' =>  '{last_name}',
                         'filter'=>true,
                         'parent' => 'mailpoet_enabled',
                         'filter_value' => 'true',
@@ -328,7 +328,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     'mailpoet_fields' => array(
                         'name' => esc_html__( 'Map custom fields', 'super-forms' ), 
                         'label' => sprintf( esc_html__( 'Put each on a new line. Example format:%scf_1|{form_field_name}%scf_2|{form_field_name2}%s%s', 'super-forms' ), '<pre>', '<br />', '</pre>', $fieldsList ),
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_fields', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'textarea',
                         'filter'=>true,
                         'parent' => 'mailpoet_enabled',
@@ -338,7 +338,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                     'mailpoet_lists' => array(
                         'name' => esc_html__( 'Subscriber list ID(\'s) seperated by comma\'s', 'super-forms' ), 
                         'label' => esc_html__( 'You are allowed to use {tags} if you want to allow the user to choose a list from dropdown or radio/checkbox in your form', 'super-forms' ),
-                        'default' => SUPER_Settings::get_value( $default, 'mailpoet_lists', $settings, '{lists}' ),
+                        'default' =>  '{lists}',
                         'filter'=>true,
                         'parent' => 'mailpoet_enabled',
                         'filter_value' => 'true',

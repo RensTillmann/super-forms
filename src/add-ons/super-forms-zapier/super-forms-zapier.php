@@ -242,7 +242,7 @@ if( !class_exists('SUPER_Zapier') ) :
                 'fields' => array(
                     'zapier_enable' => array(
                         'desc' => esc_html__( 'Allows you to connect this form with Zapier', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'zapier_enable', $settings, '' ),
+                        'default' =>  '',
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Enable Zapier connection', 'super-forms' ),
@@ -251,7 +251,7 @@ if( !class_exists('SUPER_Zapier') ) :
                     ),
                     'zapier_exclude_settings' => array(
                         'desc' => esc_html__( 'This will prevent all the settings from being send (normally you do not need these for your Zap)', 'super-forms' ), 
-                        'default' => SUPER_Settings::get_value( $default, 'zapier_exclude_settings', $settings, 'true' ),
+                        'default' =>  'true',
                         'type' => 'checkbox',
                         'values' => array(
                             'true' => esc_html__( 'Do not send form settings to Zapier (enabled by default)', 'super-forms' ),
@@ -264,7 +264,7 @@ if( !class_exists('SUPER_Zapier') ) :
                         'name'=> esc_html__( 'Zapier webhook URL', 'super-forms' ),
                         'desc' => esc_html__( 'You can find your webhook URL when viewing your Zap on zapier.com', 'super-forms' ), 
                         'label'=> sprintf( esc_html__( 'Click %shere%s to get your webhook for Super Forms on Zapier', 'super-forms' ), '<a target="_blank" href="https://zapier.com/developer/public-invite/95800/cd2d01261e50358cd1e6c10b898d0c28/">', '</a>' ),
-                        'default'=> SUPER_Settings::get_value( $default, 'zapier_webhook', $settings, '' ),
+                        'default'=> '',
                         'filter'=>true,
                         'parent'=>'zapier_enable',
                         'filter_value'=>'true'

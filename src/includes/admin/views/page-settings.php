@@ -30,7 +30,7 @@
                 continue;
             }
             if( $counter==0 ) {
-                echo '<div class="super-fields super-active">';
+                echo '<div class="super-fields super-active super-field-type-">';
             }else{
                 echo '<div class="super-fields">';
             }
@@ -46,6 +46,11 @@
             //Load fields
             if( isset( $v['fields'] ) ) {
                 foreach( $v['fields'] as $fk => $fv ) {
+                    if($fv['type']==='multicolor'){
+                        foreach($fv['colors'] as $ck => $cv){
+                            if(isset($g[$ck])) $fv['colors'][$ck]['v'] = $g[$ck];
+                        }
+                    }
                     echo call_user_func( array( 'SUPER_Field_Types', 'loop_over_fields' ), $fk, $fv );
                 }
             }

@@ -1348,7 +1348,6 @@
     font-weight: bold;
     color: black;
     float: left;
-    width: 100%;
 }
 
 .super-element-settings .super-field-name > i, .super-form-settings .super-field-name > i {
@@ -1358,21 +1357,11 @@
 }
 
 .super-element-settings .info, .super-form-settings .info {
-    height: 20px;
-    padding: 0px 0px 0px 0px;
     font-style: normal;
-    text-align: center;
-    overflow: initial;
-    float: right;
     font-size: 14px;
-    position: relative;
-    cursor: pointer;
     font-weight: 100;
-    width: auto;
-    z-index: 1;
     position: absolute;
-    top: 10px;
-    right: 2px;
+    right: -20px;
 }
 
 .super-element-settings .info:before, .super-form-settings .info:before {
@@ -1382,6 +1371,9 @@
 .super-element-settings .super-field-label, .super-form-settings .super-field-label {
     font-size: 10px;
     padding: 0px 0px 5px 0px;
+    font-weight: normal;
+    color: #585858;
+    line-height: normal;
 }
 
 .super-elements .super-button.super-reset-submission-counter, .super-elements .super-button.super-reset-user-submission-counter {
@@ -3090,7 +3082,8 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 }
 .super-element-settings .super-checkbox > label,
 .super-form-settings .super-checkbox > label {
-  width: 100% !important;
+  position: relative;
+  width: auto !important;
   min-height: 25px;
   margin: 0 !important;
   display: flex !important;

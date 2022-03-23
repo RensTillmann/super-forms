@@ -3120,7 +3120,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 'fields' => array(
 //                     'stripe_mode' => array(
 //                         'hidden' => true,
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_mode', $settings, 'sandbox', true ),
+//                         'default' =>  'sandbox', true,
 //                         'type' => 'checkbox',
 //                         'values' => array(
 //                             'sandbox' => esc_html__( 'Enable Stripe Sandbox/Test mode (for testing purposes only)', 'super-forms' ),
@@ -3130,31 +3130,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         'hidden' => true,
 //                         'name' => esc_html__( 'Live Publishable key', 'super-forms' ),
 //                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_live_public_key', $settings, '' ),
+//                         'default' =>  '',
 //                     ),
 //                     'stripe_live_secret_key' => array(
 //                         'hidden' => true,
 //                         'name' => esc_html__( 'Live Secret key', 'super-forms' ),
 //                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_live_secret_key', $settings, '' ),
+//                         'default' =>  '',
 //                     ),
 //                     'stripe_sandbox_public_key' => array(
 //                         'hidden' => true,
 //                         'name' => esc_html__( 'Sandbox Publishable key', 'super-forms' ),
 //                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_sandbox_public_key', $settings, '' ),
+//                         'default' =>  '',
 //                     ),
 //                     'stripe_sandbox_secret_key' => array(
 //                         'hidden' => true,
 //                         'name' => esc_html__( 'Sandbox Secret key', 'super-forms' ),
 //                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_sandbox_secret_key', $settings, '' ),
+//                         'default' =>  '',
 //                     ),
 //                     
 // 
 //                     'stripe_checkout' => array(
 //                         'hidden_setting' => true,
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_checkout', $settings, '' ),
+//                         'default' =>  '',
 //                         'type' => 'checkbox',
 //                         'filter' => true,
 //                         'values' => array(
@@ -3164,7 +3164,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_receipt_email' => array(
 //                         'name' => esc_html__( 'Owner’s email address', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_receipt_email', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3173,7 +3173,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 					// @since 1.3.0 - Conditionally Stripe Checkout
 // 					'conditionally_stripe_checkout' => array(
 // 						'hidden_setting' => true,
-// 						'default' => SUPER_Settings::get_value( $default, 'conditionally_stripe_checkout', $settings, '' ),
+// 						'default' =>  '',
 // 						'type' => 'checkbox',
 // 						'filter'=>true,
 // 						'values' => array(
@@ -3187,7 +3187,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 						'type' => 'conditional_check',
 // 						'name' => esc_html__( 'Only checkout to Stripe when following condition is met', 'super-forms' ),
 // 						'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
-// 						'default' => SUPER_Settings::get_value( $default, 'conditionally_stripe_checkout_check', $settings, '' ),
+// 						'default' =>  '',
 // 						'placeholder' => "{fieldname},value",
 // 						'filter'=>true,
 // 						'parent' => 'conditionally_stripe_checkout',
@@ -3196,7 +3196,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 //                     'stripe_method' => array(
 //                         'name' => esc_html__( 'Stripe checkout method', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_method', $settings, 'single' ),
+//                         'default' =>  'single',
 //                         'type' => 'select',
 //                         'values' => array(
 //                             'single' => esc_html__( 'Single product or service checkout', 'super-forms' ),
@@ -3211,7 +3211,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_plan_id' => array(
 //                         'name' => esc_html__( 'Subscription Plan ID (should look similar to: plan_G0FvDp6vZvdwRZ)', 'super-forms' ),
 //                         'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ) . '. ' . sprintf( esc_html__( 'You can find your plan ID’s under %sBilling > Products > Pricing plans%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/subscriptions/products/">', '</a>' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_plan_id', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_method',
 //                         'filter_value' => 'subscription',
@@ -3219,7 +3219,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_billing_email' => array(
 //                         'name' => esc_html__( 'Billing E-mail address (required)', 'super-forms' ),
 //                         'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_billing_email', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_method',
 //                         'filter_value' => 'subscription',
@@ -3230,7 +3230,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_amount' => array(
 //                         'name' => esc_html__( 'Amount to charge', 'super-forms' ),
 //                         'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_amount', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_method',
 //                         'filter_value' => 'single',
@@ -3238,7 +3238,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_description' => array(
 //                         'name' => esc_html__( 'Description', 'super-forms' ),
 //                         'label' => esc_html__( 'An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge. Note that if you use Stripe to send automatic email receipts to your customers, your receipt emails will include the description of the charge(s) that they are describing.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_description', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout',
 //                         'filter_value' => 'true',
@@ -3246,7 +3246,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_currency' => array(
 //                         'name' => esc_html__( 'Currency', 'super-forms' ),
 //                         'label' => sprintf( esc_html__( 'Three-letter ISO code for the currency e.g: USD, AUD, EUR. List of %ssupported currencies%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_currency', $settings, 'USD' ),
+//                         'default' =>  'USD',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout',
 //                         'filter_value' => 'true',
@@ -3254,7 +3254,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_return_url' => array(
 //                         'name' => esc_html__( 'Thank you page (return URL)', 'super-forms' ),
 //                         'label' => esc_html__( 'Return the customer to this page after a sucessfull payment. Leave blank to redirect to home page.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_return_url', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout',
 //                         'filter_value' => 'true',
@@ -3263,7 +3263,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_completed_entry_status' => array(
 //                         'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
 //                         'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_completed_entry_status', $settings, 'completed' ),
+//                         'default' =>  'completed',
 //                         'type' => 'select',
 //                         'values' => $statuses,
 //                         'filter' => true,
@@ -3274,7 +3274,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     // Advanced settings
 //                     'stripe_checkout_advanced' => array(
 //                         'hidden_setting' => true,
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_checkout_advanced', $settings, '' ),
+//                         'default' =>  '',
 //                         'type' => 'checkbox',
 //                         'values' => array(
 //                             'true' => esc_html__( 'Show advanced settings', 'super-forms' ),
@@ -3286,7 +3286,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_statement_descriptor' => array(
 //                         'name' => esc_html__( 'Statement descriptor', 'super-forms' ),
 //                         'label' => esc_html__( 'You can use this value as the complete description that appears on your customers statements. Must contain at least one letter, maximum 22 characters. An arbitrary string to be displayed on your customer’s statement. As an example, if your website is "RunClub" and the item you’re charging for is a race ticket, you may want to specify "RunClub 5K race ticket".', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_statement_descriptor', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3296,7 +3296,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_email' => array(
 //                         'name' => esc_html__( 'Owner’s email address', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_email', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3304,7 +3304,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_name' => array(
 //                         'name' => esc_html__( 'Owner’s full name', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_name', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3312,7 +3312,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_city' => array(
 //                         'name' => esc_html__( 'Owner’s City', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_city', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3320,7 +3320,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_country' => array(
 //                         'name' => esc_html__( 'Owner’s Country', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_country', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3328,7 +3328,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_line1' => array(
 //                         'name' => esc_html__( 'Owner’s Address line1', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_line1', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3336,7 +3336,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_line2' => array(
 //                         'name' => esc_html__( 'Owner’s Address line 2', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_line2', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3344,7 +3344,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_postal_code' => array(
 //                         'name' => esc_html__( 'Owner’s Postal code', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_postal_code', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3352,7 +3352,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_state' => array(
 //                         'name' => esc_html__( 'Owner’s State', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_state', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3360,7 +3360,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_phone' => array(
 //                         'name' => esc_html__( 'Owner’s phone number', 'super-forms' ),
 //                         'label' => esc_html__( '(optional)', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_phone', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3370,7 +3370,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_carrier' => array(
 //                         'name' => esc_html__( 'Carrier (optional)', 'super-forms' ),
 //                         'label' => esc_html__( 'The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_carrier', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3379,7 +3379,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     'stripe_tracking_number' => array(
 //                         'name' => esc_html__( 'Tracking number (optional)', 'super-forms' ),
 //                         'label' => esc_html__( 'The tracking number for a physical product, obtained from the delivery service. If multiple tracking numbers were generated for this purchase, please separate them with commas.', 'super-forms' ),
-//                         'default' => SUPER_Settings::get_value( $default, 'stripe_tracking_number', $settings, '' ),
+//                         'default' =>  '',
 //                         'filter' => true,
 //                         'parent' => 'stripe_checkout_advanced',
 //                         'filter_value' => 'true',
@@ -3391,7 +3391,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 $array['stripe_checkout']['fields']['stripe_completed_post_status'] = array(
 //                     'name' => esc_html__( 'Post status after payment complete', 'super-forms' ),
 //                     'label' => esc_html__( 'Only used for Front-end posting', 'super-forms' ),
-//                     'default' => SUPER_Settings::get_value( $default, 'stripe_completed_post_status', $settings, 'publish' ),
+//                     'default' =>  'publish',
 //                     'type' => 'select',
 //                     'values' => array(
 //                         'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
@@ -3418,7 +3418,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 $array['stripe_checkout']['fields']['stripe_completed_signup_status'] = array(
 //                     'name' => esc_html__( 'Registered user login status after payment complete', 'super-forms' ),
 //                     'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
-//                     'default' => SUPER_Settings::get_value( $default, 'stripe_completed_signup_status', $settings, 'active' ),
+//                     'default' =>  'active',
 //                     'type' => 'select',
 //                     'values' => array(
 //                         'active' => esc_html__( 'Active (default)', 'super-forms' ),
@@ -3432,7 +3432,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 				$array['stripe_checkout']['fields']['stripe_completed_user_role'] = array(
 // 					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
 // 					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
-// 					'default' => SUPER_Settings::get_value( $default, 'stripe_completed_user_role', $settings, '' ),
+// 					'default' =>  '',
 // 					'type' => 'select',
 // 					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
 // 					'filter' => true,

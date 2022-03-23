@@ -477,7 +477,7 @@ function SUPERreCaptcha(){
             target = target.closest('form');
         }
         // Only when form is initialized
-        if(target && target.closest('.super-initialized')){
+        if(target && (target.closest('.super-initialized') || target.closest('.super-preview-elements'))){
             target.classList.add('super-form-focussed');
             target.tabIndex = -1;
             SUPER.lastFocussedForm = target;
@@ -497,7 +497,7 @@ function SUPERreCaptcha(){
     // Focus field
     SUPER.focusField = function(target){
         // Only when form is initialized
-        if(target && target.closest('.super-initialized')){
+        if(target && (target.closest('.super-initialized') || target.closest('.super-preview-elements')) ){
             SUPER.resetFocussedFields();
             if(target.classList.contains('super-field')){
                 target.classList.add('super-focus');

@@ -8,6 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 23, 2022 - Version 6.2.205
+
+- **Added:** `WooCommerce Checkout` Option to conditionally checkout to WooCommerce 
+- **Added:** Buttons/Icons to reset form settings to it's Default, Last known or Global value. Or to lock the setting to it's global value
+- **Fix:** Issue with `Print` button on Contact Entry page
+- **Fix:** Problem with multiple Datepicker that have date exclusion configured
+
 ## Feb 24, 2022 - Version 6.2.200
 
 - **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails

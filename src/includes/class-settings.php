@@ -1040,7 +1040,6 @@ class SUPER_Settings {
                 'email_template' => array(
                     'name' => esc_html__( 'Select email template', 'super-forms' ),
                     'label' => esc_html__( 'Choose which email template you would like to use', 'super-forms' ),
-                    'info'=>'',
                     'type'=>'select',
                     'default' =>  'default_email_template',
                     'filter'=>true,
@@ -1850,7 +1849,6 @@ class SUPER_Settings {
 
                 // @since 4.9.3 - Adaptive Placeholders
                 'enable_adaptive_placeholders' => array(
-                    'desc' => esc_html__( 'Enable Adaptive Placeholders', 'super-forms' ),
                     // allow empty / allow_empty
                     'default' =>  'true',
                     'type' => 'checkbox', 
@@ -1981,6 +1979,7 @@ class SUPER_Settings {
                     'type'=>'multicolor', 
                     'colors'=>array(
                         'theme_ui_loading_icon_font'=>array(
+                            'label'=>esc_html__( 'Spinning icon color', 'super-forms' ),
                             'default' =>  '#c5c5c5',
                         ),
                     ),
@@ -3179,6 +3178,13 @@ class SUPER_Settings {
         // This wasn't possible before
         foreach($array as $k => $v){
             foreach($array[$k]['fields'] as $kk => $vv){
+                if($vv['type']==='multicolor'){
+                    foreach($vv['colors'] as $ck => $cv){
+                        $array[$k]['fields'][$kk]['colors'][$ck]['g'] = $g[$ck];
+                        $array[$k]['fields'][$kk]['colors'][$ck]['v'] = $g[$ck];
+                    }
+                    continue;
+                }
                 $array[$k]['fields'][$kk]['g'] = $g[$kk]; // global
                 $array[$k]['fields'][$kk]['v'] = $s[$kk];
             }

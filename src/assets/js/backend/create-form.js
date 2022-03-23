@@ -137,7 +137,7 @@
             if ($hidden === false) {
                 var $name = $this.attr('name');
                 var $value = '_g_';
-                if(!$parent.hasClass('_g_')){
+                if(!$this[0].closest('._g_')){ //!$parent.hasClass('_g_')){
                     $value = $this.val();
                 }
                 $settings[$name] = $value;
@@ -1335,6 +1335,11 @@
             $(this).parents('.super-elements-container:eq(0)').children('.tab-content:eq(' + ($(this).val()) + ')').addClass('super-active');
             // Remember which TAB was active for the last time
             if(this.closest('.super-form-settings-tabs')){
+                var option = this.options[this.selectedIndex];
+                this.closest('.super-form-settings-tabs').classList.remove('_g_');
+                if(option.classList.contains('_g_')){
+                    this.closest('.super-form-settings-tabs').classList.add('_g_');
+                }
                 SUPER.set_session_data('_super_builder_last_active_form_settings_tab', $(this).val());
             }
             if(this.closest('.super-element-settings-tabs')){
