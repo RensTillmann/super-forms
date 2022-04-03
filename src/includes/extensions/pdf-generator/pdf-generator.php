@@ -99,7 +99,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                     echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'PDF filename', 'super-forms' ) . ':</span>';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="text" name="filename" value="' . $s['filename'] . '" />';
+                            echo '<input type="text" name="filename" value="' . esc_attr($s['filename']) . '" />';
                             echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
@@ -107,7 +107,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                     echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'Email label', 'super-forms' ) . ':</span>';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="text" name="emailLabel" value="' . $s['emailLabel'] . '" />';
+                            echo '<input type="text" name="emailLabel" value="' . esc_attr($s['emailLabel']) . '" />';
                             echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
@@ -144,14 +144,14 @@ if(!class_exists('SUPER_PDF_Generator')) :
                             echo '<div class="sfui-setting sfui-inline">';
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                     echo '<span class="sfui-title">' . esc_html__( 'Download button text', 'super-forms' ) . ':</span>';
-                                    echo '<input type="text" name="downloadBtnText" value="' . $s['downloadBtnText'] . '" />';
+                                    echo '<input type="text" name="downloadBtnText" value="' . esc_attr($s['downloadBtnText']) . '" />';
                                 echo '</label>';
                             echo '</div>';
                             // Generating text
                             echo '<div class="sfui-setting sfui-inline">';
                                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                     echo '<span class="sfui-title">' . esc_html__( 'Generating text', 'super-forms' ) . ':</span>';
-                                    echo '<input type="text" name="generatingText" value="' . $s['generatingText'] . '" />';
+                                    echo '<input type="text" name="generatingText" value="' . esc_attr($s['generatingText']) . '" />';
                                 echo '</label>';
                             echo '</div>';
                         echo '</div>';
@@ -202,13 +202,13 @@ if(!class_exists('SUPER_PDF_Generator')) :
                         echo '<label>';
                             echo '<select name="format" onChange="SUPER.ui.updateSettings(event, this)">';
                             foreach($formats as $v){
-                                echo '<option value="' . $v . '"'.($v==$s['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+                                echo '<option value="' . esc_attr($v) . '"'.($v==$s['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
                             }
                             echo '</select>';
                         echo '</label>';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                             echo '<span class="sfui-title">' . esc_html__( 'Custom page format in units defined above e.g: 210,297', 'super-forms' ) . ':</span>';
-                            echo '<input type="text" name="customFormat" value="' . $s['customFormat'] . '" />';
+                            echo '<input type="text" name="customFormat" value="' . esc_attr($s['customFormat']) . '" />';
                             echo '<span class="sfui-label">' . esc_html__( '(optional, leave blank for none)', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
@@ -219,19 +219,19 @@ if(!class_exists('SUPER_PDF_Generator')) :
                         echo '<div class="sfui-setting sfui-inline">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.top" value="' . $s['margins']['body']['top'] . '" />';
+                                echo '<input type="number" name="margins.body.top" value="' . esc_attr($s['margins']['body']['top']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.right" value="' . $s['margins']['body']['right'] . '" />';
+                                echo '<input type="number" name="margins.body.right" value="' . esc_attr($s['margins']['body']['right']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.bottom" value="' . $s['margins']['body']['bottom'] . '" />';
+                                echo '<input type="number" name="margins.body.bottom" value="' . esc_attr($s['margins']['body']['bottom']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.left" value="' . $s['margins']['body']['left'] . '" />';
+                                echo '<input type="number" name="margins.body.left" value="' . esc_attr($s['margins']['body']['left']) . '" />';
                             echo '</label>';
                         echo '</div>';
                     echo '</div>';
@@ -242,19 +242,19 @@ if(!class_exists('SUPER_PDF_Generator')) :
                         echo '<div class="sfui-setting sfui-inline">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.top" value="' . $s['margins']['header']['top'] . '" />';
+                                echo '<input type="number" name="margins.header.top" value="' . esc_attr($s['margins']['header']['top']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.right" value="' . $s['margins']['header']['right'] . '" />';
+                                echo '<input type="number" name="margins.header.right" value="' . esc_attr($s['margins']['header']['right']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.bottom" value="' . $s['margins']['header']['bottom'] . '" />';
+                                echo '<input type="number" name="margins.header.bottom" value="' . esc_attr($s['margins']['header']['bottom']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.left" value="' . $s['margins']['header']['left'] . '" />';
+                                echo '<input type="number" name="margins.header.left" value="' . esc_attr($s['margins']['header']['left']) . '" />';
                             echo '</label>';
                         echo '</div>';
                     echo '</div>';
@@ -265,19 +265,19 @@ if(!class_exists('SUPER_PDF_Generator')) :
                         echo '<div class="sfui-setting sfui-inline">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.top" value="' . $s['margins']['footer']['top'] . '" />';
+                                echo '<input type="number" name="margins.footer.top" value="' . esc_attr($s['margins']['footer']['top']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.right" value="' . $s['margins']['footer']['right'] . '" />';
+                                echo '<input type="number" name="margins.footer.right" value="' . esc_attr($s['margins']['footer']['right']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.bottom" value="' . $s['margins']['footer']['bottom'] . '" />';
+                                echo '<input type="number" name="margins.footer.bottom" value="' . esc_attr($s['margins']['footer']['bottom']) . '" />';
                             echo '</label>';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                 echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.left" value="' . $s['margins']['footer']['left'] . '" />';
+                                echo '<input type="number" name="margins.footer.left" value="' . esc_attr($s['margins']['footer']['left']) . '" />';
                             echo '</label>';
                         echo '</div>';
                     echo '</div>';
@@ -300,13 +300,21 @@ if(!class_exists('SUPER_PDF_Generator')) :
                                     echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses cyrillic text)', 'super-forms' ) . '</span>';
                                 echo '</label>';
                             echo '</div>';
+                            // PDF Arabic text
+                            echo '<div class="sfui-setting sfui-inline">';
+                                echo '<span class="sfui-title">' . esc_html__( 'Arabic text', 'super-forms' ) . ':</span>';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="checkbox" name="arabicText" value="true"' . ($s['arabicText']==='true' ? ' checked="checked"' : '') . ' />';
+                                    echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses arabic text)', 'super-forms' ) . '</span>';
+                                echo '</label>';
+                            echo '</div>';
                         echo '</div>';
                     echo '</div>';
                     // PDF render scale
                     echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'PDF render scale', 'super-forms' ) . ':</span>';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="number" name="renderScale" value="' . $s['renderScale'] . '" />';
+                            echo '<input type="number" name="renderScale" value="' . esc_attr($s['renderScale']) . '" />';
                             echo '<span class="sfui-label">' . esc_html__( 'recommended render scale is between 1 and 3 (the default scale is 2)', 'super-forms' ) . '</span>';
                         echo '</label>';
                         echo '<div class="sfui-notice sfui-desc">';
@@ -344,6 +352,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                 }
             }
             if(empty($s['cyrillicText'])) $s['cyrillicText'] = 'false'; // disabled by default, unless otherwise specified
+            if(empty($s['arabicText'])) $s['arabicText'] = 'false'; // disabled by default, unless otherwise specified
             if(empty($s['renderScale'])) $s['renderScale'] = '2';
             if(empty($s['margins'])) $s['margins'] = array(
                 'body' => array(
@@ -372,8 +381,8 @@ if(!class_exists('SUPER_PDF_Generator')) :
             if(absint($form_id)!==0){ 
                 $settings = $attr['settings'];
                 if(isset($settings['_pdf'])){
-                    $_pdf = json_encode(wp_slash($settings['_pdf']), JSON_UNESCAPED_UNICODE);
-                    $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse(\''.$_pdf.'\');';
+                    $_pdf = wp_slash(wp_slash(json_encode($settings['_pdf'], JSON_UNESCAPED_UNICODE)));
+                    $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse("'.$_pdf.'");';
                 }
             }
             return $js;

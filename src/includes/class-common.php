@@ -40,6 +40,8 @@ class SUPER_Common {
 
     public static function reset_setting_icons($v){
         $html  = '<div class="super-reset-settings-buttons">';
+        if(!isset($v['v'])) $v['v'] = ''; // $v['default'];
+        if(!isset($v['g'])) $v['g'] = ''; // $v['default'];
         if($v['default']==='_reset_'){
             $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset all to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
             $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset all to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
@@ -52,6 +54,30 @@ class SUPER_Common {
             $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
         }
         $html .= '</div>';
+        return $html;
+    }
+    public static function load_google_fonts($settings){
+        // Import fonts
+        $v = $settings;
+        $v = array_filter($settings);
+        $global_settings = SUPER_Common::get_global_settings();
+        $v = array_merge($global_settings, $v);
+        // Google fonts
+        if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
+        $import_fonts = ""; // example: "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
+        if($v['font_google_fonts']!=''){
+            $google_fonts = explode( "\n", $v['font_google_fonts'] );  
+            foreach( $google_fonts as $font ) {
+                //$import_fonts .= "@import url('".$font."');\n";
+                $import_fonts .= '<link href="'.$font.'" rel="stylesheet">';
+            }
+        }
+        $html = '';
+        if(!empty($import_fonts)){
+            $html .= '<link rel="preconnect" href="https://fonts.googleapis.com">';
+            $html .= '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>';
+            $html .= $import_fonts;
+        }
         return $html;
     }
      
@@ -686,7 +712,7 @@ class SUPER_Common {
         $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
         if(!$form_settings) $form_settings = array();
         $global_settings = self::get_global_settings();
-        $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+        $defaults = SUPER_Settings::get_defaults($global_settings);
         $global_settings = array_merge( $defaults, $global_settings );
         if(is_array($form_settings)){
             $settings = array_merge( $global_settings, $form_settings );
@@ -1410,7 +1436,10 @@ class SUPER_Common {
                     esc_html__( 'Any setting value used for the form', 'super-forms' ),
                     ''
                 ),
- 
+                'option_*****' => array(
+                    esc_html__( 'Any option value from the database', 'super-forms' ),
+                    ''
+                ),
                 'option_admin_email' => array(
                     esc_html__( 'E-mail address of blog administrator', 'super-forms' ),
                     get_option('admin_email')
@@ -1913,6 +1942,23 @@ class SUPER_Common {
                     $value = get_user_meta( $current_user->ID, $meta_key, true ); 
                     return $value;
                 }
+            }
+
+            // @since 6.3.0 - Let's try to replace custom option data
+            if ( strpos( $value, '{option_') !== false ) {
+                $option_key = str_replace('{option_', '', $value);
+                $option_key = str_replace('}', '', $option_key);
+                $keys = explode(';', $option_key);
+                $value = get_option( $keys[0] );
+                if(is_array($value)){
+                    if(isset($keys[1])){
+                        $key = $keys[1];
+                        if(isset($value[$key])) return $value[$key];
+                    }
+                    $json = json_encode($value);
+                    return $json;
+                }
+                return $value;
             }
 
             // @since 4.0.0 - Let's try to replace custom post meta data

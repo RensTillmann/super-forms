@@ -2583,7 +2583,7 @@ class SUPER_Ajax {
         $form_id = $atts['form_id'];
         // Dependencies for file upload
         $global_settings = SUPER_Common::get_global_settings();
-        $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+        $defaults = SUPER_Settings::get_defaults($global_settings);
         $global_settings = array_merge( $defaults, $global_settings );
         require_once( ABSPATH . 'wp-admin/includes/image.php' );
         require_once( ABSPATH . 'wp-admin/includes/file.php' );

@@ -41,7 +41,7 @@ class SUPER_Field_Types {
 
         $filter_value = '';
         if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
-        echo '<div class="super-field' . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $styles . '>';
+        echo '<div class="super-field super-field-' . $fk . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $styles . '>';
             echo '<div class="super-field-info">';
                 if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
                     echo '&nbsp;';
@@ -378,7 +378,7 @@ class SUPER_Field_Types {
     //Input field    
     public static function text( $id, $field ) {
         $return  = '<div class="input">';
-            $return .= '<input'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' type="text" id="field-' . $id . '"';
+            $return .= '<input'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' type="text" id="field-' . $id . '"';
             if( isset( $field['placeholder'] ) ) {
                 $return .= ( $field['placeholder']!='' ? 'placeholder="' . $field['placeholder'] . '"' : '' );
             }
@@ -437,12 +437,13 @@ class SUPER_Field_Types {
             $return .= '<div class="super-checkbox">';
             foreach( $field['values'] as $k => $v ) {
                 $return .= '<label>';
-                $return .= '<input'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . ($field['v']==$k ? 'checked="checked"' : '') . '>';
+                $return .= '<input'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . (isset($field['v']) && $field['v']==$k ? 'checked="checked"' : '') . '>';
                 $return .= $v;
                 if( isset( $field['desc'] ) ) $return .= '<i class="info super-tooltip" title="' . esc_attr($field['desc']) . '"></i>';
                 $return .= '</label>';
             }
             $return .= '</div>';
+            if(!isset($field['v'])) $field['v'] = '';
             $return .= '<input type="hidden" name="' . $id . '" value="' . esc_attr( $field['v'] ) . '" id="field-' . $id . '" class="super-element-field" />';
         $return .= SUPER_Common::reset_setting_icons($field);
         $return .= '</div>';
@@ -474,7 +475,7 @@ class SUPER_Field_Types {
             'default' => ''
         ) );
         $return  = '<div class="input">';
-            $return .= '<textarea'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' name="' . $id . '" ';
+            $return .= '<textarea'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' name="' . $id . '" ';
             if(isset($field['placeholder'])){
                 $return .= ($field['placeholder']!='' ? 'placeholder="'.$field['placeholder'].'"' : '');
             }        
@@ -796,7 +797,7 @@ class SUPER_Field_Types {
         if( isset( $field['multiple'] ) ) $multiple = ' multiple';
         if( isset( $field['filter'] ) ) $filter = ' filter';
         $return  = '<div class="input">'; 
-            $return .= '<select'.($field['lockToGlobalSetting']===true ? ' disabled' : '').' id="field-' . $id . '" name="' . $id . '" class="super-element-field ' . $multiple . '"' . $multiple . $filter . '>';
+            $return .= '<select'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' id="field-' . $id . '" name="' . $id . '" class="super-element-field ' . $multiple . '"' . $multiple . $filter . '>';
             foreach( $field['values'] as $k => $v ) {
                 $selected = '';
                 if( ( isset( $field['multiple'] ) ) && ( $field['v']!='' ) ) {

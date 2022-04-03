@@ -199,6 +199,7 @@ class SUPER_Pages {
         echo '<div class="super-raw-code-form-settings">';
             echo '<p class="sfui-notice sfui-yellow">';
             echo sprintf( esc_html__( '%sForm settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '<label class="super-retain-underlying-global-values"><input checked="checked" type="checkbox" name="retain_underlying_global_values" /><span>' . esc_html__( 'Retain underlying global value (recommended when exporting to other sites)', 'super-forms' ) . '</span></label>';
             echo '</p>';
             echo '<textarea></textarea>';
         echo '</div>';

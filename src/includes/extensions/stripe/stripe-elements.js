@@ -459,9 +459,15 @@
             // keep loading state active
             var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
             if ($proceed === true) {
-                $('html, body').animate({
-                    scrollTop: $form.offset().top - 200
-                }, 1000);
+                if($form[0].closest('.super-popup-content')){
+                    $($form[0].closest('.super-popup-content')).animate({
+                        scrollTop: $form.offset().top - 200
+                    }, 1000);
+                }else{
+                    $('html, body').animate({
+                        scrollTop: $form.offset().top - 200
+                    }, 1000);
+                }
             }
             $form.find('.super-form-button.super-loading .super-button-name').html($oldHtml);
             $form.find('.super-form-button.super-loading').removeClass('super-loading');

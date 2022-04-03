@@ -190,6 +190,14 @@ Now you might ask where should I actually place this tag? You can choose to use 
 * `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`, `{user_roles}` (can be used in both the [Hidden field](hidden-field) and [Text field](text-field) **Default value** option)
 * `{user_meta_****}` tag to retrieve user custom meta data
 
+**Tag to retrieve any option from the wp_options database table:**
+
+* `{option_****}`
+
+**Tag to retrieve any option from the wp_options database table that is of type Array, which allows you to retrieve a specific value from that array based on the provided index/key. When no index/key is provided a json representation of the array will be returned:**
+
+* `{option_****;arrayKey}`
+
 **Tag to retrieve the e-mail address of blog administrator:**
 
 * `{option_admin_email}`

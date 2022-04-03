@@ -46,7 +46,7 @@
             //Load fields
             if( isset( $v['fields'] ) ) {
                 foreach( $v['fields'] as $fk => $fv ) {
-                    if($fv['type']==='multicolor'){
+                    if(isset($fv['type']) && $fv['type']==='multicolor'){
                         foreach($fv['colors'] as $ck => $cv){
                             if(isset($g[$ck])) $fv['colors'][$ck]['v'] = $g[$ck];
                         }

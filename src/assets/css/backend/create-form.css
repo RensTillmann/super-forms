@@ -88,6 +88,17 @@
     width: 100%;
     margin-bottom: 40px;
 }
+.super-retain-underlying-global-values {
+    margin: 0px 0px 0px 0px;
+    padding: 5px 10px 5px 10px;
+}
+.super-export-import-single-form .super-retain-underlying-global-values {
+    font-size: 12px;
+    display: inline-block;
+    margin: 0;
+    padding: 5px 0;
+}
+
 
 #wpbody-content>.updated,
 #wpbody-content>.error,
@@ -1233,6 +1244,18 @@
     display: block;
 }
 
+.super-editing-raw-code .super-elements-container > * {
+  display: none !important;
+}
+.super-editing-raw-code .super-elements-container:before {
+  background-color: #ffeab3;
+  color: #9e5312;
+  display: block;
+  padding: 10px 20px;
+  opacity: 1 !important;
+  content:'Form settings can\'t be edited while on the [Code] tab. Please switch back to the [Builder] tab.';
+}
+
 .super-elements:hover .super-element .super-elements-container,
 .super-elements.super-active .super-element .super-elements-container {
     padding: 10px;
@@ -1360,8 +1383,8 @@
     font-style: normal;
     font-size: 14px;
     font-weight: 100;
-    position: absolute;
-    right: -20px;
+    display: inline-block;
+    padding: 0px 0px 0px 3px;
 }
 
 .super-element-settings .info:before, .super-form-settings .info:before {
@@ -1977,6 +2000,22 @@
 .super-field-input .browse-images .image-preview > li > a.super-delete:hover, .super-field-input .browse-files .file-preview > li > a.super-delete:hover {
     color: red;
 }
+
+.super-field-input .image-field.browse-files .file-preview > li {
+    margin-top: -1px;
+}
+.super-field-input .image-field.browse-files .file-preview > li > a {
+    overflow: hidden;
+    flex-shrink: 1;
+    flex-grow: 1;
+    width: 200px;
+}
+.super-field-input .image-field.browse-files .file-preview > li > a.super-delete {
+    flex-shrink: 1;
+    flex-grow: 0;
+    width: 100px;
+}
+
 
 /* @since 4.0.0 - introduction tutorial */
 .tutorial-do-not-show-again {
@@ -3045,6 +3084,16 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .super-form-settings .super-reset-user-submission-counter {
   float: left;
 }
+
+.super-field-form_locker_submission_reset .super-field-input .input {
+  justify-content: flex-start;
+}
+.super-field-form_locker_submission_reset .super-field-input .input input,
+.super-field-form_locker_submission_reset .super-field-input .input span {
+  margin: 0;
+}
+
+
 .super-element-settings .super-multi-items .super-error,
 .super-form-settings .super-multi-items .super-error {
   border: 1px solid #ff9b9b !important;

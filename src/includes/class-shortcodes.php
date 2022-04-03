@@ -2785,6 +2785,9 @@ class SUPER_Shortcodes {
 
         $result = self::opening_tag( $tag, $atts );
 
+        // required to add a new line between label/description and the toggle itself
+        $result .= '<div class="super-break"></div>';
+
         if( !isset($atts['prefix_label']) ) $atts['prefix_label'] = '';
         if( !isset($atts['prefix_tooltip']) ) $atts['prefix_tooltip'] = '';
         if( ($atts['prefix_label']!='') || ($atts['prefix_tooltip']!='') ) {
@@ -5916,6 +5919,7 @@ class SUPER_Shortcodes {
         }
 
         $result = '';
+        $result .= SUPER_Common::load_google_fonts($settings);
         if(!$elements_only){
             $result .= '<style type="text/css">.super-form:not(.super-initialized) *:not(.super-load-icon) { visibility: hidden !important; }</style>';
             $result .= '<div id="super-form-' . $form_id . '" '; 
@@ -5928,6 +5932,8 @@ class SUPER_Shortcodes {
             $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
             $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
             $result .= ( (isset($settings['form_processing_overlay'])) && ($settings['form_processing_overlay']=='true') ? ' data-overlay="true"' : '' );
+            $result .= ( (!empty($settings['multipart_url_params'])) && ($settings['multipart_url_params']==='false') ? ' data-step-params="false"' : '' );
+
             
             // @since 3.3.0     - Disable submission on "Enter" 
             $result .= ( (isset($settings['form_disable_enter'])) && ($settings['form_disable_enter']=='true') ? ' data-disable-enter="true"' : '' );
@@ -6285,17 +6291,33 @@ class SUPER_Shortcodes {
                 // When value is not set, but PDF is activated, set it to true, to not break existing forms that might require it
                 if(!isset($settings['_pdf']['textRendering'])) $settings['_pdf']['textRendering'] = 'true';
                 if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'true'; 
+                if(!isset($settings['_pdf']['arabicText'])) $settings['_pdf']['arabicText'] = 'false'; 
                 // Only if text rendering is enabled, and cyrillic text is enabled
-                if($settings['_pdf']['textRendering']==='true' && $settings['_pdf']['cyrillicText']==='true') {
-                    add_action( 'wp_footer', function(){
-                        ?>
-                        <script>
-                        super_common_i18n.fonts = {
-                            NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'); ?>')
-                        };
-                        </script>
-                        <?php
-                    }, 100 );
+                if($settings['_pdf']['textRendering']==='true'){
+                    // Cyrillic compatible font
+                    if($settings['_pdf']['cyrillicText']==='true') {
+                        add_action( 'wp_footer', function(){
+                            ?>
+                            <script>
+                            super_common_i18n.fonts = {
+                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'); ?>')
+                            };
+                            </script>
+                            <?php
+                        }, 100 );
+                    }
+                    // Arabic compatible font
+                    if($settings['_pdf']['arabicText']==='true') {
+                        add_action( 'wp_footer', function(){
+                            ?>
+                            <script>
+                            super_common_i18n.fonts = {
+                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts-arabic.json'); ?>')
+                            };
+                            </script>
+                            <?php
+                        }, 100 );
+                    }
                 }
             }
         }

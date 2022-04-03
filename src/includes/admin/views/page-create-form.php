@@ -209,6 +209,7 @@
         <div class="super-builder">
 
             <?php
+            echo SUPER_Common::load_google_fonts($settings);
             // Try to load the selected theme style
             // Always load the default styles
             $style_content =  require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
@@ -366,7 +367,7 @@
                                                 if( isset( $v['parent'] ) ) $parent = ' data-parent="' . $v['parent'] . '"';
                                                 if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . $v['filter_value'] . '"';
                                             }
-                                            echo '<div class="super-field' . $filter;
+                                            echo '<div class="super-field super-field-' . $k . $filter;
                                             if($v['type']!=='multicolor'){
                                                 // If locked to global value `_g_` then add class
                                                 $v['lockToGlobalSetting'] = false;
