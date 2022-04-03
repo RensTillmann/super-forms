@@ -120,6 +120,7 @@
     SUPER.get_form_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $settings = {};
+        var includeGlobalValues = document.querySelector('input[name="retain_underlying_global_values"]').checked;
         $('.super-create-form .super-form-settings .super-element-field').each(function () {
             var $this = $(this);
             var $hidden = false;
@@ -136,9 +137,13 @@
             $parent = $this.parents('.super-field');
             if ($hidden === false) {
                 var $name = $this.attr('name');
-                var $value = '_g_';
-                if(!$this[0].closest('._g_')){ //!$parent.hasClass('_g_')){
+                if(includeGlobalValues){
                     $value = $this.val();
+                }else{
+                    var $value = '_g_';
+                    if(!$this[0].closest('._g_')){ //!$parent.hasClass('_g_')){
+                        $value = $this.val();
+                    }
                 }
                 $settings[$name] = $value;
             }
@@ -1545,11 +1550,25 @@
             $this.find('input').prop('checked', true);
         });
 
+        $doc.on('click', '.super-retain-underlying-global-values', function(){
+            var checked = this.querySelector('input').checked;
+            var i, nodes = document.querySelectorAll('input[name="retain_underlying_global_values"]');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].checked = checked;
+            }
+            SUPER.update_form_settings(true);
+        });
+
         // @since 4.7.0 - tabs
         $doc.on('click', '.super-tabs > span', function () {
             var $this = $(this),
                 $parent = $this.parent(),
                 $tab = $this.attr('data-tab');
+            
+            $('.super-element.super-form-settings').removeClass('super-editing-raw-code');
+            if($tab==='code'){
+                $('.super-element.super-form-settings').addClass('super-editing-raw-code');
+            }
             $parent.children('span').removeClass('super-active');
             $this.addClass('super-active');
             // If code tab, update translation code

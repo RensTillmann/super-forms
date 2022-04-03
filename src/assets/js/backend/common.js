@@ -103,10 +103,25 @@
                             if ($attachment.id) {
                                 if($multiple===true){
                                     $id = $id ? $id + "," + $attachment.id : $attachment.id;
-                                    $('<li data-file="'+$attachment.id+'"><div class="super-image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>').appendTo($preview);
                                 }else{
                                     $id = $attachment.id;
-                                    $preview.html('<li data-file="'+$attachment.id+'"><div class="super-image"><img src="' + $attachment.icon + '" /></div><a href="">' + $attachment.filename + '</a><a href="#" class="super-delete">Delete</a></li>');
+                                }
+                                var $html = '';
+                                $html += '<li data-file="'+$attachment.id+'">';
+                                $html += '<div class="super-image">';
+                                if($attachment.type==='image'){
+                                    $html += '<img src="' + $attachment.url + '" />';
+                                }else{
+                                    $html += '<img src="' + $attachment.icon + '" />';
+                                }
+                                $html += '</div>';
+                                $html += '<a target="_blank" href="'+$attachment.editLink+'">' + $attachment.filename + '</a>';
+                                $html += '<a href="#" class="super-delete">Delete</a>';
+                                $html += '</li>';
+                                if($multiple===true){
+                                    $($html).appendTo($preview);
+                                }else{
+                                    $preview.html($html);
                                 }
                             }
                         });

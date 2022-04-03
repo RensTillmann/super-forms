@@ -790,6 +790,20 @@
     font-size: 14px;
 }
 
+.super-settings .super-field-form_locker_submission_reset .super-field-fields .input {
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  flex-direction: row !important;
+}
+.super-settings .super-field-form_locker_submission_reset .super-field-fields .input > input {
+  width: 150px !important;
+  text-align: center;
+}
+.super-settings .super-field-form_locker_submission_reset .super-field-fields .input:hover {
+  margin-left: 0 !important;
+}
+
+
 
 /* For large screens make font bigger, otherwise it's barely readable */
 @media only screen and (min-width: 1930px) {

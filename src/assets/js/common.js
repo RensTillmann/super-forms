@@ -1156,9 +1156,15 @@ function SUPERreCaptcha(){
                             $html += '<span class="super-close"></span>';
                             $html += '</div>';
                             $($html).prependTo($(form));
-                            $('html, body').animate({
-                                scrollTop: $(form).offset().top-200
-                            }, 1000);
+                            if(form.closest('.super-popup-content')){
+                                $(form.closest('.super-popup-content')).animate({
+                                    scrollTop: $(form).offset().top-200
+                                }, 1000);
+                            }else{
+                                $('html, body').animate({
+                                    scrollTop: $(form).offset().top-200
+                                }, 1000);
+                            }
                         }
                     },
                     complete: function(){
@@ -2870,9 +2876,15 @@ function SUPERreCaptcha(){
                                 html += '</div>';
                                 var $newMessage = $(html).insertBefore(container);
                                 container.remove();
-                                $('html, body').animate({
-                                    scrollTop: $newMessage.offset().top-200
-                                }, 1000);
+                                if(args.form.closest('.super-popup-content')){
+                                    $(args.form.closest('.super-popup-content')).animate({
+                                        scrollTop: $newMessage.offset().top-200
+                                    }, 1000);
+                                }else{
+                                    $('html, body').animate({
+                                        scrollTop: $newMessage.offset().top-200
+                                    }, 1000);
+                                }
                             }
                         }
                         if(result.error!==true && result.redirect){
@@ -2923,7 +2935,9 @@ function SUPERreCaptcha(){
                 }else{
                     args.loadingOverlay.classList.add('super-success');
                     if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
-                        SUPER.show_pdf_download_btn(args);
+                        if(args.pdfSettings.debug!=="true"){ // If debug mode is enabled we alread have a Download button, so we can skip this
+                            SUPER.show_pdf_download_btn(args);
+                        }
                     }
                     // Close Popup (if any)
                     if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
@@ -2994,9 +3008,15 @@ function SUPERreCaptcha(){
                 if(args.form){
                     $(html).prependTo($(args.form));
                     SUPER.init_resend_verification_code(args);
-                    $('html, body').animate({
-                        scrollTop: $(args.form).offset().top-200
-                    }, 1000);
+                    if(args.form.closest('.super-popup-content')){
+                        $(args.form.closest('.super-popup-content')).animate({
+                            scrollTop: $(args.form).offset().top-200
+                        }, 1000);
+                    }else{
+                        $('html, body').animate({
+                            scrollTop: $(args.form).offset().top-200
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -3511,9 +3531,15 @@ function SUPERreCaptcha(){
                 scroll = false;
             }
             if(scroll){
-                $('html, body').animate({
-                    scrollTop: $(form).offset().top-30
-                }, 1000);
+                if(form.closest('.super-popup-content')){
+                    $(form.closest('.super-popup-content')).animate({
+                        scrollTop: $(form).offset().top-30
+                    }, 1000);
+                }else{
+                    $('html, body').animate({
+                        scrollTop: $(form).offset().top-30
+                    }, 1000);
+                }
             }
             return false;
         }
@@ -3552,10 +3578,15 @@ function SUPERreCaptcha(){
             // @since 2.1.0
             proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
             if(proceed!==true) return false;
-            $('html, body').animate({
-                scrollTop: $(form).find('.super-error-active').offset().top-200
-            }, 1000);
-
+            if(form.closest('.super-popup-content')){
+                $(form.closest('.super-popup-content')).animate({
+                    scrollTop: $(form).find('.super-error-active').offset().top-200
+                }, 1000);
+            }else{
+                $('html, body').animate({
+                    scrollTop: $(form).find('.super-error-active').offset().top-200
+                }, 1000);
+            }
         }
     };
 
@@ -3652,9 +3683,15 @@ function SUPERreCaptcha(){
                         btnName.innerHTML = args.oldHtml;
                         btn.classList.remove('super-loading');
                     }
-                    $('html, body').animate({
-                        scrollTop: $(args.form).offset().top-200
-                    }, 1000);
+                    if(args.form.closest('.super-popup-content')){
+                        $(args.form.closest('.super-popup-content')).animate({
+                            scrollTop: $(args.form).offset().top-200
+                        }, 1000);
+                    }else{
+                        $('html, body').animate({
+                            scrollTop: $(args.form).offset().top-200
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -6136,7 +6173,22 @@ function SUPERreCaptcha(){
         }else{
             SUPER.after_field_change_blur_hook({form: main_form});
         }
-        
+
+        // If has multi-part reset to step 1
+        if(main_form.querySelector('.super-multipart')){
+            var step = main_form.querySelector('.super-multipart-step');
+            children = Array.prototype.slice.call( step.parentNode.children );
+            index = children.indexOf(step);
+            var total = main_form.querySelectorAll('.super-multipart').length;
+            var progress = 100 / total;
+            progress = progress * (index+1);
+            var multipart = main_form.querySelectorAll('.super-multipart')[index];
+            main_form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+            main_form.querySelector('.super-multipart-step.super-active').classList.remove('super-active');
+            main_form.querySelector('.super-multipart.super-active').classList.remove('super-active');
+            step.classList.add('super-active');
+            multipart.classList.add('super-active');
+        }
         // After form cleared
         SUPER.after_form_cleared_hook(args.form);
     };
@@ -7354,7 +7406,7 @@ function SUPERreCaptcha(){
         args._pdf = new jsPDF({
             orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
             format: args.format,             // The format of the first page.  Default is "a4"
-            putOnlyUsedFonts: false,    // Only put fonts into the PDF, which were used.
+            putOnlyUsedFonts: true,    // Only put fonts into the PDF, which were used.
             compress: false,            // Compress the generated PDF.
             precision: 16,              // Precision of the element-positions.
             userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
@@ -7605,9 +7657,9 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         //debugger;
-        // pdfPageContainer.style.zIndex = "9999999999";
-        // pdfPageContainer.style.left = "0px";
-        // pdfPageContainer.style.top = "0px";
+        //pdfPageContainer.style.zIndex = "9999999999";
+        //pdfPageContainer.style.left = "0px";
+        //pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
         pdfPageContainer.style.backgroundColor = "#ffffff";
@@ -7674,9 +7726,16 @@ function SUPERreCaptcha(){
             if(el.classList.contains('super-heading-title')){
                 el = el.children[0];
             }
-            var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
-            var newFontSize = 2.5 * Math.ceil(fontSize/2.5);
-            el.style.fontSize = newFontSize+'px';
+            if(!el) continue;
+            var newFontSize = 12.5;
+            try {
+                var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+                newFontSize = 2.5 * Math.ceil(fontSize/2.5);
+            }
+            catch(error) {
+                console.log("Error: ", error);
+            }
+            if(el && el.style) el.style.fontSize = newFontSize+'px';
         }
 
         SUPER.init_super_responsive_form_fields({form: form, callback: function(){
@@ -7910,6 +7969,10 @@ function SUPERreCaptcha(){
                     // Make PDF searchable when text rendering is enabled
                     if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
                     if(args.pdfSettings.textRendering==='true'){
+                        //args._pdf.text('Testing text'); //, 0, 0, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+                        //args._pdf.text(20, 20, 'Hello world!');
+                        //args._pdf.text(120, 20, 'الرقم الوطني');
+                        //args._pdf.text(220, 20, 'ФанцыТеxтЦлоуд.Цом');
                         SUPER.pdf_generator_render_text(args);
                     }
                     // If there are more pages to be processed, go ahead
@@ -7952,7 +8015,7 @@ function SUPERreCaptcha(){
         var i, nodes, formWidth, pdfPageWidth, scale,
             lineHeight = 1.194,
             drawRectangle = false, // true,
-            renderingMode = 'invisible', // fill,
+            renderingMode = 'invisible', //'invisible', // fill,
             resume, el,
             // Loop over all elements and see if the element is included in the PDF
             pdfPageContainer = document.querySelector('.super-pdf-page-container'),

@@ -8,18 +8,18 @@ $v = array_filter($settings);
 $global_settings = SUPER_Common::get_global_settings();
 $v = array_merge($global_settings, $v);
 
-// Google fonts
-if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
-$import_fonts = ""; // example: "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
-if($v['font_google_fonts']!=''){
-    $google_fonts = explode( "\n", $v['font_google_fonts'] );  
-    foreach( $google_fonts as $font ) {
-        $import_fonts .= "@import url('".$font."');\n";
-    }
-}
-
-return $import_fonts."
-
+//// Google fonts
+//if( !isset( $v['font_google_fonts'] ) ) $v['font_google_fonts'] = '';
+//$import_fonts = ""; // example: "@import url('https://fonts.googleapis.com/css2?family=PT+Sans&family=Roboto&display=swap');\n";
+//if($v['font_google_fonts']!=''){
+//    $google_fonts = explode( "\n", $v['font_google_fonts'] );  
+//    foreach( $google_fonts as $font ) {
+//        //$import_fonts .= "@import url('".$font."');\n";
+//    }
+//}
+//$import_fonts .= "@import url('https://fonts.googleapis.com/css2?family=Palette+Mosaic&display=swap');";
+//return $import_fonts."
+return "
 ".$s.".super-shortcode-field,
 ".$s.".super-keyword-filter,
 ".$s.".super-keyword-tag,
@@ -28,6 +28,7 @@ return $import_fonts."
 ".$s.".super-toggle,
 ".$s.".super-toggle-off,
 ".$s.".super-toggle-on,
+".$s.".super-color,
 ".$s.".super-fileupload-button,
 ".$s.".super-error-msg,
 ".$s.".super-empty-error-msg,
@@ -45,6 +46,27 @@ return $import_fonts."
     ".(!empty($v['font_global_weight']) ? "font-weight: ".$v['font_global_weight'].";" : "")."
     line-height: normal;
     letter-spacing: 0;
+}
+".$s.".super-multipart-step-count,
+".$s.".super-heading-title > h1,
+".$s.".super-heading-title > h2,
+".$s.".super-heading-title > h3,
+".$s.".super-heading-title > h4,
+".$s.".super-heading-title > h5,
+".$s.".super-heading-title > h6,
+".$s.".super-heading-title > h7,
+".$s.".super-heading-description,
+".$s.".super-label,
+".$s.".super-description,
+".$s.".super-html-title,
+".$s.".super-html-subtitle,
+".$s.".super-html-content,
+".$s.".super-button-name,
+".$s.".super-calculator-label,
+".$s.".super-calculator-label,
+".$s.".super-calculator-currency-wrapper,
+.tooltip-super-form-".$form_id." {
+    ".(!empty($v['font_global_family']) ? "font-family: ".$v['font_global_family'].";" : "")."
 }
 ".$s.".super-focus .super-adaptive-placeholder,
 ".$s.".super-filled .super-adaptive-placeholder {
@@ -84,6 +106,7 @@ return $import_fonts."
 ".$rs1.".super-toggle,
 ".$rs1.".super-toggle-off,
 ".$rs1.".super-toggle-on,
+".$rs1.".super-color,
 ".$rs1.".super-fileupload-button,
 ".$rs1.".super-error-msg,
 ".$rs1.".super-empty-error-msg,

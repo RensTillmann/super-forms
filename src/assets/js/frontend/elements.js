@@ -6,6 +6,7 @@
         // First get active part
         var i, index, validate, result, skip, progress, multipart,
             form = target.closest('.super-form'),
+            stepParams = (form.dataset.stepParams ? form.dataset.stepParams : ''), // default
             nodes = form.querySelectorAll('.super-multipart'),
             steps = form.querySelectorAll('.super-multipart-step'),
             formId = form.querySelector('input[name="hidden_form_id"]').value,
@@ -49,7 +50,9 @@
         SUPER.init_super_responsive_form_fields({form: form});
 
         // Update URL parameters
-        window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
+        if(stepParams!=='false'){
+            window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
+        }
         
         // Make sure to skip the multi-part if no visible elements are found
         skip = SUPER.skipMultipart(target, form);
@@ -72,9 +75,15 @@
         multipart = form.querySelector('.super-multipart.super-active');
         if(typeof multipart.dataset.disableScrollPn === 'undefined'){
             if(e && !e.shiftKey){
-                $('html, body').animate({
-                    scrollTop: $(form).offset().top - 30
-                }, 500);
+                if(form.closest('.super-popup-content')){
+                    $(form.closest('.super-popup-content')).animate({
+                        scrollTop: $(form).offset().top - 30
+                    }, 500);
+                }else{
+                    $('html, body').animate({
+                        scrollTop: $(form).offset().top - 30
+                    }, 500);
+                }
             }
         }
         // Focus first TAB index field in next multi-part
@@ -2765,9 +2774,16 @@
         });
 
         $doc.on('click','.super-back-to-top',function(){
-            $('html, body').animate({
-                scrollTop: 0
-            }, 1000);
+            var form = SUPER.get_frontend_or_backend_form({el: this});
+            if(form.closest('.super-popup-content')){
+                $(form.closest('.super-popup-content')).animate({
+                    scrollTop: $(form).offset().top-200
+                }, 1000);
+            }else{
+                $('html, body').animate({
+                    scrollTop: $(form).offset().top-200
+                }, 1000);
+            }
         });
 
         $doc.on('change', '.super-shortcode-field', function (e) {
@@ -2921,6 +2937,7 @@
             var i, nodes,
                 el = this,
                 form = el.closest('.super-form'),
+                stepParams = (form.dataset.stepParams ? form.dataset.stepParams : ''), // default
                 form_id = form.querySelector('input[name="hidden_form_id"]').value,
                 currentActive = form.querySelector('.super-multipart.super-active'),          
                 currentActiveTab = form.querySelector('.super-multipart-step.super-active'),
@@ -2943,7 +2960,9 @@
                     if(result!==true) return false;
                 }
             }
-            window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
+            if(stepParams!=='false'){
+                window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
+            }
 
             progress = 100 / total;
             progress = progress * (index+1);

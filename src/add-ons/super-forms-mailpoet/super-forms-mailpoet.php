@@ -252,8 +252,14 @@ if( !class_exists('SUPER_MailPoet') ) :
         public static function add_settings( $array, $x ) {
             $default = $x['default'];
             $settings = $x['settings'];
+
             global $wpdb;
-            $fields = $wpdb->get_results("SELECT * FROM $wpdb->prefix"."mailpoet_custom_fields WHERE 1=1");
+            $table_name = $wpdb->prefix.'mailpoet_custom_fields';
+            $query = $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table_name));
+            $fields = array();
+            if($wpdb->get_var($query)===$table_name) {
+                $fields = $wpdb->get_results("SELECT * FROM $table_name WHERE 1=1");
+            }
             $fieldsList = '';
             foreach($fields as $k => $v){
                 $fieldsList .= '<strong>cf_' . $v->id . '</strong> - (' . $v->name . ')<br />';

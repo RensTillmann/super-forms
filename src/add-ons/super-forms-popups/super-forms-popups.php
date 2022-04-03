@@ -587,7 +587,7 @@ if( !class_exists('SUPER_Popup') ) :
                 if( ( ($settings['popup_logged_in']=='true') && (is_user_logged_in()) ) || ( ($settings['popup_not_logged_in']=='true') && (!is_user_logged_in()) ) ) {
                     $form_html = $result;
                     $result = '';
-                    $result .= '<div class="super-popup-wrapper-' . $form_id . ' super-popup-wrapper" style="opacity:0;z-index:-2147483648;">';
+                    $result .= '<div class="super-popup-wrapper-' . $form_id . ' super-popup-wrapper" style="opacity:0;z-index:-2147483648;"' . (!empty($settings['popup_clear_form']) ? ' data-clear-form="true"' : '') . '>';
                         $result .= '<div class="super-popup-' . $form_id . ' super-popup super-popup-sticky-'.($settings['popup_sticky']).'" style="opacity:0;">';
                 
                             // Popup close button
@@ -676,6 +676,9 @@ if( !class_exists('SUPER_Popup') ) :
                 'hidden' => 'settings',
                 'name' => esc_html__( 'Popup Settings', 'super-forms' ),
                 'label' => esc_html__( 'Popup Settings', 'super-forms' ),
+                'html' => array(
+                    sprintf( esc_html__( '%s%sNote:%s if you want to open the popup via a button you will need to put the form shortcode %s[super_form id="XXX"]%s on the page and add a button that user can click on to open the popup.%sFor example, you can use a button like so:%s%s%sOpen the Popup%s%s%sor with the use of a shortcode:%s%s[super-popup id=XXX]Open Form[/super-popup]%s%sJust replace XXX with the form ID. Via `Appearance > Menu` you can also add a `Custom Link` with URL set to %s to open the Popup from your site menu. In that case make sure you load the form on all pages. You can do this by putting the form shortcode in a footer widget.%s' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<code>', '</code>', '<br />', '<br />', '<code>', esc_html('<a href="#super-popup-XXX">'), esc_html('</a>'), '</code>', '<br />', '<br />', '<code>', '</code>', '<br />', '<code>#super-popup-XXX</code>', '</div>' ),
+                ),
                 'fields' => array(
                     'popup_enabled' => array(
                         'default' =>  '',
@@ -848,6 +851,17 @@ if( !class_exists('SUPER_Popup') ) :
                         'filter'=>true,
                         'values' => array(
                             'true' => esc_html__( 'Display close (X) button', 'super-forms' ),
+                        ),
+                        'parent' => 'popup_enabled',
+                        'filter_value' => 'true',
+                        'allow_empty' => true,
+                    ),
+                    'popup_clear_form' => array(
+                        'default' =>  '',
+                        'type' => 'checkbox',
+                        'filter'=>true,
+                        'values' => array(
+                            'true' => esc_html__( 'Clear form after closing popup', 'super-forms' ),
                         ),
                         'parent' => 'popup_enabled',
                         'filter_value' => 'true',
@@ -1071,7 +1085,7 @@ if( !class_exists('SUPER_Popup') ) :
                         'filter'=>true,
                         'type'=>'select',
                         'filter'=>true,
-                        'default' =>  'no_repeat',
+                        'default' =>  'no-repeat',
                         'values'=>array( 
                             'no-repeat' => esc_html__( 'No (no-repeat)', 'super-forms' ),
                             'repeat' => esc_html__( 'Repeat (repeat)', 'super-forms' ),

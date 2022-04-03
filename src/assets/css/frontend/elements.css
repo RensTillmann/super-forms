@@ -2699,18 +2699,23 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-weight: normal;
 }
 
-.super-toggle {
+.super-toggle,
+.super-color {
   flex-wrap: wrap;
 }
 .super-toggle .super-label,
-.super-toggle .super-description {
+.super-toggle .super-description,
+.super-color .super-label,
+.super-color .super-description {
   width: 100%;
 }
-.super-toggle .super-break {
+.super-toggle .super-break,
+.super-color .super-break {
   flex-basis: 100%;
   height: 0;
 }
-.super-toggle .super-field-wrapper {
+.super-toggle .super-field-wrapper,
+.super-color .super-field-wrapper {
   margin-top: 0 !important;
   width: auto;
 }
@@ -3166,23 +3171,30 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   border: 1px solid black;
 }
 
-.super-toggle {
+.super-toggle,
+.super-color {
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
-.super-toggle .super-toggle-prefix-label {
+.super-toggle .super-toggle-prefix-label,
+.super-color .super-toggle-prefix-label {
   padding: 0px 10px 0px 0px;
 }
-.super-toggle .super-toggle-suffix-label {
+.super-toggle .super-toggle-suffix-label,
+.super-color .super-toggle-suffix-label {
   padding: 0px 0px 0px 10px;
 }
 .super-toggle .super-toggle-prefix-question,
-.super-toggle .super-toggle-suffix-question {
+.super-toggle .super-toggle-suffix-question,
+.super-color .super-toggle-prefix-question,
+.super-color .super-toggle-suffix-question {
   padding: 0px 0px 0px 10px;
 }
 .super-toggle .super-toggle-prefix-question:after,
-.super-toggle .super-toggle-suffix-question:after {
+.super-toggle .super-toggle-suffix-question:after,
+.super-color .super-toggle-prefix-question:after,
+.super-color .super-toggle-suffix-question:after {
   content: "\f059";
   text-align: center;
   font-weight: 100;
@@ -3568,7 +3580,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   padding-left: 0px;
 }
 .super-form .sp-replacer.super-forms {
-  padding: 0px;
+  padding: 0px 5px 0px 5px;
   max-width: 70px;
   height: 34px;
 }

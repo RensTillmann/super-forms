@@ -394,6 +394,11 @@
 					}
 					// Remove form success/error messages upon closing
 					$wrapper.find('.super-msg').remove();
+					// Clear form?
+					if($settings.clear_form==='true'){
+						var form = $wrapper.find('.super-form')[0];
+						SUPER.init_clear_form({form: form});
+					}
 				});
 			}
 		}

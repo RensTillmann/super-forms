@@ -417,9 +417,10 @@
     Export & Import
 --------------------------*/
 .super-export-import-single-form .super-button {
-    width:auto;
-    float:left;
+    width: auto;
+    float: left;
     margin: 5px 0px;
+    clear: both;
 }
 .super-form-settings .super-export-import,
 .super-form-settings .super-export-import-entries,
@@ -606,6 +607,7 @@
 .super-reset-settings-buttons {
   display: none;
   flex-direction: row;
+  z-index: 1;
 }
 .super-reset-settings-buttons > i {
   display: flex;

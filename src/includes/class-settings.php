@@ -116,7 +116,8 @@ class SUPER_Settings {
         unset($new_statuses);
         
         $submission_count = 0;
-        if( (isset($s['id'])) && ($s['id']!=0) ) {
+        if( ((isset($s['id'])) && ($s['id']!=0)) || (!empty(absint($_GET['id']))) ) {
+            if(empty(absint($s['id']))) $s['id'] = absint($_GET['id']);
             $submission_count = get_post_meta( absint($s['id']), '_super_submission_count', true );
             if( !$submission_count ) {
                 $submission_count = 0;
@@ -1563,6 +1564,16 @@ class SUPER_Settings {
                     'placeholder' => "6213:send|event|Signup Form|submit\n5349:send|event|Contact Form|submit"
                 ),
 
+                // @since 6.2.3 - Option to show/hide the progress bar for mult-parts
+                'multipart_url_params' => array(
+                    'desc' => esc_html__( 'Disable Multi-part current step parameter in the URL', 'super-forms' ),
+                    'default' =>  '',
+                    'type' => 'checkbox', 
+                    'values' => array(
+                        'false' => esc_html__( 'Disable Multi-part current step parameter in the URL', 'super-forms' ),
+                    ),
+                ),
+
                 // @since 2.0.0  - do not hide form after submitting
                 'form_hide_after_submitting' => array(
                     'default' =>  'true',
@@ -1578,7 +1589,8 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Clear / reset the form after submitting', 'super-forms' ),
                     )
-                )
+                ),
+
             )
         );
         $array = apply_filters( 'super_settings_after_form_settings_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
@@ -2353,7 +2365,6 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Show progress bar for Multi-part', 'super-forms' ),
                     ),
-                    
                 ),
 
                 'theme_progress_bar_colors' => array(
@@ -3081,12 +3092,14 @@ class SUPER_Settings {
 
                     '<div class="super-field">
                         <div class="super-field-name">' . esc_html__( 'Export form', 'super-forms' ) . ':</div>
+                        <label class="super-retain-underlying-global-values"><input checked="checked" type="checkbox" name="retain_underlying_global_values" /><span>' . esc_html__( 'Retain underlying global value (recommended when exporting to other sites)', 'super-forms' ) . '</span></label>
                         <span class="super-button super-export super-clear">' . esc_html__( 'Export', 'super-forms' ) . '</span>
                     </div>',
 
                     '<div class="super-field">
-                        <div class="super-field-name">' . esc_html__( 'Import form', 'super-forms' ) . ':</div>
-                        <div class="super-field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
+                        <div class="super-field-name">' . esc_html__( 'Import form', 'super-forms' ) . ':
+                            <div class="super-field-label">' . esc_html__( 'Browse import file and choose what you want to import', 'super-forms' ) . '</div>
+                        </div>
                         <div class="super-field-input">
                         <div class="image-field browse-files" data-file-type="text/plain" data-multiple="false">
                             <span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>
@@ -3177,16 +3190,17 @@ class SUPER_Settings {
         // In some cases a value might be locked to it's global value, this way a value that isn't allowed to be empty can still be empty and honor the global setting when global setting is being changed
         // This wasn't possible before
         foreach($array as $k => $v){
+            if(!isset($array[$k]['fields'])) continue;
             foreach($array[$k]['fields'] as $kk => $vv){
-                if($vv['type']==='multicolor'){
+                if(isset($vv['type']) && $vv['type']==='multicolor'){
                     foreach($vv['colors'] as $ck => $cv){
-                        $array[$k]['fields'][$kk]['colors'][$ck]['g'] = $g[$ck];
-                        $array[$k]['fields'][$kk]['colors'][$ck]['v'] = $g[$ck];
+                        $array[$k]['fields'][$kk]['colors'][$ck]['g'] = (isset($g[$ck]) ? $g[$ck] : '');
+                        $array[$k]['fields'][$kk]['colors'][$ck]['v'] = (isset($g[$ck]) ? $g[$ck] : '');
                     }
                     continue;
                 }
-                $array[$k]['fields'][$kk]['g'] = $g[$kk]; // global
-                $array[$k]['fields'][$kk]['v'] = $s[$kk];
+                $array[$k]['fields'][$kk]['g'] = (isset($g[$kk]) ? $g[$kk] : ''); // global
+                $array[$k]['fields'][$kk]['v'] = (isset($s[$kk]) ? $s[$kk] : '');
             }
         }
 

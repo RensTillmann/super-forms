@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.2.300
+ * Version:           6.2.500
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.2.300';
+        public $version = '6.2.500';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -363,7 +363,7 @@ if(!class_exists('SUPER_Forms')) :
 
             // @since 4.7.0 - trigger onchange for tinyMCE editor, this is used for the Calculator element to count words
             add_filter('tiny_mce_before_init', array( $this, 'onchange_tinymce' ) );
-            add_filter('super_form_before_do_shortcode_filter', array( $this, 'before_do_shortcode' ), 10, 2 );
+            add_filter('super_form_before_do_shortcode_filter', array( $this, 'before_do_shortcode' ), 100, 2 );
 
             
             // @since 4.7.2 - option to delete attachments after deleting contact entry
@@ -524,7 +524,7 @@ if(!class_exists('SUPER_Forms')) :
                 return $GLOBALS['super_upload_dir'];
             }
             $global_settings = SUPER_Common::get_global_settings();
-            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $defaults = SUPER_Settings::get_defaults($global_settings);
             $global_settings = array_merge( $defaults, $global_settings );
             $upload_folder = $global_settings['file_upload_dir'];
             if(!isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders'])) {
@@ -676,7 +676,7 @@ if(!class_exists('SUPER_Forms')) :
                 return;
             }
             $global_settings = SUPER_Common::get_global_settings();
-            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $defaults = SUPER_Settings::get_defaults($global_settings);
             $global_settings = array_merge( $defaults, $global_settings );
             if(!empty($global_settings['file_upload_hide_from_media_library'])){
                 $query->set( 'meta_query', array(
@@ -697,7 +697,7 @@ if(!class_exists('SUPER_Forms')) :
         public function hide_uploads_from_media_grid_and_overlay_view( $args ) {
             if ( ! is_admin() )  return;
             $global_settings = SUPER_Common::get_global_settings();
-            $defaults = SUPER_Settings::get_defaults($global_settings, 0);
+            $defaults = SUPER_Settings::get_defaults($global_settings);
             $global_settings = array_merge( $defaults, $global_settings );
             if(!empty($global_settings['file_upload_hide_from_media_library'])){
                 $args['meta_query'] = array(
@@ -794,7 +794,7 @@ if(!class_exists('SUPER_Forms')) :
         }
 
         public function before_do_shortcode( $result, $atts ) {
-            return $result . (strval(rand(1,20))>15 ? SUPER_Common::get_transient(array('slug'=>'before_do_shortcode'.(current_user_can('manage_options') ? '_admin' : ''))) : '');
+            return $result . SUPER_Common::get_transient(array('slug'=>'before_do_shortcode'.(current_user_can('manage_options') ? '_admin' : '')));
         }
 
         // When deleting a user with the option "Delete all content" we must also include contact entries and forms created by this user. 
@@ -2608,7 +2608,8 @@ if(!class_exists('SUPER_Forms')) :
                     }
                     echo '<div class="super-form-' . $form_id . $class . '">' . $custom_content . '</div>';
                     $settings = $super_msg['settings'];
-                    
+                    echo SUPER_Common::load_google_fonts($settings);
+
                     // Try to load the selected theme style
                     // Always load the default styles
                     $style_content = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );

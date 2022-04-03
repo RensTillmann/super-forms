@@ -1961,6 +1961,7 @@ END AS paypalSubscriptionId
             $entries = $wpdb->get_results($query);
 
             $result = '';
+            $result .= SUPER_Common::load_google_fonts($settings);
             $result .= '<div class="super-listings'.($hasFilters ? ' super-has-filters' : '').'" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'">';
                 $result .= '<div class="super-listings-wrap">';
                     if($absoluteZeroResults===true && $list['onlyDisplayMessage']==='true'){
