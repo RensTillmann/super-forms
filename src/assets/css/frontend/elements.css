@@ -366,7 +366,7 @@ h1.super-thanks-title {
   position: relative;
   float: left;
   margin-bottom: 0px;
-  min-height: 0.01rem;
+  min-height: 1px;
   background-size: cover;
   padding-left: 25px;
 }

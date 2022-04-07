@@ -3144,3 +3144,77 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
   border-radius: 0;
   border-color: #ccc;
 }
+
+.super-is-invisible:before {
+  font-family: "Font Awesome 6 Free";
+  font-weight: normal;
+  content: '\f070';
+  font-size: 12px;
+  position: absolute;
+  left: 50%;
+  margin-left: -12px;
+  top: 18px;
+  background-color: black;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 100%;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.super-is-invisible:after {
+  content: '';
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0.3;
+  background-image: url("https://f4d.nl/dev/wp-content/plugins/super-forms/assets/images/sortable-placeholder.png");
+  z-index: 1;
+}
+.super-is-invisible .super-element-header,
+.super-is-invisible .super-element-inner {
+  z-index: 2;
+  position: relative;
+}
+.super-is-invisible .super-element-inner {
+  opacity: 0.8;
+}
+.super-is-invisible .super-is-invisible {
+  opacity: 1 !important;
+  background-image: none !important;
+}
+.super-is-invisible .super-is-invisible:before {
+  display: none;
+}
+.super-is-invisible .super-is-invisible:after {
+  background-image: none;
+}
+.super-is-invisible .super-is-invisible .super-element-inner {
+  opacity: 1 !important;
+}
+
+.super-preview-elements .super-element.super-minimized[data-shortcode-tag="pdf_page_break"] {
+  border: 1px dashed #CECECE;
+  background-color: white;
+}
+.super-preview-elements .super-element.super-minimized[data-shortcode-tag="pdf_page_break"] .super-minimize {
+  display: none;
+}
+.super-preview-elements .super-element.super-minimized[data-shortcode-tag="pdf_page_break"] > .super-element-inner > * {
+  display: block !important;
+}
+
+.super-element-settings .super-field.super-field-type-color {
+  display: flex;
+  align-items: center;
+}
+.super-element-settings .super-field.super-field-type-color .super-field-name {
+  flex-grow: 1;
+}
+.super-element-settings .super-field.super-field-type-color .super-field-input {
+  width: auto;
+}

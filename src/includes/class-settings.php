@@ -116,7 +116,8 @@ class SUPER_Settings {
         unset($new_statuses);
         
         $submission_count = 0;
-        if( ((isset($s['id'])) && ($s['id']!=0)) || (!empty(absint($_GET['id']))) ) {
+        if( ((isset($s['id'])) && ($s['id']!=0)) || (isset($_GET['id']) && !empty(absint($_GET['id']))) ) {
+            if(empty($s['id'])) $s['id'] = 0;
             if(empty(absint($s['id']))) $s['id'] = absint($_GET['id']);
             $submission_count = get_post_meta( absint($s['id']), '_super_submission_count', true );
             if( !$submission_count ) {

@@ -506,7 +506,7 @@ class SUPER_Ajax {
                                 }
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                                $settings_html .= '<div class="super-field">';
+                                $settings_html .= '<div class="super-field super-field-type-'.$v['type'].'">';
                                     if( isset( $v['name'] ) ) {
                                         $settings_html .= '<div class="super-field-name">' . ($v['name']);
                                         if( isset( $v['desc'] ) ) {
@@ -2150,7 +2150,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' super-hidden';
             }
-            $result .= '<div class="super-field' . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            $result .= '<div class="super-field super-field-type-'.$fv['type'] . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) {
                     $result .= '<div class="super-field-name">' . ($fv['name']);
                     if( isset( $fv['desc'] ) ) {
