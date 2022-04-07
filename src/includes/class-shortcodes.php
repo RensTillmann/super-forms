@@ -1294,6 +1294,9 @@ class SUPER_Shortcodes {
                 '1/1'=>array('one_full',100),
             ); 
             $class .= ' super_'.$sizes[$data['size']][0] . ' super-' . str_replace( 'column_', 'super_', $tag );
+            if(isset($data['invisible']) && $data['invisible']==='true'){
+                $class .= ' super-is-invisible';
+            }
         }
         if($tag=='multipart' || $tag=='tabs' ){
             $class .= ' super-' . $tag;
@@ -3248,14 +3251,15 @@ class SUPER_Shortcodes {
             }
         }
 
-        if( ($atts['enable_address_auto_complete']=='true') && (empty($atts['address_api_key'])) ) {
-            $result .= '<strong style="color:red;">' . esc_html__( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
-        }
-
         // @since 1.2.5     - custom regex validation
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
+
+        if( ($atts['enable_address_auto_complete']=='true') && (empty($atts['address_api_key'])) ) {
+            $result .= '<strong style="color:red;">' . esc_html__( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
+        }
+
         $result .= self::loop_conditions( $atts, $tag );
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';

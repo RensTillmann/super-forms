@@ -694,8 +694,13 @@ function SUPERreCaptcha(){
         return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
     };
     SUPER.replaceAll = function(value, searchFor, replaceWith){
-        var re = new RegExp(searchFor, "g");
-        return value.replace(re, replaceWith);
+        try {
+            var re = new RegExp(searchFor, "g");
+            return value.replace(re, replaceWith);
+        }catch (e) {
+            // Do nothing
+        }
+        return value;
     };
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         if(changedField[0]) changedField = changedField[0];
