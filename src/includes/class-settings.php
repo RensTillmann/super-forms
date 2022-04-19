@@ -1565,7 +1565,7 @@ class SUPER_Settings {
                     'placeholder' => "6213:send|event|Signup Form|submit\n5349:send|event|Contact Form|submit"
                 ),
 
-                // @since 6.2.3 - Option to show/hide the progress bar for mult-parts
+                // @since 6.3.0 - Option to show/hide the progress bar for mult-parts
                 'multipart_url_params' => array(
                     'desc' => esc_html__( 'Disable Multi-part current step parameter in the URL', 'super-forms' ),
                     'default' =>  '',
@@ -3186,7 +3186,7 @@ class SUPER_Settings {
         $array = apply_filters( 'super_settings_after_export_import_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
         $array = apply_filters( 'super_settings_after_support_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
-        // @since 6.2.3
+        // @since 6.3.0
         // Before returning the settings, set global and current values
         // In some cases a value might be locked to it's global value, this way a value that isn't allowed to be empty can still be empty and honor the global setting when global setting is being changed
         // This wasn't possible before

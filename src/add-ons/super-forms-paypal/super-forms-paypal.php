@@ -418,7 +418,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		 *  @since      1.0.0
 		 */
 		public function save_post_id($data) {
-			SUPER_Forms()->session->set( '_super_paypal_post_id', absint($data['post_id']) );
+			SUPER_Common::setClientData( array( 'name'=> 'paypal_post_id', 'value'=>absint($data['post_id'] ) ) );
 		}
 
 		/**
@@ -428,7 +428,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		 *  @since      1.0.0
 		 */
 		public function save_user_id($data) {
-			SUPER_Forms()->session->set( '_super_paypal_user_id', absint($data['user_id']) );
+			SUPER_Common::setClientData( array( 'name'=> 'paypal_user_id', 'value'=>absint($data['user_id'] ) ) );
 		}
 
 
@@ -1975,13 +1975,13 @@ if( !class_exists('SUPER_PayPal') ) :
 				}
 
 				// Get Post ID and save it in custom parameter for paypal so we can update the post status after successfull payment complete
-				$post_id = SUPER_Forms()->session->get( '_super_paypal_post_id' );
+				$post_id = SUPER_Common::getClientData( 'paypal_post_id' );
 				if( $post_id==false ) {
 					$post_id = 0;
             	}
 
 				// Get User ID and save it in custom parameter for paypal so we can update the user status after successfull payment complete
-				$user_id = SUPER_Forms()->session->get( '_super_paypal_user_id' );
+				$user_id = SUPER_Common::getClientData( 'paypal_user_id' );
 				if( $user_id==false ) {
 					$user_id = 0;
             	}

@@ -3836,7 +3836,7 @@ function SUPERreCaptcha(){
                         form_id: $form_id
                     }
                 });
-            });
+            }, false); // define false, to skip saving nonce (not required when saving progress)
         }, 1000); 
         // 1 second timeout, to make sure that we do not make unnecessary requests to the server
     };
@@ -4205,7 +4205,8 @@ function SUPERreCaptcha(){
     };
 
     // @since 3.2.0 - prepare form data
-    SUPER.prepare_form_data = function($form, callback){
+    SUPER.prepare_form_data = function($form, callback, createNonce){
+        if(typeof createNonce === 'undefined') createNonce = true;
         var $data = SUPER.prepare_form_data_fields($form),
             $form_id = '',
             $entry_id = '',
@@ -4278,6 +4279,19 @@ function SUPERreCaptcha(){
             $list_id = $form.find('input[name="hidden_list_id"]').val();
         }
 
+        if(createNonce===false){
+            if(typeof callback === 'function'){
+                callback({
+                    data:$data, 
+                    form_id:$form_id, 
+                    entry_id:$entry_id, 
+                    list_id:$list_id,
+                    sf_nonce: $form.find('input[name="sf_nonce"]').val()
+                });
+            }
+            return;
+        }
+
         // Generate new nonce
         $.ajax({
             url: super_common_i18n.ajaxurl,
@@ -4299,7 +4313,6 @@ function SUPERreCaptcha(){
                         sf_nonce: $form.find('input[name="sf_nonce"]').val()
                     });
                 }
-
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 // eslint-disable-next-line no-console

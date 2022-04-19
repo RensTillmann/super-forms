@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 07, 2022 - Version 6.2.500
+## Apr 19, 2022 - Version 6.3.0
 
 - **Added:** MailPoet v3 settings under `Form Settings > MailPoet Settings` which allows you to subscribe users after they submit the form. Optionally you can mape custom fields to store additional information/date for the user
 - **Added:** New option under `Form Settings > Form Settings` called `Disable Multi-part current step parameter in the URL` which prevents the step parameters `#step-58731-2` from being added to the URL
@@ -16,18 +16,16 @@
 - **Added:** `WooCommerce Checkout` Option to conditionally checkout to WooCommerce 
 - **Added:** Buttons/Icons to reset form settings to it's Default, Last known or Global value. Or to lock the setting to it's global value
 - **Added:** New predefined tag `{option_****}` to retrieve any option from the wp_options database table. If the option is of type Array, you can also filter the sub values by defining a key like so `{option_****;arrayKey}`. When the arrayKey is omitted, a json representation of the Array will be returned.
+- **Improved:** Cookie/Session system, which allows to filter the expiry and expiration variation values to increase or decrease the lifetime of client data
+- **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
+- **Improved:** `Register & Login` Don't show activation status on profile page in back-end for current logged in user, no need
+- **Improved:** `{dynamic_column_counter}` can now be used on field label and description, when used inside a dynamic column
 - **Fix:** Issue with columns not aligned properly in Safari browser when RTL is enabled
 - **Fix:** When the form is inside a Popup, make sure that scrolling events are applied to the content of the popup and not to the site page itself, for instance when scrolling to the first error, or other similar form scrolling events
 - **Fix:** JavaScript error for Safari browser on iPhone when generating PDF, causing the PDF generation to get stuck/hang on loading/spinner icon
 - **Fix:** Issue with `Print` button on Contact Entry page
 - **Fix:** Issue with `Exclude dates or a range of dates` setting for datepickers when being used on multiple datepickers in the form
 - **Fix:** An issue since v6.2.200 with dynamic columns where newly columns were inserted after the first column
-
-## Feb 24, 2022 - Version 6.2.200
-
-- **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
-- **Improved:** `Register & Login` Don't show activation status on profile page in back-end for current logged in user, no need
-- **Improved:** `{dynamic_column_counter}` can now be used on field label and description, when used inside a dynamic column
 - **Fix:** `{dynamic_column_counter}` not correctly counting when used in combination with a dynamic column that has conditional logic enabled
 - **Fix:** JavaScript error in older Safari v12 browsers due to `replaceAll()` function not known by the browser, replaced with `replace()` with use of `RegExp()`
 - **Fix:** Issue with `Register & Login` when changing user status from Pending to Active in backend

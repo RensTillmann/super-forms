@@ -141,9 +141,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             
             add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
 
-            // Add minute schedule for cron system
-            add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );
-
             // Setup reminders cron job
             if ( ! wp_next_scheduled( 'super_cron_reminders' ) ) {
                 wp_schedule_event( time(), 'every_minute', 'super_cron_reminders' );
@@ -188,21 +185,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
         public static function plugin_deactivation( $schedules ) {
             wp_clear_scheduled_hook('super_cron_reminders');
         }
-
-
-        /**
-         * Add minute schedule for cron system
-         *
-         *  @since      1.0.0
-        */
-        public static function minute_schedule( $schedules ) {
-            $schedules['every_minute'] = array(
-                'interval' => 60,
-                'display' => esc_html__( 'Every minute', 'super-forms' )
-            );
-            return $schedules;
-        }
-
 
         /**
          * Send reminders
@@ -487,10 +469,10 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             add_post_meta( $reminder_id, '_super_reminder_data', $data );
 
             // Store the created reminders post ID into a session
-            $email_reminders = SUPER_Forms()->session->get( 'super_forms_email_reminders' );
+            $email_reminders = SUPER_Common::getClientData( 'super_forms_email_reminders' );
             if(!is_array($email_reminders)) $email_reminders = array();
             $email_reminders[] = $reminder_id;
-            SUPER_Forms()->session->set( 'super_forms_email_reminders', $email_reminders );
+            SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>$email_reminders  ) );
         }
 
 

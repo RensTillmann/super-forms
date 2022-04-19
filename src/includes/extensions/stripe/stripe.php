@@ -463,7 +463,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 wp_delete_user($frontend_user_id);
 //             }
 //             // Delete any E-mail reminders based on this form ID as it's parent
-//             $email_reminders = SUPER_Forms()->session->get( 'super_forms_email_reminders' );
+//             $email_reminders = SUPER_Common::getClientData( 'email_reminders' );
 //             if( $email_reminders!=false ) {
 //                 if (is_array($email_reminders) && count($email_reminders) > 0) {
 //                     // Delete all the Children of the Parent Page
@@ -472,7 +472,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     }
 //                 }
 //             }
-//             SUPER_Forms()->session->set( 'super_forms_email_reminders', false );
+//             SUPER_Common::setClientData( array( 'name'=> 'email_reminders', 'value'=>false  ) );
 //         }
 // 
 //         // When charge succeeded
@@ -1124,12 +1124,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             $metadata['form_id'] = $form_id;
 //             $metadata['user_id'] = get_current_user_id();
 //             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-//             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
+//             $post_id = SUPER_Common::getClientData( '_super_stripe_frontend_post_id' );
 //             if( !empty($post_id) ) {
 //                 $metadata['frontend_post_id'] = absint($post_id);
 //             }
 //             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-//             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
+//             $user_id = SUPER_Common::getClientData( 'stripe_frontend_user_id' );
 //             if( !empty($user_id) ) {
 //                 $metadata['frontend_user_id'] = absint($user_id);
 //             }
@@ -1536,7 +1536,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //          *  @since      1.0.0
 //          */
 //         public function save_post_id($atts) {
-//             SUPER_Forms()->session->set( '_super_stripe_frontend_post_id', absint($atts['post_id']) );
+//             SUPER_Common::setClientData( array( 'name'=> '_super_stripe_frontend_post_id', 'value'=>absint($atts['post_id'] ) ) );
 //         }
 // 
 // 
@@ -1548,7 +1548,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //          *  @since      1.0.0
 //          */
 //         public function save_user_id($atts) {
-//             SUPER_Forms()->session->set( '_super_stripe_frontend_user_id', absint($atts['user_id']) );
+//             SUPER_Common::setClientData( array( 'name'=> 'stripe_frontend_user_id', 'value'=>absint($atts['user_id'] ) ) );
 //         }
 // 
 // 
@@ -2399,12 +2399,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             $metadata['user_id'] = get_current_user_id();
 // 
 //             // Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-//             $post_id = SUPER_Forms()->session->get( '_super_stripe_frontend_post_id' );
+//             $post_id = SUPER_Common::getClientData( '_super_stripe_frontend_post_id' );
 //             if( !empty($post_id) ) {
 //                 $metadata['frontend_post_id'] = absint($post_id);
 //             }
 //             // Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-//             $user_id = SUPER_Forms()->session->get( '_super_stripe_frontend_user_id' );
+//             $user_id = SUPER_Common::getClientData( 'stripe_frontend_user_id' );
 //             if( !empty($user_id) ) {
 //                 $metadata['frontend_user_id'] = absint($user_id);
 //             }

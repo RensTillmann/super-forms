@@ -975,10 +975,10 @@ if( !class_exists('SUPER_Register_Login') ) :
 
             // @since 1.2.0 - update existing user data
             if( $settings['register_login_action']=='update' ) {
-                $user_id = SUPER_Forms()->session->get( 'super_update_user_meta' );
+                $user_id = SUPER_Common::getClientData( 'update_user_meta' );
                 $user_id = absint($user_id);
                 if( $user_id!=0 ) {
-                    SUPER_Forms()->session->set( 'super_update_user_meta', false );
+                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>false  ) );
 
                     // Loop through all default user data that WordPress provides us with out of the box
                     $other_userdata = array(
@@ -1057,10 +1057,10 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             if( $settings['register_login_action']=='register' ) {
-                $user_id = SUPER_Forms()->session->get( 'super_update_user_meta' );
+                $user_id = SUPER_Common::getClientData( 'update_user_meta' );
                 $user_id = absint($user_id);
                 if( $user_id!=0 ) {
-                    SUPER_Forms()->session->set( 'super_update_user_meta', false );
+                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>false  ) );
 
                     // Save custom user meta
                     $meta_data = array();
@@ -1211,7 +1211,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
                 }else{
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
-                    SUPER_Forms()->session->set( 'super_update_user_meta', $user_id );
+                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>$user_id  ) );
                 }
 
             }
@@ -1325,7 +1325,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     if( is_wp_error( $user_id ) ) {
                         $msg = $user_id->get_error_message();
 
-                        SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
+                        SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                         SUPER_Common::output_message(
                             $error = true,
                             $msg = $msg,
@@ -1337,7 +1337,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );
        
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
-                    SUPER_Forms()->session->set( 'super_update_user_meta', $user_id );
+                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>$user_id  ) );
 
                     // @since 1.0.3
                     if( !isset($settings['register_user_signup_status']) ) $settings['register_user_signup_status'] = 'active';
@@ -1410,7 +1410,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $blog_id = wpmu_create_blog($domain, $path, $title, $user_id, $site_meta, $site_id);
                         if( is_wp_error( $blog_id ) ) {
                             $msg = $blog_id->get_error_message();
-                            SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
+                            SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                             SUPER_Common::output_message(
                                 $error = true,
                                 $msg = $msg,
@@ -1485,7 +1485,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             if(!empty($settings['form_processing_overlay']) && $settings['form_processing_overlay']==='true'){
                                 // Overlay enabled
                             }else{
-                                SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error' ) );
+                                SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                             }
                             SUPER_Common::output_message(
                                 $error = true,
@@ -1543,7 +1543,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 $msg = SUPER_Common::email_tags( $settings['register_account_activated_msg'], $data, $settings, $user );
                             }
                         }
-                        SUPER_Forms()->session->set( 'super_msg', array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'success' ) );
+                        SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'success'  ) ) );
                         SUPER_Common::output_message(
                             $error = $error,
                             $msg = $msg,

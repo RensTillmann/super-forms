@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.2.500
+ * Version:           6.3.0
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.2.500';
+        public $version = '6.3.0';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -131,7 +131,6 @@ if(!class_exists('SUPER_Forms')) :
         public static function instance() {
             if(is_null( self::$_instance)){
                 self::$_instance = new self();
-                self::$_instance->session = new SUPER_Session();       
             }
             return self::$_instance;
         }
@@ -214,12 +213,9 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public function includes(){
-
-            // @since 3.2.0 - first load session manager
-            include_once( 'includes/class-super-session.php' );
-
+            
             include_once( 'includes/class-common.php' );
-                        
+             
             if ( $this->is_request( 'admin' ) ) {
                 include_once( 'includes/class-install.php' );
                 include_once( 'includes/class-menu.php' );
@@ -264,6 +260,12 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         private function init_hooks() {
+
+            // Add minute schedule for cron system
+            add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );
+
+            add_action( 'wp', array( $this, 'super_client_data_register_garbage_collection' ) );
+            add_action( 'super_client_data_garbage_collection', array( $this, 'super_client_data_cleanup' ) );
             
             add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
 
@@ -397,6 +399,7 @@ if(!class_exists('SUPER_Forms')) :
 
             // Delete deprecated folders
             $deprecatedFolders = array(
+                'includes/sessions', // no longer used since new session system
                 'uploads', 'u' // no longer needed since new file upload system
             );
             foreach($deprecatedFolders as $folder){
@@ -405,7 +408,42 @@ if(!class_exists('SUPER_Forms')) :
                     SUPER_Common::delete_dir( $path );
                 }
             }
+
+            // Delete deprecated files
+            $deprecatedFiles = array(
+                'includes/class-super-session.php' // no longer used since new session system
+            );
+            foreach($deprecatedFiles as $file){
+                $path = trailingslashit(SUPER_PLUGIN_DIR) . $file;
+                SUPER_Common::delete_file( $path );
+            }
         }
+
+        /**
+         * Add minute schedule for cron system
+         *
+         *  @since      1.0.0
+        */
+        public static function minute_schedule( $schedules ) {
+            $schedules['every_minute'] = array(
+                'interval' => 60,
+                'display' => esc_html__( 'Every minute', 'super-forms' )
+            );
+            return $schedules;
+        }
+
+        public static function super_client_data_cleanup() {
+            if(defined('WP_SETUP_CONFIG')) return;
+            if(!defined('WP_INSTALLING')) SUPER_Common::deleteOldClientData();
+            do_action( 'super_client_data_cleanup' );
+        }
+
+        public static function super_client_data_register_garbage_collection() {
+            if(!wp_next_scheduled('super_client_data_garbage_collection')){
+                wp_schedule_event(time(), 'every_minute', 'super_client_data_garbage_collection');
+            }
+        }
+
         public static function allow_txt_mime_type($mimes, $user){
             $mimes['txt'] = 'text/plain';
             return $mimes;
@@ -1143,12 +1181,12 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.2.6
         */
         function add_string_attachments( $phpmailer ) {
-            $attachments = SUPER_Forms()->session->get( 'super_string_attachments' );
+            $attachments = SUPER_Common::getClientData( 'string_attachments' );
             if( $attachments!=false ) {
                 foreach( $attachments as $v ) {
                     $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
                 }
-                SUPER_Forms()->session->set( 'super_string_attachments', false );
+                SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>false  ) );
             }
         }
 
@@ -1552,9 +1590,14 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function init() {
 
+            if(!headers_sent()){
+                // Start session for this client
+                SUPER_Common::startClientSession();
+            }
+
             // Before init action
             do_action('before_super_init');
-    
+ 
             $this->load_plugin_textdomain();
 
             $failed_to_process_data = esc_html__( 'Failed to process data, please try again', 'super-forms' );
@@ -1910,7 +1953,7 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.6
         */
         public function enqueue_message_scripts() {
-            $super_msg = SUPER_Forms()->session->get( 'super_msg' );
+            $super_msg = SUPER_Common::getClientData( 'msg' );
             if( $super_msg!=false ) {
                 $global_settings = SUPER_Common::get_global_settings();
 
@@ -2591,7 +2634,7 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.6
         */
         public function print_message_before_content( $query ) {
-            $super_msg = SUPER_Forms()->session->get( 'super_msg' );
+            $super_msg = SUPER_Common::getClientData( 'msg' );
             if( $super_msg!=false ) {
                 do_action( 'super_before_printing_message', $query );
                 if( $super_msg['msg']!='' ) {
@@ -2631,7 +2674,7 @@ if(!class_exists('SUPER_Forms')) :
                         echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                     }
 
-                    SUPER_Forms()->session->set( 'super_msg', false );
+                    SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>false  ) );
                 }
             }
         }

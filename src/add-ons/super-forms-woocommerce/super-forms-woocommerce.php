@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.9.3
+ * Version:     1.9.4
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -43,7 +43,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.3';
+        public $version = '1.9.4';
 
 
         /**
@@ -141,6 +141,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
             
             // Filters since 1.0.0
             add_filter( 'super_after_contact_entry_data_filter', array( $this, 'add_entry_order_link' ), 10, 2 );
+            add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'add_contact_entry_link_to_order' ) );
 
             // Filters since 1.2.0
             add_filter( 'super_countries_list_filter', array( $this, 'return_wc_countries' ), 10, 2 );
@@ -542,7 +543,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
          * @since       1.2.2
         */
         function custom_override_checkout_fields( $fields ) {
-            $custom_fields = SUPER_Forms()->session->get( '_super_wc_custom_fields' );
+            $custom_fields = SUPER_Common::getClientData( 'wc_custom_fields' );
             if( is_array($custom_fields) ) {
                 foreach( $custom_fields as $k => $v ) {
                     $fields[$v['section']][$v['name']] = array(
@@ -608,7 +609,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
         public static function populate_checkout_field_values( $value, $input ) {
             global $woocommerce;
             $data = $woocommerce->session->get('_super_form_data', array() );
-            $custom_fields = SUPER_Forms()->session->get( '_super_wc_custom_fields' );
+            $custom_fields = SUPER_Common::getClientData( 'wc_custom_fields' );
             if(is_array($custom_fields)){
                 foreach($custom_fields as $k => $v){
                     if($v['name']===$input){
@@ -636,11 +637,32 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 $order_id = absint($order_id);
                 if( $order_id!=0 ) {
                     $result .= '<tr><th align="right">' . esc_html__( 'WooCommerce Order', 'super-forms' ) . ':</th><td><span class="super-contact-entry-data-value">';
-                    $result .= '<a href="' . esc_url(get_admin_url() . 'post.php?post=' . $order_id . '&action=edit') . '">' . get_the_title( $order_id ) . '</a>';
+                    $result .= '<a href="' . esc_url(get_admin_url() . 'post.php?post=' . $order_id . '&action=edit') . '">#' . $order_id . ' - ' . get_the_title( $order_id ) . '</a>';
                     $result .= '</span></td></tr>';
                 }
             }
             return $result;
+        }
+
+
+        /**
+         * Add the Contact Entry link to the order
+         * 
+         * @since       1.9.4
+        */
+        public static function add_contact_entry_link_to_order( $order ) {
+            $entry_id = get_post_meta( $order->get_id(), '_super_entry_id', true );
+            if(!empty($entry_id)){
+                $entry_id = absint($entry_id);
+                if( $entry_id!=0 ) {
+                    echo '<p class="form-field form-field-wide wc-super-contact-entry">';
+                    echo '<span>';
+                    echo esc_html__( 'Contact Entry', 'super-forms' ) . ': ';
+                    echo '<a target="_blank" href="' . esc_url(get_admin_url() . '?page=super_contact_entry&id='.$entry_id) . '">' . get_the_title( $entry_id ) . '</a>';
+                    echo '</span>';
+                    echo '</p>';
+                }
+            }
         }
 
 
@@ -671,13 +693,15 @@ if( !class_exists('SUPER_WooCommerce') ) :
         */
         function additional_shipping_costs( ) {
             global $woocommerce;
-            $_super_wc_fee = SUPER_Forms()->session->get( '_super_wc_fee' );
-            if( $_super_wc_fee!=false ) {
-                foreach( $_super_wc_fee as $k => $v ) {
-                    if( $v['amount']>0 ) {
-                        $woocommerce->cart->add_fee( $v['name'], $v['amount'], $v['taxable'], $v['tax_class'] );
-                    }else{
-                        $woocommerce->cart->add_fee( $v['name'], $v['amount'], $v['taxable'], $v['tax_class'] );
+            $fee = SUPER_Common::getClientData( 'wc_fee' );
+            if( $fee!=false ) {
+                if(is_array($fee)){
+                    foreach( $fee as $k => $v ) {
+                        if( $v['amount']>0 ) {
+                            $woocommerce->cart->add_fee( $v['name'], $v['amount'], $v['taxable'], $v['tax_class'] );
+                        }else{
+                            $woocommerce->cart->add_fee( $v['name'], $v['amount'], $v['taxable'], $v['tax_class'] );
+                        }
                     }
                 }
             }
@@ -748,7 +772,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
         */
         public static function update_order_meta( $order_id ) {
             // @since 1.2.2 - save the custom fields to the order, so we can retrieve it in back-end for later use
-            $custom_fields = SUPER_Forms()->session->get( '_super_wc_custom_fields' );
+            $custom_fields = SUPER_Common::getClientData( 'wc_custom_fields' );
             if( !empty($custom_fields) ) {
                 update_post_meta( $order_id, '_super_wc_custom_fields', $custom_fields );
                 if( is_array($custom_fields) ) {
@@ -761,7 +785,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
             }
             
             // @since 1.2.2 - save entry data to the order
-            $data = SUPER_Forms()->session->get( '_super_wc_entry_data' );
+            $data = SUPER_Common::getClientData( 'wc_entry_data' );
             update_post_meta( $order_id, '_super_wc_entry_data', $data );
 
             global $woocommerce;
@@ -1183,12 +1207,12 @@ if( !class_exists('SUPER_WooCommerce') ) :
 			}
 
             // @since 1.2.2 - first reset order entry data
-            SUPER_Forms()->session->set( '_super_wc_entry_data', false );
+            SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>false  ) );
 
             if( (isset($settings['woocommerce_checkout'])) && ($settings['woocommerce_checkout']=='true') ) {
 
                 // @since 1.2.2 - save the entry data to the order
-                SUPER_Forms()->session->set( '_super_wc_entry_data', $data );
+                SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>$data  ) );
 
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
@@ -1396,7 +1420,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 // Delete any fees
                 if( (isset($settings['woocommerce_checkout_remove_fees'])) && ($settings['woocommerce_checkout_remove_fees']=='true') ) {
                     $woocommerce->session->set( 'fees', array() );
-                    SUPER_Forms()->session->set( '_super_wc_fee', false );
+                    SUPER_Common::setClientData( array( 'name'=> 'wc_fee', 'value'=>false  ) );
                 }
 
                 // Add fee
@@ -1423,7 +1447,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             );
                         }
                     }
-                    SUPER_Forms()->session->set( '_super_wc_fee', $fees );
+                    SUPER_Common::setClientData( array( 'name'=> 'wc_fee', 'value'=>$fees  ) );
                 }
 
                 // @since 1.2.2 - Add custom checkout fields
@@ -1480,7 +1504,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             'options' => $options
                         );
                     }
-                    SUPER_Forms()->session->set( '_super_wc_custom_fields', $fields );
+                    SUPER_Common::setClientData( array( 'name'=> 'wc_custom_fields', 'value'=>$fields  ) );
                 }
 
 

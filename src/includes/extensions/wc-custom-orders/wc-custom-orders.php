@@ -138,10 +138,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             // Check if option to redirect to created order is enabled in form settings
 //             if( (isset($attr['settings']['wc_custom_orders_redirect'])) && ($attr['settings']['wc_custom_orders_redirect']==='order') ) {
 //                 // If setting was enabled, let's check if we can find the Order ID in the stored session
-//                 $order_id = SUPER_Forms()->session->get( 'super_forms_wc_custom_orders_created_order' );
+//                 $order_id = SUPER_Common::getClientData( 'wc_custom_orders_created_order' );
 //                 $url = get_edit_post_link( $order_id, '' );
 //                 // Make sure to reset the session to clear it from the database, and so that we won't have a redirect conflict with other possible forms
-//                 SUPER_Forms()->session->set( 'super_forms_wc_custom_orders_created_order', false );
+//                 SUPER_Common::setClientData( array( 'name'=> 'wc_custom_orders_created_order', 'value'=>false  ) );
 //             }
 //             return $url;
 //         }
@@ -1095,7 +1095,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 
 //             // Store the created order ID into a session, to either alter the redirect URL or for developers to use in their custom code
 //             // The redirect URL will only be altered if the option to do so was enabled in the form settings.
-//             SUPER_Forms()->session->set( 'super_forms_wc_custom_orders_created_order', $order->get_id() );
+//             SUPER_Common::setClientData( array( 'name'=> 'wc_custom_orders_created_order', 'value'=>$order->get_id( ) ) );
 //             do_action( 'super_wc_custom_orders_after_insert_order_action', array( 'order_id'=>$order->get_id(), 'data'=>$data, 'atts'=>$atts ) );
 //         }
 // 
