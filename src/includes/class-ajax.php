@@ -668,7 +668,7 @@ class SUPER_Ajax {
             if(!empty($_POST['data'])){
                 $data = $_POST['data'];
             }
-            SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, $data );
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
         }
         die();
     }
@@ -2884,7 +2884,7 @@ class SUPER_Ajax {
                 'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
             );
             // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)
-            $post_author = SUPER_Forms()->session->get( 'super_update_user_meta' );
+            $post_author = SUPER_Common::getClientData( 'update_user_meta' );
             if( $post_author!=false ) {
                 $post['post_author'] = absint($post_author);
             }
@@ -3284,7 +3284,7 @@ class SUPER_Ajax {
         if( $form_id!=0 ) {
 
             // Clear form progression
-            SUPER_Forms()->session->set( 'super_form_progress_' . $form_id, false );
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
             // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
@@ -3504,7 +3504,7 @@ class SUPER_Ajax {
                     $redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
                 }
                 if( $save_msg==true ) {
-                    SUPER_Forms()->session->set( 'super_msg', $session_data );
+                    SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>$session_data  ) );
                 }
             }
             if( (!empty($settings['form_post_option'])) && ($save_msg==true) ) {
@@ -3514,7 +3514,7 @@ class SUPER_Ajax {
                 // navigate to a different page it would show the thank you message again to the user while
                 // it was already displayed to the user
                 if( $settings['form_post_custom']!=='true' ) {
-                    SUPER_Forms()->session->set( 'super_msg', $session_data );
+                    SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>$session_data  ) );
                 }
             }
             if($save_msg==false) $msg = '';
@@ -3530,8 +3530,6 @@ class SUPER_Ajax {
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             
-            // Destroy nonce, and generate new one for next form
-            SUPER_Forms()->session->set( 'sf_nonce', false );
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
             SUPER_Common::output_message(
                 $error=false, 

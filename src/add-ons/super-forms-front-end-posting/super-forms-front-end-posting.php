@@ -183,11 +183,11 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
             if( !empty($attr['settings']['frontend_posting_redirect'] ) ) {
            
                 // If setting was enabled, let's check if we can find the Post ID in the stored session
-                $post_id = SUPER_Forms()->session->get( 'super_forms_frontend_posting_created_post' );
+                $post_id = SUPER_Common::getClientData( 'frontend_posting_created_post' );
                 $url = get_permalink( $post_id );
                 
                 // Make sure to reset the session to clear it from the database, and so that we won't have a redirect conflict with other possible forms
-                SUPER_Forms()->session->set( 'super_forms_frontend_posting_created_post', false );
+                SUPER_Common::setClientData( array( 'name'=> 'frontend_posting_created_post', 'value'=>false  ) );
             }
             return $url;
         }
@@ -962,7 +962,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
 
                 // Store the created post ID into a session, to either alter the redirect URL or for developers to use in their custom code
                 // The redirect URL will only be altered if the option to do so was enabled in the form settings.
-                SUPER_Forms()->session->set( 'super_forms_frontend_posting_created_post', $post_id );
+                SUPER_Common::setClientData( array( 'name'=> 'frontend_posting_created_post', 'value'=>$post_id  ) );
 
 
                 // @since 1.0.1

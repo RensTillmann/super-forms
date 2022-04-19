@@ -10,6 +10,8 @@
 - [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting)
 - [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
+- [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
+- [Altering cookie secure and httponly parameters](#altering-cookie-secure-and-httponly-parameters)
 
 ## Track form submissions with third party
 
@@ -128,35 +130,35 @@ With the below example code you can send the submitted form data to a different 
 ## Exclude empty fields from emails
 
 ```php
-    add_filter( 'super_before_sending_email_data_filter', '_super_exclude_empty_field_from_email', 10, 2 );
-    function _super_exclude_empty_field_from_email( $data, $atts ) {
+add_filter( 'super_before_sending_email_data_filter', '_super_exclude_empty_field_from_email', 10, 2 );
+function _super_exclude_empty_field_from_email( $data, $atts ) {
 
-        // REPLACE 123 WITH YOUR FORM ID
-        $id = 123;
+    // REPLACE 123 WITH YOUR FORM ID
+    $id = 123;
 
-        $form_id = absint($atts['post']['form_id']); // contains the form ID that was submitted
+    $form_id = absint($atts['post']['form_id']); // contains the form ID that was submitted
 
-        if( $form_id == $id ) {
-            foreach( $data as $k => $v ) {
-                if( $v['type']=='files' ) {
-                    if( !isset($v['files']) ) {
-                        // 1 = Exclude from confirmation email only
-                        // 2 = Exclude from all emails
-                        $data[$k]['exclude'] = 2;
-                    }
-                    continue;
-                }
-
-                // We exclude whenever the field value equals 0 or when the value was empty
-                if( ($v['value']=='0') || ($v['value']=='') ) {
+    if( $form_id == $id ) {
+        foreach( $data as $k => $v ) {
+            if( $v['type']=='files' ) {
+                if( !isset($v['files']) ) {
                     // 1 = Exclude from confirmation email only
                     // 2 = Exclude from all emails
                     $data[$k]['exclude'] = 2;
                 }
+                continue;
+            }
+
+            // We exclude whenever the field value equals 0 or when the value was empty
+            if( ($v['value']=='0') || ($v['value']=='') ) {
+                // 1 = Exclude from confirmation email only
+                // 2 = Exclude from all emails
+                $data[$k]['exclude'] = 2;
             }
         }
-        return $data;
     }
+    return $data;
+}
 ```
 
 ## Execute custom JS when a column becomes conditionally visible
@@ -260,4 +262,57 @@ function _super_delete_uploaded_files( $atts ) {
         }
     }
 }
+```
+
+## Increase Cookie lifetime for client data such as `Form Progression`
+
+?> **NOTE:** These filter hooks are available since __Super Forms v6.3+__. Always set the cookie lifetime to a higher value than the client data lifetime, for instance if you set the cookie expiry to 10 hours, your client data can't exceed 10 hours simply because the session would already be deleted along with any data. This allows you to define specific client data with a shorter lifetime than others, while having a single session ID for the current client.
+
+```php
+function f4d_super_cookie_expires_filter($expires) {
+    // Please note: this lifetime must be higher than what you set for `super_client_data_expires_filter`
+    return 60*60; // Increase or decrease the session lifetime, by default the expiry is set to 1 hour (3600) or (60*60)
+}
+add_filter( 'super_cookie_expires_filter', 'f4d_super_cookie_expires_filter' );
+
+function f4d_super_cookie_exp_var_filter($exp_var) {
+    return 20*60; // Increase or decrease the session update/extend lifetime, by default the expiry is set to 20 min. (1200) or (20*60)
+}
+add_filter( 'super_cookie_exp_var_filter', 'f4d_super_cookie_exp_var_filter' );
+
+function f4d_super_client_data_expires_filter($expires) {
+    // Please note: this lifetime must be lower than what you set for `super_cookie_expires_filter`
+    return 30*60; // Increase or decrease the client data lifetime, by default the expiry is set to 30 min. (1800) or (30*60)
+}
+add_filter( 'super_client_data_expires_filter', 'f4d_super_client_data_expires_filter' );
+
+function f4d_super_client_data_exp_var_filter($exp_var) {
+    return 10*60; // Increase or decrease the client data update/extend lifetime, by default the expiry is set to 10 min. (600) or (10*60)
+}
+add_filter( 'super_client_data_exp_var_filter', 'f4d_super_client_data_exp_var_filter' );
+
+// Filtering lifetime for specific client data is also possible, simply replace $name with the data that is being saved, for instance `progress_1234` where 1234 would be your form ID
+add_filter( 'super_client_data_$name_expires_filter', 'f4d_super_client_data_expires_filter' );
+add_filter( 'super_client_data_$name_exp_var_filter', 'f4d_super_client_data_exp_var_filter' );
+```
+
+## Altering cookie secure and httponly parameters
+
+?> **NOTE:** If needed you can change how the cookie is being stored, by default when is_ssl() returns true, a secure cookie will be stored. The cookie HttpOnly parameter is always set to true unless you define otherwise
+
+```php
+function f4d_super_cookie_secure_filter($secure) {
+    return true; // set to false to disable
+}
+add_filter( 'super_cookie_secure_filter', 'f4d_super_cookie_secure_filter' );
+
+function f4d_super_cookie_httponly_filter($httponly) {
+    return false; // set HttpOnly parameter for the cookie to false, by default this is set to true
+}
+add_filter( 'super_cookie_httponly_filter', 'f4d_super_cookie_httponly_filter' );
+
+function f4d_super_client_data_delete_limit_filter($limit) {
+    return 10000; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 10000)
+}
+add_filter( 'super_client_data_delete_limit_filter', 'f4d_super_client_data_delete_limit_filter' );
 ```

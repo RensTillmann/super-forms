@@ -1,3 +1,6 @@
+Apr 19, 2022 - Version 1.9.4
+- Added: A link to the connected Contact Entry (if any) on the Order page under the `General` section
+
 Mar 23, 2022 - Version 1.9.3
 - Added: Option to conditionally checkout to WooCommerce
 
@@ -92,7 +95,7 @@ Nov 16, 2017 - Version 1.3.2
 - Changed: Auto updates for Envato element users
 
 Oct 19, 2017 - Version 1.3.1
-- Fix: Check if _super_wc_custom_fields session is an array/set
+- Fix: Check if wc_custom_fields session is an array/set
 
 Oct 16, 2017 - Version 1.3.0
 - Changed: made plugin ready for Envato Elements

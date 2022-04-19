@@ -5915,7 +5915,8 @@ class SUPER_Shortcodes {
         // @since 3.2.0 - if entry data was not found based on user last entry, proceed and check if we need to get form progress for this form
         $formProgress = false;
         if( ($entry_data==null) && ( (isset($settings['save_form_progress'])) && ($settings['save_form_progress']=='true') ) ) {
-            $form_progress = SUPER_Forms()->session->get( 'super_form_progress_' . $form_id );
+            //$form_progress = SUPER_Common::getClientData( 'super_form_progress_' . $form_id );
+            $form_progress = SUPER_Common::getClientData( 'progress_' . $form_id );
             if($form_progress!=false){
                 $entry_data = $form_progress;
                 $formProgress = true;
@@ -6166,7 +6167,7 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.6.0 - add nonce field
-        $result .= '<input type="hidden" name="sf_nonce" value="' . SUPER_Common::generate_nonce() . '" />';
+        $result .= '<input type="hidden" name="sf_nonce" value="" />';
         
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';

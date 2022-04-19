@@ -20,17 +20,207 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
     
-    public static function generate_nonce(){
-        $sf_nonce = SUPER_Forms()->session->get( 'sf_nonce' );
-        if( $sf_nonce===false ) {
-            $sf_nonce = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
-            SUPER_Forms()->session->set( 'sf_nonce', $sf_nonce );
+    public static function startClientSession( $x=array() ){
+        extract( 
+            shortcode_atts( 
+                array( 
+                    'force' => false,
+                    'id' => md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)),
+                    'secure' => false,
+                    'httponly' => true,
+                    'expires' => 60*60, //3600, // Defaults to 60 min. (60*60)
+                    'exp_var' => 20*60 //1200 // Defaults to 20 min. (20*60)
+                ), $x 
+            )
+        );
+        if($force===false){
+            // Only retrieve settings from front-end
+            // Always use sessions for back-end (used for displaying update notifications)
+            if( (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON') ){
+                $global_settings = SUPER_Common::get_global_settings();
+                if( isset($global_settings['allow_storing_cookies']) && $global_settings['allow_storing_cookies']=='0'){
+                    // Do not set cookie
+                    return false;
+                }
+            }
         }
+
+        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
+        // that way we don't have to write to the database that many times
+        // by default the expiry is set to 1 hour, and the expiry variant is set to 30 min.
+		$expires = apply_filters( 'super_cookie_expires_filter', $expires);
+		$exp_var = apply_filters( 'super_cookie_exp_var_filter', $exp_var);
+        $expires = time() + $expires;
+        $exp_var = time() + $exp_var;
+		// Returns true if the page is using SSL (checks if HTTPS or on Port 443).
+		// NB: this won’t work for websites behind some load balancers, especially Network Solutions hosted websites. To body up a fix, save this gist into the plugins folder and enable it. For details, read WordPress is_ssl() doesn’t work behind some load balancers.
+		// Websites behind load balancers or reverse proxies that support HTTP_X_FORWARDED_PROTO can be fixed by adding the following code to the wp-config.php file, above the require_once call:
+		// `if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') $_SERVER['HTTPS'] = 'on';`
+		if(is_ssl()) $secure = true;
+        // Allow devs to override these settings
+		$secure = apply_filters('super_cookie_secure_filter', $secure);
+		$httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+
+        $cookieExists = false;
+        $cookieName = '_sfs_id';
+        if(isset($_COOKIE[$cookieName])) {
+            // If cookie already exists, check if we need to extend expiry
+            // First grab the cookie ID
+            $id = $_COOKIE[$cookieName];
+            // Now lookup this ID in the database
+            $cookie_exp_var = get_option( '_sfs_expvar_' . $id, false );
+            if($cookie_exp_var!==false){
+                $cookieExists = true;
+                if(time() > $cookie_exp_var){
+                    // We will want to extend expiration for this cookie
+                    if(!headers_sent()){
+                        @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+                        update_option( '_sfs_id_' . $id, $expires, 'no' );
+                        update_option( '_sfs_expvar_' . $id, $exp_var, 'no' );
+                    }
+                }
+            }
+        }
+        if($cookieExists===false){
+            if(!headers_sent()){
+                // We can only set a cookie when headers are not sent prior anyways
+                @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+                update_option( '_sfs_id_' . $id, $expires, 'no' );
+                update_option( '_sfs_expvar_' . $id, $exp_var, 'no' );
+            }
+        }
+        return $id;
+    }
+    public static function setClientData( $x ) {
+        extract( 
+            shortcode_atts( 
+                array( 
+                    'name' => 'undefined', 
+                    'value' => '',
+                    'expires' => 30*60, //1800, // Defaults to 30 min. (30*60)
+                    'exp_var' => 10*60 //600 // Defaults to 10 min. (10*60)
+                ), $x 
+            )
+        );
+        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
+        // that way we don't have to write to the database that many times
+        // by default the expiry is set to 30 min., and the expiry variant is set to 10 min.
+
+        // Default expiry filter
+		$expires = apply_filters( 'super_client_data_expires_filter', $expires );
+		$exp_var = apply_filters( 'super_client_data_exp_var_filter', $exp_var );
+
+        // Allow expiry filtering for specific client data
+		$expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
+		$exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+
+        $expires = time() + $expires;
+        $exp_var = time() + $exp_var;
+        $force = false;
+        if($name==='sf_nonce') $force = true;
+        $key = self::startClientSession(array('force'=>$force));
+        if($key===false) return;
+        if($key==='') return;
+
+        if($value===false){
+            // Unset client data
+            delete_option( '_sfs_name_' . $name . '_' . $key );
+            delete_option( '_sfs_exp_' . $name . '_' . $key );
+            delete_option( '_sfs_expvar_' . $name . '_' . $key );
+            return;
+        }
+        update_option( '_sfs_name_' . $name . '_' . $key, $value, 'no' );
+        update_option( '_sfs_exp_' . $name . '_' . $key, $expires, 'no' );
+        update_option( '_sfs_expvar_' . $name . '_' . $key, $exp_var, 'no' );
+    }
+
+    public static function getClientData( $name ) {
+        $force = false;
+        if($name==='sf_nonce') $force = true;
+        $key = self::startClientSession(array('force'=>$force));
+        if($key===false) return false;
+        if($key==='') return false;
+        return get_option( '_sfs_name_' . $name . '_' . $key );
+    }
+
+    public static function unsetClientData( $id, $by='id' ) {
+        global $wpdb;
+        if($by==='id'){
+            // Delete all client data by session ID e.g: `_sfs_%_xxxxxxxxxxxxxxx` 
+            $like = '_sfs_%_' . $wpdb->esc_like($id);
+            $sql  = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", $like );
+            $wpdb->query($sql);
+        }
+        if($by==='name'){
+            // $id contains both the name + id e.g: `sf_nonce_xxxxxxxxx`
+            $like = '_sfs_%' . $wpdb->esc_like($id);
+            $sql  = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", $like );
+            $wpdb->query($sql);
+        }
+    }
+	
+    public static function deleteOldClientData() {
+		global $wpdb;
+		$limit = apply_filters( 'super_client_data_delete_limit_filter', absint(10000) ); // It's technically called a `Cookie name`, but we call it `key` here
+
+        // Delete old deprecated sessions from previous Super Forms versions
+        $sql = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", '_super_session_%');
+        $wpdb->query($sql);
+
+        // Find any option name starting with `_sfs_id_` and check if it was expired
+		$rows = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_sfs_id_%' LIMIT 0, {$limit}");
+		$now = time();
+		$expired = array();
+		foreach( $rows as $value ) {
+			if($now > $value->option_value){
+				$id = substr($value->option_name, 8);
+				$expired[$id] = $id;
+			}
+		}
+		// Delete all client data based on session ID
+		foreach( $expired as $id ) {
+            self::unsetClientData( $id, 'id' );
+        }
+
+        // Also delete other expired client data
+		$rows = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_sfs_exp_%' LIMIT 0, {$limit}");
+		$now = time();
+		$expired = array();
+		foreach( $rows as $value ) {
+			if($now > $value->option_value){
+                $string = $value->option_name; // '_sfs_exp_sf_nonce_6fd0d026b855f86729e6e6b17f986069c42b32af18714725447019d2107a6a4f29a6c6e1226ced5335c10956c669b56a';
+                $parts = explode('_', $string);
+                $len = count($parts);
+                $id = $parts[$len-1];
+                $new_string = str_replace('_'.$id, '', $string);
+                $name = substr($new_string, 9);
+                $id = $name.'_'.$id;
+				$expired[$id] = $id;
+			}
+		}
+		// Delete all client data based on session ID
+		foreach( $expired as $id ) {
+            self::unsetClientData( $id, 'name' );
+        }
+	}
+
+    public static function generate_nonce(){
+        // Destroy old nonce, and generate new one
+        SUPER_Common::setClientData( array( 'name'=> 'sf_nonce', 'value'=>false ) );
+        $sf_nonce = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
+        SUPER_Common::setClientData( 
+            array( 
+                'name' => 'sf_nonce', 
+                'value' => $sf_nonce,
+                'expires' => 30, // nonce will expire after 30 sec. by default
+                'exp_var' => 60*60 // there is no need to refresh a nonce, so we set it's expire variant to a higher value
+            )
+        );
         return $sf_nonce;
     }
 
     public static function verifyCSRF(){
-        $sf_nonce = SUPER_Forms()->session->get( 'sf_nonce' );
+        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce' );
         $v = filter_input(INPUT_POST, 'sf_nonce', FILTER_SANITIZE_STRING);
         if(!$v || $v !== $sf_nonce){
             return false; // invalid
@@ -1254,7 +1444,7 @@ class SUPER_Common {
         // @since 4.9.402 - check if switching from language, if so grab initial tag values from session
         if( (isset($_POST['action'])) && ($_POST['action']=='super_language_switcher') ) {
             // Try to get data from session
-            $tags = SUPER_Forms()->session->get( 'super_tags_values' );
+            $tags = SUPER_Common::getClientData( 'tags_values' );
         }else{
             // @since 4.0.0 - retrieve author id if on profile page
             // First check if we are on the author profile page, and see if we can find author based on slug
@@ -1318,11 +1508,11 @@ class SUPER_Common {
             $user_roles = implode(',', $current_user->roles); // @since 3.2.0
     
             // @since 3.3.0 - save http_referrer into a session
-            $http_referrer = SUPER_Forms()->session->get( 'super_server_http_referrer' );
+            $http_referrer = SUPER_Common::getClientData( 'server_http_referrer' );
             if( $http_referrer==false ) {
                 $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
             }
-            SUPER_Forms()->session->set( 'super_server_http_referrer', $http_referrer );
+            SUPER_Common::setClientData( array( 'name'=> 'server_http_referrer', 'value'=>$http_referrer  ) );
             
             // @since 3.4.0 - Retrieve latest contact entry based on form ID
             // @since 3.4.0 - retrieve the lock count
@@ -1773,7 +1963,7 @@ class SUPER_Common {
                 $tags = array_merge( $tags, $wc_tags );
             }
             $tags = apply_filters( 'super_email_tags_filter', $tags );
-            SUPER_Forms()->session->set( 'super_tags_values', $tags );
+            SUPER_Common::setClientData( array( 'name'=> 'tags_values', 'value'=>$tags  ) );
         }
         
         // Return the new value with tags replaced for data
@@ -2311,7 +2501,9 @@ class SUPER_Common {
     */
     public static function delete_file($file) {
         if ( !is_dir( $file ) ) {
-            unlink( $file );
+            if( file_exists( $file ) ) {
+                unlink( $file );
+            }
         }
     }
     public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
@@ -2407,7 +2599,7 @@ class SUPER_Common {
             $global_settings['smtp_enabled'] = 'disabled';
         }
         if( $global_settings['smtp_enabled']=='disabled' ) {
-            SUPER_Forms()->session->set( 'super_string_attachments', $string_attachments );
+            SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>$string_attachments  ) );
 
             $headers = array();
             if(!empty($settings['header_additional'])){

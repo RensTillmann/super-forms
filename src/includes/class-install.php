@@ -56,6 +56,7 @@ class SUPER_Install {
      *  @since      1.9
      */
     public static function deactivate(){       
+        wp_clear_scheduled_hook('super_client_data_garbage_collection');
         do_action('after_super_forms_deactivated');
     }
 
