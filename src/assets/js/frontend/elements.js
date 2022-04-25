@@ -2388,11 +2388,20 @@
                     return false;
                 }
                 for (i = 0; i < nodes.length; i++) {
-                    searchValue = nodes[i].dataset.searchValue.toString();
-                    text = searchValue.split(';')[0];
-                    if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                    var stringValue = nodes[i].dataset.searchValue.toString();
+                    var stringValue_l = stringValue.toLowerCase();
+                    var isMatch = false;
+                    if(el.dataset.logic=='start'){
+                        // Starts with filter logic:
+                        isMatch = stringValue_l.startsWith(value);
+                    }else{
+                        // Contains filter logic:
+                        isMatch = stringValue_l.indexOf(value) !== -1;
+                    }
+                    if( isMatch===true ) {
                         itemsToShow.push(nodes[i]);
                         regex = RegExp([value].join('|'), 'gi');
+                        text = stringValue.split(';')[0];
                         stringBold = text.replace(regex, '<span>$&</span>');
                         stringBold = stringBold.replace(/ /g, '\u00a0');
                         nodes[i].innerHTML = stringBold;
@@ -3141,8 +3150,13 @@
                 }
                 // if this tag doesn't exists yet
                 if(existingTags.indexOf(value)===-1){
-                    html = '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+value+'" title="remove this tag">'+searchValue+'</span>';
-                    tagsContainer.innerHTML = tagsContainer.innerHTML + html;
+                    var node = document.createElement('span');
+                    node.className = 'super-noselect super-keyword-tag';
+                    node.setAttribute('sfevents', '{"click":"keywords.remove"}');
+                    node.dataset.value = value;
+                    node.title = 'remove this tag';
+                    node.innerHTML = searchValue;
+                    filterField.parentNode.insertBefore(node, filterField.nextElementSibling);
                     target.classList.add('super-active');
                 }
                 if(!app.qap('span', tagsContainer).length){
@@ -3227,11 +3241,20 @@
                             return false;
                         }
                         for (i = 0; i < nodes.length; i++) {
-                            searchValue = nodes[i].dataset.searchValue.toString();
-                            text = searchValue.split(';')[0];
-                            if (searchValue.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+                            var stringValue = nodes[i].dataset.searchValue.toString();
+                            var stringValue_l = stringValue.toLowerCase();
+                            var isMatch = false;
+                            if(keywordField.dataset.logic=='start'){
+                                // Starts with filter logic:
+                                isMatch = stringValue_l.startsWith(value);
+                            }else{
+                                // Contains filter logic:
+                                isMatch = stringValue_l.indexOf(value) !== -1;
+                            }
+                            if( isMatch===true ) {
                                 itemsToShow.push(nodes[i]);
                                 regex = RegExp([value].join('|'), 'gi');
+                                text = stringValue.split(';')[0];
                                 stringBold = '<span class="super-wp-tag">'+text.replace(regex, '<span>$&</span>')+'</span>';
                                 stringBold = stringBold.replace(/\r?\n|\r/g, "");
                                 nodes[i].innerHTML = stringBold;

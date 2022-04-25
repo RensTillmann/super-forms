@@ -7572,6 +7572,7 @@ function SUPERreCaptcha(){
         css += newNormalizeFontStylesNodesClasses + '{max-height:5000em!important;text-size-adjust:none!important;-webkit-text-size-adjust:none!important;-moz-text-size-adjust:none!important;-ms-text-size-adjust:none!important;}';
         // Remove any form padding
         css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
+        css += '.super-pdf-page-container .super-i18n-switcher { display: none!important; }';
         // Hide none essential elements/styles from the PDF output
         css += '.super-generating-pdf:not(.super-pdf-placeholder) *,';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) *:after,';

@@ -545,6 +545,18 @@ $array['form_elements'] = array(
                                 'true' => esc_html__( 'Enable auto suggest', 'super-forms' ),
                             )
                         ),
+                        'filter_logic' => array(
+                            'name' => esc_html__( 'Filter logic', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
+                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                            ),
+                            'filter' => true,
+                            'parent' => 'enable_auto_suggest',
+                            'filter_value' => 'true'
+                        ),
                         'retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['retrieve_method'], 'enable_auto_suggest' ),
                         'retrieve_method_exclude_users' => SUPER_Shortcodes::sf_retrieve_method_exclude_users( $attributes['retrieve_method_exclude_users'], 'retrieve_method' ),
                         'retrieve_method_role_filters' => SUPER_Shortcodes::sf_retrieve_method_role_filters( $attributes['retrieve_method_role_filters'], 'retrieve_method' ),
@@ -755,6 +767,18 @@ $array['form_elements'] = array(
                             'values' => array(
                                 'true' => esc_html__( 'Enable keyword user input', 'super-forms' ),
                             )
+                        ),
+                        'keywords_filter_logic' => array(
+                            'name' => esc_html__( 'Filter logic', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['keywords_filter_logic'] ) ? 'contains' : $attributes['keywords_filter_logic'] ),
+                            'type' => 'select', 
+                            'values' => array(
+                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
+                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                            ),
+                            'filter' => true,
+                            'parent' => 'enable_keywords',
+                            'filter_value' => 'true'
                         ),
                         'keywords_retrieve_method' => SUPER_Shortcodes::sf_retrieve_method( $attributes['keywords_retrieve_method'], 'enable_keywords' ),
                         'keywords_retrieve_method_exclude_users' => SUPER_Shortcodes::sf_retrieve_method_exclude_users( $attributes['keywords_retrieve_method_exclude_users'], 'keywords_retrieve_method' ),
