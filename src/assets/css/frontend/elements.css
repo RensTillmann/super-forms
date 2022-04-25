@@ -6337,6 +6337,7 @@ html[dir=rtl] .super-form.super-rtl .super-int-phone_country-list .super-int-pho
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
+  flex-direction: row-reverse;
 }
 .super-form .super-keyword-tags .super-autosuggest-tags .super-keyword-tag {
   margin: 2px 0px 2px 4px;

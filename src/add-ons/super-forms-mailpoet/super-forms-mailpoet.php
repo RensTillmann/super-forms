@@ -216,6 +216,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                 }
                 $mailpoet_api = \MailPoet\API\API::MP('v1');
                 // See if the user exists first.
+                $subscriber = false;
                 try {
                     $subscriber = $mailpoet_api->getSubscriber( $sub['email'] );
                 } catch ( \Throwable $e ) {
@@ -235,8 +236,14 @@ if( !class_exists('SUPER_MailPoet') ) :
                 if($subscriber){
                     $user_id = $subscriber['id'];
                     $lists = array();
+                    if(empty($settings['mailpoet_lists'])){
+                        return;
+                    }
                     $lists_id = SUPER_Common::email_tags( $settings['mailpoet_lists'], $data, $settings );
                     $lists_id = explode(",", $lists_id);
+                    if(count($lists_id)===0){
+                        return;
+                    }
                     foreach( $lists_id as $key => $list_id ) {
                         $lists[] = intval( $list_id );
                     }

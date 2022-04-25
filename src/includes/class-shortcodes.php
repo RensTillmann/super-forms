@@ -2922,6 +2922,11 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
+        // Auto suggest and Keywords/tags can't be enabled at the same time
+        if( !empty($atts['enable_auto_suggest']) && !empty($atts['enable_keywords']) ) {
+            $atts['enable_auto_suggest'] = '';
+        }
+
         // @since 4.7.0 - field types
         if( !isset( $atts['type'] ) ) $atts['type'] = 'text';
         if( empty($atts['step']) ) $atts['step'] == 'any';
@@ -3191,8 +3196,16 @@ class SUPER_Shortcodes {
         if( !empty($address_auto_complete_attr) ) $result .= $address_auto_complete_attr;
         
         // @since 3.6.0 - disable autocomplete when either auto suggest or keyword functionality is enabled
-        if( !empty($atts['enable_auto_suggest']) ) $atts['autocomplete'] = 'true';
-        if( !empty($atts['enable_keywords']) ) $atts['autocomplete'] = 'true';
+        if( !empty($atts['enable_auto_suggest']) ) {
+            $atts['autocomplete'] = 'true';
+            // Filter logic (used by autosuggest or keywords)
+            $result .= ' data-logic="' . esc_attr($atts['filter_logic']) . '"';
+        }
+        if( !empty($atts['enable_keywords']) ) {
+            $atts['autocomplete'] = 'true';
+            // Filter logic (used by autosuggest or keywords)
+            $result .= ' data-logic="' . esc_attr($atts['keywords_filter_logic']) . '"';
+        }
 
         $result .= self::common_attributes( $atts, $tag, $settings );
         $result .= ' />';
