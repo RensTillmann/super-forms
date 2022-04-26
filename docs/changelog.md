@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 25, 2022 - Version 6.3.0
+## Apr 26, 2022 - Version 6.3.0
 
 - **Added:** MailPoet v3 settings under `Form Settings > MailPoet Settings` which allows you to subscribe users after they submit the form. Optionally you can mape custom fields to store additional information/date for the user
 - **Added:** New option under `Form Settings > Form Settings` called `Disable Multi-part current step parameter in the URL` which prevents the step parameters `#step-58731-2` from being added to the URL
@@ -21,6 +21,7 @@
 - **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
 - **Improved:** `Register & Login` Don't show activation status on profile page in back-end for current logged in user, no need
 - **Improved:** `{dynamic_column_counter}` can now be used on field label and description, when used inside a dynamic column
+- **Fix:** When using Elementor Popup use `elementor/popup/show` event provided by Elementor v2.7 to initialize the form in case it's not initialized
 - **Fix:** When using a multi-language form with `PDF Generator` enabled and the `Add Language Switch` being enabled, the language switch dropdown should not be included in the PDF
 - **Fix:** Issue with columns not aligned properly in Safari browser when RTL is enabled
 - **Fix:** When the form is inside a Popup, make sure that scrolling events are applied to the content of the popup and not to the site page itself, for instance when scrolling to the first error, or other similar form scrolling events
