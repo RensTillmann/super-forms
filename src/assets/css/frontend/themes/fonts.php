@@ -30,6 +30,7 @@ return "
 ".$s.".super-toggle-on,
 ".$s.".super-color,
 ".$s.".super-fileupload-button,
+".$s.".super-msg,
 ".$s.".super-error-msg,
 ".$s.".super-empty-error-msg,
 ".$s.".super-wp-tag-count,
@@ -40,7 +41,8 @@ return "
 ".$s.".super-slider .amount,
 ".$s.".super-int-phone_country,
 ".$s.".super-int-phone_selected-dial-code,
-".$s.".super-adaptive-placeholder {
+".$s.".super-adaptive-placeholder,
+.super-loading-overlay-".$form_id." {
     ".(!empty($v['font_global_family']) ? "font-family: ".$v['font_global_family'].";" : "")."
     ".(!empty($v['font_global_size']) ? "font-size: ".$v['font_global_size']."px;" : "")."
     ".(!empty($v['font_global_weight']) ? "font-weight: ".$v['font_global_weight'].";" : "")."

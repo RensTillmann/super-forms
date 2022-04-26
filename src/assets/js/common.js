@@ -219,6 +219,7 @@ function SUPERreCaptcha(){
         html += '</div>';
         args.loadingOverlay.innerHTML = html;
         args.loadingOverlay.classList.add('super-loading-overlay');
+        args.loadingOverlay.classList.add('super-loading-overlay-'+args.form_id);
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         args.loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
         if(args.showOverlay==="true"){
