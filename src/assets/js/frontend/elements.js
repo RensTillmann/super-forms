@@ -1346,6 +1346,11 @@
 
         var $doc = $(document);
 
+        // When Elementor popup is opened re-init super forms
+        $doc.on('elementor/popup/show', () => {
+            SUPER.init_super_form_frontend();
+        });
+
         $doc.on('focusin', function(e){
             var i, nodes;
             if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
