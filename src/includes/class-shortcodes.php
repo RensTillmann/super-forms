@@ -1606,7 +1606,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['conditional_validation_value2'] ) ) $atts['conditional_validation_value2'] = ''; // @since 3.6.0
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
-        if( !isset( $atts['email'] ) ) $atts['email'] = $atts['name'];
+        if( !isset( $atts['email'] ) ) $atts['email'] = (isset($atts['name']) ? $atts['name'] : '');
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';

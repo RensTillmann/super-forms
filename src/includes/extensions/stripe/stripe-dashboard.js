@@ -775,9 +775,11 @@
             app.addClass(target.parentNode, 'super-loading');
             target.innerHTML = target.innerHTML + app.ui.svg.loader.html;
             var nodes, lastChild, starting_after;
+            debugger;
             if (attr.type == 'paymentIntents') nodes = app.qa('.super-stripe-transactions .super-stripe-row');
-            //if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-row');
-            //if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
+            if (attr.type == 'products') nodes = app.qa('.super-stripe-products .super-stripe-row');
+            if (attr.type == 'customers') nodes = app.qa('.super-stripe-customers .super-stripe-row');
+            if (attr.type == 'subscriptions') nodes = app.qa('.super-stripe-subscriptions .super-stripe-row');
             lastChild = nodes[nodes.length - 1];
             starting_after = lastChild.id;
             app.api.handler({
@@ -1353,9 +1355,14 @@
                 html = '';
                 for (i = 0; i < payload.items.data.length; i++) {
                     item = payload.items.data[i];
-                    html += '<a title="View product" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/subscritpions/product/' + item.plan.product + '" target="_blank">' + item.productName + '</a>';
+                    html += '<a title="View product" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/products/' + item.plan.product + '" target="_blank">' + item.productName + '</a>';
                     html += ' • ';
-                    html += '<a title="View plan" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/plans/' + item.plan.id + '" target="_blank">' + item.plan.nickname + '</a>';
+
+                    if(item.plan.nickname===null){
+                        html += '<a title="View plan" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/plans/' + item.plan.id + '" target="_blank">' + item.plan.id + '</a>';
+                    }else{
+                        html += '<a title="View plan" href="' + super_stripe_dashboard_i18n.dashboardUrl + '/plans/' + item.plan.id + '" target="_blank">' + item.plan.nickname + '</a>';
+                    }
                     html += '<div class="clear"></div>';
                 }
                 // items.data.quantity
