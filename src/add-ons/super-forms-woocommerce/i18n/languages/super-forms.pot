@@ -164,7 +164,7 @@ msgstr ""
 
 #: super-forms-woocommerce.php:1328
 msgid ""
-"Put each fee on a new line with values seperated by pipes \"|\".<br />"
+"Put each fee on a new line with values separated by pipes \"|\".<br />"
 "<strong>Example with tags:</strong> {fee_name}|{amount}|{taxable}|{tax_class}"
 "<br /><strong>Example without tags:</strong> Administration "
 "fee|5|fales|''<br /><strong>Allowed values:</strong> string|float|bool|string"
@@ -172,7 +172,7 @@ msgstr ""
 
 #: super-forms-woocommerce.php:1340
 msgid ""
-"Put each field on a new line with field options seperated by pipes \"|\"."
+"Put each field on a new line with field options separated by pipes \"|\"."
 msgstr ""
 
 #: super-forms-woocommerce.php:1298 super-forms-woocommerce.php:1310

@@ -154,7 +154,7 @@ class SUPER_Settings {
                 ),
                 'header_to' => array(
                     'name' => esc_html__( 'Send email to:', 'super-forms' ),
-                    'label' => esc_html__( 'Recipient(s) email address seperated with commas', 'super-forms' ),
+                    'label' => esc_html__( 'Recipient(s) email address separated with commas', 'super-forms' ),
                     'placeholder' => esc_html__( 'your@email.com, your@email.com', 'super-forms' ),
                     'default' => '{option_admin_email}',
                     'filter'=>true,
@@ -367,7 +367,7 @@ class SUPER_Settings {
                 ),
                 'confirm_to' => array(
                     'name' => esc_html__( 'Send email to:', 'super-forms' ),
-                    'label' => esc_html__( 'Recipient(s) email address seperated by commas', 'super-forms' ),
+                    'label' => esc_html__( 'Recipient(s) email address separated by commas', 'super-forms' ),
                     'default' =>  '{email}',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -789,7 +789,7 @@ class SUPER_Settings {
                     'default' =>  '',
                     'info' => sprintf( 
                         esc_html__( 
-                            '%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s', 
+                            '%2$sSeparate each role by comma, available roles:%3$s%1$s%4$s', 
                             'super-forms' 
                         ), '<br />', '<strong>', '</strong>', implode(', ', $roles)
                     ),
@@ -1190,7 +1190,7 @@ class SUPER_Settings {
                 ),
                 'contact_entry_unique_title_form_ids' => array(
                     'name' => esc_html__('Enter form ID\'s to compare duplicate entry title against', 'super-forms' ),
-                    'label' => esc_html__( 'Seperate each form ID by a comma.', 'super-forms' ) . ' ' . esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),
+                    'label' => esc_html__( 'Separate each form ID by a comma.', 'super-forms' ) . ' ' . esc_html__( 'You can use field tags {field_name} if you want', 'super-forms' ),
                     'default' =>  '',
                     'filter'=>true,
                     'parent'=>'contact_entry_unique_title_compare',
@@ -1229,7 +1229,7 @@ class SUPER_Settings {
                     'filter'=>true
                 ),
                 'retrieve_last_entry_form' => array(
-                    'name' => esc_html__( 'Set a form ID to retrieve data from (seperated by comma)', 'super-forms' ),
+                    'name' => esc_html__( 'Set a form ID to retrieve data from (separated by comma)', 'super-forms' ),
                     'label' => esc_html__( 'You are allowed to use multiple ID\'s. Please note that always the last entry will be used.', 'super-forms' ) . ' ' . esc_html__( 'This allows you to retrieve entry data from a different form and autopopulate it inside this form.', 'super-forms' ),
                     'default' =>  '',
                     'filter'=>true,
@@ -1432,7 +1432,7 @@ class SUPER_Settings {
                 ),
                 'form_post_parameters' => array(
                     'name' => esc_html__( 'Enter custom parameter string', 'super-forms' ),
-                    'label' => '<strong style="color:red;">' . esc_html__( 'Leave blank to send all form data', 'super-forms' ) . '</strong> ' . sprintf( esc_html__( 'You are allowed to use {tags}.%sPut each on a new line seperate parameter and value by pipes e.g:%sfirst_name|{first_name}', 'super-forms' ), '<br />', '<br />' ) . '<br />' . esc_html__( 'Instead of super forms sending all data vailable you can send a custom POST with custom parameters required', 'super-forms' ),
+                    'label' => '<strong style="color:red;">' . esc_html__( 'Leave blank to send all form data', 'super-forms' ) . '</strong> ' . sprintf( esc_html__( 'You are allowed to use {tags}.%sPut each on a new line separate parameter and value by pipes e.g:%sfirst_name|{first_name}', 'super-forms' ), '<br />', '<br />' ) . '<br />' . esc_html__( 'Instead of super forms sending all data vailable you can send a custom POST with custom parameters required', 'super-forms' ),
                     'placeholder' => "first_name|{first_name}\nlast_name|{last_name}",
                     'default' =>  '',
                     'type'=>'textarea',
@@ -1556,7 +1556,7 @@ class SUPER_Settings {
                 'form_ga_tracking' => array(
                     'hidden' => true,
                     'name' => '<a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/events" target="_blank">' . esc_html__( 'Tracking Events', 'super-forms' ) . '</a>',
-                    'label' => sprintf( esc_html__( 'Put each tracking event on a new line, seperate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:%3$s%4$ssend|event|Contact Form|submit%5$s%2$sExample with event Label and Value:%3$s%4$ssend|event|Campaign Form|submit|Fall Campaign|43%5$s', 'super-forms' ), '<br />', '<strong>', '</strong>', '<pre>', '</pre>' ),
+                    'label' => sprintf( esc_html__( 'Put each tracking event on a new line, separate parameters with pipes. You can also append a form ID to only trigger the event when that specific form was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:%3$s%4$ssend|event|Contact Form|submit%5$s%2$sExample with event Label and Value:%3$s%4$ssend|event|Campaign Form|submit|Fall Campaign|43%5$s', 'super-forms' ), '<br />', '<strong>', '</strong>', '<pre>', '</pre>' ),
                     'default' =>  '',
                     'type'=>'textarea',
                     'filter'=>true,
@@ -3164,7 +3164,7 @@ class SUPER_Settings {
                     '<span>' . esc_html__( 'From', 'super-forms' ) . ':</span> <input type="text" value="" name="from" />',
                     '<span>' . esc_html__( 'Till', 'super-forms' ) . ':</span> <input type="text" value="" name="till" />',
                     '<p>' . esc_html__( 'Filter by forms (or leave empty to export entries from all forms)', 'super-forms' ) . '</p>',
-                    '<span>' . esc_html__( 'Form ID\'s seperated by commas', 'super-forms' ) . ':</span> <input type="text" value="" name="form_ids" />',
+                    '<span>' . esc_html__( 'Form ID\'s separated by commas', 'super-forms' ) . ':</span> <input type="text" value="" name="form_ids" />',
                     '<p>' . esc_html__( 'Display oldest or latest entries at the top', 'super-forms' ) . '</p>',
                     '<span>' . esc_html__( 'Sort', 'super-forms' ) . ':</span> <select name="order_by"><option value="ASC">ASC - Oldest first (default)</option><option value="DESC">DESC - Newest first</option></select>',
                     '<p>' . esc_html__( 'Below you can change the default delimiter and enclosure characters', 'super-forms' ) . ':</p>',

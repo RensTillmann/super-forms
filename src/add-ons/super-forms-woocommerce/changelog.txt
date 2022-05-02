@@ -45,7 +45,7 @@ Jan 07, 2020 - Version 1.6.0
 - Replaced deprecated function with new one
 
 Oct 31, 2019 - Version 1.5.30
-- Improved: When a field value contains comma seperated product ID's add all of them into the cart/checkout
+- Improved: When a field value contains comma separated product ID's add all of them into the cart/checkout
 
 Jun 14, 2019 - Version 1.5.2
 - Compliance: Working towards Envato WordPress Requirements Badge/Compliance

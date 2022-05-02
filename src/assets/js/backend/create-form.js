@@ -149,9 +149,11 @@
             }
         });
         // PDF settings
-        $settings = SUPER.get_tab_settings($settings, 'pdf');
+        //$settings = SUPER.get_tab_settings($settings, 'pdf');
         // Listing settings
-        $settings = SUPER.get_tab_settings($settings, 'listings');
+        //$settings = SUPER.get_tab_settings($settings, 'listings');
+        // Stripe settings
+        $settings = SUPER.get_tab_settings($settings, 'stripe');
         // Stripe settings
         //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
@@ -237,8 +239,9 @@
             nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
             for(i=0; i<nodes.length; i++){
                 repeater = nodes[i].closest('.sfui-repeater-item');
-                if(repeater) continue; // skip if inside repater element
+                if(repeater && slug!=='stripe') continue; // skip if inside repater element
                 // is direct inner field, must add it to the data
+                debugger;
                 value = nodes[i].value;
                 if(nodes[i].type==='checkbox') value = nodes[i].checked;
                 if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
@@ -3102,7 +3105,7 @@
                     },
                     {
                         selector: 'input[name="wizard_confirm_to"]',
-                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="' + $git + 'tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can seperate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
+                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="' + $git + 'tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can separate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
                     },
                     {
                         selector: 'input[name="wizard_confirm_from"]',

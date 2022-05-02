@@ -303,7 +303,7 @@ if( !class_exists('SUPER_Mailster') ) :
                     ),
                     'mailster_fields' => array(
                         'name' => esc_html__( 'Save Mailster user data', 'super-forms' ), 
-                        'label' => sprintf( esc_html__( 'Seperate Mailster field and field_name by pipes "|" (put each on a new line).%sExample: mailster_field_name|super_forms_field_name%sWith this method you can save custom Mailster user data', 'super-forms' ), '<br />', '<br />' ),
+                        'label' => sprintf( esc_html__( 'Separate Mailster field and field_name by pipes "|" (put each on a new line).%sExample: mailster_field_name|super_forms_field_name%sWith this method you can save custom Mailster user data', 'super-forms' ), '<br />', '<br />' ),
                         'desc' => esc_html__( 'Enter the  fields that need to be saved for a subscriber', 'super-forms' ), 
                         'default' =>  "lastname|last_name\nfirstname|first_name",
                         'type' => 'textarea',
@@ -313,7 +313,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'allow_empty' => true,
                     ),
                     'mailster_lists' => array(
-                        'name' => esc_html__( 'Subscriber list ID(\'s) seperated by comma\'s', 'super-forms' ), 
+                        'name' => esc_html__( 'Subscriber list ID(\'s) separated by comma\'s', 'super-forms' ), 
                         'label' => esc_html__( 'You are allowed to use a {tag} if you want to allow the user to choose a list from your form', 'super-forms' ),
                         'desc' => esc_html__( 'Enter the list ID\'s or enter a {tag}', 'super-forms' ), 
                         'default' =>  '{lists}',

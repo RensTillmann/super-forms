@@ -52,7 +52,7 @@ msgstr "“开”值"
 
 #: includes/class-settings.php:826
 #, php-format
-msgid "%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s"
+msgid "%2$sSeparate each role by comma, available roles:%3$s%1$s%4$s"
 msgstr ""
 
 #: includes/class-settings.php:839
@@ -775,7 +775,7 @@ msgid "Allow users to select work days"
 msgstr "允许用户选择工作日"
 
 #: includes/shortcodes/predefined-arrays.php:37
-msgid "Allowed Extensions (seperated by pipes)"
+msgid "Allowed Extensions (separated by pipes)"
 msgstr "允许的扩展名（由管道分隔）"
 
 #: includes/class-settings.php:2151
@@ -2790,7 +2790,7 @@ msgid "Enter the attribute slug name e.g color or condition"
 msgstr "输入属性段名称，例如颜色或条件"
 
 #: includes/class-shortcodes.php:5260
-msgid "Enter the category ID's to exclude seperated by comma's"
+msgid "Enter the category ID's to exclude separated by comma's"
 msgstr "输入类别ID以排除以逗号分隔的类别"
 
 #: includes/class-settings.php:1551
@@ -2802,7 +2802,7 @@ msgid "Enter the name of the post type"
 msgstr "输入帖子类型的名称"
 
 #: includes/class-shortcodes.php:5270
-msgid "Enter the post ID's to exclude seperated by comma's"
+msgid "Enter the post ID's to exclude separated by comma's"
 msgstr "输入帖子ID以排除以逗号分隔的帖子"
 
 #: includes/shortcodes/form-elements.php:2150
@@ -2829,7 +2829,7 @@ msgid ""
 msgstr "输入唯一的字段名称，距离值应填充到该字段中（必填）"
 
 #: includes/class-shortcodes.php:4844
-msgid "Enter the user ID's to exclude seperated by comma's"
+msgid "Enter the user ID's to exclude separated by comma's"
 msgstr "输入用户ID以排除以逗号分隔的用户ID"
 
 #: includes/shortcodes/predefined-arrays.php:183
@@ -3134,7 +3134,7 @@ msgstr "场宽（以像素为单位）"
 
 #: includes/shortcodes/form-elements.php:741
 #: includes/shortcodes/form-elements.php:823
-msgid "Fields to skip (enter unique field names seperated by pipes)"
+msgid "Fields to skip (enter unique field names separated by pipes)"
 msgstr "要跳过的字段（输入由管道分隔的唯一字段名称）"
 
 #: super-forms.php:545 includes/shortcodes/form-elements.php:2303
@@ -5357,7 +5357,7 @@ msgstr ""
 #: includes/class-settings.php:1522
 #, php-format
 msgid ""
-"Put each tracking event on a new line, seperate parameters with pipes. You "
+"Put each tracking event on a new line, separate parameters with pipes. You "
 "can also append a form ID to only trigger the event when that specific form "
 "was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:"
 "%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:"
@@ -5448,11 +5448,11 @@ msgid "reCAPTCHA"
 msgstr "验证码"
 
 #: includes/class-settings.php:376
-msgid "Recipient(s) email address seperated by commas"
+msgid "Recipient(s) email address separated by commas"
 msgstr "用逗号分隔的收件人电子邮件地址"
 
 #: includes/class-settings.php:162
-msgid "Recipient(s) email address seperated with commas"
+msgid "Recipient(s) email address separated with commas"
 msgstr "收件人电子邮件地址，以逗号分隔"
 
 #: includes/shortcodes/form-elements.php:3434
@@ -6086,7 +6086,7 @@ msgstr "九月"
 
 #: includes/class-shortcodes.php:5044
 msgid ""
-"Seperated each post status by a comma, enter \"any\" for all post statuses"
+"Separated each post status by a comma, enter \"any\" for all post statuses"
 msgstr "用逗号分隔每个帖子状态，为所有帖子状态输入“ any”"
 
 #: super-forms.php:1715
@@ -6099,7 +6099,7 @@ msgstr "塞尔维亚"
 
 #: includes/class-shortcodes.php:4992
 #: includes/shortcodes/predefined-arrays.php:620
-msgid "Set a custom delimiter to seperate the values on each row"
+msgid "Set a custom delimiter to separate the values on each row"
 msgstr "设置自定义定界符以分隔每一行的值"
 
 #: includes/class-shortcodes.php:5003
@@ -6131,7 +6131,7 @@ msgid ""
 msgstr "为该字段设置默认值。可以使用{post_id}，{post_title}和{user _ ****}（不留空白）"
 
 #: includes/class-settings.php:1225
-msgid "Set a form ID to retrieve data from (seperated by comma)"
+msgid "Set a form ID to retrieve data from (separated by comma)"
 msgstr "设置表单ID以从中检索数据（以逗号分隔）"
 
 #: includes/shortcodes/form-elements.php:2027
@@ -7556,7 +7556,7 @@ msgstr "使用最少的编辑器配置"
 #: includes/shortcodes/form-elements.php:2633
 #, php-format
 msgid ""
-"Use numbers to specify days to exclude seperated by comma's e.g: 0,1,"
+"Use numbers to specify days to exclude separated by comma's e.g: 0,1,"
 "2%sWhere: 0 = Sunday and 1 = Monday etc."
 msgstr ""
 
@@ -7595,12 +7595,12 @@ msgstr "如果需要，请使用{tags}"
 #, php-format
 msgid ""
 "Use {tags} if needed%sPut each latitude and longitude on a new line "
-"seperated by pipes e.g: lat|lng"
+"separated by pipes e.g: lat|lng"
 msgstr ""
 
 #: includes/shortcodes/html-elements.php:721
 msgid ""
-"Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,"
+"Use {tags} if needed, separate each mode with comma. Valid values are: BUS,"
 "RAIL,SUBWAY,TRAIN,TRAM"
 msgstr "如果需要，请使用{tags}，并用逗号分隔每个模式。有效值为：公交，铁路，地铁，火车，电车"
 
@@ -8059,7 +8059,7 @@ msgstr "将在您的字段前面显示。 （留空以删除）"
 #: includes/shortcodes/predefined-arrays.php:316
 msgid ""
 "With this setting you can use &lt;br /&gt; to use line breaks for each "
-"selected option instead of a comma seperated list. Of course you can also "
+"selected option instead of a comma separated list. Of course you can also "
 "use other HTML if necessary."
 msgstr "使用此设置，您可以使用&lt;br /&gt;对每个选定选项使用换行符，而不用逗号分隔的列表。当然，如果需要，您还可以使用其他HTML。"
 
@@ -8149,7 +8149,7 @@ msgstr ""
 #: includes/class-settings.php:1396
 #, php-format
 msgid ""
-"You are allowed to use {tags}.%sPut each on a new line seperate parameter "
+"You are allowed to use {tags}.%sPut each on a new line separate parameter "
 "and value by pipes e.g:%sfirst_name|{first_name}"
 msgstr ""
 
@@ -8195,7 +8195,7 @@ msgstr "您有重复的字段名称。请确保每个字段都有唯一的名称
 #, php-format
 msgid ""
 "You would normally be using a textarea field where each option is put on a "
-"new line. You can also seperate label and value with pipes. Example textarea "
+"new line. You can also separate label and value with pipes. Example textarea "
 "value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF "
 "fields are also supported)"
 msgstr ""

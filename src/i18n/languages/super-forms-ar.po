@@ -53,7 +53,7 @@ msgstr "قيمة \"تشغيل\""
 
 #: includes/class-settings.php:826
 #, php-format
-msgid "%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s"
+msgid "%2$sSeparate each role by comma, available roles:%3$s%1$s%4$s"
 msgstr ""
 
 #: includes/class-settings.php:839
@@ -799,7 +799,7 @@ msgid "Allow users to select work days"
 msgstr "السماح للمستخدمين بتحديد أيام العمل"
 
 #: includes/shortcodes/predefined-arrays.php:37
-msgid "Allowed Extensions (seperated by pipes)"
+msgid "Allowed Extensions (separated by pipes)"
 msgstr "الامتدادات المسموح بها (مفصولة بواسطة الأنابيب)"
 
 #: includes/class-settings.php:2151
@@ -2846,7 +2846,7 @@ msgid "Enter the attribute slug name e.g color or condition"
 msgstr "أدخل اسم سبيكة السمة ، مثل اللون أو الحالة"
 
 #: includes/class-shortcodes.php:5260
-msgid "Enter the category ID's to exclude seperated by comma's"
+msgid "Enter the category ID's to exclude separated by comma's"
 msgstr "أدخل معرف الفئة المراد استبعاده مفصولاً بفاصلة"
 
 #: includes/class-settings.php:1551
@@ -2858,7 +2858,7 @@ msgid "Enter the name of the post type"
 msgstr "أدخل اسم نوع المنشور"
 
 #: includes/class-shortcodes.php:5270
-msgid "Enter the post ID's to exclude seperated by comma's"
+msgid "Enter the post ID's to exclude separated by comma's"
 msgstr "أدخل معرف المنشور المراد استبعاده مفصولاً بفاصلة"
 
 #: includes/shortcodes/form-elements.php:2150
@@ -2885,7 +2885,7 @@ msgid ""
 msgstr "أدخل اسم الحقل الفريد الذي يجب ملء قيمة المسافة به (مطلوب)"
 
 #: includes/class-shortcodes.php:4844
-msgid "Enter the user ID's to exclude seperated by comma's"
+msgid "Enter the user ID's to exclude separated by comma's"
 msgstr "أدخل معرف المستخدم المراد استبعاده مفصولاً بفاصلة"
 
 #: includes/shortcodes/predefined-arrays.php:183
@@ -3192,7 +3192,7 @@ msgstr "عرض المجال بالبكسل"
 
 #: includes/shortcodes/form-elements.php:741
 #: includes/shortcodes/form-elements.php:823
-msgid "Fields to skip (enter unique field names seperated by pipes)"
+msgid "Fields to skip (enter unique field names separated by pipes)"
 msgstr ""
 "الحقول المراد تخطيها (أدخل أسماء الحقول الفريدة مفصولة بأساليب الإخراج)"
 
@@ -5469,7 +5469,7 @@ msgstr ""
 #: includes/class-settings.php:1522
 #, php-format
 msgid ""
-"Put each tracking event on a new line, seperate parameters with pipes. You "
+"Put each tracking event on a new line, separate parameters with pipes. You "
 "can also append a form ID to only trigger the event when that specific form "
 "was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:"
 "%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:"
@@ -5562,11 +5562,11 @@ msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
 #: includes/class-settings.php:376
-msgid "Recipient(s) email address seperated by commas"
+msgid "Recipient(s) email address separated by commas"
 msgstr "عنوان البريد الإلكتروني للمستلم (المستلمين) مفصول بفواصل"
 
 #: includes/class-settings.php:162
-msgid "Recipient(s) email address seperated with commas"
+msgid "Recipient(s) email address separated with commas"
 msgstr "عنوان البريد الإلكتروني للمستلم (المستلمين) مفصول بفواصل"
 
 #: includes/shortcodes/form-elements.php:3434
@@ -6204,7 +6204,7 @@ msgstr "سبتمبر"
 
 #: includes/class-shortcodes.php:5044
 msgid ""
-"Seperated each post status by a comma, enter \"any\" for all post statuses"
+"Separated each post status by a comma, enter \"any\" for all post statuses"
 msgstr "فصل كل حالة منشور بفاصلة ، أدخل \"أي\" لجميع حالات النشر"
 
 #: super-forms.php:1715
@@ -6217,7 +6217,7 @@ msgstr "الصربية"
 
 #: includes/class-shortcodes.php:4992
 #: includes/shortcodes/predefined-arrays.php:620
-msgid "Set a custom delimiter to seperate the values on each row"
+msgid "Set a custom delimiter to separate the values on each row"
 msgstr "قم بتعيين محدد مخصص لفصل القيم في كل صف"
 
 #: includes/class-shortcodes.php:5003
@@ -6253,7 +6253,7 @@ msgstr ""
 "{user _ ****} (اتركه خاليًا لعدم وجود أي شيء)"
 
 #: includes/class-settings.php:1225
-msgid "Set a form ID to retrieve data from (seperated by comma)"
+msgid "Set a form ID to retrieve data from (separated by comma)"
 msgstr "تعيين معرف النموذج لاسترداد البيانات من (مفصولة بفاصلة)"
 
 #: includes/shortcodes/form-elements.php:2027
@@ -7718,7 +7718,7 @@ msgstr "استخدم الحد الأدنى من تكوين المحرر"
 #: includes/shortcodes/form-elements.php:2633
 #, php-format
 msgid ""
-"Use numbers to specify days to exclude seperated by comma's e.g: 0,1,"
+"Use numbers to specify days to exclude separated by comma's e.g: 0,1,"
 "2%sWhere: 0 = Sunday and 1 = Monday etc."
 msgstr ""
 
@@ -7758,12 +7758,12 @@ msgstr "استخدم {tags} إذا لزم الأمر"
 #, php-format
 msgid ""
 "Use {tags} if needed%sPut each latitude and longitude on a new line "
-"seperated by pipes e.g: lat|lng"
+"separated by pipes e.g: lat|lng"
 msgstr ""
 
 #: includes/shortcodes/html-elements.php:721
 msgid ""
-"Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,"
+"Use {tags} if needed, separate each mode with comma. Valid values are: BUS,"
 "RAIL,SUBWAY,TRAIN,TRAM"
 msgstr ""
 "استخدم {tags} إذا لزم الأمر ، افصل بين كل وضع بفاصلة. القيم الصالحة هي: BUS "
@@ -8266,7 +8266,7 @@ msgstr "سيكون مرئيا أمام مجال عملك. (اتركه فارغا
 #: includes/shortcodes/predefined-arrays.php:316
 msgid ""
 "With this setting you can use &lt;br /&gt; to use line breaks for each "
-"selected option instead of a comma seperated list. Of course you can also "
+"selected option instead of a comma separated list. Of course you can also "
 "use other HTML if necessary."
 msgstr ""
 "باستخدام هذا الإعداد ، يمكنك استخدام &lt;br /&gt; لاستخدام فواصل الأسطر لكل "
@@ -8361,7 +8361,7 @@ msgstr ""
 #: includes/class-settings.php:1396
 #, php-format
 msgid ""
-"You are allowed to use {tags}.%sPut each on a new line seperate parameter "
+"You are allowed to use {tags}.%sPut each on a new line separate parameter "
 "and value by pipes e.g:%sfirst_name|{first_name}"
 msgstr ""
 
@@ -8409,7 +8409,7 @@ msgstr "لديك أسماء حقول مكررة. يرجى التأكد من أن
 #, php-format
 msgid ""
 "You would normally be using a textarea field where each option is put on a "
-"new line. You can also seperate label and value with pipes. Example textarea "
+"new line. You can also separate label and value with pipes. Example textarea "
 "value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF "
 "fields are also supported)"
 msgstr ""

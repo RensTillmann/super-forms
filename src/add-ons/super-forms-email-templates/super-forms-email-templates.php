@@ -255,7 +255,7 @@ if( !class_exists('SUPER_Email_Templates') ) :
 	            'email_template_1_socials' => array(
 	                'name' => esc_html__( 'E-mail social icons', 'super-forms' ),
                     'desc' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
-	                'label' => sprintf( esc_html__( 'Put each on a new line, seperate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+	                'label' => sprintf( esc_html__( 'Put each on a new line, separate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 	                'default' => 'url_facebook_page|url_social_icon|Facebook',
 	                'placeholder' =>  'url_facebook_page|url_social_icon|Facebook',
 	                'type' => 'textarea',

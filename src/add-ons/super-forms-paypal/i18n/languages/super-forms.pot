@@ -657,7 +657,7 @@ msgstr ""
 #: super-forms-paypal.php:2366
 #, php-format
 msgid ""
-"You are allowed to use {tags}.%1$s Put each item on a new line, seperate "
+"You are allowed to use {tags}.%1$s Put each item on a new line, separate "
 "values by pipes%1$sLeave options blank that you do not wish to use, for "
 "example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:"
 "%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with "
@@ -668,7 +668,7 @@ msgstr ""
 
 #: super-forms-paypal.php:2347
 msgid ""
-"You are allowed to use {tags}<br />Put each period on a new line, seperate "
+"You are allowed to use {tags}<br />Put each period on a new line, separate "
 "values by pipes, for example:<br /><strong>7 day trial for free:</strong> "
 "0|7|D<br /><strong>After trial 3 weeks for 5 dollar:</strong> 5|3|W<br />"
 "<strong>After that $49.99 for each year:</strong> 49.99|1|Y<br /><strong>"

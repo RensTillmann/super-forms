@@ -11,7 +11,7 @@ Oct 15, 2021 - Version 2.3.0
 - Compatibility with Super Forms v5.0.0
 
 Feb 02, 2021 - Version 2.2.3
-- Added: Option to use a space as Decimal and/or Thousand seperater under
+- Added: Option to use a space as Decimal and/or Thousand separater under
 `Advanced` tab
 
 Jan 14, 2021 - Version 2.2.2

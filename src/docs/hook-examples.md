@@ -7,7 +7,7 @@
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
 - [Execute custom JS when a column becomes conditionally visible](#execute-custom-js-when-a-column-becomes-conditionally-visible)
-- [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting)
+- [Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-separated-string-to-array-for-meta-data-saved-via-front-end-posting)
 - [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 - [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
@@ -185,7 +185,7 @@ setInterval(function(){
 },100);
 ```
 
-## Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting
+## Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting
 
 The below code is useful for `Checkbox` fields made within Toolset plugin. Since Super Forms Front-end Posting saves them as a comma separated string, we must convert it to an array so that Toolset can properly retrieve these values.
 

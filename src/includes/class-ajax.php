@@ -3483,6 +3483,9 @@ class SUPER_Ajax {
                 }
             }
 
+            // Currently used by Stripe to redirect to checkout session
+            do_action( 'super_before_redirect_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+
             // Return message or redirect and save message to session
             $redirect = null;
             $save_msg = false;

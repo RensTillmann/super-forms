@@ -106,7 +106,7 @@ msgstr ""
 
 #: super-forms-email-templates.php:291
 msgid ""
-"Put each on a new line, seperate values by pipes<br /><strong>Example:"
+"Put each on a new line, separate values by pipes<br /><strong>Example:"
 "</strong> http://facebook.com/company|http://domain.com/fb-icon.png|Facebook"
 msgstr ""
 

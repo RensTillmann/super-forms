@@ -469,7 +469,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                             ),
                             'custom_fields' => array(
                                 'name' => esc_html__( 'Custom fields to save (*|MERGE|* tags)', 'super-forms' ),
-                                'label' => sprintf( esc_html__( 'Seperate Mailchimp field and field_name by pipes "|" (put each on a new line).%1$sExample: PHONE|phonenumber%1$sWith this method you can save custom Mailchimp user data', 'super-forms' ), '<br />' ),
+                                'label' => sprintf( esc_html__( 'Separate Mailchimp field and field_name by pipes "|" (put each on a new line).%1$sExample: PHONE|phonenumber%1$sWith this method you can save custom Mailchimp user data', 'super-forms' ), '<br />' ),
                                 'desc' => esc_html__( 'Allows you to save your custom fields within Mailchimp', 'super-forms' ),
                                 'type' => 'textarea',
                                 'default'=> (!isset($attributes['custom_fields']) ? '' : $attributes['custom_fields']),
@@ -486,7 +486,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                             ),
                             'subscriber_tags' => array(
                                 'name' => esc_html__( 'Subscribe with the following tags', 'super-forms' ),
-                                'label' => esc_html__( 'Enter the tag names seperated by comma e.g: developers,sales,press', 'super-forms' ),
+                                'label' => esc_html__( 'Enter the tag names separated by comma e.g: developers,sales,press', 'super-forms' ),
                                 'default'=> (!isset($attributes['subscriber_tags']) ? '' : $attributes['subscriber_tags'])
                             ),
                             'vip' => array(

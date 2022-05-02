@@ -60,7 +60,7 @@ If you would call your checkbox `fav_color` then you would retrieve the selected
 
 ### Setting and retrieving multiple values per options
 
-Another feature you have with checkboxes, radio buttons and dropdowns is to **save multiple values** per value. In order to do this the only thing you will have to do is **seperate each value** per option with a semicolon `;`.
+Another feature you have with checkboxes, radio buttons and dropdowns is to **save multiple values** per value. In order to do this the only thing you will have to do is **separate each value** per option with a semicolon `;`.
 
 For instance, when you sell multiple packages based on a specific membership, you might need a different price per membership. Let's say we have a **Standard membership** and a **Gold membership**. We will ask the user to select a package. We will use a dropdown field so the user can select the according membership.
 

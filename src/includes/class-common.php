@@ -1267,7 +1267,7 @@ class SUPER_Common {
                 $table = $wpdb->prefix . 'options';
                 // This is the global invoice key ID, if user defines a custom one, we will save it under a different option name.
                 // This allows for multiple usecases, for instance if you have a form that needs to generate a invoice, and if you have 
-                // a seperate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
+                // a separate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
                 $option_name_old = '_super_form_invoice_number';
                 $option_name = '_sf_invoice_number';
                 if(!empty($invoice_key)){
@@ -1325,7 +1325,7 @@ class SUPER_Common {
     public static function generate_random_folder( $folder ) {
         // Random folder must be 13 characters long
         // Since 32 bit system only allow a maximum of 2147483647 as int value
-        // we will generate 2 random numbers seperately and combine them as one
+        // we will generate 2 random numbers separately and combine them as one
         $folderName = rand(1000000, 9999999) . rand(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
@@ -1993,7 +1993,7 @@ class SUPER_Common {
                             $allFileUrls[] = self::decode($fv['url']);
                             $allFileLinks[] = self::decode('<a href="'.esc_attr($fv['url']).'">'.$fv['value'].'</a>');
                         }
-                        // Below filter should return a string, if it's still an array we will convert it into a string seperated by line breaks
+                        // Below filter should return a string, if it's still an array we will convert it into a string separated by line breaks
                         $allFileNames = apply_filters( 'super_filter_all_file_names_filter', $allFileNames, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
                         $allFileUrls = apply_filters( 'super_filter_all_file_urls_filter', $allFileUrls, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
                         $allFileLinks = apply_filters( 'super_filter_all_file_links_filter', $allFileLinks, array( 'fieldName'=>$k, 'fieldData'=>$v ) );

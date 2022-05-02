@@ -9,7 +9,7 @@
 
 In case a logged in user had previously submitted the same form or perhaps a different form you can retrieve the last contact entry of the user by enabling this feature.
 
-You can make this work across all forms by specifying from which form ID (multiple ID's can be seperated by comma's) the last contact entry should be retrieved from.
+You can make this work across all forms by specifying from which form ID (multiple ID's can be separated by comma's) the last contact entry should be retrieved from.
 
 If you did not specify any form ID, it will automatically grab the last created contact entry of the user no matter what form it belongs to.
 
