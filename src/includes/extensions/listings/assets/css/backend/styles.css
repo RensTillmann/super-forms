@@ -141,9 +141,6 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   padding: 0 0 10px 10px;
   margin: 0;
 }
-.sfui-setting.sfui-vertical .sfui-sub-settings {
-  margin: 0;
-}
 .sfui-setting.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-inline {
   margin: 0;
   padding: 0;

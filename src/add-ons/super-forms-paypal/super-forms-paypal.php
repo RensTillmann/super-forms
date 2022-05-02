@@ -2625,7 +2625,7 @@ if( !class_exists('SUPER_PayPal') ) :
 						'paypal_subscription_periods' => array(
 							'name' => esc_html__( 'Subscription periods', 'super-forms' ),
 							'desc' => esc_html__( 'Here you can setup the subscription price, time and periods', 'super-forms' ),
-							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each period on a new line, seperate values by pipes, for example:%1$s%2$s7 day trial for free:%3$s 0|7|D%1$s%2$sAfter trial 3 weeks for 5 dollar:%3$s 5|3|W%1$s%2$sAfter that $49.99 for each year:%3$s 49.99|1|Y%1$s%2$sTime format options:%3$s D=days, W=weeks, M=months, Y=years', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+							'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each period on a new line, separate values by pipes, for example:%1$s%2$s7 day trial for free:%3$s 0|7|D%1$s%2$sAfter trial 3 weeks for 5 dollar:%3$s 5|3|W%1$s%2$sAfter that $49.99 for each year:%3$s 49.99|1|Y%1$s%2$sTime format options:%3$s D=days, W=weeks, M=months, Y=years', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
 							'default' =>  '',
 							'type' => 'textarea',
 							'placeholder' => "0|7|D\n5|3|W\n49.99|1|Y",
@@ -2644,7 +2644,7 @@ if( !class_exists('SUPER_PayPal') ) :
 							'name' => esc_html__( 'Items to be added to cart', 'super-forms' ),
 							'desc' => esc_html__( 'Here you can enter the items that need to be added to the cart after form submission', 'super-forms' ),
 							'label' => sprintf( 
-									esc_html__( 'You are allowed to use {tags}.%1$s Put each item on a new line, seperate values by pipes%1$sLeave options blank that you do not wish to use, for example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with {tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
+									esc_html__( 'You are allowed to use {tags}.%1$s Put each item on a new line, separate values by pipes%1$sLeave options blank that you do not wish to use, for example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with {tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each option read the %4$sPayPal\'s Variable Reference%5$s', 'super-forms'
 									),
 									'<br />',
 			                    	'<strong>',

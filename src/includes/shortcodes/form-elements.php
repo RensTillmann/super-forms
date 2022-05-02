@@ -462,7 +462,7 @@ $array['form_elements'] = array(
                         // International phonenumber options
                         'preferredCountries' => array(
                             'name' => esc_html__( 'Preferred countries', 'super-forms' ), 
-                            'label' => esc_html__( 'Specify the countries to appear at the top of the list. Seperated by comma\'s e.g: nl,be,de', 'super-forms' ), 
+                            'label' => esc_html__( 'Specify the countries to appear at the top of the list. Separated by comma\'s e.g: nl,be,de', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['preferredCountries'] ) ? '' : $attributes['preferredCountries'] ),
                             'allow_empty'=>true,
                             'filter'=>true,
@@ -471,7 +471,7 @@ $array['form_elements'] = array(
                         ),
                         'onlyCountries' => array(
                             'name' => esc_html__( 'Only display the following countries', 'super-forms' ), 
-                            'label' => esc_html__( 'Seperated by comma\'s e.g: nl,be,de', 'super-forms' ), 
+                            'label' => esc_html__( 'Separated by comma\'s e.g: nl,be,de', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['onlyCountries'] ) ? '' : $attributes['onlyCountries'] ),
                             'allow_empty'=>true,
                             'filter'=>true,
@@ -711,7 +711,7 @@ $array['form_elements'] = array(
                         ),
                         'address_api_countries' => array(
                             'name' => esc_html__( 'Restrict result by countrie(s)', 'super-forms' ),
-                            'label' => esc_html__( 'Only search for results within the provided countries. Countries must be passed as a two character, ISO 3166-1 Alpa-2 compatible country code. You can filter by up to 5 countries. Seperated by comma. For example: fr,nl,de would restrict your results to places within France, Netherlands and Germany. While us,pr,vi,gu,mp would restrict your results to places within the United States and its unincorporated organized territories.', 'super-forms' ),
+                            'label' => esc_html__( 'Only search for results within the provided countries. Countries must be passed as a two character, ISO 3166-1 Alpa-2 compatible country code. You can filter by up to 5 countries. Separated by comma. For example: fr,nl,de would restrict your results to places within France, Netherlands and Germany. While us,pr,vi,gu,mp would restrict your results to places within the United States and its unincorporated organized territories.', 'super-forms' ),
                             'default'=> ( !isset( $attributes['address_api_countries'] ) ? '' : $attributes['address_api_countries'] ),
                             'filter'=>true,
                             'parent'=>'enable_address_auto_complete',
@@ -858,7 +858,7 @@ $array['form_elements'] = array(
                         ),
                         // @since 3.2.0 - skip specific field from being autopopulated after a successfull search result
                         'search_skip' => array(
-                            'name' => esc_html__( 'Fields to skip (enter unique field names seperated by pipes)', 'super-forms' ), 
+                            'name' => esc_html__( 'Fields to skip (enter unique field names separated by pipes)', 'super-forms' ), 
                             'label' => esc_html__( 'Example: first_name|last_name|email', 'super-forms' ), 
                             'desc' => esc_html__( 'Do not fill out the following field with entry data', 'super-forms' ) . ':', 
                             'default'=> ( !isset( $attributes['search_skip'] ) ? '' : $attributes['search_skip'] ),
@@ -940,7 +940,7 @@ $array['form_elements'] = array(
                             )
                         ),
                         'wc_order_search_skip' => array(
-                            'name' => esc_html__( 'Fields to skip (enter unique field names seperated by pipes)', 'super-forms' ), 
+                            'name' => esc_html__( 'Fields to skip (enter unique field names separated by pipes)', 'super-forms' ), 
                             'label' => esc_html__( 'Example: first_name|last_name|email', 'super-forms' ), 
                             'desc' => esc_html__( 'Do not fill out the following field with entry data', 'super-forms' ) . ':', 
                             'default'=> ( !isset( $attributes['wc_order_search_skip'] ) ? '' : $attributes['wc_order_search_skip'] ),
@@ -2794,7 +2794,7 @@ $array['form_elements'] = array(
                         // @since 3.6.0 - excl specific days from calendar
                         'excl_days' => array(
                             'name' => esc_html__( 'Exclude specific days', 'super-forms' ),
-                            'label' => sprintf( esc_html__( 'Use numbers to specify days to exclude seperated by comma\'s e.g: 0,1,2%sWhere: 0 = Sunday and 1 = Monday etc.', 'super-forms' ), '<br />' ),
+                            'label' => sprintf( esc_html__( 'Use numbers to specify days to exclude separated by comma\'s e.g: 0,1,2%sWhere: 0 = Sunday and 1 = Monday etc.', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Disable the option to select the specific day in the calendar e.g Sunday, Monday etc.', 'super-forms' ),
                             'default'=> ( !isset( $attributes['excl_days'] ) ? '' : $attributes['excl_days'] ),
                         ),
@@ -3093,7 +3093,7 @@ $array['form_elements'] = array(
                     'data' => array(
                         'name' => esc_html__( 'tags', 'super-forms' ),
                         'email' => esc_html__( 'Tags', 'super-forms' ) . ':',
-                        'placeholder' => esc_html__( 'Enter tags (comma seperated)', 'super-forms' ),
+                        'placeholder' => esc_html__( 'Enter tags (comma separated)', 'super-forms' ),
                         'placeholderFilled' => esc_html__( 'Tags', 'super-forms' ),
                         'type' => 'text',
                         'enable_keywords' => 'true',

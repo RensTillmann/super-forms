@@ -1164,7 +1164,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     // @since 1.5.0 - Option to save multiple taxonomies and categories for a post
                     'frontend_posting_categories' => array(
                         'name' => esc_html__( 'Post categories', 'super-forms' ),
-                        'label' => esc_html__( 'You can define multiple taxonomies and multipe categories, put each on a new line. Seperate each category by a comma.', 'super-forms' ) . ' <br /><strong>' . esc_html__( 'Example without {tags}', 'super-forms' ) . ':</strong><br />category|traveling,cultures<br />product_cat|shoes,hoodies<br /><strong>' . esc_html__( 'Example with {tags}', 'super-forms' ) . ':</strong><br />{taxonomy}|{post_categories}<br />product_cat|{product_categories}',
+                        'label' => esc_html__( 'You can define multiple taxonomies and multipe categories, put each on a new line. Separate each category by a comma.', 'super-forms' ) . ' <br /><strong>' . esc_html__( 'Example without {tags}', 'super-forms' ) . ':</strong><br />category|traveling,cultures<br />product_cat|shoes,hoodies<br /><strong>' . esc_html__( 'Example with {tags}', 'super-forms' ) . ':</strong><br />{taxonomy}|{post_categories}<br />product_cat|{product_categories}',
                         'type' => 'textarea',
                         'default' =>  '',
                         'placeholder' => 'taxonomy_slug|category_slug,category_slug2',

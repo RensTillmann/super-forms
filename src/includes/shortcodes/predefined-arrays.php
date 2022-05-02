@@ -26,7 +26,7 @@ $tooltip = array(
 $extensions = array(
     'default'=> (!isset($attributes['extensions']) ? 'jpg|jpeg|png|gif|pdf' : $attributes['extensions']),
     'type' => 'textarea', 
-    'name' => esc_html__( 'Allowed Extensions (seperated by pipes)', 'super-forms' ),
+    'name' => esc_html__( 'Allowed Extensions (separated by pipes)', 'super-forms' ),
     'label' => esc_html__( 'Example', 'super-forms' ).': jpg|jpeg|png|gif|pdf'
 );
 $special_validations = array(
@@ -315,7 +315,7 @@ $exclude_for_html_element['allow_empty'] = true;
 // @since 3.9.0 - replace comma's with specific html tag in emails for radio/checkbox/dropdown elements
 $replace_commas = array(
     'name'=>esc_html__( 'Replace comma\'s with HTML tag in emails', 'super-forms' ), 
-    'label'=>esc_html__( 'With this setting you can use &lt;br /&gt; to use line breaks for each selected option instead of a comma seperated list. Of course you can also use other HTML if necessary.', 'super-forms' ), 
+    'label'=>esc_html__( 'With this setting you can use &lt;br /&gt; to use line breaks for each selected option instead of a comma separated list. Of course you can also use other HTML if necessary.', 'super-forms' ), 
     'desc'=>esc_html__( 'Leave empty for no replacement', 'super-forms' ), 
     'default'=> (!isset($attributes['replace_commas']) ? '' : $attributes['replace_commas']),
 );
@@ -623,7 +623,7 @@ $conditional_variable_array = array(
         ),
         'conditional_variable_delimiter' => array(
             'name' => esc_html__( 'Custom delimiter', 'super-forms' ), 
-            'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
+            'desc' => esc_html__( 'Set a custom delimiter to separate the values on each row', 'super-forms' ), 
             'default'=> ( !isset( $attributes['conditional_variable_delimiter'] ) ? ',' : $attributes['conditional_variable_delimiter'] ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',

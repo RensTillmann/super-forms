@@ -13,7 +13,7 @@ Optionally let users select their interests (Lists), and save custom fields set 
 
 You can enable this by editing your form and navigating to `Form Settings > Mailster Settings`. Then check the `Add Mailster subscriber` option, and configure the settings as desired.
 
-Make sure to enter the Mailster **List ID** under `Subscriber list ID('s) seperated by comma's`. You are allowed to use tags if needed.
+Make sure to enter the Mailster **List ID** under `Subscriber list ID('s) separated by comma's`. You are allowed to use tags if needed.
 
 You can conditionally subscribe a user based on form data by enabling `Conditionally save subscriber based on user data`.
 

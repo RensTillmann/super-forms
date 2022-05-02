@@ -31,6 +31,7 @@
     color: #555;
 }
 
+.super-tabs > .super-tab-stripe,
 .super-tabs > .super-tab-listings,
 .super-tabs > .super-tab-pdf {
     background-color: #ff7e7e!important;
@@ -39,6 +40,7 @@
     padding-right: 60px !important;
 }
 
+.super-tabs > .super-tab-stripe:before,
 .super-tabs > .super-tab-listings:before,
 .super-tabs > .super-tab-pdf:before {
     content: 'Add-on' !important;
@@ -57,6 +59,7 @@
     color: white;
 }
 
+.super-tabs > .super-tab-stripe:after,
 .super-tabs > .super-tab-listings:after,
 .super-tabs > .super-tab-pdf:after {
     content: '';
@@ -74,13 +77,22 @@
     border-left: 8px solid #ff7e7e;
 }
 .super-tabs > .super-tab-listings {
-    background-color: #8c7bff!important;
+    background-color: #3eadff!important;
 }
 .super-tabs > .super-tab-listings:after {
-    border-left: 8px solid #8c7bff;
+    border-left: 8px solid #3eadff;
 }
 .super-tabs > .super-tab-listings.super-active:after {
-    border-left: 8px solid #8c7bff;
+    border-left: 8px solid #3eadff;
+}
+.super-tabs > .super-tab-stripe {
+    background-color: #6156F2!important;
+}
+.super-tabs > .super-tab-stripe:after {
+    border-left: 8px solid #6156F2;
+}
+.super-tabs > .super-tab-stripe.super-active:after {
+    border-left: 8px solid #6156F2;
 }
 
 .super-raw-code-form-elements, .super-raw-code-form-settings, .super-raw-code-translation-settings {
@@ -2772,9 +2784,6 @@
 .sfui-setting .sfui-title i {
     font-weight: initial;
 }
-.super-tab-stripe .sfui-setting .sfui-title {
-    flex-basis: 290px;
-}
 .sfui-setting {
     display:flex;
     padding:0px 0px 0px 0px;
@@ -2935,7 +2944,7 @@
   padding: 0;
 }
 .sfui-setting .sfui-setting {
-  padding-left: 20px;
+  padding-left: 10px;
 }
 .sfui-setting .sfui-setting:hover {
   background-color: #fff0ba7d;

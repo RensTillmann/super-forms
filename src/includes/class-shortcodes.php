@@ -1606,7 +1606,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['conditional_validation_value2'] ) ) $atts['conditional_validation_value2'] = ''; // @since 3.6.0
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
-        if( !isset( $atts['email'] ) ) $atts['email'] = $atts['name'];
+        if( !isset( $atts['email'] ) ) $atts['email'] = (isset($atts['name']) ? $atts['name'] : '');
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
@@ -5145,7 +5145,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_exclude_users($value, $parent){
         return array(
             'name' => esc_html__( 'Exclude user(s)', 'super-forms' ), 
-            'label' => esc_html__( 'Enter the user ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the user ID\'s to exclude separated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5255,7 +5255,7 @@ class SUPER_Shortcodes {
         return array(
             'required' => true,
             'name' => esc_html__( 'Choose meta field name', 'super-forms' ), 
-            'label' => sprintf( esc_html__( 'You would normally be using a textarea field where each option is put on a new line. You can also seperate label and value with pipes. Example textarea value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF fields are also supported)', 'super-forms' ), '<br />' ), 
+            'label' => sprintf( esc_html__( 'You would normally be using a textarea field where each option is put on a new line. You can also separate label and value with pipes. Example textarea value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF fields are also supported)', 'super-forms' ), '<br />' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5275,7 +5275,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_author_line_explode($value, $parent){
         return array(
             'name' => esc_html__( 'Choose line break method (optional)', 'super-forms' ), 
-            'label' => esc_html__( 'By default each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma seperated values, you can change this to be a comma instead.' ), 
+            'label' => esc_html__( 'By default each value that is placed on a new line will be converted to an option to choose from. In case you have a text field with comma separated values, you can change this to be a comma instead.' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5325,7 +5325,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_delimiter($value, $parent){
         return array(
             'name' => esc_html__( 'Custom delimiter', 'super-forms' ), 
-            'label' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
+            'label' => esc_html__( 'Set a custom delimiter to separate the values on each row', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? ',' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5377,7 +5377,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_post_status($value, $parent){
         return array(
             'name' => esc_html__( 'Post status (e.g any, publish, inherit, pending, private, future, draft, trash)', 'super-forms' ), 
-            'label' => esc_html__( 'Seperated each post status by a comma, enter "any" for all post statuses', 'super-forms' ),
+            'label' => esc_html__( 'Separated each post status by a comma, enter "any" for all post statuses', 'super-forms' ),
             'default'=> ( !isset( $value ) ? 'publish' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5572,7 +5572,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_exclude_taxonomy($value, $parent){
         return array(
             'name' => esc_html__( 'Exclude a category', 'super-forms' ), 
-            'label' => esc_html__( 'Enter the category ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the category ID\'s to exclude separated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,
@@ -5582,7 +5582,7 @@ class SUPER_Shortcodes {
     public static function sf_retrieve_method_exclude_post($value, $parent){
         return array(
             'name' => esc_html__( 'Exclude a post', 'super-forms' ), 
-            'label' => esc_html__( 'Enter the post ID\'s to exclude seperated by comma\'s', 'super-forms' ), 
+            'label' => esc_html__( 'Enter the post ID\'s to exclude separated by comma\'s', 'super-forms' ), 
             'default'=> ( !isset( $value ) ? '' : $value ),
             'filter'=>true,
             'parent'=>$parent,

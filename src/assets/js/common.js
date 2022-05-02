@@ -4972,7 +4972,7 @@ function SUPERreCaptcha(){
         thisAutocomplete.el = args.el;
         thisAutocomplete.form = args.form;
 
-        s = $(args.el).data('countries'); // Could be empty or a comma seperated string e.g: fr,nl,de
+        s = $(args.el).data('countries'); // Could be empty or a comma separated string e.g: fr,nl,de
         if(s){
             x = s.split(',');
             obj.countries = [];
@@ -4983,7 +4983,7 @@ function SUPERreCaptcha(){
                 country: obj.countries, // e.g: ["us", "pr", "vi", "gu", "mp"],
             });
         }
-        s = $(args.el).data('types'); // Could be empty or a comma seperated string e.g: fr,nl,de
+        s = $(args.el).data('types'); // Could be empty or a comma separated string e.g: fr,nl,de
         if(s){
             x = s.split(',');
             obj.types = [];

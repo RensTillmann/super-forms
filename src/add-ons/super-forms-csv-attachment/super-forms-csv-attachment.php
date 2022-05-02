@@ -339,7 +339,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     // @since 1.1.1 - custom settings for delimiter and enclosure
                     'csv_attachment_delimiter' => array(
                         'name'=> esc_html__( 'Custom delimiter', 'super-forms' ),
-                        'desc' => esc_html__( 'Set a custom delimiter to seperate the values on each row', 'super-forms' ), 
+                        'desc' => esc_html__( 'Set a custom delimiter to separate the values on each row', 'super-forms' ), 
                         'default'=> ',',
                         'filter'=>true,
                         'parent'=>'csv_attachment_enable',

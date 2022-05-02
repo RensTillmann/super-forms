@@ -62,7 +62,7 @@ Sep 6, 2017 - Version 1.1.2
 - Fix: Issue with Gallery, File, Image field types not saving correctly
 
 Sep 5, 2017 - Version 1.1.1
-- Improved: ACF checkbox/radio/select(dropdown)/image/file/gallery compatibility, save comma seperated values as Associative Array
+- Improved: ACF checkbox/radio/select(dropdown)/image/file/gallery compatibility, save comma separated values as Associative Array
 
 Mar 12, 2017 - Version 1.1.0
 - Added: Automatic updates

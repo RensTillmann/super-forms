@@ -796,7 +796,7 @@ $array['html_elements'] = array(
                         ),
                         'TransitMode' => array(
                             'name' => esc_html__( '(optional) Specifies a preferred mode of transit', 'super-forms' ), 
-                            'label' => esc_html__( 'Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,RAIL,SUBWAY,TRAIN,TRAM', 'super-forms' ), 
+                            'label' => esc_html__( 'Use {tags} if needed, separate each mode with comma. Valid values are: BUS,RAIL,SUBWAY,TRAIN,TRAM', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['TransitMode'] ) ? '' : $attributes['TransitMode'] ),
                             'type' => 'text'
                         ),
@@ -919,7 +919,7 @@ $array['html_elements'] = array(
                         'polylines' => array(
                             'name' => esc_html__( 'Enter latitudes and longitudes', 'super-forms' ), 
                             'desc' => esc_html__( 'Wether or not to draw Polyline(s)', 'super-forms' ), 
-                            'label' => sprintf( esc_html__( 'Use {tags} if needed%sPut each latitude and longitude on a new line seperated by pipes e.g: lat|lng', 'super-forms' ), '<br />' ), 
+                            'label' => sprintf( esc_html__( 'Use {tags} if needed%sPut each latitude and longitude on a new line separated by pipes e.g: lat|lng', 'super-forms' ), '<br />' ), 
                             'placeholder' => "37.772|-122.214\n21.291|-157.821", 
                             'default'=> ( !isset( $attributes['polylines'] ) ? '' : $attributes['polylines'] ),
                             'type' => 'textarea', 

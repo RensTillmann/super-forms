@@ -349,7 +349,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'allow_empty' => true,
                     ),
                     'mailpoet_lists' => array(
-                        'name' => esc_html__( 'Subscriber list ID(\'s) seperated by comma\'s', 'super-forms' ), 
+                        'name' => esc_html__( 'Subscriber list ID(\'s) separated by comma\'s', 'super-forms' ), 
                         'label' => esc_html__( 'You are allowed to use {tags} if you want to allow the user to choose a list from dropdown or radio/checkbox in your form', 'super-forms' ),
                         'default' =>  '{lists}',
                         'filter'=>true,

@@ -61,7 +61,7 @@ msgstr ""
 
 #: super-forms-mailster.php:339
 msgid ""
-"Seperate Mailster field and field_name by pipes \"|\" (put each on a new "
+"Separate Mailster field and field_name by pipes \"|\" (put each on a new "
 "line).<br />Example: mailster_field_name|super_forms_field_name<br />With "
 "this method you can save custom Mailster user data"
 msgstr ""
@@ -71,7 +71,7 @@ msgid "Subscriber email address"
 msgstr ""
 
 #: super-forms-mailster.php:349
-msgid "Subscriber list ID('s) seperated by comma's"
+msgid "Subscriber list ID('s) separated by comma's"
 msgstr ""
 
 #. Name of the plugin

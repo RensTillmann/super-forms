@@ -52,7 +52,7 @@ msgstr "\"चालू\" मूल्य"
 
 #: includes/class-settings.php:826
 #, php-format
-msgid "%2$sSeperate each role by comma, available roles:%3$s%1$s%4$s"
+msgid "%2$sSeparate each role by comma, available roles:%3$s%1$s%4$s"
 msgstr ""
 
 #: includes/class-settings.php:839
@@ -806,7 +806,7 @@ msgid "Allow users to select work days"
 msgstr "वापरकर्त्यांना कामाचे दिवस निवडण्याची परवानगी द्या"
 
 #: includes/shortcodes/predefined-arrays.php:37
-msgid "Allowed Extensions (seperated by pipes)"
+msgid "Allowed Extensions (separated by pipes)"
 msgstr "अनुमत विस्तार (पाईप्सद्वारे विभक्त)"
 
 #: includes/class-settings.php:2151
@@ -2864,7 +2864,7 @@ msgid "Enter the attribute slug name e.g color or condition"
 msgstr "विशेषता स्लग नाव उदा. रंग किंवा स्थिती प्रविष्ट करा"
 
 #: includes/class-shortcodes.php:5260
-msgid "Enter the category ID's to exclude seperated by comma's"
+msgid "Enter the category ID's to exclude separated by comma's"
 msgstr "स्वल्पविरामाने विभक्त वगळण्यासाठी श्रेणी आयडी प्रविष्ट करा"
 
 #: includes/class-settings.php:1551
@@ -2876,7 +2876,7 @@ msgid "Enter the name of the post type"
 msgstr "पोस्ट प्रकाराचे नाव प्रविष्ट करा"
 
 #: includes/class-shortcodes.php:5270
-msgid "Enter the post ID's to exclude seperated by comma's"
+msgid "Enter the post ID's to exclude separated by comma's"
 msgstr "स्वल्पविरामाने विभक्त वगळण्यासाठी पोस्ट आयडी प्रविष्ट करा"
 
 #: includes/shortcodes/form-elements.php:2150
@@ -2904,7 +2904,7 @@ msgstr ""
 "अंतरचे मूल्य प्रविष्ट करा जे अंतराचे मूल्य वर निश्चित केले जावे (आवश्यक)"
 
 #: includes/class-shortcodes.php:4844
-msgid "Enter the user ID's to exclude seperated by comma's"
+msgid "Enter the user ID's to exclude separated by comma's"
 msgstr "स्वल्पविरामाने विभक्त वगळण्यासाठी वापरकर्ता आयडी प्रविष्ट करा"
 
 #: includes/shortcodes/predefined-arrays.php:183
@@ -3213,7 +3213,7 @@ msgstr "फील्ड रूंदी पिक्सेलमध्ये"
 
 #: includes/shortcodes/form-elements.php:741
 #: includes/shortcodes/form-elements.php:823
-msgid "Fields to skip (enter unique field names seperated by pipes)"
+msgid "Fields to skip (enter unique field names separated by pipes)"
 msgstr ""
 "वगळण्यासाठी फील्ड (पाईप्सद्वारे विभक्त केलेली विशिष्ट फील्ड नावे प्रविष्ट "
 "करा)"
@@ -5508,7 +5508,7 @@ msgstr ""
 #: includes/class-settings.php:1522
 #, php-format
 msgid ""
-"Put each tracking event on a new line, seperate parameters with pipes. You "
+"Put each tracking event on a new line, separate parameters with pipes. You "
 "can also append a form ID to only trigger the event when that specific form "
 "was submitted. Examples:%1$s%1$s%2$sTo trigger for specific form only:"
 "%3$s%4$s2316:send|event|Signup Form|submit%5$s%2$sTo trigger for all forms:"
@@ -5602,11 +5602,11 @@ msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
 #: includes/class-settings.php:376
-msgid "Recipient(s) email address seperated by commas"
+msgid "Recipient(s) email address separated by commas"
 msgstr "प्राप्तकर्त्याचे ईमेल पत्ता स्वल्पविरामाने विभक्त केले"
 
 #: includes/class-settings.php:162
-msgid "Recipient(s) email address seperated with commas"
+msgid "Recipient(s) email address separated with commas"
 msgstr "प्राप्तकर्ता (ओं) ईमेल पत्ता स्वल्पविरामाने विभक्त केला"
 
 #: includes/shortcodes/form-elements.php:3434
@@ -6252,7 +6252,7 @@ msgstr "सप्टेंबर"
 
 #: includes/class-shortcodes.php:5044
 msgid ""
-"Seperated each post status by a comma, enter \"any\" for all post statuses"
+"Separated each post status by a comma, enter \"any\" for all post statuses"
 msgstr ""
 "प्रत्येक पोस्ट स्थिती स्वल्पविरामाने विभक्त करा, सर्व पोस्ट स्थितीसाठी "
 "\"कोणतीही\" प्रविष्ट करा"
@@ -6267,7 +6267,7 @@ msgstr "सर्बियन"
 
 #: includes/class-shortcodes.php:4992
 #: includes/shortcodes/predefined-arrays.php:620
-msgid "Set a custom delimiter to seperate the values on each row"
+msgid "Set a custom delimiter to separate the values on each row"
 msgstr ""
 "प्रत्येक पंक्तीवरील मूल्ये विभक्त करण्यासाठी एक सानुकूल डिलिमीटर सेट करा"
 
@@ -6304,7 +6304,7 @@ msgstr ""
 "**** used वापरले जाऊ शकतात (कोणालाही रिक्त सोडू नका)"
 
 #: includes/class-settings.php:1225
-msgid "Set a form ID to retrieve data from (seperated by comma)"
+msgid "Set a form ID to retrieve data from (separated by comma)"
 msgstr ""
 "वरून डेटा पुनर्प्राप्त करण्यासाठी फॉर्म आयडी सेट करा (स्वल्पविरामाने विभक्त)"
 
@@ -7780,7 +7780,7 @@ msgstr "किमान संपादक कॉन्फिगरेशन व
 #: includes/shortcodes/form-elements.php:2633
 #, php-format
 msgid ""
-"Use numbers to specify days to exclude seperated by comma's e.g: 0,1,"
+"Use numbers to specify days to exclude separated by comma's e.g: 0,1,"
 "2%sWhere: 0 = Sunday and 1 = Monday etc."
 msgstr ""
 
@@ -7819,12 +7819,12 @@ msgstr "आवश्यक असल्यास {टॅग use वापरा"
 #, php-format
 msgid ""
 "Use {tags} if needed%sPut each latitude and longitude on a new line "
-"seperated by pipes e.g: lat|lng"
+"separated by pipes e.g: lat|lng"
 msgstr ""
 
 #: includes/shortcodes/html-elements.php:721
 msgid ""
-"Use {tags} if needed, seperate each mode with comma. Valid values are: BUS,"
+"Use {tags} if needed, separate each mode with comma. Valid values are: BUS,"
 "RAIL,SUBWAY,TRAIN,TRAM"
 msgstr ""
 "आवश्यक असल्यास {टॅग Use वापरा, स्वल्पविरामाने प्रत्येक मोड विभक्त करा. वैध "
@@ -8327,7 +8327,7 @@ msgstr "आपल्या शेतासमोर दिसेल. (काढ�
 #: includes/shortcodes/predefined-arrays.php:316
 msgid ""
 "With this setting you can use &lt;br /&gt; to use line breaks for each "
-"selected option instead of a comma seperated list. Of course you can also "
+"selected option instead of a comma separated list. Of course you can also "
 "use other HTML if necessary."
 msgstr ""
 "या सेटिंगसह आपण स्वल्पविराम विभक्त सूचीऐवजी प्रत्येक निवडलेल्या पर्यायांसाठी "
@@ -8422,7 +8422,7 @@ msgstr ""
 #: includes/class-settings.php:1396
 #, php-format
 msgid ""
-"You are allowed to use {tags}.%sPut each on a new line seperate parameter "
+"You are allowed to use {tags}.%sPut each on a new line separate parameter "
 "and value by pipes e.g:%sfirst_name|{first_name}"
 msgstr ""
 
@@ -8472,7 +8472,7 @@ msgstr ""
 #, php-format
 msgid ""
 "You would normally be using a textarea field where each option is put on a "
-"new line. You can also seperate label and value with pipes. Example textarea "
+"new line. You can also separate label and value with pipes. Example textarea "
 "value would be:%1$sOption 1|option_1%1$sOption 2|option_2%1$setc...%1$s(ACF "
 "fields are also supported)"
 msgstr ""

@@ -1380,7 +1380,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     $product_price = self::tofloat($product_price);
                     $product_quantity = absint($product_quantity);
                     if( $product_quantity>0 ) {
-                        // Check if multiple ideas found (seperate by comma)
+                        // Check if multiple ideas found (separate by comma)
                         $multi_products = explode(',', $product_id);
                         foreach( $multi_products as $product_id ) {
                             $product_id = absint($product_id);
@@ -1776,7 +1776,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     ),
                     'woocommerce_checkout_fees' => array(
                         'name' => esc_html__( 'Add checkout fee(s)', 'super-forms' ) . '<br />',
-                        'label' => esc_html__( 'Leave blank for no fees', 'super-forms' ) . '<br />' . sprintf( esc_html__( 'Put each fee on a new line with values seperated by pipes "|".%1$s%2$sExample with tags:%3$s {fee_name}|{amount}|{taxable}|{tax_class}%1$s%2$sExample without tags:%3$s Administration fee|5|false|\'\'%1$s%2$sAllowed values:%3$s string|float|bool|string', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'label' => esc_html__( 'Leave blank for no fees', 'super-forms' ) . '<br />' . sprintf( esc_html__( 'Put each fee on a new line with values separated by pipes "|".%1$s%2$sExample with tags:%3$s {fee_name}|{amount}|{taxable}|{tax_class}%1$s%2$sExample without tags:%3$s Administration fee|5|false|\'\'%1$s%2$sAllowed values:%3$s string|float|bool|string', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
                         'type' => 'textarea',
                         'default' =>  "{fee_name}|{amount}|{taxable}|{tax_class}",
                         'filter' => true,
@@ -1796,7 +1796,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     // @since 1.2.2 - add custom checkout fields to checkout page
                     'woocommerce_checkout_fields' => array(
                         'name' => esc_html__( 'Add custom checkout field(s)', 'super-forms' ) . '<br />',
-                        'label' => esc_html__( 'Leave blank for no custom fields', 'super-forms' ) . '<br />' . esc_html__( 'Put each field on a new line with field options seperated by pipes "|".', 'super-forms' ) . '<br />' . sprintf( esc_html__( 'Example:%1$sbilling_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green%1$s%2$sAvailable field options:%3$s%1$s%2$sname%3$s - the field name%1$s%2$svalue%3$s - the field value ({tags} can be used here)%1$s%2$slabel%3$s – label for the input field%1$s%2$splaceholder%3$s – placeholder for the input%1$s%2$stype%3$s – type of field (text, textarea, password, select)%1$s%2$ssection%3$s - billing, shipping, account, order%1$s%2$srequired%3$s – true or false, whether or not the field is require%1$s%2$sclear%3$s – true or false, applies a clear fix to the field/label%1$s%2$sclass%3$s – class for the input%1$s%2$slabel_class%3$s – class for the label element%1$s%2$soptions%3$s – for select boxes, array of options (key => value pairs)', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'label' => esc_html__( 'Leave blank for no custom fields', 'super-forms' ) . '<br />' . esc_html__( 'Put each field on a new line with field options separated by pipes "|".', 'super-forms' ) . '<br />' . sprintf( esc_html__( 'Example:%1$sbilling_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green%1$s%2$sAvailable field options:%3$s%1$s%2$sname%3$s - the field name%1$s%2$svalue%3$s - the field value ({tags} can be used here)%1$s%2$slabel%3$s – label for the input field%1$s%2$splaceholder%3$s – placeholder for the input%1$s%2$stype%3$s – type of field (text, textarea, password, select)%1$s%2$ssection%3$s - billing, shipping, account, order%1$s%2$srequired%3$s – true or false, whether or not the field is require%1$s%2$sclear%3$s – true or false, applies a clear fix to the field/label%1$s%2$sclass%3$s – class for the input%1$s%2$slabel_class%3$s – class for the label element%1$s%2$soptions%3$s – for select boxes, array of options (key => value pairs)', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
                         'type' => 'textarea',
                         'default' =>  "",
                         'filter' => true,

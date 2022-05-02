@@ -90,7 +90,7 @@ msgstr ""
 
 #: super-forms-mailchimp.php:431
 msgid ""
-"Seperate MailChimp field and field_name by pipes \"|\" (put each on a new "
+"Separate MailChimp field and field_name by pipes \"|\" (put each on a new "
 "line).<br />Example: PHONE|phonenumber<br />With this method you can save "
 "custom MailChimp user data"
 msgstr ""
