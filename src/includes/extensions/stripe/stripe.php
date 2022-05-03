@@ -413,7 +413,7 @@ if(!class_exists('SUPER_Stripe')) :
                 echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . sprintf( esc_html__( 'Make sure to enter your Stripe API credentials via %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
             echo '</div>';
             echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('About', 'super-forms').':</strong> ' . sprintf( esc_html__( 'With Stripe you can request users to make a payment after they submitted the form. Optionally you can also create recurring payments (subscriptions).', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
+                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . sprintf( esc_html__( 'You can use field {tags} to configure the below settings based on user input.', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
             echo '</div>';
             
             // Enable Stripe checkout
@@ -426,10 +426,18 @@ if(!class_exists('SUPER_Stripe')) :
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'The mode of the Checkout Session', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Must be one of: payment, subscription, setup', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': `payment` `subscription` `setup`</span>';
                             echo '<input type="text" name="mode" placeholder="e.g: payment" value="' . sanitize_text_field($s['mode']) . '" />';
                         echo '</label>';
                     echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Submit type', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. Possible values', 'super-forms' ) . ': `auto` `pay` `book` `donate`</span>';
+                            echo '<input type="text" name="submit_type" placeholder="e.g: donate" value="' . sanitize_text_field($s['submit_type']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Cancel URL', 'super-forms' ) . '</span>';
@@ -467,12 +475,27 @@ if(!class_exists('SUPER_Stripe')) :
                     echo '</div>';
                     echo '<div class="sfui-setting">';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-label">' . esc_html__( 'Enable automatic tax lookup for this session and resulting payments, invoices, and subscriptions.', 'super-forms' ) . '`card` `acss_debit` `afterpay_clearpay` `alipay` `au_becs_debit` `bacs_debit` `bancontact` `boleto` `eps` `fpx` `giropay` `grabpay` `ideal` `klarna` `konbini` `oxxo` `p24` `paynow` `sepa_debit` `sofort` `us_bank_account` `wechat_pay`</span>';
                             echo '<input type="checkbox" name="automatic_tax.enabled" value="true"' . ($s['automatic_tax']['enabled']===true ? ' checked="checked"' : '') . ' />';
                             echo '<span class="sfui-title">' . esc_html__( 'Enable automatic Tax', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
 
-                    //if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'Apply coupon code', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="discounts.coupon" placeholder="Enter the Stripe coupon ID e.g: SbwGtc0x" value="' . sanitize_text_field($s['discounts']['coupon']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': `auto` `bg` `cs` `da` `de` `el` `en` `en-GB` `es` `es-419` `et` `fi` `fil` `fr` `fr-CA` `hr` `hu` `id` `it` `ja` `ko` `lt` `lv` `ms` `mt` `nb` `nl` `pl` `pt` `pt-BR` `ro` `ru` `sk` `sl` `sv` `th` `tr` `vi` `zh` `zh-HK` `zh-TW`</span>';
+                            echo '<input type="text" name="locale" placeholder="e.g: en" value="' . sanitize_text_field($s['locale']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
                     //if(empty($s['metadata'])) $s['metadata'] = '';
                     //if(empty($s['payment_method_types'])) $s['payment_method_types'] = 'card';
                     //if(empty($s['automatic_tax'])) $s['automatic_tax'] = array(
@@ -491,7 +514,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     echo '<form class="sfui-setting">';
                                         // Price
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based existing Stripe Price or Plan ID', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Price or Plan ID', 'super-forms' ) . '</span>';
                                             echo '<div class="sfui-sub-settings sfui-inline" data-f="type;price">';
                                                 echo '<div class="sfui-setting sfui-inline">';
                                                     // Price or Plan ID
@@ -599,6 +622,16 @@ if(!class_exists('SUPER_Stripe')) :
                         }
                         echo '</div>';
                     echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Client reference ID', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="client_reference_id" placeholder="" value="' . sanitize_text_field($s['client_reference_id']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    //if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // 
+
                 echo '</div>';
             echo '</div>';
 
@@ -608,6 +641,7 @@ if(!class_exists('SUPER_Stripe')) :
         public static function get_default_stripe_settings($s=array()) {
             if(empty($s['enabled'])) $s['enabled'] = 'false';
             if(empty($s['mode'])) $s['mode'] = 'payment'; // The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
+            if(empty($s['submit_type'])) $s['submit_type'] = 'auto'; // Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. submit_type can only be specified on Checkout Sessions in payment mode, but not Checkout Sessions in subscription or setup mode.
             if(empty($s['cancel_url'])) $s['cancel_url'] = ''; // The URL the customer will be directed to if they decide to cancel payment and return to your website.
             if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
             if(empty($s['customer'])) $s['customer'] = ''; // ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
@@ -618,6 +652,10 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($s['automatic_tax'])) $s['automatic_tax'] = array(
                 'enabled' => true,
             );
+            if(empty($s['discounts'])) $s['discounts'] = array(
+                'coupon' => '',
+            );
+            if(empty($s['locale'])) $s['locale'] = '';
             if(empty($s['line_items'])) $s['line_items'] = array(
                 array(
                     'type' => 'price', // (not a Stripe key) Type, either `price` or `price_data`
@@ -1060,11 +1098,18 @@ if(!class_exists('SUPER_Stripe')) :
                     //    'enabled' => true,
                     //],
                 );
+
+
+                // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
+                //'client_reference_id' => '',
+                if($s['client_reference_id']!==''){
+                    $data['client_reference_id'] = $s['client_reference_id'];
+                }
                 if($mode==='payment'){
                     // [optional] Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, 
                     // such as the submit button. `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in subscription or setup mode.
                     //'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
-                    $data['submit_type'] = 'auto';
+                    $data['submit_type'] = $s['submit_type'];
                 }
                 $checkout_session = \Stripe\Checkout\Session::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
