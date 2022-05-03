@@ -239,9 +239,8 @@
             nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
             for(i=0; i<nodes.length; i++){
                 repeater = nodes[i].closest('.sfui-repeater-item');
-                if(repeater && slug!=='stripe') continue; // skip if inside repater element
+                if(repeater) continue; // skip if inside repater element
                 // is direct inner field, must add it to the data
-                debugger;
                 value = nodes[i].value;
                 if(nodes[i].type==='checkbox') value = nodes[i].checked;
                 if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
@@ -262,7 +261,7 @@
                 }
                 p = nodes[i].closest('.sfui-setting');
                 if(p){
-                    sub = p.querySelector('.sfui-sub-settings');
+                    sub = p.querySelector('.sfui-sub-settings, .sfui-setting');
                     if(sub){
                         var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
                         for(x=0; x<xnodes.length; x++){
@@ -271,6 +270,16 @@
                     }
                 }
             }
+
+            // Process repeater items
+            if(slug==='stripe'){
+                debugger;
+                nodes = tab.querySelectorAll('.sfui-repeater');
+                for(x=0; x<nodes.length; x++){
+                    data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
+                }
+            }
+
             settings['_'+slug] = data;
         }
         return settings;

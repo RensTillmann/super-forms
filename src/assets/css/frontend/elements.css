@@ -2457,6 +2457,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   justify-content: flex-start;
   height: auto;
+  max-width: 100%;
 }
 .super-form .super-radio input,
 .super-form .super-checkbox input,

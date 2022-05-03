@@ -425,25 +425,40 @@ if(!class_exists('SUPER_Stripe')) :
                 echo '<div class="sfui-sub-settings" data-f="enabled;true">';
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'The mode of the Checkout Session', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Must be one of: payment, subscription, setup', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="mode" placeholder="e.g: payment" value="' . sanitize_text_field($s['mode']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Cancel URL', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'The URL the customer will be directed to if they decide to cancel payment and return to your website.', 'super-forms' ) . '</span>';
                             echo '<input type="text" name="cancel_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['cancel_url']) . '" />';
                         echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Success URL', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'The URL to which Stripe should send customers when payment or setup is complete. If you\'d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.', 'super-forms' ) . '</span>';
                             echo '<input type="text" name="success_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['success_url']) . '" />';
                         echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Customer ID', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'ID of an existing Customer, if one exists. In payment mode, the customer\'s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer\'s default payment method will be used if it\'s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer\'s card details.', 'super-forms' ) . '</span>';
                             echo '<input type="text" name="customer" placeholder="e.g: cus_XXXXXX" value="' . sanitize_text_field($s['customer']) . '" />';
                         echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Customer E-mail', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file. To access information about the customer once a session is complete, use the customer field.', 'super-forms' ) . '</span>';
                             echo '<input type="text" name="customer_email" placeholder="e.g: {email}" value="' . sanitize_text_field($s['customer_email']) . '" />';
                         echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Payment methods', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'A list of the types of payment methods (e.g., card) this Checkout Session can accept. Separate each by comma. Accepted values are:', 'super-forms' ) . '`card` `acss_debit` `afterpay_clearpay` `alipay` `au_becs_debit` `bacs_debit` `bancontact` `boleto` `eps` `fpx` `giropay` `grabpay` `ideal` `klarna` `konbini` `oxxo` `p24` `paynow` `sepa_debit` `sofort` `us_bank_account` `wechat_pay`</span>';
@@ -478,11 +493,18 @@ if(!class_exists('SUPER_Stripe')) :
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based existing Stripe Price or Plan ID', 'super-forms' ) . '</span>';
                                             echo '<div class="sfui-sub-settings sfui-inline" data-f="type;price">';
-                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                echo '<div class="sfui-setting sfui-inline">';
                                                     // Price or Plan ID
                                                     echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
                                                         echo '<label>';
+                                                            echo '<span class="sfui-label">' . esc_html__( 'Enter product price/plan ID:', 'super-forms' ) . '</span>';
                                                             echo '<input type="text" name="price" placeholder="' . esc_html__( 'e.g: price_XXXX', 'super-forms' ) . '" value="' . sanitize_text_field($v['price']) . '" />';
+                                                        echo '</label>';
+                                                    echo '</div>';
+                                                    echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
+                                                        echo '<label>';
+                                                            echo '<span class="sfui-label">' . esc_html__( 'Quantity:', 'super-forms' ) . '</span>';
+                                                            echo '<input type="text" name="quantity" placeholder="' . esc_html__( 'e.g: 1', 'super-forms' ) . '" value="' . sanitize_text_field($v['quantity']) . '" />';
                                                         echo '</label>';
                                                     echo '</div>';
                                                 echo '</div>';
@@ -501,6 +523,34 @@ if(!class_exists('SUPER_Stripe')) :
                                                         echo '</div>';
                                                     echo '</label>';
                                                 echo '</div>';
+
+                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                    echo '<label>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'Specify billing frequency', 'super-forms' ) . '</span>';
+                                                        echo '<select name="price_data.recurring.interval" onChange="SUPER.ui.updateSettings(event, this)">';
+                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='none' ? ' selected="selected"' : '') . ' value="none">' . esc_html__( 'None (one-time payment)', 'super-forms' ) . '</option>';
+                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='day' ? ' selected="selected"' : '') . ' value="day">' . esc_html__( 'Day', 'super-forms' ) . '</option>';
+                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='week' ? ' selected="selected"' : '') . ' value="week">' . esc_html__( 'Week', 'super-forms' ) . '</option>';
+                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='month' ? ' selected="selected"' : '') . ' value="month">' . esc_html__( 'Month', 'super-forms' ) . '</option>';
+                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='year' ? ' selected="selected"' : '') . ' value="year">' . esc_html__( 'Year', 'super-forms' ) . '</option>';
+                                                        echo '</select>';
+                                                    echo '</label>';
+                                                echo '</div>';
+                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                    echo '<label>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'The number of intervals between subscription billings.', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . esc_html__( 'Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).', 'super-forms' ) . '</span>';
+                                                        echo '<input type="text" name="price_data.recurring.interval_count" placeholder="Enter the number of intervals" value="' . sanitize_text_field($v['price_data']['recurring']['interval_count']) . '" />';
+                                                    echo '</label>';
+                                                echo '</div>';
+                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                    echo '<label>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'Unit amount', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . esc_html__( 'accepts a decimal value in cents with at most 12 decimal places', 'super-forms' ) . '</span>';
+                                                        echo '<input type="text" name="price_data.unit_amount_decimal" placeholder="e.g: 65.95" value="' . sanitize_text_field($v['price_data']['unit_amount_decimal']) . '" />';
+                                                    echo '</label>';
+                                                echo '</div>';
+
                                                 echo '<div class="sfui-inline sfui-vertical">';
                                                     echo '<div class="sfui-setting">';
                                                         // Product
@@ -528,7 +578,7 @@ if(!class_exists('SUPER_Stripe')) :
                                                                     echo '</label>';
                                                                     echo '<label>';
                                                                         echo '<span class="sfui-label">' . esc_html__( 'Description', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product_data.description" placeholder="Intel i7, 8GB RAM" value="' . sanitize_text_field($v['price_data']['product_data']['tax_code']) . '" />';
+                                                                        echo '<input type="text" name="price_data.product_data.description" placeholder="Intel i7, 8GB RAM" value="' . sanitize_text_field($v['price_data']['product_data']['description']) . '" />';
                                                                     echo '</label>';
                                                                     echo '<label>';
                                                                         echo '<span class="sfui-label">' . esc_html__( 'Tax code ID', 'super-forms' ) . '</span>';
@@ -557,6 +607,7 @@ if(!class_exists('SUPER_Stripe')) :
         // Get default listing settings
         public static function get_default_stripe_settings($s=array()) {
             if(empty($s['enabled'])) $s['enabled'] = 'false';
+            if(empty($s['mode'])) $s['mode'] = 'payment'; // The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
             if(empty($s['cancel_url'])) $s['cancel_url'] = ''; // The URL the customer will be directed to if they decide to cancel payment and return to your website.
             if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
             if(empty($s['customer'])) $s['customer'] = ''; // ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
@@ -571,6 +622,7 @@ if(!class_exists('SUPER_Stripe')) :
                 array(
                     'type' => 'price', // (not a Stripe key) Type, either `price` or `price_data`
                     'price' => '', // The ID of the Price or Plan object. One of price or price_data is required.
+                    'quantity' => '1', // The ID of the Price or Plan object. One of price or price_data is required.
                     'price_data' => array( // Data used to generate a new Price object inline. One of price or price_data is required.
                         'currency' => 'USD', // Three-letter ISO currency code, in lowercase. Must be a supported currency.
                         'type' => 'product', // (not a Stripe key) Type either `product` or `product_data`
@@ -582,11 +634,11 @@ if(!class_exists('SUPER_Stripe')) :
                             //'images' => '', // (not used by Super Forms at this moment) A list of up to 8 URLs of images for this product, meant to be displayable to the customer.
                             //'metadata' => '' // (not used by Super Forms at this moment)
                         ),
-                        'unit_amount_decimal' => '', // amount representing how much to charge
+                        'unit_amount_decimal' => '10.95', // amount representing how much to charge
                         //'unit_amount' => '', // integer in cents representing how much to charge (not used by Super Forms at this moment)
                         //'metadata' => '' // (not used by Super Forms at this moment)
                         'recurring' => array( // The recurring components of a price such as `interval` and `interval_count`.
-                            'interval' => 'month', // Specifies billing frequency. Either `day`, `week`, `month` or `year`.
+                            'interval' => 'none', // Specifies billing frequency. Either `day`, `week`, `month` or `year`.
                             'interval_count' => 1 // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
                         ),
                         'tax_behavior' => 'unspecified' // Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.
@@ -688,44 +740,45 @@ if(!class_exists('SUPER_Stripe')) :
         public static function redirect_to_stripe_checkout($x){
             extract( shortcode_atts( array( 'post'=>array(), 'data'=>array(), 'settings'=>array(), 'entry_id'=>0, 'attachments'=>array() ), $x ) );
             self::setAppInfo();
+            $s = $settings['_stripe'];
             $domain = home_url(); // e.g: 'http://domain.com';
             $cancel_url = $domain . '/cancel_stripe';
             $success_url = $domain . '/success_stripe?session_id={CHECKOUT_SESSION_ID}';
-            $s = $settings['_stripe'];
-            var_dump($s);
-            exit;
+            $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );
             $customer_email = SUPER_Common::email_tags( $s['customer_email'], $data, $settings );
             $payment_methods = SUPER_Common::email_tags( $s['stripe_payment_methods'], $data, $settings );
             $payment_methods = explode(',', str_replace(' ', '', $payment_methods));
-            var_dump($s['line_items']);
-            exit;
-            //'line_items' => [[
-            //    # Provide the exact Price ID (e.g. pr_1234) of the product you want to sell
-            //    // 'price' => 'price_1Kf8eNFKn7uROhgCcYhH5G2L', //{{PRICE_ID}}',
-            //    // `price_data` or `price`
-            //    'price_data' => [
-            //        'currency' => strtolower($currency), // Three-letter ISO currency code, in lowercase, must be EUR when purchasing with iDeal
-            //        // `product` or `product_data`
-            //        'product_data' => [
-            //            'name' => 'Product name here',
-            //            'description' => 'Product description here',
-            //            //'images' => [], // list of image up to 8
-            //            //'metadata' => [], // product meta data
-            //            //'tax_code' => ''
-            //        ],
-            //        'unit_amount' => 10000, // A non-negative integer in cents representing how much to charge. One of unit_amount or unit_amount_decimal is required.
-            //        //'metadata' => [], // product meta data
-            //        // only possible when payment mod is set to `subscription` >> 'recurring' => [
-            //        // only possible when payment mod is set to `subscription` >>     'interval' => 'month', // day, week, month, year
-            //        // only possible when payment mod is set to `subscription` >>     'interval_count' => 1, // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
-            //        // only possible when payment mod is set to `subscription` >> ],
-            //        'tax_behavior' => 'exclusive' // Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.
-            //    ],
-            //    'quantity' => 1,
-            //]],
 
-
-
+            foreach($s['line_items'] as $k => $v){
+                if($v['type'] === 'price'){
+                    unset($v['price_data']);
+                }else{
+                    unset($v['price']);
+                }
+                unset($v['type']);
+                if($v['price_data']['type'] === 'product_data'){
+                    unset($v['price_data']['product']);
+                    // Unset empty product values
+                    if(trim($v['price_data']['product_data']['name'])===''){
+                        $v['price_data']['product_data']['name'] = '{product_name}';
+                    }
+                    if(trim($v['price_data']['product_data']['description'])===''){
+                        unset($v['price_data']['product_data']['description']);
+                    }
+                    if(trim($v['price_data']['product_data']['tax_code'])===''){
+                        unset($v['price_data']['product_data']['tax_code']);
+                    }
+                    // Set correct unit amount
+                    $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
+                }else{
+                    unset($v['price_data']['product_data']);
+                }
+                unset($v['price_data']['type']);
+                if($v['price_data']['recurring']['interval']==='none'){
+                    unset($v['price_data']['recurring']);
+                }
+                $s['line_items'][$k] = $v;
+            }
 
             //$currency = SUPER_Common::email_tags( $s['stripe_currency'], $data, $settings );
             //error_log('$payment_method: ' . json_encode($payment_methods));
@@ -750,9 +803,9 @@ if(!class_exists('SUPER_Stripe')) :
             //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
             try {
                 // Use Stripe's library to make requests...
-                $checkout_session = \Stripe\Checkout\Session::create([
+                $data = array(
                     // [required conditionally] The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
-                    'mode' => 'payment', // `payment`, `subscription` or `setup`
+                    'mode' => $mode, //'payment', // `payment`, `subscription` or `setup`
                     // [required] The URL the customer will be directed to if they decide to cancel payment and return to your website.
                     'cancel_url' => $cancel_url,
                     // [required] The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on
@@ -763,10 +816,6 @@ if(!class_exists('SUPER_Stripe')) :
                     // $customer = \Stripe\Customer::retrieve($session->customer);
                     // return $response->write("<html><body><h1>Thanks for your order, $customer->name!</h1></body></html>");
                     // ```
-
-                    // [optional] Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, 
-                    // such as the submit button. `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in subscription or setup mode.
-                    'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
 
                     // [optional] If provided, this value will be used when the Customer object is created. 
                     //            If not provided, customers will be asked to enter their email address. 
@@ -792,30 +841,31 @@ if(!class_exists('SUPER_Stripe')) :
                     // If you want to create a new price on the fly define it like so:
                     // e.g: product_name|quantity|product_name|unit_amount|tax|recurring|interval                     
 
-                    'line_items' => [[
-                        # Provide the exact Price ID (e.g. pr_1234) of the product you want to sell
-                        // 'price' => 'price_1Kf8eNFKn7uROhgCcYhH5G2L', //{{PRICE_ID}}',
-                        // `price_data` or `price`
-                        'price_data' => [
-                            'currency' => strtolower($currency), // Three-letter ISO currency code, in lowercase, must be EUR when purchasing with iDeal
-                            // `product` or `product_data`
-                            'product_data' => [
-                                'name' => 'Product name here',
-                                'description' => 'Product description here',
-                                //'images' => [], // list of image up to 8
-                                //'metadata' => [], // product meta data
-                                //'tax_code' => ''
-                            ],
-                            'unit_amount' => 10000, // A non-negative integer in cents representing how much to charge. One of unit_amount or unit_amount_decimal is required.
-                            //'metadata' => [], // product meta data
-                            // only possible when payment mod is set to `subscription` >> 'recurring' => [
-                            // only possible when payment mod is set to `subscription` >>     'interval' => 'month', // day, week, month, year
-                            // only possible when payment mod is set to `subscription` >>     'interval_count' => 1, // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
-                            // only possible when payment mod is set to `subscription` >> ],
-                            'tax_behavior' => 'exclusive' // Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.
-                        ],
-                        'quantity' => 1,
-                    ]],
+                    'line_items' => $s['line_items'],
+                    //'line_items' => [[
+                    //    # Provide the exact Price ID (e.g. pr_1234) of the product you want to sell
+                    //    // 'price' => 'price_1Kf8eNFKn7uROhgCcYhH5G2L', //{{PRICE_ID}}',
+                    //    // `price_data` or `price`
+                    //    'price_data' => [
+                    //        'currency' => strtolower($currency), // Three-letter ISO currency code, in lowercase, must be EUR when purchasing with iDeal
+                    //        // `product` or `product_data`
+                    //        'product_data' => [
+                    //            'name' => 'Product name here',
+                    //            'description' => 'Product description here',
+                    //            //'images' => [], // list of image up to 8
+                    //            //'metadata' => [], // product meta data
+                    //            //'tax_code' => ''
+                    //        ],
+                    //        'unit_amount' => 10000, // A non-negative integer in cents representing how much to charge. One of unit_amount or unit_amount_decimal is required.
+                    //        //'metadata' => [], // product meta data
+                    //        // only possible when payment mod is set to `subscription` >> 'recurring' => [
+                    //        // only possible when payment mod is set to `subscription` >>     'interval' => 'month', // day, week, month, year
+                    //        // only possible when payment mod is set to `subscription` >>     'interval_count' => 1, // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
+                    //        // only possible when payment mod is set to `subscription` >> ],
+                    //        'tax_behavior' => 'exclusive' // Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.
+                    //    ],
+                    //    'quantity' => 1,
+                    //]],
 
                     // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
                     //'client_reference_id' => '',
@@ -1005,10 +1055,18 @@ if(!class_exists('SUPER_Stripe')) :
                     //      'transfer_data' => '', // The parameters used to automatically create a Transfer when the payment succeeds. For more information, see the PaymentIntents use case for connected accounts.
                     //      'transfer_group' => '', // A string that identifies the resulting payment as part of a group. See the PaymentIntents use case for connected accounts for details.
                     // ],
-                    'automatic_tax' => [
-                        'enabled' => true,
-                    ],
-                ]);
+                    'automatic_tax' => $s['automatic_tax'],
+                    //'automatic_tax' => [
+                    //    'enabled' => true,
+                    //],
+                );
+                if($mode==='payment'){
+                    // [optional] Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, 
+                    // such as the submit button. `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in subscription or setup mode.
+                    //'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
+                    $data['submit_type'] = 'auto';
+                }
+                $checkout_session = \Stripe\Checkout\Session::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 error_log("exceptionHandler16()");
                 self::exceptionHandler($e);
@@ -2363,7 +2421,13 @@ if(!class_exists('SUPER_Stripe')) :
             error_log("err: " . json_encode($e->getError()));
             error_log("metadata: " . json_encode($metadata));
             self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
-            echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
+            //echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
+            //{"error":{"message":"No such price: 'price_1KJINrFKn7uROhgCgsntnfbq'; a similar object exists in live mode, but a test mode key was used to make this request."}}
+            // Print error message
+            SUPER_Common::output_message(
+                $error = true,
+                $e->getMessage()
+            );
             die();
             // catch(\Stripe\Error\Card $e) {
             //     // Since it's a decline, \Stripe\Error\Card will be caught
