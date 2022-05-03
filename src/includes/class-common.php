@@ -137,71 +137,55 @@ class SUPER_Common {
     public static function getClientData( $name ) {
         $force = false;
         if($name==='sf_nonce') $force = true;
-        $key = self::startClientSession(array('force'=>$force));
+        $cookieName = '_sfs_id';
+        if(!isset($_COOKIE[$cookieName])) return false;
+        $key = $_COOKIE[$cookieName];
         if($key===false) return false;
         if($key==='') return false;
         return get_option( '_sfs_name_' . $name . '_' . $key );
     }
 
-    public static function unsetClientData( $id, $by='id' ) {
+    public static function unsetClientData( $expired ) {
         global $wpdb;
-        if($by==='id'){
-            // Delete all client data by session ID e.g: `_sfs_%_xxxxxxxxxxxxxxx` 
-            $like = '_sfs_%_' . $wpdb->esc_like($id);
-            $sql  = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", $like );
-            $wpdb->query($sql);
-        }
-        if($by==='name'){
-            // $id contains both the name + id e.g: `sf_nonce_xxxxxxxxx`
-            $like = '_sfs_%' . $wpdb->esc_like($id);
-            $sql  = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", $like );
-            $wpdb->query($sql);
+        if(is_array($expired)){
+            if(count($expired)===0) return true;
+            $query = array(); 
+            foreach($expired as $id){
+                if(empty($id)) continue;
+                $query[] = "option_name LIKE '_sfs_%" . $id . "'";
+            }
+            if(count($query)>1){
+                $query = implode(' OR ', $query);
+            }else{
+                $query = $query[0];
+            }
+            $sql = "DELETE FROM $wpdb->options WHERE $query";
+            $count = $wpdb->query($sql);
         }
     }
 	
-    public static function deleteOldClientData() {
+    public static function deleteOldClientData($limit=0) {
 		global $wpdb;
-		$limit = apply_filters( 'super_client_data_delete_limit_filter', absint(10000) ); // It's technically called a `Cookie name`, but we call it `key` here
+        if($limit===0) $limit = 100; // Defaults to 100
+        $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
 
         // Delete old deprecated sessions from previous Super Forms versions
-        $sql = $wpdb->prepare("DELETE FROM $wpdb->options WHERE option_name LIKE %s", '_super_session_%');
-        $wpdb->query($sql);
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%'");
 
         // Find any option name starting with `_sfs_id_` and check if it was expired
-		$rows = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_sfs_id_%' LIMIT 0, {$limit}");
-		$now = time();
+        $now = time();
+        $rows = $wpdb->get_results("SELECT SUBSTRING_INDEX(option_name, '_', -1) AS id FROM $wpdb->options WHERE option_name LIKE '\_sfs\_id\_%' AND option_value < {$now} ORDER BY option_value ASC LIMIT {$limit}");
 		$expired = array();
 		foreach( $rows as $value ) {
-			if($now > $value->option_value){
-				$id = substr($value->option_name, 8);
-				$expired[$id] = $id;
-			}
+            $expired[$value->id] = $value->id;
 		}
-		// Delete all client data based on session ID
-		foreach( $expired as $id ) {
-            self::unsetClientData( $id, 'id' );
-        }
-
         // Also delete other expired client data
-		$rows = $wpdb->get_results("SELECT option_name, option_value FROM $wpdb->options WHERE option_name LIKE '_sfs_exp_%' LIMIT 0, {$limit}");
-		$now = time();
-		$expired = array();
+        $rows = $wpdb->get_results("SELECT SUBSTRING(option_name, 10) AS id FROM $wpdb->options WHERE option_name LIKE '\_sfs\_exp\_%' AND option_value < {$now} ORDER BY option_value ASC LIMIT {$limit}");
 		foreach( $rows as $value ) {
-			if($now > $value->option_value){
-                $string = $value->option_name; // '_sfs_exp_sf_nonce_6fd0d026b855f86729e6e6b17f986069c42b32af18714725447019d2107a6a4f29a6c6e1226ced5335c10956c669b56a';
-                $parts = explode('_', $string);
-                $len = count($parts);
-                $id = $parts[$len-1];
-                $new_string = str_replace('_'.$id, '', $string);
-                $name = substr($new_string, 9);
-                $id = $name.'_'.$id;
-				$expired[$id] = $id;
-			}
+            $expired[$value->id] = $value->id;
 		}
 		// Delete all client data based on session ID
-		foreach( $expired as $id ) {
-            self::unsetClientData( $id, 'name' );
-        }
+        if(count($expired)>0) self::unsetClientData( $expired );
 	}
 
     public static function generate_nonce(){

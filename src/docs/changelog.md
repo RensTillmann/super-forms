@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## May 04, 2022 - Version 6.3.1
+
+- **Improved:** Cookie/Session system, in case WP Cron is disabled, make sure we still clear expired client data from the database
+
 ## Apr 26, 2022 - Version 6.3.0
 
 - **Added:** MailPoet v3 settings under `Form Settings > MailPoet Settings` which allows you to subscribe users after they submit the form. Optionally you can mape custom fields to store additional information/date for the user

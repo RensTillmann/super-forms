@@ -12,6 +12,7 @@
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 - [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
 - [Altering cookie secure and httponly parameters](#altering-cookie-secure-and-httponly-parameters)
+- [Define fake cronjob to clear old client data if cronjob is disabled on your server](#define-fake-cronjob-to-clear-old-client-data-if-cronjob-is-disabled-on-your-server)
 
 ## Track form submissions with third party
 
@@ -312,7 +313,24 @@ function f4d_super_cookie_httponly_filter($httponly) {
 add_filter( 'super_cookie_httponly_filter', 'f4d_super_cookie_httponly_filter' );
 
 function f4d_super_client_data_delete_limit_filter($limit) {
-    return 10000; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 10000)
+    return 100; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 50)
 }
 add_filter( 'super_client_data_delete_limit_filter', 'f4d_super_client_data_delete_limit_filter' );
+```
+
+## Define fake cronjob to clear old client data if cronjob is disabled on your server
+
+These hooks don't need to be changed in normal circumstances, only use these if you know what you are doing.
+By default Super Forms will clean up expired client data each 1 out of 50 requests, if you wish to increase this you can increase it to 500 or 9999 as an example.
+
+```php
+function f4d_super_delete_old_client_data_manually_interval_filter($limit) {
+    return 50; // Trigger the function to delete old client data roughly 1 out of 50 requests
+}
+add_filter( 'super_delete_old_client_data_manually_interval_filter', 'f4d_super_delete_old_client_data_manually_interval_filter' );
+
+function f4d_super_delete_client_data_manually_limit_filter($limit) {
+    return 100; // When deleting client data via manual request, we only want to delete 100 items at a time
+}
+add_filter( 'super_delete_client_data_manually_limit_filter', 'f4d_super_delete_client_data_manually_limit_filter' );
 ```
