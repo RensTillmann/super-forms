@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.0
+ * Version:           6.3.1
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.0';
+        public $version = '6.3.1';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1590,9 +1590,13 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function init() {
 
-            if(!headers_sent()){
-                // Start session for this client
-                SUPER_Common::startClientSession();
+            // Can't rely solely on cronjobs, because some servers have it disabled
+            // Default interval is 1 out of 50, and it can delete up to 200 expired sessions at a time by default
+            // If needed you can tweak these values with the use of the filter hooks
+            $interval = absint(apply_filters( 'super_delete_old_client_data_manually_interval_filter', 50 ));
+            if(rand(1, $interval)===1) {
+                $limit = apply_filters( 'super_delete_client_data_manually_limit_filter', 100 );
+                SUPER_Common::deleteOldClientData($limit);
             }
 
             // Before init action
