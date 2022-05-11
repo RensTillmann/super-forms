@@ -3029,6 +3029,7 @@ function SUPERreCaptcha(){
         // Redirect user to specified url
         if(result.error!==true && result.redirect){
             window.location.href = result.redirect;
+            return true;
         }
         // @since 3.4.0 - keep loading state active
         if(result.loading!==true){

@@ -387,6 +387,8 @@ if( !class_exists('SUPER_Email_Reminders') ) :
          *  @since      1.0.0
         */
         public static function set_reminder( $atts ) {
+            // First clear any existing reminders, otherwise they would pile up in the `insert_reminder()` function below
+            SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>false  ) );
             $settings = $atts['settings'];
             $data = $atts['data'];
             // Loop until we can't find reminder

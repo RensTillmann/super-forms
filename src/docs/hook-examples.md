@@ -3,6 +3,7 @@
 **Examples:**
 
 - [Track form submissions with third party](#track-form-submissions-with-third-party)
+- [Track Multi-part steps with Google Analytics](#track-multi-part-steps-with-google-analytics)
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
@@ -44,6 +45,68 @@ JS script (f4d-custom.js)
         // Your third party code here
         alert('Your third party code here');
     }
+```
+
+## Tracking Multi-part steps with Google Analytics
+
+```js
+(function(){
+  function hashChanged(storedHash){
+    // @@ EDIT BELOW VARIABLES @@
+    var library = 'gtag.js'; // Google Tag Manager (gtag.js)
+    //var library = 'analytics.js'; // Universal analytics (analytics.js)
+    //var library = 'ga.js'; // Legacy analytics (ga.js)
+    var UA = 'UA-XXXXX-X'; // Required when using ga.js or analytics.js
+    // @@ STOP EDITING @@
+
+    // If has contains step
+    if(location.hash.indexOf('#step-')===-1){
+        // When no hash starting with `#step-` was found we cancel
+        return;
+    }
+    
+    // Grab the current page including current multi-part step from the URL
+    var path = location.pathname + location.search + location.hash;
+    if(library==='gtag.js'){
+      if(typeof gtag === 'undefined') return;
+      gtag('event', 'page_view', {
+      	page_title: document.title, // e.g: `Page title`
+      	page_location: location.href, // e.g: `https://domain.com/page`
+      	page_path: path // e.g: `https://domain.com/page/#step-12345-2` (Form ID 12345 and currently at step 2)
+      });
+      return;
+    }
+    if(library==='analytics.js'){
+      if(typeof ga === 'undefined') return;
+      ga('send', {
+        hitType: 'pageview',
+        page: path
+      });
+      return;
+    }
+    if(library==='ga.js'){
+      if(typeof _gaq === 'undefined') return;
+      // New asynchronous tracking code:
+      _gaq.push(['_setAccount', UA]);
+      _gaq.push(['_trackPageview', path])
+      return;
+    }
+  };
+  // Google Analytics track multi-part
+  if("onhashchange" in window) { // event supported?
+    window.onhashchange = function () {
+      hashChanged(window.location.hash);
+    }
+  } else { // event not supported:
+    var storedHash = window.location.hash;
+    window.setInterval(function () {
+      if (window.location.hash != storedHash) {
+        storedHash = window.location.hash;
+        hashChanged(storedHash);
+      }
+    }, 100);
+  }
+})();
 ```
 
 ## Insert form data into a custom database table
@@ -330,7 +393,7 @@ function f4d_super_delete_old_client_data_manually_interval_filter($limit) {
 add_filter( 'super_delete_old_client_data_manually_interval_filter', 'f4d_super_delete_old_client_data_manually_interval_filter' );
 
 function f4d_super_delete_client_data_manually_limit_filter($limit) {
-    return 100; // When deleting client data via manual request, we only want to delete 100 items at a time
+    return 10; // When deleting client data via manual request, we only want to delete 10 sessions at a time
 }
 add_filter( 'super_delete_client_data_manually_limit_filter', 'f4d_super_delete_client_data_manually_limit_filter' );
 ```

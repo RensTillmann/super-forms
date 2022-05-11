@@ -1174,6 +1174,20 @@ if( !class_exists('SUPER_WooCommerce') ) :
         public static function before_email_success_msg( $atts ) {
 
             $settings = $atts['settings'];
+
+            // If WC checkout is enabled but WC is not installed and activated
+            if( (isset($settings['woocommerce_checkout'])) && ($settings['woocommerce_checkout']=='true') ) {
+                global $woocommerce;
+                if(!$woocommerce){
+                    $msg = esc_html__( 'WooCommerce Checkout is enabled for this form, but WooCommerce itself is not activated!', 'super-forms' );
+                    SUPER_Common::output_message(
+                        $error = true,
+                        $msg = $msg,
+                        $redirect = null
+                    );
+                }
+            }
+
             if( isset( $atts['data'] ) ) {
                 $data = $atts['data'];
             }else{
@@ -1399,8 +1413,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     }
                 }
-
-                global $woocommerce;
 
                 // Empty the cart
                 if( (isset($settings['woocommerce_checkout_empty_cart'])) && ($settings['woocommerce_checkout_empty_cart']=='true') ) {

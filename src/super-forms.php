@@ -516,14 +516,34 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfgtfi=$matches[1]', 
                 'top' 
             );
-            if(!get_option('_sf_permalinks_flushed')){
+            add_rewrite_rule(
+                'sfssid\/cancel\/(.*)', // sfssid stands for "super forms stripe session id"
+                'index.php?sfssidc=$matches[1]', 
+                'top' 
+            );
+            add_rewrite_rule(
+                'sfssid\/success\/(.*)', // sfssid stands for "super forms stripe session id"
+                'index.php?sfssids=$matches[1]', 
+                'top' 
+            );
+            add_rewrite_rule(
+                'sfstripe\/webhook', // used to handle Stripe events
+                'index.php?sfstripewebhook=true', 
+                'top' 
+            );
+            if(!get_option('_sf_permalinks_flushed_v3')){
                 flush_rewrite_rules(false);
-                update_option('_sf_permalinks_flushed', 1);
+                update_option('_sf_permalinks_flushed_v3', 1);
+                delete_option('_sf_permalinks_flushed');
+                delete_option('_sf_permalinks_flushed_v2');
             }
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';
             $query_vars[] = 'sfgtfi';
+            $query_vars[] = 'sfssidc'; // cancel URL
+            $query_vars[] = 'sfssids'; // success URL
+            $query_vars[] = 'sfstripewebhook';
             return $query_vars;
         }
         public function caching_headers($file, $timestamp) {
@@ -592,6 +612,105 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request( &$wp ) {
+            if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
+                // Cancel URL
+                error_log('Returned from Stripe Checkout session via cancel URL');
+                error_log($wp->query_vars['sfssidc']);
+                // Do things
+                SUPER_Stripe::setAppInfo();
+                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
+                $m = $s['metadata'];
+                SUPER_Stripe::checkoutSessionCanceled( array( 'metadata' => $m ) );
+                // Now redirect to cancel URL without checkout session ID parameter
+                $m['home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $m['home_cancel_url'] );
+                wp_redirect( $m['home_cancel_url'] );
+                exit;
+            }
+            if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
+                // Success URL
+                error_log('Returned from Stripe Checkout session via success URL');
+                error_log($wp->query_vars['sfssids']);
+                // Do things
+                SUPER_Stripe::setAppInfo();
+                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
+                $m = $s['metadata'];
+                // NOW DO THINGS :) 
+                // "metadata": {
+                //     "super_forms_email_reminders": "[59774]",
+                //     "created_post_id": "59775",
+                //     "registered_user_id": "227",
+                //     "form_id": "59391",
+                //     "home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+                //     "home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+                //     "user_id": "1",
+                //     "entry_id": "59773"
+                // },
+
+                // ...
+                // ...
+                // Now redirect to success URL without checkout session ID parameter
+                $m['home_success_url'] = remove_query_arg( array( 'sfssid' ), $m['home_success_url'] );
+                echo 'redirect to success URL now...' . $m['home_success_url'];
+                // temp disabled wp_redirect( $m['home_success_url'] );
+                exit;
+            }
+            if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
+                if($wp->query_vars['sfstripewebhook']==='true'){
+                    // Success URL
+                    error_log('Stripe Checkout Session webhook');
+                    error_log($wp->query_vars['sfstripewebhook']);
+                    // Set your secret key. Remember to switch to your live secret key in production.
+                    // See your keys here: https://dashboard.stripe.com/apikeys
+                    SUPER_Stripe::setAppInfo();
+                    // You can find your endpoint's secret in your webhook settings
+                    $global_settings = SUPER_Common::get_global_settings();
+                    if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+                    $endpoint_secret = $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']; // e.g: whsec_XXXXXXX
+                    $payload = @file_get_contents('php://input');
+                    $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+                    $event = null;
+                    try {
+                        $event = \Stripe\Webhook::constructEvent( $payload, $sig_header, $endpoint_secret );
+                    } catch(\UnexpectedValueException $e) {
+                        // Invalid payload
+                        http_response_code(400);
+                        exit();
+                    } catch(\Stripe\Exception\SignatureVerificationException $e) {
+                        // Invalid signature
+                        http_response_code(400);
+                        exit();
+                    }
+
+                    error_log('Stripe Event: ' . $event->type);
+                    // Handle the checkout.session.completed event
+                    switch ($event->type) {
+                        case 'checkout.session.completed':
+                            $session = $event->data->object;
+                            error_log('Stripe Session: ' . json_encode($session));
+                            // Check if the order is paid (for example, from a card payment)
+                            // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
+                            if ($session->payment_status == 'paid') {
+                                // Fulfill the purchase
+                                SUPER_Stripe::fulfillOrder($session);
+                            }
+                            break;
+                        case 'checkout.session.async_payment_succeeded':
+                            $session = $event->data->object;
+                            error_log('Stripe Session: ' . json_encode($session));
+                            // Fulfill the purchase
+                            SUPER_Stripe::fulfillOrder($session);
+                            break;
+                        case 'checkout.session.async_payment_failed':
+                            $session = $event->data->object;
+                            error_log('Stripe Session: ' . json_encode($session));
+                            // // Send an email to the customer asking them to retry their order
+                            // email_customer_about_failed_payment($session);
+                            break;
+                    }
+                    http_response_code(200);
+                    exit;
+                }
+            }
             if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
                 if ( ! current_user_can( 'export' ) ) {
                     wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
@@ -1302,8 +1421,8 @@ if(!class_exists('SUPER_Forms')) :
             require_once ( 'includes/admin/plugin-update-checker/plugin-update-checker.php' );
             $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
                 'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL
-                __FILE__, //Full path to the main plugin file.
-                $slug //Plugin slug. Usually it's the same as the name of the directory.
+                __FILE__, // Full path to the main plugin file.
+                $slug // Plugin slug. Usually it's the same as the name of the directory.
             );
         }
 
@@ -1595,7 +1714,7 @@ if(!class_exists('SUPER_Forms')) :
             // If needed you can tweak these values with the use of the filter hooks
             $interval = absint(apply_filters( 'super_delete_old_client_data_manually_interval_filter', 50 ));
             if(rand(1, $interval)===1) {
-                $limit = apply_filters( 'super_delete_client_data_manually_limit_filter', 100 );
+                $limit = apply_filters( 'super_delete_client_data_manually_limit_filter', 10 );
                 SUPER_Common::deleteOldClientData($limit);
             }
 

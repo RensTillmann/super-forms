@@ -144,6 +144,21 @@ class SUPER_Common {
         if($key==='') return false;
         return get_option( '_sfs_name_' . $name . '_' . $key );
     }
+    public static function getAllClientData() {
+        $cookieName = '_sfs_id';
+        if(!isset($_COOKIE[$cookieName])) return false;
+        $key = $_COOKIE[$cookieName];
+        if($key===false) return array();
+        if($key==='') return array();
+        global $wpdb;
+        $rows = $wpdb->get_results("SELECT SUBSTRING(SUBSTRING(option_name, 11), 1, CHAR_LENGTH(option_name)-107) AS name, option_name, option_value FROM $wpdb->options WHERE option_name LIKE '\_sfs\_name\_%{$key}' ORDER BY option_value ASC");
+		$clientData = array();
+		foreach( $rows as $value ) {
+            //$clientData[$value->name] = $value->option_value;
+            $clientData[$value->name] = get_option( $value->option_name, false );
+		}
+        return $clientData;
+    }
 
     public static function unsetClientData( $expired ) {
         global $wpdb;
@@ -166,8 +181,8 @@ class SUPER_Common {
 	
     public static function deleteOldClientData($limit=0) {
 		global $wpdb;
-        if($limit===0) $limit = 100; // Defaults to 100
-        $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
+        if($limit===0) $limit = 10; // Defaults to 10
+        $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) );
 
         // Delete old deprecated sessions from previous Super Forms versions
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%'");
