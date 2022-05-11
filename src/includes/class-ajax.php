@@ -2150,6 +2150,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' super-hidden';
             }
+            if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
             $result .= '<div class="super-field super-field-type-'.$fv['type'] . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) {
                     $result .= '<div class="super-field-name">' . ($fv['name']);
@@ -2177,7 +2178,6 @@ class SUPER_Ajax {
                     $result .= ' data-styles="' .esc_attr(json_encode($fv['_styles'], true)). '"';
                 }
                 $result .= '>';
-                    if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
                         if( isset($data[$fk]) ) {
                             $fv['default'] = $data[$fk];
@@ -2884,7 +2884,7 @@ class SUPER_Ajax {
                 'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
             );
             // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)
-            $post_author = SUPER_Common::getClientData( 'update_user_meta' );
+            $post_author = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
             if( $post_author!=false ) {
                 $post['post_author'] = absint($post_author);
             }
@@ -3283,9 +3283,6 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
-            // Clear form progression
-            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
-
             // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
@@ -3421,6 +3418,9 @@ class SUPER_Ajax {
                     );
                 }
 
+                // Clear form progression
+                SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
+
                 do_action( 'super_after_wp_remote_post_action', $response );
 
                 if( $settings['form_post_debug']=='true' ) {
@@ -3485,6 +3485,9 @@ class SUPER_Ajax {
 
             // Currently used by Stripe to redirect to checkout session
             do_action( 'super_before_redirect_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+
+            // Clear form progression
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
             // Return message or redirect and save message to session
             $redirect = null;

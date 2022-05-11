@@ -5936,6 +5936,13 @@ class SUPER_Shortcodes {
             }
         }
 
+        // If canceled Stripe checkout, try to retrieve form progress
+        $stripe_form_progress = SUPER_Common::getClientData( 'super_forms_stripe_progress_' . $form_id );
+        if($stripe_form_progress!==false){
+            $entry_data = $stripe_form_progress;
+            $formProgress = true;
+        }
+
         $result = '';
         $result .= SUPER_Common::load_google_fonts($settings);
         if(!$elements_only){

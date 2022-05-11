@@ -803,6 +803,16 @@
   margin-left: 0 !important;
 }
 
+.super-settings .super-fields .super-field .super-field-info code {
+  font-style: normal;
+  font-family: monospace;
+  font-size: 11px;
+  margin: 2px 0;
+  display: inline-block;
+  padding: 2px 5px;
+  height: auto;
+  line-height: normal;
+}
 
 
 /* For large screens make font bigger, otherwise it's barely readable */

@@ -975,11 +975,9 @@ if( !class_exists('SUPER_Register_Login') ) :
 
             // @since 1.2.0 - update existing user data
             if( $settings['register_login_action']=='update' ) {
-                $user_id = SUPER_Common::getClientData( 'update_user_meta' );
+                $user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
                 $user_id = absint($user_id);
                 if( $user_id!=0 ) {
-                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>false  ) );
-
                     // Loop through all default user data that WordPress provides us with out of the box
                     $other_userdata = array(
                         // 'role',      // We do not want this to be changed from the form itself because it poses a security risk!
@@ -1057,11 +1055,9 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             if( $settings['register_login_action']=='register' ) {
-                $user_id = SUPER_Common::getClientData( 'update_user_meta' );
+                $user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
                 $user_id = absint($user_id);
                 if( $user_id!=0 ) {
-                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>false  ) );
-
                     // Save custom user meta
                     $meta_data = array();
                     $custom_meta = explode( "\n", $settings['register_login_user_meta'] );
@@ -1071,8 +1067,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // @since 1.0.3 - first check if a field with the name exists
                         if( isset( $data[$field[0]]['value'] ) ) {
                             $meta_data[$field[1]] = $data[$field[0]]['value'];
-                        }else{
-                            
+                        }else{ 
                             // @since 1.1.2 - check if type is files
                             if( (!empty($data[$field[0]])) && ( ($data[$field[0]]['type']=='files') && (isset($data[$field[0]]['files'])) ) ) {
                                 if( count($data[$field[0]]['files']>1) ) {
@@ -1211,7 +1206,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
                 }else{
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
-                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>$user_id  ) );
+                    SUPER_Common::setClientData( array( 'name'=> 'super_forms_registered_user_id', 'value'=>$user_id  ) );
                 }
 
             }
@@ -1337,7 +1332,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );
        
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
-                    SUPER_Common::setClientData( array( 'name'=> 'update_user_meta', 'value'=>$user_id  ) );
+                    SUPER_Common::setClientData( array( 'name'=> 'super_forms_registered_user_id', 'value'=>$user_id  ) );
 
                     // @since 1.0.3
                     if( !isset($settings['register_user_signup_status']) ) $settings['register_user_signup_status'] = 'active';

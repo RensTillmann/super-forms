@@ -164,7 +164,7 @@
 
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
 			format,amount,currency,target,superMath,calculatorFields,doNotSkip,decimalSeparator,prevAmount,$jsformat,
-			$timestamp,$parse,$field,$number,$numeric_amount,span,
+			$timestamp,$parse,$field,$number,$numeric_amount,//span,
 			regex = /{([^"']*?)}/g,
 			updatedCalculatorFields = {},	
 			array = [],
@@ -335,24 +335,26 @@
 						$numeric_amount = amount;
 						amount = (decimalSeparator ? amount.replace('.', decimalSeparator) : amount).replace(new RegExp('\\d(?=(\\d{' + (3 || 3) + '})+' + (decimals > 0 ? '\\D' : '$') + ')', 'g'), '$&' + (thousandSeparator || ''));
 						if ($numeric_amount >= 0) {
-							if(target.querySelector('.super-calculator-currency .super-minus-value')){
-								target.querySelector('.super-calculator-currency .super-minus-value').remove();
-							}
+							//if(target.querySelector('.super-calculator-currency .super-minus-value')){
+							//	target.querySelector('.super-calculator-currency .super-minus-value').remove();
+							//}
 							target.querySelector('.super-calculator-amount').innerText = amount;
 							currency = target.querySelector('.super-calculator-currency').innerHTML;
 							format = target.querySelector('.super-calculator-format').innerHTML;
 							$field.dataset.value =currency+''+amount+''+format;
 						}else{
-							if(!target.querySelector('.super-calculator-currency .super-minus-value')){
-								span = document.createElement('span');
-								span.classList.add('super-minus-value');
-								span.innerHTML = '-';
-								target.querySelector('.super-calculator-currency').prepend(span);
-							}
 							target.querySelector('.super-calculator-amount').innerText = amount.replace('-','');
 							currency = target.querySelector('.super-calculator-currency').innerHTML;
 							format = target.querySelector('.super-calculator-format').innerHTML;
 							$field.dataset.value = currency+''+amount+''+format;
+							//if(currency===''){
+							//	if(!target.querySelector('.super-calculator-currency .super-minus-value')){
+							//		span = document.createElement('span');
+							//		span.classList.add('super-minus-value');
+							//		span.innerHTML = '-';
+							//		target.querySelector('.super-calculator-currency').prepend(span);
+							//	}
+							//}
 						}
 					}
 				}

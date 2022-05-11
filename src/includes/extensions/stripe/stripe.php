@@ -338,8 +338,8 @@ if(!class_exists('SUPER_Stripe')) :
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
             //add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
-            add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
-            add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
+            //add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
+            //add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             
             // add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
             //add_action( 'super_stripe_webhook_payment_intent_created', array( $this, 'payment_intent_created' ), 10 );
@@ -426,37 +426,22 @@ if(!class_exists('SUPER_Stripe')) :
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'The mode of the Checkout Session', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': `payment` `subscription` `setup`</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': <code>payment</code> <code>subscription</code> <code>setup</code></span>';
                             echo '<input type="text" name="mode" placeholder="e.g: payment" value="' . sanitize_text_field($s['mode']) . '" />';
                         echo '</label>';
                     echo '</div>';
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Submit type', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. Possible values', 'super-forms' ) . ': `auto` `pay` `book` `donate`</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. Possible values', 'super-forms' ) . ': <code>auto</code> <code>pay</code> <code>book</code> <code>donate</code></span>';
                             echo '<input type="text" name="submit_type" placeholder="e.g: donate" value="' . sanitize_text_field($s['submit_type']) . '" />';
                         echo '</label>';
                     echo '</div>';
-
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Cancel URL', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'The URL the customer will be directed to if they decide to cancel payment and return to your website.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="cancel_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['cancel_url']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Success URL', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'The URL to which Stripe should send customers when payment or setup is complete. If you\'d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="success_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['success_url']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Customer ID', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'ID of an existing Customer, if one exists. In payment mode, the customer\'s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer\'s default payment method will be used if it\'s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer\'s card details.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="customer" placeholder="e.g: cus_XXXXXX" value="' . sanitize_text_field($s['customer']) . '" />';
+                            echo '<span class="sfui-title">' . esc_html__( 'Payment methods', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'A list of the types of payment methods (e.g., card) this Checkout Session can accept. Separate each by comma. Accepted values are:', 'super-forms' ) . ' <code>card</code> <code>acss_debit</code> <code>afterpay_clearpay</code> <code>alipay</code> <code>au_becs_debit</code> <code>bacs_debit</code> <code>bancontact</code> <code>boleto</code> <code>eps</code> <code>fpx</code> <code>giropay</code> <code>grabpay</code> <code>ideal</code> <code>klarna</code> <code>konbini</code> <code>oxxo</code> <code>p24</code> <code>paynow</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code> <code>wechat_pay</code></span>';
+                            echo '<input type="text" name="payment_method_types" placeholder="e.g: card,ideal" value="' . sanitize_text_field($s['payment_method_types']) . '" />';
                         echo '</label>';
                     echo '</div>';
                     echo '<div class="sfui-setting sfui-vertical">';
@@ -466,33 +451,19 @@ if(!class_exists('SUPER_Stripe')) :
                             echo '<input type="text" name="customer_email" placeholder="e.g: {email}" value="' . sanitize_text_field($s['customer_email']) . '" />';
                         echo '</label>';
                     echo '</div>';
+
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Payment methods', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'A list of the types of payment methods (e.g., card) this Checkout Session can accept. Separate each by comma. Accepted values are:', 'super-forms' ) . '`card` `acss_debit` `afterpay_clearpay` `alipay` `au_becs_debit` `bacs_debit` `bancontact` `boleto` `eps` `fpx` `giropay` `grabpay` `ideal` `klarna` `konbini` `oxxo` `p24` `paynow` `sepa_debit` `sofort` `us_bank_account` `wechat_pay`</span>';
-                            echo '<input type="text" name="payment_method_types" placeholder="e.g: card,ideal" value="' . sanitize_text_field($s['payment_method_types']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-label">' . esc_html__( 'Enable automatic tax lookup for this session and resulting payments, invoices, and subscriptions.', 'super-forms' ) . '`card` `acss_debit` `afterpay_clearpay` `alipay` `au_becs_debit` `bacs_debit` `bancontact` `boleto` `eps` `fpx` `giropay` `grabpay` `ideal` `klarna` `konbini` `oxxo` `p24` `paynow` `sepa_debit` `sofort` `us_bank_account` `wechat_pay`</span>';
-                            echo '<input type="checkbox" name="automatic_tax.enabled" value="true"' . ($s['automatic_tax']['enabled']===true ? ' checked="checked"' : '') . ' />';
                             echo '<span class="sfui-title">' . esc_html__( 'Enable automatic Tax', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Accepted value are', 'super-forms' ) . ': <code>true</code> or <code>false</code></span>';
+                            echo '<input type="text" name="automatic_tax.enabled" placeholder="e.g: true" value="' . sanitize_text_field($s['automatic_tax']['enabled']) . '" />';
                         echo '</label>';
                     echo '</div>';
-
                     echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'Apply coupon code', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="discounts.coupon" placeholder="Enter the Stripe coupon ID e.g: SbwGtc0x" value="' . sanitize_text_field($s['discounts']['coupon']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': `auto` `bg` `cs` `da` `de` `el` `en` `en-GB` `es` `es-419` `et` `fi` `fil` `fr` `fr-CA` `hr` `hu` `id` `it` `ja` `ko` `lt` `lv` `ms` `mt` `nb` `nl` `pl` `pt` `pt-BR` `ro` `ru` `sk` `sl` `sv` `th` `tr` `vi` `zh` `zh-HK` `zh-TW`</span>';
-                            echo '<input type="text" name="locale" placeholder="e.g: en" value="' . sanitize_text_field($s['locale']) . '" />';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Enable Tax ID collection (allows users to purchase as a business)', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Accepted value are', 'super-forms' ) . ': <code>true</code> or <code>false</code></span>';
+                            echo '<input type="text" name="tax_id_collection.enabled" placeholder="e.g: true" value="' . sanitize_text_field($s['tax_id_collection']['enabled']) . '" />';
                         echo '</label>';
                     echo '</div>';
 
@@ -510,11 +481,17 @@ if(!class_exists('SUPER_Stripe')) :
                         // Repeater Item
                         foreach( $s['line_items'] as $k => $v ) {
                             echo '<div class="sfui-repeater-item">';
+                                echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
+                                    echo '<label>';
+                                        echo '<span class="sfui-label">' . esc_html__( 'Quantity:', 'super-forms' ) . '</span>';
+                                        echo '<input type="text" name="quantity" placeholder="' . esc_html__( 'e.g: 1', 'super-forms' ) . '" value="' . sanitize_text_field($v['quantity']) . '" />';
+                                    echo '</label>';
+                                echo '</div>';
                                 echo '<div class="sfui-inline sfui-vertical">';
                                     echo '<form class="sfui-setting">';
                                         // Price
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Price or Plan ID', 'super-forms' ) . '</span>';
+                                            echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Price or Plan ID (recommended)', 'super-forms' ) . '</span>';
                                             echo '<div class="sfui-sub-settings sfui-inline" data-f="type;price">';
                                                 echo '<div class="sfui-setting sfui-inline">';
                                                     // Price or Plan ID
@@ -522,12 +499,6 @@ if(!class_exists('SUPER_Stripe')) :
                                                         echo '<label>';
                                                             echo '<span class="sfui-label">' . esc_html__( 'Enter product price/plan ID:', 'super-forms' ) . '</span>';
                                                             echo '<input type="text" name="price" placeholder="' . esc_html__( 'e.g: price_XXXX', 'super-forms' ) . '" value="' . sanitize_text_field($v['price']) . '" />';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                    echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                        echo '<label>';
-                                                            echo '<span class="sfui-label">' . esc_html__( 'Quantity:', 'super-forms' ) . '</span>';
-                                                            echo '<input type="text" name="quantity" placeholder="' . esc_html__( 'e.g: 1', 'super-forms' ) . '" value="' . sanitize_text_field($v['quantity']) . '" />';
                                                         echo '</label>';
                                                     echo '</div>';
                                                 echo '</div>';
@@ -539,7 +510,8 @@ if(!class_exists('SUPER_Stripe')) :
                                             echo '<div class="sfui-sub-settings sfui-vertical" data-f="type;price_data">';
                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                     echo '<label>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Currency', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'Currency', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . sprintf( esc_html__( 'Three-letter ISO currency code, in lowercase. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</span>';
                                                         echo '<input type="text" name="price_data.currency" placeholder="e.g: USD or EUR" value="' . sanitize_text_field($v['price_data']['currency']) . '" />';
                                                         echo '<div class="sfui-notice sfui-desc">';
                                                             echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . esc_html__( 'Some payment methods require a specific currency to be set for your line items. For instance, when using `ideal` the currency must be set to EUR or Stripe will return an error message.', 'super-forms' );
@@ -549,14 +521,9 @@ if(!class_exists('SUPER_Stripe')) :
 
                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                     echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Specify billing frequency', 'super-forms' ) . '</span>';
-                                                        echo '<select name="price_data.recurring.interval" onChange="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='none' ? ' selected="selected"' : '') . ' value="none">' . esc_html__( 'None (one-time payment)', 'super-forms' ) . '</option>';
-                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='day' ? ' selected="selected"' : '') . ' value="day">' . esc_html__( 'Day', 'super-forms' ) . '</option>';
-                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='week' ? ' selected="selected"' : '') . ' value="week">' . esc_html__( 'Week', 'super-forms' ) . '</option>';
-                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='month' ? ' selected="selected"' : '') . ' value="month">' . esc_html__( 'Month', 'super-forms' ) . '</option>';
-                                                            echo '<option ' . ($v['price_data']['recurring']['interval']=='year' ? ' selected="selected"' : '') . ' value="year">' . esc_html__( 'Year', 'super-forms' ) . '</option>';
-                                                        echo '</select>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'Specify billing frequency (defaults to `none` for one-time payments)', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>none</code> <code>day</code> <code>week</code> <code>month</code> <code>year</code></span>';
+                                                        echo '<input type="text" name="price_data.recurring.interval" placeholder="e.g: month" value="' . sanitize_text_field($v['price_data']['recurring']['interval']) . '" />';
                                                     echo '</label>';
                                                 echo '</div>';
                                                 echo '<div class="sfui-setting sfui-vertical">';
@@ -583,15 +550,15 @@ if(!class_exists('SUPER_Stripe')) :
                                                                 // Product ID
                                                                 echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
                                                                     echo '<label>';
-                                                                        echo '<span class="sfui-label">' . esc_html__( 'The ID of the product that this price will belong to', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product" value="' . sanitize_text_field($v['price_data']['product']) . '" />';
+                                                                        echo '<span class="sfui-label">' . esc_html__( 'Enter an already existing Stripe product ID that this price will belong to', 'super-forms' ) . '</span>';
+                                                                        echo '<input type="text" name="price_data.product" placeholder="e.g: prod_KxRfsj8c4rL72C" value="' . sanitize_text_field($v['price_data']['product']) . '" />';
                                                                     echo '</label>';
                                                                 echo '</div>';
                                                             echo '</div>';
                                                         echo '</label>';
                                                         // Product data
                                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<input type="radio" name="price_data.type" value="product_data"' . ($v['price_data']['type']==='product_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Generate new product object inline', 'super-forms' ) . '</span>';
+                                                            echo '<input type="radio" name="price_data.type" value="product_data"' . ($v['price_data']['type']==='product_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Generate new Stripe product on the fly', 'super-forms' ) . '</span>';
                                                             echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product_data">';
                                                                 echo '<div class="sfui-setting">';
                                                                     // Product data
@@ -623,6 +590,20 @@ if(!class_exists('SUPER_Stripe')) :
                         echo '</div>';
                     echo '</div>';
 
+                    //if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // 
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'Apply coupon code', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="discounts.coupon" placeholder="Enter the Stripe coupon ID e.g: SbwGtc0x" value="' . sanitize_text_field($s['discounts']['coupon']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Customer ID', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'ID of an existing Customer, if one exists. In payment mode, the customer\'s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer\'s default payment method will be used if it\'s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer\'s card details.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="customer" placeholder="e.g: cus_XXXXXX" value="' . sanitize_text_field($s['customer']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Client reference ID', 'super-forms' ) . '</span>';
@@ -630,7 +611,70 @@ if(!class_exists('SUPER_Stripe')) :
                             echo '<input type="text" name="client_reference_id" placeholder="" value="' . sanitize_text_field($s['client_reference_id']) . '" />';
                         echo '</label>';
                     echo '</div>';
-                    //if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // 
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': <code>auto</code> <code>bg</code> <code>cs</code> <code>da</code> <code>de</code> <code>el</code> <code>en</code> <code>en-GB</code> <code>es</code> <code>es-419</code> <code>et</code> <code>fi</code> <code>fil</code> <code>fr</code> <code>fr-CA</code> <code>hr</code> <code>hu</code> <code>id</code> <code>it</code> <code>ja</code> <code>ko</code> <code>lt</code> <code>lv</code> <code>ms</code> <code>mt</code> <code>nb</code> <code>nl</code> <code>pl</code> <code>pt</code> <code>pt-BR</code> <code>ro</code> <code>ru</code> <code>sk</code> <code>sl</code> <code>sv</code> <code>th</code> <code>tr</code> <code>vi</code> <code>zh</code> <code>zh-HK</code> <code>zh-TW</code></span>';
+                            echo '<input type="text" name="locale" placeholder="e.g: en" value="' . sanitize_text_field($s['locale']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'The subscription’s description, meant to be displayable to the customer.', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Use this field to optionally store an explanation of the subscription for rendering in Stripe hosted surfaces.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="subscription_data.description" placeholder="e.g: Website updates and maintenance" value="' . sanitize_text_field($s['subscription_data']['description']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<span class="sfui-title">' . esc_html__( 'Trial period in days (only works when mode is set to `subscription`)', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Integer representing the number of trial period days before the customer is charged for the first time. Has to be at least 1.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="subscription_data.trial_period_days" placeholder="e.g: 15" value="' . sanitize_text_field($s['subscription_data']['trial_period_days']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Cancel URL', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'The URL the customer will be directed to if they decide to cancel payment and return to your website.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="cancel_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['cancel_url']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Success URL', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'The URL to which Stripe should send customers when payment or setup is complete. If you\'d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="success_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['success_url']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+                    
+                    // not used echo '<div class="sfui-setting sfui-vertical">';
+                    // not used     echo '<div class="sfui-notice sfui-desc">';
+                    // not used         echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( '%sStripe Connect%s is required for the below settings to work', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/connect">', '</a>' );
+                    // not used     echo '</div>';
+                    // not used     echo '<div class="sfui-setting sfui-vertical">';
+                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                    // not used             echo '<span class="sfui-title">' . esc_html__( 'Application fee percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
+                    // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the application owner’s Stripe account. To use an application fee percent, the request must be made on behalf of another account, using the Stripe-Account header or an OAuth key. For more information, see the application fees documentation.', 'super-forms' ) . '</span>';
+                    // not used             echo '<input type="text" name="subscription_data.application_fee_percent" placeholder="e.g: 30" value="' . sanitize_text_field($s['subscription_data']['application_fee_percent']) . '" />';
+                    // not used         echo '</label>';
+                    // not used     echo '</div>';
+                    // not used     echo '<div class="sfui-setting sfui-vertical">';
+                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                    // not used             echo '<span class="sfui-title">' . esc_html__( 'ID of an existing, connected Stripe account.', 'super-forms' ) . '</span>';
+                    // not used             echo '<input type="text" name="subscription_data.transfer_data.destination" placeholder="e.g: acct_1D1FNjFKn7uROhgC" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['destination']) . '" />';
+                    // not used         echo '</label>';
+                    // not used     echo '</div>';
+                    // not used     echo '<div class="sfui-setting sfui-vertical">';
+                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                    // not used             echo '<span class="sfui-title">' . esc_html__( 'Amount percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
+                    // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the destination account. By default, the entire amount is transferred to the destination.', 'super-forms' ) . '</span>';
+                    // not used             echo '<input type="text" name="subscription_data.transfer_data.amount_percent" placeholder="e.g: 100" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['amount_percent']) . '" />';
+                    // not used         echo '</label>';
+                    // not used     echo '</div>';
+                    // not used echo '</div>';
+
 
                 echo '</div>';
             echo '</div>';
@@ -652,9 +696,25 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($s['automatic_tax'])) $s['automatic_tax'] = array(
                 'enabled' => true,
             );
+            if(empty($s['tax_id_collection'])) $s['tax_id_collection'] = array(
+                'enabled' => true,
+            );
             if(empty($s['discounts'])) $s['discounts'] = array(
                 'coupon' => '',
             );
+            if(empty($s['subscription_data'])) $s['subscription_data'] = array(
+                'description' => '', // The subscription’s description, meant to be displayable to the customer. Use this field to optionally store an explanation of the subscription for rendering in Stripe hosted surfaces.
+                'trial_period_days' => '', // Integer representing the number of trial period days before the customer is charged for the first time. Has to be at least 1.
+                // not used 'default_tax_rates' => '', // The tax rates that will apply to any subscription item that does not have tax_rates set. Invoices created will have their default_tax_rates populated from the subscription.
+                // not used // Stripe Connect is required https://stripe.com/docs/connect
+                // not used 'application_fee_percent' => '', // A non-negative decimal between 0 and 100, with at most two decimal places. This represents the percentage of the subscription invoice subtotal that will be transferred to the application owner’s Stripe account. To use an application fee percent, the request must be made on behalf of another account, using the Stripe-Account header or an OAuth key. For more information, see the application fees documentation.
+                // not used 'transfer_data' => array( // If specified, the funds from the subscription’s invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges.
+                // not used     'destination' => '', // ID of an existing, connected Stripe account.
+                // not used     'amount_percent' => ''  // A non-negative decimal between 0 and 100, with at most two decimal places. This represents the percentage of the subscription invoice subtotal that will be transferred to the destination account. By default, the entire amount is transferred to the destination.
+                // not used ),
+                // not used // 'metadata' => array()
+            );
+
             if(empty($s['locale'])) $s['locale'] = '';
             if(empty($s['line_items'])) $s['line_items'] = array(
                 array(
@@ -777,21 +837,217 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public static function redirect_to_stripe_checkout($x){
             extract( shortcode_atts( array( 'post'=>array(), 'data'=>array(), 'settings'=>array(), 'entry_id'=>0, 'attachments'=>array() ), $x ) );
-            self::setAppInfo();
-            $s = $settings['_stripe'];
             $domain = home_url(); // e.g: 'http://domain.com';
-            $cancel_url = $domain . '/cancel_stripe';
-            $success_url = $domain . '/success_stripe?session_id={CHECKOUT_SESSION_ID}';
+            $home_url = trailingslashit($domain);
+            $s = $settings['_stripe'];
+            // Skip if Stripe checkout is not enabled
+            if($s['enabled']!=='true') return true;
+            self::setAppInfo();
+
+            //[
+            //    'url' => $home_url . 'sfswh', // super forms stripe webhook // 'https://example.com/my/webhook/endpoint',
+            //    'description' => 'Required for Super Forms Stripe Checkout Sessions',
+            //    'enabled_events' => [
+            //        'checkout.session.completed',
+            //        'checkout.session.async_payment_succeeded',
+            //        'checkout.session.async_payment_failed'
+            //    ],
+            //]);
+
+
+            //if(!$webhook){
+            //    $webhookUrl = 
+            //    $webhook = \Stripe\WebhookEndpoint::create([
+            //        'url' => $home_url . 'sfswh', // super forms stripe webhook // 'https://example.com/my/webhook/endpoint',
+            //        'description' => 'Required for Super Forms Stripe Checkout Sessions',
+            //        'enabled_events' => [
+            //            'checkout.session.completed',
+            //            'checkout.session.async_payment_succeeded',
+            //            'checkout.session.async_payment_failed'
+            //        ],
+            //    ]);
+            //}
+            error_log($home_url);
+            $cancel_url = $home_url . 'sfssid/cancel/{CHECKOUT_SESSION_ID}';
+            $success_url = $home_url . 'sfssid/success/{CHECKOUT_SESSION_ID}';
+            error_log($cancel_url);
+            // $cancel_url  = add_query_arg( array( 'sfssid' => '{CHECKOUT_SESSION_ID}' ), $cancel_url );  // sfssid stands for Super Forms Stripe Session ID
+            // $success_url = add_query_arg( array( 'sfssid' => '{CHECKOUT_SESSION_ID}' ), $success_url ); // sfssid stands for Super Forms Stripe Session ID
+
+            //$cancel_url = $domain . '/cancel_stripe';
+            //$success_url = $domain . '/success_stripe?session_id={CHECKOUT_SESSION_ID}';
             $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );
             $customer_email = SUPER_Common::email_tags( $s['customer_email'], $data, $settings );
-            $payment_methods = SUPER_Common::email_tags( $s['stripe_payment_methods'], $data, $settings );
+            $customer = SUPER_Common::email_tags( $s['customer'], $data, $settings );
+            $description = SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings );
+            $trial_period_days = SUPER_Common::email_tags( $s['subscription_data']['trial_period_days'], $data, $settings );
+            $payment_methods = SUPER_Common::email_tags( $s['payment_method_types'], $data, $settings );
             $payment_methods = explode(',', str_replace(' ', '', $payment_methods));
+
+            $metadata = SUPER_Common::getAllClientData();
+            // Remove unwanted metadata
+            unset($metadata['string_attachments']);
+            unset($metadata['tags_values']);
+            unset($metadata['sf_nonce']);
+            unset($metadata['server_http_referrer']);
+
+            // Front-end Posting post ID, required to change status of the created post after payment completed
+            if(!empty($metadata['super_forms_created_post_id'])){
+                $metadata['created_post_id'] = absint($metadata['super_forms_created_post_id']);
+                unset($metadata['super_forms_created_post_id']);
+                error_log('created_post_id: ' . $metadata['created_post_id']);
+            }
+
+            // Register & Login user ID, required to activate a user account after payment completed
+            if(!empty($metadata['super_forms_registered_user_id'])){
+                $metadata['registered_user_id'] = absint($metadata['super_forms_registered_user_id']);
+                unset($metadata['super_forms_registered_user_id']);
+                error_log('registered_user_id: ' . $metadata['registered_user_id']);
+            }
+
+            // Store form progress in case the user decides to click the `cancel` button at checkout
+            error_log('form_id: ' . $post['form_id']);
+            $form_id = 0;
+            if(!empty($post['form_id'])){
+                $form_id = absint($post['form_id']);
+                SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_progress_' . $form_id, 'value' => $data ) );
+            }
+            $metadata['form_id'] = $form_id;
+            unset($metadata['super_forms_stripe_progress_' . $form_id]);
+
+            // Store files, so we can delete files when user clicks the `cancel` button
+            $files = array();
+            foreach($data as $k => $v){
+                if(isset($v['type']) && $v['type']==='files'){
+                    foreach($v['files'] as $f){
+                        $x = array();
+                        if(!empty($f['attachment'])) $x['attachment'] = $f['attachment'];
+                        if(!empty($f['path'])) $x['path'] = $f['path'];
+                        if(!empty($f['subdir'])) $x['subdir'] = $f['subdir'];
+                        $files[] = $x;
+                    }
+                }
+            }
+            error_log(json_encode($files));
+
+            SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_files_' . $form_id, 'value' => $files ) );
+            unset($metadata['super_forms_stripe_files_' . $form_id]);
+
+            //{
+            //    "label":"File:",
+            //    "type":"files",
+            //    "files":[{"name":"file",
+            //        "value":"mobile_wallpaper.jpg",
+            //        "url":"https:\/\/f4d.nl\/dev\/wp-content\/uploads\/superforms\/2022\/05\/2597728734047\/mobile_wallpaper.jpg",
+            //        "label":"File:",
+            //        "type":"image\/jpeg",
+            //        "attachment":59616
+            //    }]
+            //},"
+            //$data[$fieldName]['files'][$k]['url'] = $fileUrl;
+            //$data[$fieldName]['files'][$k]['subdir'] = $fileSubdir; // dir relative to site root
+            //$data[$fieldName]['files'][$k]['url'] = wp_get_attachment_url( $attachment_id );
+            //$data[$fieldName]['files'][$k]['attachment'] = $attachment_id;
+
+            $home_cancel_url = SUPER_Common::email_tags( $s['cancel_url'], $data, $settings );
+            $home_success_url = SUPER_Common::email_tags( $s['success_url'], $data, $settings );
+            if($home_cancel_url==='') $home_cancel_url = $_SERVER['HTTP_REFERER'];
+            if($home_success_url==='') $home_success_url = $_SERVER['HTTP_REFERER'];
+            error_log($home_cancel_url);
+            $metadata['home_cancel_url'] = $home_cancel_url;
+            $metadata['home_success_url'] = $home_success_url;
+
+            // A set of key-value pairs that you can attach to a source object. 
+            // It can be useful for storing additional information about the source in a structured format.
+            $metadata['form_id'] = absint($data['hidden_form_id']['value']);
+            $metadata['user_id'] = get_current_user_id();
+            $metadata['entry_id'] = $entry_id;
+            error_log('entry_id: ' . $entry_id);
+            foreach($metadata as $k => $v){
+                if(is_array($v)) $metadata[$k] = json_encode($v);
+            }
+            error_log('metadata: ' . json_encode($metadata));
+
+            //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
+            //if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
+            //    $response = $_POST['response'];
+            //    $contact_entry_id = 0;
+            //    if(!empty($response['response_data'])){
+            //        if(!empty($response['response_data']['contact_entry_id'])){
+            //            $contact_entry_id = absint($response['response_data']['contact_entry_id']);
+            //        }
+            //    }
+            //    $metadata['contact_entry_id'] = $contact_entry_id;
+            //}
+
+
+            //array(5) {
+            //    ["string_attachments"]=>
+            //    string(6) "a:0:{}"
+            //    ["super_forms_email_reminders"]=>
+            //    string(18) "a:1:{i:0;i:59574;}"
+            //    ["tags_values"]=>
+            //    string(6600) "a:64:{s:11:"field_*****";a:2:{i:0;s:37:"Any field value submitted by the user";i:1;s:0:"";}s:17:"field_label_*****";a:2:{i:0;s:37:"Any field value submitted by the user";i:1;s:0:"";}s:18:"form_setting_*****";a:2:{i:0;s:35:"Any setting value used for the form";i:1;s:0:"";}s:12:"option_*****";a:2:{i:0;s:34:"Any option value from the database";i:1;s:0:"";}s:18:"option_admin_email";a:2:{i:0;s:36:"E-mail address of blog administrator";i:1;s:24:"feeling4design@gmail.com";}s:15:"option_blogname";a:2:{i:0;s:36:"Weblog title; set in General Options";i:1;s:3:"DEV";}s:22:"option_blogdescription";a:2:{i:0;s:45:"Tagline for your blog; set in General Options";i:1;s:27:"Just another WordPress site";}s:19:"option_blog_charset";a:2:{i:0;s:12:"Blog Charset";i:1;s:5:"UTF-8";}s:18:"option_date_format";a:2:{i:0;s:11:"Date Format";i:1;s:6:"F j, Y";}s:23:"option_default_category";a:2:{i:0;s:45:"Default post category; set in Writing Options";i:1;s:1:"1";}s:11:"option_home";a:2:{i:0;s:56:"The blog&#039;s home web address; set in General Options";i:1;s:18:"https://f4d.nl/dev";}s:14:"option_siteurl";a:2:{i:0;s:45:"WordPress web address; set in General Options";i:1;s:18:"https://f4d.nl/dev";}s:15:"option_template";a:2:{i:0;s:50:"The current theme&#039;s name; set in Presentation";i:1;s:14:"twentynineteen";}s:20:"option_start_of_week";a:2:{i:0;s:17:"Start of the week";i:1;s:1:"1";}s:18:"option_upload_path";a:2:{i:0;s:53:"Default upload location; set in Miscellaneous Options";i:1;s:0:"";}s:21:"option_posts_per_page";a:2:{i:0;s:14:"Posts per page";i:1;s:2:"10";}s:20:"option_posts_per_rss";a:2:{i:0;s:18:"Posts per RSS feed";i:1;s:2:"10";}s:7:"real_ip";a:2:{i:0;s:41:"Retrieves the submitter&#039;s IP address";i:1;s:13:"77.163.86.143";}s:10:"loop_label";a:1:{i:0;s:58:"Retrieves the field label for the field loop {loop_fields}";}s:10:"loop_value";a:1:{i:0;s:58:"Retrieves the field value for the field loop {loop_fields}";}s:11:"loop_fields";a:1:{i:0;s:41:"Retrieves the loop anywhere in your email";}s:10:"post_title";a:2:{i:0;s:40:"Retrieves the current page or post title";i:1;s:0:"";}s:7:"post_id";a:2:{i:0;s:37:"Retrieves the current page or post ID";i:1;s:0:"";}s:9:"author_id";a:2:{i:0;s:31:"Retrieves the current author ID";i:1;s:0:"";}s:12:"author_email";a:2:{i:0;s:34:"Retrieves the current author email";i:1;s:0:"";}s:14:"post_author_id";a:2:{i:0;s:44:"Retrieves the current page or post author ID";i:1;s:0:"";}s:17:"post_author_email";a:2:{i:0;s:47:"Retrieves the current page or post author email";i:1;s:0:"";}s:14:"post_permalink";a:2:{i:0;s:30:"Retrieves the current page URL";i:1;s:0:"";}s:10:"user_login";a:2:{i:0;s:53:"Retrieves the current logged in user login (username)";i:1;s:14:"feeling4design";}s:10:"user_email";a:2:{i:0;s:42:"Retrieves the current logged in user email";i:1;s:24:"feeling4design@gmail.com";}s:14:"user_firstname";a:2:{i:0;s:47:"Retrieves the current logged in user first name";i:1;s:4:"Rens";}s:13:"user_lastname";a:2:{i:0;s:46:"Retrieves the current logged in user last name";i:1;s:8:"Tillmann";}s:12:"user_display";a:2:{i:0;s:49:"Retrieves the current logged in user display name";i:1;s:13:"Tillmann Rens";}s:7:"user_id";a:2:{i:0;s:39:"Retrieves the current logged in user ID";i:1;i:1;}s:10:"user_roles";a:2:{i:0;s:42:"Retrieves the current logged in user roles";i:1;s:13:"administrator";}s:20:"server_http_referrer";a:2:{i:0;s:97:"Retrieves the location where user came from (if exists any) before loading the page with the form";i:1;s:102:"https://f4d.nl/dev/stripe-5/?sfssid=cs_test_a1jGYZojs0GuOXJjFTE33JqdB65srSkKOkyG313du5SGUqlXER8JafD9Gd";}s:28:"server_http_referrer_session";a:2:{i:0;s:112:"Retrieves the location where user came from from a session (if exists any) before loading the page with the form";i:1;s:28:"https://checkout.stripe.com/";}s:20:"server_timestamp_gmt";a:2:{i:0;s:40:"Retrieves the server timestamp (UTC/GMT)";i:1;i:1651771650;}s:14:"server_day_gmt";a:2:{i:0;s:48:"Retrieves the current day of the month (UTC/GMT)";i:1;s:2:"05";}s:16:"server_month_gmt";a:2:{i:0;s:49:"Retrieves the current month of the year (UTC/GMT)";i:1;s:2:"05";}s:15:"server_year_gmt";a:2:{i:0;s:44:"Retrieves the current year of time (UTC/GMT)";i:1;s:4:"2022";}s:15:"server_hour_gmt";a:2:{i:0;s:47:"Retrieves the current hour of the day (UTC/GMT)";i:1;s:2:"17";}s:17:"server_minute_gmt";a:2:{i:0;s:50:"Retrieves the current minute of the hour (UTC/GMT)";i:1;s:2:"27";}s:18:"server_seconds_gmt";a:2:{i:0;s:52:"Retrieves the current second of the minute (UTC/GMT)";i:1;s:2:"30";}s:16:"server_timestamp";a:2:{i:0;s:43:"Retrieves the server timestamp (Local time)";i:1;i:1651771650;}s:10:"server_day";a:2:{i:0;s:51:"Retrieves the current day of the month (Local time)";i:1;s:2:"05";}s:12:"server_month";a:2:{i:0;s:52:"Retrieves the current month of the year (Local time)";i:1;s:2:"05";}s:11:"server_year";a:2:{i:0;s:47:"Retrieves the current year of time (Local time)";i:1;s:4:"2022";}s:11:"server_hour";a:2:{i:0;s:50:"Retrieves the current hour of the day (Local time)";i:1;s:2:"17";}s:13:"server_minute";a:2:{i:0;s:53:"Retrieves the current minute of the hour (Local time)";i:1;s:2:"27";}s:14:"server_seconds";a:2:{i:0;s:55:"Retrieves the current second of the minute (Local time)";i:1;s:2:"30";}s:16:"submission_count";a:2:{i:0;s:61:"Retrieves the total submission count (if form locker is used)";i:1;s:0:"";}s:17:"last_entry_status";a:2:{i:0;s:41:"Retrieves the latest Contact Entry status";i:1;s:0:"";}s:13:"last_entry_id";a:2:{i:0;s:37:"Retrieves the latest Contact Entry ID";i:1;i:0;}s:22:"user_last_entry_status";a:2:{i:0;s:88:"Retrieves the latest Contact Entry status of the logged in user based on current form ID";i:1;s:0:"";}s:18:"user_last_entry_id";a:2:{i:0;s:84:"Retrieves the latest Contact Entry ID of the logged in user based on current form ID";i:1;i:0;}s:31:"user_last_entry_status_any_form";a:2:{i:0;s:76:"Retrieves the latest Contact Entry status of the logged in user for any form";i:1;s:0:"";}s:27:"user_last_entry_id_any_form";a:2:{i:0;s:72:"Retrieves the latest Contact Entry ID of the logged in user for any form";i:1;i:59573;}s:25:"_generated_pdf_file_label";a:2:{i:0;s:19:"Generated PDF Label";i:1;s:0:"";}s:24:"_generated_pdf_file_name";a:2:{i:0;s:18:"Generated PDF name";i:1;s:0:"";}s:23:"_generated_pdf_file_url";a:2:{i:0;s:17:"Generated PDF URL";i:1;s:0:"";}s:18:"register_login_url";a:2:{i:0;s:28:"Retrieves the login page URL";i:1;s:0:"";}s:24:"register_activation_code";a:2:{i:0;s:29:"Retrieves the activation code";i:1;s:0:"";}s:27:"register_generated_password";a:2:{i:0;s:32:"Retrieves the generated password";i:1;s:0:"";}}"
+            //    ["sf_nonce"]=>
+            //    string(96) "b006ec3d4976055339d407c802a63a7032a7ff77f74d870bebbc55b7f65d0fd1e829b74df35b2bbffa32d3fa9908a535"
+            //    ["server_http_referrer"]=>
+            //    string(28) "https://checkout.stripe.com/"
+            //}
+
+
+            // // Delete any E-mail reminders based on this form ID as it's parent
+            // $email_reminders = SUPER_Common::getClientData( 'super_forms_email_reminders' );
+            // if( $email_reminders!=false ) {
+            //     if (is_array($email_reminders) && count($email_reminders) > 0) {
+            //         // Delete all the Children of the Parent Page
+            //         foreach($email_reminders as $reminder){
+            //             wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
+            //         }
+            //     }
+            // }
+            // SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>false  ) );
+
+
+            // Todo when returning from cancel
+            // $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
+            // if( !is_array($metadata) ) {
+            //     $metadata = json_decode($metadata, true);
+            // }
+            // // Delete contact entry status after failed payment
+            // $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
+            // if( !empty($contact_entry_id) ) {
+            //     wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
+            // }
+            // // Delete post after failed payment (only used for Front-end Posting feature)
+            // $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+            // if( !empty($frontend_post_id) ) {
+            //     wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
+            // }
+            // // Delete user after failed payment (only used for Register & Login feature)
+            // $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+            // if( !empty($frontend_user_id) ) {
+            //     require_once( ABSPATH . 'wp-admin/includes/user.php' );
+            //     wp_delete_user($frontend_user_id);
+            // }
+            // // Delete any E-mail reminders based on this form ID as it's parent
+            // $email_reminders = SUPER_Common::getClientData( 'email_reminders' );
+            // if( $email_reminders!=false ) {
+            //     if (is_array($email_reminders) && count($email_reminders) > 0) {
+            //         // Delete all the Children of the Parent Page
+            //         foreach($email_reminders as $reminder){
+            //             wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
+            //         }
+            //     }
+            // }
+            // SUPER_Common::setClientData( array( 'name'=> 'email_reminders', 'value'=>false  ) );
 
             foreach($s['line_items'] as $k => $v){
                 if($v['type'] === 'price'){
                     unset($v['price_data']);
                 }else{
                     unset($v['price']);
+                    // Set correct unit amount
+                    $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
                 }
                 unset($v['type']);
                 if($v['price_data']['type'] === 'product_data'){
@@ -806,8 +1062,6 @@ if(!class_exists('SUPER_Stripe')) :
                     if(trim($v['price_data']['product_data']['tax_code'])===''){
                         unset($v['price_data']['product_data']['tax_code']);
                     }
-                    // Set correct unit amount
-                    $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
                 }else{
                     unset($v['price_data']['product_data']);
                 }
@@ -839,6 +1093,123 @@ if(!class_exists('SUPER_Stripe')) :
             //    $metadata['frontend_user_id'] = absint($user_id);
             //}
             //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
+
+
+            // Before we continue, let's check if the Webhook is configured properly
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            // Get webhook ID and secret
+            $webhookId = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id'] : '');
+            $webhookSecret = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret'] : '');
+            error_log('webhookId: ' . $webhookId);
+            error_log('webhookSecret: ' . $webhookSecret);
+            if(empty($webhookId)){
+                $msg = sprintf(
+                    esc_html( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
+                    '<br />',
+                    '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
+                    '<br /><br />', '<br /><br />',
+                    '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                );
+                $e = new Exception($msg);
+                error_log("exceptionHandler19()");
+                self::exceptionHandler($e, $metadata);
+                die();
+                //// If the webhook secret was not filled out for this mode (live/sandbox) then we must return an error to the user and notify them about it
+                //SUPER_Common::output_message(
+                //    $error = true, 
+                //    $msg = sprintf(
+                //        esc_html( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
+                //        '<br />',
+                //        '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
+                //        '<br /><br />', '<br /><br />',
+                //        '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                //    )
+                //);
+                //die();
+            }
+            if(empty($webhookSecret)){
+                $msg = sprintf(
+                    esc_html( 'Please enter your webhook secret under:%s%sSettings > Stripe Checkout%s.%sIt should start with `whsec_`.%sYou can find your Stripe endpoint\'s secret via %swebhook settings%s.', 'super-forms' ), 
+                    '<br />',
+                    '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
+                    '<br /><br />', '<br /><br />',
+                    '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                );
+                $e = new Exception($msg);
+                error_log("exceptionHandler19()");
+                self::exceptionHandler($e, $metadata);
+                die();
+
+                //// If the webhook secret was not filled out for this mode (live/sandbox) then we must return an error to the user and notify them about it
+                //SUPER_Common::output_message(
+                //    $error = true, 
+                //    $msg = sprintf(
+                //        esc_html( 'Please enter your webhook secret under:%s%sSettings > Stripe Checkout%s.%sIt should start with `whsec_`.%sYou can find your Stripe endpoint\'s secret via %swebhook settings%s.', 'super-forms' ), 
+                //        '<br />',
+                //        '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
+                //        '<br /><br />', '<br /><br />',
+                //        '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                //    )
+                //);
+                //die();
+            }
+            // Check if this webhook has a correct endpoint URL and Events defined
+            $webhook = \Stripe\WebhookEndpoint::retrieve($webhookId, []);
+            error_log('webhook: ' . json_encode($webhook));
+            $eventMissing = false;
+            if( !in_array('checkout.session.async_payment_failed', $webhook['enabled_events']) ) {
+                $eventMissing = true;
+            }
+            if( !in_array('checkout.session.async_payment_succeeded', $webhook['enabled_events']) ) {
+                $eventMissing = true;
+            }
+            if( !in_array('checkout.session.completed', $webhook['enabled_events']) ) {
+                $eventMissing = true;
+            }
+            // ? string(24) "checkout.session.expired"
+            if($eventMissing){
+                $msg = sprintf(
+                    esc_html( 'Your webhook is missing a required event, please make sure the following events are enabled:%sYou can enable these events via %swebhook settings%s.', 'super-forms' ), 
+                    '<br /><br /><code>checkout.session.async_payment_failed</code><br /><code>checkout.session.async_payment_succeeded</code><br /><code>checkout.session.completed</code><br /><br />',
+                    '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                );
+                $e = new Exception($msg);
+                error_log("exceptionHandler18()");
+                self::exceptionHandler($e, $metadata);
+                die();
+                //SUPER_Common::output_message(
+                //    $error = true, 
+                //    $msg = sprintf(
+                //        esc_html( 'Your webhook is missing a required event, please make sure the following events are enabled:%sYou can enable these events via %swebhook settings%s.', 'super-forms' ), 
+                //        '<br /><br /><code>checkout.session.async_payment_failed</code><br /><code>checkout.session.async_payment_succeeded</code><br /><code>checkout.session.completed</code><br /><br />',
+                //        '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
+                //    )
+                //);
+                //die();
+            }
+            if(trailingslashit($webhook['url'])!==trailingslashit($home_url.'sfstripe/webhook')){
+                $msg = sprintf(
+                    esc_html( 'Please update your Webhook endpoint so that it points to the following URL:%sYou can change this via %swebhook settings%s.', 'super-forms' ), 
+                    '<br /><br /><code> ' . $home_url . 'sfstripe/webhook</code><br /><br />', // super forms stripe webhook e.g: https://domain.com/sfstripe/webhook will be converted into https://domain.com/index.php?sfstripewebhook=true 
+                    '<a target="_blank" href="https://dashboard.stripe.com/webhooks/'. $webhook['id'].'">', '</a>'
+                );
+                $e = new Exception($msg);
+                error_log("exceptionHandler17()");
+                self::exceptionHandler($e, $metadata);
+                die();
+                //SUPER_Common::output_message(
+                //    $error = true, 
+                //    $msg = sprintf(
+                //        esc_html( 'Please update your Webhook endpoint so that it points to the following URL:%sYou can change this via %swebhook settings%s.', 'super-forms' ), 
+                //        '<br /><br /><code> ' . $home_url . 'sfstripe/webhook</code><br /><br />', // super forms stripe webhook e.g: https://domain.com/sfstripe/webhook will be converted into https://domain.com/index.php?sfstripewebhook=true 
+                //        '<a target="_blank" href="https://dashboard.stripe.com/webhooks/'. $webhook['id'].'">', '</a>'
+                //    )
+                //);
+                //die();
+            }
+
+            // Try to start a Checkout Session
             try {
                 // Use Stripe's library to make requests...
                 $data = array(
@@ -855,11 +1226,14 @@ if(!class_exists('SUPER_Stripe')) :
                     // return $response->write("<html><body><h1>Thanks for your order, $customer->name!</h1></body></html>");
                     // ```
 
-                    // [optional] If provided, this value will be used when the Customer object is created. 
-                    //            If not provided, customers will be asked to enter their email address. 
-                    //            Use this parameter to prefill customer data if you already have an email on file. 
-                    //            To access information about the customer once a session is complete, use the customer field.
-                    'customer_email' => $customer_email, //'info@customer.com',
+                    // [optional] ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. 
+                    //            In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. 
+                    //            A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
+                    //            If the Customer already has a valid email set, the email will be prefilled and not editable in Checkout. If the Customer does not have a valid email, Checkout will set the email entered during the session on the Customer.
+                    //            If blank for Checkout Sessions in payment or subscription mode, Checkout will create a new Customer object based on information provided during the payment flow.
+                    //            You can set payment_intent_data.setup_future_usage to have Checkout automatically attach the payment method to the Customer you pass in for future reuse.
+                    // 'customer' => 'cus_XXXXX'
+                    'customer' => $customer, // cus_LC8tK7PWO9Lwbw
 
                     // A list of the types of payment methods (e.g., card) this Checkout Session can accept.
                     // Read more about the supported payment methods and their requirements in our payment method details guide.
@@ -896,10 +1270,10 @@ if(!class_exists('SUPER_Stripe')) :
                     //        ],
                     //        'unit_amount' => 10000, // A non-negative integer in cents representing how much to charge. One of unit_amount or unit_amount_decimal is required.
                     //        //'metadata' => [], // product meta data
-                    //        // only possible when payment mod is set to `subscription` >> 'recurring' => [
-                    //        // only possible when payment mod is set to `subscription` >>     'interval' => 'month', // day, week, month, year
-                    //        // only possible when payment mod is set to `subscription` >>     'interval_count' => 1, // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
-                    //        // only possible when payment mod is set to `subscription` >> ],
+                    //        // only possible when payment mode is set to `subscription` >> 'recurring' => [
+                    //        // only possible when payment mode is set to `subscription` >>     'interval' => 'month', // day, week, month, year
+                    //        // only possible when payment mode is set to `subscription` >>     'interval_count' => 1, // The number of intervals between subscription billings. For example, interval=month and interval_count=3 bills every 3 months. Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
+                    //        // only possible when payment mode is set to `subscription` >> ],
                     //        'tax_behavior' => 'exclusive' // Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.
                     //    ],
                     //    'quantity' => 1,
@@ -908,14 +1282,11 @@ if(!class_exists('SUPER_Stripe')) :
                     // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
                     //'client_reference_id' => '',
 
-                    // [optional] ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
-                    //            If the Customer already has a valid email set, the email will be prefilled and not editable in Checkout. If the Customer does not have a valid email, Checkout will set the email entered during the session on the Customer.
-                    //            If blank for Checkout Sessions in payment or subscription mode, Checkout will create a new Customer object based on information provided during the payment flow.
-                    //            You can set payment_intent_data.setup_future_usage to have Checkout automatically attach the payment method to the Customer you pass in for future reuse.
-                    // 'customer' => 'cus_XXXXX'
-
-                    // [optional] Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to metadata.
-                    // 'metadata' => [],
+                    // [optional] Set of key-value pairs that you can attach to an object. 
+                    //            This can be useful for storing additional information about the object in a structured format. 
+                    //            Individual keys can be unset by posting an empty value to them. 
+                    //            All keys can be unset by posting an empty value to metadata.
+                    'metadata' => $metadata,
 
                     //'payment_method_options' => [
                     //    'acss_debit' => [ // contains details about the ACSS Debit payment method options.
@@ -1062,9 +1433,6 @@ if(!class_exists('SUPER_Stripe')) :
                     // [optional] The Epoch time in seconds at which the Checkout Session will expire. It can be anywhere from 1 to 24 hours after Checkout Session creation. By default, this value is 24 hours from creation.
                     //'expires_at' => ''
 
-                    // [optional] The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.
-                    // 'locale' => 'auto'/'en'
-
                     // [optional] A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in payment mode.
                     // 'payment_intent_data' => [
                     //      'application_fee_amount' => 0, // The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner’s Stripe account. The amount of the application fee collected will be capped at the total payment amount. For more information, see the PaymentIntents use case for connected accounts.
@@ -1093,12 +1461,28 @@ if(!class_exists('SUPER_Stripe')) :
                     //      'transfer_data' => '', // The parameters used to automatically create a Transfer when the payment succeeds. For more information, see the PaymentIntents use case for connected accounts.
                     //      'transfer_group' => '', // A string that identifies the resulting payment as part of a group. See the PaymentIntents use case for connected accounts for details.
                     // ],
+
+
+                    // [optional] The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.
+                    // 'locale' => 'auto'/'en'
+                    'locale' => $s['locale'],
+
                     'automatic_tax' => $s['automatic_tax'],
-                    //'automatic_tax' => [
-                    //    'enabled' => true,
-                    //],
+                    'tax_id_collection' => $s['tax_id_collection'],
+
+                    'subscription_data' => array(
+                        'description' => $description,
+                        'trial_period_days' => $trial_period_days
+                    ),
                 );
 
+                // [optional] If provided, this value will be used when the Customer object is created. 
+                //            If not provided, customers will be asked to enter their email address. 
+                //            Use this parameter to prefill customer data if you already have an email on file. 
+                //            To access information about the customer once a session is complete, use the customer field.
+                if($customer_email!==''){
+                    $data['customer_email'] = $customer_email; //'info@customer.com',
+                }
 
                 // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
                 //'client_reference_id' => '',
@@ -1111,10 +1495,24 @@ if(!class_exists('SUPER_Stripe')) :
                     //'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
                     $data['submit_type'] = $s['submit_type'];
                 }
+
+                // Tax ID collection requires updating business name on the customer. 
+                // To enable tax ID collection for an existing customer, please set `customer_update[name]` to `auto`.
+                //'customer_update' => [ 
+                //    'address' => 'auto'/'never',  // Describes whether Checkout saves the billing address onto customer.address. To always collect a full billing address, use billing_address_collection. Defaults to never.
+                //    'name' => 'auto'/'never',     // Describes whether Checkout saves the name onto customer.name. Defaults to never.
+                //    'shipping' => 'auto'/'never', // Describes whether Checkout saves shipping information onto customer.shipping. To collect shipping information, use shipping_address_collection. Defaults to never.
+                //],
+                if($customer!=='' && $s['tax_id_collection']['enabled']==='true'){
+                    if(empty($data['customer_update'])) $data['customer_update'] = array();
+                    $data['customer_update']['name'] = 'auto';
+                    $data['customer_update']['address'] = 'auto';
+                }
+
                 $checkout_session = \Stripe\Checkout\Session::create($data);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 error_log("exceptionHandler16()");
-                self::exceptionHandler($e);
+                self::exceptionHandler($e, $metadata);
             }
             //} catch(\Stripe\Exception\CardException $e) {
             //  // Since it's a decline, \Stripe\Exception\CardException will be caught
@@ -1142,17 +1540,7 @@ if(!class_exists('SUPER_Stripe')) :
 
             //header("HTTP/1.1 303 See Other");
             //header("Location: " . $checkout_session->url);
-            SUPER_Common::output_message(
-                $error=false, 
-                $msg = '',
-                $redirect = $checkout_session->url
-                //$msg,
-                //$fields=array(),
-                //$display=true,
-                //$loading=false,
-                //$json=true,
-                //$response_data=$response_data
-            );
+            SUPER_Common::output_message( $error=false, $msg = '', $redirect = $checkout_session->url );
             die();
 
             //self::setAppInfo();
@@ -1429,7 +1817,19 @@ if(!class_exists('SUPER_Stripe')) :
             //die();
         }
 
-
+        public static function fulfillOrder($session){
+            error_log('fulfillOrder()');
+            // "metadata": {
+            //     "super_forms_email_reminders": "[59774]",
+            //     "created_post_id": "59775",
+            //     "registered_user_id": "227",
+            //     "form_id": "59391",
+            //     "home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+            //     "home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+            //     "user_id": "1",
+            //     "entry_id": "59773"
+            // },
+        }
 
 		/**
 		 * Conditionally checkout
@@ -1477,6 +1877,93 @@ if(!class_exists('SUPER_Stripe')) :
             // }
         }
 
+        // When Checkout Session was canceled by the user
+        public static function checkoutSessionCanceled($x){
+            $metadata = (isset($x['metadata']) ? $x['metadata'] : array());
+            // Delete contact entry status after failed payment
+            error_log(json_encode($metadata));
+            $entry_id = (isset($metadata['entry_id']) ? absint($metadata['entry_id']) : 0 );
+            if( !empty($entry_id) ) {
+                error_log('delete entry #'.$entry_id);
+                $attachments = get_attached_media( '', $entry_id );
+                error_log('attachments: ' . json_encode($attachments));
+                foreach( $attachments as $attachment ) {
+                    // Force delete this attachment
+                    wp_delete_attachment( $attachment->ID, true );
+                }
+                wp_delete_post($entry_id, true); // force delete, we no longer want it in our system
+            }
+            // Delete post after failed payment (only used for Front-end Posting feature)
+            //$frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
+            //if( !empty($frontend_post_id) ) {
+            //    error_log('delete post #'.$frontend_post_id);
+            //    wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
+            //}
+
+            // Delete post after canceled payment (only used for Front-end Posting feature)
+            $created_post_id = (isset($metadata['created_post_id']) ? absint($metadata['created_post_id']) : 0 );
+            if( !empty($created_post_id) ) {
+                error_log('delete post #'.$created_post_id);
+                $attachments = get_attached_media( '', $created_post_id );
+                error_log('attachments: ' . json_encode($attachments));
+                foreach( $attachments as $attachment ) {
+                    // Force delete this attachment
+                    wp_delete_attachment( $attachment->ID, true );
+                }
+                wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
+            }
+
+            // Delete user after canceled payment (only used for Register & Login feature)
+            $registered_user_id = (isset($metadata['registered_user_id']) ? absint($metadata['registered_user_id']) : 0 );
+            if( !empty($registered_user_id) ) {
+                require_once( ABSPATH . 'wp-admin/includes/user.php' );
+                error_log('delete user #'.$registered_user_id);
+                wp_delete_user($registered_user_id);
+            }
+
+            // Delete any E-mail reminders based on this form ID as it's parent
+            $email_reminders = (isset($metadata['super_forms_email_reminders']) ? json_decode($metadata['super_forms_email_reminders'],true) : array() );
+            error_log('value: ' . json_encode($metadata['super_forms_email_reminders']));
+            error_log('count: ' . count($email_reminders));
+            if (is_array($email_reminders) && count($email_reminders) > 0) {
+                // Delete all the Children of the Parent Page
+                foreach($email_reminders as $reminder){
+                    error_log('delete reminder #'.$reminder);
+                    wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
+                }
+            }
+            // Delete any uploaded files
+            $files = SUPER_Common::getClientData( 'super_forms_stripe_files_' . absint($metadata['form_id']) );
+            foreach($files as $k => $v){
+                //if(isset($v['files'])){
+                //    foreach($v['files'] as $fk => $fv){
+                if(!empty($v['attachment'])){
+                    wp_delete_attachment( absint($v['attachment']), true );
+                    continue;
+                }
+                if(!empty($v['path'])){
+                    // Try to delete it
+                    SUPER_Common::delete_dir( $v['path'] );
+                }
+                if(!empty($v['subdir'])){
+                    // This is uploaded to a custom dir outside the wp content directory
+                    // Try to grab the real path
+                    error_log('subdir: ' . $v['subdir']);
+                    $filePath = ABSPATH . $v['subdir'];
+                    $filePath = realpath($filePath);
+                    error_log('filePath: ' . $filePath);
+                    error_log('dir: ' . dirname($filePath));
+                    // Try to delete it
+                    SUPER_Common::delete_dir( dirname($filePath) );
+                    //SUPER_Common::delete_file( $filePath );
+                }
+                //    }
+                //}
+            }
+            error_log('delete files: ' . json_encode($files));
+        }
+
+
         // Whe payment intent failed
         public static function payment_intent_payment_failed($paymentIntent){
             $metadata = (isset($paymentIntent['metadata']) ? $paymentIntent['metadata'] : '');
@@ -1486,30 +1973,31 @@ if(!class_exists('SUPER_Stripe')) :
             // Delete contact entry status after failed payment
             $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
             if( !empty($contact_entry_id) ) {
+                error_log('delete entry #'.$contact_entry_id);
                 wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
             }
             // Delete post after failed payment (only used for Front-end Posting feature)
-            $frontend_post_id = (isset($metadata['frontend_post_id']) ? absint($metadata['frontend_post_id']) : 0 );
+            $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
             if( !empty($frontend_post_id) ) {
+                error_log('delete post #'.$frontend_post_id);
                 wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
             }
             // Delete user after failed payment (only used for Register & Login feature)
-            $frontend_user_id = (isset($metadata['frontend_user_id']) ? absint($metadata['frontend_user_id']) : 0 );
+            $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
             if( !empty($frontend_user_id) ) {
                 require_once( ABSPATH . 'wp-admin/includes/user.php' );
+                error_log('delete user #'.$frontend_user_id);
                 wp_delete_user($frontend_user_id);
             }
             // Delete any E-mail reminders based on this form ID as it's parent
-            $email_reminders = SUPER_Common::getClientData( 'email_reminders' );
-            if( $email_reminders!=false ) {
-                if (is_array($email_reminders) && count($email_reminders) > 0) {
-                    // Delete all the Children of the Parent Page
-                    foreach($email_reminders as $reminder){
-                        wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
-                    }
+            $email_reminders = (isset($metadata['super_forms_email_reminders']) ? $metadata['super_forms_email_reminders'] : array() );
+            if (is_array($email_reminders) && count($email_reminders) > 0) {
+                // Delete all the Children of the Parent Page
+                foreach($email_reminders as $reminder){
+                    error_log('delete reminder #'.$reminder);
+                    wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
                 }
             }
-            SUPER_Common::setClientData( array( 'name'=> 'email_reminders', 'value'=>false  ) );
         }
 
         // When charge succeeded
@@ -2299,9 +2787,9 @@ if(!class_exists('SUPER_Stripe')) :
          *
          *  @since      1.0.0
          */
-        public function save_post_id($atts) {
-            SUPER_Common::setClientData( array( 'name'=> '_super_stripe_frontend_post_id', 'value'=>absint($atts['post_id'] ) ) );
-        }
+        //public function save_post_id($atts) {
+        //    SUPER_Common::setClientData( array( 'name'=> '_super_stripe_frontend_post_id', 'value'=>absint($atts['post_id'] ) ) );
+        //}
 
 
         /**
@@ -2311,9 +2799,9 @@ if(!class_exists('SUPER_Stripe')) :
          *
          *  @since      1.0.0
          */
-        public function save_user_id($atts) {
-            SUPER_Common::setClientData( array( 'name'=> 'stripe_frontend_user_id', 'value'=>absint($atts['user_id'] ) ) );
-        }
+        //public function save_user_id($atts) {
+        //    SUPER_Common::setClientData( array( 'name'=> '_super_stripe_frontend_user_id', 'value'=>absint($atts['user_id'] ) ) );
+        //}
 
 
         /**
@@ -2462,18 +2950,20 @@ if(!class_exists('SUPER_Stripe')) :
             return \Stripe\Invoice::retrieve($id);
         }
         public static function exceptionHandler($e, $metadata=array()){
-            error_log("e: " . json_encode($e));
-            error_log("err: " . json_encode($e->getError()));
-            error_log("metadata: " . json_encode($metadata));
-            self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
-            //echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
-            //{"error":{"message":"No such price: 'price_1KJINrFKn7uROhgCgsntnfbq'; a similar object exists in live mode, but a test mode key was used to make this request."}}
-            // Print error message
+            //error_log("e: " . json_encode($e));
+            //error_log("err: " . json_encode($e->getError()));
+            //error_log("metadata: " . json_encode($metadata));
+            self::checkoutSessionCanceled( array( 'metadata' => $metadata ) );
             SUPER_Common::output_message(
                 $error = true,
                 $e->getMessage()
             );
             die();
+
+            // deprecated self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
+            //echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
+            //{"error":{"message":"No such price: 'price_1KJINrFKn7uROhgCgsntnfbq'; a similar object exists in live mode, but a test mode key was used to make this request."}}
+            // Print error message
             // catch(\Stripe\Error\Card $e) {
             //     // Since it's a decline, \Stripe\Error\Card will be caught
             //     $message = $e->getJsonBody()['error']['message'];
@@ -3882,46 +4372,112 @@ if(!class_exists('SUPER_Stripe')) :
             $statuses = $new_statuses;
             unset($new_statuses);
 
+            $domain = home_url(); // e.g: 'http://domain.com';
+            $home_url = trailingslashit($domain);
+            $webhookUrl = $home_url . 'sfstripe/webhook'; // super forms stripe webhook e.g: https://domain.com/sfstripe/webhook will be converted into https://domain.com/index.php?sfstripewebhook=true 
+
             // Stripe Settings
             $array['stripe_checkout'] = array(        
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/stripe-add-on">', '</a>' ) . '</p>' ),
                 'fields' => array(
+                    // Sandbox keys
                     'stripe_mode' => array(
                         'hidden' => true,
-                        'default' =>  'sandbox', true,
+                        'default' =>  'sandbox',
                         'type' => 'checkbox',
                         'values' => array(
                             'sandbox' => esc_html__( 'Enable Stripe Sandbox/Test mode (for testing purposes only)', 'super-forms' ),
                         ),
+                        'filter' => true
                     ),
+                    'stripe_sandbox_public_key' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Sandbox publishable key', 'super-forms' ),
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX',
+                        'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => 'sandbox'
+                    ),
+                    'stripe_sandbox_secret_key' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Sandbox secret key', 'super-forms' ),
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'sk_test_XXXXXXXXXXXXXXXXXXXXXXXX',
+                        'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => 'sandbox'
+                    ),
+                    'stripe_sandbox_webhook_id' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Sandbox webhook ID', 'super-forms' ),
+                        'label' => sprintf( esc_html__( '%sCreate a webhook ID%s%sEndpoint URL must be: %s', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>', '<br /><br />', '<code>' . $webhookUrl . '</code>' ),
+                        'desc' => sprintf( 
+                            esc_html__( 'Make sure the following events are enabled for this webhook:%s%s%s%s', 'super-forms' ), 
+                            '<br />',
+                            '<code>checkout.session.async_payment_failed</code><br />',
+                            '<code>checkout.session.async_payment_succeeded</code><br />',
+                            '<code>checkout.session.completed</code><br />'
+                        ),
+                        'placeholder' => 'we_XXXXXXXXXXXXXXXXXXXXXXXX',
+                        'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => 'sandbox'
+                    ),
+                    'stripe_sandbox_webhook_secret' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Sandbox webhook signing secret key', 'super-forms' ),
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/webhooks">' . esc_html__( 'Get your webhook signing secret key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+                        'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => 'sandbox'
+                    ),
+
+                    // Live keys
                     'stripe_live_public_key' => array(
                         'hidden' => true,
-                        'name' => esc_html__( 'Live Publishable key', 'super-forms' ),
+                        'name' => esc_html__( 'Live publishable key', 'super-forms' ),
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'pk_live_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                     ),
                     'stripe_live_secret_key' => array(
                         'hidden' => true,
-                        'name' => esc_html__( 'Live Secret key', 'super-forms' ),
+                        'name' => esc_html__( 'Live secret key', 'super-forms' ),
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'sk_live_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                     ),
-                    'stripe_sandbox_public_key' => array(
+                    'stripe_live_webhook_id' => array(
                         'hidden' => true,
-                        'name' => esc_html__( 'Sandbox Publishable key', 'super-forms' ),
-                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'name' => esc_html__( 'Live webhook ID', 'super-forms' ),
+                        'label' => sprintf( esc_html__( '%sCreate a webhook ID%s%sEndpoint URL must be: %s', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>', '<br /><br />', '<code>' . $webhookUrl . '</code>' ),
+                        'desc' => sprintf( 
+                            esc_html__( 'Make sure the following events are enabled for this webhook:%s%s%s%s', 'super-forms' ), 
+                            '<br />',
+                            '<code>checkout.session.async_payment_failed</code><br />',
+                            '<code>checkout.session.async_payment_succeeded</code><br />',
+                            '<code>checkout.session.completed</code><br />'
+                        ),
+                        'placeholder' => 'we_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                     ),
-                    'stripe_sandbox_secret_key' => array(
+                    'stripe_live_webhook_secret' => array(
                         'hidden' => true,
-                        'name' => esc_html__( 'Sandbox Secret key', 'super-forms' ),
-                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'name' => esc_html__( 'Live webhook signing secret key', 'super-forms' ),
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/webhooks">' . esc_html__( 'Get your webhook signing secret key', 'super-forms' ) . '</a>',
+                        'placeholder' => 'whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                     ),
-                    
 
+                    
                     'stripe_checkout' => array(
                         'hidden_setting' => true,
                         'default' =>  '',
@@ -3978,7 +4534,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     'stripe_payment_methods' => array(
                         'name' => esc_html__( 'Payment method', 'super-forms' ),
-                        'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ) . '. ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': card, acss_debit, afterpay_clearpay, alipay, au_becs_debit, bacs_debit, bancontact, boleto, eps, fpx, giropay, grabpay, ideal, klarna, konbini, oxxo, p24, paynow, sepa_debit, sofort, us_bank_account, wechat_pay',
+                        'label' => esc_html__( 'You are allowed to use {tags}.', 'super-forms' ) . '. ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>card</code> <code>acss_debit</code> <code>afterpay_clearpay</code> <code>alipay</code> <code>au_becs_debit</code> <code>bacs_debit</code> <code>bancontact</code> <code>boleto</code> <code>eps</code> <code>fpx</code> <code>giropay</code> <code>grabpay</code> <code>ideal</code> <code>klarna</code> <code>konbini</code> <code>oxxo</code> <code>p24</code> <code>paynow</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code> <code>wechat_pay</code>',
                         'default' =>  'card',
                         'filter' => true,
                         'parent' => 'stripe_method',
