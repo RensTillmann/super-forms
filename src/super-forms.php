@@ -1595,7 +1595,7 @@ if(!class_exists('SUPER_Forms')) :
             // If needed you can tweak these values with the use of the filter hooks
             $interval = absint(apply_filters( 'super_delete_old_client_data_manually_interval_filter', 50 ));
             if(rand(1, $interval)===1) {
-                $limit = apply_filters( 'super_delete_client_data_manually_limit_filter', 100 );
+                $limit = apply_filters( 'super_delete_client_data_manually_limit_filter', 10 );
                 SUPER_Common::deleteOldClientData($limit);
             }
 

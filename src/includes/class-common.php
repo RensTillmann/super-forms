@@ -166,7 +166,7 @@ class SUPER_Common {
 	
     public static function deleteOldClientData($limit=0) {
 		global $wpdb;
-        if($limit===0) $limit = 100; // Defaults to 100
+        if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
 
         // Delete old deprecated sessions from previous Super Forms versions
