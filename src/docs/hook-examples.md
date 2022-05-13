@@ -376,7 +376,7 @@ function f4d_super_cookie_httponly_filter($httponly) {
 add_filter( 'super_cookie_httponly_filter', 'f4d_super_cookie_httponly_filter' );
 
 function f4d_super_client_data_delete_limit_filter($limit) {
-    return 100; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 50)
+    return 10; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 10)
 }
 add_filter( 'super_client_data_delete_limit_filter', 'f4d_super_client_data_delete_limit_filter' );
 ```
