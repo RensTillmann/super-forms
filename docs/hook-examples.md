@@ -313,7 +313,7 @@ function f4d_super_cookie_httponly_filter($httponly) {
 add_filter( 'super_cookie_httponly_filter', 'f4d_super_cookie_httponly_filter' );
 
 function f4d_super_client_data_delete_limit_filter($limit) {
-    return 100; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 50)
+    return 10; // Maximum items to delete per query when cleaning up old client data (by default this value is set to 10)
 }
 add_filter( 'super_client_data_delete_limit_filter', 'f4d_super_client_data_delete_limit_filter' );
 ```
@@ -330,7 +330,7 @@ function f4d_super_delete_old_client_data_manually_interval_filter($limit) {
 add_filter( 'super_delete_old_client_data_manually_interval_filter', 'f4d_super_delete_old_client_data_manually_interval_filter' );
 
 function f4d_super_delete_client_data_manually_limit_filter($limit) {
-    return 100; // When deleting client data via manual request, we only want to delete 100 items at a time
+    return 10; // When deleting client data via manual request, we only want to delete 10 items at a time
 }
 add_filter( 'super_delete_client_data_manually_limit_filter', 'f4d_super_delete_client_data_manually_limit_filter' );
 ```
