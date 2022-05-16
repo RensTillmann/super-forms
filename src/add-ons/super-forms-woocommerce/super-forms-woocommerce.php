@@ -1265,7 +1265,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             $values[0]['value'] = trim($values[0]['value'], '{}');
                             $values[0]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = explode(";", $v[1])[0];
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }
@@ -1281,7 +1281,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             $values[1]['value'] = trim($values[1]['value'], '{}');
                             $values[1]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = explode(";", $v[1])[0];
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }
@@ -1297,7 +1297,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             $values[2]['value'] = trim($values[2]['value'], '{}');
                             $values[2]['match'] = true;
                             foreach( $matches as $k => $v ) {
-                                $key = str_replace(';label', '', $v[1]); // @since 1.3.7
+                                $key = explode(";", $v[1])[0];
                                 if( isset($data[$key]) ) {
                                     $found = true;
                                 }else{
