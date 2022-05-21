@@ -236,7 +236,7 @@
         var i, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
         if(tab){
             // First grab all settings that are not inside a repeater element
-            nodes = tab.querySelectorAll('.sfui-setting > label > [name]');
+            nodes = tab.querySelectorAll('.sfui-setting > label > [name], .sfui-inline > label > [name]');
             for(i=0; i<nodes.length; i++){
                 repeater = nodes[i].closest('.sfui-repeater-item');
                 if(repeater) continue; // skip if inside repater element

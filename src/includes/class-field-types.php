@@ -874,8 +874,10 @@ class SUPER_Field_Types {
             $type = $default[1]; // use the existing type
         }
         $default = $default[0].';'.$type;
+        $value = $field['v']; // e.g `fas fa-XXX`
         foreach($icons as $k => $v){
-            $return .= '<i class="' . explode(';', $v)[1] . ' fa-' . explode(';', $v)[0] . ($default==$v ? ' super-active' : '') . '"></i>';
+            $iconSlug = explode(';', $v)[1] . ' fa-' . explode(';', $v)[0]; // e.g `fas fa-XXX`
+            $return .= '<i class="' . $iconSlug . ($value==$iconSlug ? ' super-active' : '') . '"></i>';
         }
         $return .= '</div>';
         $return .= '<input type="hidden" name="'.$id.'" value="'.esc_attr($field['v']).'" id="field-'.$id.'" class="super-element-field" />';

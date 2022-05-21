@@ -2758,6 +2758,7 @@
     line-height: 1.2;
     display: flex;
     padding-right: 20px;
+    align-items: center;
 }
 .sfui-setting input[type="checkbox"] {
     margin-right: 5px;
@@ -2838,7 +2839,7 @@
     margin-left:20px;
     border-left: 1px dashed #00000087;
     border-bottom: 1px dashed #00000087;
-    padding: 0px 0px 0px 10px;
+    padding: 0px 0px 10px 10px;
     margin: 1px 0px 0px 7px;
 }
 .sfui-vertical > label {
@@ -2962,10 +2963,15 @@
 .sfui-setting .sfui-setting .sfui-setting .sfui-vertical > .sfui-setting {
   padding: 0;
 }
-.sfui-setting .sfui-setting .sfui-setting .sfui-vertical > label {
-  padding-top: 0;
-  padding-bottom: 0;
+.sfui-setting.sfui-vertical {
+  flex-direction: column;
+  align-items: flex-start;
 }
+.sfui-setting.sfui-vertical .sfui-setting.sfui-inline {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 
 .super-forms_page_super_create_form.tox-fullscreen #wpadminbar,
 .super-forms_page_super_create_form.tox-fullscreen #adminmenumain,

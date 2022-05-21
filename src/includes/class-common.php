@@ -211,7 +211,7 @@ class SUPER_Common {
             array( 
                 'name' => 'sf_nonce', 
                 'value' => $sf_nonce,
-                'expires' => 30, // nonce will expire after 30 sec. by default
+                'expires' => 5*60, // nonce will expire after 5 min. by default
                 'exp_var' => 60*60 // there is no need to refresh a nonce, so we set it's expire variant to a higher value
             )
         );
@@ -224,6 +224,8 @@ class SUPER_Common {
         if(!$v || $v !== $sf_nonce){
             return false; // invalid
         }
+        // Destroy existing nonce
+        SUPER_Common::setClientData( array( 'name'=> 'sf_nonce', 'value'=>false ) );
         return true; // valid
     }
 
@@ -2568,11 +2570,49 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email( $to, $from, $from_name, $custom_reply=false, $reply='', $reply_name='', $cc='', $bcc='', $subject='', $body='', $settings=array(), $attachments=array(), $string_attachments=array() ) {
+    //public static function email( $to, $from, $from_name, $custom_reply=false, $reply='', $reply_name='', $cc='', $bcc='', $subject='', $body='', $settings=array(), $attachments=array(), $string_attachments=array() ) {
+    public static function email($x){
+        extract( shortcode_atts( array( 
+            'to'=>'', 
+            'from'=>'', 
+            'from_name'=>'', 
+            'custom_reply'=>false,
+            'reply'=>'', 
+            'reply_name'=>'', 
+            'cc'=>'', 
+            'bcc'=>'', 
+            'subject'=>'', 
+            'body'=>'', 
+            'settings'=>array(),
+            'attachments'=>array(),
+            'string_attachments'=>array()
+        ), $x));
 
+        $to = explode( ",", $to );
         $from = trim($from);
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
-        $to = explode( ",", $to );
+		// If we don't have a name from the input headers.
+		if(empty($from_name)) $from_name = trim(get_option('blogname'));
+		if(empty($from_name)) $from_name = 'WordPress';
+
+		/*
+		 * If we don't have an email from the input headers, default to wordpress@$sitename
+		 * Some hosts will block outgoing mail from this address if it doesn't exist,
+		 * but there's no easy alternative. Defaulting to admin_email might appear to be
+		 * another option, but some hosts may refuse to relay mail from an unknown domain.
+		 * See https://core.trac.wordpress.org/ticket/5007.
+		 */
+		if(empty($from)){
+			// Get the site domain and get rid of www.
+			$sitename = wp_parse_url(network_home_url(), PHP_URL_HOST);
+			$from = 'wordpress@';
+			if(null!==$sitename){
+				if('www.'===substr($sitename, 0, 4)){
+					$sitename = substr($sitename, 4);
+				}
+				$from .= $sitename;
+			}
+		}
 
         // Get attachment paths
         $attachmentPaths = array();

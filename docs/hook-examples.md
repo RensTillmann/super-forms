@@ -3,11 +3,12 @@
 **Examples:**
 
 - [Track form submissions with third party](#track-form-submissions-with-third-party)
+- [Track Multi-part steps with Google Analytics](#track-multi-part-steps-with-google-analytics)
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
 - [Send submitted form data to another site](#send-submitted-form-data-to-another-site)
 - [Exclude empty fields from emails](#exclude-empty-fields-from-emails)
 - [Execute custom JS when a column becomes conditionally visible](#execute-custom-js-when-a-column-becomes-conditionally-visible)
-- [Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-seperated-string-to-array-for-meta-data-saved-via-front-end-posting)
+- [Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-separated-string-to-array-for-meta-data-saved-via-front-end-posting)
 - [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting)
 - [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
 - [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
@@ -44,6 +45,68 @@ JS script (f4d-custom.js)
         // Your third party code here
         alert('Your third party code here');
     }
+```
+
+## Tracking Multi-part steps with Google Analytics
+
+```js
+(function(){
+  function hashChanged(storedHash){
+    // @@ EDIT BELOW VARIABLES @@
+    var library = 'gtag.js'; // Google Tag Manager (gtag.js)
+    //var library = 'analytics.js'; // Universal analytics (analytics.js)
+    //var library = 'ga.js'; // Legacy analytics (ga.js)
+    var UA = 'UA-XXXXX-X'; // Required when using ga.js or analytics.js
+    // @@ STOP EDITING @@
+
+    // If has contains step
+    if(location.hash.indexOf('#step-')===-1){
+        // When no hash starting with `#step-` was found we cancel
+        return;
+    }
+    
+    // Grab the current page including current multi-part step from the URL
+    var path = location.pathname + location.search + location.hash;
+    if(library==='gtag.js'){
+      if(typeof gtag === 'undefined') return;
+      gtag('event', 'page_view', {
+      	page_title: document.title, // e.g: `Page title`
+      	page_location: location.href, // e.g: `https://domain.com/page`
+      	page_path: path // e.g: `https://domain.com/page/#step-12345-2` (Form ID 12345 and currently at step 2)
+      });
+      return;
+    }
+    if(library==='analytics.js'){
+      if(typeof ga === 'undefined') return;
+      ga('send', {
+        hitType: 'pageview',
+        page: path
+      });
+      return;
+    }
+    if(library==='ga.js'){
+      if(typeof _gaq === 'undefined') return;
+      // New asynchronous tracking code:
+      _gaq.push(['_setAccount', UA]);
+      _gaq.push(['_trackPageview', path])
+      return;
+    }
+  };
+  // Google Analytics track multi-part
+  if("onhashchange" in window) { // event supported?
+    window.onhashchange = function () {
+      hashChanged(window.location.hash);
+    }
+  } else { // event not supported:
+    var storedHash = window.location.hash;
+    window.setInterval(function () {
+      if (window.location.hash != storedHash) {
+        storedHash = window.location.hash;
+        hashChanged(storedHash);
+      }
+    }, 100);
+  }
+})();
 ```
 
 ## Insert form data into a custom database table
@@ -186,7 +249,7 @@ setInterval(function(){
 },100);
 ```
 
-## Toolset Plugin: Update comma seperated string to Array for meta data saved via Front-end Posting
+## Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting
 
 The below code is useful for `Checkbox` fields made within Toolset plugin. Since Super Forms Front-end Posting saves them as a comma separated string, we must convert it to an array so that Toolset can properly retrieve these values.
 
@@ -330,7 +393,7 @@ function f4d_super_delete_old_client_data_manually_interval_filter($limit) {
 add_filter( 'super_delete_old_client_data_manually_interval_filter', 'f4d_super_delete_old_client_data_manually_interval_filter' );
 
 function f4d_super_delete_client_data_manually_limit_filter($limit) {
-    return 10; // When deleting client data via manual request, we only want to delete 10 items at a time
+    return 10; // When deleting client data via manual request, we only want to delete 10 sessions at a time
 }
 add_filter( 'super_delete_client_data_manually_limit_filter', 'f4d_super_delete_client_data_manually_limit_filter' );
 ```

@@ -20,4 +20,4 @@ last_name
 birth_date
 ```
 
-Optionally you can also set a custom `delimiter` (to seperate rows) and `enclosure` (to seperate values), but the default values should be the ones you'd normally need.
+Optionally you can also set a custom `delimiter` (to separate rows) and `enclosure` (to separate values), but the default values should be the ones you'd normally need.

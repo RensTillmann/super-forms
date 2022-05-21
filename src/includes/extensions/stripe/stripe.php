@@ -605,13 +605,6 @@ if(!class_exists('SUPER_Stripe')) :
                         echo '</label>';
                     echo '</div>';
                     echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Client reference ID', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="client_reference_id" placeholder="" value="' . sanitize_text_field($s['client_reference_id']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                             echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': <code>auto</code> <code>bg</code> <code>cs</code> <code>da</code> <code>de</code> <code>el</code> <code>en</code> <code>en-GB</code> <code>es</code> <code>es-419</code> <code>et</code> <code>fi</code> <code>fil</code> <code>fr</code> <code>fr-CA</code> <code>hr</code> <code>hu</code> <code>id</code> <code>it</code> <code>ja</code> <code>ko</code> <code>lt</code> <code>lv</code> <code>ms</code> <code>mt</code> <code>nb</code> <code>nl</code> <code>pl</code> <code>pt</code> <code>pt-BR</code> <code>ro</code> <code>ru</code> <code>sk</code> <code>sl</code> <code>sv</code> <code>th</code> <code>tr</code> <code>vi</code> <code>zh</code> <code>zh-HK</code> <code>zh-TW</code></span>';
@@ -630,7 +623,7 @@ if(!class_exists('SUPER_Stripe')) :
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                             echo '<span class="sfui-title">' . esc_html__( 'Trial period in days (only works when mode is set to `subscription`)', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'Integer representing the number of trial period days before the customer is charged for the first time. Has to be at least 1.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="subscription_data.trial_period_days" placeholder="e.g: 15" value="' . sanitize_text_field($s['subscription_data']['trial_period_days']) . '" />';
+                            echo '<input type="text" name="subscription_data.trial_period_days" placeholder="e.g: 15 (leave blank for no trial period)" value="' . sanitize_text_field($s['subscription_data']['trial_period_days']) . '" />';
                         echo '</label>';
                     echo '</div>';
 
@@ -648,6 +641,175 @@ if(!class_exists('SUPER_Stripe')) :
                             echo '<input type="text" name="success_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['success_url']) . '" />';
                         echo '</label>';
                     echo '</div>';
+
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<div class="sfui-notice sfui-desc">';
+                            echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'When using any of the following payment methods %s the below E-mail will be send to the user when their payment failed. This way they are able to retry their payment without filling out the form again.', 'super-forms' ), '<code>bacs_debit</code> <code>boleto</code> <code>acss_debit</code> <code>oxxo</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code>');
+                        echo '</div>';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment E-mail Subject', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="retryPaymentEmail.subject" placeholder="Payment failed" value="' . sanitize_text_field($s['retryPaymentEmail']['subject']) . '" />';
+                        echo '</label>';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment E-mail Body', 'super-forms' ) . '</span>';
+                            echo '<textarea name="retryPaymentEmail.body">' . $s['retryPaymentEmail']['body'] . '</textarea>';
+                        echo '</label>';
+                        echo '<div class="sfui-inline">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="retryPaymentEmail.lineBreaks" value="true"' . ($s['retryPaymentEmail']['lineBreaks']==='true' ? ' checked="checked"' : '') . ' />';
+                                echo '<span class="sfui-label">' . esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                        echo '</div>';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment link expiry in hours', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'Enter the amount in hours before the retry payment link expires. Must be a number between 24 and 720.', 'super-forms' ) . '</span>';
+                            echo '<input type="number" min="24" max="720" name="retryPaymentEmail.expiry" placeholder="e.g: 24" value="' . sanitize_text_field($s['retryPaymentEmail']['expiry']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'Client reference ID', 'super-forms' ) . '</span>';
+                            echo '<span class="sfui-label">' . esc_html__( 'A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.', 'super-forms' ) . '</span>';
+                            echo '<input type="text" name="client_reference_id" placeholder="" value="' . sanitize_text_field($s['client_reference_id']) . '" />';
+                        echo '</label>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-horizontal">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<input type="checkbox" name="phone_number_collection.enabled" value="true"' . ($s['phone_number_collection']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
+                            echo '<span class="sfui-label">' . esc_html__( 'Enable phone number collection', 'super-forms' ) . '</span>';
+                        echo '</label>';
+                        echo '<div class="sfui-sub-settings sfui-inline" data-f="phone_number_collection.enabled;true">';
+                            echo '<div class="sfui-notice sfui-desc">';
+                                echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'We recommend that you review your privacy policy and check with your legal contacts before using this feature. Learn more about %scollecting phone numbers with Checkout%s.', 'super-forms' ), '<a href="https://stripe.com/docs/payments/checkout/phone-numbers">', '</a>');
+                            echo '</div>';
+                        echo '</div>';
+                    echo '</div>';
+
+                    echo '<div class="sfui-setting sfui-vertical">';
+                        echo '<label>';
+                            echo '<span class="sfui-title">' . esc_html__( 'The shipping rate options to apply to this Session.', 'super-forms' ) . '</span>';
+                        echo '</label>';
+                        echo '<div class="sfui-inline sfui-vertical">';
+                            echo '<form class="sfui-setting">';
+                                // Shipping Options
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="radio" name="shipping_options.type" value="id"' . ($s['shipping_options']['type']==='id' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Shipping Rate ID (recommended)', 'super-forms' ) . '</span>';
+                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="shipping_options.type;id">';
+                                        echo '<div class="sfui-setting sfui-inline">';
+                                            // Shipping Rate ID
+                                            echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
+                                                echo '<label>';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Enter shipping rate ID:', 'super-forms' ) . '</span>';
+                                                    echo '<input type="text" name="shipping_options.shipping_rate" placeholder="' . esc_html__( 'e.g: shr_XXXXXXXXXXXXXXXXXXXXXXXX', 'super-forms' ) . '" value="' . sanitize_text_field($s['shipping_options']['shipping_rate']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                        echo '</div>';
+                                    echo '</div>';
+                                echo '</label>';
+                                // Shipping Rate Data
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="radio" name="shipping_options.type" value="data"' . ($s['shipping_options']['type']==='data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Generate new shipping rate on the fly', 'super-forms' ) . '</span>';
+                                    echo '<div class="sfui-sub-settings sfui-vertical" data-f="shipping_options.type;data">';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'Display name', 'super-forms' ) . '</span>';
+                                                echo '<span class="sfui-label">' . esc_html__( 'The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.', 'super-forms' ) . '</span>';
+                                                echo '<input type="text" name="shipping_options.shipping_rate_data.display_name" placeholder="e.g: World wide shipping" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['display_name']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
+                                        echo '<div class="sfui-setting sfui-vertical">';
+
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'The estimated range for how long shipping will take, meant to be displayable to the customer.', 'super-forms' ) . '</span>';
+                                            echo '</label>';
+
+                                            echo '<div class="sfui-setting sfui-vertical">';
+                                                echo '<span class="sfui-title">' . esc_html__( 'The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.', 'super-forms' ) . '</span>';
+                                                echo '<label>';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Unit. Accepted values are', 'super-forms' ) . ': <code>hour</code> <code>day</code> <code>business_day</code> <code>week</code> <code>month</code></span>'; 
+                                                    echo '<input type="text" name="shipping_options.shipping_rate_data.delivery_estimate.maximum.unit" placeholder="e.g: business_day" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['delivery_estimate']['maximum']['unit']) . '" />';
+                                                echo '</label>';
+                                                echo '<label>';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Value (must be greater than 0)', 'super-forms' ) . '</span>';
+                                                    echo '<input type="number" name="shipping_options.shipping_rate_data.delivery_estimate.maximum.value" placeholder="e.g: 5" value="' . absint($s['shipping_options']['shipping_rate_data']['delivery_estimate']['maximum']['value']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                            echo '<div class="sfui-setting sfui-vertical">';
+                                                echo '<span class="sfui-title">' . esc_html__( 'The lower bound of the estimated range. If empty, represents no lower bound.', 'super-forms' ) . '</span>';
+                                                echo '<label>';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Unit. Accepted values are', 'super-forms' ) . ': <code>hour</code> <code>day</code> <code>business_day</code> <code>week</code> <code>month</code></span>'; 
+                                                    echo '<input type="text" name="shipping_options.shipping_rate_data.delivery_estimate.minimum.unit" placeholder="e.g: business_day" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['delivery_estimate']['minimum']['unit']) . '" />';
+                                                echo '</label>';
+                                                echo '<label>';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Value (must be greater than 0)', 'super-forms' ) . '</span>';
+                                                    echo '<input type="number" name="shipping_options.shipping_rate_data.delivery_estimate.minimum.value" placeholder="e.g: 5" value="' . absint($s['shipping_options']['shipping_rate_data']['delivery_estimate']['minimum']['value']) . '" />';
+                                                echo '</label>';
+                                            echo '</div>';
+                                        echo '</div>';
+
+                                        echo '<div class="sfui-setting sfui-vertical">';
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'Amount to charge for shipping', 'super-forms' ) . '</span>';
+                                                echo '<input type="text" name="shipping_options.shipping_rate_data.fixed_amount.amount" placeholder="e.g: 6.99" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['fixed_amount']['amount']) . '" />';
+                                            echo '</label>';
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping currency', 'super-forms' ) . '</span>';
+                                                echo '<span class="sfui-label">' . sprintf( esc_html__( 'Three-letter ISO currency code, in lowercase. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</span>';
+                                                echo '<input type="text" name="shipping_options.shipping_rate_data.fixed_amount.currency" placeholder="e.g: USD" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['fixed_amount']['currency']) . '" />';
+                                            echo '</label>';
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping tax behavior', 'super-forms' ) . '</span>';
+                                                echo '<span class="sfui-label">' . esc_html__( 'Specifies whether the rate is considered inclusive of taxes or exclusive of taxes. Accepted values are: <code>inclusive</code> <code>exclusive</code> <code>unspecified</code>', 'super-forms' ) . '</span>';
+                                                echo '<input type="text" name="shipping_options.shipping_rate_data.tax_behavior" placeholder="e.g: inclusive" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['tax_behavior']) . '" />';
+                                            echo '</label>';
+                                            echo '<label>';
+                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping tax code', 'super-forms' ) . '</span>';
+                                                echo '<span class="sfui-label">' . esc_html__( 'A tax code ID. The Shipping tax code is', 'super-forms' ) . ': <code>txcd_92010001</code></span>';
+                                                echo '<input type="text" name="shipping_options.shipping_rate_data.tax_code" placeholder="e.g: inclusive" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['tax_code']) . '" />';
+                                            echo '</label>';
+                                        echo '</div>';
+
+                                    echo '</div>';
+                                echo '</label>';
+                            echo '</form>';
+                        echo '</div>';
+
+                    echo '</div>';
+
+
+
+
+                    // [optional] The shipping rate options to apply to this Session.
+                    //'shipping_options' => [
+                    //    'shipping_rate' => '', // The ID of the Shipping Rate to use for this shipping option.
+                    //    'shipping_rate_data' => [ // Parameters to be passed to Shipping Rate creation for this shipping option
+                    //        'display_name' => '', // The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                    //        'type' => 'fixed_amount', // The type of calculation to use on the shipping rate. Can only be fixed_amount for now.
+                    //        'delivery_estimate' => [ // The estimated range for how long shipping will take, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                    //            'maximum' => [ // The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
+                    //                'unit' => 'business_day', // hour, day, business_day, week, month
+                    //                'value' => 5,
+                    //            ],
+                    //            'minimum' => [ // The lower bound of the estimated range. If empty, represents no lower bound.
+                    //                'unit' => 'business_day', // hour, day, business_day, week, month
+                    //                'value' => 2,
+                    //            ]
+                    //        ],
+                    //        'fixed_amount' => [
+                    //            'amount' => 3000, // A non-negative integer in cents representing how much to charge.
+                    //            'currency' => 'usd' // Three-letter ISO currency code, in lowercase. Must be a supported currency.
+                    //        ]
+                    //        'metadata' => [], // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to metadata.
+                    //        'tax_behavior' => 'exclusive' // Specifies whether the rate is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified.
+                    //        'tax_code' => 'txcd_92010001', // A tax code ID. The Shipping tax code is txcd_92010001.
+                    //    ]
+                    //],
+
+
+
                     
                     // not used echo '<div class="sfui-setting sfui-vertical">';
                     // not used     echo '<div class="sfui-notice sfui-desc">';
@@ -689,7 +851,7 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($s['cancel_url'])) $s['cancel_url'] = ''; // The URL the customer will be directed to if they decide to cancel payment and return to your website.
             if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
             if(empty($s['customer'])) $s['customer'] = ''; // ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
-            if(empty($s['customer_email'])) $s['customer_email'] = '{email}'; // If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file. To access information about the customer once a session is complete, use the customer field.
+            if(empty($s['customer_email'])) $s['customer_email'] = ''; // If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file. To access information about the customer once a session is complete, use the customer field.
             if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
             if(empty($s['metadata'])) $s['metadata'] = '';
             if(empty($s['payment_method_types'])) $s['payment_method_types'] = 'card';
@@ -716,6 +878,44 @@ if(!class_exists('SUPER_Stripe')) :
             );
 
             if(empty($s['locale'])) $s['locale'] = '';
+
+            if(empty($s['retryPaymentEmail'])) $s['retryPaymentEmail'] = array(
+                'expiry' => 48, // Defaults to 48 hours (2 days)
+                'subject' => esc_html__( 'Payment failed', 'super-forms' ),
+                'body' => sprintf( esc_html__( 'Payment failed please try again by clicking the below URL.%sThe below link will be valid for %s hours before your order is removed.%s%s', 'super-forms' ), "\n", '{stripe_retry_payment_expiry}', "\n\n", '<a href="{stripe_retry_payment_url}">{stripe_retry_payment_url}</a>' ),
+                'lineBreaks' => 'true'
+            );
+
+            if(empty($s['phone_number_collection'])) $s['phone_number_collection'] = array(
+                'enabled' => 'false'
+            );
+
+            if(empty($s['shipping_options'])) $s['shipping_options'] = array(
+                'type' => 'id',
+                'shipping_rate' => '',
+                'shipping_rate_data' => array(
+                    'display_name' => '', // The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                    // always set to `fixed_amount` no need to have this setting 'type' => 'fixed_amount', // The type of calculation to use on the shipping rate. Can only be fixed_amount for now.
+                    'delivery_estimate' => array( // The estimated range for how long shipping will take, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                        'maximum' => array( // The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
+                            'unit' => 'week', // hour, day, business_day, week, month
+                            'value' => 2
+                        ),
+                        'minimum' => array( // The lower bound of the estimated range. If empty, represents no lower bound.
+                            'unit' => 'business_day', // hour, day, business_day, week, month
+                            'value' => 2
+                        )
+                    ),
+                    'fixed_amount' => array(
+                        'amount' => '', // A non-negative integer in cents representing how much to charge.
+                        'currency' => '' // Three-letter ISO currency code, in lowercase. Must be a supported currency.
+                    ),
+                    // not used 'metadata' => [], // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to metadata.
+                    'tax_behavior' => '', // Specifies whether the rate is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified.
+                    'tax_code' => 'txcd_92010001', // A tax code ID. The Shipping tax code is txcd_92010001.
+                ),
+            );
+
             if(empty($s['line_items'])) $s['line_items'] = array(
                 array(
                     'type' => 'price', // (not a Stripe key) Type, either `price` or `price_data`
@@ -1212,7 +1412,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Try to start a Checkout Session
             try {
                 // Use Stripe's library to make requests...
-                $data = array(
+                $stripeData = array(
                     // [required conditionally] The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
                     'mode' => $mode, //'payment', // `payment`, `subscription` or `setup`
                     // [required] The URL the customer will be directed to if they decide to cancel payment and return to your website.
@@ -1397,15 +1597,6 @@ if(!class_exists('SUPER_Stripe')) :
                     //    'enabled' => true, // Set to true to enable Tax ID collection.
                     //],
 
-
-                    // [optional] Configure whether a Checkout Session creates a Customer during Session confirmation.
-                    // When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout with customer_details.
-                    // Sessions that don’t create Customers instead create Guest Customers in the Dashboard. Promotion codes limited to first time customers will return invalid for these Sessions.
-                    // Can only be set in payment and setup mode.
-                    //'customer_creation' => 'if_required', // The Checkout Session will only create a Customer if it is required for Session confirmation. Currently, only subscription mode Sessions require a Customer.
-                    //                     'always' // The Checkout Session will always create a Customer when a Session confirmation is attempted.
-
-
                     // [optional] Specify whether Checkout should collect the customer’s billing address.
                     // `auto` Checkout will only collect the billing address when necessary.
                     // `required` Checkout will always collect the customer’s billing address.
@@ -1474,26 +1665,41 @@ if(!class_exists('SUPER_Stripe')) :
                         'description' => $description,
                         'trial_period_days' => $trial_period_days
                     ),
+
+                    // [optional] If provided, this value will be used when the Customer object is created. 
+                    //            If not provided, customers will be asked to enter their email address. 
+                    //            Use this parameter to prefill customer data if you already have an email on file. 
+                    //            To access information about the customer once a session is complete, use the customer field.
+                    'customer_email' => $customer_email, //'info@customer.com',
+
+                    // [optional] Configure whether a Checkout Session creates a Customer during Session confirmation.
+                    // When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout with customer_details.
+                    // Sessions that don’t create Customers instead create Guest Customers in the Dashboard. Promotion codes limited to first time customers will return invalid for these Sessions.
+                    // Can only be set in payment and setup mode.
+                    'customer_creation' => 'always', // 'if_required', // The Checkout Session will only create a Customer if it is required for Session confirmation. Currently, only subscription mode Sessions require a Customer.
+                                                     // 'always' // The Checkout Session will always create a Customer when a Session confirmation is attempted.
+
+                    // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
+                    //'client_reference_id' => '',
+                    'client_reference_id' => $s['client_reference_id'],
                 );
 
-                // [optional] If provided, this value will be used when the Customer object is created. 
-                //            If not provided, customers will be asked to enter their email address. 
-                //            Use this parameter to prefill customer data if you already have an email on file. 
-                //            To access information about the customer once a session is complete, use the customer field.
-                if($customer_email!==''){
-                    $data['customer_email'] = $customer_email; //'info@customer.com',
+                function array_remove_empty($haystack){
+                    foreach ($haystack as $key => $value) {
+                        if(is_array($value)) $haystack[$key] = array_remove_empty($haystack[$key]);
+                        if(empty($haystack[$key])) unset($haystack[$key]);
+                    }
+                    return $haystack;
                 }
 
-                // [optional] A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
-                //'client_reference_id' => '',
-                if($s['client_reference_id']!==''){
-                    $data['client_reference_id'] = $s['client_reference_id'];
+                if($mode==='subscription'){
+                    unset($stripeData['customer_creation']);
                 }
                 if($mode==='payment'){
                     // [optional] Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, 
                     // such as the submit button. `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in subscription or setup mode.
                     //'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
-                    $data['submit_type'] = $s['submit_type'];
+                    $stripeData['submit_type'] = $s['submit_type'];
                 }
 
                 // Tax ID collection requires updating business name on the customer. 
@@ -1504,12 +1710,14 @@ if(!class_exists('SUPER_Stripe')) :
                 //    'shipping' => 'auto'/'never', // Describes whether Checkout saves shipping information onto customer.shipping. To collect shipping information, use shipping_address_collection. Defaults to never.
                 //],
                 if($customer!=='' && $s['tax_id_collection']['enabled']==='true'){
-                    if(empty($data['customer_update'])) $data['customer_update'] = array();
-                    $data['customer_update']['name'] = 'auto';
-                    $data['customer_update']['address'] = 'auto';
+                    if(empty($stripeData['customer_update'])) $stripeData['customer_update'] = array();
+                    $stripeData['customer_update']['name'] = 'auto';
+                    $stripeData['customer_update']['address'] = 'auto';
                 }
-
-                $checkout_session = \Stripe\Checkout\Session::create($data);
+                
+                $stripeData = array_remove_empty($stripeData);
+                error_log(json_encode($stripeData));
+                $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
                 error_log("exceptionHandler16()");
                 self::exceptionHandler($e, $metadata);
@@ -1537,6 +1745,14 @@ if(!class_exists('SUPER_Stripe')) :
             //} catch (Exception $e) {
             //  // Something else happened, completely unrelated to Stripe
             //}
+
+            error_log( 'super_stripe_recover_' . $form_id . '_' . $checkout_session->id ); 
+            update_option( 'super_stripe_recover_' . $form_id . '_' . $checkout_session->id, $stripeData ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+            update_option( 'super_stripe_submission_data_' . $form_id . '_' . $checkout_session->id, $data ); // e.g: `super_stripe_submission_data_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+            update_option( 'super_stripe_form_settings_' . $form_id . '_' . $checkout_session->id, $settings ); // e.g: `super_stripe_form_settings_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+
+            $description = SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings );
+
 
             //header("HTTP/1.1 303 See Other");
             //header("Location: " . $checkout_session->url);

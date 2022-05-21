@@ -1574,6 +1574,7 @@ class SUPER_Shortcodes {
         if( !empty( $style ) ) {
             $style = ' style="' . $style . '"';
         }
+
         if( ( isset( $settings['theme_hide_icons'] ) ) && ( $settings['theme_hide_icons']=='yes' ) ) {
             $atts['icon'] = '';
         }
@@ -2650,6 +2651,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
+        if( empty($atts['icon']) ) $atts['icon'] = '';
         if( empty($atts['wrapper_width']) ) $atts['wrapper_width'] = 50;
         if( empty($settings['theme_field_size']) ) $settings['theme_field_size'] = 'medium';
         if( $settings['theme_field_size']=='large' ) $atts['wrapper_width'] = $atts['wrapper_width']+20;
@@ -2660,7 +2662,27 @@ class SUPER_Shortcodes {
         
         $result = self::opening_tag( $tag, $atts );
         $result .= '<div class="super-quantity-field-wrap">';
+
+            if($atts['icon']!=''){
+                $icon_tag = explode(' ', $atts['icon']);
+                if(isset($icon_tag[1])){
+                    $icon_type = $icon_tag[0];
+                    $icon_tag = str_replace('fa-', '', $icon_tag[1]);
+                }else{
+                    $default = explode(';', $atts['icon']);
+                    $icon_tag = $default[0];
+                    $icon_type = 'fas';
+                    if(isset($default[1])){
+                        $icon_type = $default[1]; // use the existing type
+                    }
+                }
+                if( (empty($atts['display'])) || (!empty($atts['display']) && $atts['display']!='slider') ){
+                    $result .= '<i class="' . $icon_type . ' fa-'.SUPER_Common::fontawesome_bwc($icon_tag).' super-icon"></i>';
+                }
+            }
+
             $result .= '<span class="super-minus-button super-noselect"><i>-</i></span>';
+            unset($atts['icon']); // remove icon value, because we don't want it in the wrapper for the quantity element
             $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
             // @since 1.9 - custom class

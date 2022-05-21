@@ -508,22 +508,27 @@ if(!class_exists('SUPER_Forms')) :
         public function rewrite_rules(){
             add_rewrite_rule(
                 'sfdlfi\/(.*)', // sfdlfi stands for "super forms download file"
-                'index.php?sfdlfi=$matches[1]', 
+                'index.php?sfdlfi=$matches[1]', // download file
                 'top' 
             );
             add_rewrite_rule(
                 'sfgtfi\/(.*)', // sfgtfi stands for "super forms get file"
-                'index.php?sfgtfi=$matches[1]', 
+                'index.php?sfgtfi=$matches[1]', // get file
                 'top' 
             );
             add_rewrite_rule(
                 'sfssid\/cancel\/(.*)', // sfssid stands for "super forms stripe session id"
-                'index.php?sfssidc=$matches[1]', 
+                'index.php?sfssidc=$matches[1]', // cancel
                 'top' 
             );
             add_rewrite_rule(
                 'sfssid\/success\/(.*)', // sfssid stands for "super forms stripe session id"
-                'index.php?sfssids=$matches[1]', 
+                'index.php?sfssids=$matches[1]', // success 
+                'top' 
+            );
+            add_rewrite_rule(
+                'sfssid\/retry\/(.*)', // sfssid stands for "super forms stripe session id"
+                'index.php?sfssidr=$matches[1]', // retry
                 'top' 
             );
             add_rewrite_rule(
@@ -531,11 +536,12 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfstripewebhook=true', 
                 'top' 
             );
-            if(!get_option('_sf_permalinks_flushed_v3')){
+            if(!get_option('_sf_permalinks_flushed_v4')){
                 flush_rewrite_rules(false);
-                update_option('_sf_permalinks_flushed_v3', 1);
+                update_option('_sf_permalinks_flushed_v4', 1);
                 delete_option('_sf_permalinks_flushed');
                 delete_option('_sf_permalinks_flushed_v2');
+                delete_option('_sf_permalinks_flushed_v3');
             }
         }
         public function query_vars( $query_vars ){
@@ -543,6 +549,7 @@ if(!class_exists('SUPER_Forms')) :
             $query_vars[] = 'sfgtfi';
             $query_vars[] = 'sfssidc'; // cancel URL
             $query_vars[] = 'sfssids'; // success URL
+            $query_vars[] = 'sfssidr'; // retry URL
             $query_vars[] = 'sfstripewebhook';
             return $query_vars;
         }
@@ -650,8 +657,24 @@ if(!class_exists('SUPER_Forms')) :
                 // ...
                 // Now redirect to success URL without checkout session ID parameter
                 $m['home_success_url'] = remove_query_arg( array( 'sfssid' ), $m['home_success_url'] );
-                echo 'redirect to success URL now...' . $m['home_success_url'];
-                // temp disabled wp_redirect( $m['home_success_url'] );
+                wp_redirect( $m['home_success_url'] );
+                exit;
+            }
+            if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
+                // Retry
+                error_log('Retry Stripe payment, create new checkout session based on stripe data we saved');
+                SUPER_Stripe::setAppInfo();
+                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
+                // Try to start a Checkout Session
+                try {
+                    $stripeData = get_option( 'super_stripe_recover_' . $s->metadata->form_id . '_' . $s->id ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+                    error_log(json_encode($stripeData));
+                    $checkout_session = \Stripe\Checkout\Session::create($stripeData);
+                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                    error_log("exceptionHandler16()");
+                    self::exceptionHandler($e, $metadata);
+                }
+                wp_redirect($checkout_session->url);
                 exit;
             }
             if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
@@ -686,6 +709,8 @@ if(!class_exists('SUPER_Forms')) :
                     switch ($event->type) {
                         case 'checkout.session.completed':
                             $session = $event->data->object;
+                            error_log('status: ' . $session->status); // open, complete, or expired
+                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
                             // Check if the order is paid (for example, from a card payment)
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
@@ -696,15 +721,52 @@ if(!class_exists('SUPER_Forms')) :
                             break;
                         case 'checkout.session.async_payment_succeeded':
                             $session = $event->data->object;
+                            error_log('status: ' . $session->status); // open, complete, or expired
+                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
                             // Fulfill the purchase
                             SUPER_Stripe::fulfillOrder($session);
                             break;
                         case 'checkout.session.async_payment_failed':
                             $session = $event->data->object;
+                            error_log('status: ' . $session->status); // open, complete, or expired
+                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
-                            // // Send an email to the customer asking them to retry their order
+                            error_log('Send an email to the customer asking them to retry their order');
+                            // Send an email to the customer asking them to retry their order
+                            $domain = home_url(); // e.g: 'http://domain.com';
+                            $home_url = trailingslashit($domain);
+                            $retryUrl = $home_url . 'sfssid/retry/' . $session->id; //{CHECKOUT_SESSION_ID}';
+                            error_log('retry URL: ' . $retryUrl);
+                            $to = $session->customer_details->email;
+
+                            $form_id = $session->metadata->form_id;
+                            error_log('form_id test: ' . $form_id);
+
+                            $data = get_option( 'super_stripe_submission_data_' . $form_id . '_' . $session->id );
+                            $settings = get_option( 'super_stripe_form_settings_' . $form_id . '_' . $session->id );
+                            $s = SUPER_Stripe::get_default_stripe_settings();
+                            error_log('1: ' . json_encode($s));
+                            if(isset($settings) && isset($settings['_stripe'])){
+                                $s = array_merge( $s, $settings['_stripe'] );
+                                error_log('2: ' . json_encode($s));
+                            }
+                            $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
+                            $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
+                            // Replace tag {stripe_retry_payment_url} with URL
+                            $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            $body = str_replace( '{stripe_retry_payment_expiry}', $retryUrl, $expiry );
+                            $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
+                            if($s['retryPaymentEmail']['lineBreaks']==='true'){
+                                $body = nl2br($body);
+                            }
+                            $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
+
                             // email_customer_about_failed_payment($session);
+                            if($mail==false){
+                                error_log('Stripe `Payment failed` email could not be send through wp_mail()');
+                            }
                             break;
                     }
                     http_response_code(200);

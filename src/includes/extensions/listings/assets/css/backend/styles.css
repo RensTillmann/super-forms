@@ -150,14 +150,14 @@ div[data-name="custom_columns"] .super-text:nth-child(5) {
   align-items: center;
   justify-content: flex-start;
 }
+.sfui-inline input[type="checkbox"] {
+  margin: 0px 5px 0px 0px;
+}
 .sfui-setting .sfui-sub-settings .sfui-sub-settings.sfui-inline {
   align-items: flex-start;
 }
 .sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-setting.sfui-vertical {
   padding: 5px 20px 5px 0;
-}
-.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-setting.sfui-vertical > label {
-  padding: 0;
 }
 .sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings {
   padding-bottom: 10px;

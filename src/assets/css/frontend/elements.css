@@ -3713,9 +3713,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   margin-right: 10px;
 }
-.super-form .super-icon-outside.super-checkbox .super-icon, .super-form .super-icon-outside.super-radio .super-icon, .super-form .super-icon-outside.super-toggle .super-icon, .super-form .super-icon-outside.super-file .super-icon, .super-form .super-icon-outside.super-calculator .super-icon, .super-form .super-icon-outside.super-signature .super-icon,
-.super-form .super-icon-inside.super-checkbox .super-icon,
-.super-form .super-icon-inside.super-radio .super-icon,
+.super-form .super-icon-outside.super-toggle .super-icon, .super-form .super-icon-outside.super-file .super-icon, .super-form .super-icon-outside.super-calculator .super-icon, .super-form .super-icon-outside.super-signature .super-icon,
 .super-form .super-icon-inside.super-toggle .super-icon,
 .super-form .super-icon-inside.super-file .super-icon,
 .super-form .super-icon-inside.super-calculator .super-icon,
@@ -3725,7 +3723,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-icon-outside.super-icon-right .super-icon {
   margin-right: 0;
 }
-.super-form .super-icon-inside.super-slider .super-icon {
+.super-form .super-icon-inside.super-checkbox .super-icon, .super-form .super-icon-inside.super-radio .super-icon, .super-form .super-icon-inside.super-slider .super-icon {
   display: none;
 }
 .super-form .super-icon-inside .super-icon {

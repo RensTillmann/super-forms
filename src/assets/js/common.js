@@ -6871,7 +6871,7 @@ function SUPERreCaptcha(){
         $(window).resize(function() {
             var i, nodes = document.querySelectorAll('.super-form:not(.super-generating-pdf)');
             for(i=0; i<nodes.length; i++){
-                SUPER.init_super_responsive_form_fields({form: nodes[i]});
+                SUPER.init_super_responsive_form_fields({form: nodes[i], timeout: 500});
             }
         });
         
@@ -7168,8 +7168,10 @@ function SUPERreCaptcha(){
     // Handle the responsiveness of the form
     SUPER.responsive_form_fields_timeout = {};
     SUPER.init_super_responsive_form_fields = function(args){
+        console.log('test1');
         if(typeof $ === 'undefined') $ = jQuery;
         if(typeof args === 'undefined') args = {};
+        if(typeof args.timeout === 'undefined') args.timeout = 0;
         if(typeof args.form === 'undefined') {
             args.form = document.querySelector('.super-form');
         }
@@ -7281,7 +7283,9 @@ function SUPERreCaptcha(){
             // Resize toggle elements
             SUPER.resize_toggle_element(args.form);
             // Reposition slider dragger
-            SUPER.reposition_slider_element(args.form);
+            console.log('test2');
+            SUPER.reposition_slider_element(args.form, true);
+            console.log('test3');
 
             // @since 1.3
             SUPER.after_responsive_form_hook($classes, args.form, $new_class, $window_classes, $new_window_class);
@@ -7289,7 +7293,7 @@ function SUPERreCaptcha(){
             if(typeof args.callback === 'function'){
                 args.callback();
             }
-        }, 500);
+        }, args.timeout);
     };
 
     // Update field visibility
