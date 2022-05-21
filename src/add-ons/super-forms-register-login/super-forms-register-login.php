@@ -1707,7 +1707,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             // Deprecated, but used as fallback for custome code by other devs
             $attachments = apply_filters( 'super_register_login_before_resend_activation_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            $mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$h['header_from'], 'from_name'=>$h['header_from_name'], 'custom_reply'=>$h['custom_reply'], 'reply'=>$h['header_reply'], 'reply_name'=>$h['header_reply_name'], 'subject'=>$subject, 'body'=>$message, 'settings'=>$settings, 'attachments'=>$attachments ));
             return $mail;
         }
         public static function send_approve_email($x){
@@ -1737,7 +1737,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $message = apply_filters( 'super_before_sending_approve_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_approve_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            $mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$h['header_from'], 'from_name'=>$h['header_from_name'], 'custom_reply'=>$h['custom_reply'], 'reply'=>$h['header_reply'], 'reply_name'=>$h['header_reply_name'], 'subject'=>$subject, 'body'=>$message, 'settings'=>$settings, 'attachments'=>$attachments ));
             return $mail;
         }
         public static function send_reset_password_email($x){
@@ -1761,7 +1761,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $message = apply_filters( 'super_before_sending_reset_password_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_sending_reset_password_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
-            $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
+            $mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$h['header_from'], 'from_name'=>$h['header_from_name'], 'custom_reply'=>$h['custom_reply'], 'reply'=>$h['header_reply'], 'reply_name'=>$h['header_reply_name'], 'subject'=>$subject, 'body'=>$message, 'settings'=>$settings, 'attachments'=>$attachments ));
             return $mail;
         }
 

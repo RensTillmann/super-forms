@@ -3,6 +3,7 @@
 (function($) { // Hide scope, no $ conflict
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
+        console.log('switch');
         // First get active part
         var i, index, validate, result, skip, progress, multipart,
             form = target.closest('.super-form'),

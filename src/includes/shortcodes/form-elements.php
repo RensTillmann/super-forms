@@ -1869,6 +1869,14 @@ $array['form_elements'] = array(
 
                     ),
                 ),
+                'icon' => array(
+                    'name' => esc_html__( 'Icon', 'super-forms' ),
+                    'fields' => array(
+                        'icon_position' => $icon_position,
+                        'icon_align' => $icon_align,
+                        'icon' => SUPER_Shortcodes::icon($attributes,''),
+                    ),
+                ),                
                 'conditional_logic' => $conditional_logic_array
             ),
         ),

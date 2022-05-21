@@ -33,7 +33,7 @@ This retrieve method allows to filter a specific taxonomy (category) based on it
 * For **Post Categories** the slug name would `category`.
 * For **WooCommerce Product Categories** the slug name would be `product_cat`.
 
-To exclude categories from the list you can enter each category ID seperated by comma's under the **Exclude a category** option.
+To exclude categories from the list you can enter each category ID separated by comma's under the **Exclude a category** option.
 
 If you wish to hide empty categories you can do this by enabling the **Hide empty categories** option.
 
@@ -48,7 +48,7 @@ This retrieve method allows to filter on posts based on the given `Post type`.
 * For **Posts** the post type would be `post`
 * For **WooCommerce Products** the post type would be `product`
 
-To exclude posts from the list you can enter each post ID seperated by comma's under the **Exclude a post** option.
+To exclude posts from the list you can enter each post ID separated by comma's under the **Exclude a post** option.
 
 Whenever you need to retrieve child post based on a parent post you can enter the post parent ID under the **Based on parent ID** option.
 You will have the ability to either return the `Slug`, `Title` or `ID` of the post.

@@ -11,7 +11,7 @@ This guide will explain what a multi-part is, what features it has, when it's sm
 ## What is a multi-part
 
 A multi-part is an element that will become a so called "step" or section of the form on the front-end.
-This comes in handy when wish to seperate specific sections of your form into one step each.
+This comes in handy when wish to separate specific sections of your form into one step each.
 Each multi-part represents it's own step. If you need a 3 step form, you will add 3 multi-part elements.
 Inside each of them you put the elements and fields that belong to this particulair step.
 

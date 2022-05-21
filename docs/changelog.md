@@ -160,7 +160,7 @@
   endforeach;
   ```
 - **Added:** New option under global settings `Super Forms > Settings > WooCommerce My Account Menu Items` to add custom menu items with custom content/shortcode or a custom URL to redirect to a custom page. This allows you to display any extra content for the `/my-account` page. For instance you could list contact entries with the use of the `Listings Add-on` on the `My Account` page. Since you can use shortcodes you could also use it for other usecases that are not even related to Super Forms.
-- **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having seperate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
+- **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having separate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
 - **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`
 - **Added:** Option to define colors for Tooltips via `Form Settings > Theme & Colors`
 - **Added:** Option to define colors for Calculator element (Calculator Add-on) via `Form Settings > Theme & Colors`
@@ -491,7 +491,7 @@
 - **New:** `WooCommerce Checkout Add-on` & `Register & Login Add-on`: option to update the registered user role after payment completed
 - **New:** `WooCommerce Checkout Add-on`: option to populate checkout fields more easily with native setting, matching the field names e.g `billing_first_name` will still work and will be the `leading` value if it exists. Otherwise you can define values like so in the settings: `billing_first_name|{yourfieldnamehere}`. You can define both `billing_` and `shipping_` fields, both will work.
 - **New:** Added `Custom regex` validation option for `Textarea` element
-- **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or seperate date and time and put them in a seperate column
+- **Added:** New filter hook `super_export_selected_entries_filter` to alter data format, e.g: if you wish to change the date format or separate date and time and put them in a separate column
 - **Added:** New option under `Super Forms > Settings` called `Global Overriding` where you can now "override" specific settings for all forms. This gives you more power/control in case you need the same setting for all of your forms. These option will not actually replace or override the individual form setting in the database, but simply ignore them. This means you can simply revert back to whatever setting was previously used on the individual form. _In a future version we might add an option that allows including/excluding specific forms from being overridden based on their form ID_
 - **Added:** 2 new raw code options under `Code` TAB on builder page: `Form settings` and `Translation settings` in an improved user friendly JSON format
 - **Added:** Option to send an SMTP test email from within the settings that will show a log and any possible errors returned by the SMTP server
@@ -735,7 +735,7 @@ and Contact Entry
 - **Changed:** file extion from .txt to .html for export and import files due to PHP recognizing .txt file as text/plain MIME type, which causes WordPress to fail to upload this .txt file resulting in a "Sorry, this file type is not permitted for security reasons". It is strongly discouraged to solve this problem by setting `ALLOW_UNFILTERED_UPLOADS` to true in wp-config.php.
 - **Changed:** Updated Font Awesome to v5.7.2
 - **Changed:** When leaving `Enter custom parameter string` option blank when doing custom POST, it will now submit all form data.
-- **Improved:** A new way/method to verify the reCAPTCHA response, no longer checking via seperate Ajax call but instead upon form submission itself (this solves the error message hanging issue/bug)
+- **Improved:** A new way/method to verify the reCAPTCHA response, no longer checking via separate Ajax call but instead upon form submission itself (this solves the error message hanging issue/bug)
 - **Improved:** Make sure that .txt files can be uploaded due to new mimes type upload policy of wordpress not being able to upload txt files for security reasons
 - **Improved:** replaced `eval()` function with `Function('"use strict";return ()')()`
 - **Improved:** always parse the radix on parseInt() functions
@@ -745,7 +745,7 @@ and Contact Entry
 - **Improved:** Only show admin notice once after updating plugin to check out `What's new` in the latest version. Also added option to completely disable to show update notices in the future from `Settings > Backend settings`
 - **Improved:** Undo/Redo feature
 - **Improved:** Form elements json now saved in localStorage, instead of a textarea element
-- **Improved:** When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (useful for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
+- **Improved:** When using dynamic columns, a separate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (useful for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
 - **Fixed:** WooCommerce Checkout setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
 - **Fixed:** Issue with File Upload element when using custom Image button, it would still display the placeholder text
 - **Fixed:** Issue with WooCommerce Checkout not saving CC and BCC settings
@@ -1494,7 +1494,7 @@ and Contact Entry
 - **Added:** Option to minimize elements and columns/multiparts in backend (even more user friendly form building!)
 - **Added:** Currency, Decimals, Thousand separator, Decimal separator options for Slider field
 - **Added:** parameter entry_id on action hook "super_before_email_success_msg_action"
-- **Added:** Option to do a single condition with 2 seperate validations with (AND / OR)
+- **Added:** Option to do a single condition with 2 separate validations with (AND / OR)
 
 ## May 3, 2016 - Version 1.2.1
 
