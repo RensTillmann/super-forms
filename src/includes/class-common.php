@@ -25,11 +25,12 @@ class SUPER_Common {
             shortcode_atts( 
                 array( 
                     'force' => false,
-                    'id' => md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)),
+                    'id' => false,
                     'secure' => false,
                     'httponly' => true,
                     'expires' => 60*60, //3600, // Defaults to 60 min. (60*60)
-                    'exp_var' => 20*60 //1200 // Defaults to 20 min. (20*60)
+                    'exp_var' => 20*60, //1200 // Defaults to 20 min. (20*60)
+                    'update_option' => true // by default it is set to true
                 ), $x 
             )
         );
@@ -50,8 +51,9 @@ class SUPER_Common {
         // by default the expiry is set to 1 hour, and the expiry variant is set to 30 min.
 		$expires = apply_filters( 'super_cookie_expires_filter', $expires);
 		$exp_var = apply_filters( 'super_cookie_exp_var_filter', $exp_var);
-        $expires = time() + $expires;
-        $exp_var = time() + $exp_var;
+        $now = time();
+        $expires = $now + $expires;
+        $exp_var = $now + $exp_var;
 		// Returns true if the page is using SSL (checks if HTTPS or on Port 443).
 		// NB: this won’t work for websites behind some load balancers, especially Network Solutions hosted websites. To body up a fix, save this gist into the plugins folder and enable it. For details, read WordPress is_ssl() doesn’t work behind some load balancers.
 		// Websites behind load balancers or reverse proxies that support HTTP_X_FORWARDED_PROTO can be fixed by adding the following code to the wp-config.php file, above the require_once call:
@@ -61,32 +63,36 @@ class SUPER_Common {
 		$secure = apply_filters('super_cookie_secure_filter', $secure);
 		$httponly = apply_filters('super_cookie_httponly_filter', $httponly);
 
-        $cookieExists = false;
         $cookieName = '_sfs_id';
         if(isset($_COOKIE[$cookieName])) {
             // If cookie already exists, check if we need to extend expiry
             // First grab the cookie ID
             $id = $_COOKIE[$cookieName];
             // Now lookup this ID in the database
-            $cookie_exp_var = get_option( '_sfs_expvar_' . $id, false );
-            if($cookie_exp_var!==false){
-                $cookieExists = true;
-                if(time() > $cookie_exp_var){
+            $clientData = get_option( '_sfsdata_' . $id, false );
+            if($clientData!==false){
+                if($now > $clientData['exp_var']){
                     // We will want to extend expiration for this cookie
                     if(!headers_sent()){
                         @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
-                        update_option( '_sfs_id_' . $id, $expires, 'no' );
-                        update_option( '_sfs_expvar_' . $id, $exp_var, 'no' );
+                        if($update_option) {
+                            update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                        }
                     }
                 }
+            }else{
+                if($update_option) {
+                    update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                }
             }
-        }
-        if($cookieExists===false){
+        }else{
             if(!headers_sent()){
+                $id = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . $now;
                 // We can only set a cookie when headers are not sent prior anyways
                 @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
-                update_option( '_sfs_id_' . $id, $expires, 'no' );
-                update_option( '_sfs_expvar_' . $id, $exp_var, 'no' );
+                if($update_option) {
+                    update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                }
             }
         }
         return $id;
@@ -114,24 +120,76 @@ class SUPER_Common {
 		$expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
 		$exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
 
-        $expires = time() + $expires;
-        $exp_var = time() + $exp_var;
+        $now = time();
         $force = false;
         if($name==='sf_nonce') $force = true;
         $key = self::startClientSession(array('force'=>$force));
         if($key===false) return;
         if($key==='') return;
-
+        $clientData = get_option( '_sfsdata_' . $key );
         if($value===false){
             // Unset client data
-            delete_option( '_sfs_name_' . $name . '_' . $key );
-            delete_option( '_sfs_exp_' . $name . '_' . $key );
-            delete_option( '_sfs_expvar_' . $name . '_' . $key );
-            return;
+            if($clientData!==false){
+                unset($clientData[$name]);
+                if(count($clientData)<3){
+                    // If empty, we can delete it, to clean it up
+                    delete_option( '_sfsdata_' . $key );
+                    return;
+                }
+            }
         }
-        update_option( '_sfs_name_' . $name . '_' . $key, $value, 'no' );
-        update_option( '_sfs_exp_' . $name . '_' . $key, $expires, 'no' );
-        update_option( '_sfs_expvar_' . $name . '_' . $key, $exp_var, 'no' );
+        $clientData[$name] = array(
+            'expires'=>$now + $expires,
+            'exp_var'=>$now + $exp_var,
+            'value'=>$value
+        );
+        // Cleanup old client data
+        self::cleanupOldClientData($key, $clientData);
+    }
+    public static function cleanupOldClientData($key, $clientData) {
+        $now = time();
+        foreach($clientData as $name => $data){
+            if(is_array($data)){
+                if($data['expires'] < $now){
+                    unset($clientData[$name]);
+                }else{
+                    if($data['exp_var'] < $now){
+                        // Default expiry filter
+                        $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
+                        $exp_var = apply_filters( 'super_client_data_exp_var_filter', 10*60 ); //600 // Defaults to 10 min. (10*60)
+                        // Allow expiry filtering for specific client data
+                        $expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
+                        $exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+                        $clientData[$name]['expires'] = $now + $expires;
+                        $clientData[$name]['exp_var'] = $now + $exp_var;
+                    }
+                }
+                continue;
+            }
+        }
+        if(count($clientData)<3){
+            delete_option( '_sfsdata_' . $key );
+            return;
+        }else{
+            if($clientData['expires'] < $now){
+                delete_option( '_sfsdata_' . $key );
+            }else{
+                if(!headers_sent()){
+                    if($clientData['exp_var'] < $now){
+                        $expires = apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
+                        $exp_var = apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
+                        if(is_ssl()) $secure = true;
+                        $secure = apply_filters('super_cookie_secure_filter', $secure);
+                        $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+                        $clientData['expires'] = $now + $expires;
+                        $clientData['exp_var'] = $now + $exp_var;
+                        $cookieName = '_sfs_id';
+                        @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+                    }
+                }
+            }
+        }
+        update_option( '_sfsdata_' . $key, $clientData, 'no' );
     }
 
     public static function getClientData( $name ) {
@@ -142,50 +200,45 @@ class SUPER_Common {
         $key = $_COOKIE[$cookieName];
         if($key===false) return false;
         if($key==='') return false;
-        return get_option( '_sfs_name_' . $name . '_' . $key );
+        $clientData = get_option( '_sfsdata_' . $key );
+        if(!isset($clientData[$name])) return false;
+        if(!isset($clientData[$name]['value'])) return false;
+        // If expired variation is reached, extend it
+        $now = time();
+        if($clientData[$name]['exp_var'] < $now){
+            // Default expiry filter
+            $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
+            $exp_var = apply_filters( 'super_client_data_exp_var_filter', 10*60 ); //600 // Defaults to 10 min. (10*60)
+            // Allow expiry filtering for specific client data
+            $expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
+            $exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+            $clientData[$name]['expires'] = $now + $expires;
+            $clientData[$name]['exp_var'] = $now + $exp_var;
+            if(!headers_sent()){
+                $expires = apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
+                $exp_var = apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
+                if(is_ssl()) $secure = true;
+                $secure = apply_filters('super_cookie_secure_filter', $secure);
+                $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+                $clientData['expires'] = $now + $expires;
+                $clientData['exp_var'] = $now + $exp_var;
+                $cookieName = '_sfs_id';
+                @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+            }
+            update_option( '_sfsdata_' . $key, $clientData, 'no' );
+        }
+        return $clientData[$name]['value'];
     }
 
-    public static function unsetClientData( $expired ) {
-        global $wpdb;
-        if(is_array($expired)){
-            if(count($expired)===0) return true;
-            $query = array(); 
-            foreach($expired as $id){
-                if(empty($id)) continue;
-                $query[] = "option_name LIKE '_sfs_%" . $id . "'";
-            }
-            if(count($query)>1){
-                $query = implode(' OR ', $query);
-            }else{
-                $query = $query[0];
-            }
-            $sql = "DELETE FROM $wpdb->options WHERE $query";
-            $count = $wpdb->query($sql);
-        }
-    }
-	
     public static function deleteOldClientData($limit=0) {
 		global $wpdb;
         if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
-
         // Delete old deprecated sessions from previous Super Forms versions
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%'");
-
-        // Find any option name starting with `_sfs_id_` and check if it was expired
         $now = time();
-        $rows = $wpdb->get_results("SELECT SUBSTRING_INDEX(option_name, '_', -1) AS id FROM $wpdb->options WHERE option_name LIKE '\_sfs\_id\_%' AND option_value < {$now} ORDER BY option_value ASC LIMIT {$limit}");
-		$expired = array();
-		foreach( $rows as $value ) {
-            $expired[$value->id] = $value->id;
-		}
-        // Also delete other expired client data
-        $rows = $wpdb->get_results("SELECT SUBSTRING(option_name, 10) AS id FROM $wpdb->options WHERE option_name LIKE '\_sfs\_exp\_%' AND option_value < {$now} ORDER BY option_value ASC LIMIT {$limit}");
-		foreach( $rows as $value ) {
-            $expired[$value->id] = $value->id;
-		}
-		// Delete all client data based on session ID
-        if(count($expired)>0) self::unsetClientData( $expired );
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%' LIMIT 5000");
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfs\_%' LIMIT 5000");
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsdata\_%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < {$now}");
 	}
 
     public static function generate_nonce(){
@@ -1492,11 +1545,20 @@ class SUPER_Common {
             $user_roles = implode(',', $current_user->roles); // @since 3.2.0
     
             // @since 3.3.0 - save http_referrer into a session
-            $http_referrer = SUPER_Common::getClientData( 'server_http_referrer' );
-            if( $http_referrer==false ) {
-                $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+            // Only set if `{server_http_referrer_session}` tag was found
+            // Or maybe rely on a filter to overrule this condition?
+            $http_referrer = '';
+            if(strpos($value, '{server_http_referrer_session}')!==false){
+                $http_referrer = SUPER_Common::getClientData( 'server_http_referrer' );
+                if( $http_referrer==false ) {
+                    $http_referrer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+                }
+                if(!empty($http_referrer)){
+                    SUPER_Common::setClientData( array( 'name'=> 'server_http_referrer', 'value'=>$http_referrer  ) );
+                }else{
+                    SUPER_Common::setClientData( array( 'name'=> 'server_http_referrer', 'value'=>false ) );
+                }
             }
-            SUPER_Common::setClientData( array( 'name'=> 'server_http_referrer', 'value'=>$http_referrer  ) );
             
             // @since 3.4.0 - Retrieve latest contact entry based on form ID
             // @since 3.4.0 - retrieve the lock count
@@ -1947,7 +2009,10 @@ class SUPER_Common {
                 $tags = array_merge( $tags, $wc_tags );
             }
             $tags = apply_filters( 'super_email_tags_filter', $tags );
-            SUPER_Common::setClientData( array( 'name'=> 'tags_values', 'value'=>$tags  ) );
+            // Only store in case the language switch is enabled
+            if(!empty($settings['i18n_switch']) && $settings['i18n_switch'] ==='true'){
+                SUPER_Common::setClientData( array( 'name'=> 'tags_values', 'value'=>$tags  ) );
+            }
         }
         
         // Return the new value with tags replaced for data

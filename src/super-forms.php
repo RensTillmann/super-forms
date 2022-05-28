@@ -1589,6 +1589,10 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         public function init() {
+            if(!headers_sent()){
+                // Start session for this client
+                SUPER_Common::startClientSession(array('update_option' => false));
+            }
 
             // Can't rely solely on cronjobs, because some servers have it disabled
             // Default interval is 1 out of 50, and it can delete up to 200 expired sessions at a time by default
