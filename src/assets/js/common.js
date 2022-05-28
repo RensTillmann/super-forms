@@ -5544,7 +5544,13 @@ function SUPERreCaptcha(){
                 if($target.value) $target.value = $html;
                 if($target.dataset.value) $target.dataset.value = $html;
             }else{
-                $target.innerHTML = $html;
+                // Not if google map
+                if($target.classList.contains('super-google-map')){
+                    var $textArea = $target.querySelector(':scope > textarea.super-hidden');
+                    if($textArea) $textArea.value = $html;
+                }else{
+                    $target.innerHTML = $html;
+                }
             }
             // If field label or description we must skip because we don't want to override the field value
             if($target.classList.contains('super-label') || $target.classList.contains('super-description')){

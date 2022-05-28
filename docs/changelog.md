@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## May 28, 2022 - Version 6.3.2
+
+- **Improved:** Do not store `server_http_referrer_session` and/or `tags_values` as client data when not needed
+
 ## May 04, 2022 - Version 6.3.1
 
 - **Improved:** Cookie/Session system, in case WP Cron is disabled, make sure we still clear expired client data from the database

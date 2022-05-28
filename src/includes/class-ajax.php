@@ -2150,7 +2150,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' super-hidden';
             }
-            $result .= '<div class="super-field super-field-type-'.$fv['type'] . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            $result .= '<div class="super-field' . (isset($fv['type']) ? ' super-field-type-'.$fv['type'] : '') . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) {
                     $result .= '<div class="super-field-name">' . ($fv['name']);
                     if( isset( $fv['desc'] ) ) {
@@ -3283,9 +3283,6 @@ class SUPER_Ajax {
         }
         if( $form_id!=0 ) {
 
-            // Clear form progression
-            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
-
             // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)
             if( ( isset( $settings['form_locker'] ) ) && ( $settings['form_locker']=='true' ) ) {
                 $count = get_post_meta( $form_id, '_super_submission_count', true );
@@ -3438,6 +3435,8 @@ class SUPER_Ajax {
                 }
             }
 
+            // Clear form progression
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
             /** 
              *  Hook before outputing the success message or redirect after a succesfull submitted form
