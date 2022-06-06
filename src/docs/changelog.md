@@ -8,9 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## May 28, 2022 - Version 6.3.2
+## Jun 06, 2022 - Version 6.3.2
 
-- **Improved:** Do not store `server_http_referrer_session` and/or `tags_values` as client data when not needed
+- **Improved:** Do not store `server_http_referrer_session` and/or `tags_values` as client data when not needed, which could stress the database on high traffic websites
+- **Fix:** `Listings` bug fix when leaving role settings empty (did not allow the user to view/edit/delete their own entries)
 
 ## May 04, 2022 - Version 6.3.1
 
