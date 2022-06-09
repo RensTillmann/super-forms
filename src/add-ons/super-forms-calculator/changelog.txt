@@ -1,3 +1,8 @@
+Jun 09, 2022 - Version 2.3.4
+- Added: Option to count words for Textarea field (without whitespace, linebreak, tabs etc) with use of `{fieldname;words}`
+- Added: Option to count characters for Textarea field (without whitespace, linebreak, tabs etc) with use of `{fieldname;chars}`
+- Added: Option to count all characters for Textarea field (including whitespace, linebreak, tabs etc) with use of `{fieldname;allchars}`
+
 Jan 20, 2022 - Version 2.3.3
 - Added: Compatibility with latest version of Super Forms
 

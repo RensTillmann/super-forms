@@ -506,6 +506,17 @@
 			if( parent.classList.contains('super-textarea') ) {
 				text_field = false;
 				value = (element.getAttribute('data-word-count')) ? parseFloat(element.getAttribute('data-word-count')) : 0;
+				if(value_n === 'word' || value_n === 'words' || value_n === 'char' || value_n === 'chars' || value_n === 'characters' || value_n === 'allChars' || value_n === 'allchars' || value_n === 'allcharacters' || value_n === 'allCharacters' ){
+					if(value_n === 'word' || value_n === 'words'){
+						// already defaults to word, unless otherwise specified e.g: {questions;chars}, {questions;allchars}
+					}
+					if(value_n === 'char' || value_n === 'chars' || value_n === 'characters' ){
+						value = (element.getAttribute('data-chars-count')) ? parseFloat(element.getAttribute('data-chars-count')) : 0;
+					}
+					if(value_n === 'allchars' || value_n === 'allChars' || value_n === 'allcharacters' || value_n === 'allCharacters' ){
+						value = (element.getAttribute('data-allchars-count')) ? parseFloat(element.getAttribute('data-allchars-count')) : 0;
+					}
+				}
 			}
 
 			// @since 1.3.2

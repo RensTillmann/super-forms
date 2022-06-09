@@ -1921,8 +1921,10 @@
             var $this = $(this),
                 $time = 250,
                 $text,
-                $words;
-
+                $words,
+                $removeNoneChars,
+                $chars,
+                $allChars;
             if(e.type!='keyup') $time = 0;
             if (word_count_timeout !== null) {
                 clearTimeout(word_count_timeout);
@@ -1931,7 +1933,12 @@
                 $text = $this.val();
                 $words = $text.match(/\S+/g);
                 $words = $words ? $words.length : 0;
+                $removeNoneChars = $text.replace(/\s/g, ""); // use the \s quantifier to remove all white space, is equivalent to [\r\n\t\f\v ]
+                $chars = $removeNoneChars.length; // count only characters after removing any whitespace, tabs, linebreaks etc.
+                $allChars = $text.length; // count all characters
                 $this.attr('data-word-count', $words);
+                $this.attr('data-chars-count', $chars);
+                $this.attr('data-allchars-count', $allChars);
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }, $time);
         });
