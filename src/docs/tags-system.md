@@ -98,6 +98,12 @@ Now you might ask where should I actually place this tag? You can choose to use 
 
 ## Predefined {tags} that are useful
 
+**Tags that are compatible in combination with Calculator element and the Textarea field:**
+
+* `{your_textarea_field_name_here;word}` (will count all words entered in the textarea)
+* `{your_textarea_field_name_here;chars}` (will count all characters entered in the textarea, excluding carriage return, line-feed/newline, tab, form-feed, vertical whitespace)
+* `{your_textarea_field_name_here;allchars}` (will count all all characters entered in the textarea, including carriage return, line-feed/newline, tab, form-feed, vertical whitespace)
+
 **Tags that are compatible with the file upload element:**
 
 ?> Also checkout the [file upload foreach example](email-foreach-loops#how-to-loop-over-files) for the file upload element

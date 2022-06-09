@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.2
+ * Version:           6.3.3
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.2';
+        public $version = '6.3.3';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -806,24 +806,30 @@ if(!class_exists('SUPER_Forms')) :
                 var word_count_timeout = null;
                 editor.on("keyup blur", function(e){
                     // Check if this Editor belongs to super forms
-                    if( !editor.container.closest(".super-forms") ) {
+                    if( editor.container.closest(".super-forms") ) {
+                        var $this = this, $time = 250, $text, $words, $removeNoneChars, $chars, $allChars;
+                        if(e.type!="keyup") $time = 0;
+                        if (word_count_timeout !== null) {
+                            clearTimeout(word_count_timeout);
+                        }
+                        word_count_timeout = setTimeout(function () {
+                            debugger;
+                            $text = editor.getContent();
+                            $words = $text.match(/\S+/g);
+                            $words = $words ? $words.length : 0;
+                            $removeNoneChars = $text.replace(/\s/g, ""); // use the \s quantifier to remove all white space, is equivalent to [\r\n\t\f\v ]
+                            $chars = $removeNoneChars.length; // count only characters after removing any whitespace, tabs, linebreaks etc.
+                            $allChars = $text.length; // count all characters
+                            console.log($words);
+                            console.log($chars);
+                            console.log($allChars);
+                            jQuery($this.targetElm).attr("data-word-count", $words);
+                            jQuery($this.targetElm).attr("data-chars-count", $chars);
+                            jQuery($this.targetElm).attr("data-allchars-count", $allChars);
+                            SUPER.after_field_change_blur_hook({el: $this.targetElm});
+                        }, $time);
                         return false;
                     }
-                    var $this = this,
-                        $time = 250,
-                        $text,
-                        $words;
-                    if(e.type!="keyup") $time = 0;
-                    if (word_count_timeout !== null) {
-                        clearTimeout(word_count_timeout);
-                    }
-                    word_count_timeout = setTimeout(function () {
-                        $text = editor.getContent();
-                        $words = $text.match(/\S+/g);
-                        $words = $words ? $words.length : 0;
-                        jQuery($this.targetElm).attr("data-word-count", $words);
-                        SUPER.after_field_change_blur_hook({el: $this.targetElm});
-                    }, $time);
                 });
             }';
             $init['setup'] = ob_get_contents();

@@ -577,6 +577,7 @@ h1.super-thanks-title {
   padding: 0px 0px 0px 0px;
   position: relative;
   display: flex;
+  align-items: center;
   flex-direction: column;
 }
 .super-form .super-max-width-wrapper {
@@ -584,6 +585,7 @@ h1.super-thanks-title {
   display: inline-block;
 }
 .super-form.super-initialized {
+  align-items: initial;
   min-height: inherit;
 }
 .super-form form {

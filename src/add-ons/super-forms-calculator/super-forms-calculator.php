@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Calculator
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.3.3
+ * Version:     2.3.4
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Calculator') ) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.3.3';
+        public $version = '2.3.4';
 
 
         /**
