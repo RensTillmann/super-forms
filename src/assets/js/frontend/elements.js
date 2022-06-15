@@ -3246,7 +3246,7 @@
                 }else{
                     if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
                     app.autosuggestTagsTimeout = setTimeout(function () {
-                        value = target.value.toString();
+                        value = target.value.toString().toLowerCase();
                         if (value === '') {
                             parent.classList.remove('super-string-found');
                             parent.classList.remove('super-no-match');
