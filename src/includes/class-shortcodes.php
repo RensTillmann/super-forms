@@ -4973,7 +4973,8 @@ class SUPER_Shortcodes {
                 $return .= '</div>';
             }
             if( isset( $value['predefined'] ) ) {
-                $return .= '<textarea class="predefined" style="display:none;">' . json_encode( $value['predefined'] ) . '</textarea>';
+                $pre = htmlentities( json_encode( $value['predefined'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED );
+                $return .= '<textarea class="predefined" style="display:none;">' . $pre . '</textarea>';
             }
         $return .= '</div>';
             

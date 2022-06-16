@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jun 16, 2022 - Version 6.3.302
+## Jun 16, 2022 - Version 6.3.303
 
 - **Fix:** `Keyword/tags field` should not filter case sensitive
 - **Fix:** `WooCommerce Order Search` feature for `Text field` having issues with rendering the search results on front-end properly, plus additional CSS improvements accross theme style/icon positioning
