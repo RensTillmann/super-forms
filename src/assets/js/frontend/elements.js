@@ -2063,21 +2063,6 @@
                 oldv,
                 duplicate_dynamically;
 
-            function return_replace_names(value, new_count, replace_names){
-                regex = /{([^\\\/\s"'+]*?)}/g;
-                while ((vv = regex.exec(value)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if (vv.index === regex.lastIndex) {
-                        regex.lastIndex++;
-                    }
-                    field_name = vv[1].split(';')[0];
-                    new_field = field_name+'_'+new_count;
-                    replace_names[field_name] = new_field;
-                }
-                return replace_names;
-            }
-
-            
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
@@ -2234,7 +2219,9 @@
                 }
 
             }
-            
+            // Required to update calculations after adding dynamic column
+            SUPER.after_field_change_blur_hook({form: form, el: undefined});
+
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
             
             // @since 2.4.0 - hook after adding new column
