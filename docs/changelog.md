@@ -8,19 +8,18 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jun 16, 2022 - Version 6.3.303
-
-- **Fix:** `Keyword/tags field` should not filter case sensitive
-- **Fix:** `WooCommerce Order Search` feature for `Text field` having issues with rendering the search results on front-end properly, plus additional CSS improvements accross theme style/icon positioning
-- **Fix:** `Enfold` theme was causing some issues with `Keyword/Tags` feature due to CSS styles being used by the theme
-
-## Jun 09, 2022 - Version 6.3.3
+## Jun 21, 2022 - Version 6.3.305
 
 - **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;word}` to count words
 - **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;chars}` to count characters excluding, carriage return, line-feed (newline), tab, form-feed, vertical whitespace
 - **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;allchars}` to count all characters including, carriage return, line-feed (newline), tab, form-feed, vertical whitespace
 - **Improved:** Do not store `server_http_referrer_session` and/or `tags_values` as client data when not needed, which could stress the database on high traffic websites
 - **Improved:** Cookie/Session system, in case WP Cron is disabled, make sure we still clear expired client data from the database
+- **Fix:** Bug with `Calculation` not summing up amounts correctly when inside dynamic column
+- **Fix:** icon for `Calculator` element not being displayed even if defined
+- **Fix:** `Keyword/tags field` should not filter case sensitive
+- **Fix:** `WooCommerce Order Search` feature for `Text field` having issues with rendering the search results on front-end properly, plus additional CSS improvements accross theme style/icon positioning
+- **Fix:** `Enfold` theme was causing some issues with `Keyword/Tags` feature due to CSS styles being used by the theme
 - **Fix:** Bug/Issue with `Avada Builder` when typing in TinyMCE editor it would not update the live view properly
 - **Fix:** `Listings` bug fix when leaving role settings empty (did not allow the user to view/edit/delete their own entries)
 
