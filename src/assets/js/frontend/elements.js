@@ -1975,7 +1975,26 @@
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
         // @since 4.9.0 - Quantity field only allow number input
+        $doc.on('blur', '.super-quantity .super-shortcode-field', function() {
+            // Remove empty decimal place
+            if(this.value.indexOf('.')!==-1){
+                var split = this.value.split("."), before = split[0], after = split[1];
+                var result = before;
+                if(after!=='') result += '.'+after;
+                this.value = result;
+            } 
+        });
         $doc.on('input', '.super-quantity .super-shortcode-field', function() {
+            // Exception when using steps with decimals, then allow to enter decimal number
+            if(this.dataset.steps.indexOf('.')!==-1){
+                // Count decimals
+                var decimals = this.dataset.steps.toString().split(".")[1].length || 0; 
+                var floor = Math.floor(this.dataset.steps);
+                if(floor===this.dataset.steps) decimals = 0;
+                this.value = (this.value.indexOf(".")!==-1) ? (this.value.substr(0, this.value.indexOf(".")) + this.value.substr(this.value.indexOf("."), (decimals+1))) : this.value;
+                return;
+            }
+            // Only allow whole numbers
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 

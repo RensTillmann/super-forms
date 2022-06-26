@@ -8,6 +8,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jun 26, 2022 - Version 6.3.307
+
+- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
+
+## Jun 22, 2022 - Version 6.3.306
+
+- **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
+
 ## Jun 21, 2022 - Version 6.3.305
 
 - **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;word}` to count words
