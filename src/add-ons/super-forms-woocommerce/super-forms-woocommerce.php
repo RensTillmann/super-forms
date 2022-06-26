@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - WooCommerce Checkout
  * Description: Checkout with WooCommerce after form submission. Charge users for registering or posting content.
- * Version:     1.9.4
+ * Version:     1.9.5
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -43,7 +43,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *
          *  @since      1.0.0
         */
-        public $version = '1.9.4';
+        public $version = '1.9.5';
 
 
         /**
@@ -1515,7 +1515,12 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     if( class_exists('WC_Name_Your_Price_Helpers') ) {
                         $posted_nyp_field = 'nyp' . apply_filters( 'nyp_field_prefix', '', $v['id'] );
-                        $_REQUEST[$posted_nyp_field] = wc_format_decimal($v['price']);
+                        // Make sure we set the correct price format for Name Your Price based on the defined WooCommerce thousand/decimal seperator and decimal separators
+                        $price = (float) $v['price']; // Convert to float to avoid issues on PHP 8.
+                        $negative = $price < 0;
+                        $price = $v['price'];
+                        $price = number_format( $price, wc_get_price_decimals(), wc_get_price_decimal_separator(), wc_get_price_thousand_separator() );
+                        $_REQUEST[$posted_nyp_field] = ($negative ? '-' : '') . $price;
                     }
 
                     $new_attributes = array();
