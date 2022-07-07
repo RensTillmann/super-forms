@@ -1472,7 +1472,7 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false ) {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;
         $current_user = wp_get_current_user();
@@ -2184,7 +2184,7 @@ class SUPER_Common {
             }
 
             // @since 6.3.0 - Let's try to replace custom option data
-            if ( strpos( $value, '{option_') !== false ) {
+            if( $skipOptions===false && (strpos($value, '{option_')!==false) ) {
                 $option_key = str_replace('{option_', '', $value);
                 $option_key = str_replace('}', '', $option_key);
                 $keys = explode(';', $option_key);

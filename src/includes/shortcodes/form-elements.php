@@ -3429,6 +3429,23 @@ $array['form_elements'] = array(
             ),
             'atts' => array(),
         ),
+        'unique_code_predefined' => array(
+            'name' => esc_html__( 'Unique code', 'super-forms' ),
+            'icon' => 'hashtag;fas',
+            'predefined' => array(
+                array(
+                    'tag' => 'hidden',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'unique_code', 'super-forms' ),
+                        'email' => esc_html__( 'Unique code', 'super-forms' ) . ':',
+                        'enable_random_code' => 'true',
+                        'code_length' => '7'
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
         'hidden' => array(
             'hidden' => true,
             'callback' => 'SUPER_Shortcodes::hidden',
