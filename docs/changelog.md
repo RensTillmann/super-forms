@@ -8,6 +8,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 07, 2022 - Version 6.3.309
+
+- **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
+
+## Jul 04, 2022 - Version 6.3.308
+
+- **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
+
 ## Jun 26, 2022 - Version 6.3.307
 
 - **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.

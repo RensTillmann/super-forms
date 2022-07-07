@@ -3947,6 +3947,13 @@ function SUPERreCaptcha(){
             if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
                 // Exclude conditionally
             }else{
+                // First replace %d with dynamic column number for E-mail label setting
+                var $emailLabel = $this.data('email');
+                if($emailLabel && $emailLabel.indexOf('%d')!==-1){
+                    var $dynamicParentIndex = $($this).parents('.super-duplicate-column-fields:eq(0)').index();
+                    $emailLabel = SUPER.replaceAll($emailLabel, '%d', $dynamicParentIndex+1);
+                    $this.data('email', $emailLabel);
+                }
                 if($this.hasClass('super-fileupload')){
                     $parent = $this.parents('.super-field-wrapper:eq(0)');
                     $field = $parent.find('.super-active-files');
