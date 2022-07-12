@@ -87,7 +87,7 @@ class SUPER_Common {
             }
         }else{
             if(!headers_sent()){
-                $id = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . $now;
+                $id = md5(uniqid(mt_rand(), true)) . $now;
                 // We can only set a cookie when headers are not sent prior anyways
                 @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
                 if($update_option) {
