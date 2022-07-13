@@ -5948,7 +5948,7 @@ function SUPERreCaptcha(){
                 nodes[i].remove();
             }
         }
-
+        
         // @since 3.2.0 - remove the google autocomplete init class from fields
         nodes = args.form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
         for (i = 0; i < nodes.length; i++) { 
@@ -6207,7 +6207,7 @@ function SUPERreCaptcha(){
         }
 
         // If has multi-part reset to step 1
-        if(main_form.querySelector('.super-multipart')){
+        if(main_form.querySelector('.super-multipart') && (typeof args.clone === 'undefined')){
             var step = main_form.querySelector('.super-multipart-step');
             children = Array.prototype.slice.call( step.parentNode.children );
             index = children.indexOf(step);
