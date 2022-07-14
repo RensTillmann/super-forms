@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 14, 2022 - Version 6.3.312
+
+- **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
+
 ## Jul 13, 2022 - Version 6.3.311
 
 - **Fix:** When using `Dynamic column` inside `Multi-parts` make sure when adding a new column it doesn't switch to the first multi-part
