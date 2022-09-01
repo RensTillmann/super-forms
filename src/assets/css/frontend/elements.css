@@ -510,8 +510,8 @@ h1.super-thanks-title {
   width: calc(60% + 5px);
 }
 .super-grid > .super-column.super_three_fifth.first-column {
-  width: -moz-calc(60% - 5px);
-  width: calc(60% - 5px);
+  width: -moz-calc(60% - 10px);
+  width: calc(60% - 10px);
 }
 .super-grid > .super_two_third {
   width: 66.6666666667%;
