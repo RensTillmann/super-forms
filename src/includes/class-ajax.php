@@ -1964,8 +1964,11 @@ class SUPER_Ajax {
         if((!isset($_POST['formElements']) && ($_POST['elements']==='true')) || 
            (!isset($_POST['formSettings']) && ($_POST['settings']==='true')) || 
            (!isset($_POST['translationSettings']) && ($_POST['translations']==='true')) ){
-            // Failed, notify user
-            SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+            // Except when importing a form from file...
+            if(isset($_POST['action']) && $_POST['action']!=='super_import_single_form'){
+                // Failed, notify user
+                SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+            }
         }
 
         $_super_elements = wp_unslash($_POST['formElements']);

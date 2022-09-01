@@ -167,12 +167,17 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
-        // Get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = $default;
-        $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
-        if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
-            $atts['value'] = $entry_data_value;
+
+        // Get the value from entry data
+        // Skip for hidden fields?
+        if($tag!=='hidden'){
+            $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
+            if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
+                $atts['value'] = $entry_data_value;
+            }
         }
+
         if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
         // Add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']);

@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.312
+ * Version:           6.3.400
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.312';
+        public $version = '6.3.400';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -599,11 +599,20 @@ if(!class_exists('SUPER_Forms')) :
                 $fileLocation = $wp->query_vars['sfdlfi'];
                 $url = wp_get_attachment_url( $fileLocation );
                 if(empty($url)){
+                    error_log('Super Forms: [HTTP/1.1 404 Not Found]');
+                    wp_delete_attachment( $fileLocation, true );
+                    error_log('File with ID '.$fileLocation.' deleted');
+                    error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
                 $request = wp_safe_remote_get($url);
                 if ( is_wp_error( $request ) ) {
+                    error_log('Super Forms: [HTTP/1.1 404 Not Found]');
+                    error_log(json_encode($request->errors));
+                    wp_delete_attachment( $fileLocation, true );
+                    error_log('File with ID '.$fileLocation.' deleted');
+                    error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }

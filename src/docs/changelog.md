@@ -8,33 +8,18 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Jul 14, 2022 - Version 6.3.312
+## Sep 01, 2022 - Version 6.3.400
 
 - **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
-
-## Jul 13, 2022 - Version 6.3.311
-
-- **Fix:** When using `Dynamic column` inside `Multi-parts` make sure when adding a new column it doesn't switch to the first multi-part
-
-## Jul 12, 2022 - Version 6.3.310
-
-- **Fix:** When storing client data make sure the generate ID does not exceed 64 characters in length, due to WordPress options table > `option_name varchar(64)` limit
-
-## Jul 07, 2022 - Version 6.3.309
-
-- **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
-
-## Jul 04, 2022 - Version 6.3.308
-
-- **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
-
-## Jun 26, 2022 - Version 6.3.307
-
-- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
-
-## Jun 22, 2022 - Version 6.3.306
-
 - **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
+- **Fix:** Column layout combination 3/5 + 1/5 + 1/5 cuasing last column to be placed on a new line
+- **Fix:** When exporting entry data and the server returns an error e.g: `cURL error...`, make sure to delete the file before returning 404 error code, and log the incident
+- **Fix:** When `Save form progress` is enabled make sure to not populate `Hidden fields` values
+- **Fix:** When using `Dynamic column` inside `Multi-parts` make sure when adding a new column it doesn't switch to the first multi-part
+- **Fix:** When storing client data make sure the generate ID does not exceed 64 characters in length, due to WordPress options table > `option_name varchar(64)` limit
+- **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
+- **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
+- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
 
 ## Jun 21, 2022 - Version 6.3.305
 
