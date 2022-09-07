@@ -8,10 +8,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Sep 01, 2022 - Version 6.3.400
+## Sep 07, 2022 - Version 6.3.600
 
+- **Improved:** PDF Generator speed optimization
 - **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
 - **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
+- **Fix:** PDF page break element orientation change bug
+- **Fix:** Javascript error `indexOf is not a function` when called on a number value
+- **Fix:** When populating signatures via `Contact Entry Search` field make sure signature can't be edited by the user when defined to do so
 - **Fix:** Column layout combination 3/5 + 1/5 + 1/5 cuasing last column to be placed on a new line
 - **Fix:** When exporting entry data and the server returns an error e.g: `cURL error...`, make sure to delete the file before returning 404 error code, and log the incident
 - **Fix:** When `Save form progress` is enabled make sure to not populate `Hidden fields` values
@@ -20,6 +24,7 @@
 - **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
 - **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
 - **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
+- **Fix:** PHP notices/errors
 
 ## Jun 21, 2022 - Version 6.3.305
 

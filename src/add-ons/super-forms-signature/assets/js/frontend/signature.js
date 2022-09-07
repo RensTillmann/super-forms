@@ -46,9 +46,20 @@
 		for( i = 0; i < nodes.length; i++ ) {
 			// Make drawing smaller by 50% (just as an example)
 			var canvasWrapper = nodes[i];
+			var disallowEdit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowEdit;
 			$(canvasWrapper).signature('enable');
 			var json = $(canvasWrapper).signature('toJSON');
 			var lines = JSON.parse(json).lines;
+			if(lines.length===0){
+				if(disallowEdit==='true'){
+					$(canvasWrapper).signature('disable');
+					// Remove clear button
+					if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+						canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+					}
+				} 
+				continue;
+			}
 			var canvasWrapperWidth = canvasWrapper.clientWidth;
 			var canvasWrapperHeight = canvasWrapper.clientHeight;
 			if(canvasWrapperWidth===0 && canvasWrapperHeight===0){
@@ -91,7 +102,6 @@
 				// Do not resize, keep original
 			}
 			var jsonLength = JSON.parse(json).lines.length;
-			var disallowedit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowedit;
 			var thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
 			var color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
 			$(canvasWrapper).signature({
@@ -99,7 +109,7 @@
                 color: color
             });
 			$(canvasWrapper).signature('draw', json);
-			if(disallowedit==='true' && jsonLength>0 ){ // But only if form was populated with form data
+			if(disallowEdit==='true' && jsonLength>0 ){ // But only if form was populated with form data
 				$(canvasWrapper).signature('disable');
 				// Remove clear button
 				if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
@@ -120,7 +130,7 @@
     SUPER.init_clear_signatures = function(form){
 		$(form).find('.super-signature.super-initialized').each(function(){
 			var canvas = $(this).find('.super-signature-canvas:not(.kbw-signature-disabled)');
-			var disallow = $(this).find('.super-shortcode-field').data('disallowedit');
+			var disallow = $(this).find('.super-shortcode-field').data('disallowEdit');
 			if(canvas.length>0 && disallow!=='true'){
 				canvas.signature('clear');
 				$(this).find('.super-shortcode-field').val('');

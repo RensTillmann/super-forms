@@ -2802,7 +2802,7 @@ function SUPERreCaptcha(){
                         // Grab E-mail Label
                         if($value_n=='email' || $value_n=='email_label' || $value_n=='emailLabel'){
                             $value = $element.dataset.email;
-                            if($value.indexOf('%d')!==-1){
+                            if($value.toString().indexOf('%d')!==-1){
                                 var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
                                 $value = SUPER.replaceAll($value, '%d', dynamicParentIndex+1);
                             }
@@ -3949,7 +3949,7 @@ function SUPERreCaptcha(){
             }else{
                 // First replace %d with dynamic column number for E-mail label setting
                 var $emailLabel = $this.data('email');
-                if($emailLabel && $emailLabel.indexOf('%d')!==-1){
+                if($emailLabel && $emailLabel.toString().indexOf('%d')!==-1){
                     var $dynamicParentIndex = $($this).parents('.super-duplicate-column-fields:eq(0)').index();
                     $emailLabel = SUPER.replaceAll($emailLabel, '%d', $dynamicParentIndex+1);
                     $this.data('email', $emailLabel);
@@ -6315,6 +6315,14 @@ function SUPERreCaptcha(){
                         signatureDataUrl = data[i].value;
                         field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                         $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
+                        field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                        var canvasWrapper = field.querySelector('.super-signature-canvas');
+                        field.classList.add('super-filled');
+                        $(canvasWrapper).signature('disable');
+                        // Remove clear button
+                        if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+                            canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                        }
                     }
                     return true;
                 }
@@ -7578,6 +7586,17 @@ function SUPERreCaptcha(){
 
         // Must hide elements
         var css = '.super-hide-scrollbar {overflow: -moz-hidden-unscrollable!important; overflow: hidden!important;}';
+        // Toggle ignore elements (hide / show)
+        css += '.super-pdf-page-container:not(.super-pdf-toggle-ignore-items) .super-pdf-body .super-generating-pdf .super-pdf-ignored-el-placeholder {';
+            css += 'display: none !important;';
+            css += 'opacity: 0 !important;';
+        css += '}';
+        css += '.super-pdf-page-container.super-pdf-toggle-ignore-items .super-pdf-body .super-generating-pdf [data-html2canvas-ignore="true"],';
+        css += '.super-pdf-page-container.super-pdf-toggle-ignore-items .super-pdf-body .super-generating-pdf [data-pdfoption=include][data-html2canvas-ignore="true"] {';
+            css += 'display: none !important;';
+            css += 'opacity: 0 !important;';
+        css += '}';
+
         // Required to render pseudo elements (html2canvas code was altered for this)
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
@@ -7644,7 +7663,6 @@ function SUPERreCaptcha(){
         // might need this in a future version }
 
         var formId = form.querySelector('input[name="hidden_form_id"]').value;
-
 
         // Add form placeholder (fake form)
         var placeholder = form.cloneNode(true);
@@ -7736,6 +7754,12 @@ function SUPERreCaptcha(){
         args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
         pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
+
+        // Ignore any node that is excluded from the PDF
+        var nodes = form.querySelector('form').querySelectorAll('.super-shortcode[data-pdfoption="exclude"]');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].setAttribute('data-html2canvas-ignore', 'true');
+        }
 
         // Make all mutli-parts visible
         // Make all TABs visible
@@ -7876,29 +7900,22 @@ function SUPERreCaptcha(){
             // Change the PDF container width based on orientation
             var headerFooterHeight = 0;
             if(args.pageOrientationChanges[args.currentPage]==='portrait'){
-                args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-                args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-                args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
                 args.pageWidth = args.pageWidthPortrait;
                 args.pageHeight = args.pageHeightPortrait;
-                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-                args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
             }
             if(args.pageOrientationChanges[args.currentPage]==='landscape'){
-                args.pdfPageContainer.style.width = (args.pageHeightInPixels*2)+'px';
-                args.pdfPageContainer.style.height = (args.pageWidthInPixels*2)+'px';
-                args.pdfPageContainer.style.maxHeight = (args.pageWidthInPixels*2)+'px';
                 args.pageWidth = args.pageWidthLandscape;
                 args.pageHeight = args.pageHeightLandscape;
-                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
-                args.scrollAmount = (args.pageWidthInPixels*2)-headerFooterHeight;
             }
+            args.pageWidthInPixels = args.pageWidth / args.unitRatio;
+            args.pageHeightInPixels = args.pageHeight / args.unitRatio;
+            args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+            args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
+            args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+            headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+            headerFooterHeight += args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight;
+            args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+
             // Reset any PDF page break heights
             var i, nodes = form.querySelectorAll('.super-pdf_page_break');
             for(i=0; i<nodes.length; i++){
@@ -7968,6 +7985,63 @@ function SUPERreCaptcha(){
                 // eslint-disable-next-line no-undef
                 args.pdfPercentageCompleted += args.totalPercentagePerPage;
                 if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
+
+                // Now loop over all the nodes and ignore those that are not visible for the current page
+                var nodes = document.body.children;
+                for(i=0; i<nodes.length; i++){
+                    if(nodes[i].classList.contains('super-pdf-page-container')){
+                        continue;
+                    }
+                    if(nodes[i].tagName==='LINK' && (nodes[i].id.indexOf('super')!==-1 || nodes[i].id.indexOf('font-awesome')!==-1) ){
+                        continue;
+                    } 
+                    if(nodes[i].tagName==='STYLE' && nodes[i].innerText.indexOf('super-form')!==-1){
+                        continue;
+                    }
+                    //if(nodes[i].tagName==='SCRIPT') continue;
+                    nodes[i].setAttribute('data-html2canvas-ignore', 'true');
+                }
+                var nodes = form.querySelector('form').querySelectorAll('.super-shortcode');
+                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+                var pdfBodyTop = args.pdfPageContainer.querySelector('.super-pdf-body').getBoundingClientRect().top;
+                for(i=0; i<nodes.length; i++){
+                    if(nodes[i].dataset.pdfoption && (nodes[i].dataset.pdfoption==='header' || nodes[i].dataset.pdfoption==='footer')){
+                        // Skip header and footer
+                        continue;
+                    }
+                    var nodeHeight = nodes[i].clientHeight;
+                    if(nodeHeight===0){
+                        // Ignore
+                        // But not if parent is not ignored
+                        nodes[i].setAttribute('data-html2canvas-ignore', 'true');
+                        continue;
+                    }else{
+                        var pos = nodes[i].getBoundingClientRect();
+                        if(pos.bottom <= headerHeight ){
+                            // Ignore
+                            nodes[i].setAttribute('data-html2canvas-ignore', 'true');
+                            if(nodes[i].parentNode.closest('.super-shortcode') && nodes[i].parentNode.closest('.super-shortcode').dataset.html2canvasIgnore){
+                                // Parent already has a placeholder, skip it
+                            }else{
+                                var tmpPlaceholder = nodes[i].cloneNode(true);
+                                tmpPlaceholder.classList.add('super-pdf-ignored-el-placeholder');
+                                tmpPlaceholder.removeAttribute('data-html2canvas-ignore');
+                                tmpPlaceholder.innerHTML = '';
+                                tmpPlaceholder.style.width = pos.width+'px';
+                                tmpPlaceholder.style.height = pos.height+'px';
+                                nodes[i].parentNode.insertBefore(tmpPlaceholder, nodes[i].nextSibling);
+                            }
+                            continue;
+                        }
+                        if((pos.top-pdfBodyTop) > args.scrollAmount){
+                            // Ignore
+                            nodes[i].setAttribute('data-html2canvas-ignore', 'true');
+                            continue;
+                        }
+                    }
+                }
+                // Toggle hide ignore items
+                document.querySelector('.super-pdf-page-container').classList.add('super-pdf-toggle-ignore-items');
                 html2canvas(document.querySelector('.super-pdf-page-container'), {
                     scrollX: 0, // Important, do not remove
                     scrollY: 0,  // -window.scrollY, // Important, do not remove
@@ -7977,6 +8051,7 @@ function SUPERreCaptcha(){
                     allowTaint: false,
                     backgroundColor: '#ffffff'
                 }).then(function(canvas) {
+                    document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     // Only if not already canceled/reset
                     if(form && !form.classList.contains('super-generating-pdf')){
                         return false;
@@ -8008,6 +8083,17 @@ function SUPERreCaptcha(){
                         //args._pdf.text(220, 20, 'ФанцыТеxтЦлоуд.Цом');
                         SUPER.pdf_generator_render_text(args);
                     }
+
+                    // Reset ignore attributes
+                    var nodes = document.body.querySelectorAll('[data-html2canvas-ignore="true"]');
+                    for(i=0; i<nodes.length; i++){
+                        nodes[i].removeAttribute('data-html2canvas-ignore');
+                    }
+                    nodes = args.pdfPageContainer.querySelectorAll('.super-pdf-ignored-el-placeholder');
+                    for(i=0; i<nodes.length; i++){
+                        nodes[i].remove();
+                    }
+
                     // If there are more pages to be processed, go ahead
                     if(form.querySelector('form').clientHeight > (args.scrollAmount * args.currentPage)){
                         args.currentPage++;
