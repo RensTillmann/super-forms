@@ -219,7 +219,7 @@ class SUPER_Common {
                 $exp_var = apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
                 if(is_ssl()) $secure = true;
                 $secure = apply_filters('super_cookie_secure_filter', $secure);
-                $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+                $httponly = apply_filters('super_cookie_httponly_filter', true);
                 $clientData['expires'] = $now + $expires;
                 $clientData['exp_var'] = $now + $exp_var;
                 $cookieName = '_sfs_id';

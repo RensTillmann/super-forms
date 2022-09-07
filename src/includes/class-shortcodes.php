@@ -3134,7 +3134,9 @@ class SUPER_Shortcodes {
                     );
                     if (is_array($data) || is_object($data)) {
                         foreach($data as $k => $v){
-                            $_GET[$k] = $v['value'];
+                            if(isset($v['value'])) {
+                                $_GET[$k] = $v['value'];
+                            }
                         }
                     }
 
