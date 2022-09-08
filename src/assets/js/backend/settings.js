@@ -520,7 +520,7 @@
                         text: $btn_name
                     },
                     library: { 
-                        type: ['text/html']
+                        type: ['text/html','text/plain']
                     },
                     multiple: false
                 });
@@ -528,7 +528,7 @@
                     var $selection = $frame.state().get('selection');
                     $selection.map(function ($attachment) {
                         $attachment = $attachment.toJSON();
-                        if($attachment.mime != 'text/html'){
+                        if($attachment.mime != 'text/html' && $attachment.mime != 'text/plain'){
                             alert('Selected file is not a TXT file!');
                         }else{
                             if ($attachment.id) {

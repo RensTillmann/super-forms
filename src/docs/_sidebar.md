@@ -54,6 +54,9 @@
     - [Javascript Hooks](javascript-hooks.md)
     - [Examples](hook-examples.md)
 
+  - Other
+    - [CSS tricks](css-tricks.md)
+
   - Data storage
     - [Global Settings](data-storage?id=where-are-the-global-settings-stored)
     - [Contact Entries](data-storage?id=where-are-the-contact-entries-stored)

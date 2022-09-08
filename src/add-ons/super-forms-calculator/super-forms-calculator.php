@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Calculator
  * Description: Adds an extra element that allows you to do calculations on any of your fields
- * Version:     2.3.3
+ * Version:     2.3.4
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Calculator') ) :
          *
          *	@since		1.0.0
         */
-        public $version = '2.3.3';
+        public $version = '2.3.4';
 
 
         /**
@@ -464,7 +464,8 @@ if( !class_exists('SUPER_Calculator') ) :
             if( !isset( $atts['decimal_separator'] ) ) $atts['decimal_separator'] = '.';
             if( !isset( $atts['math'] ) ) $atts['math'] = '';
             // Option to directly retrieve predefined tags inside math, e.g: to retrieve current year, or month, or price of current WooCommerce product 
-            if($atts['math']!='') $atts['math'] = SUPER_Common::email_tags( $atts['math'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
+            // We should skip predefined tags that start with `option_`
+            if($atts['math']!='') $atts['math'] = SUPER_Common::email_tags( $atts['math'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=true );
 
             if( !isset( $atts['amount_label'] ) ) $atts['amount_label'] = '';
 

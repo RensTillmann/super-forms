@@ -1964,8 +1964,11 @@ class SUPER_Ajax {
         if((!isset($_POST['formElements']) && ($_POST['elements']==='true')) || 
            (!isset($_POST['formSettings']) && ($_POST['settings']==='true')) || 
            (!isset($_POST['translationSettings']) && ($_POST['translations']==='true')) ){
-            // Failed, notify user
-            SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+            // Except when importing a form from file...
+            if(isset($_POST['action']) && $_POST['action']!=='super_import_single_form'){
+                // Failed, notify user
+                SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+            }
         }
 
         $_super_elements = wp_unslash($_POST['formElements']);
@@ -2150,8 +2153,7 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' super-hidden';
             }
-            if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
-            $result .= '<div class="super-field super-field-type-'.$fv['type'] . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            $result .= '<div class="super-field' . (isset($fv['type']) ? ' super-field-type-'.$fv['type'] : '') . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) {
                     $result .= '<div class="super-field-name">' . ($fv['name']);
                     if( isset( $fv['desc'] ) ) {
@@ -3438,6 +3440,8 @@ class SUPER_Ajax {
                 }
             }
 
+            // Clear form progression
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
             /** 
              *  Hook before outputing the success message or redirect after a succesfull submitted form
