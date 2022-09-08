@@ -1922,8 +1922,10 @@
             var $this = $(this),
                 $time = 250,
                 $text,
-                $words;
-
+                $words,
+                $removeNoneChars,
+                $chars,
+                $allChars;
             if(e.type!='keyup') $time = 0;
             if (word_count_timeout !== null) {
                 clearTimeout(word_count_timeout);
@@ -1932,7 +1934,12 @@
                 $text = $this.val();
                 $words = $text.match(/\S+/g);
                 $words = $words ? $words.length : 0;
+                $removeNoneChars = $text.replace(/\s/g, ""); // use the \s quantifier to remove all white space, is equivalent to [\r\n\t\f\v ]
+                $chars = $removeNoneChars.length; // count only characters after removing any whitespace, tabs, linebreaks etc.
+                $allChars = $text.length; // count all characters
                 $this.attr('data-word-count', $words);
+                $this.attr('data-chars-count', $chars);
+                $this.attr('data-allchars-count', $allChars);
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }, $time);
         });
@@ -1969,7 +1976,26 @@
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
         // @since 4.9.0 - Quantity field only allow number input
+        $doc.on('blur', '.super-quantity .super-shortcode-field', function() {
+            // Remove empty decimal place
+            if(this.value.indexOf('.')!==-1){
+                var split = this.value.split("."), before = split[0], after = split[1];
+                var result = before;
+                if(after!=='') result += '.'+after;
+                this.value = result;
+            } 
+        });
         $doc.on('input', '.super-quantity .super-shortcode-field', function() {
+            // Exception when using steps with decimals, then allow to enter decimal number
+            if(this.dataset.steps.indexOf('.')!==-1){
+                // Count decimals
+                var decimals = this.dataset.steps.toString().split(".")[1].length || 0; 
+                var floor = Math.floor(this.dataset.steps);
+                if(floor===this.dataset.steps) decimals = 0;
+                this.value = (this.value.indexOf(".")!==-1) ? (this.value.substr(0, this.value.indexOf(".")) + this.value.substr(this.value.indexOf("."), (decimals+1))) : this.value;
+                return;
+            }
+            // Only allow whole numbers
             this.value = this.value.replace(/[^0-9]/g, '');
         });
 
@@ -2057,21 +2083,6 @@
                 oldv,
                 duplicate_dynamically;
 
-            function return_replace_names(value, new_count, replace_names){
-                regex = /{([^\\\/\s"'+]*?)}/g;
-                while ((vv = regex.exec(value)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if (vv.index === regex.lastIndex) {
-                        regex.lastIndex++;
-                    }
-                    field_name = vv[1].split(';')[0];
-                    new_field = field_name+'_'+new_count;
-                    replace_names[field_name] = new_field;
-                }
-                return replace_names;
-            }
-
-            
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
@@ -2228,7 +2239,9 @@
                 }
 
             }
-            
+            // Required to update calculations after adding dynamic column
+            SUPER.after_field_change_blur_hook({form: form, el: undefined});
+
             SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
             
             // @since 2.4.0 - hook after adding new column
@@ -3240,7 +3253,7 @@
                 }else{
                     if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
                     app.autosuggestTagsTimeout = setTimeout(function () {
-                        value = target.value.toString();
+                        value = target.value.toString().toLowerCase();
                         if (value === '') {
                             parent.classList.remove('super-string-found');
                             parent.classList.remove('super-no-match');

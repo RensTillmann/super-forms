@@ -436,7 +436,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' ),
+                            'label' => esc_html__( 'Set a default value for this field. {post_id} and {post_title} can be used (leave blank for none)', 'super-forms' ),
                             'i18n' => true
                         ),
                         'type' => array(
@@ -1039,7 +1039,7 @@ $array['form_elements'] = array(
                         'placeholderFilled' => SUPER_Shortcodes::placeholderFilled( $attributes, '' ),
                         'value' => array(
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
+                            'label' => esc_html__( 'Set a default value for this field. {post_id}, {post_title} and {user_****} can be used (leave blank for none)', 'super-forms' ),
                             'type' => 'textarea',
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'i18n' => true
@@ -1812,7 +1812,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '0' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                            'label' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
                         'tooltip' => $tooltip,
                         'conditional_validation' => $conditional_validation,
@@ -2066,7 +2066,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default color (leave blank for none)', 'super-forms' )
+                            'label' => esc_html__( 'Set a default color (leave blank for none)', 'super-forms' )
                         ),
                         'tooltip' => $tooltip,
                         'validation' => $special_validations,
@@ -2156,7 +2156,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                            'label' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
                         'format' => array(
                             'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
@@ -2313,7 +2313,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
+                            'label' => esc_html__( 'Set a default value for this field (leave blank for none)', 'super-forms' )
                         ),
                         'format' => array(
                             'default'=> ( !isset( $attributes['format'] ) ? '' : $attributes['format'] ),
@@ -3002,7 +3002,7 @@ $array['form_elements'] = array(
                         'value' => array(
                             'default'=> ( !isset( $attributes['value'] ) ? '' : $attributes['value'] ),
                             'name' => esc_html__( 'Default value', 'super-forms' ), 
-                            'desc' => esc_html__( 'Set a default time for this field (leave blank for none)', 'super-forms' )
+                            'label' => esc_html__( 'Set a default time for this field (leave blank for none)', 'super-forms' )
                         ),
                         'current_time' => array(
                             'default'=> ( !isset( $attributes['current_time'] ) ? '' : $attributes['current_time'] ),
@@ -3419,7 +3419,7 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => 'When value equals \"yes\" this will be the new value....'
+                                'new_value' => esc_html__ ( 'When value equals "yes" this will be the new value....', 'super-forms' )
                             ),
                             array(
                                 'field' => '{field_name_here}',
@@ -3429,9 +3429,26 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => 'When value is not \"yes\" this will be the new value....'
+                                'new_value' => esc_html__ ( 'When value is not "yes" this will be the new value....', 'super-forms' )
                             )
                         )
+                    )
+                )
+            ),
+            'atts' => array(),
+        ),
+        'unique_code_predefined' => array(
+            'name' => esc_html__( 'Unique code', 'super-forms' ),
+            'icon' => 'hashtag;fas',
+            'predefined' => array(
+                array(
+                    'tag' => 'hidden',
+                    'group' => 'form_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'unique_code', 'super-forms' ),
+                        'email' => esc_html__( 'Unique code', 'super-forms' ) . ':',
+                        'enable_random_code' => 'true',
+                        'code_length' => '7'
                     )
                 )
             ),

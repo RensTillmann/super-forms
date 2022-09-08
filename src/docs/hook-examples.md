@@ -2,6 +2,7 @@
 
 **Examples:**
 
+- [Track form submissions with GTM (Google Tag Manager)](#track-form-submissions-with-gtm-google-tag-manager)
 - [Track form submissions with third party](#track-form-submissions-with-third-party)
 - [Track Multi-part steps with Google Analytics](#track-multi-part-steps-with-google-analytics)
 - [Insert form data into a custom database table](#insert-form-data-into-a-custom-database-table)
@@ -14,6 +15,52 @@
 - [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
 - [Altering cookie secure and httponly parameters](#altering-cookie-secure-and-httponly-parameters)
 - [Define fake cronjob to clear old client data if cronjob is disabled on your server](#define-fake-cronjob-to-clear-old-client-data-if-cronjob-is-disabled-on-your-server)
+- [Define page language attribute based on page ID or URL](#define-page-language-attribute-based-on-page-id-or-url)
+- [Define custom headers when doing a POST request](#define-custom-headers-when-doing-a-post-request)
+
+## Track form submissions with GTM (Google Tag Manager)
+
+_Insert the below PHP code in your child theme functions.php file, or create a custom plugin. You may also use a plugin that allows you to insert code snippets to your site._
+
+```php
+add_action('wp_footer', function(){
+    ?>
+    <script type="text/javascript">
+        // Execute after form submission
+        if(typeof SUPER === 'undefined') {
+            // Custom JS script was loaded to early
+            window.SUPER = {};
+        }
+        SUPER.custom_form_tracker = function(args){
+            // Grab form fields
+            var product_name= (args.data.product_name? args.data.product_name.value : '');
+            var quantity= (args.data.quantity? args.data.quantity.value : '');
+            var total= (args.data.total? args.data.total.value : '');
+            var utm_source= (args.data.utm_source? args.data.utm_source.value : ''); 
+            // Your third party code here
+            window.dataLayer = window.dataLayer || []
+            dataLayer.push({
+                'event': 'superFormsSubmission',
+                'formID': args.form_id,
+                'product_name': product_name,
+                'quantity' : quantity,
+                'total' : total,
+                'utm_source': utm_source
+            });
+        }
+    </script>
+    <?php
+}, 100);
+
+// Add custom javascript function 
+function f4d_add_dynamic_function( $functions ) {
+    $functions['after_email_send_hook'][] = array(
+        'name' => 'custom_form_tracker'
+    );
+    return $functions;
+}
+add_filter( 'super_common_js_dynamic_functions_filter', 'f4d_add_dynamic_function', 100, 2 );
+```
 
 ## Track form submissions with third party
 
@@ -396,4 +443,60 @@ function f4d_super_delete_client_data_manually_limit_filter($limit) {
     return 10; // When deleting client data via manual request, we only want to delete 10 sessions at a time
 }
 add_filter( 'super_delete_client_data_manually_limit_filter', 'f4d_super_delete_client_data_manually_limit_filter' );
+```
+
+## Define page language attribute based on page ID or URL
+
+?> **NOTE:** The below filter hook is only useful whenever you are not using a translation plugin
+
+When you are not using any language plugin to translate your website but still want to have a specific page in a different language (other than your main site language), 
+you will have to change the `<html>` language attribute based on the current page URL. This is important so that whenever a user visits a page that is different from your main site language the browser won't try to translate the page (again) including your form.
+Let's say your site is in English by default, but you also have a translated version of your form in Deutsch and French.
+When the user visists the page `/de/contact` or `/fr/contact` the browser will still think that the page is in your main language (English) because the language attribute would still be set to `en`.
+This can cause unexpected translations being done by the browser. The only way to avoid this is to make sure the correct language attribute for these pages is set accordingly.
+A filter hook on how to do this can be found below.
+
+```php
+function f4d_language_attributes($lang){
+    if(strpos(get_permalink(), home_url().'/de/')!==false){
+        // When user is on the German site
+		return "lang=\"de-DE\"";
+    }
+    if(strpos(get_permalink(), home_url().'/fr/')!==false){
+        // When user is on the French site
+		return "lang=\"fr-FR\"";
+    }
+	if(get_permalink()===home_url().'/specific-url-in-deutch/'){
+        // When on a Deutsch page
+		return "lang=\"de-DE\"";
+	}
+    if(get_permalink()===home_url().'/specific-url-in-french/'){
+        // When on a French page
+		return "lang=\"fr-FR\"";
+	}
+    // Return default language attribute
+    return $lang;
+}
+add_filter('language_attributes', 'f4d_language_attributes');
+```
+
+## Define custom headers when doing a POST request
+
+```php
+function f4d_modify_http_request_args($parsed_args, $url){
+    // Replace XXX with whatever URL you put inside the "Enter a custom form post URL" setting
+    // For example if you are doing a post request to https://api.domain.com/create/post
+    // replace XXX with that exact URL
+    if($url==='XXX'){
+        // Update headers, of course you can also alter other arguments if needed
+        // Default arguments provided by WordPress: https://github.com/WordPress/wordpress-develop/blob/97218bbfd336035edc9293274fea0f7bd3da85d7/src/wp-includes/class-wp-http.php#L150
+        $parsed_args['headers'] = array(
+            'Content-Type' => 'application/json; charset=utf-8',
+            'ClientID' => 'xxx',
+            'Authentication' => 'Basic & Base64 Encoded'
+        );
+    }
+    return $parsed_args;
+}
+add_filter( 'http_request_args', 'f4d_modify_http_request_args', 10, 2 );
 ```

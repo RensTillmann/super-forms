@@ -2945,7 +2945,7 @@
                     success: function (data) {
                         data = $.parseJSON(data);
                         if (data.error) {
-                            alert(data.error);
+                            alert(data.msg);
                         } else {
                             if ($form_id === 0 || $form_id === '') {
                                 window.location.href = "admin.php?page=super_create_form&id=" + data;

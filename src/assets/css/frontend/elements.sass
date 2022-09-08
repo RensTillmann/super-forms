@@ -485,8 +485,8 @@ h1.super-thanks-title
     width: 60%
   .super-column.super_three_fifth
     &.first-column
-      width: -moz-calc(60% - 5px)
-      width: calc(60% - 5px)
+      width: -moz-calc(60% - 10px)
+      width: calc(60% - 10px)
     width: -moz-calc(60% + 5px)
     width: calc(60% + 5px)
   .super_two_third
@@ -542,6 +542,7 @@ h1.super-thanks-title
     position: relative
     display: inline-block
   &.super-initialized
+    align-items: initial
     min-height: inherit 
   form
     float: left
@@ -550,6 +551,7 @@ h1.super-thanks-title
     z-index: 1
     outline: none!important
   &.super-center-form
+    align-items: center
     text-align: center
     form
       text-align: left
@@ -2885,8 +2887,13 @@ textarea
       justify-content: center
       align-items: center
       margin-right: 10px
+    &.super-file
+      .super-icon
+        display: none
+  .super-icon-inside
+    &.super-checkbox,
+    &.super-radio,
     &.super-toggle,
-    &.super-file,
     &.super-calculator,
     &.super-signature
       .super-icon
@@ -3121,7 +3128,7 @@ textarea
           border-right-width: 0
           border-top-right-radius: 0
           border-bottom-right-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-left-width: 0
             border-top-left-radius: 0
@@ -3172,7 +3179,7 @@ textarea
           border-left-width: 0
           border-top-left-radius: 0
           border-bottom-left-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-right-width: 0
             border-top-right-radius: 0
@@ -3209,6 +3216,9 @@ textarea
       padding: 0px 10px 0px 0px
     .super-autosuggest-tags
       flex-direction: row-reverse
+    .super-keyword-tags
+      .super-autosuggest-tags
+        flex-direction: row-reverse
     .super-accordion-header
       display: flex
       flex-direction: row-reverse
@@ -3468,7 +3478,7 @@ textarea
           border-right-width: 0
           border-top-right-radius: 0
           border-bottom-right-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-left-width: 0
             border-top-left-radius: 0
@@ -3512,7 +3522,7 @@ textarea
           border-left-width: 0
           border-top-left-radius: 0
           border-bottom-left-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-right-width: 0
             border-top-right-radius: 0
@@ -3692,7 +3702,7 @@ textarea
         .sp-replacer.super-forms
           border-top-left-radius: 0
           border-bottom-left-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-top-left-radius: 0
             border-bottom-left-radius: 0
@@ -3968,7 +3978,7 @@ textarea
         .sp-replacer.super-forms
           border-top-left-radius: 0
           border-bottom-left-radius: 0
-        &:not(.super-focus.super-open)
+        &:not(.super-focus.super-open,.super-wc-order-search)
           .super-dropdown-list
             border-top-left-radius: 0
             border-bottom-left-radius: 0
@@ -4399,6 +4409,11 @@ textarea
     // RTL
     &.super-rtl
       .super-icon-outside
+        &.super-icon-left
+          .super-icon
+            width: calc(34px + 10px)
+          .super-dropdown-arrow
+            left: calc(42px + 10px)
         &.super-icon-right
           .super-icon
             width: calc(34px + 10px)
@@ -4627,19 +4642,23 @@ textarea
           display: flex!important
           padding-left: 6px
 .super-overlap
-  .super-item.super-active:before
-    content: unicode("f00d")
-    font-size: 12px
-    +fontAwesome(900)
-    width: 15px
-    height: 15px
-    line-height: 15px
-    text-align: center
-    position: initial
-    border: 1px solid red
-    background-color: red
-    color: white
-    margin-right: 10px
+  .super-item.super-active
+    &:before,
+    &:after
+      content: unicode("f00d")
+      font-size: 12px
+      +fontAwesome(900)
+      width: 15px
+      height: 15px
+      line-height: 15px
+      text-align: center
+      position: initial
+      border: 1px solid red
+      background-color: red
+      color: white
+      margin-right: 10px
+    &:after
+      display: none
 .super-auto-suggest
   .super-field-wrapper
     &:not(.super-overlap)
@@ -5445,9 +5464,232 @@ html[dir="rtl"]
       .super-int-phone_country-list .super-int-phone_country
         flex-direction: row
 
-
-
 .super-form
+
+  /* WC order search */
+  .super-wc-order-search
+    .super-field-wrapper
+      &.super-populating
+        &:after
+          top: 50%
+          height: 100%
+          height: 21px
+          width: 21px
+          margin-top:-11px
+          display: flex
+          align-items: center
+          justify-content: center
+    .super-dropdown-list
+      display: none
+      border-right-width: 1px!important
+      .super-item
+        padding-left: 10px
+    &.super-filled
+      &.super-string-found
+        &.super-focus
+          .super-field-wrapper
+            .super-dropdown-list
+              position: absolute
+              top: 33px
+              width: 100%
+              z-index: 1
+              display: flex
+              > .super-item
+                display: flex
+    &.super-filled
+      .super-field-wrapper
+        &.super-overlap
+          .super-dropdown-list
+            position: absolute
+            top: 0px
+            width: 100%
+            display: flex
+            > .super-item
+              display: flex!important
+              padding-left: 10px
+    &.super-icon-inside
+      &.super-icon-right
+        .super-icon
+          display: flex!important
+          z-index: 20!important
+    &.super-icon-outside
+      &.super-icon-left
+        .super-dropdown-list
+          left: calc(34px + 30px)
+          width: calc(100% - 64px)!important
+      &.super-icon-right
+        .super-dropdown-list
+          right: calc(34px + 10px)
+          width: calc(100% - 44px)!important
+        .super-field-wrapper
+          &.super-populating
+            &:after
+              margin-right: 44px
+  &.super-field-size-medium
+    .super-wc-order-search
+      &.super-filled
+        &.super-string-found
+          &.super-focus
+            .super-field-wrapper
+              .super-dropdown-list
+                top: calc(33px + 0px)
+        .super-field-wrapper
+          &.super-overlap
+            .super-dropdown-list
+              > .super-item
+                height: calc(32px + 0px)
+      &.super-icon-outside
+        &.super-icon-left
+          .super-dropdown-list
+            left: calc(34px + 10px)
+            width: calc(100% - 44px)!important
+        &.super-icon-right
+          .super-dropdown-list
+            right: calc(34px + 10px)
+            width: calc(100% - 44px)!important
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 44px
+      &.super-icon-inside
+        &.super-icon-right
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 24px
+  &.super-field-size-large
+    .super-wc-order-search
+      &.super-filled
+        &.super-string-found
+          &.super-focus
+            .super-field-wrapper
+              .super-dropdown-list
+                top: calc(33px + 10px)
+        .super-field-wrapper
+          &.super-overlap
+            .super-dropdown-list
+              > .super-item
+                height: calc(32px + 10px)
+      &.super-icon-outside
+        &.super-icon-left
+          .super-dropdown-list
+            left: calc(34px + 20px)
+            width: calc(100% - 54px)!important
+        &.super-icon-right
+          .super-dropdown-list
+            right: calc(34px + 20px)
+            width: calc(100% - 54px)!important
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 54px
+      &.super-icon-inside
+        &.super-icon-left
+          .super-overlap
+            .super-dropdown-list
+              border-left: 0
+              left: calc(34px + 0px)
+              width: calc(100% - 34px)!important
+        &.super-icon-right
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 24px
+  &.super-field-size-huge
+    .super-wc-order-search
+      &.super-filled
+        &.super-string-found
+          &.super-focus
+            .super-field-wrapper
+              .super-dropdown-list
+                top: calc(33px + 20px)
+        .super-field-wrapper
+          &.super-overlap
+            .super-dropdown-list
+              > .super-item
+                height: calc(32px + 20px)
+      &.super-icon-outside
+        &.super-icon-left
+          .super-dropdown-list
+            left: calc(34px + 30px)
+            width: calc(100% - 64px)!important
+        &.super-icon-right
+          .super-dropdown-list
+            right: calc(34px + 30px)
+            width: calc(100% - 64px)!important
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 64px
+      &.super-icon-inside
+        &.super-icon-left
+          .super-overlap
+            .super-dropdown-list
+              border-left: 0
+              left: calc(34px + 0px)
+              width: calc(100% - 34px)!important 
+        &.super-icon-right
+          .super-field-wrapper
+            &.super-populating
+              &:after
+                margin-right: 24px
+  &.super-rtl
+    .super-wc-order-search
+      .super-field-wrapper
+        &.super-populating
+          &:after
+            right: initial
+            left: 10px
+      .super-dropdown-list
+        text-align: right
+        .super-item
+          justify-content: flex-end
+      .super-overlap
+        .super-item.super-active
+          &:before
+            display: none
+          &:after
+            display: inline-block
+            margin-right: 0px
+            margin-left: 10px
+      &.super-icon-inside.super-icon-right
+        .super-overlap
+          .super-dropdown-list
+            text-align: right
+            .super-item
+              padding-left: 0px
+              padding-right: 40px
+      &.super-icon-inside.super-icon-left
+        .super-field-wrapper
+          &.super-overlap
+            .super-icon
+              z-index: 20
+          &.super-populating
+            &:after
+              right: initial
+              left: 40px
+    &.super-field-size-medium
+      .super-wc-order-search
+        &.super-icon-outside.super-icon-left
+          .super-populating
+            &:after
+              right: initial
+              left: 50px
+    &.super-field-size-large
+      .super-wc-order-search
+        &.super-icon-outside.super-icon-left
+          .super-populating
+            &:after
+              right: initial
+              left: 65px
+    &.super-field-size-huge
+      .super-wc-order-search
+        &.super-icon-outside.super-icon-left
+          .super-populating
+            &:after
+              right: initial
+              left: 75px
+
   /* Keyword tags */
   .super-keyword-tags
     .super-keyword-tag
@@ -5533,13 +5775,13 @@ html[dir="rtl"]
       flex-wrap: wrap
       align-items: center
       justify-content: flex-start
-      flex-direction: row-reverse
+      flex-direction: row
       .super-keyword-tag
         margin: 2px 0px 2px 4px
         flex-grow: 0
         flex-shrink: 1
       .super-keyword-filter
-        width: 50px
+        width: 50px!important
         flex-grow: 1
         flex-shrink: 1
         border: none
@@ -5584,7 +5826,7 @@ html[dir="rtl"]
         padding: 10px 10px 10px 15px!important
         margin: 4px 4px 0px 0px!important
       .super-keyword-filter
-        height: calc(34px + 10px)!important
+        height: calc(32px + 10px)!important
       &.super-filled
         .super-autosuggest-tags
           padding-top: 0px!important
@@ -5614,7 +5856,7 @@ html[dir="rtl"]
         padding: 10px 10px 10px 15px!important
         margin: 9px 9px 0px 0px!important
       .super-keyword-filter
-        height: calc(34px + 20px)!important
+        height: calc(32px + 20px)!important
       &.super-filled
         .super-autosuggest-tags
           padding-top: 0px!important

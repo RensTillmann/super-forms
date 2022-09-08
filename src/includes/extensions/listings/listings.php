@@ -2418,7 +2418,16 @@ END AS paypalSubscriptionId
         public static function get_action_permissions($atts){
             global $current_user;
             $list = $atts['list'];
-            $entry = (isset($atts['entry']) ? $atts['entry'] : null);
+            $entry = (array) (isset($atts['entry']) ? $atts['entry'] : null);
+            $authorId = 0;
+            if(isset($entry)){
+                if(isset($entry['author_id'])){
+                    $authorId = $entry['author_id'];
+                }
+                if(isset($entry['post_author'])){
+                    $authorId = $entry['post_author'];
+                }
+            }
 
             // Display listings (wether or not the listing should be generated/displayed to this user)
             $allowDisplay = true;
@@ -2566,7 +2575,7 @@ END AS paypalSubscriptionId
             if(!empty($list['view_own']) && isset($entry)) {
                 if($list['view_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($entry->author_id)){
+                    if(absint($current_user->ID) === absint($authorId)){
                         $allowViewOwn = true;
                     }
                 }
@@ -2624,7 +2633,7 @@ END AS paypalSubscriptionId
             if(!empty($list['edit_own']) && isset($entry)) {
                 if($list['edit_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($entry->author_id)){
+                    if(absint($current_user->ID) === absint($authorId)){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
                             $allowEditOwn = true;
@@ -2719,7 +2728,7 @@ END AS paypalSubscriptionId
             if(!empty($list['delete_own']) && isset($entry)) {
                 if($list['delete_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($entry->author_id)){
+                    if(absint($current_user->ID) === absint($authorId)){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
                             $allowDeleteOwn = true;
@@ -2763,7 +2772,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
-            return array(
+            $return = array(
                 'allowDisplay' => $allowDisplay,
                 'allowSeeAny' => $allowSeeAny,
                 'allowViewAny' => $allowViewAny,
@@ -2773,6 +2782,7 @@ END AS paypalSubscriptionId
                 'allowDeleteAny' => $allowDeleteAny,
                 'allowDeleteOwn' => $allowDeleteOwn
             );
+            return $return;
         }
     }
 endif;

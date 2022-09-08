@@ -8,9 +8,38 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## May 04, 2022 - Version 6.3.1
+## Sep 07, 2022 - Version 6.3.600
 
+- **Improved:** PDF Generator speed optimization
+- **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
+- **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
+- **Fix:** PDF page break element orientation change bug
+- **Fix:** Javascript error `indexOf is not a function` when called on a number value
+- **Fix:** When populating signatures via `Contact Entry Search` field make sure signature can't be edited by the user when defined to do so
+- **Fix:** Column layout combination 3/5 + 1/5 + 1/5 cuasing last column to be placed on a new line
+- **Fix:** When exporting entry data and the server returns an error e.g: `cURL error...`, make sure to delete the file before returning 404 error code, and log the incident
+- **Fix:** When `Save form progress` is enabled make sure to not populate `Hidden fields` values
+- **Fix:** When using `Dynamic column` inside `Multi-parts` make sure when adding a new column it doesn't switch to the first multi-part
+- **Fix:** When storing client data make sure the generate ID does not exceed 64 characters in length, due to WordPress options table > `option_name varchar(64)` limit
+- **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
+- **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
+- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
+- **Fix:** PHP notices/errors
+
+## Jun 21, 2022 - Version 6.3.305
+
+- **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;word}` to count words
+- **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;chars}` to count characters excluding, carriage return, line-feed (newline), tab, form-feed, vertical whitespace
+- **Added:** Option to count words for `Textarea field` with use of tag `{fieldname;allchars}` to count all characters including, carriage return, line-feed (newline), tab, form-feed, vertical whitespace
+- **Improved:** Do not store `server_http_referrer_session` and/or `tags_values` as client data when not needed, which could stress the database on high traffic websites
 - **Improved:** Cookie/Session system, in case WP Cron is disabled, make sure we still clear expired client data from the database
+- **Fix:** Bug with `Calculation` not summing up amounts correctly when inside dynamic column
+- **Fix:** icon for `Calculator` element not being displayed even if defined
+- **Fix:** `Keyword/tags field` should not filter case sensitive
+- **Fix:** `WooCommerce Order Search` feature for `Text field` having issues with rendering the search results on front-end properly, plus additional CSS improvements accross theme style/icon positioning
+- **Fix:** `Enfold` theme was causing some issues with `Keyword/Tags` feature due to CSS styles being used by the theme
+- **Fix:** Bug/Issue with `Avada Builder` when typing in TinyMCE editor it would not update the live view properly
+- **Fix:** `Listings` bug fix when leaving role settings empty (did not allow the user to view/edit/delete their own entries)
 
 ## Apr 26, 2022 - Version 6.3.0
 
