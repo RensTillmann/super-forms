@@ -1877,7 +1877,10 @@ if( !class_exists('SUPER_PayPal') ) :
 						// Return error message
 						if( !empty( $mail->ErrorInfo ) ) {
 							$msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-							SUPER_Common::output_message( $error=true, $msg );
+							SUPER_Common::output_message( array( 
+								'msg'=>$msg,
+								'form_id'=>absint($form_id)
+							));
 						}
 					}
 
@@ -2360,7 +2363,14 @@ if( !class_exists('SUPER_PayPal') ) :
 					}
 					$msg = do_shortcode($settings['form_thanks_title'] . nl2br($settings['form_thanks_description']));
 				}
-				SUPER_Common::output_message($error = false, $msg = $msg . $message, $redirect = false, $fields = array(), $display = true, $loading = true);
+				SUPER_Common::output_message( array(
+					'error' => false, 
+					'msg' => $msg . $message, 
+					'redirect' => false, 
+					'fields' => array(), 
+					'display' => true, 
+					'loading' => true
+				));
 			}
 		}
 

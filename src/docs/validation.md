@@ -80,94 +80,118 @@ If no match was found based on the entered value the [Error Message](error-messa
 
 _Some example regular expressions that you might like to use are:_
 
-```js
-//select integers only
-var intRegex = '/[0-9 -()+]+$/';
+#### match password that is at least 8 characters long, contains a lower case and upper case letter, contains at least one number and at least a special character/symbol.
 
-//match any ip address
-var ipRegex = 'bd{1,3}.d{1,3}.d{1,3}.d{1,3}b';
+`^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z])(?=.*[$&+,:;=?@#|\/\\[\]{}'"<>.^*()%!-]).{8,}$`
 
-//match number in range 0-255
-var num0to255Regex = '^([01][0-9][0-9]|2[0-4][0-9]|25[0-5])$';
+#### match username
 
-//match number in range 0-999
-var num0to999Regex = '^([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$';
+`^[a-z0-9_-]{3,16}$`
 
-//match ints and floats/decimals
-var floatRegex = '[-+]?([0-9]*.[0-9]+|[0-9]+)';
+#### match any ip address
 
-//Match Any number from 1 to 50 inclusive
-var number1to50Regex = '/(^[1-9]{1}$|^[1-4]{1}[0-9]{1}$|^50$)/gm';
+`^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$`
 
-//match email address
-var emailRegex = '^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$';
+#### match credit card numbers
 
-//match credit card numbers
-var creditCardRegex = '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$';
+`^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35d{3})d{11})$`
 
-//match username
-var usernameRegex = '/^[a-z0-9_-]{3,16}$/';
+#### match email address
 
-//match password
-var passwordRegex = '/^[a-z0-9_-]{6,18}$/';
+`^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}$`
 
-//Match 8 to 15 character string with at least one upper case letter, one lower case letter, and one digit (useful for passwords).
-var passwordStrengthRegex = '/((?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,15})/gm';
+#### select integers only
 
-//match elements that could contain a phone number
-var phoneNumber = '/[0-9-()+]{3,20}/';
+`^[0-9 -()+]+$`
 
-//MatchDate (e.g. 21/3/2006)
-var dateRegex = '/(d{1,2}/d{1,2}/d{4})/gm';
+#### match number in range 0-255
 
-//match date in format MM/DD/YYYY
-var dateMMDDYYYRegex = '^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)dd$';
+`^([01][0-9][0-9]|2[0-4][0-9]|25[0-5])$`
 
-//match date in format DD/MM/YYYY
-var dateDDMMYYYRegex = '^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$';
+#### match number in range 0-999
 
-//match a url string (Fixes spaces and querystrings)
-var urlRegex = /^(http(s)?:\/\/)?(www\.)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+`^([0-9]|[1-9][0-9]|[1-9][0-9][0-9])$`
 
-//match domain name (with HTTP)
-var domainRegex = '/(.*?)[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm';
+#### match ints and floats/decimals
 
-//match domain name (www. only)
-var domainRegex = '/[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}/igm';
+`^[-+]?([0-9]*.[0-9]+|[0-9]+)$`
 
-//match domain name (alternative)
-var domainRegex = '/(.*?).(com|net|org|info|coop|int|com.au|co.uk|org.uk|ac.uk|)/igm';
+#### Match Any number from 1 to 50 inclusive
 
-//match sub domains: www, dev, int, stage, int.travel, stage.travel
-var subDomainRegex = '/(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?/igm';
+`^(^[1-9]{1}$|^[1-4]{1}[0-9]{1}$|^50$)$`
 
-//Match jpg, gif or png image
-var imageRegex = '/([^s]+(?=.(jpg|gif|png)).2)/gm';
+#### match elements that could contain a phone number
 
-//match all images
-var imgTagsRegex = '/<img .+?src="(.*?)".+?/>/ig';
+`^[0-9-()+]{3,20}$`
 
-//match just .png images
-var imgPngRegex = '/<img .+?src="(.*?.png)".+?/>/ig';
+#### MatchDate (e.g. 21/3/2006)
 
-//match RGB (color) string
-var rgbRegex = '/^rgb((d+),s*(d+),s*(d+))$/';
+`^(d{1,2}/d{1,2}/d{4})$`
 
-//match hex (color) string
-var hexRegex = '/^#?([a-f0-9]{6}|[a-f0-9]{3})$/';
+#### match date in format MM/DD/YYYY
 
-//Match Valid hexadecimal colour code
-var hexRegex = '/(#?([A-Fa-f0-9]){3}(([A-Fa-f0-9]){3})?)/gm';
+`^(0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])[- /.](19|20)dd$`
 
-//match a HTML tag (v1)
-var htmlTagRegex = '/^< ([a-z]+)([^<]+)*(?:>(.*)< /1>|s+/>)$/';
+#### match date in format DD/MM/YYYY
 
-//match HTML Tags (v2)
-var htmlTagRegex = '/(< (/?[^>]+)>)/gm';
+`^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)dd$`
 
-//match /product/123456789
-var productUrlRegex = '(/product/)?+[0-9]+';
+#### match a url string (Fixes spaces and querystrings)
 
-//Match Letters, numbers and hyphens
-var lnhRegex = '/([A-Za-z0-9-]+)/gm';
-```
+`^(http(s)?:\/\/)?(www\.)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$`
+
+#### match domain name (with HTTP)
+
+`(.*?)[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}$`
+
+#### match domain name (www. only)
+
+`[^w{3}.]([a-zA-Z0-9]([a-zA-Z0-9-]{0,65}[a-zA-Z0-9])?.)+[a-zA-Z]{2,6}$`
+
+#### match domain name (alternative)
+
+`(.*?).(com|net|org|info|coop|int|com.au|co.uk|org.uk|ac.uk|)$`
+
+#### match sub domains: www, dev, int, stage, int.travel, stage.travel
+
+`(http://|https://)?(www.|dev.)?(int.|stage.)?(travel.)?(.*)+?$`
+
+#### Match jpg, gif or png image
+
+`([^s]+(?=.(jpg|gif|png)).2)$`
+
+#### match all images
+
+`<img .+?src="(.*?)".+?/>$`
+
+#### match just .png images
+
+`<img .+?src="(.*?.png)".+?/>$`
+
+#### match RGB (color) string
+
+`^rgb((d+),s*(d+),s*(d+))$`
+
+#### match hex (color) string
+
+`^#?([a-f0-9]{6}|[a-f0-9]{3})$`
+
+#### Match Valid hexadecimal colour code
+
+`(#?([A-Fa-f0-9]){3}(([A-Fa-f0-9]){3})?)$`
+
+#### match a HTML tag (v1)
+
+`^< ([a-z]+)([^<]+)*(?:>(.*)< /1>|s+/>)$`
+
+#### match HTML Tags (v2)
+
+`(< (/?[^>]+)>)$`
+
+#### match /product/123456789
+
+`(/product/)?+[0-9]+$`
+
+#### Match Letters, numbers and hyphens
+
+`([A-Za-z0-9-]+)$`

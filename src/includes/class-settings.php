@@ -1638,6 +1638,16 @@ class SUPER_Settings {
                     'parent' => 'form_locker',
                     'filter_value' => 'true'
                 ),
+                'form_locker_allow_submit' => array(
+                    'default' =>  '',
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( '(optional) Do not lock form, but still display a message', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'form_locker_msg',
+                    'filter_value' => 'true'
+                ),
                 'form_locker_msg_title' => array(
                     'name' => esc_html__( 'Lock message title', 'super-forms' ),
                     'default' =>  esc_html__( 'Please note:', 'super-forms'  ),
@@ -1733,6 +1743,16 @@ class SUPER_Settings {
                     ),
                     'filter'=>true,
                     'parent' => 'user_form_locker',
+                    'filter_value' => 'true'
+                ),
+                'user_form_locker_allow_submit' => array(
+                    'default' =>  '',
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( '(optional) Do not lock form, but still display a message', 'super-forms' ),
+                    ),
+                    'filter'=>true,
+                    'parent' => 'user_form_locker_msg',
                     'filter_value' => 'true'
                 ),
                 'user_form_locker_msg_title' => array(
@@ -2956,7 +2976,7 @@ class SUPER_Settings {
                 // @since 3.1.0 - allow to display IP address to the contact entry column
                 'backend_contact_entry_list_ip' => array(
                     'name' => '&nbsp;',
-                    'default' =>  '',
+                    'default' =>  'true',
                     'values' => array(
                         'true' => esc_html__('Add the IP address to the contact entry list', 'super-forms' ),
                     ),

@@ -154,8 +154,6 @@
         //$settings = SUPER.get_tab_settings($settings, 'listings');
         // Stripe settings
         $settings = SUPER.get_tab_settings($settings, 'stripe');
-        // Stripe settings
-        //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
@@ -232,8 +230,28 @@
         }
         return args.data;
     };
+    SUPER.get_obj_value_by_key = function(obj, is, value){
+        debugger;
+        if(typeof is==='string'){
+            debugger;
+            return SUPER.get_obj_value_by_key(obj, is.split('.'), value);
+        }else if(is.length==1 && value!==undefined){
+            debugger;
+            return obj[is[0]] = value;
+        }else if(is.length==0){
+            debugger;
+            return obj;
+        }else{
+            debugger;
+            if(typeof obj[is[0]] === 'undefined'){
+                //if(is.length===1) return obj[is[0]] = value;
+                if(is.length>1) obj[is[0]] = {}
+            }
+            return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
+        }
+    };
     SUPER.get_tab_settings = function(settings, slug){
-        var i, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
+        var i, x, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
         if(tab){
             // First grab all settings that are not inside a repeater element
             nodes = tab.querySelectorAll('.sfui-setting > label > [name], .sfui-inline > label > [name]');
@@ -246,19 +264,82 @@
                 if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
+                debugger;
                 name = nodes[i].name;
-                names = name.split('.');
-                if(names.length>1){
-                    if(typeof data[names[0]] === 'undefined') data[names[0]] = {};
-                    if(names.length>2){
-                        if(typeof data[names[0]][names[1]] === 'undefined') data[names[0]][names[1]] = {};
-                        data[names[0]][names[1]][names[2]] = value;
-                    }else{
-                        data[names[0]][names[1]] = value;
-                    }
-                }else{
-                    data[name] = value;
-                }
+                SUPER.get_obj_value_by_key(data, name, value);
+                //names = name.split('.');
+                //function index(obj,i) {return obj[i]}
+                //debugger;
+                //data[name] = name.split('.').reduce(function(obj,i){
+                //    debugger;
+                //    if(typeof obj[i] === 'undefined'){
+                //        debugger;
+                //        obj[i] = value;
+                //    }
+                //    return obj[i];
+                //}, data, value);
+                //debugger;
+                //var ref = undefined;
+                //if(names.length>1){
+                //    for(x=0; x<names.length; x++){
+                //        debugger;
+                //        if(x===names.length-1){
+                //            debugger;
+                //            data[names[x]] = value;
+                //            break;
+                //        }
+                //        if(typeof data[names[x]] !== 'undefined') {
+                //            debugger;
+                //            // Exists
+                //            continue;
+                //        }
+                //        // Does not exists, create it
+                //        if(typeof data[names[x]] === 'undefined') {
+                //            debugger;
+                //            data[names[x]] = {};
+                //            debugger;
+                //            ref = data[names[x]];
+                //        }
+                //        //obj = JSON.parse(JSON.stringify(ref));
+                //        //if(typeof data[names[0]][names[1]][names[2]][names[3]][names[4]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]][names[4]] = {};
+                //    }
+                //}else{
+                //    debugger;
+                //    data[name] = value;
+                //}
+                //debugger;
+                //if(names.length>1){
+                //    if(typeof data[names[0]] === 'undefined') data[names[0]] = {};
+                //    if(names.length>2){
+                //        if(names.length>3){
+                //            if(names.length>4){
+                //                if(names.length>5){
+                //                    if(names.length>6){
+                //                        alert('max depth reached');
+                //                    }else{
+                //                        if(typeof data[names[0]][names[1]][names[2]][names[3]][names[4]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]][names[4]] = {};
+                //                        data[names[0]][names[1]][names[2]][names[3]][names[4]][names[5]] = value;
+                //                    }
+                //                }else{
+                //                    debugger;
+                //                    if(typeof data[names[0]][names[1]][names[2]][names[3]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]] = {};
+                //                    data[names[0]][names[1]][names[2]][names[3]][names[4]] = value;
+                //                }
+                //            }else{
+                //                if(typeof data[names[0]][names[1]][names[2]] === 'undefined') data[names[0]][names[1]][names[2]] = {};
+                //                data[names[0]][names[1]][names[2]][names[3]] = value;
+                //            }
+                //        }else{
+                //            // > 2
+                //            if(typeof data[names[0]][names[1]] === 'undefined') data[names[0]][names[1]] = {};
+                //            data[names[0]][names[1]][names[2]] = value;
+                //        }
+                //    }else{
+                //        data[names[0]][names[1]] = value;
+                //    }
+                //}else{
+                //    data[name] = value;
+                //}
                 p = nodes[i].closest('.sfui-setting');
                 if(p){
                     sub = p.querySelector('.sfui-sub-settings, .sfui-setting');
@@ -273,7 +354,6 @@
 
             // Process repeater items
             if(slug==='stripe'){
-                debugger;
                 nodes = tab.querySelectorAll('.sfui-repeater');
                 for(x=0; x<nodes.length; x++){
                     data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});

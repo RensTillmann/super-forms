@@ -479,6 +479,8 @@ if( !class_exists('SUPER_Signature') ) :
                                     'empty' => esc_html__( 'Required Field (not empty)', 'super-forms' ), 
                                 )
                             ),
+	                        'exclude' => $exclude,
+	                        'exclude_entry' => $exclude_entry,
 	                        'error' => $error,
 	                        'emptyError' => (isset($emptyError) ? $emptyError : ''),
 	                    ),
@@ -489,7 +491,6 @@ if( !class_exists('SUPER_Signature') ) :
 	                        'grouped' => $grouped,
 	                        'width' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=null, $desc=null ),
 	                        'height' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=esc_html__( 'Field height in pixels', 'super-forms' ), $desc=esc_html__( 'Set to 0 to use default CSS height', 'super-forms' ) ),
-	                        'exclude' => $exclude,
 	                        'error_position' => $error_position,
 	                    ),
 	                ),

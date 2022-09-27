@@ -171,7 +171,15 @@ if( !class_exists('SUPER_Mailster') ) :
         public static function add_subscriber( $x ) {
 
             if (function_exists('mailster_subscribe')) {
-                extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
+                extract( shortcode_atts( array(
+                    'data'=>array(), 
+                    'post'=>array(), 
+                    'settings'=>array(),
+                    'form_id'=>false
+                    //'entry_id'=>$entry_id,
+                    //'list_id=>$list_id, 
+                    //'response_data'=>$response_data,
+                ), $x));
                 if( (isset($settings['mailster_enabled'])) && ($settings['mailster_enabled']=='true') ) {
                     $data = wp_unslash($post['data']);
                     $data = json_decode($data, true);
@@ -234,7 +242,10 @@ if( !class_exists('SUPER_Mailster') ) :
                         if( !$result ) {
                             if( isset($result->errors) ) {
                                 foreach( $result->errors as $k => $v ) {
-                                    SUPER_Common::output_message( $error=true, $v[0] );
+                                    SUPER_Common::output_message( array( 
+                                        'msg'=>$v[0],
+                                        'form_id'=>absint($form_id)
+                                    ));
                                 }
                             }
                         }

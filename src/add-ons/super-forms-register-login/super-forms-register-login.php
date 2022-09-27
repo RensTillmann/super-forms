@@ -972,6 +972,7 @@ if( !class_exists('SUPER_Register_Login') ) :
         public static function before_email_success_msg( $atts ) {
             $settings = $atts['settings'];
             $data = $atts['data'];
+            $form_id = $atts['form_id'];
 
             // @since 1.2.0 - update existing user data
             if( $settings['register_login_action']=='update' ) {
@@ -1026,11 +1027,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     $userdata['ID'] = $user_id;
                     $result = wp_update_user( $userdata );
                     if( is_wp_error( $result ) ) {
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $return->get_error_message(),
-                            $redirect = null
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $return->get_error_message(),
+                            'form_id' => absint($form_id)
+                        ));
                     }
 
                     // Save custom user meta
@@ -1046,6 +1046,13 @@ if( !class_exists('SUPER_Register_Login') ) :
                     foreach( $meta_data as $k => $v ) {
                         update_user_meta( $user_id, $k, $v ); 
                     }
+
+
+                    // Store as submission info
+                    $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                    $submissionInfo['updatedUser'] = $user_id;
+                    update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+
                 }else{
                     // @since 1.4.0 - register new user if user doesn't exists while updating user
                     if( (!empty($settings['register_login_register_not_logged_in'])) && ($settings['register_login_register_not_logged_in']=='true') ) {
@@ -1177,7 +1184,12 @@ if( !class_exists('SUPER_Register_Login') ) :
          *  @since      1.0.0
         */
         public static function before_sending_email( $x ) {
-            extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
+            extract( shortcode_atts( array( 
+                'data'=>array(), 
+                'post'=>array(), 
+                'settings'=>array(),
+                'form_id'=>false
+            ), $x));
             if($post['action']==='super_upload_files') return true;
             if( !isset( $settings['register_login_action'] ) ) return true;
             if( $settings['register_login_action']=='none' ) return true;
@@ -1198,11 +1210,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $settings['register_login_action'] = 'register';
                     }else{
                         $msg = $settings['register_login_not_logged_in_msg'];
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $msg,
-                            $redirect = null
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $msg,
+                            'form_id' => absint($form_id)
+                        ));
                     }
                 }else{
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
@@ -1222,11 +1233,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
                         $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $msg,
-                            $redirect = null
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $msg,
+                            'form_id' => absint($form_id)
+                        ));
                     }
 
                     // Now lets check if a user already exists with the same user_login or user_email
@@ -1259,15 +1269,14 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                     if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
                         $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $msg,
-                            $redirect = null,
-                            $fields = array(
+                        SUPER_Common::output_message( array(
+                            'msg' => $msg,
+                            'form_id' => absint($form_id),
+                            'fields' => array(
                                 'user_login' => 'input',
                                 'user_pass' => 'input'
                             )
-                        );
+                        ));
                     }
 
                     // If user_pass field doesn't exist, we can generate one and send it by email to the registered user
@@ -1321,11 +1330,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $msg = $user_id->get_error_message();
 
                         SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $msg,
-                            $redirect = null
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $msg,
+                            'form_id' => absint($form_id)
+                        ));
                     }
 
                     // @since v1.0.3 - currently used by the WooCommerce Checkout feature
@@ -1357,11 +1365,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                         // Return message
                         if( !empty( $mail->ErrorInfo ) ) {
-                            SUPER_Common::output_message(
-                                $error = true,
-                                $msg = $mail->ErrorInfo,
-                                $redirect = null
-                            );
+                            SUPER_Common::output_message( array(
+                                'msg' => $mail->ErrorInfo,
+                                'form_id' => absint($form_id)
+                            ));
                         }
                     }
                     
@@ -1406,11 +1413,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if( is_wp_error( $blog_id ) ) {
                             $msg = $blog_id->get_error_message();
                             SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
-                            SUPER_Common::output_message(
-                                $error = true,
-                                $msg = $msg,
-                                $redirect = null
-                            );
+                            SUPER_Common::output_message( array(
+                                'msg' => $msg,
+                                'form_id' => absint($form_id)
+                            ));
                         }
                         global $current_site;
                         if( (!is_super_admin($user_id)) && (get_user_option('primary_blog', $user_id)==$current_site->blog_id) ) {
@@ -1429,11 +1435,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $msg,
+                        'form_id' => absint($form_id)
+                    ));
                 }
                 $username = sanitize_user( $data['user_login']['value'] );
                 $password = $data['user_pass']['value'];
@@ -1462,11 +1467,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if( $allowed != true ) {
                             wp_logout();
                             $msg = esc_html__( 'You are not allowed to login!', 'super-forms' );
-                            SUPER_Common::output_message(
-                                $error = true,
-                                $msg = $msg,
-                                $redirect = null
-                            );
+                            SUPER_Common::output_message( array(
+                                'msg' => $msg,
+                                'form_id' => absint($form_id)
+                            ));
                         }
 
                         // Check if user has not activated their account yet
@@ -1482,11 +1486,11 @@ if( !class_exists('SUPER_Register_Login') ) :
                             }else{
                                 SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                             }
-                            SUPER_Common::output_message(
-                                $error = true,
-                                $msg = $msg,
-                                $redirect = $settings['register_login_url'] . '?code=[%20CODE%20]&user=' . $username
-                            );
+                            SUPER_Common::output_message( array(
+                                'msg' => $msg,
+                                'redirect' => $settings['register_login_url'] . '?code=[%20CODE%20]&user=' . $username,
+                                'form_id' => absint($form_id)
+                            ));
                         }
 
                         // Validate the activation code
@@ -1526,11 +1530,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                             $msg = SUPER_Common::email_tags( $settings['register_incorrect_code_msg'], $data, $settings, $user );
                             $error = true;
                             $redirect = null;
-                            SUPER_Common::output_message(
-                                $error = $error,
-                                $msg = $msg,
-                                $redirect = $redirect
-                            );
+                            SUPER_Common::output_message( array(
+                                'error' => $error,
+                                'msg' => $msg,
+                                'redirect' => $redirect,
+                                'form_id' => absint($form_id)
+                            ));
                         }else{
                             wp_set_current_user($user_id);
                             wp_set_auth_cookie($user_id);
@@ -1539,11 +1544,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                             }
                         }
                         SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'success'  ) ) );
-                        SUPER_Common::output_message(
-                            $error = $error,
-                            $msg = $msg,
-                            $redirect = $redirect
-                        );
+                        SUPER_Common::output_message( array(
+                            'error' => $error,
+                            'msg' => $msg,
+                            'redirect' => $redirect,
+                            'form_id' => absint($form_id)
+                        ));
                     }
                 }else{
                     wp_logout();
@@ -1555,11 +1561,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }else{
                         $msg = sprintf( esc_html__( '%sError:%s Something went wrong while logging in, please try again', 'super-forms' ), '<strong>', '</strong>' );
                     }
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $msg,
+                        'form_id' => absint($form_id)
+                    ));
                 }
             }
 
@@ -1568,11 +1573,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                 // Before we proceed, lets check if we have at least a user_email field
                 if( !isset( $data['user_email'] ) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to reset passwords. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $msg,
+                        'form_id' => absint($form_id)
+                    ));
                 }
 
                 // Sanitize the user email address
@@ -1588,11 +1592,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if( ( isset( $settings['register_reset_password_not_exists_msg'] ) ) && ( $settings['register_reset_password_not_exists_msg']!='' ) ) {
                             $msg = SUPER_Common::email_tags( $settings['register_reset_password_not_exists_msg'], $data, $settings, $user );
                         }
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $msg = $msg,
-                            $redirect = null
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $msg,
+                            'form_id' => absint($form_id)
+                        ));
                     }
                 }
 
@@ -1608,21 +1611,20 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $mail->ErrorInfo,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $mail->ErrorInfo,
+                        'form_id' => absint($form_id)
+                    ));
                 }else{
                     $msg = '';
                     if( ( isset( $settings['register_reset_password_success_msg'] ) ) && ( $settings['register_reset_password_success_msg']!='' ) ) {
                         $msg = SUPER_Common::email_tags( $settings['register_reset_password_success_msg'], $data, $settings );
                     }
-                    SUPER_Common::output_message(
-                        $error = false,
-                        $msg = $msg,
-                        $redirect = null
-                    );                    
+                    SUPER_Common::output_message( array(
+                        'error' => false,
+                        'msg' => $msg,
+                        'form_id' => absint($form_id)
+                    ));                    
                 }
             }
         }
@@ -1788,18 +1790,17 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $mail = self::send_verification_email(array('password'=>'', 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                 // Return message
                 if( !empty( $mail->ErrorInfo ) ) {
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $mail->ErrorInfo,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $mail->ErrorInfo,
+                        'form_id' => absint($form_id)
+                    ));
                 }else{
                     $msg = esc_html__( 'We have send you a new verification code, check your email to verify your account!', 'super-forms' );
-                    SUPER_Common::output_message(
-                        $error = false,
-                        $msg = $msg,
-                        $redirect = null
-                    );                    
+                    SUPER_Common::output_message( array(
+                        'error' => false,
+                        'msg' => $msg,
+                        'form_id' => absint($form_id)
+                    ));                    
                 }
             }
             die();

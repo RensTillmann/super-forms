@@ -8,6 +8,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Sep 24, 2022 - Version 6.3.630
+
+- **Added:** Filter logic option `Exact match` for autosuggest feature to filter exact `Label` value for an item
+- **Added:** Filter logic case sensitive search
+- **Added:** Form locker option `Do not lock form, but still display a message` to only display a message but still allow user to submit the form even if the threshold was reached.
+- **Added:** Option to pre-load conditional logics via Ajax request, to store it into an object on the client side, instead of in the source code. Useful/required when dealing with 500+ conditions
+- **Improved:** Conditional logic and Variable conditions speed optimization, for large/complex forms this should improve speed in regards to JavaScript calculations
+
 ## Sep 07, 2022 - Version 6.3.600
 
 - **Improved:** PDF Generator speed optimization

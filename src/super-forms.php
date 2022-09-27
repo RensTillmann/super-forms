@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.600
+ * Version:           6.3.630
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.600';
+        public $version = '6.3.630';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -536,12 +536,13 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfstripewebhook=true', 
                 'top' 
             );
-            if(!get_option('_sf_permalinks_flushed_v4')){
+            if(!get_option('_sf_permalinks_flushed_v5')){
                 flush_rewrite_rules(false);
-                update_option('_sf_permalinks_flushed_v4', 1);
+                update_option('_sf_permalinks_flushed_v5', 1);
                 delete_option('_sf_permalinks_flushed');
                 delete_option('_sf_permalinks_flushed_v2');
                 delete_option('_sf_permalinks_flushed_v3');
+                delete_option('_sf_permalinks_flushed_v4');
             }
         }
         public function query_vars( $query_vars ){
@@ -624,13 +625,40 @@ if(!class_exists('SUPER_Forms')) :
                 error_log('Returned from Stripe Checkout session via cancel URL');
                 error_log($wp->query_vars['sfssidc']);
                 // Do things
+                error_log('test1');
                 SUPER_Stripe::setAppInfo();
+                error_log('test2');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
+                error_log('test3');
                 $m = $s['metadata'];
+                error_log('test4');
+                error_log('metadata:');
+                error_log(json_encode($m));
                 SUPER_Stripe::checkoutSessionCanceled( array( 'metadata' => $m ) );
+                error_log('test5');
+                //SUPER_Common::setClientData(array(
+                //    'name' => 'super_stripe_recover_' . $checkout_session->id, // e.g: super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+                //    'value' => $recoverData
+                //));
                 // Now redirect to cancel URL without checkout session ID parameter
                 $m['home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $m['home_cancel_url'] );
-                wp_redirect( $m['home_cancel_url'] );
+                error_log('test6');
+                error_log($m['home_cancel_url']);
+                error_log('test7');
+                $recoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $wp->query_vars['sfssidc'] );
+                if($recoverData){
+                    error_log('test8');
+                    error_log($wp->query_vars['sfssidc']);
+                    error_log($recoverData['referer']);
+                    error_log('test9');
+                    wp_redirect( esc_url( add_query_arg( 'sfssidr', $wp->query_vars['sfssidc'], $recoverData['referer'] ) ) );
+                    exit;
+                }
+                // Redirect to home url instead
+                error_log($wp->query_vars['sfssidc']);
+                error_log($m['home_cancel_url']);
+                wp_redirect( esc_url( add_query_arg( 'sfssidr', $wp->query_vars['sfssidc'], $m['home_cancel_url'] ) ) );
+                error_log('test10');
                 exit;
             }
             if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
@@ -666,13 +694,34 @@ if(!class_exists('SUPER_Forms')) :
                 SUPER_Stripe::setAppInfo();
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
                 // Try to start a Checkout Session
+                // old try {
+                // old     $stripeData = get_option( 'super_stripe_recover_' . $s->metadata->form_id . '_' . $s->id ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
+                // old     error_log(json_encode($stripeData));
+                // old     $checkout_session = \Stripe\Checkout\Session::create($stripeData);
+                // old } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
+                // old     error_log("exceptionHandler16()");
+                // old     self::exceptionHandler($e, $metadata);
+                // old }
                 try {
                     $stripeData = get_option( 'super_stripe_recover_' . $s->metadata->form_id . '_' . $s->id ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
                     error_log(json_encode($stripeData));
                     $checkout_session = \Stripe\Checkout\Session::create($stripeData);
-                } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                    error_log("exceptionHandler16()");
-                    self::exceptionHandler($e, $metadata);
+                } catch( Exception $e ){
+                    if ($e instanceof \Stripe\Error\Card ||
+                        $e instanceof \Stripe\Exception\CardException ||
+                        $e instanceof \Stripe\Exception\RateLimitException ||
+                        $e instanceof \Stripe\Exception\InvalidRequestException ||
+                        $e instanceof \Stripe\Exception\AuthenticationException ||
+                        $e instanceof \Stripe\Exception\ApiConnectionException ||
+                        $e instanceof \Stripe\Exception\ApiErrorException) {
+                        // Specific Stripe exception
+                        error_log("specific exceptionHandler16()");
+                        self::exceptionHandler($e, $metadata);
+                    } else {
+                        // Normal exception
+                        error_log("normal exceptionHandler16()");
+                        self::exceptionHandler($e, $metadata);
+                    }
                 }
                 wp_redirect($checkout_session->url);
                 exit;
@@ -756,7 +805,7 @@ if(!class_exists('SUPER_Forms')) :
                             // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
                             // Replace tag {stripe_retry_payment_url} with URL
                             $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            $body = str_replace( '{stripe_retry_payment_expiry}', $retryUrl, $expiry );
+                            $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
                             $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
                             if($s['retryPaymentEmail']['lineBreaks']==='true'){
                                 $body = nl2br($body);
@@ -1609,8 +1658,12 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.1.9.5
         */
-        public static function enqueue_element_scripts( $settings=array(), $ajax=false, $form_id=0 ) {
-
+        public static function enqueue_element_scripts($x){
+            extract(shortcode_atts(array( 
+                'settings'=>array(),
+                'ajax'=>false,
+                'form_id'=>0
+            ), $x));
             $handle = 'super-common';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, SUPER_PLUGIN_FILE . 'assets/js/common.js', array( 'jquery' ), SUPER_VERSION, false );  
@@ -1622,8 +1675,8 @@ if(!class_exists('SUPER_Forms')) :
 
             $i18n = array(
                 'ajaxurl'=>$ajax_url,
-                'preload'=>$settings['form_preload'],
-                'duration'=>$settings['form_duration'],
+                'preload'=>(isset($settings['form_preload']) ? $settings['form_preload'] : '1'),
+                'duration'=>(isset($settings['form_duration']) ? $settings['form_duration'] : 500),
                 'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
                 'loadingOverlay'=>SUPER_Forms()->common_i18n['loadingOverlay'],
                 'loading'=>SUPER_Forms()->common_i18n['loading'],
@@ -1689,16 +1742,15 @@ if(!class_exists('SUPER_Forms')) :
                 }
 
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
+                wp_enqueue_script( 'jquery-ui-widget' );
                 wp_enqueue_script( 'jquery-iframe-transport', $dir . 'jquery.iframe-transport.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
                 wp_enqueue_script( 'jquery-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-                
             }
 
             // @since 1.2.8 -   super_after_enqueue_element_scripts_action
             do_action( 'super_after_enqueue_element_scripts_action', array( 'settings'=>$settings, 'ajax'=>$ajax ) );
-
         }
 
 
@@ -1715,7 +1767,7 @@ if(!class_exists('SUPER_Forms')) :
                     $default_settings = SUPER_Settings::get_defaults();
                     $global_settings = array_merge( $default_settings, $global_settings );
                     self::enqueue_element_styles();
-                    self::enqueue_element_scripts( $global_settings, true );
+                    self::enqueue_element_scripts(array('settings'=>$global_settings, 'ajax'=>true));
                 }
             }
         }

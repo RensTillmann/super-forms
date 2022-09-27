@@ -398,12 +398,14 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             $x = 1;
             while( $x <= $limit ) {
                 if( (!empty($settings['email_reminder_' . $x])) && ($settings['email_reminder_' . $x]=='true') ) {
-                    self::insert_reminder($x, $settings, $data);
+                    self::insert_reminder($x, $atts);
                 }
                 $x++;
             }
         }
-        public static function insert_reminder($suffix, $settings, $data){
+        public static function insert_reminder($suffix, $atts){
+            $settings = $atts['settings'];
+            $data = $atts['data'];
             if(empty($settings['email_reminder_'.$suffix.'_date_offset'])) $settings['email_reminder_'.$suffix.'_date_offset'] = 0;
             if(empty($settings['email_reminder_'.$suffix.'_time_offset'])) $settings['email_reminder_'.$suffix.'_time_offset'] = 0;
             if(empty($settings['email_reminder_'.$suffix.'_base_date'])) $settings['email_reminder_'.$suffix.'_base_date'] = date('Y-m-d');
@@ -425,10 +427,11 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 $reminder_time = SUPER_Common::email_tags( $settings['email_reminder_'.$suffix.'_time_fixed'], $data, $settings );
                 // Test if time was set to 24 hour format
                 if(!preg_match("#([0-1]{1}[0-9]{1}|[2]{1}[0-3]{1}):[0-5]{1}[0-9]{1}#", $reminder_time)){
-                    SUPER_Common::output_message(
-                        $error = true, 
-                        $msg = $reminder_time . esc_html__( 'is not a valid 24-hour clock format, please correct and make sure to use a 24-hour format e.g: 21:45', 'super-forms' ) 
-                    );
+                    SUPER_Common::output_message( array(
+                        'error' => true, 
+                        'msg' => $reminder_time . esc_html__( 'is not a valid 24-hour clock format, please correct and make sure to use a 24-hour format e.g: 21:45', 'super-forms' ),
+                        'form_id' => absint($atts['form_id'])
+                    ));
                 }
             }else{
                 // Send based of form submission + an offset
@@ -441,10 +444,11 @@ if( !class_exists('SUPER_Email_Reminders') ) :
 
             $reminder_date = strtotime($reminder_real_date);
             if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
-                SUPER_Common::output_message(
-                    $error = true, 
-                    $msg = '<strong>' . $reminder_real_date . '</strong> ' . esc_html__( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ) 
-                );
+                SUPER_Common::output_message( array(
+                    'error' => true, 
+                    'msg' => '<strong>' . $reminder_real_date . '</strong> ' . esc_html__( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ),
+                    'form_id' => absint($atts['form_id'])
+                ));
             }
 
             // Insert reminder into database
@@ -475,6 +479,11 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             if(!is_array($email_reminders)) $email_reminders = array();
             $email_reminders[] = $reminder_id;
             SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>$email_reminders  ) );
+
+            // Store as submission info
+            $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+            $submissionInfo['reminders'] = $email_reminders;
+            update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
         }
 
 

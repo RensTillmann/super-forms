@@ -343,7 +343,10 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
-                    var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field, file, files = result;
+                    var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field, file, files = result.files;
+                    // Update nonce
+                    args.sf_nonce = result.sf_nonce;
+                    $('input[name="sf_nonce"]').val(result.sf_nonce.trim());
                     Object.keys(files).forEach(function(fieldName) {
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -1240,24 +1243,24 @@ function SUPERreCaptcha(){
             $found,
             $checked,
             $string_value;
-        switch(v.logic) {
+        switch(v.l) {
           case 'equal':
-            if( v.value==$shortcode_field_value ) $i++;
+            if( v.v==$shortcode_field_value ) $i++;
             break;
           case 'not_equal':
-            if( v.value!=$shortcode_field_value ) $i++;
+            if( v.v!=$shortcode_field_value ) $i++;
             break;
           case 'greater_than':
-            if( parseFloat($shortcode_field_value)>parseFloat(v.value) ) $i++;
+            if( parseFloat($shortcode_field_value)>parseFloat(v.v) ) $i++;
             break;
           case 'less_than':
-            if( parseFloat($shortcode_field_value)<parseFloat(v.value) ) $i++;
+            if( parseFloat($shortcode_field_value)<parseFloat(v.v) ) $i++;
             break;
           case 'greater_than_or_equal':
-            if( parseFloat($shortcode_field_value)>=parseFloat(v.value) ) $i++;
+            if( parseFloat($shortcode_field_value)>=parseFloat(v.v) ) $i++;
             break;
           case 'less_than_or_equal':
-            if( parseFloat($shortcode_field_value)<=parseFloat(v.value) ) $i++;
+            if( parseFloat($shortcode_field_value)<=parseFloat(v.v) ) $i++;
             break;
           case 'contains':
             if( (typeof $parent !== 'undefined') && (
@@ -1265,7 +1268,7 @@ function SUPERreCaptcha(){
                 $parent.classList.contains('super-radio') || 
                 $parent.classList.contains('super-dropdown')) ) {
                 $checked = $shortcode_field_value.split(',');
-                $string_value = v.value.toString();
+                $string_value = v.v.toString();
                 Object.keys($checked).forEach(function(key) {
                     if( $checked[key].indexOf($string_value) >= 0) {
                         $i++;
@@ -1274,7 +1277,7 @@ function SUPERreCaptcha(){
                 });
             }else{
                 // If other field
-                if( $shortcode_field_value.indexOf(v.value) >= 0) $i++;
+                if( $shortcode_field_value.indexOf(v.v) >= 0) $i++;
             }
             break;
           case 'not_contains':
@@ -1283,7 +1286,7 @@ function SUPERreCaptcha(){
                 $parent.classList.contains('super-radio') || 
                 $parent.classList.contains('super-dropdown')) ) {
                 $checked = $shortcode_field_value.split(',');
-                $string_value = v.value.toString();
+                $string_value = v.v.toString();
                 $found = false;
                 Object.keys($checked).forEach(function(key) {
                     if( $checked[key].indexOf($string_value) >= 0) {
@@ -1294,32 +1297,32 @@ function SUPERreCaptcha(){
                 if(!$found) $i++;
             }else{
                 // If other field
-                if( $shortcode_field_value.indexOf(v.value) == -1) $i++;
+                if( $shortcode_field_value.indexOf(v.v) == -1) $i++;
             }
             break;
 
           default:
           // code block
         }
-        if( v.and_method!=='' ) {
-            switch(v.logic_and) {
+        if( v.a!=='' ) {
+            switch(v.la) {
               case 'equal':
-                if( v.value_and==$shortcode_field_and_value ) $i++;
+                if( v.va==$shortcode_field_and_value ) $i++;
                 break;
               case 'not_equal':
-                if( v.value_and!=$shortcode_field_and_value ) $i++;
+                if( v.va!=$shortcode_field_and_value ) $i++;
                 break;
               case 'greater_than':
-                if( parseFloat($shortcode_field_and_value)>parseFloat(v.value_and) ) $i++;
+                if( parseFloat($shortcode_field_and_value)>parseFloat(v.va) ) $i++;
                 break;
               case 'less_than':
-                if( parseFloat($shortcode_field_and_value)<parseFloat(v.value_and) ) $i++;
+                if( parseFloat($shortcode_field_and_value)<parseFloat(v.va) ) $i++;
                 break;
               case 'greater_than_or_equal':
-                if( parseFloat($shortcode_field_and_value)>=parseFloat(v.value_and) ) $i++;
+                if( parseFloat($shortcode_field_and_value)>=parseFloat(v.va) ) $i++;
                 break;
               case 'less_than_or_equal':
-                if( parseFloat($shortcode_field_and_value)<=parseFloat(v.value_and) ) $i++;
+                if( parseFloat($shortcode_field_and_value)<=parseFloat(v.va) ) $i++;
                 break;
               case 'contains':
                 if( (typeof $parent_and !== 'undefined') && ( 
@@ -1327,7 +1330,7 @@ function SUPERreCaptcha(){
                     $parent_and.classList.contains('super-radio') || 
                     $parent_and.classList.contains('super-dropdown')) ) {
                     $checked = $shortcode_field_and_value.split(',');
-                    $string_value = v.value_and.toString();
+                    $string_value = v.va.toString();
                     Object.keys($checked).forEach(function(key) {
                         if( $checked[key].indexOf($string_value) >= 0) {
                             $i++;
@@ -1336,7 +1339,7 @@ function SUPERreCaptcha(){
                     });
                 }else{
                     // If other field
-                    if( $shortcode_field_and_value.indexOf(v.value_and) >= 0) $i++;
+                    if( $shortcode_field_and_value.indexOf(v.va) >= 0) $i++;
                 }
                 break;
               case 'not_contains':
@@ -1345,7 +1348,7 @@ function SUPERreCaptcha(){
                     $parent_and.classList.contains('super-radio') || 
                     $parent_and.classList.contains('super-dropdown')) ) {
                     $checked = $shortcode_field_and_value.split(',');
-                    $string_value = v.value_and.toString();
+                    $string_value = v.va.toString();
                     $found = false;
                     Object.keys($checked).forEach(function(key) {
                         if( $checked[key].indexOf($string_value) >= 0) {
@@ -1356,7 +1359,7 @@ function SUPERreCaptcha(){
                     if(!$found) $i++;
                 }else{
                     // If other field
-                    if( $shortcode_field_and_value.indexOf(v.value_and) == -1) $i++;
+                    if( $shortcode_field_and_value.indexOf(v.va) == -1) $i++;
                 }
                 break;
               default:
@@ -1366,7 +1369,7 @@ function SUPERreCaptcha(){
         // When we are checking for variable condition return on matches
         if($variable) return $i;
         // When we are checking conditional logic then we need to know the total matches as a whole, because we have a method (One/All)
-        if( v.and_method=='and' ) {
+        if( v.a=='and' ) {
             if($i>=2) $match_found++;
         }else{
             if($i>=1) $match_found++;
@@ -1497,330 +1500,404 @@ function SUPERreCaptcha(){
             $updated_variable_fields = {},
             $validation_error = false;
 
+        SUPER.hadAjaxRequest = 0;
+        SUPER.completedAjaxRequests = 0;
+        var form_id = (args.form.querySelector('input[name="hidden_form_id"]') ? args.form.querySelector('input[name="hidden_form_id"]').value : 0);
+        if(!SUPER.allConditions) SUPER.allConditions = {};
+        if(!SUPER.allConditions[form_id]) SUPER.allConditions[form_id] = {};
         Object.keys(args.conditionalLogic).forEach(function(key) {
-            $prev_match_found = false;
+            // First retrieve all the conditions, also for those that are retrieve via Ajax requests
             $this = args.conditionalLogic[key];
-            args.currentTextarea = $this;
             $wrapper = $this.closest('.super-shortcode');
-            $field = $wrapper.querySelector('.super-shortcode-field');
-            $is_variable = false;
-            $is_validate = false;
             if($this.classList.contains('super-variable-conditions')){
-                $is_variable = true;
                 $action = $wrapper.dataset.conditionalVariableAction;
             }else{
                 if($this.classList.contains('super-validate-conditions')){
-                    $is_validate = true;
                     $action = 'show';
-                    $trigger = 'one';
                 }else{
-                    $trigger = $wrapper.dataset.conditionalTrigger;
                     $action = $wrapper.dataset.conditionalAction;
                 }
             }
-
-            // Check if condition is a variable condition, also check if this is a text field, and if the form is being submitted.
-            // If all are true, we must skip this condition to make sure any manual input data won't be reset/overwritten
-            if( ($is_variable===true) && ($wrapper.classList.contains('super-text')===true) && (args.doingSubmit===true) ) {
-                return false;                
-            }
-
             $json = $this.value;
             if(($action) && ($action!='disabled')){
-                $conditions = JSON.parse($json);
-                if($conditions){
-                    $total = 0;
-                    $match_found = 0;
-                    Object.keys($conditions).forEach(function(key) {
-                        if(!$prev_match_found){
-                            $total++;
-                            v = $conditions[key];
-                            // @since 3.5.0 - make sure {tags} are replaced with the correct field value to check conditional logic
-                            args.value = v.value;
-                            v.value = SUPER.update_variable_fields.replace_tags(args);
-                            args.value = v.value_and;
-                            v.value_and = SUPER.update_variable_fields.replace_tags(args);
-                            args.value = v.field;
-                            args.bwc = true;
-                            $shortcode_field_value = SUPER.update_variable_fields.replace_tags(args);
-                            args.value = v.field_and;
-                            args.bwc = true;
-                            $shortcode_field_and_value = SUPER.update_variable_fields.replace_tags(args);
-                            delete args.bwc;
-                            $continue = false;
-                            $continue_and = false;
-                            $skip = false;
-                            $skip_and = false;
-                            // If conditional field selectors don't contain curly braces, then append and prepend them for backwards compatibility
-                            if(v.field!=='' && v.field.indexOf('{')===-1) v.field = '{'+v.field+'}';
-                            if(typeof v.field_and !== 'undefined' && v.field_and!=='' && v.field_and.indexOf('{')===-1) v.field_and = '{'+v.field_and+'}';
-
-                            while (($v = $regex.exec(v.field)) !== null) {
-                                // This is necessary to avoid infinite loops with zero-width matches
-                                if ($v.index === $regex.lastIndex) {
-                                    $regex.lastIndex++;
-                                }
-                                $field_name = $v[1].split(';')[0];
-                                if($field_name=='dynamic_column_counter'){
-                                    continue;
-                                }
-                                $shortcode_field = SUPER.field(args.form, $field_name);
-                                if(!$shortcode_field) {
-                                    $continue = true;
-                                    continue;
-                                }
-                                $skip = SUPER.has_hidden_parent($shortcode_field);
-                                $parent = $shortcode_field.closest('.super-shortcode');
-                            }
-                            if(v.and_method!==''){ 
-                                if(v.and_method==='and' && $continue) return;
-                                while (($v = $regex.exec(v.field_and)) !== null) {
-                                    // This is necessary to avoid infinite loops with zero-width matches
-                                    if ($v.index === $regex.lastIndex) {
-                                        $regex.lastIndex++;
-                                    }
-                                    $field_name = $v[1].split(';')[0];
-                                    if($field_name=='dynamic_column_counter'){
-                                        continue;
-                                    }
-                                    $shortcode_field_and = SUPER.field(args.form, $field_name);
-                                    if(!$shortcode_field_and){
-                                        $continue_and = true;
-                                        continue;
-                                    }
-                                    $skip_and = SUPER.has_hidden_parent($shortcode_field_and);
-                                    $parent_and = $shortcode_field_and.closest('.super-shortcode');
-                                }
-                                if(v.and_method==='or' && !$continue_and){
-                                    $continue = false;
-                                }
-                            }
-                            if($continue || $continue_and) return;
-                            if( (v.and_method==='and' && ($skip || $skip_and) && !$is_variable) ||
-                               (v.and_method==='or' && ($skip && $skip_and) && !$is_variable) ) {
-                                // Exclude conditionally
-                            }else{
-                                $shortcode_field_value = SUPER.return_dynamic_tag_value($($parent), $shortcode_field_value);
-                                $shortcode_field_and_value = SUPER.return_dynamic_tag_value($($parent_and), $shortcode_field_and_value);
-                                if(!$shortcode_field_value) $shortcode_field_value = '';
-                                if(!$shortcode_field_and_value) $shortcode_field_and_value = '';
-                                // Generate correct value before checking conditional logic
-                                $shortcode_field_value = SUPER.conditional_logic.get_field_value(v.logic, $shortcode_field_value, $shortcode_field, $parent);
-                                // Generate correct and value before checking conditional logic
-                                if(v.and_method!==''){ 
-                                    $shortcode_field_and_value = SUPER.conditional_logic.get_field_value(v.logic_and, $shortcode_field_and_value, $shortcode_field_and, $parent_and);
-                                }
-                                if($is_variable){
-                                    $match_found = SUPER.conditional_logic.match_found(0, v, $shortcode_field_value, $shortcode_field_and_value, $parent , $parent_and, true);
-                                    if( v.and_method=='and' ) {
-                                        if($match_found>=2) {
-                                            $prev_match_found = true;
-                                            if( v.new_value!=='' ) {
-                                                args.value = v.new_value;
-                                                v.new_value = SUPER.update_variable_fields.replace_tags(args);
-                                            }
-                                            $field.value = v.new_value;
-                                        }else{
-                                            // @important - we must check if changed field is undefined
-                                            // because when either "Save form progression" or "Retrieve last entry data" is enabled
-                                            // in combination with a variable field depending on a other field to retrieve it values
-                                            // (think of, search customer field, e.g: autosuggest feature with customer data)
-                                            // because it would try to re-populate the variable field (could be text field) with it's data
-                                            // but on page load this text field might already contain data which we rather not override :)
-                                            // @important - or should we grab the data-default-value attribute?
-                                            if(typeof args.el !== 'undefined'){
-                                                $field.value = ''; // No match was found just set to an empty string
-                                            }
-                                        }
-                                    }else{
-                                        if($match_found>=1) {
-                                            $prev_match_found = true;
-                                            if( v.new_value!=='' ) {
-                                                args.value = v.new_value;
-                                                v.new_value = SUPER.update_variable_fields.replace_tags(args);
-                                            }
-                                            $field.value = v.new_value;
-                                        }else{
-                                            // @important - we must check if changed field is undefined
-                                            // because when either "Save form progression" or "Retrieve last entry data" is enabled
-                                            // in combination with a variable field depending on a other field to retrieve it values
-                                            // (think of, search customer field, e.g: autosuggest feature with customer data)
-                                            // because it would try to re-populate the variable field (could be text field) with it's data
-                                            // but on page load this text field might already contain data which we rather not override :)
-                                            // @important - or should we grab the data-default-value attribute?
-                                            if(typeof args.el !== 'undefined'){
-                                                $field.value = ''; // No match was found just set to an empty string
-                                            }
-                                        }
-                                    }
-                                    // No matter what, we will always apply and then remove the 'entry-data' attribute if it existed
-                                    if(typeof $field.dataset.entryValue !== 'undefined'){
-                                        $field.value = $field.dataset.entryValue;
-                                        delete $field.dataset.entryValue;
-                                    }
-                                    // Add the field to the updated fields array 
-                                    $updated_variable_fields[$field.name] = $field;
-                                }else{
-                                    $match_found = SUPER.conditional_logic.match_found($match_found, v, $shortcode_field_value, $shortcode_field_and_value, $parent , $parent_and, false);
-                                }
-                            }
-                        }
-                    });
-                    if(!$is_variable){
-                        $hide_wrappers = [];
-                        $show_wrappers = [];
-                        $changed_wrappers = [];
-                        if($trigger=='all'){
-                            if($match_found==$total){
-                                if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $show_wrappers.push($wrapper);
-                                }
-                                if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $hide_wrappers.push($wrapper);
-                                }
-                                if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
-                                    $hide_wrappers.push($wrapper);
-                                }
-                            }else{
-                                if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $hide_wrappers.push($wrapper);
-                                }
-                                if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $show_wrappers.push($wrapper);
-                                }
-                                if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
-                                    $show_wrappers.push($wrapper);
-                                }
-                            }
-                        }else{
-                            if($match_found!==0){
-                                if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $show_wrappers.push($wrapper);
-                                }
-                                if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $hide_wrappers.push($wrapper);
-                                }
-                                if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
-                                    $hide_wrappers.push($wrapper);
-                                }
-                            }else{
-                                if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $hide_wrappers.push($wrapper);
-                                }
-                                if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
-                                    $changed_wrappers.push($wrapper);
-                                    $show_wrappers.push($wrapper);
-                                }
-                                if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
-                                    $show_wrappers.push($wrapper);
-                                }
-                            }
-                        }
-                        
-                        // Check if we are conditionally validating a field
-                        if($is_validate){
-                            // Hide wrappers
-                            Object.keys($hide_wrappers).forEach(function() {
-                                $validation_error = true;
-                            });
-                        }else{
-                            Object.keys($hide_wrappers).forEach(function(key) {
-                                if($hide_wrappers[key].classList.contains('super-error-active')){
-                                    $hide_wrappers[key].classList.remove('super-error-active');
-                                }
-                                var $innerNodes = $hide_wrappers[key].querySelectorAll('.super-error-active');
-                                Object.keys($innerNodes).forEach(function(ikey) {
-                                    $innerNodes[ikey].classList.remove('super-error-active');
-                                });
-                                // Check if parent is multi-part, tab, accordion, if so remove error class if no errors found
-                                // Remove error class from Multi-part if no more errors where found
-                                SUPER.remove_error_status_parent_layout_element($, $hide_wrappers[key]);
-                            });
-                            if($action=='readonly'){
-                                // Hide wrappers
-                                Object.keys($hide_wrappers).forEach(function(key) {
-                                    $hide_wrappers[key].classList.add('super-readonly');
-                                });
-                                // Show wrappers
-                                Object.keys($show_wrappers).forEach(function(key) {
-                                    $show_wrappers[key].classList.remove('super-readonly');
-                                });
-                            }else{
-                                // Hide wrappers
-                                Object.keys($hide_wrappers).forEach(function(key) {
-                                    $hide_wrappers[key].classList.add('super-conditional-hidden');
-                                    $hide_wrappers[key].classList.remove('super-conditional-visible');
-                                });
-                                // Show wrappers
-                                Object.keys($show_wrappers).forEach(function(key) {
-                                    $show_wrappers[key].classList.remove('super-conditional-hidden');
-                                    $show_wrappers[key].classList.add('super-conditional-visible');
-                                    // Make sure signatures resizes/refreshes after becoming visible
-                                    if(typeof SUPER.refresh_signatures === 'function'){
-                                        SUPER.refresh_signatures('', $show_wrappers[key]);
-                                    }
-                                    // Resize toggle elements
-                                    SUPER.resize_toggle_element($show_wrappers[key]);
-                                    // Reposition slider dragger
-                                    SUPER.reposition_slider_element($show_wrappers[key], true);
-                                });
-                                // @since 2.4.0 - call change blur hook on the fields inside the update column
-                                Object.keys($changed_wrappers).forEach(function(key) {
-                                    $inner = $changed_wrappers[key].querySelectorAll('.super-shortcode-field');
-                                    Object.keys($inner).forEach(function(key) {
-                                        $parent = $inner[key].closest('.super-shortcode');
-                                        $element = $parent.querySelector('div[data-fields]');
-                                        if($element){
-                                            $data_fields = $element.dataset.fields;
-                                            if($data_fields){
-                                                $data_fields = $data_fields.split('}');
-                                                Object.keys($data_fields).forEach(function(key) {
-                                                    v = $data_fields[key];
-                                                    if(v!==''){
-                                                        v = v.replace('{','');
-                                                        $field = SUPER.field(args.form, v);
-                                                        if($field){
-                                                            SUPER.after_field_change_blur_hook({el: $field, form: args.form, skip: true});
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        }
-                                        SUPER.after_field_change_blur_hook({el: $inner[key], form: args.form, skip: true});
-                                    });
-                                });
-                            }
-                        }
+                $field = $wrapper.querySelector('.super-shortcode-field');
+                if(!$field) {
+                    // Skip if we already retrieved the conditions before
+                    if(!SUPER.allConditions[form_id]['_element_'+key]){
+                        SUPER.allConditions[form_id]['_element_'+key] = JSON.parse($json);
                     }
+                    return;
+                }
+                $field_name = $field.name;
+                if($json==='' && $this.dataset.ajax && $this.dataset.ajax==='true'){
+                    // Retrieve the json via Ajax Request
+                    // Skip if we already retrieved the conditions before
+                    if(!SUPER.allConditions[form_id][$field_name]){
+                        SUPER.hadAjaxRequest++;
+                        $.ajax({
+                            url: super_common_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_retrieve_variable_conditions',
+                                form_id: form_id,
+                                field_name: $field_name,
+                            },
+                            success: function (response) {
+                                response = JSON.parse(response);
+                                SUPER.allConditions[form_id][response.field_name] = response.conditions;
+                            },
+                            complete: function(){
+                                // Completed
+                                SUPER.completedAjaxRequests++;
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                // eslint-disable-next-line no-console
+                                console.log(xhr, ajaxOptions, thrownError);
+                                alert('Could not retrieve variable conditions through Ajax request');
+                            }
+                        });
+                    }
+                }else{
+                    SUPER.allConditions[form_id][$field_name] = JSON.parse($json);
                 }
             }
         });
+        var lookupDone = setInterval(function justDoIt(){
+            //var size = Object.keys(SUPER.allConditions[form_id]).length;
+            if((SUPER.hadAjaxRequest>0 && SUPER.hadAjaxRequest===SUPER.completedAjaxRequests) || SUPER.hadAjaxRequest===0){
+                clearInterval(lookupDone);
+                Object.keys(args.conditionalLogic).forEach(function(key) {
+                    $prev_match_found = false;
+                    $this = args.conditionalLogic[key];
+                    args.currentTextarea = $this;
+                    $wrapper = $this.closest('.super-shortcode');
+                    $field = $wrapper.querySelector('.super-shortcode-field');
+                    $is_variable = false;
+                    $is_validate = false;
+                    if($this.classList.contains('super-variable-conditions')){
+                        $is_variable = true;
+                        $action = $wrapper.dataset.conditionalVariableAction;
+                    }else{
+                        if($this.classList.contains('super-validate-conditions')){
+                            $is_validate = true;
+                            $action = 'show';
+                            $trigger = 'one';
+                        }else{
+                            $trigger = $wrapper.dataset.conditionalTrigger;
+                            $action = $wrapper.dataset.conditionalAction;
+                        }
+                    }
 
-        if($is_validate){
-            return $validation_error;
-        }
-        
-        // @since 2.3.0 - update conditional logic and other variable fields based on the updated variable field
-        $.each($updated_variable_fields, function( index, field ) {
-            if(field.value===''){
-                field.closest('.super-shortcode').classList.remove('super-filled');
-            }else{
-                field.closest('.super-shortcode').classList.add('super-filled');
+                    // Check if condition is a variable condition, also check if this is a text field, and if the form is being submitted.
+                    // If all are true, we must skip this condition to make sure any manual input data won't be reset/overwritten
+                    if( ($is_variable===true) && ($wrapper.classList.contains('super-text')===true) && (args.doingSubmit===true) ) {
+                        return false;                
+                    }
+
+                    $json = $this.value;
+                    if(($action) && ($action!='disabled')){
+                        if(!$field) {
+                            $conditions = SUPER.allConditions[form_id]['_element_'+key];
+                        }else{
+                            $conditions = SUPER.allConditions[form_id][$field.name];
+                        }
+                        if($conditions){
+                            $total = 0;
+                            $match_found = 0;
+                            Object.keys($conditions).forEach(function(key) {
+                                if(!$prev_match_found){
+                                    $total++;
+                                    v = $conditions[key];
+                                    // @since 3.5.0 - make sure {tags} are replaced with the correct field value to check conditional logic
+                                    args.value = v.v;
+                                    v.v = SUPER.update_variable_fields.replace_tags(args);
+                                    args.value = v.va;
+                                    v.va = SUPER.update_variable_fields.replace_tags(args);
+                                    args.value = v.f;
+                                    args.bwc = true;
+                                    $shortcode_field_value = SUPER.update_variable_fields.replace_tags(args);
+                                    args.value = v.fa;
+                                    args.bwc = true;
+                                    $shortcode_field_and_value = SUPER.update_variable_fields.replace_tags(args);
+                                    delete args.bwc;
+                                    $continue = false;
+                                    $continue_and = false;
+                                    $skip = false;
+                                    $skip_and = false;
+                                    // If conditional field selectors don't contain curly braces, then append and prepend them for backwards compatibility
+                                    if(v.f!=='' && v.f.indexOf('{')===-1) v.f = '{'+v.f+'}';
+                                    if(typeof v.fa !== 'undefined' && v.fa!=='' && v.fa.indexOf('{')===-1) v.fa = '{'+v.fa+'}';
+
+                                    while (($v = $regex.exec(v.f)) !== null) {
+                                        // This is necessary to avoid infinite loops with zero-width matches
+                                        if ($v.index === $regex.lastIndex) {
+                                            $regex.lastIndex++;
+                                        }
+                                        $field_name = $v[1].split(';')[0];
+                                        if($field_name=='dynamic_column_counter'){
+                                            continue;
+                                        }
+                                        $shortcode_field = SUPER.field(args.form, $field_name);
+                                        if(!$shortcode_field) {
+                                            $continue = true;
+                                            continue;
+                                        }
+                                        $skip = SUPER.has_hidden_parent($shortcode_field);
+                                        $parent = $shortcode_field.closest('.super-shortcode');
+                                    }
+                                    if(v.a!==''){ 
+                                        if(v.a==='and' && $continue) return;
+                                        while (($v = $regex.exec(v.fa)) !== null) {
+                                            // This is necessary to avoid infinite loops with zero-width matches
+                                            if ($v.index === $regex.lastIndex) {
+                                                $regex.lastIndex++;
+                                            }
+                                            $field_name = $v[1].split(';')[0];
+                                            if($field_name=='dynamic_column_counter'){
+                                                continue;
+                                            }
+                                            $shortcode_field_and = SUPER.field(args.form, $field_name);
+                                            if(!$shortcode_field_and){
+                                                $continue_and = true;
+                                                continue;
+                                            }
+                                            $skip_and = SUPER.has_hidden_parent($shortcode_field_and);
+                                            $parent_and = $shortcode_field_and.closest('.super-shortcode');
+                                        }
+                                        if(v.a==='or' && !$continue_and){
+                                            $continue = false;
+                                        }
+                                    }
+                                    if($continue || $continue_and) return;
+                                    if( (v.a==='and' && ($skip || $skip_and) && !$is_variable) ||
+                                    (v.a==='or' && ($skip && $skip_and) && !$is_variable) ) {
+                                        // Exclude conditionally
+                                    }else{
+                                        $shortcode_field_value = SUPER.return_dynamic_tag_value($($parent), $shortcode_field_value);
+                                        $shortcode_field_and_value = SUPER.return_dynamic_tag_value($($parent_and), $shortcode_field_and_value);
+                                        if(!$shortcode_field_value) $shortcode_field_value = '';
+                                        if(!$shortcode_field_and_value) $shortcode_field_and_value = '';
+                                        // Generate correct value before checking conditional logic
+                                        $shortcode_field_value = SUPER.conditional_logic.get_field_value(v.l, $shortcode_field_value, $shortcode_field, $parent);
+                                        // Generate correct and value before checking conditional logic
+                                        if(v.a!==''){ 
+                                            $shortcode_field_and_value = SUPER.conditional_logic.get_field_value(v.la, $shortcode_field_and_value, $shortcode_field_and, $parent_and);
+                                        }
+                                        if($is_variable){
+                                            $match_found = SUPER.conditional_logic.match_found(0, v, $shortcode_field_value, $shortcode_field_and_value, $parent , $parent_and, true);
+                                            if( v.a=='and' ) {
+                                                if($match_found>=2) {
+                                                    $prev_match_found = true;
+                                                    if( v.n!=='' ) {
+                                                        args.value = v.n;
+                                                        v.n = SUPER.update_variable_fields.replace_tags(args);
+                                                    }
+                                                    $field.value = v.n;
+                                                }else{
+                                                    // @important - we must check if changed field is undefined
+                                                    // because when either "Save form progression" or "Retrieve last entry data" is enabled
+                                                    // in combination with a variable field depending on a other field to retrieve it values
+                                                    // (think of, search customer field, e.g: autosuggest feature with customer data)
+                                                    // because it would try to re-populate the variable field (could be text field) with it's data
+                                                    // but on page load this text field might already contain data which we rather not override :)
+                                                    // @important - or should we grab the data-default-value attribute?
+                                                    if(typeof args.el !== 'undefined'){
+                                                        $field.value = ''; // No match was found just set to an empty string
+                                                    }
+                                                }
+                                            }else{
+                                                if($match_found>=1) {
+                                                    $prev_match_found = true;
+                                                    if( v.n!=='' ) {
+                                                        args.value = v.n;
+                                                        v.n = SUPER.update_variable_fields.replace_tags(args);
+                                                    }
+                                                    $field.value = v.n;
+                                                }else{
+                                                    // @important - we must check if changed field is undefined
+                                                    // because when either "Save form progression" or "Retrieve last entry data" is enabled
+                                                    // in combination with a variable field depending on a other field to retrieve it values
+                                                    // (think of, search customer field, e.g: autosuggest feature with customer data)
+                                                    // because it would try to re-populate the variable field (could be text field) with it's data
+                                                    // but on page load this text field might already contain data which we rather not override :)
+                                                    // @important - or should we grab the data-default-value attribute?
+                                                    if(typeof args.el !== 'undefined'){
+                                                        $field.value = ''; // No match was found just set to an empty string
+                                                    }
+                                                }
+                                            }
+                                            // No matter what, we will always apply and then remove the 'entry-data' attribute if it existed
+                                            if(typeof $field.dataset.entryValue !== 'undefined'){
+                                                $field.value = $field.dataset.entryValue;
+                                                delete $field.dataset.entryValue;
+                                            }
+                                            // Add the field to the updated fields array 
+                                            $updated_variable_fields[$field.name] = $field;
+                                        }else{
+                                            $match_found = SUPER.conditional_logic.match_found($match_found, v, $shortcode_field_value, $shortcode_field_and_value, $parent , $parent_and, false);
+                                        }
+                                    }
+                                }
+                            });
+                            if(!$is_variable){
+                                $hide_wrappers = [];
+                                $show_wrappers = [];
+                                $changed_wrappers = [];
+                                if($trigger=='all'){
+                                    if($match_found==$total){
+                                        if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                    }else{
+                                        if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                    }
+                                }else{
+                                    if($match_found!==0){
+                                        if( ($action==='show') && (!$wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='hide') && ($wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='readonly') && (!$wrapper.classList.contains('super-readonly')) ){
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                    }else{
+                                        if( ($action==='show') && ($wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $hide_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='hide') && (!$wrapper.classList.contains('super-conditional-visible')) ){
+                                            $changed_wrappers.push($wrapper);
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                        if( ($action==='readonly') && ($wrapper.classList.contains('super-readonly')) ){
+                                            $show_wrappers.push($wrapper);
+                                        }
+                                    }
+                                }
+                                
+                                // Check if we are conditionally validating a field
+                                if($is_validate){
+                                    // Hide wrappers
+                                    Object.keys($hide_wrappers).forEach(function() {
+                                        $validation_error = true;
+                                    });
+                                }else{
+                                    Object.keys($hide_wrappers).forEach(function(key) {
+                                        if($hide_wrappers[key].classList.contains('super-error-active')){
+                                            $hide_wrappers[key].classList.remove('super-error-active');
+                                        }
+                                        var $innerNodes = $hide_wrappers[key].querySelectorAll('.super-error-active');
+                                        Object.keys($innerNodes).forEach(function(ikey) {
+                                            $innerNodes[ikey].classList.remove('super-error-active');
+                                        });
+                                        // Check if parent is multi-part, tab, accordion, if so remove error class if no errors found
+                                        // Remove error class from Multi-part if no more errors where found
+                                        SUPER.remove_error_status_parent_layout_element($, $hide_wrappers[key]);
+                                    });
+                                    if($action=='readonly'){
+                                        // Hide wrappers
+                                        Object.keys($hide_wrappers).forEach(function(key) {
+                                            $hide_wrappers[key].classList.add('super-readonly');
+                                        });
+                                        // Show wrappers
+                                        Object.keys($show_wrappers).forEach(function(key) {
+                                            $show_wrappers[key].classList.remove('super-readonly');
+                                        });
+                                    }else{
+                                        // Hide wrappers
+                                        Object.keys($hide_wrappers).forEach(function(key) {
+                                            $hide_wrappers[key].classList.add('super-conditional-hidden');
+                                            $hide_wrappers[key].classList.remove('super-conditional-visible');
+                                        });
+                                        // Show wrappers
+                                        Object.keys($show_wrappers).forEach(function(key) {
+                                            $show_wrappers[key].classList.remove('super-conditional-hidden');
+                                            $show_wrappers[key].classList.add('super-conditional-visible');
+                                            // Make sure signatures resizes/refreshes after becoming visible
+                                            if(typeof SUPER.refresh_signatures === 'function'){
+                                                SUPER.refresh_signatures('', $show_wrappers[key]);
+                                            }
+                                            // Resize toggle elements
+                                            SUPER.resize_toggle_element($show_wrappers[key]);
+                                            // Reposition slider dragger
+                                            SUPER.reposition_slider_element($show_wrappers[key], true);
+                                        });
+                                        // @since 2.4.0 - call change blur hook on the fields inside the update column
+                                        Object.keys($changed_wrappers).forEach(function(key) {
+                                            $inner = $changed_wrappers[key].querySelectorAll('.super-shortcode-field');
+                                            Object.keys($inner).forEach(function(key) {
+                                                $parent = $inner[key].closest('.super-shortcode');
+                                                $element = $parent.querySelector('div[data-fields]');
+                                                if($element){
+                                                    $data_fields = $element.dataset.fields;
+                                                    if($data_fields){
+                                                        $data_fields = $data_fields.split('}');
+                                                        Object.keys($data_fields).forEach(function(key) {
+                                                            v = $data_fields[key];
+                                                            if(v!==''){
+                                                                v = v.replace('{','');
+                                                                $field = SUPER.field(args.form, v);
+                                                                if($field){
+                                                                    SUPER.after_field_change_blur_hook({el: $field, form: args.form, skip: true});
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                                SUPER.after_field_change_blur_hook({el: $inner[key], form: args.form, skip: true});
+                                            });
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                if($is_validate){
+                    return $validation_error;
+                }
+                
+                // @since 2.3.0 - update conditional logic and other variable fields based on the updated variable field
+                $.each($updated_variable_fields, function( index, field ) {
+                    if(field.value===''){
+                        field.closest('.super-shortcode').classList.remove('super-filled');
+                    }else{
+                        field.closest('.super-shortcode').classList.add('super-filled');
+                    }
+                    SUPER.after_field_change_blur_hook({el: field});
+                });
+
+                // @since 1.4
+                if(!$is_variable){
+                    SUPER.update_variable_fields(args);
+                }
             }
-            SUPER.after_field_change_blur_hook({el: field});
-        });
-
-        // @since 1.4
-        if(!$is_variable){
-            SUPER.update_variable_fields(args);
-        }
+        // the function is called instantly the first time, this is required in case there was no javascript being executed.
+        // if there was an Ajax request being made, then loop every 10-15ms (different accross browser) and try to execute the rest of the functions as soon as we can
+        }(), 0); 
     };
 
     // @since 5.0.120 Filter foreach() statements
@@ -2355,22 +2432,26 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
+        if(typeof args.bwc === 'undefined') args.bwc = false;
+        if(typeof args.value !== 'undefined' && args.bwc){
+            // If field name is empty do nothing
+            if(args.value==='' || typeof args.value==='undefined') return '';
+            // If field name doesn't contain any curly braces, then append and prepend them and continue;
+            if(args.value.indexOf('{')===-1) args.value = '{'+args.value+'}';   
+        }
+        // First check if tag exists
+        if(args.value==='' || typeof args.value==='undefined') return '';
+        var indexMapping = args.value;
+        var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        if(SUPER.preFlightMappings[formId].tags[indexMapping]){
+            return SUPER.preFlightMappings[formId].tags[indexMapping];
+        }
         if(args.form.classList.contains('super-generating-pdf')){
             // Must reference to original form (which is currently the placeholder)
-            var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
             args.form = document.querySelector('#super-form-'+formId+'-placeholder');
         }
         if(typeof args.defaultValues === 'undefined') args.defaultValues = false;
-        if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.target === 'undefined') args.target = null;
-        if(typeof args.value !== 'undefined' && args.bwc){
-            // If field name is empty do nothing
-            if(args.value==='') return '';
-            // If field name doesn't contain any curly braces, then append and prepend them and continue;
-            if(args.value.indexOf('{')===-1) {
-                args.value = '{'+args.value+'}';   
-            } 
-        }
         var $array = [],
             $value = '',
             $i = 0,
@@ -2400,18 +2481,26 @@ function SUPERreCaptcha(){
             $element = undefined; // @important!
             $name = $array[$i];
             if($name=='pdf_page' && typeof SUPER.pdf_tags !== 'undefined' ){
+                if(indexMapping!==SUPER.pdf_tags.pdf_page) SUPER.preFlightMappings[formId].tags[indexMapping] = SUPER.pdf_tags.pdf_page;
+                SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, SUPER.pdf_tags.pdf_page);
                 return SUPER.pdf_tags.pdf_page;
             }
             if($name=='pdf_total_pages' && typeof SUPER.pdf_tags !== 'undefined' ){
+                if(indexMapping!==SUPER.pdf_tags.pdf_total_pages) SUPER.preFlightMappings[formId].tags[indexMapping] = SUPER.pdf_tags.pdf_total_pages;
+                SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, SUPER.pdf_tags.pdf_total_pages);
                 return SUPER.pdf_tags.pdf_total_pages;
             }
             if($name=='dynamic_column_counter'){
                 if(args.target){
                     args.value = $(args.target).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                    if(indexMapping!==args.value) SUPER.preFlightMappings[formId].tags[indexMapping] = args.value;
+                    SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                     return args.value;
                 }else{
                     if(args.currentTextarea){
                         args.value = $(args.currentTextarea).parents('.super-duplicate-column-fields:eq(0)').index()+1;
+                        if(indexMapping!==args.value) SUPER.preFlightMappings[formId].tags[indexMapping] = args.value;
+                        SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                         return args.value;
                     }
                 }
@@ -2421,6 +2510,7 @@ function SUPERreCaptcha(){
             $old_name = $name;
             $options = $name.toString().split(';');
             $name = $options[0]; // this is the field name e.g: {option;2} the variable $name would contain: option
+
             $value_type = 'var'; // return field value as 'var' or 'int' {field;2;var} to return varchar or {field;2;int} to return integer
 
             if(typeof $options[1] === 'undefined'){
@@ -2466,6 +2556,8 @@ function SUPERreCaptcha(){
                 $name = $name.replace('$','');
                 $element = SUPER.field(args.form, $name, '$');
             }
+
+
             if(!$element) $element = SUPER.field(args.form, $name);
             if($element){
                 if($element[0]) $element = $element[0];
@@ -2474,11 +2566,13 @@ function SUPERreCaptcha(){
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
                     args.value = args.value.replace('{'+$old_name+'}', $default_value);
+                    SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                 }else{
                     $parent = $element.closest('.super-shortcode');
                     if( !$element ) {
                         // Lets just replace the field name with 0 as a value
                         args.value = args.value.replace('{'+$old_name+'}', $default_value);
+                        SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                     }else{
                         $text_field = true;
                         $parent = $element.closest('.super-field');
@@ -2486,6 +2580,7 @@ function SUPERreCaptcha(){
                         if($value_n=='index') {
                             var dynamicParentIndex = $($element).parents('.super-duplicate-column-fields:eq(0)').index();
                             args.value = args.value.replace('{'+$old_name+'}', dynamicParentIndex+1);
+                            SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                             continue;
                         }
 
@@ -2811,11 +2906,21 @@ function SUPERreCaptcha(){
                             $value = $default_value;
                         }
                         args.value = args.value.replace('{'+$old_name+'}', $value);
+                        SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                     }
                 }
             }
         }
         return args.value;
+    };
+    SUPER.beforeReturnReplacedTagValue = function(formId, $name, indexMapping, value){
+        if(indexMapping!==value) {
+            if(typeof SUPER.preFlightMappings[formId].fieldNames[$name] === 'undefined') SUPER.preFlightMappings[formId].fieldNames[$name] = [];
+            if(SUPER.preFlightMappings[formId].fieldNames[$name].indexOf(indexMapping)===-1){
+                SUPER.preFlightMappings[formId].fieldNames[$name].push(indexMapping);
+            }
+            SUPER.preFlightMappings[formId].tags[indexMapping] = value;
+        }
     };
 
     SUPER.close_loading_overlay = function(loadingOverlay){
@@ -2907,9 +3012,7 @@ function SUPERreCaptcha(){
                 });                    
                 return false;
             });
-
         }
-
     };
     // Show PDF download button
     SUPER.show_pdf_download_btn = function(args){
@@ -2937,6 +3040,18 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
+                    // Visually indicate which fields have errors
+                    if(typeof result.fields !== 'undefined'){
+                        for(var i=0; i<result.fields.length; i++){
+                            var el = SUPER.field(args.form0, result.fields[i]);
+                            if(el){
+                                SUPER.handle_errors(el);
+                                SUPER.add_error_status_parent_layout_element($, el);
+                                //if(args.el.closest('.super-field')) args.el.closest('.super-field').classList.remove('super-error-active');
+                                //SUPER.remove_error_status_parent_layout_element($, args.el);
+                            }
+                        }
+                    }                               
                     SUPER.init_resend_verification_code(args);
                 }else{
                     args.loadingOverlay.classList.add('super-success');
@@ -3794,6 +3909,19 @@ function SUPERreCaptcha(){
     // After field value changed
     SUPER.after_field_change_blur_hook = function(args){
         args.form = SUPER.get_frontend_or_backend_form(args);
+        if(args.form.id==='') return;
+        var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
+        if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
+
+        // Reset preflight values
+        if(SUPER.preFlightMappings[formId].fieldNames[args.el.name]){
+            for(var i=0; i<SUPER.preFlightMappings[formId].fieldNames[args.el.name].length; i++){
+                var indexMapping = SUPER.preFlightMappings[formId].fieldNames[args.el.name][i];
+                delete SUPER.preFlightMappings[formId].tags[indexMapping];
+            }
+            delete SUPER.preFlightMappings[formId].fieldNames[args.el.name];
+        }
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
@@ -5003,7 +5131,14 @@ function SUPERreCaptcha(){
         thisAutocomplete.addListener( 'place_changed', function () {
             // Set text field to the formatted address
             var place = thisAutocomplete.getPlace();
-            thisAutocomplete.el.value = place.formatted_address;
+            if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                // If we need to normalize the results returned by google API:
+                var str = place.formatted_address;
+                if(typeof $val === 'string') str = thisAutocomplete.el.value = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                thisAutocomplete.el.value = str;
+            }else{
+                thisAutocomplete.el.value = place.formatted_address;
+            }
             SUPER.calculate_distance({el: thisAutocomplete.el});
 
             var street_data = {
@@ -5032,6 +5167,7 @@ function SUPERreCaptcha(){
             var $attribute;
             var $val;
             var $address;
+            var item, types, long, short;
             
             if($returnAddressComponent){
                 place.address_components.push({
@@ -5045,10 +5181,15 @@ function SUPERreCaptcha(){
                     types: ["lng"]
                 });
                 for (var i = 0; i < place.address_components.length; i++) {
-                    var item = place.address_components[i];
-                    var long = item.long_name;
-                    var short = item.short_name;
-                    var types = item.types;
+                    item = place.address_components[i];
+                    long = item.long_name;
+                    short = item.short_name;
+                    if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                        // If we need to normalize the results returned by google API:
+                        if(typeof long === 'string') long = long.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        if(typeof short === 'string') short = short.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
+                    types = item.types;
                     // Street number
                     if(types.indexOf('street_number')!==-1){
                         street_data.number.long = long;
@@ -5065,7 +5206,10 @@ function SUPERreCaptcha(){
                         inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
                         if(inputField){
                             if($attribute[1]==='') $attribute[1] = 'long';
-                            $val = place.address_components[i][$attribute[1]+'_name'];
+                            $val = item[$attribute[1]+'_name'];
+                            if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                                if(typeof $val === 'string') $val = $val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                            }
                             inputField.value = $val;
                             if($val===''){
                                 inputField.closest('.super-shortcode').classList.remove('super-filled');
@@ -5086,6 +5230,9 @@ function SUPERreCaptcha(){
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.name;
+                    if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                        if(typeof $val === 'string') $val = $val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
                     inputField.value = $val;
                     if($val===''){
                         inputField.closest('.super-shortcode').classList.remove('super-filled');
@@ -5104,6 +5251,9 @@ function SUPERreCaptcha(){
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.formatted_address;
+                    if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                        if(typeof $val === 'string') $val = $val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
                     inputField.value = $val;
                     if($val===''){
                         inputField.closest('.super-shortcode').classList.remove('super-filled');
@@ -5122,6 +5272,9 @@ function SUPERreCaptcha(){
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.formatted_phone_number;
+                    if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                        if(typeof $val === 'string') $val = $val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
                     inputField.value = $val;
                     if($val===''){
                         inputField.closest('.super-shortcode').classList.remove('super-filled');
@@ -5140,6 +5293,9 @@ function SUPERreCaptcha(){
                 if(inputField){
                     if($attribute[1]==='') $attribute[1] = 'long';
                     $val = place.international_phone_number;
+                    if(args.el.dataset.normalize && args.el.dataset.normalize==='true'){
+                        if(typeof $val === 'string') $val = $val.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    }
                     inputField.value = $val;
                     if($val===''){
                         inputField.closest('.super-shortcode').classList.remove('super-filled');
@@ -5287,6 +5443,10 @@ function SUPERreCaptcha(){
         var forms = document.querySelectorAll('.super-form');
         Object.keys(forms).forEach(function(key) {
             $this = forms[key];
+            if($this.id==='') return;
+            var formId = parseInt($this.id.replace('super-form-', ''), 10);
+            if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
+            if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
 
             // @since 3.2.0 
             // Add tab indexes to all fields
@@ -6584,6 +6744,53 @@ function SUPERreCaptcha(){
             }
         }
     };
+    SUPER.populate_form_order_data_ajax = function(args){
+        if( args.el.value.length>0 ) {
+            args.el.closest('.super-field-wrapper').classList.add('super-populating');
+            $.ajax({
+                url: super_common_i18n.ajaxurl,
+                type: 'post',
+                data: {
+                    action: 'super_search_wc_orders',
+                    value: args.el.value,
+                    method: args.el.dataset.wcosm,
+                    filterby: args.el.dataset.wcosfb,
+                    return_label: args.el.dataset.wcosrl,
+                    return_value: args.el.dataset.wcosrv,
+                    populate: args.el.dataset.wcosp,
+                    skip: args.el.dataset.wcoss,
+                    status: args.el.dataset.wcosst
+                },
+                success: function (result) {
+                    if(result!==''){
+                        args.el.closest('.super-shortcode').classList.add('super-focus');
+                        args.el.closest('.super-shortcode').classList.add('super-string-found');
+                    }
+                    var ul = args.el.closest('.super-field-wrapper').querySelector('.super-dropdown-list');
+                    if(ul){
+                        ul.innerHTML = result;
+                    }else{
+                        $('<ul class="super-dropdown-list">'+result+'</ul>').appendTo($(args.el).parents('.super-field-wrapper:eq(0)'));
+                    }
+                    // If there is a single result, click it
+                    var ul = args.el.closest('.super-field-wrapper').querySelector('.super-dropdown-list');
+                    if(ul && ul.children.length===1){
+                        ul.children[0].click();
+                    }
+                },
+                complete: function(){
+                    args.el.closest('.super-field-wrapper').classList.remove('super-populating');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    // eslint-disable-next-line no-console
+                    console.log(xhr, ajaxOptions, thrownError);
+                    alert(super_common_i18n.errors.failed_to_process_data);
+                }
+            });
+        }
+    };
+
+
     SUPER.update_unique_code = function(el, submittingForm){
         $.ajax({
             url: super_common_i18n.ajaxurl,
@@ -6607,18 +6814,33 @@ function SUPERreCaptcha(){
     }
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
-
         // Do not do anything if all forms where intialized already
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
         }
+
+        $('.super-form').each(function(){
+            var formId = parseInt(this.id.replace('super-form-', ''), 10);
+            if(typeof SUPER.preFlightMappings === 'undefined') SUPER.preFlightMappings = {};
+            if(typeof SUPER.preFlightMappings[formId] === 'undefined') {
+                SUPER.preFlightMappings[formId] = {
+                    fieldNames: [],
+                    tags: {}
+                }
+            }
+        });
       
         // @since 3.3.0 - make sure to load dynamic columns correctly based on found contact entry data when a search field is being used
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
-            var field = this;
-            if(field.value!==''){
-                field.classList.add('super-dom-populated');
-                SUPER.populate_form_data_ajax({el: field});
+            if(this.value!==''){
+                this.classList.add('super-dom-populated');
+                SUPER.populate_form_data_ajax({el: this});
+            }
+        });
+        $('.super-text .super-shortcode-field[data-wcosm]:not(.super-dom-populated)').each(function(){
+            if(this.value!==''){
+                this.classList.add('super-dom-populated');
+                SUPER.populate_form_order_data_ajax({el: this});
             }
         });
 
@@ -6725,7 +6947,6 @@ function SUPERreCaptcha(){
             field.dataset.olevels = levels;
         }
 
-
         // Multi-part
         $('.super-form:not(.super-preview-elements)').each(function(){
             var form = this,
@@ -6742,9 +6963,9 @@ function SUPERreCaptcha(){
                 $progress_bar,
                 $clone;
 
+            var formId = parseInt(this.id.replace('super-form-', ''), 10);
             if($form.parent().hasClass('elementor-text-editor')){
-                var $form_id = $form.find('input[name="hidden_form_id"]').val();
-                $form.html('<p style="color:red;font-size:12px;"><strong>'+super_common_i18n.elementor.notice+':</strong> [Form ID: '+$form_id+ '] - '+super_common_i18n.elementor.msg+'</p>');
+                $form.html('<p style="color:red;font-size:12px;"><strong>'+super_common_i18n.elementor.notice+':</strong> [Form ID: '+formId+ '] - '+super_common_i18n.elementor.msg+'</p>');
                 return false;
             }
 
@@ -6896,13 +7117,14 @@ function SUPERreCaptcha(){
             }
         });
         
+        //SUPER.handle_columns();
         var $handle_columns_interval = setInterval(function(){
             if(($('.super-form').length != $('.super-form.super-rendered').length) || ($('.super-form').length===0)){
                 SUPER.handle_columns();
             }else{
                 clearInterval($handle_columns_interval);
             }
-        }, 100);
+        }, 0);
     };
 
     // Reposition slider amount label
@@ -7189,7 +7411,6 @@ function SUPERreCaptcha(){
     // Handle the responsiveness of the form
     SUPER.responsive_form_fields_timeout = {};
     SUPER.init_super_responsive_form_fields = function(args){
-        console.log('test1');
         if(typeof $ === 'undefined') $ = jQuery;
         if(typeof args === 'undefined') args = {};
         if(typeof args.timeout === 'undefined') args.timeout = 0;
@@ -7304,9 +7525,7 @@ function SUPERreCaptcha(){
             // Resize toggle elements
             SUPER.resize_toggle_element(args.form);
             // Reposition slider dragger
-            console.log('test2');
             SUPER.reposition_slider_element(args.form, true);
-            console.log('test3');
 
             // @since 1.3
             SUPER.after_responsive_form_hook($classes, args.form, $new_class, $window_classes, $new_window_class);
@@ -8584,57 +8803,12 @@ function SUPERreCaptcha(){
         // WooCommerce Order Search Method (wcosm)
         var timeout2 = null;
         $doc.on('keyup', '.super-text .super-shortcode-field[data-wcosm]', function(){ 
-            var $this = $(this);
+            var field = this;
             if (timeout2 !== null) {
                 clearTimeout(timeout2);
             }
             timeout2 = setTimeout(function () {
-                var $value = $this.val();
-                var $method = $this.data('wcosm');
-                var $filterby = $this.data('wcosfb');
-                var $return_label = $this.data('wcosrl');
-                var $return_value = $this.data('wcosrv');
-                var $populate = $this.data('wcosp');
-                var $skip = $this.data('wcoss');
-                var $status = $this.data('wcosst');
-                if( $value.length>0 ) {
-                    $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
-                    $.ajax({
-                        url: super_common_i18n.ajaxurl,
-                        type: 'post',
-                        data: {
-                            action: 'super_search_wc_orders',
-                            value: $value,
-                            method: $method,
-                            filterby: $filterby,
-                            return_label: $return_label,
-                            return_value: $return_value,
-                            populate: $populate,
-                            skip: $skip,
-                            status: $status
-                        },
-                        success: function (result) {
-                            if(result!==''){
-                                $this.parents('.super-shortcode:eq(0)').addClass('super-focus');
-                                $this.parents('.super-shortcode:eq(0)').addClass('super-string-found');
-                            }
-                            var ul = $this.parents('.super-field-wrapper:eq(0)').children('.super-dropdown-list');
-                            if(ul.length){
-                                ul.html(result);
-                            }else{
-                                $('<ul class="super-dropdown-list">'+result+'</ul>').appendTo($this.parents('.super-field-wrapper:eq(0)'));
-                            }
-                        },
-                        complete: function(){
-                            $this.parents('.super-field-wrapper:eq(0)').removeClass('super-populating');
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            // eslint-disable-next-line no-console
-                            console.log(xhr, ajaxOptions, thrownError);
-                            alert(super_common_i18n.errors.failed_to_process_data);
-                        }
-                    });
-                }
+                SUPER.populate_form_order_data_ajax({el: field});
             }, 1000);
         });
 

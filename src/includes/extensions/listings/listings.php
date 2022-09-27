@@ -381,18 +381,16 @@ if(!class_exists('SUPER_Listings')) :
             $entry_id = absint($_POST['entry_id']);
             // Check if invalid Entry ID
             if( $entry_id==0 ) {
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
-                );
+                SUPER_Common::output_message( array(
+                    'msg' => esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
+                ));
                 die();
             }
             // Check if this entry does not have the correct post type, if not then the entry doesn't exist
             if( get_post_type($entry_id)!='super_contact_entry' ) {
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
-                );
+                SUPER_Common::output_message( array(
+                    'msg' => esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
+                ));
                 die();
             }
             // Seems that everything is OK, continue and load the form
@@ -1420,7 +1418,7 @@ if(!class_exists('SUPER_Listings')) :
             
             // Load styles and scripts
             SUPER_Forms()->enqueue_element_styles();
-            SUPER_Forms()->enqueue_element_scripts($settings, false, $form_id);
+            SUPER_Forms()->enqueue_element_scripts(array('settings'=>$settings, 'ajax'=>true, 'form_id'=>$form_id));
 
             // Enqueue scripts and styles
             $handle = 'super-common';

@@ -164,26 +164,26 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_csv_attachment( $attachments, $data ) {
-            if( (isset($data['settings']['csv_attachment_enable'])) && ($data['settings']['csv_attachment_enable']=='true') ) {
-                if(!isset($data['settings']['csv_attachment_name'])) {
+        public static function add_csv_attachment( $attachments, $atts ) {
+            if( (isset($atts['settings']['csv_attachment_enable'])) && ($atts['settings']['csv_attachment_enable']=='true') ) {
+                if(!isset($atts['settings']['csv_attachment_name'])) {
                     $csv_attachment_name = 'super-csv-attachment';
                 }else{
                     // @since 1.1.2 - compatibility with {tags}
-                    $csv_attachment_name = SUPER_Common::email_tags( $data['settings']['csv_attachment_name'], $data['data'], $data['settings'] );
+                    $csv_attachment_name = SUPER_Common::email_tags( $atts['settings']['csv_attachment_name'], $atts['data'], $atts['settings'] );
                 }
-                if(!isset($data['settings']['csv_attachment_save_as'])) $data['settings']['csv_attachment_save_as'] = 'entry_value';
-                if(!isset($data['settings']['csv_attachment_exclude'])) $data['settings']['csv_attachment_exclude'] = '';
-                $excluded_fields = explode( "\n", $data['settings']['csv_attachment_exclude'] );
+                if(!isset($atts['settings']['csv_attachment_save_as'])) $atts['settings']['csv_attachment_save_as'] = 'entry_value';
+                if(!isset($atts['settings']['csv_attachment_exclude'])) $atts['settings']['csv_attachment_exclude'] = '';
+                $excluded_fields = explode( "\n", $atts['settings']['csv_attachment_exclude'] );
 
                 $rows = array();
-                foreach( $data['data'] as $k => $v ) {
+                foreach( $atts['data'] as $k => $v ) {
                     if( !isset($v['name']) ) continue;
                     if( !in_array( $v['name'], $excluded_fields ) ) {
                         $rows[0][] = $k;
                     }
                 }
-                foreach( $data['data'] as $k => $v ) {
+                foreach( $atts['data'] as $k => $v ) {
                      if( !isset($v['name']) ) continue;
                      if( !in_array( $v['name'], $excluded_fields ) ) {
                         if( (isset($v['type'])) && ($v['type'] == 'files') ) {
@@ -202,9 +202,9 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                             if( !isset($v['value']) ) {
                                 $rows[1][] = '';
                             }else{
-                                if( ($data['settings']['csv_attachment_save_as']=='entry_value') && (isset($v['entry_value'])) ) {
+                                if( ($atts['settings']['csv_attachment_save_as']=='entry_value') && (isset($v['entry_value'])) ) {
                                     $v['value'] = $v['entry_value'];
-                                }elseif( ($data['settings']['csv_attachment_save_as']=='confirm_email_value') && (isset($v['confirm_value'])) ) {
+                                }elseif( ($atts['settings']['csv_attachment_save_as']=='confirm_email_value') && (isset($v['confirm_value'])) ) {
                                     $v['value'] = $v['confirm_value'];
                                 }
                                 $rows[1][] = stripslashes($v['value']);
@@ -221,16 +221,17 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
                     if(fwrite($fp, $bom)===false){
                         // Print error message
-                        SUPER_Common::output_message(
-                            $error = true,
-                            "Unable to write to file ($filename)"
-                        );
+                        SUPER_Common::output_message( array(
+                            'error' => true,
+                            'msg' => "Unable to write to file ($filename)",
+                            'form_id' => absint($atts['form_id'])
+                        ));
                     }
                     // @since 1.1.1 - custom settings for delimiter and enclosure
-                    if(!isset($data['settings']['csv_attachment_delimiter'])) $data['settings']['csv_attachment_delimiter'] = ',';
-                    if(!isset($data['settings']['csv_attachment_enclosure'])) $data['settings']['csv_attachment_enclosure'] = '"';
-                    $delimiter = wp_unslash(sanitize_text_field($data['settings']['csv_attachment_delimiter']));
-                    $enclosure = wp_unslash(sanitize_text_field($data['settings']['csv_attachment_enclosure']));
+                    if(!isset($atts['settings']['csv_attachment_delimiter'])) $atts['settings']['csv_attachment_delimiter'] = ',';
+                    if(!isset($atts['settings']['csv_attachment_enclosure'])) $atts['settings']['csv_attachment_enclosure'] = '"';
+                    $delimiter = wp_unslash(sanitize_text_field($atts['settings']['csv_attachment_delimiter']));
+                    $enclosure = wp_unslash(sanitize_text_field($atts['settings']['csv_attachment_enclosure']));
                     if(empty($delimiter)) $delimiter = ',';
                     if(empty($enclosure)) $enclosure = '"';
                     foreach ( $rows as $fields ) {
@@ -250,10 +251,11 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     $attachments['csv-form-data.csv'] = wp_get_attachment_url( $attachment_id );
                 } catch (Exception $e) {
                     // Print error message
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $e->getMessage()
-                    );
+                    SUPER_Common::output_message( array(
+                        'error' => true,
+                        'msg' => $e->getMessage(),
+                        'form_id' => absint($atts['form_id'])
+                    ));
                 }
             }
             return $attachments;

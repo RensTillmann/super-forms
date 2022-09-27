@@ -482,6 +482,11 @@
         if(typeof skipFieldChangeForElement === 'undefined') skipFieldChangeForElement = ''
         var i;
 
+        Date.prototype.getWeek = function() {
+            var onejan = new Date(this.getFullYear(), 0, 1);
+            return Math.ceil((((this - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+        }
+
         // Init datepickers
         var oneDay = 24*60*60*1000, // hours*minutes*seconds*milliseconds
             nodes = document.querySelectorAll('.super-datepicker');
@@ -630,58 +635,86 @@
                     exclDates = (typeof this.dataset.exclDates !=='undefined' ? this.dataset.exclDates : undefined);
                     exclDaysOverride = this.dataset.exclDaysOverride;
                     exclDaysOverride = (typeof this.dataset.exclDaysOverride !=='undefined' ? this.dataset.exclDaysOverride : undefined);
-
+                    // Override date/days exclusion
+                    if(typeof exclDaysOverride !== 'undefined'){
+                        regex = /{([^\\\/\s"'+]*?)}/g;
+                        exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
+                        exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
+                        date = ('0' + dt.getDate()).slice(-2);
+                        month = ('0' + (dt.getMonth()+1)).slice(-2);
+                        fullDate = dt.getFullYear() + '-' + month + '-' + date;
+                        var x;
+                        for( x=0; x < exclDaysOverrideReplaced.length; x++ ) {
+                            if(exclDaysOverrideReplaced[x]==='') continue;
+                            // If excluding a fixed day of month
+                            if(exclDaysOverrideReplaced[x].length<=2){
+                                if(exclDaysOverrideReplaced[x]==day){
+                                    return [true, ""];
+                                }
+                            }
+                            // If excluding a specific month
+                            if(exclDaysOverrideReplaced[x].length===3){
+                                if(exclDaysOverrideReplaced[x].toLowerCase()==dt.toString('MMM').toLowerCase()){
+                                    return [true, ""];
+                                }
+                            }
+                            // If excluding a date range
+                            if(exclDaysOverrideReplaced[x].split(';').length>1){
+                                dateFrom = exclDaysOverrideReplaced[x].split(';')[0];
+                                dateTo = exclDaysOverrideReplaced[x].split(';')[1];
+                                d1 = dateFrom.split("-");
+                                d2 = dateTo.split("-");
+                                from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
+                                to   = new Date(d2[0], parseInt(d2[1], 10)-1, d2[2]);
+                                check = new Date(dt.getFullYear(), parseInt(month, 10)-1, date);
+                                if(check >= from && check <= to){
+                                    return [true, ""];
+                                }
+                            }
+                            // If excluding single date
+                            if(exclDaysOverrideReplaced[x]==fullDate){
+                                return [true, ""];
+                            }
+                            // Every other day
+                            // Every other week
+                            if(exclDaysOverrideReplaced[x][1]==='@'){
+                                var week = dt.getWeek();
+                                if(exclDaysOverrideReplaced[x][0]==='w'){
+                                    // w@even (every other week @ even)
+                                    if(exclDaysOverrideReplaced[x][2]==='e' && (week % 2 !== 0)){
+                                        return [true, ""];
+                                    }
+                                    // w@odd (every other week @ odd)
+                                    if(exclDaysOverrideReplaced[x][2]==='o' && (week % 2 === 0)){
+                                        return [true, ""];
+                                    }
+                                }
+                                if(!isNaN(exclDaysOverrideReplaced[x][0])){
+                                    // 1@even (every other monday @ even)
+                                    // 2@even (every other tuesday @ even)
+                                    if((exclDaysOverrideReplaced[x][2]==='e') && (day===Number(exclDaysOverrideReplaced[x][0])) && (week % 2 !== 0)){
+                                        return [true, ""];
+                                    }
+                                    // 1@odd (every other monday @ odd)
+                                    // 2@odd (every other tuesday @ odd)
+                                    if((exclDaysOverrideReplaced[x][2]==='o') && (day===Number(exclDaysOverrideReplaced[x][0])) && (week % 2 === 0)){
+                                        return [true, ""];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Exclude specific days
+                    // Use numbers to specify days to exclude separated by comma's e.g: 0,1,2 
+                    // Where: 0 = Sunday and 1 = Monday etc.
                     if(typeof exclDays !== 'undefined'){
                         days = exclDays.split(',');
                         found = (days.indexOf(day.toString()) > -1);
                         if(found){
-                            if(typeof exclDaysOverride !== 'undefined'){
-                                regex = /{([^\\\/\s"'+]*?)}/g;
-                                exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
-                                exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
-                                date = ('0' + dt.getDate()).slice(-2);
-                                month = ('0' + (dt.getMonth()+1)).slice(-2);
-                                fullDate = dt.getFullYear() + '-' + month + '-' + date;
-                                var x;
-                                for( x=0; x < exclDaysOverrideReplaced.length; x++ ) {
-                                    if(exclDaysOverrideReplaced[x]==='') continue;
-                                    // If excluding a fixed day of month
-                                    if(exclDaysOverrideReplaced[x].length<=2){
-                                        if(exclDaysOverrideReplaced[x]==day){
-                                            return [true, ""];
-                                        }
-                                    }
-                                    // If excluding a specific month
-                                    if(exclDaysOverrideReplaced[x].length===3){
-                                        if(exclDaysOverrideReplaced[x].toLowerCase()==dt.toString('MMM').toLowerCase()){
-                                            return [true, ""];
-                                        }
-                                    }
-                                    // If excluding a date range
-                                    if(exclDaysOverrideReplaced[x].split(';').length>1){
-                                        dateFrom = exclDaysOverrideReplaced[x].split(';')[0];
-                                        dateTo = exclDaysOverrideReplaced[x].split(';')[1];
-                                        d1 = dateFrom.split("-");
-                                        d2 = dateTo.split("-");
-                                        from = new Date(d1[0], parseInt(d1[1], 10)-1, d1[2]);  // -1 because months are from 0 to 11
-                                        to   = new Date(d2[0], parseInt(d2[1], 10)-1, d2[2]);
-                                        check = new Date(dt.getFullYear(), parseInt(month, 10)-1, date);
-                                        if(check >= from && check <= to){
-                                            return [true, ""];
-                                        }
-                                    }
-                                    // If excluding single date
-                                    if(exclDaysOverrideReplaced[x]==fullDate){
-                                        return [true, ""];
-                                    }
-                                }
-                                // Be default we disable this day
-                                return [false, "super-disabled-day"];
-                            }else{
-                                return [false, "super-disabled-day"];
-                            }
+                            return [false, "super-disabled-day"];
                         }
                     }
+                    // Exclude dates or a range of dates
                     if(typeof exclDates !== 'undefined'){
                         regex = /{([^\\\/\s"'+]*?)}/g;
                         exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDates});
@@ -721,6 +754,33 @@
                             if(exclDatesReplaced[y]==fullDate){
                                 return [false, "super-disabled-day"];
                             }
+                            // Every other day
+                            // Every other week
+                            if(exclDatesReplaced[y][1]==='@'){
+                                var week = dt.getWeek();
+                                if(exclDatesReplaced[y][0]==='w'){
+                                    // w@even (every other week @ even)
+                                    if(exclDatesReplaced[y][2]==='e' && (week % 2 !== 0)){
+                                        return [false, "super-disabled-day"];
+                                    }
+                                    // w@odd (every other week @ odd)
+                                    if(exclDatesReplaced[y][2]==='o' && (week % 2 === 0)){
+                                        return [false, "super-disabled-day"];
+                                    }
+                                }
+                                if(!isNaN(exclDatesReplaced[y][0])){
+                                    // 1@even (every other monday @ even)
+                                    // 2@even (every other tuesday @ even)
+                                    if((exclDatesReplaced[y][2]==='e') && (day===Number(exclDatesReplaced[y][0])) && (week % 2 !== 0)){
+                                        return [false, "super-disabled-day"];
+                                    }
+                                    // 1@odd (every other monday @ odd)
+                                    // 2@odd (every other tuesday @ odd)
+                                    if((exclDatesReplaced[y][2]==='o') && (day===Number(exclDatesReplaced[y][0])) && (week % 2 === 0)){
+                                        return [false, "super-disabled-day"];
+                                    }
+                                }
+                            }
                         }
                     }
                     if( (weekends===true) && (workDays===true) ) {
@@ -733,6 +793,7 @@
                             return [day == 1 || day == 2 || day == 3 || day == 4 || day == 5, ""];
                         }
                     }
+
                     return [];
                 },
                 beforeShow: function(input, inst) {
@@ -2393,7 +2454,6 @@
                 itemsToHide = [],
                 value,
                 text = '',
-                searchValue,
                 regex,
                 stringBold,
                 wrapper = el.closest('.super-field-wrapper'),
@@ -2408,15 +2468,15 @@
                 }
                 for (i = 0; i < nodes.length; i++) {
                     var stringValue = nodes[i].dataset.searchValue.toString();
-                    var stringValue_l = stringValue.toLowerCase();
-                    var isMatch = false;
-                    if(el.dataset.logic=='start'){
-                        // Starts with filter logic:
-                        isMatch = stringValue_l.startsWith(value);
-                    }else{
-                        // Contains filter logic:
-                        isMatch = stringValue_l.indexOf(value) !== -1;
+                    if(el.dataset.logic.indexOf('_case')===-1){
+                        // If not case sensitive match, turn values to lowercase
+                        var stringValue_m = stringValue.toLowerCase();
+                        value = value.toLowerCase();
                     }
+                    var isMatch = false;
+                    if(el.dataset.logic.indexOf('start')!==-1) isMatch = stringValue_m.startsWith(value);
+                    if(el.dataset.logic.indexOf('contains')!==-1) isMatch = stringValue_m.indexOf(value) !== -1;
+                    if(el.dataset.logic.indexOf('exact')!==-1) isMatch = stringValue_m === value;
                     if( isMatch===true ) {
                         itemsToShow.push(nodes[i]);
                         regex = RegExp([value].join('|'), 'gi');
@@ -2526,7 +2586,7 @@
         // @since 1.2.8     - filter dropdown options based on keyboard press
         var timeout = null;
         $doc.on('keyup', 'input[name="super-dropdown-search"]', function(e){
-            var i, nodes, el = this, stringValue, stringValue_l, words, regex, replacement, dropdownUI, stringBold, value, field, wrapper, found = false, firstFound=null, isMatch, keyCode = e.keyCode || e.which; 
+            var i, nodes, el = this, stringValue, stringValue_m, words, regex, replacement, dropdownUI, stringBold, value, field, wrapper, found = false, firstFound=null, isMatch, keyCode = e.keyCode || e.which; 
             if( (keyCode == 13) || (keyCode == 40) || (keyCode == 38) ) {
                 return false;
             }
@@ -2535,7 +2595,7 @@
                 el.value = '';
             }, 1000);
 
-            value = el.value.toString().toLowerCase();
+            value = el.value.toString();
             field = el.closest('.super-field');
             wrapper = el.closest('.super-field-wrapper');
             if( value==='' ) {
@@ -2544,14 +2604,16 @@
                 nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item:not(.super-placeholder)');
                 for(i=0; i<nodes.length; i++){
                     stringValue = nodes[i].dataset.searchValue.toString();
-                    stringValue_l = stringValue.toLowerCase();
-                    if(el.dataset.logic=='start'){
-                        // Starts with filter logic:
-                        isMatch = stringValue_l.startsWith(value);
-                    }else{
-                        // Contains filter logic:
-                        isMatch = stringValue_l.indexOf(value) !== -1;
+                    stringValue_m = stringValue;
+                    if(el.dataset.logic.indexOf('_case')===-1){
+                        // If not case sensitive match, turn values to lowercase
+                        stringValue_m = stringValue.toLowerCase();
+                        value = value.toLowerCase();
                     }
+                    isMatch = false;
+                    if(el.dataset.logic.indexOf('start')!==-1) isMatch = stringValue_m.startsWith(value);
+                    if(el.dataset.logic.indexOf('contains')!==-1) isMatch = stringValue_m.indexOf(value) !== -1;
+                    if(el.dataset.logic.indexOf('exact')!==-1) isMatch = stringValue_m === value;
                     if( isMatch===true ) {
                         if( firstFound===null ) {
                             firstFound = nodes[i];
@@ -3253,7 +3315,7 @@
                 }else{
                     if (app.autosuggestTagsTimeout !== null) clearTimeout(app.autosuggestTagsTimeout);
                     app.autosuggestTagsTimeout = setTimeout(function () {
-                        value = target.value.toString().toLowerCase();
+                        value = target.value.toString();
                         if (value === '') {
                             parent.classList.remove('super-string-found');
                             parent.classList.remove('super-no-match');
@@ -3261,15 +3323,16 @@
                         }
                         for (i = 0; i < nodes.length; i++) {
                             var stringValue = nodes[i].dataset.searchValue.toString();
-                            var stringValue_l = stringValue.toLowerCase();
-                            var isMatch = false;
-                            if(keywordField.dataset.logic=='start'){
-                                // Starts with filter logic:
-                                isMatch = stringValue_l.startsWith(value);
-                            }else{
-                                // Contains filter logic:
-                                isMatch = stringValue_l.indexOf(value) !== -1;
+                            var stringValue_m = stringValue;
+                            if(keywordField.dataset.logic.indexOf('_case')===-1){
+                                // If not case sensitive match, turn values to lowercase
+                                stringValue_m = stringValue.toLowerCase();
+                                value = value.toLowerCase();
                             }
+                            var isMatch = false;
+                            if(keywordField.dataset.logic.indexOf('start')!==-1) isMatch = stringValue_m.startsWith(value);
+                            if(keywordField.dataset.logic.indexOf('contains')!==-1) isMatch = stringValue_m.indexOf(value) !== -1;
+                            if(keywordField.dataset.logic.indexOf('exact')!==-1) isMatch = stringValue_m === value;
                             if( isMatch===true ) {
                                 itemsToShow.push(nodes[i]);
                                 regex = RegExp([value].join('|'), 'gi');

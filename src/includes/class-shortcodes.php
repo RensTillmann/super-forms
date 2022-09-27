@@ -1809,11 +1809,11 @@ class SUPER_Shortcodes {
             $names = array();
             if(is_array($atts['may_be_empty_conditions'])){
                 foreach( $atts['may_be_empty_conditions'] as $k => $v ) {
-                    if( !empty($v['field']) ) {
+                    if( isset($v['field']) ) {
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                     }
-                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                    if( !empty($v['and_method']) && isset($v['field_and']) ) {
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
@@ -1834,18 +1834,33 @@ class SUPER_Shortcodes {
             $names = array();
             if(is_array($atts['conditional_items'])){
                 foreach( $atts['conditional_items'] as $k => $v ) {
-                    if( !empty($v['field']) ) {
+                    if( isset($v['field']) ) {
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                     }
-                    if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                    if( !empty($v['and_method']) && isset($v['field_and']) ) {
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
                 }
             }
             // @since 1.7 - use json instead of HTML for speed improvements
-            $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
+            $compact = array();
+            foreach($atts['conditional_items'] as $k => $v){
+                $compact[$k]['f'] = $v['field'];
+                $compact[$k]['l'] = $v['logic'];
+                $compact[$k]['v'] = $v['value'];
+                if(!empty($v['and_method'])) $compact[$k]['a'] = $v['and_method'];
+                if(isset($v['field_and'])) $compact[$k]['fa'] = $v['field_and'];
+                if(!empty($v['logic_and'])) $compact[$k]['la'] = $v['logic_and'];
+                if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
+            }
+            // If Ajax lookup is enabled:
+            if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
+                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
+            }else{
+                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+            }
         }
 
         // Display errors that need to be positioned below the field
@@ -1888,16 +1903,35 @@ class SUPER_Shortcodes {
                             if( $k==0 ) continue;
                             foreach( $v as $kk => $vv ) {
                                 if( $kk==0 ) continue;
-                                $conditions[] = array(
-                                    'field' => $atts['conditional_variable_row'],
-                                    'logic' => $atts['conditional_variable_logic'], //'greater_than_or_equal',
-                                    'value' => $v[0],
-                                    'and_method' => $atts['conditional_variable_and_method'], //'and',
-                                    'field_and' => $atts['conditional_variable_col'],
-                                    'logic_and' => $atts['conditional_variable_logic_and'], //'greater_than_or_equal',
-                                    'value_and' => (isset($columns[$kk]) ? $columns[$kk] : ''),
-                                    'new_value' => $vv
-                                );
+                                if($atts['conditional_variable_and_method']==='and' && $atts['conditional_variable_logic']==='equal' && $atts['conditional_variable_logic_and']==='equal'){
+                                    // A more compact version
+                                    if(isset($columns[$kk])){
+                                        $conditions[] = array(
+                                            'field' => '{'.$atts['conditional_variable_row'].'}_{'.$atts['conditional_variable_col'].'}',
+                                            'logic' => $atts['conditional_variable_logic'],
+                                            'value' => $v[0].'_'.$columns[$kk],
+                                            'new_value' => $vv
+                                        );
+                                    }else{
+                                        $conditions[] = array(
+                                            'field' => $atts['conditional_variable_row'],
+                                            'logic' => $atts['conditional_variable_logic'],
+                                            'value' => $v[0],
+                                            'new_value' => $vv
+                                        );
+                                    }
+                                }else{
+                                    $conditions[] = array(
+                                        'field' => $atts['conditional_variable_row'],
+                                        'logic' => $atts['conditional_variable_logic'], //'greater_than_or_equal',
+                                        'value' => $v[0],
+                                        'and_method' => $atts['conditional_variable_and_method'], //'and',
+                                        'field_and' => $atts['conditional_variable_col'],
+                                        'logic_and' => $atts['conditional_variable_logic_and'], //'greater_than_or_equal',
+                                        'value_and' => (isset($columns[$kk]) ? $columns[$kk] : ''),
+                                        'new_value' => $vv
+                                    );
+                                }
                             }
                         }
                         
@@ -1916,21 +1950,37 @@ class SUPER_Shortcodes {
                 $names = array();
                 if(is_array($atts['conditional_items'])){
                     foreach( $atts['conditional_items'] as $k => $v ) {
-                        if( !empty($v['field']) ) {
+                        if( isset($v['field']) ) {
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
                         }
-                        if( !empty($v['and_method']) && !empty($v['field_and']) ) {
+                        if( !empty($v['and_method']) && isset($v['field_and']) ) {
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                         }
-                        if( !empty($v['new_value']) ) {
+                        if( isset($v['new_value']) ) {
                             $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['new_value']));
                         }
                     }
                 }
                 // @since 1.7 - use json instead of HTML for speed improvements
-                return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['conditional_items']) . '</textarea>';
+                $compact = array();
+                foreach($atts['conditional_items'] as $k => $v){
+                    $compact[$k]['f'] = $v['field'];
+                    $compact[$k]['l'] = $v['logic'];
+                    $compact[$k]['v'] = $v['value'];
+                    if(!empty($v['and_method'])) $compact[$k]['a'] = $v['and_method'];
+                    if(isset($v['field_and'])) $compact[$k]['fa'] = $v['field_and'];
+                    if(!empty($v['logic_and'])) $compact[$k]['la'] = $v['logic_and'];
+                    if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
+                    if(isset($v['new_value'])) $compact[$k]['n'] = $v['new_value'];
+                }
+                // If Ajax lookup is enabled:
+                if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
+                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
+                }else{
+                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+                }
             }
         }
     }
@@ -2998,6 +3048,7 @@ class SUPER_Shortcodes {
             // @since 4.9.557 - Check if we need to filter by countrie(s) or  return by specific type
             if( !empty( $atts['address_api_types'] ) ) $address_auto_complete_attr .= ' data-types="' . $atts['address_api_types'] . '"';
             if( !empty( $atts['address_api_countries'] ) ) $address_auto_complete_attr .= ' data-countries="' . $atts['address_api_countries'] . '"';
+            if( !empty( $atts['address_normalize'] ) ) $address_auto_complete_attr .= ' data-normalize="' . $atts['address_normalize'] . '"';
             // Check if we need to auto populate fields with the retrieved data
             if( !isset( $atts['enable_address_auto_populate'] ) ) $atts['enable_address_auto_populate'] = '';
             if( $atts['enable_address_auto_populate']=='true' ) {
@@ -5803,7 +5854,7 @@ class SUPER_Shortcodes {
         }
 
         SUPER_Forms()->enqueue_element_styles();
-        SUPER_Forms()->enqueue_element_scripts($settings, false, $form_id);
+        SUPER_Forms()->enqueue_element_scripts(array('settings'=>$settings, 'ajax'=>false, 'form_id'=>$form_id));
 
         $styles = '';
 
@@ -5973,6 +6024,15 @@ class SUPER_Shortcodes {
             $formProgress = true;
         }
 
+        // If canceled Stripe checkout, try to retrieve form progress
+        if(isset($_GET['sfssidr'])){
+            $stripeRecoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $_GET['sfssidr'] );
+            if($stripeRecoverData!==false){
+                $entry_data = $stripeRecoverData['formData'];
+                $formProgress = true;
+            }
+        }
+
         $result = '';
         $result .= SUPER_Common::load_google_fonts($settings);
         if(!$elements_only){
@@ -6109,6 +6169,7 @@ class SUPER_Shortcodes {
                 }
             }
             if( $display_msg ) {
+                if( !isset($settings['form_locker_allow_submit']) ) $settings['form_locker_allow_submit'] = 'false';
                 if(!empty($settings['form_locker_msg'])) {
                     $result .= '<div class="super-msg super-error">';
                     if($settings['form_locker_msg_title']!='') {
@@ -6120,18 +6181,21 @@ class SUPER_Shortcodes {
                     if($settings['form_locker_hide']=='true') {
                         $result .= '</form>';
                         $result .= '</div>';
-                        return $result;
+                        if($settings['form_locker_allow_submit']!=='true'){
+                            return $result;
+                        }
                     }
                 }else{
                     // Do not display anything
-                    return '';
+                    if($settings['form_locker_allow_submit']!=='true'){
+                        return '';
+                    }
                 }
             }
         }
 
         // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
         if( !empty($settings['user_form_locker']) ) {
-
             // Let's check if the user is logged in
             $current_user_id = get_current_user_id();
             if( $current_user_id!=0 ) {
@@ -6182,6 +6246,7 @@ class SUPER_Shortcodes {
                     }
                 }
                 if( $display_msg ) {
+                    if( !isset($settings['form_locker_allow_submit']) ) $settings['form_locker_allow_submit'] = 'false';
                     if(!empty($settings['user_form_locker_msg'])) {
                         $result .= '<div class="super-msg super-error">';
                         if(!empty($settings['user_form_locker_msg_title'])) {
@@ -6193,11 +6258,15 @@ class SUPER_Shortcodes {
                         if(!empty($settings['user_form_locker_hide'])) {
                             $result .= '</form>';
                             $result .= '</div>';
-                            return $result;
+                            if($settings['form_locker_allow_submit']!=='true'){
+                                return $result;
+                            }
                         }
                     }else{
                         // Do not display anything
-                        return '';
+                        if($settings['form_locker_allow_submit']!=='true'){
+                            return '';
+                        }
                     }
                 }
             }

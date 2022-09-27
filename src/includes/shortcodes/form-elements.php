@@ -548,10 +548,15 @@ $array['form_elements'] = array(
                         'filter_logic' => array(
                             'name' => esc_html__( 'Filter logic', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'label' => esc_html__( 'Note: The filter will be applied on the Label only, not the value', 'super-forms' ), 
                             'type' => 'select', 
                             'values' => array(
-                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
-                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                                'contains' => esc_html__( 'Contains', 'super-forms' ).' ??',
+                                'start' => esc_html__( 'Starts with', 'super-forms' ).' ..%',
+                                'exact' => esc_html__( 'Exact match', 'super-forms' ).' ==',
+                                'contains_case' => esc_html__( 'Contains', 'super-forms' ).' ?? ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'start_case' => esc_html__( 'Starts with', 'super-forms' ).' ..% ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'exact_case' => esc_html__( 'Exact match', 'super-forms' ).' == ('.esc_html__( 'case sensitive', 'super-forms' ).')'
                             ),
                             'filter' => true,
                             'parent' => 'enable_auto_suggest',
@@ -733,6 +738,20 @@ $array['form_elements'] = array(
                             'parent'=>'enable_address_auto_complete',
                             'filter_value'=>'true'
                         ),
+                        'address_normalize' => array(
+                            'name'=>esc_html__( '(optional) Normalize strings', 'super-forms' ),
+                            'desc' => esc_html__( 'Removes any accents from strings returned by the API', 'super-forms' ), 
+                            'label'=>esc_html__( 'Can be useful when using conditional checks inside your form', 'super-forms' ), 
+                            'default'=> (!isset($attributes['address_normalize']) ? '' : $attributes['address_normalize']),
+                            'type'=>'select',
+                            'values'=>array(
+                                ''=>esc_html__( 'Do not normalize strings (default)', 'super-forms' ),
+                                'true'=>esc_html__( 'Normalize strings', 'super-forms' ),
+                            ),
+                            'parent'=>'enable_address_auto_complete',
+                            'filter_value'=>'true',
+                            'allow_empty'=>true
+                        ),
                         'enable_address_auto_populate' => array(
                             'desc' => esc_html__( 'Auto populate data with fields', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['enable_address_auto_populate'] ) ? '' : $attributes['enable_address_auto_populate'] ),
@@ -771,10 +790,15 @@ $array['form_elements'] = array(
                         'keywords_filter_logic' => array(
                             'name' => esc_html__( 'Filter logic', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['keywords_filter_logic'] ) ? 'contains' : $attributes['keywords_filter_logic'] ),
+                            'label' => esc_html__( 'Note: The filter will be applied on the Label only, not the value', 'super-forms' ), 
                             'type' => 'select', 
                             'values' => array(
-                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
-                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                                'contains' => esc_html__( 'Contains', 'super-forms' ).' ??',
+                                'start' => esc_html__( 'Starts with', 'super-forms' ).' ..%',
+                                'exact' => esc_html__( 'Exact match', 'super-forms' ).' ==',
+                                'contains_case' => esc_html__( 'Contains', 'super-forms' ).' ?? ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'start_case' => esc_html__( 'Starts with', 'super-forms' ).' ..% ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'exact_case' => esc_html__( 'Exact match', 'super-forms' ).' == ('.esc_html__( 'case sensitive', 'super-forms' ).')'
                             ),
                             'filter' => true,
                             'parent' => 'enable_keywords',
@@ -895,7 +919,7 @@ $array['form_elements'] = array(
                         ),
                         'wc_order_search_filterby' => array(
                             'name' => esc_html__( 'Filter by (leave blank to search all)', 'super-forms' ), 
-                            'label' => esc_html__( "Define each on a new line e.g:\nID\n_billing_email\n_billing_address_1\n_billing_postcode\n_billing_first_name\n_billing_last_name\n_billing_company", 'super-forms' ), 
+                            'label' => esc_html__( "Define each on a new line e.g:", 'super-forms' ) . "\nID\n_billing_email\n_billing_address_1\n_billing_postcode\n_billing_first_name\n_billing_last_name\n_billing_company",
                             'default'=> ( !isset( $attributes['wc_order_search_filterby'] ) ? '' : $attributes['wc_order_search_filterby'] ),
                             'type' => 'textarea', 
                             'filter'=>true,
@@ -1262,10 +1286,15 @@ $array['form_elements'] = array(
                         'filter_logic' => array(
                             'name' => esc_html__( 'Filter logic', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'label' => esc_html__( 'Note: The filter will be applied on the Label only, not the value', 'super-forms' ), 
                             'type' => 'select', 
                             'values' => array(
-                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
-                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                                'contains' => esc_html__( 'Contains', 'super-forms' ).' ??',
+                                'start' => esc_html__( 'Starts with', 'super-forms' ).' ..%',
+                                'exact' => esc_html__( 'Exact match', 'super-forms' ).' ==',
+                                'contains_case' => esc_html__( 'Contains', 'super-forms' ).' ?? ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'start_case' => esc_html__( 'Starts with', 'super-forms' ).' ..% ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'exact_case' => esc_html__( 'Exact match', 'super-forms' ).' == ('.esc_html__( 'case sensitive', 'super-forms' ).')'
                             ),
                             'filter' => true,
                             'parent' => 'disable_filter',
@@ -2794,7 +2823,7 @@ $array['form_elements'] = array(
                         // @since 4.9.3 - excl specific dates and date ranges from calendar
                         'excl_dates' => array(
                             'name' => esc_html__( 'Exclude dates or a range of dates', 'super-forms' ),
-                            'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each on a new line.%1$sExamples:%1$s2020-03-25 (excludes a specific date)%1$s2020-06-12;2020-07-26 (excludes a date range)%1$s01 (excludes first day for all months)%1$s10 (excludes 10th day for all months)%1$sJan (excludes the month January)%1$sMar (excludes the month March)%1$sDec (excludes the month December)', 'super-forms' ), '<br />' ),
+                            'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each on a new line.%1$sExamples:%1$s2020-03-25 (excludes a specific date)%1$s2020-06-12;2020-07-26 (excludes a date range)%1$s01 (excludes first day for all months)%1$s10 (excludes 10th day for all months)%1$sJan (excludes the month January)%1$sMar (excludes the month March)%1$sDec (excludes the month December)%1$sw@even (every other week @ even weeks)%1$sw@odd (every other week @ odd weeks)%1$s1@even (every other monday @ even weeks)%1$s2@even (every other tuesday @ even weeks)%1$s1@odd (every other monday @ odd weeks)%1$s2@odd (every other tuesday @ odd weeks)', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Dissallow user from selecting the specified dates or date ranges in the calendar', 'super-forms' ),
                             'type'=> 'textarea',
                             'default'=> ( !isset( $attributes['excl_dates'] ) ? '' : $attributes['excl_dates'] ),
@@ -2809,7 +2838,7 @@ $array['form_elements'] = array(
                         // @since 4.9.46 - override days exclusion
                         'excl_days_override' => array(
                             'name' => esc_html__( 'Override days exclusion', 'super-forms' ),
-                            'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each on a new line.%1$sExamples:%1$s2020-03-25 (excludes a specific date)%1$s2020-06-12;2020-07-26 (excludes a date range)%1$s01 (excludes first day for all months)%1$s10 (excludes 10th day for all months)%1$sJan (excludes the month January)%1$sMar (excludes the month March)%1$sDec (excludes the month December)', 'super-forms' ), '<br />' ),
+                            'label' => sprintf( esc_html__( 'You are allowed to use {tags}.%1$sPut each on a new line.%1$sExamples:%1$s2020-03-25 (excludes a specific date)%1$s2020-06-12;2020-07-26 (excludes a date range)%1$s01 (excludes first day for all months)%1$s10 (excludes 10th day for all months)%1$sJan (excludes the month January)%1$sMar (excludes the month March)%1$sDec (excludes the month December)%1$sw@even (every other week @ even weeks)%1$sw@odd (every other week @ odd weeks)%1$s1@even (every other monday @ even weeks)%1$s2@even (every other tuesday @ even weeks)%1$s1@odd (every other monday @ odd weeks)%1$s2@odd (every other tuesday @ odd weeks)', 'super-forms' ), '<br />' ),
                             'desc' => esc_html__( 'Allow users to select the specified dates or date range even when you defined to exclude a specific day above', 'super-forms' ),
                             'type'=> 'textarea',
                             'default'=> ( !isset( $attributes['excl_days_override'] ) ? '' : $attributes['excl_days_override'] ),
@@ -3250,10 +3279,15 @@ $array['form_elements'] = array(
                         'filter_logic' => array(
                             'name' => esc_html__( 'Filter logic', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
+                            'label' => esc_html__( 'Note: The filter will be applied on the Label only, not the value', 'super-forms' ), 
                             'type' => 'select', 
                             'values' => array(
-                                'contains' => esc_html__( 'Contains (default)', 'super-forms' ), 
-                                'start' => esc_html__( 'Starts with (from left to right)', 'super-forms' )
+                                'contains' => esc_html__( 'Contains', 'super-forms' ).' ??',
+                                'start' => esc_html__( 'Starts with', 'super-forms' ).' ..%',
+                                'exact' => esc_html__( 'Exact match', 'super-forms' ).' ==',
+                                'contains_case' => esc_html__( 'Contains', 'super-forms' ).' ?? ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'start_case' => esc_html__( 'Starts with', 'super-forms' ).' ..% ('.esc_html__( 'case sensitive', 'super-forms' ).')',
+                                'exact_case' => esc_html__( 'Exact match', 'super-forms' ).' == ('.esc_html__( 'case sensitive', 'super-forms' ).')'
                             ),
                             'filter' => true,
                             'parent' => 'disable_filter',

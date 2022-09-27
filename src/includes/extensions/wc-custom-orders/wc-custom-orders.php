@@ -544,10 +544,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 // foreach( $products as $args ) {
 //                 //     if( (absint($args['product_id'])===0) || (absint($args['quantity'])===0) ) {
 //                 //         // Return the error message to the user
-//                 //         SUPER_Common::output_message(
-//                 //             $error = true,
-//                 //             $msg = esc_html__( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
-//                 //             $redirect = null
+//                 //         SUPER_Common::output_message( array(
+//                 //             'error' => true,
+//                 //             'msg' => esc_html__( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
+//                 //             'redirect' => null
+
 //                 //         );
 //                 //     }
 //                 // }
@@ -583,10 +584,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     $order = wc_update_order($args);
 //                     if(is_wp_error($order)){
 //                         // Return the error message to the user
-//                         SUPER_Common::output_message(
-//                             $error = true,
-//                             $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
-//                             $redirect = null
+//                         SUPER_Common::output_message( array(
+//                             'error' => true,
+//                             'msg' => esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
+//                             'redirect' => null
+
 //                         );
 //                     }else{
 //                         $order->remove_order_items();
@@ -605,10 +607,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     $order = wc_create_order($args);
 //                     if(is_wp_error($order)){
 //                         // Return the error message to the user
-//                         SUPER_Common::output_message(
-//                             $error = true,
-//                             $msg = esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
-//                             $redirect = null
+//                         SUPER_Common::output_message( array(
+//                             'error' => true,
+//                             'msg' => esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
+//                             'redirect' => null
+
 //                         );
 //                     }else{
 //                         do_action('woocommerce_new_order', $order->id);
@@ -630,10 +633,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         // Delete the order
 //                         wp_delete_post($order->id, true);
 //                         // Return the error message to the user
-//                         SUPER_Common::output_message(
-//                             $error = true,
-//                             $msg = esc_html__( 'Invalid payment method.', 'woocommerce' ),
-//                             $redirect = null
+//                         SUPER_Common::output_message( array(
+//                             'error' => true,
+//                             'msg' => esc_html__( 'Invalid payment method.', 'woocommerce' ),
+//                             'redirect' => null
+
 //                         );
 //                     }
 //                 }
@@ -771,10 +775,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     // Delete the order
 //                     wp_delete_post($order->id, true);
 //                     // Return the error message to the user
-//                     SUPER_Common::output_message(
-//                         $error = true,
-//                         $msg = $e->getMessage(),
-//                         $redirect = null
+//                     SUPER_Common::output_message( array(
+//                         'error' => true,
+//                         'msg' => $e->getMessage(),
+//                         'redirect' => null
+
 //                     );
 //                 }
 // 
@@ -797,10 +802,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     // Delete the order
 //                     wp_delete_post($order->id, true);
 //                     // Return the error message to the user
-//                     SUPER_Common::output_message(
-//                         $error = true,
-//                         $msg = $e->getMessage(),
-//                         $redirect = null
+//                     SUPER_Common::output_message( array(
+//                         'error' => true,
+//                         'msg' => $e->getMessage(),
+//                         'redirect' => null
+
 //                     );
 //                 }
 // 
@@ -978,9 +984,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                                     $result = $available_gateways[$payment_method]->process_payment($order->id);
 //                                     // Redirect to success/confirmation/payment page
 //                                     if($result['result']==='success'){
-//                                         SUPER_Common::output_message(
-//                                             $error = false,
-//                                             $msg = '',
+//                                         SUPER_Common::output_message( array(
+//                                             'error' => false,
+//                                             'msg' => '',
 //                                             $redirect = $result['redirect']
 //                                         );
 //                                         exit;
@@ -991,9 +997,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     }
 //                     // If redirecting to "Pay for order page"
 //                     if($redirect_to=='pay_for_order'){
-//                         SUPER_Common::output_message(
-//                             $error = false,
-//                             $msg = '',
+//                         SUPER_Common::output_message( array(
+//                             'error' => false,
+//                             'msg' => '',
 //                             $redirect = $order->get_checkout_payment_url()
 //                         );
 //                         exit;
@@ -1004,9 +1010,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         if(!$order->needs_payment()){
 //                             $order->payment_complete();
 //                         }
-//                         SUPER_Common::output_message(
-//                             $error = false,
-//                             $msg = '',
+//                         SUPER_Common::output_message( array(
+//                             'error' => false,
+//                             'msg' => '',
 //                             $redirect = $order->get_checkout_order_received_url()
 //                         );
 //                         exit;
