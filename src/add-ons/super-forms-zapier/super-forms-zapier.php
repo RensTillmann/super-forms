@@ -171,6 +171,7 @@ if( !class_exists('SUPER_Zapier') ) :
         public static function zapier_static_web_hook( $atts ) {
             extract($atts); // post, data, settings, entry_id, attachments
             $data = wp_unslash($data);
+            $form_id = $atts['form_id'];
 
             // Create array for all files with numbered indexes , so that the index on zapier is always the same
             // because the filenames are dynamic and we can't rely on that
@@ -218,10 +219,10 @@ if( !class_exists('SUPER_Zapier') ) :
                 );
                 if ( is_wp_error( $response ) ) {
                     $error_message = $response->get_error_message();
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = 'Zapier: ' . $error_message
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => 'Zapier: ' . $error_message,
+                        'form_id' => absint($form_id)
+                    ));
                 }
             }
         }

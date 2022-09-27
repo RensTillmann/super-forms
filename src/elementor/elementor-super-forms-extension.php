@@ -156,7 +156,7 @@ final class Elementor_Super_Forms_Extension {
 		$default_settings = SUPER_Settings::get_defaults();
 		$global_settings = array_merge( $default_settings, $global_settings );
 		SUPER_Forms::enqueue_element_styles();
-		SUPER_Forms::enqueue_element_scripts( $global_settings, true );
+		SUPER_Forms::enqueue_element_scripts(array('settings'=>$global_settings, 'ajax'=>true));
 	}
 
 	/**

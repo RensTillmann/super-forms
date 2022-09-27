@@ -154,7 +154,15 @@ if( !class_exists('SUPER_MailPoet') ) :
          *  @since      1.0.0
         */
         public static function add_subscriber( $x ) {
-            extract( shortcode_atts( array( 'data'=>array(), 'post'=>array(), 'settings'=>array()), $x ) );
+            extract( shortcode_atts( array(
+                'data'=>array(), 
+                'post'=>array(), 
+                'settings'=>array(),
+                'form_id'=>false
+                //'entry_id'=>$entry_id,
+                //'list_id=>$list_id, 
+                //'response_data'=>$response_data,
+            ), $x));
             if(!class_exists(\MailPoet\API\API::class)) return;
             if((isset($settings['mailpoet_enabled'])) && ($settings['mailpoet_enabled']!=='true')) return;
 
@@ -221,7 +229,10 @@ if( !class_exists('SUPER_MailPoet') ) :
                     $subscriber = $mailpoet_api->getSubscriber( $sub['email'] );
                 } catch ( \Throwable $e ) {
                     if($e->getCode()!==4){
-                        SUPER_Common::output_message( $error=true, $e->getMessage() );
+                        SUPER_Common::output_message( array( 
+                            'msg'=>$e->getMessage(),
+                            'form_id'=>absint($form_id)
+                        ));
                     }
                 }
                 // If the subscriber doesn't exist, add them.
@@ -229,7 +240,10 @@ if( !class_exists('SUPER_MailPoet') ) :
                     try {
                         $subscriber = $mailpoet_api->addSubscriber( $sub );
                     } catch (\Throwable $e) {
-                        SUPER_Common::output_message( $error=true, $e->getMessage() );
+                        SUPER_Common::output_message( array( 
+                            'msg'=>$e->getMessage(),
+                            'form_id'=>absint($form_id)
+                        ));
                     }
                 }
                 // Try add the user to lists.
@@ -251,7 +265,10 @@ if( !class_exists('SUPER_MailPoet') ) :
                     try {
                         $subscribe = $mailpoet_api->subscribeToLists( $user_id, $lists );
                     } catch ( \Throwable $e ) {
-                        SUPER_Common::output_message( $error=true, $e->getMessage() );
+                        SUPER_Common::output_message( array( 
+                            'msg'=>$e->getMessage(),
+                            'form_id'=>absint($form_id)
+                        ));
                     }
                 }
             }

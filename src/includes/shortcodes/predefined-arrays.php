@@ -523,7 +523,6 @@ $conditional_variable_array = array(
             ),
             'filter'=>true,
         ),
-        
         // @since 4.2.0 - allow to retrieve conditions via CSV files
         'conditional_variable_method' => array(
             'name'=>esc_html__( 'Retrieve method', 'super-forms' ),
@@ -557,7 +556,7 @@ $conditional_variable_array = array(
             ),
             'filter'=>true,
             'parent'=>'conditional_variable_method',
-            'filter_value'=>'csv'  
+            'filter_value'=>'csv'
         ),
         'conditional_variable_logic' => array(
             'name' => esc_html__( 'Row logic', 'super-forms' ), 
@@ -637,7 +636,6 @@ $conditional_variable_array = array(
             'parent'=>'conditional_variable_method',
             'filter_value'=>'csv'
         ),
-
         'conditional_variable_items' => array( 
             'name'=>esc_html__( 'Conditions', 'super-forms' ), 
             'desc'=>esc_html__( 'The conditions that this element should listen to.', 'super-forms' ),
@@ -647,7 +645,37 @@ $conditional_variable_array = array(
             'filter'=>true,
             'parent'=>'conditional_variable_method',
             'filter_value'=>'manual'
-        )
+        ),
+        'conditional_variable_ajax_lookup' => array(
+            'name' => esc_html__( 'Enable server side lookup', 'super-forms' ), 
+            'label' => esc_html__( 'Consider enabling this option when having 500+ conditions for speed improvements', 'super-forms' ),
+            'default'=> (!isset($attributes['conditional_variable_ajax_lookup']) ? '' : $attributes['conditional_variable_ajax_lookup']),
+            'type' => 'checkbox', 
+            'values' => array(
+                'true' => esc_html__( 'Yes', 'super-forms' ), 
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_action',
+            'filter_value'=>'enabled'
+        ),
+        'conditional_variable_normalize' => array(
+            'name'=>esc_html__( '(optional) Normalize strings', 'super-forms' ),
+            'desc'=>esc_html__( 'Removes any accents from strings inside your CSV file', 'super-forms' ), 
+            'label'=>esc_html__( 'Can be useful in combination with the Google Address auto complete feature', 'super-forms' ), 
+            'default'=> (!isset($attributes['normalize']) ? '' : $attributes['normalize']),
+            'type'=>'select',
+            'values'=>array(
+                ''=>esc_html__( 'Do not normalize strings (default)', 'super-forms' ),
+                'remove_accents'=>esc_html__( 'Normalize using WP remove_accents() (recommended)', 'super-forms' ),
+                'iconv'=>esc_html__( 'Normalize using PHP iconv()', 'super-forms' ),
+                'transliterator'=>esc_html__( 'Normalize using PHP transliterator() (slow)', 'super-forms' )
+            ),
+            'filter'=>true,
+            'parent'=>'conditional_variable_method',
+            'filter_value'=>'csv',
+            'allow_empty'=>true
+        ),
+
     )
 );
 

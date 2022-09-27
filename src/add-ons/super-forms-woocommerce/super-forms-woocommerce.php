@@ -1108,7 +1108,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     // Return error message
                     if( !empty( $mail->ErrorInfo ) ) {
                         $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                        SUPER_Common::output_message( $error=true, $msg );
+                        SUPER_Common::output_message( array( 
+                            'msg'=>$msg,
+                            'form_id'=> absint($form_id)
+                        ));
                     }
                 }
             }
@@ -1174,17 +1177,17 @@ if( !class_exists('SUPER_WooCommerce') ) :
         public static function before_email_success_msg( $atts ) {
 
             $settings = $atts['settings'];
+            $form_id = absint($atts['form_id']);
 
             // If WC checkout is enabled but WC is not installed and activated
             if( (isset($settings['woocommerce_checkout'])) && ($settings['woocommerce_checkout']=='true') ) {
                 global $woocommerce;
                 if(!$woocommerce){
                     $msg = esc_html__( 'WooCommerce Checkout is enabled for this form, but WooCommerce itself is not activated!', 'super-forms' );
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $msg,
+                        'form_id'=> absint($form_id)
+                    ));
                 }
             }
 
@@ -1231,11 +1234,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 // No products defined to add to cart!
                 if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
                     $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $msg,
-                        $redirect = null
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $msg,
+                        'form_id'=> absint($form_id)
+                    ));
                 }
 
                 $checkout_products = explode( "\n", $settings['woocommerce_checkout_products'] );  
@@ -1587,11 +1589,12 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         $redirect = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : $woocommerce->cart->get_cart_url();
                     }
                     if( $redirect!=null ) {
-                        SUPER_Common::output_message(
-                            $error = false,
-                            $msg = '',
-                            $redirect = $redirect
-                        );
+                        SUPER_Common::output_message( array(
+                            'error' => false,
+                            'msg' => '',
+                            'redirect' => $redirect,
+                            'form_id'=> absint($form_id)
+                        ));
                     }
                 }
 

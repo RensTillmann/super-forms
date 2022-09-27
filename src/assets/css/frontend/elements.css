@@ -126,6 +126,18 @@
 .super-form.super-adaptive {
   padding-top: 10px !important;
 }
+.super-form.super-busy:after {
+  content: "";
+  cursor: wait;
+  background-color: #ffffff;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 999999;
+  opacity: 0.5;
+}
 
 .super-noselect {
   -webkit-touch-callout: none;

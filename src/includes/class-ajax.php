@@ -42,9 +42,11 @@ class SUPER_Ajax {
             'load_preview'                  => false,
             'switch_language'               => false, // @since 4.7.0
 
+            'retrieve_variable_conditions'  => true,
             'create_nonce'                  => true,
             'upload_files'                  => true,
             'submit_form'                   => true,
+            'save_form_progress'            => true,  // @since 3.2.0
             'language_switcher'             => true,  // @since 4.7.0
 
             'load_default_settings'         => false,
@@ -68,8 +70,6 @@ class SUPER_Ajax {
             'calculate_distance'            => true,  // @since 3.1.0
             'restore_backup'                => false, // @since 3.1.0
             'delete_backups'                => false, // @since 3.1.0
-
-            'save_form_progress'            => true,  // @since 3.2.0
 
             'bulk_edit_entries'             => false, // @since 3.4.0
             'reset_submission_counter'      => false, // @since 3.4.0
@@ -112,6 +112,146 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
+
+    }
+
+    // Used when Ajax lookup is enabled
+    public static function retrieve_variable_conditions(){
+        // Get form elements
+        $elements = get_post_meta( $_POST['form_id'], '_super_elements', true );
+        // Get field settings
+        $atts = SUPER_Common::get_element_settings($elements, $_POST['field_name']);
+        // When retrieve method is CSV
+        if( (!empty($atts['conditional_variable_method'])) && ($atts['conditional_variable_method']=='csv') ) {
+            $delimiter = ',';
+            $enclosure = '"';
+            if( !empty( $atts['conditional_variable_delimiter'] ) ) $delimiter = $atts['conditional_variable_delimiter'];
+            if( !empty( $atts['conditional_variable_enclosure'] ) ) $enclosure = stripslashes($atts['conditional_variable_enclosure']);
+            if(strlen($delimiter)!==1) $delimiter = ',';
+            if(strlen($enclosure)!==1) $enclosure = '"';
+            $file = get_attached_file($atts['conditional_variable_csv']);
+            $rows = array();
+            $conditions = array();
+            if( $file ) {
+                $row = 0;
+                if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                    // Progress file pointer and get first 3 characters to compare to the BOM string.
+                    $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
+                    if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
+                    while (($data = fgetcsv($handle, 10000, $delimiter, $enclosure)) !== FALSE) {
+                        $rows[] = $data;
+                    }
+                    fclose($handle);
+                    $columns = $rows[0];
+                    foreach( $rows as $k => $v ) {
+                        if( $k==0 ) continue;
+                        foreach( $v as $kk => $vv ) {
+                            if( $kk==0 ) continue;
+                            if($atts['conditional_variable_and_method']==='and' && $atts['conditional_variable_logic']==='equal' && $atts['conditional_variable_logic_and']==='equal'){
+                                // A more compact version
+                                if(isset($columns[$kk])){
+                                    $conditions[] = array(
+                                        'field' => '{'.$atts['conditional_variable_row'].'}_{'.$atts['conditional_variable_col'].'}',
+                                        'logic' => $atts['conditional_variable_logic'],
+                                        'value' => $v[0].'_'.$columns[$kk],
+                                        'new_value' => $vv
+                                    );
+                                }else{
+                                    $conditions[] = array(
+                                        'field' => $atts['conditional_variable_row'],
+                                        'logic' => $atts['conditional_variable_logic'],
+                                        'value' => $v[0],
+                                        'new_value' => $vv
+                                    );
+                                }
+                            }else{
+                                $conditions[] = array(
+                                    'field' => $atts['conditional_variable_row'],
+                                    'logic' => $atts['conditional_variable_logic'], //'greater_than_or_equal',
+                                    'value' => $v[0],
+                                    'and_method' => $atts['conditional_variable_and_method'], //'and',
+                                    'field_and' => $atts['conditional_variable_col'],
+                                    'logic_and' => $atts['conditional_variable_logic_and'], //'greater_than_or_equal',
+                                    'value_and' => (isset($columns[$kk]) ? $columns[$kk] : ''),
+                                    'new_value' => $vv
+                                );
+                            }
+                        }
+                    }
+                    
+                }
+            }
+            $atts['conditional_items'] = $conditions;
+        }
+        if( $atts['conditional_items']!=null ) {
+            // @since 4.2.0 - filter hook to change variable conditions on the fly for specific field
+            if( !empty($atts['name']) ) {
+                $atts['conditional_items'] = apply_filters( 'super_variable_conditions_' . $atts['name'] . '_filter', $atts['conditional_items'], array( 'atts'=>$atts ) );
+            }
+            // @since 2.3.0 - speed improvement for variable field
+            // append the field names ad attribute that the conditions being applied to, so we can filter on it on field change with javascript
+            $names = array();
+            if(is_array($atts['conditional_items'])){
+                foreach( $atts['conditional_items'] as $k => $v ) {
+                    if( isset($v['field']) ) {
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value']));
+                    }
+                    if( isset($v['and_method']) && isset($v['field_and']) ) {
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['field_and'], 'bwc'=>true));
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
+                    }
+                    if( isset($v['new_value']) ) {
+                        $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['new_value']));
+                    }
+                }
+            }
+
+            // @since 1.7 - use json instead of HTML for speed improvements
+            $compact = array();
+            foreach($atts['conditional_items'] as $k => $v){
+                $compact[$k]['l'] = $v['logic'];
+                if(isset($v['and_method'])) $compact[$k]['a'] = $v['and_method'];
+                if(isset($v['logic_and'])) $compact[$k]['la'] = $v['logic_and'];
+                if(isset($v['new_value'])) $compact[$k]['n'] = $v['new_value'];
+                // If normalize is enabled
+                if(!empty($atts['conditional_variable_normalize'])){
+                    if($atts['conditional_variable_normalize']==='remove_accents'){
+                        // Using WP build in remove_accents() function
+                        $compact[$k]['f'] = remove_accents($v['field']);
+                        $compact[$k]['v'] = remove_accents($v['value']);
+                        if(isset($v['field_and'])) $compact[$k]['fa'] = remove_accents($v['field_and']);
+                        if(isset($v['value_and'])) $compact[$k]['va'] = remove_accents($v['value_and']);
+                        continue;
+                    }
+                    if($atts['conditional_variable_normalize']==='transliterator'){
+                        // Using translaterator - https://www.php.net/manual/en/transliterator.transliterate.php#111939
+                        $compact[$k]['f'] = transliterator_transliterate('Any-Latin; Latin-ASCII;', $v['field']);
+                        $compact[$k]['v'] = transliterator_transliterate('Any-Latin; Latin-ASCII;', $v['value']);
+                        if(isset($v['field_and'])) $compact[$k]['fa'] = transliterator_transliterate('Any-Latin; Latin-ASCII;', $v['field_and']);
+                        if(isset($v['value_and'])) $compact[$k]['va'] = transliterator_transliterate('Any-Latin; Latin-ASCII;', $v['value_and']);
+                        continue;
+                    }
+                    if($atts['conditional_variable_normalize']==='iconv'){
+                        // Using iconv() - https://www.php.net/manual/en/function.iconv.php
+                        $compact[$k]['f'] = iconv('utf-8', 'ascii//TRANSLIT', $v['field']);
+                        $compact[$k]['v'] = iconv('utf-8', 'ascii//TRANSLIT', $v['value']);
+                        if(isset($v['field_and'])) $compact[$k]['fa'] = iconv('utf-8', 'ascii//TRANSLIT', $v['field_and']);
+                        if(isset($v['value_and'])) $compact[$k]['va'] = iconv('utf-8', 'ascii//TRANSLIT', $v['value_and']);
+                        continue;
+                    }
+                }else{
+                    $compact[$k]['f'] = $v['field'];
+                    $compact[$k]['v'] = $v['value'];
+                    if(isset($v['field_and'])) $compact[$k]['fa'] = $v['field_and'];
+                    if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
+                }
+            }
+            echo json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>$compact));
+            die();
+        }
+        echo json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>array()));
+        die();
     }
     public static function create_nonce(){
         echo SUPER_Common::generate_nonce();
@@ -392,10 +532,9 @@ class SUPER_Ajax {
             }
         }
         if($verified===false){
-            SUPER_Common::output_message( 
-                $error = true, 
-                esc_html__( 'Unable to switch language, session expired!', 'super-forms' )
-            );
+            SUPER_Common::output_message( array( 
+                'msg' => esc_html__( 'Unable to switch language, session expired!', 'super-forms' )
+            ));
         }
         // @since 4.7.0 - translation RTL
         // check if the translation has enable RTL mode
@@ -656,23 +795,6 @@ class SUPER_Ajax {
         die();
     }
 
-    /** 
-     *  Save form progress in session after field change
-     *
-     *  @since      3.1.0
-    */
-    public static function save_form_progress() {
-        if(!empty($_POST['form_id'])){
-            $form_id = absint($_POST['form_id']);
-            $data = false; // Clear date by default
-            if(!empty($_POST['data'])){
-                $data = $_POST['data'];
-            }
-            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
-        }
-        die();
-    }
-
 
     /** 
      *  Calculate distance between to places / zipcodes
@@ -704,10 +826,9 @@ class SUPER_Ajax {
             }
         }
         if(!empty($error_message)){
-            SUPER_Common::output_message(
-                $error = true,
-                $msg = $error_message
-            );
+            SUPER_Common::output_message( array(
+                'msg' => $error_message
+            ));
         }else{
             echo $response['body'];
         }
@@ -1000,10 +1121,10 @@ class SUPER_Ajax {
             }
             update_post_meta( $id, '_super_contact_entry_data', $data);
         }
-        SUPER_Common::output_message(
-            $error = false,
-            $msg = esc_html__( 'Contact entry updated.', 'super-forms' )
-        );
+        SUPER_Common::output_message( array(
+            'error' => false,
+            'msg' => esc_html__( 'Contact entry updated.', 'super-forms' )
+        ));
         die();
     }
 
@@ -1090,10 +1211,9 @@ class SUPER_Ajax {
             $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
             if(fwrite($fp, $bom)===false){
                 // Print error message
-                SUPER_Common::output_message(
-                    $error = true,
-                    "Unable to write to file ($filename)"
-                );
+                SUPER_Common::output_message( array(
+                    'msg' => "Unable to write to file ($filename)"
+                ));
             }
             $delimiter = wp_unslash(sanitize_text_field($_POST['delimiter']));
             $enclosure = wp_unslash(sanitize_text_field($_POST['enclosure']));
@@ -1116,10 +1236,9 @@ class SUPER_Ajax {
             die();
         } catch (Exception $e) {
             // Print error message
-            SUPER_Common::output_message(
-                $error = true,
-                $e->getMessage()
-            );
+            SUPER_Common::output_message( array(
+                'msg' => $e->getMessage()
+            ));
         }
     }
 
@@ -1286,25 +1405,25 @@ class SUPER_Ajax {
                 if($phpmailer->smtpConnect()){
                     $phpmailer->smtpClose();
                 }else{
-                    SUPER_Common::output_message(
-                        $error='smtp_error',
-                        esc_html__( 'Invalid SMTP settings!', 'super-forms' )
-                    );
+                    SUPER_Common::output_message( array(
+                        'error' => 'smtp_error',
+                        'msg' => esc_html__( 'Invalid SMTP settings!', 'super-forms' )
+                    ));
                     die();
                 }
             } catch (Exception $e) {
-                SUPER_Common::output_message(
-                    $error='smtp_error',
-                    $e->getMessage()
-                );
+                SUPER_Common::output_message( array(
+                    'error' => 'smtp_error',
+                    'msg' => $e->getMessage()
+                ));
                 die();
             }
         }
         update_option( 'super_settings', $array );
-        SUPER_Common::output_message(
-            $error = false,
-            $msg = ''
-        );
+        SUPER_Common::output_message( array(
+            'error' => false,
+            'msg' => ''
+        ));
         die();
     }
 
@@ -1533,10 +1652,9 @@ class SUPER_Ajax {
             die();
         } catch (Exception $e) {
             // Print error message
-            SUPER_Common::output_message(
-                $error = true,
-                $e->getMessage()
-            );
+            SUPER_Common::output_message( array(
+                'msg' => $e->getMessage()
+            ));
         }
     }
 
@@ -1580,10 +1698,9 @@ class SUPER_Ajax {
             $form_id = self::save_form();
             echo $form_id;
         }else{
-            SUPER_Common::output_message(
-                $error = true,
-                $msg = sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
-            );
+            SUPER_Common::output_message( array(
+                'msg' => sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
+            ));
         }
         die();
     }
@@ -1673,10 +1790,9 @@ class SUPER_Ajax {
             die();
         } catch (Exception $e) {
             // Print error message
-            SUPER_Common::output_message(
-                $error = true,
-                $e->getMessage()
-            );
+            SUPER_Common::output_message( array(
+                'msg' => $e->getMessage()
+            ));
         }
     }
 
@@ -1854,10 +1970,9 @@ class SUPER_Ajax {
             $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
             if(fwrite($fp, $bom)===false){
                 // Print error message
-                SUPER_Common::output_message(
-                    $error = true,
-                    "Unable to write to file ($filename)"
-                );
+                SUPER_Common::output_message( array(
+                    'msg' => "Unable to write to file ($filename)"
+                ));
             }
             $delimiter = wp_unslash(sanitize_text_field($_POST['delimiter']));
             $enclosure = wp_unslash(sanitize_text_field($_POST['enclosure']));
@@ -1880,10 +1995,9 @@ class SUPER_Ajax {
             die();
         } catch (Exception $e) {
             // Print error message
-            SUPER_Common::output_message(
-                $error = true,
-                $e->getMessage()
-            );
+            SUPER_Common::output_message( array(
+                'msg' => $e->getMessage()
+            ));
         }
     }
 
@@ -1967,7 +2081,9 @@ class SUPER_Ajax {
             // Except when importing a form from file...
             if(isset($_POST['action']) && $_POST['action']!=='super_import_single_form'){
                 // Failed, notify user
-                SUPER_Common::output_message( $error = true, esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' ));
+                SUPER_Common::output_message( array( 
+                    'msg' => esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' )
+                ));
             }
         }
 
@@ -2153,7 +2269,8 @@ class SUPER_Ajax {
             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
                 $hidden = ' super-hidden';
             }
-            $result .= '<div class="super-field' . (isset($fv['type']) ? ' super-field-type-'.$fv['type'] : '') . $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
+            if(!isset($fv['type'])) $fv['type'] = 'text';
+            $result .= '<div class="super-field super-field-type-'.$fv['type']. $filter . $hidden . '"' . $parent . '' . $filtervalue . '>';
                 if( isset( $fv['name'] ) ) {
                     $result .= '<div class="super-field-name">' . ($fv['name']);
                     if( isset( $fv['desc'] ) ) {
@@ -2429,6 +2546,25 @@ class SUPER_Ajax {
     }
 
     public static function submit_form_checks( $settings=null ) {
+        $csrfValidation = SUPER_Common::verifyCSRF();
+        if(!$csrfValidation && empty($GLOBALS['super_csrf'])){
+            // Only if not previously validated
+            // For example if files are being uploaded by the user
+            $GLOBALS['super_csrf'] = true;
+            // Only check when not disabled by the user.
+            // Some users want to use/load their forms via an iframe from a different domain name
+            // In this case sessions won't work  because of browsers "SameSite by default cookies"
+            $global_settings = SUPER_Common::get_global_settings();
+            if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
+                // Check was disabled by the user, skip it
+            }else{
+                // Return error
+                SUPER_Common::output_message( array( 
+                    'msg' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
+                ));
+            }
+        }
+
         // Check if form_id exists, this is always required
         // If it doesn't exist it is most likely due the server not being able to process all the data
         // In that case "max_input_vars" should be increased
@@ -2439,16 +2575,14 @@ class SUPER_Ajax {
             $double_max_input_vars = round(ini_get('max_input_vars')*2, 0);
             if(ini_set('max_input_vars', $double_max_input_vars)==false){
                 // Failed, notify user
-                SUPER_Common::output_message( 
-                    $error = true, 
-                    sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . ini_get('max_input_vars') . '%s. Please contact your webmaster and increase this limit inside your php.ini file!', 'super-forms' ), '<strong>', '</strong>' )
-                );
+                SUPER_Common::output_message( array( 
+                    'msg' => sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . ini_get('max_input_vars') . '%s. Please contact your webmaster and increase this limit inside your php.ini file!', 'super-forms' ), '<strong>', '</strong>' )
+                ));
             }else{
                 // Success, notify user to try again
-                SUPER_Common::output_message( 
-                    $error = true, 
-                    sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . $max_input_vars . '%s. We manually increased this limit to %s' . $double_max_input_vars . '%s. Please refresh this page and try again!', 'super-forms' ), '<strong>', '</strong>' )
-                );
+                SUPER_Common::output_message( array( 
+                    'msg' => sprintf( esc_html__( 'Error: the server could not submit this form because it reached it\'s "max_input_vars" limit of %s' . $max_input_vars . '%s. We manually increased this limit to %s' . $double_max_input_vars . '%s. Please refresh this page and try again!', 'super-forms' ), '<strong>', '</strong>' )
+                ));
             }
         }
         $data = array();
@@ -2481,7 +2615,7 @@ class SUPER_Ajax {
             unset($settings['form_custom_css']);
         }
 
-        // Before we continue we might want to manipulate the form settings
+        // Before we continue we might want to alter the form settings
         $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
         $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
         $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
@@ -2508,14 +2642,15 @@ class SUPER_Ajax {
             );
             if ( is_wp_error( $response ) ) {
                 $error_message = $response->get_error_message();
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
-                );
+                SUPER_Common::output_message( array(
+                    'msg' => esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
+                ));
             } else {
                 $result = json_decode( $response['body'], true );
                 if( $result['success']!==true ) {
-                    SUPER_Common::output_message( $error=true, esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
+                    SUPER_Common::output_message( array( 
+                        'msg' => esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' )
+                    ));
                 }
             }
         }
@@ -2528,21 +2663,24 @@ class SUPER_Ajax {
                 unset($settings['i18n']);
             }
         }
-        
-        do_action( 'super_before_sending_email_hook', array( 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );       
-        
+          
         // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
         if( !empty($settings['form_locker']) ) {
-            if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
-            $limit = $settings['form_locker_limit'];
-            $count = get_post_meta( $form_id, '_super_submission_count', true );
-            if( $count>=$limit ) {
-                $msg = '';
-                if($settings['form_locker_msg_title']!='') {
-                    $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+            if( !isset($settings['form_locker_allow_submit']) ) $settings['form_locker_allow_submit'] = 'false';
+            if($settings['form_locker_allow_submit']!=='true'){
+                if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
+                $limit = $settings['form_locker_limit'];
+                $count = get_post_meta( $form_id, '_super_submission_count', true );
+                if( $count>=$limit ) {
+                    $msg = '';
+                    if($settings['form_locker_msg_title']!='') {
+                        $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
+                    }
+                    $msg .= nl2br($settings['form_locker_msg_desc']);
+                    SUPER_Common::output_message( array( 
+                        'msg' => $msg
+                    ));
                 }
-                $msg .= nl2br($settings['form_locker_msg_desc']);
-                SUPER_Common::output_message( $error=true, $msg );
             }
         }
         
@@ -2551,25 +2689,33 @@ class SUPER_Ajax {
             // Let's check if the user is logged in
             $current_user_id = get_current_user_id();
             if( $current_user_id!=0 ) {
-                $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
-                $count = 0;
-                if(!empty($user_limits[$current_user_id])) {
-                    $count = absint($user_limits[$current_user_id])+1;
-                }
-                $limit = 0;
-                if( !empty($settings['user_form_locker_limit']) ){
-                    $limit = absint($settings['user_form_locker_limit']);
-                } 
-                if( $count>$limit ) {
-                    $msg = '';
-                    if($settings['user_form_locker_msg_title']!='') {
-                        $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                if(!isset($settings['user_form_locker_allow_submit'])) $settings['user_form_locker_allow_submit'] = 'false';
+                if($settings['user_form_locker_allow_submit']!=='true'){
+                    $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                    $count = 0;
+                    if(!empty($user_limits[$current_user_id])) {
+                        $count = absint($user_limits[$current_user_id])+1;
                     }
-                    $msg .= nl2br($settings['user_form_locker_msg_desc']);
-                    SUPER_Common::output_message( $error=true, $msg );
+                    $limit = 0;
+                    if( !empty($settings['user_form_locker_limit']) ){
+                        $limit = absint($settings['user_form_locker_limit']);
+                    } 
+                    if( $count>$limit ) {
+                        $msg = '';
+                        if($settings['user_form_locker_msg_title']!='') {
+                            $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                        }
+                        $msg .= nl2br($settings['user_form_locker_msg_desc']);
+                        SUPER_Common::output_message( array( 
+                            'msg'=>$msg
+                        ));
+                    }
                 }
             }
         }
+
+        do_action( 'super_before_sending_email_hook', array( 'data'=>$data, 'form_id'=>$form_id, 'entry_id'=>$entry_id, 'list_id'=>$list_id, 'settings'=>$settings, 'response_data'=>$response_data, 'post'=>$_POST) );
+
         return array(
             'data'=>$data,
             'form_id'=>$form_id,
@@ -2580,9 +2726,10 @@ class SUPER_Ajax {
         );
     }
     public static function upload_files() {
+        error_log('upload_files()');
         $atts = self::submit_form_checks();
-        $data = $atts['data'];
         $form_id = $atts['form_id'];
+        $data = $atts['data'];
         // Dependencies for file upload
         $global_settings = SUPER_Common::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
@@ -2654,10 +2801,9 @@ class SUPER_Ajax {
                     );
                     // Check file size
                     if ($file['size'] > $maxFileSize) {
-                        SUPER_Common::output_message(
-                            $error = true,
-                            esc_html__( 'The file size exceeded the filesize limitation of '.$fileSize.' MB.', 'super-forms')
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => esc_html__( 'The file size exceeded the filesize limitation of '.$fileSize.' MB.', 'super-forms')
+                        ));
                     }
                     unset($GLOBALS['super_upload_dir']);
                     add_filter( 'upload_dir', array( 'SUPER_Forms', 'filter_upload_dir' ));
@@ -2669,10 +2815,9 @@ class SUPER_Ajax {
                     $uploaded_file = wp_handle_upload($file, array('test_form'=>false));
                     $filename = $uploaded_file['file'];
                     if(isset($uploaded_file['error'])){
-                        SUPER_Common::output_message(
-                            $error = true,
-                            $uploaded_file['error']
-                        );
+                        SUPER_Common::output_message( array(
+                            'msg' => $uploaded_file['error']
+                        ));
                     }
                     // Add file to media library 
                     $attachment = array(
@@ -2711,33 +2856,63 @@ class SUPER_Ajax {
                 }
             }
         }
-        echo json_encode($data);
+        $response = array(
+            'files' => $data,
+            'sf_nonce' => SUPER_Common::generate_nonce()
+        );
+        echo json_encode($response);
         die();
     }
-    public static function submit_form( $settings=null ) {
-        $csrfValidation = SUPER_Common::verifyCSRF();
-        if(!$csrfValidation){
-            // Only check when not disabled by the user.
-            // Some users want to use/load their forms via an iframe from a different domain name
-            // In this case sessions won't work  because of browsers "SameSite by default cookies"
-            $global_settings = SUPER_Common::get_global_settings();
-            if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
-                // Check was disabled by the user, skip it
-            }else{
-                // Return error
-                SUPER_Common::output_message( 
-                    $error = true, 
-                    esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
-                );
+
+
+    /** 
+     *  Save form progress in session after field change
+     *
+     *  @since      3.1.0
+    */
+    public static function save_form_progress() {
+        if(!empty($_POST['form_id'])){
+            $form_id = absint($_POST['form_id']);
+            $data = false; // Clear date by default
+            if(!empty($_POST['data'])){
+                $data = $_POST['data'];
             }
+            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
         }
+        die();
+    }
+
+
+    public static function submit_form( $settings=null ) {
+        error_log('submit_form()');
         $atts = self::submit_form_checks($settings);
-        $data = $atts['data'];
         $form_id = $atts['form_id'];
+
+        // Get/set unique submission identifier
+        $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+        if( $uniqueSubmissionId===false ){
+            $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . time();
+            SUPER_Common::setClientData( array( 'name' => 'unique_submission_id_' . $form_id, 'value' => $uniqueSubmissionId ) );
+        }else{
+            // Update to increase expiry
+            SUPER_Common::setClientData( array( 
+                'name' => 'unique_submission_id_' . $form_id,
+                'value' => $uniqueSubmissionId,
+                'expires' => 60*60, // 60 min. (30*60)
+                'exp_var' => 20*60 // 20 min. (20*60)
+            ) );
+        }
+        error_log('super_unique_submission_id: ' . $uniqueSubmissionId);
+
+        $data = $atts['data'];
         $entry_id = $atts['entry_id'];
         $list_id = $atts['list_id'];
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
+
+        $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+        update_option( 'super_submission_info_' . $uniqueSubmissionId, $atts );
+
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 if( !isset($v['type']) ) continue;
@@ -2805,10 +2980,9 @@ class SUPER_Ajax {
                                     }
                                 } catch (Exception $e) {
                                     // Print error message
-                                    SUPER_Common::output_message(
-                                        $error = true,
-                                        $e->getMessage()
-                                    );
+                                    SUPER_Common::output_message( array(
+                                        'msg' => $e->getMessage()
+                                    ));
                                 }
                             }
                         }
@@ -2823,19 +2997,21 @@ class SUPER_Ajax {
         }
         unset($GLOBALS['super_upload_dir']);
         unset($GLOBALS['super_allowed_mime_types']);
-        
+  
         // @since 4.9.5
         $data = apply_filters( 'super_after_processing_files_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
+
+        $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+        $submissionInfo['data'] = $data;
+        update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
             if( !empty( $settings['header_additional'] ) ) {
                 $headers = explode( "\n", $settings['header_additional'] );   
-                foreach( $headers as $k => $v ) {
-                    
+                foreach( $headers as $k => $v ) { 
                     // @since 1.2.6.92
-                    $v = SUPER_Common::email_tags( $v, $data, $settings );
-                    
+                    $v = SUPER_Common::email_tags( $v, $data, $settings );            
                     $header_additional .= $v . "\r\n";
                 }
             }
@@ -2891,6 +3067,10 @@ class SUPER_Ajax {
                 $post['post_author'] = absint($post_author);
             }
             $contact_entry_id = wp_insert_post($post);
+
+            $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+            $submissionInfo['contact_entry_id'] = $contact_entry_id;
+            update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
 
             // Store entry ID for later use
             set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
@@ -2957,10 +3137,10 @@ class SUPER_Ajax {
                 }
                 if($total>1){ // If 2 entries found, it means the current created entry has the same title as an already existing entry
                     wp_delete_post( $contact_entry_id, true );
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = esc_html(SUPER_Common::email_tags( $settings['contact_entry_unique_title_msg'], $data, $settings ))
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => esc_html(SUPER_Common::email_tags( $settings['contact_entry_unique_title_msg'], $data, $settings )),
+                        'form_id' => absint($form_id)
+                    ));
                 }
             }
 
@@ -2997,7 +3177,6 @@ class SUPER_Ajax {
                     }
                 }
             }
-
         }
 
         // @since 3.3.0 - exclude fields from saving as contact entry
@@ -3041,6 +3220,28 @@ class SUPER_Ajax {
         if($entry_id!=0){
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
 
+            // Check if we prevent saving duplicate entry titles
+            // Return error message to user
+            $contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
+            if( !isset( $settings['enable_custom_entry_title'] ) ) $settings['enable_custom_entry_title'] = '';
+            if( $settings['enable_custom_entry_title']=='true' ) {
+                if( !isset( $settings['contact_entry_title'] ) ) $settings['contact_entry_title'] = $contact_entry_title;
+                if( !isset( $settings['contact_entry_add_id'] ) ) $settings['contact_entry_add_id'] = '';
+                $contact_entry_title = SUPER_Common::email_tags( $settings['contact_entry_title'], $data, $settings );
+                if($settings['contact_entry_add_id']=='true'){
+                    if($contact_entry_title==''){
+                        $contact_entry_title = $entry_id;
+                    }else{
+                        $contact_entry_title = $contact_entry_title . $entry_id;
+                    }
+                }
+            }else{
+                $contact_entry_title = $contact_entry_title . ' ' . $entry_id;
+            }
+            // Update title
+            $post = array('ID' => $entry_id, 'post_title' => $contact_entry_title);
+            wp_update_post($post);
+
             // @since 3.4.0 - update contact entry status
             $entry_status_update = (isset($_POST['entry_status_update']) ? sanitize_text_field( $_POST['entry_status_update'] ) : '');
             if($entry_status_update!=''){
@@ -3051,9 +3252,12 @@ class SUPER_Ajax {
             }
         }
 
+        $global_settings = SUPER_Common::get_global_settings();
         if( $settings['save_contact_entry']=='yes' ){
             add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data);
-            add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
+            if( (isset($global_settings['backend_contact_entry_list_ip'])) && ($global_settings['backend_contact_entry_list_ip']=='true') ) {
+                add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
+            }
 
             /** 
              *  Hook after inserting contact entry
@@ -3064,7 +3268,7 @@ class SUPER_Ajax {
              *
              *  @since      1.2.9
             */
-            do_action( 'super_after_saving_contact_entry_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_after_saving_contact_entry_action', array( 'uniqueSubmissionId'=>$uniqueSubmissionId,  'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
         }
 
@@ -3083,7 +3287,6 @@ class SUPER_Ajax {
         // @since 4.9.5 - override setting with global email settings
         // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
         // meaning we should ignore any settings from the form itself and use the global setting instead
-        $global_settings = SUPER_Common::get_global_settings();
         $overrideSettings = array(
             // Set global 'To' header, can override 'header_to' and 'confirm_to' settings
             'global_email_to_admin' => 'header_to',
@@ -3189,15 +3392,23 @@ class SUPER_Ajax {
             }
 
             // @since 2.0
-            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$atts, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
 
             // Send the email
-            $mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments ));
+            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
+            $mail = SUPER_Common::email( $params );
+            
+            $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+            $submissionInfo['admin_email_params'] = $params;
+            update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
                 $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_message( $error=true, $msg );
+                SUPER_Common::output_message( array( 
+                    'msg' => $msg,
+                    'form_id' => absint($form_id)
+                ));
             }
         }
         if( $settings['confirm']=='yes' ) {
@@ -3275,12 +3486,20 @@ class SUPER_Ajax {
             $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
             // Send the email
-            $mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments ));
+            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
+            $mail = SUPER_Common::email( $params );
+
+            $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+            $submissionInfo['confirmation_email_params'] = $params;
+            update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
                 $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_message( $error=true, $msg );
+                SUPER_Common::output_message( array( 
+                    'msg' => $msg,
+                    'form_id' => absint($form_id)
+                ));
             }
         }
         if( $form_id!=0 ) {
@@ -3401,6 +3620,11 @@ class SUPER_Ajax {
                     $headers = array('Content-Type' => 'application/json; charset=utf-8');
                     $parameters = json_encode($parameters);
                 }
+
+                $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                $submissionInfo['post_body'] = $parameters;
+                update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+
                 $response = wp_remote_post(
                     $settings['form_post_url'], 
                     array(
@@ -3413,15 +3637,18 @@ class SUPER_Ajax {
                 );
                 if ( is_wp_error( $response ) ) {
                     $error_message = $response->get_error_message();
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $error_message,
-                        $redirect = false
-                    );
+                    SUPER_Common::output_message( array(
+                        'msg' => $error_message,
+                        'form_id' => absint($form_id)
+                    ));
                 }
 
                 // Clear form progression
                 SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
+
+                $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                $submissionInfo['post_response'] = $response;
+                update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -3432,11 +3659,12 @@ class SUPER_Ajax {
                     }else{
                         $parameters_output = $parameters;
                     }
-                    SUPER_Common::output_message(
-                        $error = false,
-                        $msg = '<strong>POST data:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $parameters_output . '</textarea><br /><br /><strong>Response:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $response['body'] . '</textarea>',
-                        $redirect = false
-                    );
+                    SUPER_Common::output_message( array(
+                        'error' => false,
+                        'msg' => '<strong>POST data:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $parameters_output . '</textarea><br /><br /><strong>Response:</strong><br /><textarea style="min-height:150px;width:100%;font-size:12px;">' . $response['body'] . '</textarea>',
+                        'redirect' => false,
+                        'form_id' => absint($form_id)
+                    ));
                 }
             }
 
@@ -3460,7 +3688,21 @@ class SUPER_Ajax {
                 'string_attachments' => (isset($string_attachments) ? $string_attachments : array())
             );
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+
+
+            $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+            $submissionInfo['attachments'] = $attachments;
+            update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+
+            do_action( 'super_before_email_success_msg_action', array( 
+                'uniqueSubmissionId'=>$uniqueSubmissionId, 
+                'post'=>$_POST, 
+                'data'=>$data, 
+                'settings'=>$settings, 
+                'entry_id'=>$contact_entry_id, 
+                'attachments'=>$attachments,
+                'form_id'=>$form_id
+            ));
 
             // If the option to delete files after form submission is enabled remove all uploaded files from the server
             if( !empty($settings['file_upload_submission_delete']) ) {
@@ -3488,7 +3730,7 @@ class SUPER_Ajax {
             }
 
             // Currently used by Stripe to redirect to checkout session
-            do_action( 'super_before_redirect_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_redirect_action', array( 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // Clear form progression
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
@@ -3539,18 +3781,24 @@ class SUPER_Ajax {
              *  @since      4.3.0
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
+            if($redirect!=='' && $redirect!==false){
+                $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                $submissionInfo['redirectedTo'] = $redirect;
+                update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+            }
             
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
-            SUPER_Common::output_message(
-                $error=false, 
-                $msg = $msg,
-                $redirect = $redirect,
-                $fields=array(),
-                $display=true,
-                $loading=false,
-                $json=true,
-                $response_data=$response_data
-            );
+            SUPER_Common::output_message( array(
+                'error'=>false, 
+                'msg' => $msg,
+                'redirect' => $redirect,
+                'fields'=>array(),
+                'display'=>true,
+                'loading'=>false,
+                'json'=>true,
+                'response_data'=>$response_data,
+                'form_id' => absint($form_id)
+            ));
             die();
         }
     }
