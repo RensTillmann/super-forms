@@ -19,6 +19,82 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+
+    public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
+        $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+        error_log('$submissionInfo (1):');
+        error_log(json_encode($submissionInfo));
+        // Delete contact entry
+        $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
+        if( !empty($entry_id) ) {
+            error_log('delete entry #'.$entry_id);
+            $attachments = get_attached_media( '', $entry_id );
+            error_log('attachments: ' . json_encode($attachments));
+            foreach( $attachments as $attachment ) {
+                // Force delete this attachment
+                wp_delete_attachment( $attachment->ID, true );
+            }
+            wp_delete_post($entry_id, true); // force delete, we no longer want it in our system
+        }
+        // Delete post after canceled payment (only used for Front-end Posting feature)
+        $created_post_id = (isset($submissionInfo['created_post_id']) ? absint($submissionInfo['created_post_id']) : 0 );
+        if( !empty($created_post_id) ) {
+            error_log('delete post #'.$created_post_id);
+            $attachments = get_attached_media( '', $created_post_id );
+            error_log('attachments: ' . json_encode($attachments));
+            foreach( $attachments as $attachment ) {
+                // Force delete this attachment
+                wp_delete_attachment( $attachment->ID, true );
+            }
+            wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
+        }
+        // Delete user after canceled payment (only used for Register & Login feature)
+        $registered_user_id = (isset($submissionInfo['registered_user_id']) ? absint($submissionInfo['registered_user_id']) : 0 );
+        if( !empty($registered_user_id) ) {
+            require_once( ABSPATH . 'wp-admin/includes/user.php' );
+            error_log('delete user #'.$registered_user_id);
+            wp_delete_user($registered_user_id);
+        }
+        // Delete any E-mail reminders based on this form ID as it's parent
+        $email_reminders = (isset($submissionInfo['super_forms_email_reminders']) ? json_decode($submissionInfo['super_forms_email_reminders'],true) : array() );
+        //error_log('value: ' . json_encode($submissionInfo['super_forms_email_reminders']));
+        //error_log('count: ' . count($email_reminders));
+        if (is_array($email_reminders) && count($email_reminders) > 0) {
+            // Delete all the Children of the Parent Page
+            foreach($email_reminders as $reminder){
+                error_log('delete reminder #'.$reminder);
+                wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
+            }
+        }
+        // Delete any uploaded files
+        if(isset($submissionInfo['files']) && is_array($submissionInfo['files'])){
+            $files = $submissionInfo['files'];
+            error_log('delete files: ' . json_encode($files));
+            foreach($files as $k => $v){
+                if(!empty($v['attachment'])){
+                    wp_delete_attachment( absint($v['attachment']), true );
+                    continue;
+                }
+                if(!empty($v['path'])){
+                    // Try to delete it
+                    SUPER_Common::delete_dir( $v['path'] );
+                }
+                if(!empty($v['subdir'])){
+                    // This is uploaded to a custom dir outside the wp content directory
+                    // Try to grab the real path
+                    error_log('subdir: ' . $v['subdir']);
+                    $filePath = ABSPATH . $v['subdir'];
+                    $filePath = realpath($filePath);
+                    error_log('filePath: ' . $filePath);
+                    error_log('dir: ' . dirname($filePath));
+                    // Try to delete it
+                    SUPER_Common::delete_dir( dirname($filePath) );
+                    //SUPER_Common::delete_file( $filePath );
+                }
+            }
+        }
+        return (isset($submissionInfo['form_id']) ? $submissionInfo['form_id'] : 0);
+    }
     
     public static function startClientSession( $x=array() ){
         extract( 
@@ -1261,7 +1337,7 @@ class SUPER_Common {
         if($form_id!==false){
             $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
             if( $uniqueSubmissionId!==false ){
-                $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
                 if($error){
                     $submissionInfo['error_msg'] = $msg;
                 }else{
@@ -1269,7 +1345,7 @@ class SUPER_Common {
                 }
                 if($redirect!=null) $submissionInfo['redirect'] = $redirect;
                 if($json!=true) $submissionInfo['response_data'] = $response_data;
-                update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
             }
         }
         // When there was an error, cleanup things?
@@ -1278,7 +1354,7 @@ class SUPER_Common {
             if($form_id!==false){
                 $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
                 if( $uniqueSubmissionId!==false ){
-                    $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                    $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
                     error_log('CLEANUP AFTER ERROR?');
                     error_log('$submissionInfo:');
                     error_log(json_encode($submissionInfo));

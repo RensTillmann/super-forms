@@ -6017,20 +6017,22 @@ class SUPER_Shortcodes {
             }
         }
 
-        // If canceled Stripe checkout, try to retrieve form progress
-        $stripe_form_progress = SUPER_Common::getClientData( 'super_forms_stripe_progress_' . $form_id );
-        if($stripe_form_progress!==false){
-            $entry_data = $stripe_form_progress;
+        //// If canceled Stripe checkout, try to retrieve form progress
+        //$stripe_form_progress = SUPER_Common::getClientData( 'super_forms_stripe_progress_' . $form_id );
+        //if($stripe_form_progress!==false){
+        //    $entry_data = $stripe_form_progress;
+        //    $formProgress = true;
+        //}
+        //// If canceled Stripe checkout, try to retrieve form progress
+        if(isset($_GET['sfr'])){
+            $submissionInfo = get_option('sfsi_' . sanitize_text_field($_GET['sfr']));
+            $entry_data = $submissionInfo['data'];
             $formProgress = true;
-        }
-
-        // If canceled Stripe checkout, try to retrieve form progress
-        if(isset($_GET['sfssidr'])){
-            $stripeRecoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $_GET['sfssidr'] );
-            if($stripeRecoverData!==false){
-                $entry_data = $stripeRecoverData['formData'];
-                $formProgress = true;
-            }
+            //$stripeRecoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $_GET['sfssidr'] );
+            //if($stripeRecoverData!==false){
+            //    $entry_data = $stripeRecoverData['formData'];
+            //    $formProgress = true;
+            //}
         }
 
         $result = '';
