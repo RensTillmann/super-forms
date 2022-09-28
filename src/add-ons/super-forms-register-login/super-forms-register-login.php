@@ -1047,11 +1047,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         update_user_meta( $user_id, $k, $v ); 
                     }
 
-
                     // Store as submission info
-                    $submissionInfo = get_option( 'super_submission_info_' . $uniqueSubmissionId, array() );
+                    $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
                     $submissionInfo['updatedUser'] = $user_id;
-                    update_option( 'super_submission_info_' . $uniqueSubmissionId, $submissionInfo );
+                    update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
 
                 }else{
                     // @since 1.4.0 - register new user if user doesn't exists while updating user

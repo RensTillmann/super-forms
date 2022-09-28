@@ -634,30 +634,34 @@ if(!class_exists('SUPER_Forms')) :
                 error_log('test4');
                 error_log('metadata:');
                 error_log(json_encode($m));
-                SUPER_Stripe::checkoutSessionCanceled( array( 'metadata' => $m ) );
+                // Get form submission info
+                $submissionInfo = get_option( 'sfsi_' . $m['sfsi_id'], array() );
+                SUPER_Common::cleanupFormSubmissionInfo($m['sfsi_id'], 'stripe'); // stored in `wp_options` table as sfsi_%
                 error_log('test5');
-                //SUPER_Common::setClientData(array(
-                //    'name' => 'super_stripe_recover_' . $checkout_session->id, // e.g: super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
-                //    'value' => $recoverData
-                //));
                 // Now redirect to cancel URL without checkout session ID parameter
-                $m['home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $m['home_cancel_url'] );
+                //$m['stripe_home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $m['stripe_home_cancel_url'] );
+                $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_cancel_url'] );
                 error_log('test6');
-                error_log($m['home_cancel_url']);
+                //error_log($m['stripe_home_cancel_url']);
                 error_log('test7');
-                $recoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $wp->query_vars['sfssidc'] );
-                if($recoverData){
+                if($submissionInfo){
                     error_log('test8');
                     error_log($wp->query_vars['sfssidc']);
-                    error_log($recoverData['referer']);
+                    error_log($submissionInfo['referer']);
+                    error_log('sfsi_id: ' . $m['sfsi_id']);
                     error_log('test9');
-                    wp_redirect( esc_url( add_query_arg( 'sfssidr', $wp->query_vars['sfssidc'], $recoverData['referer'] ) ) );
+                    $url = esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']));
+                    error_log('url: ' . $url);
+                    wp_redirect($url);
+                    //esc_url(add_query_arg( 'sfr', $m['sfsi_id'], $submissionInfo['referer'])));
+                    //wp_redirect(esc_url($submissionInfo['referer']));
                     exit;
                 }
                 // Redirect to home url instead
                 error_log($wp->query_vars['sfssidc']);
-                error_log($m['home_cancel_url']);
-                wp_redirect( esc_url( add_query_arg( 'sfssidr', $wp->query_vars['sfssidc'], $m['home_cancel_url'] ) ) );
+                //error_log($m['stripe_home_cancel_url']);
+                wp_redirect(esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url'])));
+                wp_redirect(esc_url($submissionInfo['stripe_home_cancel_url']));
                 error_log('test10');
                 exit;
             }
@@ -675,8 +679,8 @@ if(!class_exists('SUPER_Forms')) :
                 //     "created_post_id": "59775",
                 //     "registered_user_id": "227",
                 //     "form_id": "59391",
-                //     "home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
-                //     "home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+                //     "stripe_home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
+                //     "stripe_home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
                 //     "user_id": "1",
                 //     "entry_id": "59773"
                 // },
@@ -684,46 +688,7 @@ if(!class_exists('SUPER_Forms')) :
                 // ...
                 // ...
                 // Now redirect to success URL without checkout session ID parameter
-                $m['home_success_url'] = remove_query_arg( array( 'sfssid' ), $m['home_success_url'] );
-                wp_redirect( $m['home_success_url'] );
-                exit;
-            }
-            if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
-                // Retry
-                error_log('Retry Stripe payment, create new checkout session based on stripe data we saved');
-                SUPER_Stripe::setAppInfo();
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
-                // Try to start a Checkout Session
-                // old try {
-                // old     $stripeData = get_option( 'super_stripe_recover_' . $s->metadata->form_id . '_' . $s->id ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
-                // old     error_log(json_encode($stripeData));
-                // old     $checkout_session = \Stripe\Checkout\Session::create($stripeData);
-                // old } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-                // old     error_log("exceptionHandler16()");
-                // old     self::exceptionHandler($e, $metadata);
-                // old }
-                try {
-                    $stripeData = get_option( 'super_stripe_recover_' . $s->metadata->form_id . '_' . $s->id ); // e.g: `super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
-                    error_log(json_encode($stripeData));
-                    $checkout_session = \Stripe\Checkout\Session::create($stripeData);
-                } catch( Exception $e ){
-                    if ($e instanceof \Stripe\Error\Card ||
-                        $e instanceof \Stripe\Exception\CardException ||
-                        $e instanceof \Stripe\Exception\RateLimitException ||
-                        $e instanceof \Stripe\Exception\InvalidRequestException ||
-                        $e instanceof \Stripe\Exception\AuthenticationException ||
-                        $e instanceof \Stripe\Exception\ApiConnectionException ||
-                        $e instanceof \Stripe\Exception\ApiErrorException) {
-                        // Specific Stripe exception
-                        error_log("specific exceptionHandler16()");
-                        self::exceptionHandler($e, $metadata);
-                    } else {
-                        // Normal exception
-                        error_log("normal exceptionHandler16()");
-                        self::exceptionHandler($e, $metadata);
-                    }
-                }
-                wp_redirect($checkout_session->url);
+                wp_redirect(esc_url(remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_success_url'])));
                 exit;
             }
             if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {

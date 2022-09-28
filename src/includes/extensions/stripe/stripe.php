@@ -498,7 +498,7 @@ if(!class_exists('SUPER_Stripe')) :
                                                     // Price or Plan ID
                                                     echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
                                                         echo '<label>';
-                                                            echo '<span class="sfui-label">' . esc_html__( 'Enter product price/plan ID:', 'super-forms' ) . '</span>';
+                                                            echo '<span class="sfui-label">' . esc_html__( 'Enter product price/plan ID.', 'super-forms' ) . ' ' . sprintf( esc_html__( 'You can create a new product and price via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/products">', '</a>' ) . '</span>';
                                                             echo '<input type="text" name="price" placeholder="' . esc_html__( 'e.g: price_XXXX', 'super-forms' ) . '" value="' . sanitize_text_field($v['price']) . '" />';
                                                         echo '</label>';
                                                     echo '</div>';
@@ -511,28 +511,7 @@ if(!class_exists('SUPER_Stripe')) :
                                             echo '<div class="sfui-sub-settings sfui-vertical" data-f="type;price_data">';
                                                 echo '<div class="sfui-inline sfui-vertical">';
                                                     echo '<div class="sfui-setting">';
-                                                        // Product data
-                                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<input type="radio" name="price_data.type" value="product_data"' . ($v['price_data']['type']==='product_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new Stripe product on the fly', 'super-forms' ) . '</span>';
-                                                            echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product_data">';
-                                                                echo '<div class="sfui-setting">';
-                                                                    // Product data
-                                                                    echo '<label>';
-                                                                        echo '<span class="sfui-label">' . esc_html__( 'Product name', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product_data.name" placeholder="e.g: Notebook" value="' . sanitize_text_field($v['price_data']['product_data']['name']) . '" />';
-                                                                    echo '</label>';
-                                                                    echo '<label>';
-                                                                        echo '<span class="sfui-label">' . esc_html__( 'Description', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product_data.description" placeholder="Intel i7, 8GB RAM" value="' . sanitize_text_field($v['price_data']['product_data']['description']) . '" />';
-                                                                    echo '</label>';
-                                                                    echo '<label>';
-                                                                        echo '<span class="sfui-label">' . sprintf( esc_html__( 'Tax category code ID. %sFind a tax category%s. Your default tax category is used if you don’t provide one when creating a transaction with Stripe Tax enabled. You can update this in your %stax settings%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/tax/tax-categories">', '</a>', '<a target="_blank" href="https://dashboard.stripe.com/settings/tax">', '</a>' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product_data.tax_code" placeholder="e.g: txcd_99999999 (Tangible Goods)" value="' . sanitize_text_field($v['price_data']['product_data']['tax_code']) . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                            echo '</div>';
-                                                        echo '</label>';
-                                                        // Product
+                                                        // Existing Product
                                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                                             echo '<input type="radio" name="price_data.type" value="product"' . ($v['price_data']['type']==='product' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Use an existing product ID which the price will belong to', 'super-forms' ) . '</span>';
                                                             echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product">';
@@ -540,12 +519,47 @@ if(!class_exists('SUPER_Stripe')) :
                                                                 echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
                                                                     echo '<label>';
                                                                         echo '<span class="sfui-label">' . esc_html__( 'Enter an already existing Stripe product ID that this price will belong to', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product" placeholder="e.g: prod_KxRfsj8c4rL72C" value="' . sanitize_text_field($v['price_data']['product']) . '" />';
+                                                                        echo '<input type="text" name="price_data.product" placeholder="e.g: prod_XXXXXXXXXXXXXX" value="' . sanitize_text_field($v['price_data']['product']) . '" />';
                                                                     echo '</label>';
                                                                 echo '</div>';
                                                             echo '</div>';
                                                         echo '</label>';
+                                                        // New product data
+                                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                                            echo '<input type="radio" name="price_data.type" value="product_data"' . ($v['price_data']['type']==='product_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new Stripe product on the fly', 'super-forms' ) . '</span>';
+                                                            echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product_data">';
+                                                                echo '<div class="sfui-setting">';
+                                                                    // Product data
+                                                                    echo '<div class="sfui-vertical">';
+                                                                        echo '<label>';
+                                                                            echo '<span class="sfui-label">' . esc_html__( 'Product name', 'super-forms' ) . '</span>';
+                                                                            echo '<input type="text" name="price_data.product_data.name" placeholder="e.g: Notebook" value="' . sanitize_text_field($v['price_data']['product_data']['name']) . '" />';
+                                                                        echo '</label>';
+                                                                    echo '</div>';
+                                                                    echo '<div class="sfui-vertical">';
+                                                                        echo '<label>';
+                                                                            echo '<span class="sfui-label">' . esc_html__( 'Description', 'super-forms' ) . '</span>';
+                                                                            echo '<input type="text" name="price_data.product_data.description" placeholder="Intel i7, 8GB RAM" value="' . sanitize_text_field($v['price_data']['product_data']['description']) . '" />';
+                                                                        echo '</label>';
+                                                                    echo '</div>';
+                                                                    echo '<div class="sfui-vertical">';
+                                                                        echo '<label>';
+                                                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Tax category code ID. %sFind a tax category%s. Your default tax category is used if you don’t provide one when creating a transaction with Stripe Tax enabled. You can update this in your %stax settings%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/tax/tax-categories">', '</a>', '<a target="_blank" href="https://dashboard.stripe.com/settings/tax">', '</a>' ) . '</span>';
+                                                                            echo '<input type="text" name="price_data.product_data.tax_code" placeholder="e.g: txcd_99999999 (Tangible Goods)" value="' . sanitize_text_field($v['price_data']['product_data']['tax_code']) . '" />';
+                                                                        echo '</label>';
+                                                                    echo '</div>';
+                                                                echo '</div>';
+                                                            echo '</div>';
+                                                        echo '</label>';
                                                     echo '</div>';
+                                                echo '</div>';
+
+                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                    echo '<label>';
+                                                        echo '<span class="sfui-title">' . esc_html__( 'Unit amount', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . esc_html__( 'Define a price as float value (only dot is accepted as decimal seperator)', 'super-forms' ) . '</span>';
+                                                        echo '<input type="text" name="price_data.unit_amount_decimal" placeholder="e.g: 65.95" value="' . sanitize_text_field($v['price_data']['unit_amount_decimal']) . '" />';
+                                                    echo '</label>';
                                                 echo '</div>';
                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                     echo '<label>';
@@ -579,13 +593,6 @@ if(!class_exists('SUPER_Stripe')) :
                                                         echo '<input type="text" name="price_data.recurring.interval_count" placeholder="Enter the number of intervals" value="' . sanitize_text_field($v['price_data']['recurring']['interval_count']) . '" />';
                                                     echo '</label>';
                                                 echo '</div>';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Unit amount', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Define a price as float value (only dot is accepted as decimal seperator)', 'super-forms' ) . '</span>';
-                                                        echo '<input type="text" name="price_data.unit_amount_decimal" placeholder="e.g: 65.95" value="' . sanitize_text_field($v['price_data']['unit_amount_decimal']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
                                             echo '</div>';
                                         echo '</label>';
                                     echo '</form>';
@@ -593,7 +600,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                                 echo '<div class="sfui-setting">';
                                     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                        echo '<input type="checkbox" name="custom_tax_rate" value="true"' . ($v['custom_tax_rate']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Apply custom Tax Rates', 'super-forms' ) . '</span>';
+                                        echo '<input type="checkbox" name="custom_tax_rate" value="true"' . ($v['custom_tax_rate']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Apply custom Tax Rates', 'super-forms' ) . ' (' . esc_html__( 'optional', 'super-forms' ) . ')</span>';
                                     echo '</label>';
                                     echo '<div class="sfui-sub-settings sfui-vertical" data-f="custom_tax_rate;true">';
                                         echo '<label>';
@@ -1040,7 +1047,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'quantity' => '1', // The ID of the Price or Plan object. One of price or price_data is required.
                     'price_data' => array( // Data used to generate a new Price object inline. One of price or price_data is required.
                         'currency' => 'usd', // Three-letter ISO currency code. Must be a supported currency.
-                        'type' => 'product_data', // (not a Stripe key) Type either `product` or `product_data`
+                        'type' => 'product', //product_data', // (not a Stripe key) Type either `product` or `product_data`
                         'product' => '', // The ID of the product that this price will belong to. One of product or product_data is required.
                         'product_data' => array( // Data used to generate a new product object inline. One of product or product_data is required.
                             'name' => '', // The product’s name, meant to be displayable to the customer.
@@ -1164,6 +1171,7 @@ if(!class_exists('SUPER_Stripe')) :
          */
         public static function redirect_to_stripe_checkout($x){
             extract( shortcode_atts( array( 
+                'uniqueSubmissionId'=>'',
                 'post'=>array(), 
                 'data'=>array(), 
                 'settings'=>array(), 
@@ -1217,35 +1225,36 @@ if(!class_exists('SUPER_Stripe')) :
             $payment_methods = SUPER_Common::email_tags( $s['payment_method_types'], $data, $settings );
             $payment_methods = explode(',', str_replace(' ', '', $payment_methods));
 
-            $metadata = SUPER_Common::getAllClientData();
-            // Remove unwanted metadata
-            unset($metadata['string_attachments']);
-            unset($metadata['tags_values']);
-            unset($metadata['sf_nonce']);
-            unset($metadata['server_http_referrer']);
+            //$metadata = SUPER_Common::getAllClientData();
+            $metadata = array('sfsi_id' => $uniqueSubmissionId);
+            //// Remove unwanted metadata
+            //unset($metadata['string_attachments']);
+            //unset($metadata['tags_values']);
+            //unset($metadata['sf_nonce']);
+            //unset($metadata['server_http_referrer']);
 
-            // Front-end Posting post ID, required to change status of the created post after payment completed
-            if(!empty($metadata['super_forms_created_post_id'])){
-                $metadata['created_post_id'] = absint($metadata['super_forms_created_post_id']);
-                unset($metadata['super_forms_created_post_id']);
-                error_log('created_post_id: ' . $metadata['created_post_id']);
-            }
+            //// Front-end Posting post ID, required to change status of the created post after payment completed
+            //if(!empty($metadata['super_forms_created_post_id'])){
+            //    $metadata['created_post_id'] = absint($metadata['super_forms_created_post_id']);
+            //    unset($metadata['super_forms_created_post_id']);
+            //    error_log('created_post_id: ' . $metadata['created_post_id']);
+            //}
 
-            // Register & Login user ID, required to activate a user account after payment completed
-            if(!empty($metadata['super_forms_registered_user_id'])){
-                $metadata['registered_user_id'] = absint($metadata['super_forms_registered_user_id']);
-                unset($metadata['super_forms_registered_user_id']);
-                error_log('registered_user_id: ' . $metadata['registered_user_id']);
-            }
+            //// Register & Login user ID, required to activate a user account after payment completed
+            //if(!empty($metadata['super_forms_registered_user_id'])){
+            //    $metadata['registered_user_id'] = absint($metadata['super_forms_registered_user_id']);
+            //    unset($metadata['super_forms_registered_user_id']);
+            //    error_log('registered_user_id: ' . $metadata['registered_user_id']);
+            //}
 
-            // Store form progress in case the user decides to click the `cancel` button at checkout
-            error_log('form_id: ' . $post['form_id']);
-            $form_id = 0;
-            if(!empty($post['form_id'])){
-                $form_id = absint($post['form_id']);
-                //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_progress_' . $form_id, 'value' => $data ) );
-            }
-            $metadata['form_id'] = $form_id;
+            //// Store form progress in case the user decides to click the `cancel` button at checkout
+            //error_log('form_id: ' . $post['form_id']);
+            //$form_id = 0;
+            //if(!empty($post['form_id'])){
+            //    $form_id = absint($post['form_id']);
+            //    //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_progress_' . $form_id, 'value' => $data ) );
+            //}
+            //$metadata['form_id'] = $form_id;
             //unset($metadata['super_forms_stripe_progress_' . $form_id]);
 
             // Store files, so we can delete files when user clicks the `cancel` button
@@ -1286,10 +1295,11 @@ if(!class_exists('SUPER_Stripe')) :
             $home_success_url = SUPER_Common::email_tags( $s['success_url'], $data, $settings );
             if($home_cancel_url==='') $home_cancel_url = $_SERVER['HTTP_REFERER'];
             if($home_success_url==='') $home_success_url = $_SERVER['HTTP_REFERER'];
-            error_log($home_cancel_url);
-            $metadata['home_cancel_url'] = $home_cancel_url;
-            $metadata['home_success_url'] = $home_success_url;
 
+            $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+            $submissionInfo['stripe_home_cancel_url'] = $home_cancel_url;
+            $submissionInfo['stripe_home_success_url'] = $home_cancel_url;
+            update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
             // Shipping options
             $shipping_options = array();
             if($s['shipping_options']['type']==='id'){
@@ -1314,9 +1324,9 @@ if(!class_exists('SUPER_Stripe')) :
             // A set of key-value pairs that you can attach to a source object. 
             // It can be useful for storing additional information about the source in a structured format.
             // already defined... no longer needed $metadata['form_id'] = absint($data['hidden_form_id']['value']);
-            $metadata['user_id'] = get_current_user_id();
-            $metadata['entry_id'] = $entry_id;
-            error_log('entry_id: ' . $entry_id);
+            //$metadata['user_id'] = get_current_user_id();
+            //$metadata['entry_id'] = $entry_id;
+            //error_log('entry_id: ' . $entry_id);
             foreach($metadata as $k => $v){
                 if(is_array($v)) $metadata[$k] = json_encode($v);
             }
@@ -1432,6 +1442,8 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 if($v['custom_tax_rate']==='true'){
                     $v['tax_rates'] = explode(',', str_replace(' ', '', trim($v['tax_rates'])));
+                }else{
+                    unset($v['tax_rates']);
                 }
                 unset($v['type']);
                 unset($v['price_data']['type']);
@@ -1838,6 +1850,10 @@ if(!class_exists('SUPER_Stripe')) :
                 
                 $stripeData = array_remove_empty($stripeData);
                 error_log(json_encode($stripeData));
+                error_log('uniqueSubmissionId: ' . $uniqueSubmissionId);
+                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+                $submissionInfo['stripeData'] = $stripeData;
+                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
                 if ($e instanceof \Stripe\Error\Card ||
@@ -1856,46 +1872,11 @@ if(!class_exists('SUPER_Stripe')) :
                     self::exceptionHandler($e, $metadata);
                 }
             }
-            //} catch(\Stripe\Exception\CardException $e) {
-            //  // Since it's a decline, \Stripe\Exception\CardException will be caught
-            //  echo 'Status is:' . $e->getHttpStatus() . '\n';
-            //  echo 'Type is:' . $e->getError()->type . '\n';
-            //  echo 'Code is:' . $e->getError()->code . '\n';
-            //  // param is '' in this case
-            //  echo 'Param is:' . $e->getError()->param . '\n';
-            //  echo 'Message is:' . $e->getError()->message . '\n';
-            //} catch (\Stripe\Exception\RateLimitException $e) {
-            //  // Too many requests made to the API too quickly
-            //} catch (\Stripe\Exception\InvalidRequestException $e) {
-            //  // Invalid parameters were supplied to Stripe's API
-            //} catch (\Stripe\Exception\AuthenticationException $e) {
-            //  // Authentication with Stripe's API failed
-            //  // (maybe you changed API keys recently)
-            //} catch (\Stripe\Exception\ApiConnectionException $e) {
-            //  // Network communication with Stripe failed
-            //} catch (\Stripe\Exception\ApiErrorException $e) {
-            //  // Display a very generic error to the user, and maybe send
-            //  // yourself an email
-            //} catch (Exception $e) {
-            //  // Something else happened, completely unrelated to Stripe
-            //}
 
-            $recoverData = array(
-                'formId' => $form_id, // form ID
-                'referer' => wp_get_referer(), // page user submitted the form from
-                'stripeData' => $stripeData, // stripe chekcout data
-                'formData' => $data, // submitted data by user
-                'formSettings' => $settings, // form settings at the time of submitting the form
-                'files' => $files // file uploads by user (if any)
-                //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_progress_' . $form_id, 'value' => $data ) );
-                //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_files_' . $form_id, 'value' => $files ) );
-                //unset($metadata['super_forms_stripe_files_' . $form_id]);
-
-            );
-            SUPER_Common::setClientData(array(
-                'name' => 'super_stripe_recover_' . $checkout_session->id, // e.g: super_stripe_recover_12345_cs_test_a1pmUrkZN1O5Kkme8SjWVTH3Z2cGPn2XauWkD6jsjTrvUfBE1GA24WfqN8
-                'value' => $recoverData
-            ));
+            error_log('uniqueSubmissionId: ' . $uniqueSubmissionId);
+            $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+            $submissionInfo['stripeData'] = $stripeData; // Perhaps used when we can "recover" a checkout session?
+            update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
 
             //header("HTTP/1.1 303 See Other");
             //header("Location: " . $checkout_session->url);
@@ -1903,439 +1884,10 @@ if(!class_exists('SUPER_Stripe')) :
                 'error'=>false, 
                 'msg' => '', 
                 'redirect' => $checkout_session->url,
-                'form_id' => absint($form_id)
+                'form_id' => absint($submissionInfo['form_id'])
             ));
             die();
-
-            //$description = SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings );
-            //self::setAppInfo();
-            //// Get data from form
-            //error_log(json_encode($_POST));
-            //$data = $_POST['data'];
-            //// Get form settings
-            //$form_id = absint($data['hidden_form_id']['value']);
-            //$settings = SUPER_Common::get_form_settings($form_id);
-            //// Get payment method [card, sepa_debit, ideal]
-            //$payment_method = sanitize_text_field($_POST['payment_method']);
-
-            //// Set meta data
-            //// A set of key-value pairs that you can attach to a source object. 
-            //// It can be useful for storing additional information about the source in a structured format.
-            //$metadata = array();
-            //$metadata['form_id'] = $form_id;
-            //$metadata['user_id'] = get_current_user_id();
-            //// Get Post ID and save it in custom parameter for stripe so we can update the post status after successfull payment complete
-            //$post_id = SUPER_Common::getClientData( '_super_stripe_frontend_post_id' );
-            //if( !empty($post_id) ) {
-            //    $metadata['frontend_post_id'] = absint($post_id);
-            //}
-            //// Get User ID and save it in custom parameter for stripe so we can update the user status after successfull payment complete
-            //$user_id = SUPER_Common::getClientData( 'stripe_frontend_user_id' );
-            //if( !empty($user_id) ) {
-            //    $metadata['frontend_user_id'] = absint($user_id);
-            //}
-            //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
-            //if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
-            //    $response = $_POST['response'];
-            //    $contact_entry_id = 0;
-            //    if(!empty($response['response_data'])){
-            //        if(!empty($response['response_data']['contact_entry_id'])){
-            //            $contact_entry_id = absint($response['response_data']['contact_entry_id']);
-            //        }
-            //    }
-            //    $metadata['contact_entry_id'] = $contact_entry_id;
-            //}
-            //// Allow devs to filter metadata if needed
-            //$metadata = apply_filters( 'super_stripe_prepare_payment_metadata', $metadata, array('settings'=>$settings, 'data'=>$data, 'payment_method'=>$payment_method ) );
-
-            //// Subscription Payment:
-            ////$settings['stripe_method']
-            //error_log('stripe_method: ' . $settings['stripe_method']);
-            //error_log('payment_method: ' . $payment_method);
-            //if( $settings['stripe_method']=='subscription' ) {
-            //    if($payment_method=='sepa_debit'){
-            //        error_log('SEPA Debit subscription', 0);
-            //        // Create a Payment method for sepa_debit
-            //        try {
-            //            $paymentMethod = \Stripe\PaymentMethod::create([
-            //                'type' => 'sepa_debit',
-            //                'sepa_debit' => array(
-            //                    'iban' => 'DE89370400440532013000'
-            //                ),
-            //                'billing_details' => array(
-            //                    'name' => 'Rens Tillmann8', // required for SEPA Debit
-            //                    'email' => 'feeling4design@gmail.com', // required for SEPA Debit
-            //                    // 'phone' => '', // optional but may not be empty
-            //                    'address' => array( // optional associative array
-            //                        'line1' => '', // optional
-            //                        'line2' => '', // optional
-            //                        'city' => '', // optional
-            //                        // 'country' => '', // optional but may not be empty
-            //                        'postal_code' => '', // optional
-            //                        'state' => '' // optional // SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
-            //                    )
-            //                )
-            //            ]);
-            //        } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-            //            error_log("exceptionHandler12()");
-            //            self::exceptionHandler($e, $metadata);
-            //        }
-
-            //        error_log('paymentMethod ID:' . $paymentMethod->id, 0);
-            //        // Check if plan ID is empty (is required)
-            //        if(empty($settings['stripe_plan_id'])){
-            //            SUPER_Common::output_message( array(
-            //                'error' => true,
-            //                $msg = esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' )
-            //            );
-            //        }
-        
-            //        // Check if the user is logged in
-            //        // If so, we will want to save the stripe customer ID for this wordpress user
-            //        $user_id = get_current_user_id();
-            //        if(isset($metadata['frontend_user_id'])){
-            //            if(absint($metadata['frontend_user_id'])!==0){
-            //                $user_id = $metadata['frontend_user_id'];
-            //            }
-            //        }
-            //        $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
-            //        error_log('$super_stripe_cus: ' . $super_stripe_cus, 0);
-        
-            //        try {
-            //            $create_new_customer = true;
-            //            // Check if user is logged in, if so check if this is an existing customer
-            //            // If customer exists, we want to update the `default_payment_method` and `invoice_settings.default_payment_method`
-            //            if( !empty($super_stripe_cus) ) {
-            //                $customer = \Stripe\Customer::retrieve($super_stripe_cus);
-            //            }
-            //            if( !empty($customer) ) {
-            //                // Check if customer was deleted
-            //                if(!empty($customer['deleted']) && $customer['deleted']==true){
-            //                    // Customer was deleted, we should create a new
-            //                }else{
-            //                    error_log('paymentMethod->attach() 1: ' . $super_stripe_cus, 0);
-            //                    // The customer exists, let's update the payment method for this customer
-            //                    $paymentMethod->attach(['customer' => $super_stripe_cus]);
-            //                    // Once the payment method has been attached to your customer, 
-            //                    // update the customers default payment method
-            //                    error_log('Customer::update() 1: ' . $super_stripe_cus, 0);
-            //                    \Stripe\Customer::update($super_stripe_cus,[
-            //                        'invoice_settings' => [
-            //                            'default_payment_method' => $paymentMethod->id,
-            //                        ],
-            //                    ]);
-            //                    // Make sure we do not create a new customer
-            //                    $create_new_customer = false; 
-            //                }
-            //            }
-            //            if($create_new_customer){
-            //                // Customer doesn't exists, create a new customer
-            //                error_log('Customer::create() 1: ' . $paymentMethod->id, 0);
-            //                $customer = \Stripe\Customer::create([
-            //                    'payment_method' => $paymentMethod->id,
-            //                    'email' => 'jenny.rosen@example11.com',
-            //                    'invoice_settings' => [
-            //                        'default_payment_method' => $paymentMethod->id // Creating subscriptions automatically charges customers because the default payment method is set.
-            //                    ],
-            //                ]);
-            //                $paymentMethod->attach(['customer' => $customer->id]);
-            //                // Save the stripe customer ID for this wordpress user
-            //                update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
-            //            }
-            //        } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-            //            if($e->getCode()===0){
-            //                // If no such stripe customer exists we do not output the error instead we create a new stripe customer
-            //                // Customer doesn't exists, create a new customer
-            //                error_log('Customer::create() 2: ' . $paymentMethod->id, 0);
-            //                $customer = \Stripe\Customer::create([
-            //                    'payment_method' => $paymentMethod->id,
-            //                    'email' => 'jenny.rosen@example12.com',
-            //                    'invoice_settings' => [
-            //                        'default_payment_method' => $paymentMethod->id // Creating subscriptions automatically charges customers because the default payment method is set.
-            //                    ],
-            //                ]);
-            //                error_log('paymentMethod->attach() 2: ' . $customer->id, 0);
-            //                $paymentMethod->attach(['customer' => $customer->id]);
-            //                // Save the stripe customer ID for this wordpress user
-            //                update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
-            //            }else{
-            //                error_log("exceptionHandler13()");
-            //                self::exceptionHandler($e, $metadata);
-            //            }
-            //        }
-        
-            //        try {
-            //            // Attempt to create the subscriptions
-            //            error_log('Subscription::create() 1: ' . $customer->id, 0);
-            //            $subscription = \Stripe\Subscription::create([
-            //                'customer' => $customer->id,
-            //                'items' => [
-            //                    [
-            //                        'plan' => $settings['stripe_plan_id'],
-            //                    ],
-            //                ],
-            //                // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
-            //                'payment_behavior' => 'allow_incomplete',
-            //                'expand' => ['latest_invoice.payment_intent'],
-            //                'metadata' => $metadata
-            //            ]);
-            //            error_log('Subscription::create() 2: ' . $customer->id, 0);
-            //        } catch ( Exception | \Stripe\Error\Card | \Stripe\Exception\CardException | \Stripe\Exception\RateLimitException | \Stripe\Exception\InvalidRequestException | \Stripe\Exception\AuthenticationException | \Stripe\Exception\ApiConnectionException | \Stripe\Exception\ApiErrorException $e ) {
-            //            error_log("exceptionHandler14()");
-            //            self::exceptionHandler($e, $metadata);
-            //        }
-        
-            //        // Update PaymentIntent with mepdate PaymentIntent with metadata
-            //        \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
-        
-            //        // Depending on the outcome do things:
-            //        $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
-            //        error_log('$subscription->status: ' . $subscription->status, 0);
-            //        error_log('$subscription->latest_invoice->status: ' . $subscription->latest_invoice->status, 0);
-            //        error_log('$paymentintent_status: ' . $paymentintent_status, 0);
-            //        error_log('$subscription->latest_invoice->payment_intent->client_secret: ' . $subscription->latest_invoice->payment_intent->client_secret, 0);
-
-            //        // $subscription->status: incomplete
-            //        // $subscription->latest_invoice->status: open
-            //        // $paymentintent_status: requires_confirmation
-
-
-            //        // Outcome 3: Payment fails
-            //        if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
-            //            // The charge attempt for the subscription failed, please try with a new payment method
-            //            self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
-            //            SUPER_Common::output_message( array(
-            //                'error' => true,
-            //                $msg = esc_html__( 'The charge attempt for the subscription failed, please try with a new payment method', 'super-forms' )
-            //            );
-            //        }
-            //        echo json_encode( array( 
-            //            'stripe_method' => 'subscription',
-            //            'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
-            //            'subscription_status' => $subscription->status,
-            //            'invoice_status' => $subscription->latest_invoice->status,
-            //            'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : ''),
-            //            'metadata' => $metadata
-            //        ) );
-        
-            //        die();
-        
-            //        // // Get PaymentIntent data
-            //        // $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-            //        // $amount = SUPER_Common::tofloat($amount)*100;
-            //        // $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'eur');
-            //        // $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
-            //        // $intent = self::createPaymentIntent($payment_method, $paymentMethod, $data, $settings, $amount, $currency, $description, $metadata);
-            //        // // Return metadata for JS processing
-            //        // echo json_encode( array( 
-            //        //     'stripe_method' => 'subscription',
-            //        //     'payment_method' => $payment_method, // Only if paid via IBAN
-            //        //     'metadata' => $metadata,
-            //        //     'currency' => $currency,
-            //        //     'client_secret' => $intent->client_secret,
-            //        //     'billing_details' => array(
-            //        //         'name' => 'Rens Tillmann1'
-            //        //     )
-            //        // ) );
-            //    }else{
-            //        // Return metadata for JS processing
-            //        echo json_encode( array( 
-            //            'stripe_method' => 'subscription',
-            //            'payment_method' => $payment_method, // Only if paid via IBAN
-            //            'currency' => $currency,
-            //            'metadata' => $metadata,
-            //            // 'client_secret' => $intent->client_secret, // only for single payments
-            //            'billing_details' => array(
-            //                'name' => 'Rens Tillmann2'
-            //            )
-            //        ) );
-            //    }
-            //    die();
-            //}
-            //// Single Payments:
-            //if( $settings['stripe_method']=='single' ) {
-            //    // The URL the customer should be redirected to after the authorization process.
-            //    if(empty($settings['stripe_return_url'])) $settings['stripe_return_url'] = get_home_url(); // default to home page
-            //    $stripe_return_url = esc_url(SUPER_Common::email_tags( $settings['stripe_return_url'], $data, $settings ));
-            //    
-            //    // Get PaymentIntent data
-            //    $amount = SUPER_Common::email_tags( $settings['stripe_amount'], $data, $settings );
-            //    $amount = SUPER_Common::tofloat($amount)*100;
-            //    $currency = (!empty($settings['stripe_currency']) ? sanitize_text_field($settings['stripe_currency']) : 'usd');
-            //    $description = (!empty($settings['stripe_description']) ? sanitize_text_field($settings['stripe_description']) : '');
-            //    error_log('$payment_method 1: '. $payment_method, 0);
-
-            //    $intent = self::createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata);
-            //    //var_dump($intent);
-            //    //error_log(json_encode($intent));
-            //    //exit;
-            //    echo json_encode( 
-            //        array( 
-            //            'stripe_method' => 'single',
-            //            'currency' => $currency,
-            //            'client_secret' => $intent->client_secret,
-            //            'return_url' => $stripe_return_url, // Required for iDeal payment method
-            //            'paymentIntent' => json_encode($intent)
-            //        )
-            //    );
-            //}
-            //die();
         }
-
-        public static function fulfillOrder($session){
-            error_log('fulfillOrder()');
-            // "metadata": {
-            //     "super_forms_email_reminders": "[59774]",
-            //     "created_post_id": "59775",
-            //     "registered_user_id": "227",
-            //     "form_id": "59391",
-            //     "home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
-            //     "home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
-            //     "user_id": "1",
-            //     "entry_id": "59773"
-            // },
-        }
-
-		/**
-		 * Conditionally checkout
-		 *
-		 *  @since      1.0.0
-		 */
-		public static function stripe_conditional_checkout($atts) {
-			$settings = $atts['settings'];
-			if (isset($atts['data'])) {
-				$data = $atts['data'];
-			}else {
-				if ($settings['save_contact_entry'] == 'yes') {
-					$data = get_post_meta($atts['entry_id'], '_super_contact_entry_data', true);
-				}
-				else {
-					$data = $atts['post']['data'];
-				}
-			}
-			// Check if we do not want to checkout to Stripe conditionally
-			if( !empty($settings['conditionally_stripe_checkout']) ) {
-                $settings['stripe_checkout'] = '';
-				if( !empty($settings['conditionally_stripe_checkout_check']) ) {
-					$values = explode(',', $settings['conditionally_stripe_checkout_check']);
-					// let's replace tags with values
-					foreach( $values as $k => $v ) {
-						$values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
-					}
-					if(!isset($values[0])) $values[0] = '';
-					if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-					if(!isset($values[2])) $values[2] = '';
-					// if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
-					if( ($values[0]!='') || ($values[2]!='') ) {
-						// Check if values match eachother
-						if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
-							$settings['stripe_checkout'] = 'true';
-						}
-					}
-				}
-            }
-            // if( !empty($settings['stripe_checkout']) && $settings['stripe_checkout']=='true' ) {
-            //     SUPER_Common::output_message( array(
-            //         'error' => true,
-            //         $msg = esc_html__( 'Please select your payment method!', 'super-forms' )
-            //     );
-            // }
-        }
-
-        // When Checkout Session was canceled by the user
-        public static function checkoutSessionCanceled($x){
-            error_log("x: " . json_encode($x));
-            $metadata = (isset($x['metadata']) ? $x['metadata'] : array());
-            // Delete contact entry status after failed payment
-            error_log(json_encode($metadata));
-            $entry_id = (isset($metadata['entry_id']) ? absint($metadata['entry_id']) : 0 );
-            if( !empty($entry_id) ) {
-                error_log('delete entry #'.$entry_id);
-                $attachments = get_attached_media( '', $entry_id );
-                error_log('attachments: ' . json_encode($attachments));
-                foreach( $attachments as $attachment ) {
-                    // Force delete this attachment
-                    wp_delete_attachment( $attachment->ID, true );
-                }
-                wp_delete_post($entry_id, true); // force delete, we no longer want it in our system
-            }
-            // Delete post after failed payment (only used for Front-end Posting feature)
-            //$frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
-            //if( !empty($frontend_post_id) ) {
-            //    error_log('delete post #'.$frontend_post_id);
-            //    wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
-            //}
-
-            // Delete post after canceled payment (only used for Front-end Posting feature)
-            $created_post_id = (isset($metadata['created_post_id']) ? absint($metadata['created_post_id']) : 0 );
-            if( !empty($created_post_id) ) {
-                error_log('delete post #'.$created_post_id);
-                $attachments = get_attached_media( '', $created_post_id );
-                error_log('attachments: ' . json_encode($attachments));
-                foreach( $attachments as $attachment ) {
-                    // Force delete this attachment
-                    wp_delete_attachment( $attachment->ID, true );
-                }
-                wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
-            }
-
-            // Delete user after canceled payment (only used for Register & Login feature)
-            $registered_user_id = (isset($metadata['registered_user_id']) ? absint($metadata['registered_user_id']) : 0 );
-            if( !empty($registered_user_id) ) {
-                require_once( ABSPATH . 'wp-admin/includes/user.php' );
-                error_log('delete user #'.$registered_user_id);
-                wp_delete_user($registered_user_id);
-            }
-
-            // Delete any E-mail reminders based on this form ID as it's parent
-            $email_reminders = (isset($metadata['super_forms_email_reminders']) ? json_decode($metadata['super_forms_email_reminders'],true) : array() );
-            error_log('value: ' . json_encode($metadata['super_forms_email_reminders']));
-            error_log('count: ' . count($email_reminders));
-            if (is_array($email_reminders) && count($email_reminders) > 0) {
-                // Delete all the Children of the Parent Page
-                foreach($email_reminders as $reminder){
-                    error_log('delete reminder #'.$reminder);
-                    wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
-                }
-            }
-
-            // Delete any uploaded files
-            //if(isset($_GET['sfssidc'])){
-            $stripeRecoverData = SUPER_Common::getClientData( 'super_stripe_recover_' . $_GET['sfssidc'] );
-            if($stripeRecoverData!==false){
-                $files = $stripeRecoverData['files'];
-                //$files = SUPER_Common::getClientData( 'super_forms_stripe_files_' . absint($metadata['form_id']) );
-                foreach($files as $k => $v){
-                    //if(isset($v['files'])){
-                    //    foreach($v['files'] as $fk => $fv){
-                    if(!empty($v['attachment'])){
-                        wp_delete_attachment( absint($v['attachment']), true );
-                        continue;
-                    }
-                    if(!empty($v['path'])){
-                        // Try to delete it
-                        SUPER_Common::delete_dir( $v['path'] );
-                    }
-                    if(!empty($v['subdir'])){
-                        // This is uploaded to a custom dir outside the wp content directory
-                        // Try to grab the real path
-                        error_log('subdir: ' . $v['subdir']);
-                        $filePath = ABSPATH . $v['subdir'];
-                        $filePath = realpath($filePath);
-                        error_log('filePath: ' . $filePath);
-                        error_log('dir: ' . dirname($filePath));
-                        // Try to delete it
-                        SUPER_Common::delete_dir( dirname($filePath) );
-                        //SUPER_Common::delete_file( $filePath );
-                    }
-                    //    }
-                    //}
-                }
-                error_log('delete files: ' . json_encode($files));
-            }
-            //}
-        }
-
 
         // Whe payment intent failed
         public static function payment_intent_payment_failed($paymentIntent){
@@ -2375,7 +1927,6 @@ if(!class_exists('SUPER_Stripe')) :
 
         // When charge succeeded
         public function charge_succeeded($paymentIntent){
-
             error_log("charge_succeeded()");
             // Get the metadata from the paymentIntent
             if(isset($paymentIntent['object']) && isset($paymentIntent['payment_intent']) && $paymentIntent['object']=='charge'){
@@ -3378,8 +2929,7 @@ if(!class_exists('SUPER_Stripe')) :
             error_log("e: " . json_encode($e));
             error_log("err: " . json_encode($e->getError()));
             error_log("metadata: " . json_encode($metadata));
-            self::checkoutSessionCanceled( array( 'metadata' => $metadata ) );
-            $form_id = false;
+            $form_id = SUPER_Common::cleanupFormSubmissionInfo($metadata['sfsi_id'], '');
             if(isset($metadata['form_id'])) $form_id = $metadata['form_id'];
             SUPER_Common::output_message( array(
                 'msg' => $e->getMessage(),
