@@ -1224,73 +1224,7 @@ if(!class_exists('SUPER_Stripe')) :
             $trial_period_days = SUPER_Common::email_tags( $s['subscription_data']['trial_period_days'], $data, $settings );
             $payment_methods = SUPER_Common::email_tags( $s['payment_method_types'], $data, $settings );
             $payment_methods = explode(',', str_replace(' ', '', $payment_methods));
-
-            //$metadata = SUPER_Common::getAllClientData();
             $metadata = array('sfsi_id' => $uniqueSubmissionId);
-            //// Remove unwanted metadata
-            //unset($metadata['string_attachments']);
-            //unset($metadata['tags_values']);
-            //unset($metadata['sf_nonce']);
-            //unset($metadata['server_http_referrer']);
-
-            //// Front-end Posting post ID, required to change status of the created post after payment completed
-            //if(!empty($metadata['super_forms_created_post_id'])){
-            //    $metadata['created_post_id'] = absint($metadata['super_forms_created_post_id']);
-            //    unset($metadata['super_forms_created_post_id']);
-            //    error_log('created_post_id: ' . $metadata['created_post_id']);
-            //}
-
-            //// Register & Login user ID, required to activate a user account after payment completed
-            //if(!empty($metadata['super_forms_registered_user_id'])){
-            //    $metadata['registered_user_id'] = absint($metadata['super_forms_registered_user_id']);
-            //    unset($metadata['super_forms_registered_user_id']);
-            //    error_log('registered_user_id: ' . $metadata['registered_user_id']);
-            //}
-
-            //// Store form progress in case the user decides to click the `cancel` button at checkout
-            //error_log('form_id: ' . $post['form_id']);
-            //$form_id = 0;
-            //if(!empty($post['form_id'])){
-            //    $form_id = absint($post['form_id']);
-            //    //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_progress_' . $form_id, 'value' => $data ) );
-            //}
-            //$metadata['form_id'] = $form_id;
-            //unset($metadata['super_forms_stripe_progress_' . $form_id]);
-
-            // Store files, so we can delete files when user clicks the `cancel` button
-            $files = array();
-            foreach($data as $k => $v){
-                if(isset($v['type']) && $v['type']==='files'){
-                    foreach($v['files'] as $f){
-                        $x = array();
-                        if(!empty($f['attachment'])) $x['attachment'] = $f['attachment'];
-                        if(!empty($f['path'])) $x['path'] = $f['path'];
-                        if(!empty($f['subdir'])) $x['subdir'] = $f['subdir'];
-                        $files[] = $x;
-                    }
-                }
-            }
-            error_log(json_encode($files));
-
-            //SUPER_Common::setClientData( array( 'name' => 'super_forms_stripe_files_' . $form_id, 'value' => $files ) );
-            //unset($metadata['super_forms_stripe_files_' . $form_id]);
-
-            //{
-            //    "label":"File:",
-            //    "type":"files",
-            //    "files":[{"name":"file",
-            //        "value":"mobile_wallpaper.jpg",
-            //        "url":"https:\/\/f4d.nl\/dev\/wp-content\/uploads\/superforms\/2022\/05\/2597728734047\/mobile_wallpaper.jpg",
-            //        "label":"File:",
-            //        "type":"image\/jpeg",
-            //        "attachment":59616
-            //    }]
-            //},"
-            //$data[$fieldName]['files'][$k]['url'] = $fileUrl;
-            //$data[$fieldName]['files'][$k]['subdir'] = $fileSubdir; // dir relative to site root
-            //$data[$fieldName]['files'][$k]['url'] = wp_get_attachment_url( $attachment_id );
-            //$data[$fieldName]['files'][$k]['attachment'] = $attachment_id;
-
             $home_cancel_url = SUPER_Common::email_tags( $s['cancel_url'], $data, $settings );
             $home_success_url = SUPER_Common::email_tags( $s['success_url'], $data, $settings );
             if($home_cancel_url==='') $home_cancel_url = $_SERVER['HTTP_REFERER'];

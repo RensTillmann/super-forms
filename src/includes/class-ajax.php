@@ -2910,14 +2910,12 @@ class SUPER_Ajax {
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
 
-        $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+        $submissionInfo = get_option('sfsi_' . $uniqueSubmissionId, array());
         $sfsi = $atts;
         unset($sfsi['settings']);
         // Store currently logged in user id
         $sfsi['user_id'] = get_current_user_id(); // currently logged in user ID
         $sfsi['referer'] = wp_get_referer(); // page user submitted the form from
-        update_option( 'sfsi_' . $uniqueSubmissionId, $sfsi );
-
 
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
@@ -3001,15 +2999,44 @@ class SUPER_Ajax {
                 }                   
             }
         }
-        unset($GLOBALS['super_upload_dir']);
-        unset($GLOBALS['super_allowed_mime_types']);
-  
+
         // @since 4.9.5
         $data = apply_filters( 'super_after_processing_files_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
 
-        $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-        $submissionInfo['data'] = $data;
-        update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+        // Store files, so we can delete files when user clicks the `cancel` button
+        $files = array();
+        foreach($data as $k => $v){
+            if(isset($v['type']) && $v['type']==='files'){
+                foreach($v['files'] as $f){
+                    $x = array();
+                    if(!empty($f['attachment'])) $x['attachment'] = $f['attachment'];
+                    if(!empty($f['path'])) $x['path'] = $f['path'];
+                    if(!empty($f['subdir'])) $x['subdir'] = $f['subdir'];
+                    $files[] = $x;
+                }
+            }
+        }
+        $sfsi['files'] = $files;
+        //{
+        //    "label":"File:",
+        //    "type":"files",
+        //    "files":[{"name":"file",
+        //        "value":"mobile_wallpaper.jpg",
+        //        "url":"https:\/\/f4d.nl\/dev\/wp-content\/uploads\/superforms\/2022\/05\/2597728734047\/mobile_wallpaper.jpg",
+        //        "label":"File:",
+        //        "type":"image\/jpeg",
+        //        "attachment":59616
+        //    }]
+        //},"
+        //$data[$fieldName]['files'][$k]['url'] = $fileUrl;
+        //$data[$fieldName]['files'][$k]['subdir'] = $fileSubdir; // dir relative to site root
+        //$data[$fieldName]['files'][$k]['url'] = wp_get_attachment_url( $attachment_id );
+        //$data[$fieldName]['files'][$k]['attachment'] = $attachment_id;
+        unset($GLOBALS['super_upload_dir']);
+        unset($GLOBALS['super_allowed_mime_types']);
+  
+        $sfsi['data'] = $data;
+        update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -3074,9 +3101,8 @@ class SUPER_Ajax {
             }
             $contact_entry_id = wp_insert_post($post);
 
-            $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-            $submissionInfo['contact_entry_id'] = $contact_entry_id;
-            update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            $sfsi['contact_entry_id'] = $contact_entry_id;
+            update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
 
             // Store entry ID for later use
             set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
@@ -3407,7 +3433,7 @@ class SUPER_Ajax {
             //$submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
             //$submissionInfo['admin_email_params'] = $params;
             //unset($submissionInfo['admin_email_params']['settings']);
-            //update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            //update_option('sfsi_' . $uniqueSubmissionId, $submissionInfo);
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
@@ -3499,7 +3525,7 @@ class SUPER_Ajax {
             //$submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
             //$submissionInfo['confirmation_email_params'] = $params;
             //unset($submissionInfo['confirmation_email_params']['settings']);
-            //update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            //update_option('sfsi_' . $uniqueSubmissionId, $submissionInfo);
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
@@ -3629,9 +3655,8 @@ class SUPER_Ajax {
                     $parameters = json_encode($parameters);
                 }
 
-                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-                $submissionInfo['post_body'] = $parameters;
-                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                $sfsi['post_body'] = $parameters;
+                update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
 
                 $response = wp_remote_post(
                     $settings['form_post_url'], 
@@ -3654,9 +3679,8 @@ class SUPER_Ajax {
                 // Clear form progression
                 SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
-                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-                $submissionInfo['post_response'] = $response;
-                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                $sfsi['post_response'] = $response;
+                update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -3697,10 +3721,8 @@ class SUPER_Ajax {
             );
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
-
-            $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-            $submissionInfo['attachments'] = $attachments;
-            update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            $sfsi['attachments'] = $attachments;
+            update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
 
             do_action( 'super_before_email_success_msg_action', array( 
                 'uniqueSubmissionId'=>$uniqueSubmissionId, 
@@ -3790,9 +3812,8 @@ class SUPER_Ajax {
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             if($redirect!=='' && $redirect!==false){
-                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-                $submissionInfo['redirectedTo'] = $redirect;
-                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                $sfsi['redirectedTo'] = $redirect;
+                update_option( 'sfsi_' . $uniqueSubmissionId, $sfsi );
             }
             
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
