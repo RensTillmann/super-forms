@@ -5674,11 +5674,11 @@ class SUPER_Shortcodes {
         return array(
             'type' => 'textarea',
             'name' => esc_html__( 'Filter posts by specific taxonomy', 'super-forms' ),
-            'label' => sprintf( esc_html__('Define each taxonomy filter on a new line e.g: %1$s%3$sfield|value1,value2,value3|taxonomy|operator%2$s%3$sPossible values for the operator are %1$sIN%2$s, %1$sNOT IN%2$s, %1$sAND%2$s, %1$sEXISTS%2$s and %1$sNOT EXISTS%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$sid|8429|category|IN%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$sslug|cars|category|IN%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$sid|8429|post_tag|IN%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$sslug|red|post_tag|IN%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$sid|8429|product_cat|IN%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$sslug|cars|product_cat|IN%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$sid|8429|product_tag|IN%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$sslug|red|product_tag|IN%2$s', 'super-forms'), '<strong style="color:red;">', '</strong>', '<br />' ),
+            'label' => sprintf( esc_html__( 'Define each taxonomy filter on a new line e.g:%3$s%1$s%4$s%2$s%3$sPossible values for the operator are:%3$s%1$s%5$s%2$s%3$sExample to create a filter based of ID for Post category:%3$s%1$s%6$s%2$s%3$sExample to create a filter based of slug for Post category:%3$s%1$s%7$s%2$s%3$sExample to create a filter based of ID for Post tags:%3$s%1$s%8$s%2$s%3$sExample to create a filter based of slug for Post tags:%3$s%1$s%9$s%2$s%3$sExample to create a filter based of ID for WC product category:%3$s%1$s%10$s%2$s%3$sExample to create a filter based of slug for WC product category:%3$s%1$s%11$s%2$s%3$sExample to create a filter based of ID for WC product tags:%3$s%1$s%12$s%2$s%3$sExample to create a filter based of slug for WC product tags:%3$s%1$s%13$s%2$s%3$s', 'super-forms' ), '<strong style="color:red;">', '</strong>', '<br />', 'field|value1,value2,value3|taxonomy|operator', 'IN, NOT IN, AND, EXISTS and NOT EXISTS', 'id|8429|category|IN', 'slug|cars|category|IN', 'id|8429|post_tag|IN', 'slug|red|post_tag|IN', 'id|8429|product_cat|IN', 'slug|cars|product_cat|IN', 'id|8429|product_tag|IN', 'slug|red|product_tag|IN' ),
             'default'=> ( !isset( $value ) ? '' : $value ),
-            'filter'=>true,
-            'parent'=>$parent,
-            'filter_value'=>'post_type'
+            'filter' => true,
+            'parent' => $parent,
+            'filter_value' => 'post_type'
         );
     }
     public static function sf_retrieve_method_filter_relation($value, $parent){

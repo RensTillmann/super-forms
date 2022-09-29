@@ -309,7 +309,6 @@ if(!class_exists('SUPER_Stripe')) :
 
             add_action( 'super_before_redirect_action', array( $this, 'redirect_to_stripe_checkout' ) );      
 
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
             add_action( 'init', array( $this, 'register_post_types' ), 5 );
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
             add_action( 'wp_head', array( $this, 'stripe_ipn'));
@@ -333,7 +332,6 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             if ( $this->is_request( 'ajax' ) ) {
-				add_action( 'super_before_email_success_msg_action', array( $this, 'stripe_conditional_checkout' ) );
             }
 
             add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -398,7 +396,7 @@ if(!class_exists('SUPER_Stripe')) :
             
         }
         public static function add_tab($tabs){
-            $tabs['stripe'] = esc_html__( 'Stripe', 'super-forms' );
+            $tabs['stripe'] = 'Stripe';
             return $tabs;
         }
         public static function add_tab_content($atts){
@@ -621,7 +619,7 @@ if(!class_exists('SUPER_Stripe')) :
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Apply discount', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'You can create coupons easily via the %coupon management%s page of the Stripe dashboard.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/coupons">', '</a>' ) . '</span>';
+                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'You can create coupons easily via the %scoupon management%s page of the Stripe dashboard.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/coupons">', '</a>' ) . '</span>';
                         echo '</label>';
                         echo '<div class="sfui-inline sfui-vertical">';
                             echo '<form class="sfui-setting">';
@@ -1414,8 +1412,8 @@ if(!class_exists('SUPER_Stripe')) :
             // Get webhook ID and secret
             $webhookId = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id'] : '');
             $webhookSecret = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret'] : '');
-            error_log('webhookId: ' . $webhookId);
-            error_log('webhookSecret: ' . $webhookSecret);
+            //error_log('webhookId: ' . $webhookId);
+            //error_log('webhookSecret: ' . $webhookSecret);
             if(empty($webhookId)){
                 $msg = sprintf(
                     esc_html( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
@@ -1482,8 +1480,8 @@ if(!class_exists('SUPER_Stripe')) :
             // Try to start a Checkout Session
             try {
                 // Use Stripe's library to make requests...
-                error_log('shipping_options');
-                error_log(json_encode($shipping_options));
+                //error_log('shipping_options');
+                //error_log(json_encode($shipping_options));
                 $stripeData = array(
                     // [required conditionally] The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
                     'mode' => $mode, //'payment', // `payment`, `subscription` or `setup`
@@ -2821,8 +2819,8 @@ if(!class_exists('SUPER_Stripe')) :
             // Dashboard Page
             add_submenu_page(
                 'super_forms', 
-                esc_html__( 'Stripe', 'super-forms' ), 
-                '<span class="super-stripe-icon" style="' . $styles . '"></span>' . esc_html__( 'Stripe', 'super-forms' ) . $count,
+                'Stripe',
+                '<span class="super-stripe-icon" style="' . $styles . '"></span>Stripe' . $count,
                 'manage_options', 
                 'super_stripe_dashboard', 
                 'SUPER_Stripe::stripe_dashboard'
@@ -4244,17 +4242,6 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
             $result .= '</div>';
             return $result;                 
-        }
-
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
 

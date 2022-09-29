@@ -158,8 +158,6 @@ if( !class_exists('SUPER_Calculator') ) :
         */
         private function init_hooks() {
             
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-            
             // Filters since 1.0.0
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_calculator_element' ), 10, 2 );
             
@@ -192,18 +190,6 @@ if( !class_exists('SUPER_Calculator') ) :
         }
 
 
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
-        }
-
-        
         /**
          * Hook into common attributes and add return_age attribute for date element
          *

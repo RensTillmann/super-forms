@@ -158,8 +158,6 @@ if( !class_exists('SUPER_Popup') ) :
         */
         private function init_hooks() {
             
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-            
             add_shortcode( 'super-popup', array( $this, 'popup_shortcode_func' ) );
             add_action( 'wp_ajax_super_set_popup_expire_cookie', array( $this, 'set_popup_expire_cookie' ) ); 
             add_action( 'wp_ajax_nopriv_super_set_popup_expire_cookie', array( $this, 'set_popup_expire_cookie' ) ); 
@@ -187,18 +185,6 @@ if( !class_exists('SUPER_Popup') ) :
             
         }
 
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
-        }
-        
 
         /**
          * Enqueue scripts for each admin page

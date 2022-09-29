@@ -137,8 +137,6 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
         */
         private function init_hooks() {
             
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-            
             // Filters since 1.2.2
             add_filter( 'super_redirect_url_filter', array( $this, 'redirect_to_post' ), 10, 2 );
             
@@ -159,18 +157,6 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
         }
 
 
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
-        }
-        
-        
         /**
          * Redirect to newly created Post
          * 
@@ -1217,7 +1203,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     ),
                     'frontend_posting_product_attributes' => array(
                         'name' => esc_html__( 'Save product attributes', 'super-forms' ),
-                        'label' => sprintf( esc_html__( 'Enter the attributes that needs to be saved for this product%1$sPut each attribute category on a new line separated by pipes \"|\".%1$s%1$sDefine your values like so:%3$s Attribute Slug|Attribute value|Visible|Variation|Taxonomys%1$s%2$sExample with tags:%3$s colors|{color}|1|1|1%1$s%2$sExample without tags:%3$s colors|red,green,yellow|1|1|1%1$s%2$sAllowed values:%3$s string|string|integer|integer|integer', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'label' => sprintf( esc_html__( 'Enter the attributes that needs to be saved for this product. Put each attribute category on a new line separated by pipes \"|\". Define your values like so:%3$sAttribute Slug|Attribute value|Visible|Variation|Taxonomys%3$sExample with tags:%3$s%1$s%4$s%2$s%3$sExample without tags:%3$s%1$s%4$s%2$s%3$sAllowed values:%3$s%1$s%4$s%2$s%3$s', 'super-forms' ), '<strong style="color:red;">', '</strong>', '<br />', 'colors|{color}|1|1|1', 'colors|red,green,yellow|1|1|1', 'string|string|integer|integer|integer' ),
                         'desc' => esc_html__( 'Based on your form fields you can save product attributes', 'super-forms' ),
                         'type' => 'textarea',
                         'default' =>  "color|{color}|1|1|1",
