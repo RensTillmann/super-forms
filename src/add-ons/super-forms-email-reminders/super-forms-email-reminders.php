@@ -139,8 +139,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
         */
         private function init_hooks() {
             
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-
             // Setup reminders cron job
             if ( ! wp_next_scheduled( 'super_cron_reminders' ) ) {
                 wp_schedule_event( time(), 'every_minute', 'super_cron_reminders' );
@@ -163,17 +161,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 add_action( 'super_before_email_success_msg_action', array( $this, 'set_reminder' ) );
             }
 
-        }
-
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
 

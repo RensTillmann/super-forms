@@ -2568,7 +2568,7 @@ class SUPER_Settings {
             'fields' => array(
                 'font_google_fonts' => array(
                     'name' => esc_html__( 'Import fonts via URL (put each on a new line)', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'Click %shere%s to search for google fonts%sCopy past the URL e.g:%shttps://fonts.googleapis.com/css?family=Raleway', 'super-forms' ), '<a target="_blank" href="https://fonts.google.com/">', '</a>', '<br />', '<br />' ),
+                    'label' => sprintf( esc_html__( '%sSearch for Google fonts%s, then Copy Paste the URL e.g:%s%s', 'super-forms' ), '<a target="_blank" href="https://fonts.google.com/">', '</a>', '<br />', 'https://fonts.googleapis.com/css?family=Raleway' ),
                     'default' =>  '',
                     'type' => 'textarea',
                 ),

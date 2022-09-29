@@ -137,8 +137,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
         */
         private function init_hooks() {
 
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-            
             // Filters since 1.0.0
             add_filter( 'super_after_contact_entry_data_filter', array( $this, 'add_entry_order_link' ), 10, 2 );
             add_action( 'woocommerce_admin_order_data_after_order_details', array( $this, 'add_contact_entry_link_to_order' ) );
@@ -465,17 +463,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 );
             }
             return false;
-        }
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
         }
 
 
@@ -1765,7 +1752,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     ),
                     'woocommerce_checkout_products' => array(
                         'name' => esc_html__( 'Enter the product(s) ID that needs to be added to the cart', 'super-forms' ) . '<br />',
-                        'label' => esc_html__( 'Put each on a new line, {tags} can be used to retrieve data', 'super-forms' ) . '.<br />' . sprintf( esc_html__( 'If field is inside dynamic column, system will automatically add all the products. Put each product ID with it\'s quantity on a new line separated by pipes "|".%1$s%2$sExample with tags:%3$s {id}|{quantity}%1$s%2$sExample without tags:%3$s 82921|3%1$s%2$sExample with variations:%3$s {id}|{quantity}|{variation_id}%1$s%2$sExample with dynamic pricing:%3$s {id}|{quantity}|none|{price}%1$s%2$sAllowed values:%3$s integer|integer|integer|float%1$s(dynamic pricing requires %4$sWooCommerce Name Your Price add-on%5$s).', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a target="_blank" href="https://woocommerce.com/products/name-your-price/">', '</a>' ),
+                        'label' => sprintf( esc_html__( 'Put each on a new line, {tags} can be used to retrieve data.%3$sIf field is inside dynamic column, system will automatically add all the products. Put each product ID with it\'s quantity on a new line separated by pipes "|".%3$sExample with tags:%3$s%1$s%4$s%2$s%3$sExample without tags:%3$s%1$s%5$s%2$s%3$sExample with variations:%3$s%1$s%6$s%2$s%3$sExample with dynamic pricing:%3$s%1$s%7$s%2$s%3$sAllowed values:%3$s%1$s%8$s%2$s%3$s(dynamic pricing requires %9$sWooCommerce Name Your Price%10$s add-on).', 'super-forms' ), '<strong style="color:red;">', '</strong>', '<br />', '{product_id}|{cart_qty}', '82921|3', '{product_id}|{cart_qty}|{variation_id}', '{product_id}|{cart_qty}|none|{price}', 'integer|integer|integer|float', '<a target="_blank" href="https://woocommerce.com/products/name-your-price/">', '</a>'),
                         'type' => 'textarea',
                         'default' =>  "{id}|{quantity}|none|{price}",
                         'filter' => true,
@@ -1816,7 +1803,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     // @since 1.2.2 - add custom checkout fields to checkout page
                     'woocommerce_checkout_fields' => array(
                         'name' => esc_html__( 'Add custom checkout field(s)', 'super-forms' ) . '<br />',
-                        'label' => esc_html__( 'Leave blank for no custom fields', 'super-forms' ) . '<br />' . esc_html__( 'Put each field on a new line with field options separated by pipes "|".', 'super-forms' ) . '<br />' . sprintf( esc_html__( 'Example:%1$sbilling_custom|{billing_custom}|Billing custom|This is a custom field|text|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green%1$s%2$sAvailable field options:%3$s%1$s%2$sname%3$s - the field name%1$s%2$svalue%3$s - the field value ({tags} can be used here)%1$s%2$slabel%3$s – label for the input field%1$s%2$splaceholder%3$s – placeholder for the input%1$s%2$stype%3$s – type of field (text, textarea, password, select)%1$s%2$ssection%3$s - billing, shipping, account, order%1$s%2$srequired%3$s – true or false, whether or not the field is require%1$s%2$sclear%3$s – true or false, applies a clear fix to the field/label%1$s%2$sclass%3$s – class for the input%1$s%2$slabel_class%3$s – class for the label element%1$s%2$soptions%3$s – for select boxes, array of options (key => value pairs)', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                        'label' => sprintf( esc_html__( 'Leave blank for no custom fields. Put each field on a new line with field options separated by pipes "|".%3$sFormat:%3$s%1$s%4$s%2$s%3$sExample with tags:%3$s%1$s%4$s%2$s%3$sOptions:%3$s%6$s - the field name%3$s%7$s - the field value ({tags} can be used here)%3$s%8$s - label for the input field%3$s%9$s - placeholder for the input%3$s%10$s - type of field (text, textarea, password, select)%3$s%11$s - billing, shipping, account, order%3$s%12$s - true or false, whether or not the field is required%3$s%13$s - true or false, applies a clear fix to the field/label%3$s%14$s - class for the input%3$s%15$s - class for the label element%3$s%16$s - for select boxes, array of options (key => value pairs)', 'super-forms' ), '<strong style="color:red;">', '</strong>', '<br />', 'name|value|label|placeholder|type|section|required|clear|class|label_class|options', 'billing_custom|{billing_custom}|Billing custom|This is a custom field|select|billing|true|true|super-billing-custom|super-billing-custom-label|red,Red;blue,Blue;green,Green', 'name', 'value', 'label', 'placeholder', 'type', 'section', 'required', 'clear', 'class', 'label_class', 'options' ),
                         'type' => 'textarea',
                         'default' =>  "",
                         'filter' => true,

@@ -138,8 +138,6 @@ if( !class_exists('SUPER_Password_Protect') ) :
         */
         private function init_hooks() {
             
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
-            
             if ( $this->is_request( 'frontend' ) ) {
                 add_filter( 'super_form_before_do_shortcode_filter', array( $this, 'hide_form' ), 10, 2 );
                 add_filter( 'super_form_before_first_form_element_filter', array( $this, 'locked_msg' ), 10, 2 );
@@ -155,18 +153,6 @@ if( !class_exists('SUPER_Password_Protect') ) :
             
         }
 
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
-        }
-        
 
         /**
          * Hook into before sending email and do password protect check

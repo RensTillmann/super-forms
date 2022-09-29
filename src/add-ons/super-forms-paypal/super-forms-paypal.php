@@ -171,7 +171,6 @@ if( !class_exists('SUPER_PayPal') ) :
 		 */
 		private function init_hooks(){
 			
-            add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
 			add_action( 'init', array( $this, 'set_payment_statuses' ), 0 );
 
 			add_filter( 'super_after_contact_entry_data_filter', array( $this, 'add_entry_order_link' ), 10, 2 );
@@ -208,18 +207,6 @@ if( !class_exists('SUPER_PayPal') ) :
 
 		}
 
-
-        /**
-         * Load Localisation files.
-         * Note: the first-loaded translation file overrides any following ones if the same translation is present.
-         */
-        public function load_plugin_textdomain() {
-            $locale = apply_filters( 'plugin_locale', get_locale(), 'super-forms' );
-
-            load_textdomain( 'super-forms', WP_LANG_DIR . '/super-forms-' . $this->add_on_slug . '/super-forms-' . $this->add_on_slug . '-' . $locale . '.mo' );
-            load_plugin_textdomain( 'super-forms', false, plugin_basename( dirname( __FILE__ ) ) . '/i18n/languages' );
-        }
-        
 
 		public function set_payment_statuses(){
 			self::$paypal_payment_statuses = array(

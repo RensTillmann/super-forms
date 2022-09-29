@@ -620,6 +620,15 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request( &$wp ) {
+            if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
+                // Retry URL (from async failed email)
+                SUPER_Stripe::setAppInfo();
+                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
+                $submissionInfo = get_option( 'sfsi_' . $s['metadata']['sfsi_id'], array() );
+                $checkout_session = \Stripe\Checkout\Session::create($submissionInfo['stripeData']);
+                wp_redirect($checkout_session->url);
+                exit;
+            }
             if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
                 // Cancel URL
                 error_log('Returned from Stripe Checkout session via cancel URL');
@@ -673,6 +682,7 @@ if(!class_exists('SUPER_Forms')) :
                 SUPER_Stripe::setAppInfo();
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
                 $m = $s['metadata'];
+                $submissionInfo = get_option( 'sfsi_' . $m['sfsi_id'], array() );
                 // NOW DO THINGS :) 
                 // "metadata": {
                 //     "super_forms_email_reminders": "[59774]",
@@ -684,7 +694,6 @@ if(!class_exists('SUPER_Forms')) :
                 //     "user_id": "1",
                 //     "entry_id": "59773"
                 // },
-
                 // ...
                 // ...
                 // Now redirect to success URL without checkout session ID parameter
@@ -728,7 +737,7 @@ if(!class_exists('SUPER_Forms')) :
                             error_log('Stripe Session: ' . json_encode($session));
                             // Check if the order is paid (for example, from a card payment)
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
-                            if ($session->payment_status == 'paid') {
+                            if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
                                 // Fulfill the purchase
                                 SUPER_Stripe::fulfillOrder($session);
                             }
@@ -747,39 +756,36 @@ if(!class_exists('SUPER_Forms')) :
                             error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
                             error_log('Send an email to the customer asking them to retry their order');
+                            $to = $session->customer_details->email;
+                            $submissionInfo = get_option( 'sfsi_' . $session->metadata->sfsi_id, array() );
+                            $form_id = $submissionInfo['form_id'];
+                            $data = $submissionInfo['data'];
+                            error_log('form_id: ' . $form_id);
+                            // Get form settings
+                            $settings = SUPER_Common::get_form_settings($form_id);
+                            $s = SUPER_Stripe::get_default_stripe_settings();
+                            if(isset($settings) && isset($settings['_stripe'])){
+                                $s = array_merge($s, $settings['_stripe']);
+                            }
                             // Send an email to the customer asking them to retry their order
+                            $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
+                            $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
+                            $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
+                            // Replace tag {stripe_retry_payment_url} with URL
                             $domain = home_url(); // e.g: 'http://domain.com';
                             $home_url = trailingslashit($domain);
                             $retryUrl = $home_url . 'sfssid/retry/' . $session->id; //{CHECKOUT_SESSION_ID}';
                             error_log('retry URL: ' . $retryUrl);
-                            $to = $session->customer_details->email;
-
-                            $form_id = $session->metadata->form_id;
-                            error_log('form_id test: ' . $form_id);
-
-                            $data = get_option( 'super_stripe_submission_data_' . $form_id . '_' . $session->id );
-                            $settings = get_option( 'super_stripe_form_settings_' . $form_id . '_' . $session->id );
-                            $s = SUPER_Stripe::get_default_stripe_settings();
-                            error_log('1: ' . json_encode($s));
-                            if(isset($settings) && isset($settings['_stripe'])){
-                                $s = array_merge( $s, $settings['_stripe'] );
-                                error_log('2: ' . json_encode($s));
-                            }
-                            $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
-                            $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
-                            // Replace tag {stripe_retry_payment_url} with URL
-                            $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
                             $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
                             if($s['retryPaymentEmail']['lineBreaks']==='true'){
                                 $body = nl2br($body);
                             }
                             $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
-
-                            // email_customer_about_failed_payment($session);
                             if($mail==false){
                                 error_log('Stripe `Payment failed` email could not be send through wp_mail()');
+                                http_response_code(400);
                             }
                             break;
                     }

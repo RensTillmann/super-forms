@@ -409,6 +409,7 @@ class SUPER_Common {
 
     public static function reset_setting_icons($v){
         $html  = '<div class="super-reset-settings-buttons">';
+        if(!isset($v['default'])) $v['default'] = ''; // $v['default'];
         if(!isset($v['v'])) $v['v'] = ''; // $v['default'];
         if(!isset($v['g'])) $v['g'] = ''; // $v['default'];
         if($v['default']==='_reset_'){
