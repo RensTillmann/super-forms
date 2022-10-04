@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Oct 03, 2022 - Version 6.3.640
+
+- **Added:** Extra tags to retrieve date names for datepicker element: `{date;day_name}`, `{date;day_name_short}`, `{date;day_name_shortest}`, `{date;day_of_week}`. This way you can display specific time slots based on a specific week day
+
 ## Sep 24, 2022 - Version 6.3.630
 
 - **Added:** Filter logic option `Exact match` for autosuggest feature to filter exact `Label` value for an item
@@ -31,7 +35,7 @@
 - **Fix:** When storing client data make sure the generate ID does not exceed 64 characters in length, due to WordPress options table > `option_name varchar(64)` limit
 - **Fix:** `Calculator` element should not replace tags starting with `option_` with custom predefined values, instead if a user has a field named `option_radio` it should grab that value, and not try to grab the option value from the DB table
 - **Fix:** When using Dynamic Column the `%d` parameter wouldn't be replaced with the current column number correctly for the E-mail label/Entry Label setting
-- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
+- **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand separator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
 - **Fix:** PHP notices/errors
 
 ## Jun 21, 2022 - Version 6.3.305
@@ -97,7 +101,7 @@
 - **Added:** Option to disable CSRF check under `Super Forms > Settings > Form Settings > Cross-Site Request Forgery (CSRF) check`. This allows a user to submit the form that was loaded via an iframe from a different origin address
 - **Improved:** Only load Cyrillic text font for PDF Generator if the option to do so is enabled and if Text rendering is enabled, there is no need to load these fonts otherwise
 - **Improved:** Tags/Keyword field improvements
-- **Fix:** If thousand seperator and decimal seperator was set to the same value, set the thousand seperator to an empty value, since it shouldn't be possible to have the same values, it would throw a JS error and prevent the form from loading
+- **Fix:** If thousand separator and decimal separator was set to the same value, set the thousand separator to an empty value, since it shouldn't be possible to have the same values, it would throw a JS error and prevent the form from loading
 - **Fix:** Regenerate nonce for sites that use cache
 - **Fix:** When `editing` is enabled for a `Listings` (Listings Add-on) make sure the styles/scripts are loaded so that normal form functions and styles are applied
 - **Fix:** Validate requests made to switch form language by using a custom nonce system
@@ -237,7 +241,7 @@
 - **Added:** New `Retrieve method` called `Current Page or Post terms` for dropdown, radio, checkboxes to retrieve specific taxonomy terms based on the current page/post the form is on
 - **Added:** Predefined tags `{post_term_names_****}`, `{post_term_slugs_****}`, `{post_term_ids_****}`. This way you can retrieve specific terms based on taxonomy. For instance to retrieve category names of a post you could use `{post_term_names_category}`
 - **Added:** When `Prevent submitting form when entry title already exists` is enabled there is an extra option called `Also compare against trashed contact entries` which allows you to also check against possible trashed contact entries
-- **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator via `Advanced` tab
+- **Added:** `Calculator Add-on` option to use space for Decimal and Thousand separator via `Advanced` tab
 - **Improved:** Add missing escaped attributes
 - **Fix:** PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated 
 - **Fix:** When using google address autocomplete field, the value was not being displayed on the entry page in the back-end `Super Forms > Contact Entry`
@@ -1292,7 +1296,7 @@ and Contact Entry
 - **Fixed:** datepicker not showing because of timepicker undefined bug
 - **Fixed:** bug with max / min selection for dropdown and checkboxes
 - **Fixed:** multi-part validation trying to submit the form if no errors where found in the mulit-part
-- **Fixed:** Slider field thousand seperator
+- **Fixed:** Slider field thousand separator
 - **Improved:** A better mobile user friendly datepicker
 - **Improved:** A better overall mobile user friendly experience
 - **Changed:** When checkbox has set a maximum don't show an error to users after selecting to many items, instead disable selecting items

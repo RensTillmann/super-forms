@@ -3501,7 +3501,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "Définissez un prix comme valeur flottante (seul le point est accepté comme "
 "séparateur décimal)"
@@ -11041,7 +11041,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "Séparez chaque taux par une virgule. Vous pouvez gérer et créer des taux "

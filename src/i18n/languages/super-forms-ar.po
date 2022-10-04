@@ -3379,7 +3379,7 @@ msgstr "حدد عرضًا مخصصًا للمقسم. استخدم قيمة ال�
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr "تحديد السعر كقيمة عائمة (يتم قبول النقطة فقط كفاصل عشري)"
 
 #: add-ons/super-forms-email-reminders/super-forms-email-reminders.php:559
@@ -10613,7 +10613,7 @@ msgstr "فصل كل حالة منشور بفاصلة ، أدخل \"أي\" لجم
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "افصل بين كل معدل بفاصلة. يمكنك إدارة وإنشاء معدلات الضرائب في شريط% s لوحة "

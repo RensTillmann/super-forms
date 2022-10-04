@@ -1203,7 +1203,6 @@
                 if (payload.wp_user_info) {
                     html = app.ui.templates.connectedUser(payload.wp_user_info);
                 } else {
-                    console.log('test2');
                     html = app.ui.templates.userfilter(payload);
                 }
                 column.innerHTML = html;
@@ -1266,7 +1265,6 @@
                 if (payload.wp_user_info) {
                     html = app.ui.templates.connectedUser(payload.wp_user_info);
                 } else {
-                    console.log('test2');
                     html = app.ui.templates.userfilter(payload);
                 }
                 column.innerHTML = html;
@@ -1549,7 +1547,6 @@
                             if (payload.length === 0) {
                                 // Close filter menu and reset
                                 app.ui.filterMenu.remove();
-                                console.log('test1', data);
                                 html = app.ui.templates.userfilter(payload);
                             } else {
                                 // Close filter menu and add wp user as connected user
@@ -1662,7 +1659,6 @@
     var removeLoader = setInterval(function () {
         var total = app.qa('.super-stripe-tabs-content > div').length;
         var found = app.qa('.super-stripe-tabs-content > .super-initialized').length;
-        console.log('test1 interval', total, found);
         if (total > 0 && total == found) {
             app.removeClass(app.qa('.super-stripe-dashboard'), 'super-loading');
             clearInterval(removeLoader);

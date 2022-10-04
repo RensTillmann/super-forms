@@ -1516,7 +1516,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     if( class_exists('WC_Name_Your_Price_Helpers') ) {
                         $posted_nyp_field = 'nyp' . apply_filters( 'nyp_field_prefix', '', $v['id'] );
-                        // Make sure we set the correct price format for Name Your Price based on the defined WooCommerce thousand/decimal seperator and decimal separators
+                        // Make sure we set the correct price format for Name Your Price based on the defined WooCommerce thousand/decimal separator and decimal separators
                         $price = (float) $v['price']; // Convert to float to avoid issues on PHP 8.
                         $negative = $price < 0;
                         $price = $v['price'];

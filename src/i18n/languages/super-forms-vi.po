@@ -3433,7 +3433,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "Xác định giá dưới dạng giá trị thực (chỉ có dấu chấm được chấp nhận làm dấu "
 "phân tách thập phân)"
@@ -10798,7 +10798,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "Phân tách từng tỷ lệ bằng dấu phẩy. Bạn có thể quản lý và tạo Thuế suất "

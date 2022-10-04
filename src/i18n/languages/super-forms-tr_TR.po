@@ -3425,7 +3425,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "Bir fiyatı kayan değer olarak tanımlayın (ondalık ayırıcı olarak yalnızca "
 "nokta kabul edilir)"
@@ -10791,7 +10791,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "Her oranı virgülle ayırın. Şerit %sDashboard%s aracılığıyla Vergi Oranlarını "

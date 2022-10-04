@@ -1903,7 +1903,7 @@ function SUPERreCaptcha(){
     // @since 5.0.120 Filter foreach() statements
     SUPER.filter_foreach_statements = function($htmlElement, $counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
         // Before we continue replace any foreach(file_upload_fieldname)
-        var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+        var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
         var m;
         var $originalHtml = $html;
         var replaceTagsWithValue = {};
@@ -2072,7 +2072,7 @@ function SUPERreCaptcha(){
         var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
             var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
-            var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+            var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
             var m;
             $row = $original;
             var replaceTagsWithValue = {};
@@ -2432,6 +2432,7 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
+        debugger;
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.value !== 'undefined' && args.bwc){
             // If field name is empty do nothing
@@ -2440,6 +2441,7 @@ function SUPERreCaptcha(){
             if(args.value.indexOf('{')===-1) args.value = '{'+args.value+'}';   
         }
         // First check if tag exists
+        debugger;
         if(args.value==='' || typeof args.value==='undefined') return '';
         var indexMapping = args.value;
         var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
@@ -2730,7 +2732,7 @@ function SUPERreCaptcha(){
                         if($parent.classList.contains('super-hidden')){
                             if($parent.dataset.conditionalVariableAction=='enabled'){
                                 $text_field = false;
-                                // Check contains semicolon as seperator, but also check if it doesn't contain a double quote,
+                                // Check contains semicolon as separator, but also check if it doesn't contain a double quote,
                                 // because this would indicate that the user is trying to create a serialized array,
                                 // to update for instance meta data for a third party plugin
                                 if($element.value.indexOf('"')!==-1){
@@ -2834,35 +2836,24 @@ function SUPERreCaptcha(){
 
                         // Check if datepicker field
                         if($parent.classList.contains('super-date')){
+                            debugger;
                             $text_field = false;
                             $value = $element.value;
-                            if($value_n === 'day' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
-                                if($value_n === 'day'){
-                                    $value = ($element.getAttribute('data-math-day')) ? parseFloat($element.getAttribute('data-math-day')) : 0;
-                                }
-                                if($value_n === 'month'){
-                                    $value = ($element.getAttribute('data-math-month')) ? parseFloat($element.getAttribute('data-math-month')) : 0;
-                                }
-                                if($value_n === 'year'){
-                                    $value = ($element.getAttribute('data-math-year')) ? parseFloat($element.getAttribute('data-math-year')) : 0;
-                                }
-                                if($value_n === 'timestamp'){
-                                    $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
-                                }
+                            if($value_n === 'day' || $value_n === 'day_of_week' || $value_n === 'day_name' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
+                                if($value_n === 'day') $value = ($element.getAttribute('data-math-day')) ? parseFloat($element.getAttribute('data-math-day')) : 0;
+                                if($value_n === 'day_of_week') $value = ($element.getAttribute('data-math-dayw')) ? parseFloat($element.getAttribute('data-math-dayw')) : 0;
+                                if($value_n === 'day_name') $value = ($element.getAttribute('data-math-dayn')) ? $element.getAttribute('data-math-dayn') : '';
+                                if($value_n === 'day_name_short') $value = ($element.getAttribute('data-math-dayns')) ? $element.getAttribute('data-math-dayns') : '';
+                                if($value_n === 'day_name_shortest') $value = ($element.getAttribute('data-math-daynss')) ? $element.getAttribute('data-math-daynss') : '';
+                                if($value_n === 'month') $value = ($element.getAttribute('data-math-month')) ? parseFloat($element.getAttribute('data-math-month')) : 0;
+                                if($value_n === 'year') $value = ($element.getAttribute('data-math-year')) ? parseFloat($element.getAttribute('data-math-year')) : 0;
+                                if($value_n === 'timestamp') $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
                             }else{
-                                if($element.getAttribute('data-return_age')=='true'){
-                                    $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
-                                }
+                                if($element.getAttribute('data-return_age')=='true') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
                                 // @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-                                if($element.getAttribute('data-date-math')=='years'){
-                                    $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
-                                }
-                                if($element.getAttribute('data-date-math')=='months'){
-                                    $value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
-                                }
-                                if($element.getAttribute('data-date-math')=='days'){
-                                    $value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
-                                }
+                                if($element.getAttribute('data-date-math')=='years') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
+                                if($element.getAttribute('data-date-math')=='months') $value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
+                                if($element.getAttribute('data-date-math')=='days') $value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
                             }
                         }
 
@@ -5579,6 +5570,7 @@ function SUPERreCaptcha(){
     // Replace HTML element {tags} with field values
     // @since 1.2.7
     SUPER.init_replace_html_tags = function(args){
+        debugger;
         var originalFormReference,
             decodeHtml,
             $i,
@@ -5628,6 +5620,7 @@ function SUPERreCaptcha(){
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
         Object.keys($html_fields).forEach(function(key) {
+            debugger;
             var $counter = 0;
             $target = $html_fields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
@@ -5666,7 +5659,7 @@ function SUPERreCaptcha(){
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
-            $regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([a-zA-Z0-9]{1,}))?(}|\):)/g;
+            $regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([-_a-zA-Z0-9]{1,}))?(}|\):)/g;
             // If it has {tags} then continue
             var m;
             var replaceTagsWithValue = {};
@@ -5693,6 +5686,7 @@ function SUPERreCaptcha(){
                 $values = $n+$d+$s;
                 args.value = '{'+$values+'}'; //values[1];
                 args.target = $target;
+                debugger;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
                 delete args.target;
                 if(decodeHtml){
@@ -7119,9 +7113,12 @@ function SUPERreCaptcha(){
         
         //SUPER.handle_columns();
         var $handle_columns_interval = setInterval(function(){
-            if(($('.super-form').length != $('.super-form.super-rendered').length) || ($('.super-form').length===0)){
+            console.log('test3');
+            if(($('.super-form:not(.super-preview-elements)').length != $('.super-form.super-rendered').length) || ($('.super-form:not(.super-preview-elements)').length===0)){
+                console.log('test4');
                 SUPER.handle_columns();
             }else{
+                console.log('test5');
                 clearInterval($handle_columns_interval);
             }
         }, 0);

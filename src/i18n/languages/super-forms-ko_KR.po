@@ -3304,7 +3304,7 @@ msgstr "구분선의 사용자 지정 너비를 정의합니다. 픽셀 값을 �
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr "가격을 부동 소수점 값으로 정의합니다(점만 소수점 구분 기호로 허용됨)."
 
 #: add-ons/super-forms-email-reminders/super-forms-email-reminders.php:559
@@ -10410,7 +10410,7 @@ msgstr "각 게시물 상태를 쉼표로 구분하고 모든 게시물 상태�
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr "각 요율을 쉼표로 구분합니다. Stripe %s대시보드%s를 통해 세율을 관리하고 생성할 수 있습니다."
 

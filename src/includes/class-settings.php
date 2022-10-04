@@ -164,7 +164,7 @@ class SUPER_Settings {
                 ),
                 'header_from_type' => array(
                     'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
+                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
                     'default' => 'default',
                     'type'=>'select',
                     'values'=>array(
@@ -234,25 +234,28 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'email_body_open' => array(
-                    'name' => esc_html__( 'Body header:', 'super-forms' ),
-                    'label' => esc_html__( 'This content will be placed before the body content of the email.', 'super-forms' ),
-                    'default' =>  esc_html__( 'The following information has been send by the submitter:', 'super-forms'  ),
+                'email_body' => array(
+                    'name' => esc_html__( 'Body content:', 'super-forms' ),
+                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
+                    'default' => sprintf( esc_html__( "The following information has been send by the submitter:\n\n%s\n\nBest regards, %s", 'super-forms' ), '<table cellpadding="5">{loop_fields}</table>', '{option_blogname}' ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'email_body' => array(
-                    'name' => esc_html__( 'Body content:', 'super-forms' ),
-                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' =>  '<table cellpadding="5">{loop_fields}</table>',
-                    'type'=>'textarea',
+                // @since 3.1.0 - auto line breaks
+                'email_body_nl2br' => array(
+                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
+                    'label' => esc_html__( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
+                    'default' =>  'true',
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                    ),
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
-                    'i18n'=>true
                 ),
                 'email_loop' => array(
                     'name' => esc_html__( 'Field Loop:', 'super-forms' ),
@@ -263,16 +266,6 @@ class SUPER_Settings {
                     'parent'=>'send',
                     'filter_value'=>'yes',
                 ),
-                'email_body_close' => array(
-                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
-                    'label' => esc_html__( 'This content will be placed after the body content of the email.', 'super-forms' ),
-                    'default' =>  esc_html__( "Best regards, {option_blogname}", "super-forms"  ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
                 // @since 4.5.0 - exclude empty values from email loop
                 'email_exclude_empty' => array(
                     'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
@@ -281,19 +274,6 @@ class SUPER_Settings {
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                // @since 3.1.0 - auto line breaks
-                'email_body_nl2br' => array(
-                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
-                    'label' => esc_html__( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
-                    'default' =>  'true',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
                     ),
                     'filter'=>true,
                     'parent'=>'send',
@@ -375,7 +355,7 @@ class SUPER_Settings {
                 ),
                 'confirm_from_type' => array(
                     'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
+                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
                     'default' =>  'default',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -443,25 +423,28 @@ class SUPER_Settings {
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'confirm_body_open' => array(
-                    'name' => esc_html__( 'Body header:', 'super-forms' ),
-                    'label' => esc_html__( 'This content will be placed before the confirmation email body.', 'super-forms' ),
-                    'default' =>  esc_html__( "Dear user,\n\nThank you for contacting us!", "super-forms"  ),
+                'confirm_body' => array(
+                    'name' => esc_html__( 'Body content:', 'super-forms' ),
+                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
+                    'default' => sprintf( esc_html__( "Dear user,\n\nThank you for contacting us!\n\n%s\n\nWe will reply within 48 hours.\n\nBest Regards, %s"), '<table cellpadding="5">{loop_fields}</table>', '{option_blogname}' ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',
                     'filter_value'=>'yes',
                     'i18n'=>true
                 ),
-                'confirm_body' => array(
-                    'name' => esc_html__( 'Body content:', 'super-forms' ),
-                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' =>  '<table cellpadding="5">{loop_fields}</table>',
-                    'type'=>'textarea',
+                // @since 3.1.0 - auto line breaks
+                'confirm_body_nl2br' => array(
+                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
+                    'label' => esc_html__( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
+                    'default' =>  'true',
+                    'type' => 'checkbox',
+                    'values' => array(
+                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                    ),
                     'filter'=>true,
                     'parent'=>'confirm',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
+                    'filter_value'=>'yes'
                 ),
                 'confirm_email_loop' => array(
                     'name' => esc_html__( 'Field Loop:', 'super-forms' ),
@@ -472,16 +455,6 @@ class SUPER_Settings {
                     'parent'=>'confirm',
                     'filter_value'=>'yes'
                 ),
-                'confirm_body_close' => array(
-                    'name' => esc_html__( 'Body footer:', 'super-forms' ),
-                    'label' => esc_html__( 'This content will be placed after the confirmation email body.', 'super-forms' ),
-                    'default' =>  esc_html__( "We will reply within 48 hours.\n\nBest Regards, {option_blogname}", "super-forms"  ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
                 // @since 4.5.0 - exclude empty values from email loop
                 'confirm_exclude_empty' => array(
                     'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
@@ -490,19 +463,6 @@ class SUPER_Settings {
                     'type' => 'checkbox',
                     'values' => array(
                         'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                // @since 3.1.0 - auto line breaks
-                'confirm_body_nl2br' => array(
-                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
-                    'label' => esc_html__( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
-                    'default' =>  'true',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
                     ),
                     'filter'=>true,
                     'parent'=>'confirm',

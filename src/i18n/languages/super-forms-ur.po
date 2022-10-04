@@ -3395,7 +3395,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "قیمت کو فلوٹ ویلیو کے طور پر بیان کریں (صرف ڈاٹ کو ڈیسیمل سیپریٹر کے طور پر "
 "قبول کیا جاتا ہے)"
@@ -10728,7 +10728,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "ہر شرح کو کوما سے الگ کریں۔ آپ اسٹرائپ %s ڈیش بورڈ%s کے ذریعے ٹیکس کی شرحوں "

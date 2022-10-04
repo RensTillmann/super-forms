@@ -3394,7 +3394,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "Definujte cenu jako plovoucí hodnotu (jako oddělovač desetinných míst je "
 "přijímána pouze tečka)"
@@ -10749,7 +10749,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "Jednotlivé sazby oddělte čárkou. Daňové sazby můžete spravovat a vytvářet "

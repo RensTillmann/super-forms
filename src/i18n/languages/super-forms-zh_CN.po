@@ -3298,7 +3298,7 @@ msgstr "定义分隔线的自定义宽度。使用像素值。例如：150px"
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr "将价格定义为浮点值（仅接受点作为小数分隔符）"
 
 #: add-ons/super-forms-email-reminders/super-forms-email-reminders.php:559
@@ -10370,7 +10370,7 @@ msgstr "用逗号分隔每个帖子状态，为所有帖子状态输入“ any�
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr "用逗号分隔每个速率。您可以通过 Stripe %sDashboard%s 管理和创建税率。"
 
