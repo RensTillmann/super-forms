@@ -6027,7 +6027,7 @@ class SUPER_Shortcodes {
         $result = '';
         $result .= SUPER_Common::load_google_fonts($settings);
         if(!$elements_only){
-            $result .= '<style type="text/css">.super-form:not(.super-initialized) *:not(.super-load-icon) { visibility: hidden !important; }</style>';
+            $result .= '<style type="text/css">.super-form:not(.super-initialized,.super-preview-elements) *:not(.super-load-icon) { visibility: hidden !important; }</style>';
             $result .= '<div id="super-form-' . $form_id . '" '; 
             $result .= $styles;
             $result .= 'class="super-form ';

@@ -3453,7 +3453,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "ஒரு விலையை மிதவை மதிப்பாக வரையறுக்கவும் (புள்ளி மட்டுமே தசம பிரிப்பானாக "
 "ஏற்றுக்கொள்ளப்படும்)"
@@ -10908,7 +10908,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "ஒவ்வொரு விகிதத்தையும் கமாவால் பிரிக்கவும். நீங்கள் ஸ்ட்ரைப் %sDashboard%s "

@@ -102,22 +102,16 @@
 
     // Initialize Stripe Elements
     SUPER.init_stripe_elements = function () {
-        console.log('test1');
-        console.log(SUPER.Stripe.forms);
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
         SUPER.Stripe.forms.forEach(function (form, index) {
-            console.log('test2');
             if (SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element')) {
-                console.log('test3');
                 // Check if not yet initialized
                 if (!SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.contains('super-stripe-initialized')) {
-                    console.log('test4');
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-iban-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
                     SUPER.Stripe.StripesIban[index] = Stripe(super_stripe_i18n.stripe_pk);
                     SUPER.Stripe.elements[index] = SUPER.Stripe.StripesIban[index].elements();
-                    console.log(style);
                     SUPER.Stripe.iban[index] = SUPER.Stripe.elements[index].create('iban', {
                         supportedCountries: ['SEPA'],
                         classes: classes,
@@ -130,10 +124,8 @@
                 }
             }
             if (SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element')) {
-                console.log('test3');
                 // Check if not yet initialized
                 if (!SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.contains('super-stripe-initialized')) {
-                    console.log('test4');
                     // Add initialized class
                     SUPER.Stripe.forms[index].querySelector('.super-stripe-ideal-element').classList.add('super-stripe-initialized');
                     // Create an instance of Elements.
@@ -206,9 +198,7 @@
                 console.log($parent);
                 if (($hidden === true) || (($parent.css('display') == 'none') && (!$parent.hasClass('super-hidden')))) {
                     // Conditionally hidden
-                    console.log('test1');
                 } else {
-                    console.log('test2');
                     // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
                     args.form.data('is-redirecting', 'true');
                     // Make payment intent
@@ -292,9 +282,7 @@
                 console.log($parent);
                 if (($hidden === true) || (($parent.css('display') == 'none') && (!$parent.hasClass('super-hidden')))) {
                     // Conditionally hidden
-                    console.log('test1');
                 } else {
-                    console.log('test2');
                     // First make sure that the form will not hide, otherwise the data would be gone, and stripe won't know the credit card information
                     args.form.data('is-redirecting', 'true');
                     args.form.data('is-doing-things', 'true');
@@ -311,12 +299,9 @@
                         success: function (result) {
                             result = JSON.parse(result);
                             document.location.href = result.redirect;
-                            console.log('test@1');
-                            console.log(result);
                             args.result = result;
                             args.stripe = SUPER.Stripe.StripesIban[index];
                             if (result.stripe_method == 'subscription') {
-                                console.log('test@2');
                                 // requires_confirmation
                                 SUPER.Stripe.StripesIban[index].confirmSepaDebitPayment(result.client_secret, {
                                     payment_method: {
@@ -327,11 +312,9 @@
                                         },
                                     },
                                 }).then(function(result) {
-                                    console.log('test@3');
                                     SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesIban[index]);
                                 });
                             }else{
-                                console.log('test@4');
                                 // Single payment checkout
                                 // Create a charge?
                                 SUPER.Stripe.StripesIban[index].confirmSepaDebitPayment(result.client_secret, {
@@ -381,7 +364,6 @@
                             //             //}
                             //         }
                             //     }).then(function (result) {
-                            //         console.log('test2');
                             //         SUPER.stripe_proceed(result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                             //     });
 
@@ -448,11 +430,7 @@
 
     // Handle error
     SUPER.stripe_proceed = function (args){ //result, $form, $oldHtml, $data, stripe) {
-        console.log('test@5');
-        console.log(args.result);
-        console.log(args.data);
         if (args.result.error) {
-            console.log('test@6');
             // Display error.msg in your UI.
             $('.super-msg').remove();
             var $html = '<div class="super-msg super-error">';
@@ -478,7 +456,6 @@
             return false;
         } else {
             var paymentMethodId = undefined;
-            console.log('test@7');
             // if (typeof result.paymentIntent !== 'undefined') {
             //     paymentMethodId = result.paymentIntent.payment_method; // When SEPA was used
             // }
@@ -547,10 +524,8 @@
                     }
                 });
             } else {
-                console.log('test@10');
                 if (result.paymentIntent.status === 'succeeded' || 
                     result.paymentIntent.status === 'processing') { // `processing` in case of SEPA Debit payments
-                    console.log('test@11');
                     // The payment has succeeded. Display a success message.
                     console.log('The payment has succeeded, show success message3.');
                     $form.data('is-doing-things', ''); // Finish form submission
@@ -561,7 +536,6 @@
 
     // Handle form submission.
     SUPER.stripe_cc_create_payment_method = function (args) { //$form, $data, $oldHtml, $response) {
-        console.log('test2222');
         SUPER.Stripe.forms = document.querySelectorAll('.super-form, .super-preview-elements');
         SUPER.Stripe.forms.forEach(function (form, index) {
             if ((args.form0 == form) && (SUPER.Stripe.forms[index].querySelector('.super-stripe-cc-element'))) {
@@ -584,9 +558,7 @@
                 console.log($parent);
                 if (($hidden === true) || (($parent.css('display') == 'none') && (!$parent.hasClass('super-hidden')))) {
                     // Conditionally hidden
-                    console.log('test1');
                 } else {
-                    console.log('test2');
                     args.form.data('is-redirecting', 'true');
                     args.form.data('is-doing-things', 'true');
                     // Submit form data so that we can prepare for a payment
@@ -640,7 +612,6 @@
                             //    SUPER.Stripe.StripesCc[index].createPaymentMethod($atts).then(function (result) {
                             //        // It will return "paymentMethodId" which is the payment ID e.g: pm_XXXXXXX
                             //        result.metadata = $metadata; // Must add metadata
-                            //        console.log('test1');
                             //        SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                             //    });
                             //} else {
@@ -653,7 +624,6 @@
                             //            }
                             //        }
                             //    }).then(function (result) {
-                            //        console.log('test2');
                             //        SUPER.stripe_proceed(args); //result, $form, $oldHtml, $data, SUPER.Stripe.StripesCc[index]);
                             //    });
                             //}

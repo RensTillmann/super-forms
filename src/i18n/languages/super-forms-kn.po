@@ -3429,7 +3429,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "ಬೆಲೆಯನ್ನು ಫ್ಲೋಟ್ ಮೌಲ್ಯ ಎಂದು ವ್ಯಾಖ್ಯಾನಿಸಿ (ಡಾಟ್ ಅನ್ನು ಮಾತ್ರ ದಶಮಾಂಶ ವಿಭಜಕವಾಗಿ "
 "ಸ್ವೀಕರಿಸಲಾಗುತ್ತದೆ)"
@@ -10818,7 +10818,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "ಪ್ರತಿ ದರವನ್ನು ಅಲ್ಪವಿರಾಮದಿಂದ ಪ್ರತ್ಯೇಕಿಸಿ. ನೀವು ಸ್ಟ್ರೈಪ್ %sDashboard%s ಮೂಲಕ "

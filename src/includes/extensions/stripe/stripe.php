@@ -555,7 +555,7 @@ if(!class_exists('SUPER_Stripe')) :
                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                     echo '<label>';
                                                         echo '<span class="sfui-title">' . esc_html__( 'Unit amount', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Define a price as float value (only dot is accepted as decimal seperator)', 'super-forms' ) . '</span>';
+                                                        echo '<span class="sfui-label">' . esc_html__( 'Define a price as float value (only dot is accepted as decimal separator)', 'super-forms' ) . '</span>';
                                                         echo '<input type="text" name="price_data.unit_amount_decimal" placeholder="e.g: 65.95" value="' . sanitize_text_field($v['price_data']['unit_amount_decimal']) . '" />';
                                                     echo '</label>';
                                                 echo '</div>';
@@ -603,7 +603,7 @@ if(!class_exists('SUPER_Stripe')) :
                                     echo '<div class="sfui-sub-settings sfui-vertical" data-f="custom_tax_rate;true">';
                                         echo '<label>';
                                             echo '<span class="sfui-title">' . esc_html__( 'Tax rates:', 'super-forms' ) . '</span>';
-                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Seperate each rate with a comma. You can manage and create Tax Rates in via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/test/tax-rates">', '</a>' ) . '</span>';
+                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Separate each rate with a comma. You can manage and create Tax Rates in via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/test/tax-rates">', '</a>' ) . '</span>';
                                             echo '<input type="text" name="tax_rates" placeholder="' . esc_html__( 'e.g: txr_1LmUhbFKn7uROhgCwnWwpN9p', 'super-forms' ) . '" value="' . sanitize_text_field($v['tax_rates']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
@@ -1074,7 +1074,7 @@ if(!class_exists('SUPER_Stripe')) :
                     //     '{{TAX_RATE_ID}}',
                     // )
                     'custom_tax_rate' => '',
-                    'tax_rates' => '', // comma seperated list
+                    'tax_rates' => '', // comma separated list
                     //'display_name' => '',
                     //'description' => '',
                     //'inclusive' => 'false',

@@ -275,14 +275,14 @@
             var $format = $(this).data('format');
             var $decimals = $(this).data('decimals');
             var $thousand_separator = $(this).data('thousand-separator');
-            var $decimal_seperator = $(this).data('decimal-separator');
+            var $decimal_separator = $(this).data('decimal-separator');
             $(this).maskMoney({
                 prefix: $currency,
                 suffix: $format,
                 affixesStay: true,
                 allowNegative: true,
                 thousands: $thousand_separator,
-                decimal: $decimal_seperator,
+                decimal: $decimal_separator,
                 precision: $decimals
             });
             if(this.dataset.defaultValue!==''){
@@ -403,6 +403,11 @@
                 $this.dataset.mathMonth = month;
                 $this.dataset.mathDay = day;
                 firstDate = new Date(Date.UTC(year, month-1, day));
+                var dayIndex = firstDate.getDay();
+                $this.dataset.mathDayw = dayIndex;
+                $this.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
+                $this.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
+                $this.dataset.mathDaynss = super_elements_i18n.dayNamesMin[dayIndex]; // super short
                 $this.dataset.mathDiff = firstDate.getTime();
                 $this.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
                 $this.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
@@ -603,6 +608,11 @@
                     el.dataset.mathMonth = month;
                     el.dataset.mathDay = day;
                     firstDate = new Date(Date.UTC(year, month-1, day));
+                    var dayIndex = firstDate.getDay();
+                    el.dataset.mathDayw = dayIndex;
+                    el.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
+                    el.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
+                    el.dataset.mathDaynss = super_elements_i18n.dayNamesMin[dayIndex]; // super short
                     el.dataset.mathDiff = firstDate.getTime();
                     el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
                     el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
@@ -617,6 +627,8 @@
                 el.dataset.mathYear = '0';
                 el.dataset.mathMonth = '0';
                 el.dataset.mathDay = '0';
+                el.dataset.mathDayw = '0';
+                el.dataset.mathDayn = '';
                 el.dataset.mathDiff = '0';
                 el.dataset.mathAge = '0';
             }

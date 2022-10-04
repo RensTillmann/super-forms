@@ -72,10 +72,6 @@
                             <span><?php echo esc_html__( 'Subject', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_header_subject" value="<?php echo esc_html__( 'This mail was send from', 'super-forms' ) . ' ' . $_SERVER["SERVER_NAME"]; ?>" />
                         </div>
-                        <div>
-                            <span><?php echo esc_html__( 'Body header', 'super-forms' ); ?>:</span>
-                            <textarea name="wizard_email_body_open"><?php echo esc_html__( 'The following information has been send by the submitter:', 'super-forms' ); ?></textarea>
-                        </div>
                     </li>
                     <li>
                         <div>
@@ -98,10 +94,6 @@
                         <div>
                             <span><?php echo esc_html__( 'Subject', 'super-forms' ); ?>:</span>
                             <input type="text" name="wizard_confirm_subject" value="<?php echo esc_html__( 'Thank you for contacting us!', 'super-forms' ); ?>" />
-                        </div>
-                        <div>
-                            <span><?php echo esc_html__( 'Body header', 'super-forms' ); ?>:</span>
-                            <textarea name="wizard_confirm_body_open"><?php echo esc_html__( "Dear user,\n\nThank you for contacting us!", "super-forms" ); ?></textarea>
                         </div>
                     </li>
                     <li>
@@ -266,7 +258,7 @@
                     'builder' => esc_html__( 'Builder', 'super-forms' ),
                     'translations' => esc_html__( 'Translations', 'super-forms' ),
                     'secrets' => esc_html__( 'Secrets', 'super-forms' ),
-                    //'triggers' => esc_html__( 'Triggers', 'super-forms' )
+                    'triggers' => esc_html__( 'Triggers', 'super-forms' )
                 );
                 $tabs = apply_filters( 'super_create_form_tabs', $tabs );
                 $tabs['code'] = esc_html__( 'Code', 'super-forms' );
@@ -276,6 +268,7 @@
                     foreach($tabs as $k => $v){
                         echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
                         echo esc_html($v);
+                        if(!is_array($triggers)) $triggers = array();
                         if(!is_array($translations)) $translations = array();
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . current($translations)['flag'] . '" />';
@@ -288,7 +281,19 @@
                         // super_create_form_`code`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
-                        do_action( 'super_create_form_' . $k . '_tab', array( 'form_id'=>$form_id, 'secrets'=>array('local'=>$localSecrets, 'global'=>$globalSecrets), 'translations'=>$translations, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'theme_style'=>$theme_style, 'style_content'=>$style_content ) );
+                        do_action( 'super_create_form_' . $k . '_tab', array( 
+                            'form_id'=>$form_id, 
+                            'secrets'=> array(
+                                'local'=>$localSecrets, 
+                                'global'=>$globalSecrets
+                            ), 
+                            'triggers'=>$triggers, 
+                            'translations'=>$translations, 
+                            'shortcodes'=>$shortcodes, 
+                            'settings'=>$settings, 
+                            'theme_style'=>$theme_style, 
+                            'style_content'=>$style_content
+                        ));
                         echo '</div>';
                         $tabs_content .= ob_get_contents();
                         ob_end_clean();

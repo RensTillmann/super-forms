@@ -3492,7 +3492,7 @@ msgstr "Wählen Sie die Breite des Divider-Elements. Wert in Pixel, z.B. 150px"
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "Definieren Sie einen Preis als Float-Wert (nur Punkt wird als "
 "Dezimaltrennzeichen akzeptiert)"
@@ -11011,7 +11011,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "Trennen Sie jeden Tarif durch ein Komma. Sie können Steuersätze über das "

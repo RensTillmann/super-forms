@@ -3289,7 +3289,7 @@ msgstr "仕切りのカスタム幅を定義します。ピクセル値を使用
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr "価格を float 値として定義します (ドットのみが小数点として受け入れられます)"
 
 #: add-ons/super-forms-email-reminders/super-forms-email-reminders.php:559
@@ -10392,7 +10392,7 @@ msgstr "各投稿ステータスをカンマで区切り、すべての投稿ス
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr "各料金はコンマで区切ります。税率は、Stripe %sDashboard%s から管理および作成できます。"
 

@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.630
+ * Version:           6.3.631
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.630';
+        public $version = '6.3.631';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -732,6 +732,7 @@ if(!class_exists('SUPER_Forms')) :
                     switch ($event->type) {
                         case 'checkout.session.completed':
                             $session = $event->data->object;
+                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('session'=>$session));
                             error_log('status: ' . $session->status); // open, complete, or expired
                             error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
@@ -739,19 +740,26 @@ if(!class_exists('SUPER_Forms')) :
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
                             if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
                                 // Fulfill the purchase
-                                SUPER_Stripe::fulfillOrder($session);
+                                SUPER_Common::triggerEvent('stripe.fulfill_order', array('session' => $session));
+                                //SUPER_Stripe::fulfillOrder($session);
                             }
                             break;
                         case 'checkout.session.async_payment_succeeded':
                             $session = $event->data->object;
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('session'=>$session));
                             error_log('status: ' . $session->status); // open, complete, or expired
                             error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
                             // Fulfill the purchase
-                            SUPER_Stripe::fulfillOrder($session);
+                            SUPER_Common::triggerEvent('stripe.fulfill_order', array('session' => $session));
+                            //SUPER_Stripe::fulfillOrder($session);
                             break;
                         case 'checkout.session.async_payment_failed':
                             $session = $event->data->object;
+                            $submissionInfo = get_option( 'sfsi_' . $session->metadata->sfsi_id, array() );
+                            $form_id = $submissionInfo['form_id'];
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('form_id'=>$form_id,'session'=>$session));
+
                             error_log('status: ' . $session->status); // open, complete, or expired
                             error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
                             error_log('Stripe Session: ' . json_encode($session));
@@ -3120,6 +3128,9 @@ if(!class_exists('SUPER_Forms')) :
                 $elements = json_decode( $elements, true );
             }
             add_post_meta( $new_id, '_super_elements', $elements );
+            
+            $triggers = SUPER_Common::get_form_triggers($id);
+            SUPER_Common::save_form_triggers($triggers, $id);
 
             // @since 4.7.0 - translations
             $translations = SUPER_Common::get_form_translations($id);

@@ -79,7 +79,7 @@ To change these columns you can go to `Super Forms > Settings > Backend Settings
 
 On this section you can define the columns as you wish.
 
-On each line you will define a column by seperating the field name and the column label with a pipe `|` symbol like so:
+On each line you will define a column by separating the field name and the column label with a pipe `|` symbol like so:
 
     first_name|First name
     address|Address

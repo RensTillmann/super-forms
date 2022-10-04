@@ -142,6 +142,9 @@
 /*--------------------
     Super Forms UI - Colors
 ---------------------*/
+.sfui-btn.sfui-blue {
+    background-color: #00b1ff;
+}
 .sfui-btn.sfui-green {
     background-color: #69BA00;
 }

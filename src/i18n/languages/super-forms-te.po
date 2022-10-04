@@ -3422,7 +3422,7 @@ msgstr ""
 
 #: includes/extensions/stripe/stripe.php:558
 msgid ""
-"Define a price as float value (only dot is accepted as decimal seperator)"
+"Define a price as float value (only dot is accepted as decimal separator)"
 msgstr ""
 "ఫ్లోట్ విలువగా ధరను నిర్వచించండి (డిసిమల్ సెపరేటర్‌గా చుక్క మాత్రమే "
 "ఆమోదించబడుతుంది)"
@@ -10815,7 +10815,7 @@ msgstr ""
 #: includes/extensions/stripe/stripe.php:606
 #, php-format
 msgid ""
-"Seperate each rate with a comma. You can manage and create Tax Rates in via "
+"Separate each rate with a comma. You can manage and create Tax Rates in via "
 "the Stripe %sDashboard%s."
 msgstr ""
 "ప్రతి రేటును కామాతో వేరు చేయండి. మీరు స్ట్రిప్ %sDashboard%s ద్వారా పన్ను "

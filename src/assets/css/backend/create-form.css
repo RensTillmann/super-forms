@@ -94,8 +94,10 @@
 .super-tabs > .super-tab-stripe.super-active:after {
     border-left: 8px solid #6156F2;
 }
-
-.super-raw-code-form-elements, .super-raw-code-form-settings, .super-raw-code-translation-settings {
+.super-raw-code-form-elements, 
+.super-raw-code-form-settings, 
+.super-raw-code-trigger-settings,
+.super-raw-code-translation-settings {
     float: left;
     width: 100%;
     margin-bottom: 40px;
@@ -354,6 +356,7 @@
     font-size: 12px;
     width: 70% !important;
     flex-grow: 1;
+    margin: initial;
 }
 
 .super-wizard-settings > .super-tab-content > li > div > textarea {
@@ -2740,15 +2743,16 @@
 .sfui-setting .sfui-notice {
     margin: 10px 0px 0px 0px;
 }
+.sfui-setting > .sfui-notice {
+  margin-top: 0;
+}
 .sfui-info {
     background-color: #ffe694;
     color: #7d6924;
-    font-weight: 600;
 }
 .sfui-success {
     background-color: #d4ffc6;
     color: #538643;
-    font-weight: 600;
 }
 .sfui-desc {
     background-color: #dfeeff;
@@ -2800,6 +2804,9 @@
     padding: 0px 8px 0px 8px;
     margin: 0px 0px 10px 0px;
 }
+.sfui-repeater-item .sfui-setting-group .sfui-setting[data-f] {
+  border-bottom: 0;
+}
 .sfui-repeater-item:hover .sfui-repeater-item:hover {
     border: 1px solid #D8C88C;
     background-color: #fff0ba7d;
@@ -2822,6 +2829,10 @@
 .sfui-sub-settings .sfui-setting {
     border-bottom:0;
 }
+.sfui-setting-group {
+    flex: 1;
+    width: 100%;
+}
 .sfui-setting-group > .sfui-setting {
     border-bottom: 1px solid #d0d0d0;
 }
@@ -2839,12 +2850,23 @@
     margin-left:20px;
     border-left: 1px dashed #00000087;
     border-bottom: 1px dashed #00000087;
-    padding: 0px 0px 10px 10px;
+    padding: 0px 10px 10px 10px;
     margin: 1px 0px 0px 7px;
+}
+.sfui-no-padding {
+    padding: 0!important;
 }
 .sfui-vertical > label {
     flex-direction: column;
     align-items: flex-start;
+}
+.sfui-inline .sfui-width-auto {
+    width: auto;
+    flex: 0 0 auto;
+}
+.sfui-vertical .sfui-width-auto {
+    width: auto;
+    flex: 0 0 auto;
 }
 .sfui-inline {
     display:flex;
@@ -2887,6 +2909,8 @@
 .sfui-repeater-item .sfui-inline .sfui-btn {
     margin: 10px 10px 10px 0px;
 }
+.sfui-setting[data-f]:not(.sfui-active),
+.sfui-conditional-logic-settings:not(.sfui-active),
 .sfui-sub-settings:not(.sfui-active),
 .sfui-setting-group:not(.sfui-active) {
     display:none;
@@ -2897,14 +2921,15 @@
     align-items:center;
     padding:0px 10px 0px 10px;
     background-color:#7F7F7F;
-    flex: 1;
-    flex-grow: 0;
+    flex: 0 0 auto;
 }
 .sfui-btn.sfui-red {
     background-color:#F5234B;
 }
 .sfui-btn.sfui-round {
     border-radius:100%;
+    width: 30px;
+    height: 30px;
 }
 .sfui-setting {
     padding: 5px 0;
@@ -2932,10 +2957,7 @@
   margin: 0 5px 0 10px !important;
 }
 .sfui-setting.sfui-inline > label > select {
-  margin: 0 0 0 5px !important;
-}
-.sfui-sub-settings .sfui-setting {
-  border-bottom: 1px solid #d0d0d0;
+  margin: 0 5px !important;
 }
 .sfui-sub-settings .sfui-setting:last-child {
   border-bottom: 0;
@@ -2953,6 +2975,9 @@
 .sfui-repeater-item {
   padding-left: 0;
 }
+.sfui-repeater-item > .sfui-setting-group.sfui-active {
+  border-top: 1px solid #d0d0d0;
+}
 .sfui-repeater-item .sfui-inline .sfui-setting {
   border-bottom: 0;
 }
@@ -2967,11 +2992,6 @@
   flex-direction: column;
   align-items: flex-start;
 }
-.sfui-setting.sfui-vertical .sfui-setting.sfui-inline {
-  flex-direction: column;
-  align-items: flex-start;
-}
-
 
 .super-forms_page_super_create_form.tox-fullscreen #wpadminbar,
 .super-forms_page_super_create_form.tox-fullscreen #adminmenumain,
@@ -3035,9 +3055,8 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .super-builder .tox-toolbar__group .tox-tbtn .tox-icon {
   transform: scale(0.7);
 }
-
 .sfui-setting .sfui-setting .sfui-setting {
-  padding: 5px 5px 10px 10px !important;
+  padding: 5px 5px 10px 10px;
 }
 .sfui-setting input[type="text"],
 .sfui-setting textarea,
@@ -3049,6 +3068,9 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 }
 .sfui-setting select {
   padding: 0 25px 0 5px !important;
+}
+.sfui-setting .tox.tox-tinymce {
+    width: 100%;
 }
 .super-color-picker-container .super-color-picker-label {
   width: 180px;

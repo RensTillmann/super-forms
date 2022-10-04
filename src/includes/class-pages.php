@@ -203,6 +203,13 @@ class SUPER_Pages {
             echo '</p>';
             echo '<textarea></textarea>';
         echo '</div>';
+        
+        echo '<div class="super-raw-code-trigger-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sTrigger settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
 
         echo '<div class="super-raw-code-translation-settings">';
             echo '<p class="sfui-notice sfui-yellow">';
@@ -394,8 +401,399 @@ class SUPER_Pages {
         </div>
         <?php
     }
-    public static function triggers_tab() {
-        echo 'Triggers TAB content...';
+    public static function get_default_trigger_settings($trigger) {
+        if(empty($trigger['active'])) $trigger['active'] = 'true';
+        if(empty($trigger['name'])) $trigger['name'] = 'Trigger #1';
+        if(empty($trigger['desc'])) $trigger['desc'] = '';
+        if(empty($trigger['listen_to'])) $trigger['listen_to'] = '';
+        if(empty($trigger['listen_to_ids'])) $trigger['listen_to_ids'] = '';
+        if(empty($trigger['order'])) $trigger['order'] = 1;
+        if(empty($trigger['event'])) $trigger['event'] = '';
+        $trigger = apply_filters( 'super_triggers_default_settings_filter', $trigger );
+        return $trigger;
+    }
+    public static function triggers_tab($atts) {
+        $triggers = array();
+        $enabled = '';
+        if(isset($atts['triggers']) && isset($atts['triggers']['triggers'])){
+            $enabled = $atts['triggers']['enabled'];
+            $triggers = $atts['triggers']['triggers'];
+        }
+        if(count($triggers)==0) {
+            $triggers[] = self::get_default_trigger_settings(array());
+        }
+        echo '<div class="sfui-notice sfui-desc">';
+            echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('With triggers you can execute specific actions based on an event that occurs during the form submission.', 'super-forms');
+        echo '</div>';
+        // Enable listings
+        echo '<div class="sfui-setting">';
+            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                echo '<input type="checkbox" name="enabled" value="true"' . ($enabled==='true' ? ' checked="checked"' : '') . ' />';
+                echo '<span class="sfui-title">' . esc_html__( 'Enable triggers for this form', 'super-forms' ) . '</span>';
+            echo '</label>';
+            echo '<div class="sfui-sub-settings" data-f="enabled;true">';
+                // When enabled, we display the list with listings
+                echo '<div class="sfui-repeater" data-k="triggers">';
+                // Repeater Item
+                $events = array(
+                    array(
+                        'label' => 'Form Events',
+                        'items' => array(
+                            'sf.before.submission' => 'sf.before.submission',
+                            'sf.after.submission' => 'sf.after.submission',
+                            'sf.submission.validation' => 'sf.submission.validation'
+                        )
+                    ),
+                    array(
+                        'label' => 'Stripe',
+                        'items' => array(
+                            'stripe.checkout.session.completed' => 'stripe.checkout.session.completed',
+                            'stripe.checkout.session.async_payment_failed' => 'stripe.checkout.session.async_payment_failed',
+                            'stripe.fulfill_order' => 'stripe.fulfill_order'
+                        )
+                    )
+                );
+                $actions = array(
+                    'send_email' => 'Send an E-mail',
+                    'insert_db_row' => 'Insert row to database table',
+                    'validate_field' => 'Validate field value',
+                    'create_post' => 'Create a post/page/product'
+                );
+                foreach($triggers as $k => $v){
+                    // Set default values if they don't exist
+                    $v = self::get_default_trigger_settings($v);
+                    echo '<div class="sfui-repeater-item">';
+                        echo '<div class="sfui-setting sfui-inline">';
+                            // 1. Trigger - Choose an event
+                            // [name] - [description] - [execution_order]
+                            echo '<div class="sfui-setting sfui-inline sfui-width-auto">';
+                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                    echo '<input type="checkbox" name="active" value="true"' . ($v['active']==='true' ? ' checked="checked"' : '') . ' />';
+                                    echo '<span class="sfui-title">' . esc_html__( 'Enabled', 'super-forms' ) . '</span>';
+                                echo '</label>';
+                            echo '</div>';
+                            // 2. Event - Choose an event that triggers your action (this is what starts executing the action)
+                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                echo '<label>';
+                                    echo '<select name="event" onChange="SUPER.ui.updateSettings(event, this)">';
+                                        echo '<option value=""'.($v['event']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
+                                        $hadLabel = false;
+                                        foreach($events as $ek => $ev){
+                                            if(isset($ev['label'])){
+                                                $hadLabel = true;
+                                                echo '<optgroup label="'.$ev['label'].'">';
+                                            }
+                                            $count = 0;
+                                            foreach($ev['items'] as $eek => $eev){
+                                                echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
+                                                $count++;
+                                                if(count($ev['items'])===$count){
+                                                    echo '</optgroup>';
+                                                }
+                                            }
+                                            //foreach($ev['items'] as $eek => $eev){
+                                            //var_dump($ev);
+                                            //// form_events
+                                            //// - label
+
+                                            //// webhooks
+                                            //// - label
+                                            //$i = 0;
+                                            //foreach($ev['items'] as $eek => $eev){
+                                            //    if(!isset($eev['items']) ){
+                                            //        if($i===0) {
+                                            //            echo '<optgroup label="'.$ev['label'].'">';
+                                            //        }
+                                            //        echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
+                                            //    }
+                                            //    if(isset($eev['label'])){
+                                            //        echo '<optgroup label="'.$ev['label'].' > '.$eev['label'].'">'; // Webhooks > Stripe
+                                            //    }
+                                            //    foreach($eev['items'] as $eeek => $eeev){ 
+                                            //        echo '<option value="'.$eeek.'"'.($v['event']===$eeek ? ' selected="selected"' : '').'>'.$eeev.'</option>';
+                                            //    }
+                                            //    if(!isset($eev['items']) && $i===(count($ev['items']))){
+                                            //        echo '</optgroup>';
+                                            //    }else{
+                                            //        echo '</optgroup>';
+                                            //    }
+                                            //    $i++;
+                                            //}
+                                            //echo '</optgroup>';
+                                        }
+                                    echo '</select>';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Choose an event that will trigger your action(s)', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                echo '<label>';
+                                    echo '<input type="text" name="name" value="' . $v['name'] . '" />';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger name', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+                            echo '<div class="sfui-setting sfui-vertical">';
+                                echo '<label>';
+                                    echo '<input type="text" name="desc" placeholder="'.esc_html__( 'Describe what this trigger does...', 'super-forms' ).'" value="' . $v['desc'] . '" />';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Description (to remember what it does)', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+
+                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                echo '<label>';
+                                    echo '<select name="listen_to" onChange="SUPER.ui.updateSettings(event, this)">';
+                                        echo '<option value=""'.($v['listen_to']==='' ? ' selected="selected"' : '').'>'.esc_html__('Current form','super-forms').' ('.esc_html('default','super-forms').')</option>';
+                                        echo '<option value="all"'.($v['listen_to']==='all' ? ' selected="selected"' : '').'>'.esc_html__('All forms','super-forms').' ('.esc_html__('globally','super-forms').')</option>';
+                                        echo '<option value="id"'.($v['listen_to']==='id' ? ' selected="selected"' : '').'>'.esc_html__('Specific forms only','super-forms').'</option>';
+                                    echo '</select>';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger for the specified form(s)', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto" data-f="listen_to;id">';
+                                echo '<label>';
+                                    echo '<input type="text" name="listen_to_ids" value="' . $v['listen_to_ids'] . '" />';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Separate each form ID with a comma', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+
+                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                echo '<label>';
+                                    echo '<input type="number" name="order" value="' . $v['order'] . '" />';
+                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Execution order (low number executes first)', 'super-forms' ) . '</i></span>';
+                                echo '</label>';
+                            echo '</div>';
+                            echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change Settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
+                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                        echo '</div>';
+
+                        echo '<div class="sfui-setting-group">';
+                            echo '<div class="sfui-setting" data-f="event;">';
+                                echo '<div class="sfui-notice sfui-info">';
+                                    echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('To define actions, you must first choose an event for the trigger above.', 'super-forms');
+                                echo '</div>';
+                            echo '</div>';
+                            // Hide listing to specific user role/ids
+                            echo '<div class="sfui-setting sfui-inline" data-f="event;!">';
+                                echo '<div class="sfui-sub-settings">';
+                                    echo '<div class="sfui-repeater" data-k="actions">';
+                                        // "_triggers": {
+                                        //     "enabled": "true",
+                                        //     "triggers": {
+                                        //         "0": {
+                                        //             "active": "true",
+                                        //             "name": "Trigger #1",
+                                        //             "desc": "Describe what this trigger does...",
+                                        //             "order": "1",
+                                        //             "event": "stripe.checkout.session.completed",
+                                        //             "actions": {
+                                        //                 "0": {
+                                        //                     "action": "send_email",
+                                        //                     "to": "test1@test.com",
+                                        //                     "from": "",
+                                        //                     "reply_to": "",
+                                        //                     "subject": "",
+                                        //                     "body": "",
+                                        //                     "line_breaks": "true",
+                                        //                     "cc": "",
+                                        //                     "bcc": "",
+                                        //                     "headers": ""
+                                        //                 },
+                                        //                 "1": {
+                                        //                     "action": "send_email",
+                                        //                     "to": "test2@test.com",
+                                        //                     "from": "",
+                                        //                     "reply_to": "",
+                                        //                     "subject": "",
+                                        //                     "body": "",
+                                        //                     "line_breaks": "true",
+                                        //                     "cc": "",
+                                        //                     "bcc": "",
+                                        //                     "headers": ""
+                                        //                 },
+                                        //                 "2": {
+                                        //                     "action": "send_email",
+                                        //                     "to": "test3@test.com",
+                                        //                     "from": "",
+                                        //                     "reply_to": "",
+                                        //                     "subject": "",
+                                        //                     "body": "",
+                                        //                     "line_breaks": "true",
+                                        //                     "cc": "",
+                                        //                     "bcc": "",
+                                        //                     "headers": ""
+                                        //                 }
+                                        //             }
+                                        //         }
+                                        //     }
+                                        // },
+
+                                        // Loop over actions for this event
+                                        if(!isset($v['actions'])) $v['actions'] = array(
+                                            array(
+                                                'action'=>'', 
+                                                'conditionally'=>'', 
+                                                'f1'=>'', 
+                                                'f2'=>'', 
+                                                'to'=>'', 
+                                                'from'=>'', 
+                                                'reply_to'=>'', 
+                                                'subject'=>'',
+                                                'body'=>'', 
+                                                'line_breaks'=>'true', 
+                                                'cc'=>'', 
+                                                'bcc'=>'', 
+                                                'headers'=>''
+                                            )
+                                        );
+                                        foreach($v['actions'] as $ik => $iv){
+                                            echo '<div class="sfui-repeater-item">';
+                                                echo '<div class="sfui-setting sfui-inline" style="flex:1;">';
+                                                    // 3. Action - The action that is executed/performed
+                                                    // [+] Add another action
+                                                    echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                                        echo '<label>';
+                                                            echo '<select name="action" onChange="SUPER.ui.updateSettings(event, this)">';
+                                                            echo '<option value=""'.($iv['action']==='' ? ' selected="selected"' : '').'>- choose an action -</option>';
+                                                            foreach($actions as $ak => $av){
+                                                                echo '<option value="'.$ak.'"'.($iv['action']===$ak ? ' selected="selected"' : '').'>'.$av.'</option>';
+                                                            }
+                                                            echo '</select>';
+                                                            echo '<span class="sfui-label">' . esc_html__('The action to perform when the event is triggered', 'super-forms') . '</span>';
+                                                        echo '</label>';
+                                                        echo '<div class="sfui-setting sfui-inline sfui-no-padding">';
+                                                            echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change action settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
+                                                            //echo '<div class="sfui-btn sfui-blue sfui-round sfui-tooltip" title="' . esc_html__('Conditional logic', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleConditionSettings\')"><i class="fas fa-arrows-split-up-and-left"></i></div>';
+                                                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                                                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                                        echo '</div>';
+                                                    echo '</div>';
+                                                    echo '<div class="sfui-setting sfui-vertical">';
+                                                        echo '<div class="sfui-setting-group sfui-vertical" data-f="action;!">';
+                                                            echo '<div class="sfui-setting-group sfui-inline" data-f="action;!">';
+                                                                echo '<div class="sfui-setting sfui-no-padding sfui-width-auto">';
+                                                                    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                                                        echo '<input type="checkbox" name="conditionally" value="true"' . ($iv['conditionally']==='true' ? ' checked="checked"' : '') . ' />';
+                                                                        echo '<span class="sfui-title">' . esc_html__( 'Execute conditionally', 'super-forms' ) . ' (' . esc_html__( 'optional', 'super-forms' ) .')</span>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-no-padding sfui-inline" data-f="conditionally;true">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<input type="text" name="f1" placeholder="{field}" value="' . $iv['f1'] . '" />';
+                                                                    echo '</label>';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<select name="logic">';
+                                                                            echo '<option'.($iv['logic']==='' ?   ' selected="selected"' : '').' selected="selected" value="">---</option>';
+                                                                            echo '<option'.($iv['logic']==='==' ? ' selected="selected"' : '').' value="==">== Equal</option>';
+                                                                            echo '<option'.($iv['logic']==='!=' ? ' selected="selected"' : '').' value="!=">!= Not equal</option>';
+                                                                            echo '<option'.($iv['logic']==='??' ? ' selected="selected"' : '').' value="??">?? Contains</option>';
+                                                                            echo '<option'.($iv['logic']==='!!' ? ' selected="selected"' : '').' value="!!">!! Not contains</option>';
+                                                                            echo '<option'.($iv['logic']==='>' ?  ' selected="selected"' : '').' value=">">&gt; Greater than</option>';
+                                                                            echo '<option'.($iv['logic']==='<' ?  ' selected="selected"' : '').' value="<">&lt;  Less than</option>';
+                                                                            echo '<option'.($iv['logic']==='>=' ? ' selected="selected"' : '').' value=">=">&gt;= Greater than or equal to</option>';
+                                                                            echo '<option'.($iv['logic']==='<=' ? ' selected="selected"' : '').' value="<=">&lt;= Less than or equal</option>';
+                                                                        echo '</select>';
+                                                                    echo '</label>';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<input type="text" name="f2" placeholder="'.esc_html__( 'Comparison value', 'super-forms' ).'" value="' . $iv['f2'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                            echo '</div>';
+                                                            echo '<div class="sfui-sub-settings" data-f="action;send_email">';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('To', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="to" value="' . $iv['to'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('From', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="from" value="' . $iv['from'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Reply-To', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="reply_to" value="' . $iv['reply_to'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Subject', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="subject" value="' . $iv['subject'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Body', 'super-forms') . ':</span>';
+                                                                        echo '<textarea name="body" id="'.($k.'-'.$ik.'-'.$iv['action']).'-body" class="sfui-textarea-tinymce">'.esc_textarea(wp_unslash($iv['body'])).'</textarea>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-no-padding">';
+                                                                    echo '<label>';
+                                                                        echo '<input type="checkbox" name="line_breaks" value="true"' . ($iv['line_breaks']==='true' ? ' checked="checked"' : '') . ' />';
+                                                                        echo '<span class="sfui-title">' . esc_html__( 'Enable line breaks', 'super-forms' ) . '</span>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('CC', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="cc" value="' . $iv['cc'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('BCC', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="bcc" value="' . $iv['bcc'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Additional headers', 'super-forms') . ':</span>';
+                                                                        echo '<textarea name="headers">'.$iv['headers'].'</textarea>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                            echo '</div>';
+                                                        echo '</div>';
+                                                    echo '</div>';
+                                                echo '</div>';
+                                            echo '</div>';
+                                        }
+                                    echo '</div>';
+                                echo '</div>';
+                            echo '</div>';
+
+                            //// Custom columns
+                            //echo '<div class="sfui-setting">';
+                            //    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            //        echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($v['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
+                            //        echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
+                            //            echo '<div class="sfui-repeater" data-k="custom_columns.columns">';
+                            //                // Repeater Item
+                            //                $columns = $v['custom_columns']['columns'];
+                            //                foreach( $columns as $ck => $cv ) {
+                            //                    echo '<div class="sfui-repeater-item">';
+                            //                        echo '<div class="sfui-inline sfui-vertical">';
+                            //                            self::getColumnSettingFields($v, '', $ck, $cv);
+                            //                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                            //                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                            //                        echo '</div>';
+                            //                    echo '</div>';
+                            //                }
+                            //            echo '</div>';
+                            //        echo '</div>';
+                            //    echo '</label>';
+                            //echo '</div>';
+
+                        echo '</div>';
+                    echo '</div>';
+                }
+                echo '</div>';
+
+
+
+            echo '</div>';
+        echo '</div>';
     }
 
 
@@ -435,6 +833,9 @@ class SUPER_Pages {
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();
         
+        // @since 4.7.0 - translations
+        $triggers = SUPER_Common::get_form_triggers($form_id);
+
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($form_id);
 

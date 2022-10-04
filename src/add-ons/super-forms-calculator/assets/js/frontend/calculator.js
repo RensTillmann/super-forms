@@ -468,33 +468,21 @@
 			if( parent.classList.contains('super-date') ) {
 				text_field = false;
 				value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
-				if(value_n === 'day' || value_n === 'month' || value_n === 'year' || value_n === 'timestamp'){
-					if(value_n === 'day'){
-						value = (element.getAttribute('data-math-day')) ? parseFloat(element.getAttribute('data-math-day')) : 0;
-					}
-					if(value_n === 'month'){
-						value = (element.getAttribute('data-math-month')) ? parseFloat(element.getAttribute('data-math-month')) : 0;
-					}
-					if(value_n === 'year'){
-						value = (element.getAttribute('data-math-year')) ? parseFloat(element.getAttribute('data-math-year')) : 0;
-					}
-					if(value_n === 'timestamp'){
-						value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
-					}
+				if(value_n === 'day' || value_n === 'day_of_week' || value_n === 'day_name' || value_n === 'month' || value_n === 'year' || value_n === 'timestamp'){
+					if(value_n === 'day') value = (element.getAttribute('data-math-day')) ? parseFloat(element.getAttribute('data-math-day')) : 0;
+					if(value_n === 'day_of_week') value = (element.getAttribute('data-math-dayw')) ? parseFloat(element.getAttribute('data-math-dayw')) : 0;
+					if(value_n === 'day_name') value = (element.getAttribute('data-math-dayn')) ? element.getAttribute('data-math-dayn') : '';
+					if(value_n === 'day_name_short') value = (element.getAttribute('data-math-dayns')) ? element.getAttribute('data-math-dayns') : '';
+					if(value_n === 'day_name_shortest') value = (element.getAttribute('data-math-daynss')) ? element.getAttribute('data-math-daynss') : '';
+					if(value_n === 'month') value = (element.getAttribute('data-math-month')) ? parseFloat(element.getAttribute('data-math-month')) : 0;
+					if(value_n === 'year') value = (element.getAttribute('data-math-year')) ? parseFloat(element.getAttribute('data-math-year')) : 0;
+					if(value_n === 'timestamp') value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
 				}else{
-					if(element.getAttribute('data-return_age')=='true'){
-						value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
-					}
+					if(element.getAttribute('data-return_age')=='true') value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
 					// @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-					if(target.getAttribute('data-date-math')=='years'){
-						value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
-					}
-					if(target.getAttribute('data-date-math')=='months'){
-						value = (element.getAttribute('data-math-age-months')) ? parseFloat(element.getAttribute('data-math-age-months')) : 0;
-					}
-					if(target.getAttribute('data-date-math')=='days'){
-						value = (element.getAttribute('data-math-age-days')) ? parseFloat(element.getAttribute('data-math-age-days')) : 0;
-					}
+					if(target.getAttribute('data-date-math')=='years') value = (element.getAttribute('data-math-age')) ? parseFloat(element.getAttribute('data-math-age')) : 0;
+					if(target.getAttribute('data-date-math')=='months') value = (element.getAttribute('data-math-age-months')) ? parseFloat(element.getAttribute('data-math-age-months')) : 0;
+					if(target.getAttribute('data-date-math')=='days') value = (element.getAttribute('data-math-age-days')) ? parseFloat(element.getAttribute('data-math-age-days')) : 0;
 				}
 			}
 			// Check if timepicker field

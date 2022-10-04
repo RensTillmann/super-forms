@@ -1,4 +1,4 @@
-/* globals jQuery, SUPER, super_create_form_i18n, ajaxurl */
+/* globals jQuery, SUPER, super_create_form_i18n, ajaxurl, tinymce */
 "use strict";
 (function ($) { // Hide scope, no $ conflict
 
@@ -12,8 +12,27 @@
     }
     SUPER.ui = {
         btn: function(e, el, action){
-            if(action==='toggleListingSettings'){
-                var node = el.closest('.sfui-repeater-item').querySelector('.sfui-setting-group');
+            var node;
+            if(action==='toggleConditionSettings'){
+                node = el.closest('.sfui-repeater-item').querySelector('.sfui-conditional-logic-settings');
+                if(node.classList.contains('sfui-active')){
+                    node.classList.remove('sfui-active');
+                }else{
+                    node.classList.add('sfui-active');
+                }
+                //var node = el.parentNode.parentNode.querySelector('.sfui-conditional-logic-settings');
+                //if(node){
+                //    if(node.classList.contains('super-active')){
+                //        node.classList.remove('super-active');
+                //    }else{
+                //        node.classList.add('super-active');
+                //    }
+                //}
+                e.preventDefault();
+                return false;
+            }
+            if(action==='toggleRepeaterSettings'){
+                node = el.closest('.sfui-repeater-item').querySelector('.sfui-setting-group');
                 if(node.classList.contains('sfui-active')){
                     node.classList.remove('sfui-active');
                 }else{
@@ -37,7 +56,6 @@
                 return false;
             }
         },
-         
         // Show/Hide sub settings
         showHideSubsettings: function(el){
             var i,
@@ -52,7 +70,7 @@
             }else{
                 tab = document.querySelector('.super-tabs-content');
             }
-            nodes = tab.querySelectorAll('.sfui-sub-settings');
+            nodes = tab.querySelectorAll('.sfui-setting, .sfui-sub-settings, .sfui-setting-group');
             for(i=0; i < nodes.length; i++){
                 if(!nodes[i].dataset.f) continue;
                 value = '';
@@ -63,20 +81,61 @@
                 }
                 node = tab.querySelectorAll('[name="'+filter[0]+'"]');
                 if(node.length>=1){
-                    // Radio or checkbox?
+                    // Radio, Checkbox, Select (dropdown)?
                     if(node[0].type==='checkbox' || node[0].type==='radio'){
                         value = (tab.querySelector('[name="'+filter[0]+'"]:checked') ? tab.querySelector('[name="'+filter[0]+'"]:checked').value : '');
                         nodes[i].classList.remove('sfui-active');
-                        if(filter[1]===value){
-                            nodes[i].classList.add('sfui-active');
+                        if(filter[1][0]==='!'){
+                            if(filter[1]==='!'){
+                                if(value!==''){
+                                    nodes[i].classList.add('sfui-active');
+                                    if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                                }
+                            }else{
+                                if(filter[1]===value){
+                                    filter[1] = filter[1].replace('!', '');
+                                    nodes[i].classList.add('sfui-active');
+                                    if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                                }
+                            }
+                        }else{
+                            if(filter[1]===value){
+                                nodes[i].classList.add('sfui-active');
+                                // if direct parent is sfui-settings-group, make it active 
+                                if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                            }
                         }
                         continue;
                     }
                     if(node[0].type==='select-one'){
                         value = node[0].options[node[0].selectedIndex].value;
-                        nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
-                        if(filter[1].split(',').indexOf(value)!==-1){
-                            nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
+                        if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.remove('sfui-active');
+                        if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.remove('sfui-active');
+                        if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
+                        if(filter[1][0]==='!'){
+                            if(filter[1]==='!'){
+                                if(value!==''){
+                                    if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
+                                    if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
+                                    if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
+                                    if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                                }
+                            }else{
+                                if(filter[1]===value){
+                                    filter[1] = filter[1].replace('!', '');
+                                    if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
+                                    if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
+                                    if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
+                                    if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                                }
+                            }
+                        }else{
+                            if(filter[1].split(',').indexOf(value)!==-1){
+                                if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
+                                if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
+                                if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
+                                if(node[0]===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
+                            }
                         }
                         continue;
                     }
@@ -95,6 +154,9 @@
     };
     SUPER.update_form_settings = function(string){
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string);
+    };
+    SUPER.update_trigger_settings = function(string){
+        document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(string);
     };
     SUPER.update_translation_settings = function(string){
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(string);
@@ -148,12 +210,14 @@
                 $settings[$name] = $value;
             }
         });
+        // Trigger settings
+        // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
         // PDF settings
         //$settings = SUPER.get_tab_settings($settings, 'pdf');
-        // Listing settings
+        //// Listing settings
         //$settings = SUPER.get_tab_settings($settings, 'listings');
-        // Stripe settings
-        $settings = SUPER.get_tab_settings($settings, 'stripe');
+        //// Stripe settings
+        //$settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
@@ -165,6 +229,7 @@
             subData, keys, fields, value, names,
             parentRepeater;
         for(i=0; i<nodes.length; i++){
+            debugger;
             // Check if key consist of multiple levels
             keys = k.split('.');
             if(keys.length>1){
@@ -175,35 +240,51 @@
                 if(typeof args.data[k] === 'undefined') args.data[k] = {};
                 if(typeof args.data[k][i] === 'undefined') args.data[k][i] = {};
             }
+            debugger;
             x, fields = nodes[i].querySelectorAll('[name]');
             for(x=0; x<fields.length; x++){
+                debugger;
                 parentRepeater = fields[x].closest('.sfui-repeater');
                 if(parentRepeater && parentRepeater!==args.node){
                     // is inner repeater, must process it
                     if(keys.length>1){
+                        debugger;
                         args.data[keys[0]][keys[1]][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[keys[0]][keys[1]][i]});
                     }else{
+                        debugger;
                         args.data[k][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[k][i]});
                     }
                     continue;
                 }
                 // is direct inner field, must add it to the data
                 value = fields[x].value;
+                debugger;
                 if(fields[x].type==='checkbox') value = fields[x].checked;
                 if(fields[x].type==='radio') value = (args.tab.querySelector('[name="'+fields[x].name+'"]:checked') ? args.tab.querySelector('[name="'+fields[x].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
-                if(value===false) value = "false"; 
+                if(value===false) value = ""; // We use "empty" instead of "false" to have a more cleaned up data
+                if(fields[x].tagName==='TEXTAREA' && tinymce.get(fields[x].id)){
+                    value = tinymce.get(fields[x].id).getContent();
+                }
+                debugger;
+                if(value==='') continue;
+                debugger;
                 names = fields[x].name.split('.');
+                debugger;
                 if(names.length>1){
+                    debugger;
                     if(keys.length>1){
                         subData = args.data[keys[0]][keys[1]][i];
                     }else{
                         subData = args.data[k][i];
                     }
+                    debugger;
                     if(typeof subData[names[0]] === 'undefined') subData[names[0]] = {};
+                    debugger;
                     if(names.length===2){
                         subData[names[0]][names[1]] = value;
                     }else{
+                        debugger;
                         if(names.length===3){
                             if(typeof subData[names[0]][names[1]] === 'undefined') subData[names[0]][names[1]] = {};
                             subData[names[0]][names[1]][names[2]] = value;
@@ -214,12 +295,14 @@
                             }
                         }
                     }
+                    debugger;
                     if(keys.length>1){
                         args.data[keys[0]][keys[1]][i] = subData;
                     }else{
                         args.data[k][i] = subData;
                     }
                 }else{
+                    debugger;
                     if(keys.length>1){
                         args.data[keys[0]][keys[1]][i][names[0]] = value;
                     }else{
@@ -231,27 +314,26 @@
         return args.data;
     };
     SUPER.get_obj_value_by_key = function(obj, is, value){
-        debugger;
         if(typeof is==='string'){
             debugger;
             return SUPER.get_obj_value_by_key(obj, is.split('.'), value);
-        }else if(is.length==1 && value!==undefined){
+        }else if(is.length===1 && value!==undefined && value!==''){
             debugger;
             return obj[is[0]] = value;
-        }else if(is.length==0){
+        }else if(is.length===0){
             debugger;
             return obj;
         }else{
-            debugger;
-            if(typeof obj[is[0]] === 'undefined'){
+            if(typeof obj[is[0]]==='undefined'){
                 //if(is.length===1) return obj[is[0]] = value;
+                debugger;
                 if(is.length>1) obj[is[0]] = {}
             }
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
         }
     };
     SUPER.get_tab_settings = function(settings, slug){
-        var i, x, nodes, p, sub, repeater, value, name, names, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
+        var i, x, nodes, xnodes, p, sub, repeater, value, name, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
         if(tab){
             // First grab all settings that are not inside a repeater element
             nodes = tab.querySelectorAll('.sfui-setting > label > [name], .sfui-inline > label > [name]');
@@ -264,106 +346,48 @@
                 if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
                 if(value===false) value = "false"; 
-                debugger;
+                if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                    value = tinymce.get(nodes[i].id).getContent();
+                }
                 name = nodes[i].name;
+                debugger;
                 SUPER.get_obj_value_by_key(data, name, value);
-                //names = name.split('.');
-                //function index(obj,i) {return obj[i]}
-                //debugger;
-                //data[name] = name.split('.').reduce(function(obj,i){
-                //    debugger;
-                //    if(typeof obj[i] === 'undefined'){
-                //        debugger;
-                //        obj[i] = value;
-                //    }
-                //    return obj[i];
-                //}, data, value);
-                //debugger;
-                //var ref = undefined;
-                //if(names.length>1){
-                //    for(x=0; x<names.length; x++){
-                //        debugger;
-                //        if(x===names.length-1){
-                //            debugger;
-                //            data[names[x]] = value;
-                //            break;
-                //        }
-                //        if(typeof data[names[x]] !== 'undefined') {
-                //            debugger;
-                //            // Exists
-                //            continue;
-                //        }
-                //        // Does not exists, create it
-                //        if(typeof data[names[x]] === 'undefined') {
-                //            debugger;
-                //            data[names[x]] = {};
-                //            debugger;
-                //            ref = data[names[x]];
-                //        }
-                //        //obj = JSON.parse(JSON.stringify(ref));
-                //        //if(typeof data[names[0]][names[1]][names[2]][names[3]][names[4]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]][names[4]] = {};
-                //    }
-                //}else{
-                //    debugger;
-                //    data[name] = value;
-                //}
-                //debugger;
-                //if(names.length>1){
-                //    if(typeof data[names[0]] === 'undefined') data[names[0]] = {};
-                //    if(names.length>2){
-                //        if(names.length>3){
-                //            if(names.length>4){
-                //                if(names.length>5){
-                //                    if(names.length>6){
-                //                        alert('max depth reached');
-                //                    }else{
-                //                        if(typeof data[names[0]][names[1]][names[2]][names[3]][names[4]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]][names[4]] = {};
-                //                        data[names[0]][names[1]][names[2]][names[3]][names[4]][names[5]] = value;
-                //                    }
-                //                }else{
-                //                    debugger;
-                //                    if(typeof data[names[0]][names[1]][names[2]][names[3]] === 'undefined') data[names[0]][names[1]][names[2]][names[3]] = {};
-                //                    data[names[0]][names[1]][names[2]][names[3]][names[4]] = value;
-                //                }
-                //            }else{
-                //                if(typeof data[names[0]][names[1]][names[2]] === 'undefined') data[names[0]][names[1]][names[2]] = {};
-                //                data[names[0]][names[1]][names[2]][names[3]] = value;
-                //            }
-                //        }else{
-                //            // > 2
-                //            if(typeof data[names[0]][names[1]] === 'undefined') data[names[0]][names[1]] = {};
-                //            data[names[0]][names[1]][names[2]] = value;
-                //        }
-                //    }else{
-                //        data[names[0]][names[1]] = value;
-                //    }
-                //}else{
-                //    data[name] = value;
-                //}
+
                 p = nodes[i].closest('.sfui-setting');
                 if(p){
                     sub = p.querySelector('.sfui-sub-settings, .sfui-setting');
                     if(sub){
-                        var x, xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
+                        xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
                         for(x=0; x<xnodes.length; x++){
+                            debugger;
                             data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
                         }
                     }
                 }
             }
-
-            // Process repeater items
-            if(slug==='stripe'){
-                nodes = tab.querySelectorAll('.sfui-repeater');
-                for(x=0; x<nodes.length; x++){
-                    data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
-                }
-            }
-
             settings['_'+slug] = data;
+
+            //// Process repeater items
+            //if(slug==='stripe'){
+            //    nodes = tab.querySelectorAll('.sfui-repeater');
+            //    for(x=0; x<nodes.length; x++){
+            //        data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
+            //    }
+            //}
         }
         return settings;
     }
+    SUPER.get_trigger_settings = function(string){
+        debugger;
+        if(typeof string === 'undefined') string = false;
+        var $triggers = SUPER.get_tab_settings({}, 'triggers');
+        $triggers = $triggers['_triggers'];
+        if(string===true) {
+            if(!isEmpty($triggers)) return JSON.stringify($triggers, undefined, 4);
+            return '';
+        }
+        return $triggers;
+    };
     SUPER.get_translation_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $translations = {};
@@ -590,6 +614,7 @@
         $old_code = document.querySelector('.super-raw-code-form-elements > textarea').value;
         $elements = SUPER.get_form_elements(true);
         SUPER.update_form_settings(true);
+        SUPER.update_trigger_settings(true);
         SUPER.update_translation_settings(true);
         document.querySelector('.super-raw-code-form-elements > textarea').value = $elements;
         if ($history) SUPER.trigger_redo_undo($elements, $old_code);
@@ -1160,12 +1185,13 @@
             title: $('.super-create-form input[name="title"]').val(),
             formElements: document.querySelector('.super-raw-code-form-elements textarea').value,
             formSettings: document.querySelector('.super-raw-code-form-settings textarea').value,
+            triggerSettings: (document.querySelector('.super-raw-code-trigger-settings textarea') ? document.querySelector('.super-raw-code-trigger-settings textarea').value : ''),
             translationSettings: document.querySelector('.super-raw-code-translation-settings textarea').value, // @since 4.7.0 translation
             i18n: $initial_i18n, // @since 4.7.0 translation
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
         };
 
-        // @since 4.9.6 - secrets
+        // @since 4.9.6 - Secrets
         var localSecrets = [], 
             globalSecrets = [],
             nodes = document.querySelectorAll('.super-local-secrets > ul > li');
@@ -1268,14 +1294,12 @@
             $('.super-create-form input[name="header_from"]').val($('.super-create-form input[name="wizard_header_from"]').val());
             $('.super-create-form input[name="header_from_name"]').val($('.super-create-form input[name="wizard_header_from_name"]').val());
             $('.super-create-form input[name="header_subject"]').val($('.super-create-form input[name="wizard_header_subject"]').val());
-            $('.super-create-form textarea[name="email_body_open"]').val($('.super-create-form textarea[name="wizard_email_body_open"]').val());
 
             $('.super-create-form input[name="confirm_to"]').val($('.super-create-form input[name="wizard_confirm_to"]').val());
             $('.super-create-form select[name="confirm_from_type"]').val('custom');
             $('.super-create-form input[name="confirm_from"]').val($('.super-create-form input[name="wizard_confirm_from"]').val());
             $('.super-create-form input[name="confirm_from_name"]').val($('.super-create-form input[name="wizard_confirm_from_name"]').val());
             $('.super-create-form input[name="confirm_subject"]').val($('.super-create-form input[name="wizard_confirm_subject"]').val());
-            $('.super-create-form textarea[name="confirm_body_open"]').val($('.super-create-form textarea[name="wizard_confirm_body_open"]').val());
 
             $('.super-create-form input[name="form_thanks_title"]').val($('.super-create-form input[name="wizard_form_thanks_title"]').val());
             $('.super-create-form textarea[name="form_thanks_description"]').val($('.super-create-form textarea[name="wizard_form_thanks_description"]').val());
@@ -1340,8 +1364,9 @@
         return 'field_' + field_name;
     };
 
-    SUPER.initTinyMCE = function(selector){
-        tinymce.remove();
+    SUPER.initTinyMCE = function(selector, remove){
+        if(typeof remove === 'undefined') remove = false;
+        if(remove===true) tinymce.remove(selector);
         tinymce.init({
             selector: selector, 
             toolbar_mode: 'scrolling', //'floating', 'sliding', 'scrolling', or 'wrap'
@@ -1373,9 +1398,10 @@
             $activeFormSettingsTab = SUPER.get_session_data('_super_builder_last_active_form_settings_tab'),
             $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab');
 
+        SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+        document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
-
 
         // Check if there is an active panel
         if($activePanel){
@@ -1522,9 +1548,11 @@
             var html,
                 n1 = document.querySelector('.super-raw-code-form-elements .sfui-notice'),
                 n2 = document.querySelector('.super-raw-code-form-settings .sfui-notice'),
-                n3 = document.querySelector('.super-raw-code-translation-settings .sfui-notice'),
+                n3 = document.querySelector('.super-raw-code-trigger-settings .sfui-notice'),
+                n4 = document.querySelector('.super-raw-code-translation-settings .sfui-notice'),
                 formElements = document.querySelector('.super-raw-code-form-elements textarea').value,
                 formSettings = document.querySelector('.super-raw-code-form-settings textarea').value,
+                triggerSettings = document.querySelector('.super-raw-code-trigger-settings textarea').value,
                 translationSettings = document.querySelector('.super-raw-code-translation-settings textarea').value;
 
             // Handle non-exception-throwing cases:
@@ -1569,9 +1597,9 @@
             n2.classList.remove('sfui-red');
             n2.classList.add('sfui-yellow');
             document.querySelector('.super-raw-code-form-settings textarea').classList.remove('sfui-red');
-
+            
             try {
-                (translationSettings!=='' ? JSON.parse(translationSettings) : {});
+                (triggerSettings!=='' ? JSON.parse(triggerSettings) : {});
             }
             catch (e) {
                 html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
@@ -1580,13 +1608,32 @@
                 n3.innerHTML = html;
                 n3.classList.remove('sfui-yellow');
                 n3.classList.add('sfui-red');
-                document.querySelector('.super-raw-code-translation-settings textarea').classList.add('sfui-red');
+                document.querySelector('.super-raw-code-trigger-settings textarea').classList.add('sfui-red');
                 n3.scrollIntoView();
                 return false;
             }
             n3.innerHTML = super_create_form_i18n.edit_json_notice_n3;
             n3.classList.remove('sfui-red');
             n3.classList.add('sfui-yellow');
+            document.querySelector('.super-raw-code-trigger-settings textarea').classList.remove('sfui-red');
+
+            try {
+                (translationSettings!=='' ? JSON.parse(translationSettings) : {});
+            }
+            catch (e) {
+                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
+                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
+                html += super_create_form_i18n.try_jsonlint;
+                n4.innerHTML = html;
+                n4.classList.remove('sfui-yellow');
+                n4.classList.add('sfui-red');
+                document.querySelector('.super-raw-code-translation-settings textarea').classList.add('sfui-red');
+                n4.scrollIntoView();
+                return false;
+            }
+            n4.innerHTML = super_create_form_i18n.edit_json_notice_n3;
+            n4.classList.remove('sfui-red');
+            n4.classList.add('sfui-yellow');
             document.querySelector('.super-raw-code-translation-settings textarea').classList.remove('sfui-red');
 
             // Add loading state to button
@@ -1666,6 +1713,7 @@
             // If code tab, update translation code
             if($this.hasClass('super-tab-code')){
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+                document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
                 document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
             }
             $('.super-tabs-content').css('display', '');
@@ -2788,7 +2836,7 @@
                     if (this.status == 200) {
                         $target.html(this.responseText);
                         init_form_settings_container_heights();
-                        SUPER.initTinyMCE('.super-element-settings .super-textarea-tinymce');
+                        SUPER.initTinyMCE('.super-element-settings .super-textarea-tinymce', true);
                         // Open up last element settings tab
                         $activeElementSettingsTab = SUPER.get_session_data('_super_builder_last_active_element_settings_tab')
                         if($activeElementSettingsTab){
@@ -2971,6 +3019,7 @@
                     form_id: $('.super-create-form input[name="form_id"]').val(),
                     formElements: document.querySelector('.super-raw-code-form-elements > textarea').value,
                     formSettings: SUPER.get_form_settings(),
+                    triggerSettings: SUPER.get_trigger_settings(),
                     translationSettings: SUPER.get_translation_settings()
                 },
                 success: function (data) {
@@ -3183,10 +3232,6 @@
                         description: '<h1>Enter the email subject that relates to this form</h1>' + $tags_allowed,
                     },
                     {
-                        selector: 'textarea[name="wizard_email_body_open"]',
-                        description: '<h1>Here you can enter a short description that will be placed at the top of your admin email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
-                    },
-                    {
                         selector: '.super-wizard-settings .super-tabs > li:eq(2)',
                         event: 'click',
                         showNext: false,
@@ -3207,10 +3252,6 @@
                     {
                         selector: 'input[name="wizard_confirm_subject"]',
                         description: '<h1>Enter the confirmation email subject that relates to this form</h1>' + $tags_allowed,
-                    },
-                    {
-                        selector: 'textarea[name="wizard_confirm_body_open"]',
-                        description: '<h1>Here you can enter a short description that will be placed at the top of your confirmation email</h1><span class="super-tip">The email body itself can be changed under the "Form Settings" panel on the builder page, which we will be covering at a later time in this tutorial.</span><span class="super-tip">The email body itself will by default simply loop all the user input that was submitted by the user. You can of course write your custom email body if you require to do so.</span>' + $tags_allowed,
                     },
                     {
                         selector: '.super-wizard-settings .super-tabs > li:eq(3)',

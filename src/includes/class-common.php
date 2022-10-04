@@ -19,6 +19,117 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+    
+    ///**
+    // * Get Form Triggers
+    // */
+    //public static function get_form_triggers($form_id){
+    //    return get_post_meta( $form_id, '_super_triggers', true );
+    //}
+    function add_metadata( $meta_type, $object_id, $meta_key, $meta_value, $unique = false ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column = sanitize_key( $meta_type . '_id' ); $meta_key   = wp_unslash( $meta_key ); $meta_value = wp_unslash( $meta_value ); $meta_value = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "add_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $unique ); if ( null !== $check ) { return $check; } if ( $unique && $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id)) ) { return false; } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); do_action( "add_{$meta_type}_meta", $object_id, $meta_key, $_meta_value ); $result = $wpdb->insert( $table, array( $column      => $object_id, 'meta_key'   => $meta_key, 'meta_value' => $meta_value,)); if ( ! $result ) { return false; } $mid = (int) $wpdb->insert_id; wp_cache_delete( $object_id, $meta_type . '_meta' ); do_action( "added_{$meta_type}_meta", $mid, $object_id, $meta_key, $_meta_value ); return $mid; }
+    function update_metadata( $meta_type, $object_id, $meta_key, $meta_value, $prev_value = '' ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column    = sanitize_key( $meta_type . '_id' ); $id_column = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id'; $raw_meta_key = $meta_key; $meta_key     = wp_unslash( $meta_key ); $passed_value = $meta_value; $meta_value   = wp_unslash( $meta_value ); $meta_value   = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "update_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $prev_value ); if ( null !== $check ) { return (bool) $check; } if ( empty( $prev_value ) ) { $old_value = get_metadata_raw( $meta_type, $object_id, $meta_key ); if ( is_countable( $old_value ) && count( $old_value ) === 1 ) { if ( $old_value[0] === $meta_value ) { return false; } } } $meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT $id_column FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id ) ); if ( empty( $meta_ids ) ) { return self::add_metadata( $meta_type, $object_id, $raw_meta_key, $passed_value ); } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); $data  = compact( 'meta_value' ); $where = array( $column    => $object_id, 'meta_key' => $meta_key,); if ( ! empty( $prev_value ) ) { $prev_value          = maybe_serialize( $prev_value ); $where['meta_value'] = $prev_value; } foreach ( $meta_ids as $meta_id ) { do_action( "update_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'update_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } $result = $wpdb->update( $table, $data, $where ); if ( ! $result ) { return false; } wp_cache_delete( $object_id, $meta_type . '_meta' ); foreach ( $meta_ids as $meta_id ) { do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } return true; }
+    public static function get_form_triggers($form_id){
+        var_dump('get_form_triggers()');
+        return false;
+        //global $wpdb;
+        //$table = $wpdb->prefix . 'posts';
+        //$table_meta = $wpdb->prefix . 'postmeta';
+        //$rows = $wpdb->get_results("
+        //SELECT ID, meta_value FROM wp_posts
+        //INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_gloabl_trigger'
+        //WHERE post_status = 'publish' 
+        //AND ID IN (
+        //    SELECT post_id FROM wp_postmeta 
+        //    WHERE post_id = ID AND meta_key = '_super_form_settings' 
+        //    AND meta_value LIKE '%\"_triggers\"%'
+        //)");
+    }
+    public static function save_form_triggers($triggers, $form_id){
+        //var_dump('save_form_triggers()');
+        foreach($triggers['triggers'] as $trigger){
+            $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
+            // Only current form
+            if(empty($trigger['listen_to'])){
+                update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                continue;
+            }
+            // Global trigger (for all forms)
+            if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
+                //var_dump('save global trigger...()');
+                // Use our custom update_metadata function because we can't parse zero value otherwise
+                self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
+                //var_dump($result);
+                continue;
+            }
+            // Specific forms only (by ID)
+            if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
+                $forms = explode(',', $trigger['listen_to_ids']);
+                foreach($forms as $id){
+                    update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
+                }
+                continue;
+            }
+        }
+        //update_post_meta( $form_id, '_super_triggers', $triggers );
+        //array(2) {
+        //    ["enabled"]=>
+        //    string(4) "true"
+        //    ["triggers"]=>
+        //    array(1) {
+        //      [0]=>
+        //      array(4) {
+        //        ["active"]=>
+        //        string(4) "true"
+        //        ["name"]=>
+        //        string(12) "Trigger #123"
+        //        ["order"]=>
+        //        string(1) "1"
+        //        ["actions"]=>
+        //        array(1) {
+        //          [0]=>
+        //          array(1) {
+        //            ["line_breaks"]=>
+        //            string(4) "true"
+        //          }
+        //        }
+        //      }
+        //    }
+        //  }
+        //  int(61301)
+        //  61301
+    }
+
+    public static function triggerEvent($name, $x){
+//        if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
+//        // $name = 'stripe.checkout.session.async_payment_failed', 
+//        // $x = array('form_id'=>$form_id, 'session'=>$session));
+//        error_log('triggerEvent('.$name.')');
+//        $name = str_replace('.', '_', $name);
+//        error_log(json_encode($x));
+//        // Lookup actions that belong to this event 
+//        // both by form ID and global actions
+//        //SUPER_Triggers::send_email();
+//        $form_id = $x['form_id'];
+//        global $wpdb;
+//        $table = $wpdb->prefix . 'posts';
+//        $table_meta = $wpdb->prefix . 'postmeta';
+//        $rows = $wpdb->get_results("
+//        SELECT ID, meta_value FROM wp_posts
+//        INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_form_settings'
+//        WHERE post_status = 'publish' 
+//        AND ID IN (
+//            SELECT post_id FROM wp_postmeta 
+//            WHERE post_id = ID AND meta_key = '_super_form_settings' 
+//            AND meta_value LIKE '%\"_triggers\"%'
+//        )");
+//		foreach($rows as $r){
+//            var_dump($r['ID']);
+//            var_dump($r['meta_value']);
+//		}
+//        //if(method_exists('SUPER_Triggers', $name)){
+//        //    call_user_func(array('SUPER_Triggers', $name), $name, array('x'=>$x));
+//        //}
+    }
 
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
         $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
@@ -792,8 +903,7 @@ class SUPER_Common {
      * Get Form Translations
      */
     public static function get_form_translations($form_id){
-        $translations = get_post_meta( $form_id, '_super_translations', true );
-        return $translations;
+        return get_post_meta( $form_id, '_super_translations', true );
     }
 
 
@@ -1089,6 +1199,19 @@ class SUPER_Common {
         }else{
             $settings = $form_settings;
         }
+            
+        $email_body = '';
+        if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "\n\n";
+        $email_body .= $settings['email_body'];
+        if(!empty($settings['email_body_close'])) $email_body .= "\n\n" . $settings['email_body_close'];
+        $settings['email_body'] = $email_body;
+
+        $confirm_body = '';
+        if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "\n\n";
+        $confirm_body .= $settings['confirm_body'];
+        if(!empty($settings['confirm_body_close'])) $confirm_body .= "\n\n" . $settings['confirm_body_close'];
+        $settings['confirm_body'] = $confirm_body;
+
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
     }
 
@@ -1491,7 +1614,7 @@ class SUPER_Common {
                 $table = $wpdb->prefix . 'options';
                 // This is the global invoice key ID, if user defines a custom one, we will save it under a different option name.
                 // This allows for multiple usecases, for instance if you have a form that needs to generate a invoice, and if you have 
-                // a seperate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
+                // a separate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
                 $option_name_old = '_super_form_invoice_number';
                 $option_name = '_sf_invoice_number';
                 if(!empty($invoice_key)){
@@ -1549,7 +1672,7 @@ class SUPER_Common {
     public static function generate_random_folder( $folder ) {
         // Random folder must be 13 characters long
         // Since 32 bit system only allow a maximum of 2147483647 as int value
-        // we will generate 2 random numbers seperately and combine them as one
+        // we will generate 2 random numbers separately and combine them as one
         $folderName = rand(1000000, 9999999) . rand(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
@@ -2232,7 +2355,7 @@ class SUPER_Common {
                             $allFileUrls[] = self::decode($fv['url']);
                             $allFileLinks[] = self::decode('<a href="'.esc_attr($fv['url']).'">'.$fv['value'].'</a>');
                         }
-                        // Below filter should return a string, if it's still an array we will convert it into a string seperated by line breaks
+                        // Below filter should return a string, if it's still an array we will convert it into a string separated by line breaks
                         $allFileNames = apply_filters( 'super_filter_all_file_names_filter', $allFileNames, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
                         $allFileUrls = apply_filters( 'super_filter_all_file_urls_filter', $allFileUrls, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
                         $allFileLinks = apply_filters( 'super_filter_all_file_links_filter', $allFileLinks, array( 'fieldName'=>$k, 'fieldData'=>$v ) );

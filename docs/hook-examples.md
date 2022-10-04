@@ -413,7 +413,7 @@ function _super_delete_uploaded_files( $atts ) {
 }
 ```
 
-## Increase Cookie lifetime for client data such as `Form Progression`
+## Increase Cookie lifetime for client data such as [Form Progression]
 
 ?> **NOTE:** These filter hooks are available since __Super Forms v6.3+__. Always set the cookie lifetime to a higher value than the client data lifetime, for instance if you set the cookie expiry to 10 hours, your client data can't exceed 10 hours simply because the session would already be deleted along with any data. This allows you to define specific client data with a shorter lifetime than others, while having a single session ID for the current client.
 
