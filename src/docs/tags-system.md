@@ -275,6 +275,13 @@ Now you might ask where should I actually place this tag? You can choose to use 
 **Tag to retrieve timestamp from datepicker value:**
 
 * `{datepickerfieldname;timestamp}`
+* `{datepickerfieldname;month}`
+* `{datepickerfieldname;year}`
+* `{datepickerfieldname;day}`
+* `{datepickerfieldname;day_name}`
+* `{datepickerfieldname;day_name_short}`
+* `{datepickerfieldname;day_name_shortest}`
+* `{datepickerfieldname;day_of_week}`
 
 **Tag to retrieve the current/total PDF pages (PDF Add-on):**
 
