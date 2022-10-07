@@ -4,6 +4,7 @@ The datepicker element is an advanced element with tons of options. On this page
 
 ## Features
 
+* [Date tags](#date-tags)
 * [Date Format](#date-format)
 * [Date range (min/max)](#date-range-minmax)
 * [Connecting 2 datepickers](#connecting-2-datepickers)
@@ -24,6 +25,21 @@ The datepicker element is an advanced element with tons of options. On this page
 * [Localization](#localization)
 * [Demo Forms](#demo-forms)
 * [Example & Tutorial](#example-amp-tutorial)
+
+### Date tags
+
+When using the datepicker you may use the following `{tags}` in your conditional logic, variable fields and HTML elements 
+
+```html
+{date;timestamp}
+{date;year}
+{date;month}
+{date;day}
+{date;day_name}
+{date;day_name_short}
+{date;day_name_shortest}
+{date;day_of_week}
+```
 
 ### Date Format
 
@@ -406,4 +422,3 @@ The only difference in the below form code is that we added a HTML element to ea
 ```json
 [{"tag":"date","group":"form_elements","data":{"name":"date","email":"Date:","placeholder":"Select a date","range":"-100:+5","work_days":"true","weekends":"true","maxPicks":"1","minPicks":"0","excl_days":"0,1","format":"DD, d MM, yy","custom_format":"dd-mm-yy","first_day":"1","changeMonth":"true","changeYear":"true","showMonthAfterYear":"","showWeek":"","showOtherMonths":"","selectOtherMonths":"","numberOfMonths":"1","validation":"none","may_be_empty":"false","grouped":"0","width":"0","wrapper_width":"0","connected_min_days":"1","connected_max_days":"1","exclude":"0","custom_tab_index":"-1","icon_position":"outside","icon_align":"left","icon":"calendar","conditional_action":"disabled","conditional_trigger":"all","pdfOption":"none"}},{"tag":"time","group":"form_elements","data":{"name":"other","email":"Time:","placeholder":"Select a time","validation":"none","may_be_empty":"false","may_be_empty_conditions":[{"field":"","logic":"","value":"","and_method":"","field_and":"","logic_and":"","value_and":""}],"format":"H:i","step":"15","minlength":"13:00","maxlength":"18:00","duration":"false","grouped":"0","width":"0","exclude":"0","custom_tab_index":"-1","icon_position":"outside","icon_align":"left","icon":"clock;far","conditional_action":"show","conditional_trigger":"all","conditional_items":[{"field":"{date}","logic":"not_contains","value":"Fri","and_method":"and","field_and":"{date}","logic_and":"not_contains","value_and":"Sat"}],"pdfOption":"none"}},{"tag":"time","group":"form_elements","data":{"name":"friday_saturday","email":"Time:","placeholder":"Select a time","validation":"none","may_be_empty":"false","may_be_empty_conditions":[{"field":"","logic":"","value":"","and_method":"","field_and":"","logic_and":"","value_and":""}],"format":"H:i","step":"15","minlength":"13:00","maxlength":"22:00","duration":"false","grouped":"0","width":"0","exclude":"0","custom_tab_index":"-1","icon_position":"outside","icon_align":"left","icon":"clock;far","conditional_action":"show","conditional_trigger":"all","conditional_items":[{"field":"{date}","logic":"contains","value":"Fri","and_method":"or","field_and":"{date}","logic_and":"contains","value_and":"Sat"}],"pdfOption":"none"}},{"tag":"hidden","group":"form_elements","data":{"name":"time","email":"Hidden:","exclude":"0","code_length":"7","code_characters":"1","code_uppercase":"true","code_invoice_padding":"4","conditional_variable_action":"enabled","conditional_variable_method":"manual","conditional_variable_row":"date","conditional_variable_col":"date","conditional_variable_delimiter":",","conditional_variable_enclosure":"\"","conditional_variable_items":[{"field":"{date}","logic":"not_equal","value":"","and_method":"","field_and":"","logic_and":"","value_and":"","new_value":"{other}{friday_saturday}"}],"pdfOption":"none"}},{"tag":"html","group":"html_elements","data":{"title":"Debugging:","html":"<strong>date:</strong> {date}\n<strong>other:</strong> {other}\n<strong>friday_saturday:</strong> {friday_saturday}\n-------------------------\n<strong>time:</strong> {time}","nl2br":"true","conditional_action":"disabled","conditional_trigger":"all","pdfOption":"none"}}]
 ```
-

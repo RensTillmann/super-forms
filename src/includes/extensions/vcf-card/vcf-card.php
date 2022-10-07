@@ -144,7 +144,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             $fp = fopen( $source, "w" );
 //             if($fp==false){
 //                 SUPER_Common::output_message( array(
-//                     'error' => true,
 //                     'msg' => '<strong>Error:</strong> ' . esc_html__( 'Unable to write file', 'super-forms' ) . ' (' . $source . ')'
 //                 ));
 //             }else{

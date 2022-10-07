@@ -179,11 +179,11 @@
             <input type="text" name="title" class="form-name super-tooltip" title="<?php echo esc_attr__( 'Enter a name for your form', 'super-forms' ); ?>" value="<?php echo $title; ?>" />
             <?php
             if(isset($_GET['id'])){
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . absint($form_id) . '"]\' />';
+                echo '<input data-modified-time="'.get_post_modified_time('U', false, $_GET['id']).'" type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Paste shortcode on any page', 'super-forms' ) . '" value=\'[super_form id="' . absint($form_id) . '"]\' />';
                 echo '<input type="hidden" name="form_id" value="' . absint($form_id) . '" />';
             }else{
+                echo '<input data-modified-time="0" type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Please save your form first!', 'super-forms' ) . '" value="[form-not-saved-yet]" />';
                 echo '<input type="hidden" name="form_id" value="" />';
-                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes super-tooltip" title="' . esc_attr__( 'Please save your form first!', 'super-forms' ) . '" value="[form-not-saved-yet]" />';
             }
             echo '<p>' . esc_html__('Take the shortcode and place it anywere!', 'super-forms' ) . '</p>';
             echo '<div class="super-actions">';
@@ -268,7 +268,6 @@
                     foreach($tabs as $k => $v){
                         echo '<span class="super-tab-' . $k . ($current_tab==$k ? ' super-active' : '') . '" data-tab="' . esc_attr($k) . '" data-title="' . esc_attr($v) . '">';
                         echo esc_html($v);
-                        if(!is_array($triggers)) $triggers = array();
                         if(!is_array($translations)) $translations = array();
                         if($k==='builder' && !empty($translations) && current($translations)){
                             echo '<img src="'. esc_url(SUPER_PLUGIN_FILE . 'assets/images/blank.gif') . '" class="flag flag-' . current($translations)['flag'] . '" />';
@@ -287,7 +286,6 @@
                                 'local'=>$localSecrets, 
                                 'global'=>$globalSecrets
                             ), 
-                            'triggers'=>$triggers, 
                             'translations'=>$translations, 
                             'shortcodes'=>$shortcodes, 
                             'settings'=>$settings, 
@@ -307,6 +305,7 @@
 
                 <div class="super-live-preview"></div>
             </div>
+            <!--<div class="super-ui-resize-bar"></div>-->
             <div class="super-elements super-active">
                 <?php
                 echo '<div class="super-element super-element-settings">';

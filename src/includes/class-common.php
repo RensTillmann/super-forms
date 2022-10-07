@@ -19,35 +19,59 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+
+    // tmp public static function wp_insert_post_fast($data){
+    // tmp     global $wpdb;
+    // tmp     if(false===$wpdb->insert($wpdb->posts, wp_unslash($data))){
+    // tmp         return 0;
+    // tmp     }
+    // tmp     return (int) $wpdb->insert_id;
+    // tmp }
+    // tmp public static function wp_update_post_fast($data){
+    // tmp     global $wpdb;
+    // tmp     $post_ID = $data['ID'];
+    // tmp     unset($data['ID']);
+    // tmp     $data['post_author'] = get_current_user_id();
+    // tmp     $data['post_modified'] = current_time('mysql');
+    // tmp     $data['post_modified_gmt'] = current_time('mysql', 1);
+    // tmp     $data = wp_unslash($data);
+    // tmp     if(false===$wpdb->update($wpdb->posts, wp_unslash($data), array('ID'=>$post_ID))){
+    // tmp         return 0;
+    // tmp     }
+    // tmp     return $post_ID;
+    // tmp }
     
-    ///**
-    // * Get Form Triggers
-    // */
-    //public static function get_form_triggers($form_id){
-    //    return get_post_meta( $form_id, '_super_triggers', true );
-    //}
+    /**
+     * Get Form Triggers
+     */
     function add_metadata( $meta_type, $object_id, $meta_key, $meta_value, $unique = false ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column = sanitize_key( $meta_type . '_id' ); $meta_key   = wp_unslash( $meta_key ); $meta_value = wp_unslash( $meta_value ); $meta_value = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "add_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $unique ); if ( null !== $check ) { return $check; } if ( $unique && $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id)) ) { return false; } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); do_action( "add_{$meta_type}_meta", $object_id, $meta_key, $_meta_value ); $result = $wpdb->insert( $table, array( $column      => $object_id, 'meta_key'   => $meta_key, 'meta_value' => $meta_value,)); if ( ! $result ) { return false; } $mid = (int) $wpdb->insert_id; wp_cache_delete( $object_id, $meta_type . '_meta' ); do_action( "added_{$meta_type}_meta", $mid, $object_id, $meta_key, $_meta_value ); return $mid; }
     function update_metadata( $meta_type, $object_id, $meta_key, $meta_value, $prev_value = '' ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column    = sanitize_key( $meta_type . '_id' ); $id_column = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id'; $raw_meta_key = $meta_key; $meta_key     = wp_unslash( $meta_key ); $passed_value = $meta_value; $meta_value   = wp_unslash( $meta_value ); $meta_value   = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "update_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $prev_value ); if ( null !== $check ) { return (bool) $check; } if ( empty( $prev_value ) ) { $old_value = get_metadata_raw( $meta_type, $object_id, $meta_key ); if ( is_countable( $old_value ) && count( $old_value ) === 1 ) { if ( $old_value[0] === $meta_value ) { return false; } } } $meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT $id_column FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id ) ); if ( empty( $meta_ids ) ) { return self::add_metadata( $meta_type, $object_id, $raw_meta_key, $passed_value ); } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); $data  = compact( 'meta_value' ); $where = array( $column    => $object_id, 'meta_key' => $meta_key,); if ( ! empty( $prev_value ) ) { $prev_value          = maybe_serialize( $prev_value ); $where['meta_value'] = $prev_value; } foreach ( $meta_ids as $meta_id ) { do_action( "update_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'update_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } $result = $wpdb->update( $table, $data, $where ); if ( ! $result ) { return false; } wp_cache_delete( $object_id, $meta_type . '_meta' ); foreach ( $meta_ids as $meta_id ) { do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } return true; }
     public static function get_form_triggers($form_id){
-        var_dump('get_form_triggers()');
-        return false;
-        //global $wpdb;
-        //$table = $wpdb->prefix . 'posts';
-        //$table_meta = $wpdb->prefix . 'postmeta';
-        //$rows = $wpdb->get_results("
-        //SELECT ID, meta_value FROM wp_posts
-        //INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_gloabl_trigger'
-        //WHERE post_status = 'publish' 
-        //AND ID IN (
-        //    SELECT post_id FROM wp_postmeta 
-        //    WHERE post_id = ID AND meta_key = '_super_form_settings' 
-        //    AND meta_value LIKE '%\"_triggers\"%'
-        //)");
+        global $wpdb;
+        $triggers = array();
+        // Get global and specific triggers
+        $rows = $wpdb->get_results("SELECT meta_value FROM $wpdb->postmeta WHERE post_id = 0 AND (meta_key LIKE '_super_global_trigger%' OR meta_key LIKE '_super_specific_trigger%')");
+        foreach($rows as $r){
+            array_push($triggers, maybe_unserialize($r->meta_value));
+        }
+        // Get current form triggers
+        $rows = $wpdb->get_results("SELECT meta_value FROM $wpdb->postmeta WHERE post_id = '$form_id' AND meta_key LIKE '_super_trigger-%'");
+        foreach($rows as $r){
+            array_push($triggers, maybe_unserialize($r->meta_value));
+        }
+        return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id){
-        //var_dump('save_form_triggers()');
+        // First delete all local triggers for the current form
+        global $wpdb;
+        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = $form_id AND meta_key LIKE '_super_trigger-%'");
+        // Also delete all global triggers
+        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
+        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
         foreach($triggers['triggers'] as $trigger){
             $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
+            // Skip if no event was choosen
+            if(empty($trigger['event'])) continue; 
             // Only current form
             if(empty($trigger['listen_to'])){
                 update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
@@ -63,72 +87,76 @@ class SUPER_Common {
             }
             // Specific forms only (by ID)
             if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
-                $forms = explode(',', $trigger['listen_to_ids']);
-                foreach($forms as $id){
-                    update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
-                }
+                self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
+                //$forms = explode(',', $trigger['listen_to_ids']);
+                //foreach($forms as $id){
+                //    //update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
+                //}
                 continue;
             }
         }
-        //update_post_meta( $form_id, '_super_triggers', $triggers );
-        //array(2) {
-        //    ["enabled"]=>
-        //    string(4) "true"
-        //    ["triggers"]=>
-        //    array(1) {
-        //      [0]=>
-        //      array(4) {
-        //        ["active"]=>
-        //        string(4) "true"
-        //        ["name"]=>
-        //        string(12) "Trigger #123"
-        //        ["order"]=>
-        //        string(1) "1"
-        //        ["actions"]=>
-        //        array(1) {
-        //          [0]=>
-        //          array(1) {
-        //            ["line_breaks"]=>
-        //            string(4) "true"
-        //          }
-        //        }
-        //      }
-        //    }
-        //  }
-        //  int(61301)
-        //  61301
     }
+    public static function triggerEvent($eventName, $x){
+        global $wpdb;
+        error_log('triggerEvent('.$eventName.')');
+        if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
+        $triggers = array();
+        $form_id = absint($x['form_id']);
+        $triggers = self::get_form_triggers($form_id);
+        usort($triggers, function($a, $b) {
+            return absint($a['order']) - absint($b['order']);
+        });
+        error_log('form_id: '.$form_id);
+        //error_log(json_encode($triggers));
+        // Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
+        foreach($triggers as $k => $v){
+            error_log(json_encode($v));
+            if($v['active']!=='true') continue;
+            if($v['event']!==$eventName) continue;
+            // Match, execute actions
+            foreach($v['actions'] as $ak => $av){
+                error_log(json_encode($av));
+                if(empty($av['action'])) continue;
+                // Check if action needs to be conditionally triggered
+                $execute = true;
+                if($av['conditionally']==='true' && $av['logic']!==''){
+                    $execute = false;
+                    if($av['logic']==='==' && ($av['f1']===$av['f2'])) $execute = true;
+                }
+                if($execute===false) continue;
+                // Check if trigger function exists
+                if(method_exists('SUPER_Triggers', $av['action'])) {
+                    call_user_func(array('SUPER_Triggers', $av['action']), $eventName, $av['action'], $form_id, $av);
+                }
+            }
+        }
 
-    public static function triggerEvent($name, $x){
-//        if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
-//        // $name = 'stripe.checkout.session.async_payment_failed', 
-//        // $x = array('form_id'=>$form_id, 'session'=>$session));
-//        error_log('triggerEvent('.$name.')');
-//        $name = str_replace('.', '_', $name);
-//        error_log(json_encode($x));
-//        // Lookup actions that belong to this event 
-//        // both by form ID and global actions
-//        //SUPER_Triggers::send_email();
-//        $form_id = $x['form_id'];
-//        global $wpdb;
-//        $table = $wpdb->prefix . 'posts';
-//        $table_meta = $wpdb->prefix . 'postmeta';
-//        $rows = $wpdb->get_results("
-//        SELECT ID, meta_value FROM wp_posts
-//        INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_form_settings'
-//        WHERE post_status = 'publish' 
-//        AND ID IN (
-//            SELECT post_id FROM wp_postmeta 
-//            WHERE post_id = ID AND meta_key = '_super_form_settings' 
-//            AND meta_value LIKE '%\"_triggers\"%'
-//        )");
-//		foreach($rows as $r){
-//            var_dump($r['ID']);
-//            var_dump($r['meta_value']);
-//		}
-//        //if(method_exists('SUPER_Triggers', $name)){
-//        //    call_user_func(array('SUPER_Triggers', $name), $name, array('x'=>$x));
-//        //}
+        // tmp error_log('triggerEvent('.$name.')');
+        // tmp $name = str_replace('.', '_', $name);
+        // tmp error_log(json_encode($x));
+
+        // tmp // Lookup actions that belong to this event 
+        // tmp // both by form ID and global actions
+        // tmp //SUPER_Triggers::send_email();
+        // tmp global $wpdb;
+        // tmp $table = $wpdb->prefix . 'posts';
+        // tmp $table_meta = $wpdb->prefix . 'postmeta';
+        // tmp $rows = $wpdb->get_results("
+        // tmp SELECT ID, meta_value FROM wp_posts
+        // tmp INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_form_settings'
+        // tmp WHERE post_status = 'publish' 
+        // tmp AND ID IN (
+        // tmp     SELECT post_id FROM wp_postmeta 
+        // tmp     WHERE post_id = ID AND meta_key = '_super_form_settings' 
+        // tmp     AND meta_value LIKE '%\"_triggers\"%'
+        // tmp )");
+		// tmp foreach($rows as $r){
+        // tmp     var_dump($r['ID']);
+        // tmp     var_dump($r['meta_value']);
+		// tmp }
+        // tmp //if(method_exists('SUPER_Triggers', $name)){
+        // tmp //    call_user_func(array('SUPER_Triggers', $name), $name, array('x'=>$x));
+        // tmp //}
     }
 
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
@@ -1146,6 +1174,20 @@ class SUPER_Common {
                 SUPER_Forms()->global_settings = stripslashes(SUPER_Forms()->global_settings);
             }
         }
+        $email_body = '';
+        if(!empty(SUPER_Forms()->global_settings['email_body_open'])) $email_body .= SUPER_Forms()->global_settings['email_body_open'] . "\n\n";
+        unset(SUPER_Forms()->global_settings['email_body_open']);
+        $email_body .= SUPER_Forms()->global_settings['email_body'];
+        if(!empty(SUPER_Forms()->global_settings['email_body_close'])) $email_body .= "\n\n" . SUPER_Forms()->global_settings['email_body_close'];
+        unset(SUPER_Forms()->global_settings['email_body_close']);
+        SUPER_Forms()->global_settings['email_body'] = $email_body;
+        $confirm_body = '';
+        if(!empty(SUPER_Forms()->global_settings['confirm_body_open'])) $confirm_body .= SUPER_Forms()->global_settings['confirm_body_open'] . "\n\n";
+        unset(SUPER_Forms()->global_settings['confirm_body_open']);
+        $confirm_body .= SUPER_Forms()->global_settings['confirm_body'];
+        if(!empty(SUPER_Forms()->global_settings['confirm_body_close'])) $confirm_body .= "\n\n" . SUPER_Forms()->global_settings['confirm_body_close'];
+        unset(SUPER_Forms()->global_settings['confirm_body_close']);
+        SUPER_Forms()->global_settings['confirm_body'] = $confirm_body;
         return SUPER_Forms()->global_settings;
     }
 
@@ -1199,17 +1241,21 @@ class SUPER_Common {
         }else{
             $settings = $form_settings;
         }
-            
+
         $email_body = '';
         if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "\n\n";
+        unset($settings['email_body_open']);
         $email_body .= $settings['email_body'];
         if(!empty($settings['email_body_close'])) $email_body .= "\n\n" . $settings['email_body_close'];
+        unset($settings['email_body_close']);
         $settings['email_body'] = $email_body;
 
         $confirm_body = '';
         if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "\n\n";
+        unset($settings['confirm_body_open']);
         $confirm_body .= $settings['confirm_body'];
         if(!empty($settings['confirm_body_close'])) $confirm_body .= "\n\n" . $settings['confirm_body_close'];
+        unset($settings['confirm_body_close']);
         $settings['confirm_body'] = $confirm_body;
 
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
@@ -1681,7 +1727,6 @@ class SUPER_Common {
             if ( !mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();
                 SUPER_Common::output_message( array(
-                    'error' => true, 
                     'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']
                 ));
             }

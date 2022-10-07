@@ -952,7 +952,7 @@ class SUPER_Settings {
                 ),
                 'header_charset' => array(
                     'name' => esc_html__( 'Charset:', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'The content type to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), '<br />' ),
+                    'label' => sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), '<br />' ),
                     'default' =>  'UTF-8',
                     'i18n'=>true
                 ),

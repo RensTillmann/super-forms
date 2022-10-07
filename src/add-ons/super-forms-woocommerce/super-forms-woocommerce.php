@@ -844,7 +844,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     update_post_meta( $contact_entry_id, '_super_contact_entry_status', $form_settings['woocommerce_completed_entry_status'] );
                 }
                 if( !empty($form_settings['woocommerce_completed_email']) ) {
-                    $global_settings = get_option( 'super_settings' );
+                    $global_settings = SUPER_Common::get_global_settings();
                     if( $form_settings!=false ) {
                         // @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
                         foreach( $form_settings as $k => $v ) {
@@ -1883,7 +1883,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
                 unset($fields[$k]);
                 $k = str_replace('confirm', 'woocommerce_completed', $k);
-                $v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
+                //$v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
                 $new_fields[$k] = $v;
             }
             $array['woocommerce_checkout']['fields'] = array_merge($array['woocommerce_checkout']['fields'], $new_fields);

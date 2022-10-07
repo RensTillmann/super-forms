@@ -29,9 +29,11 @@ In this example we validate our form field named `code` with our database codes 
 When the code entered by the user does not exists, we will display an error message to the user, and the form will not be submitted.
 
 ```php
-add_action( 'super_before_sending_email_hook', 'f4d_compare_database_value' );
+add_action( 'super_before_sending_email_hook', 'f4d_compare_database_value', 1 );
 function f4d_compare_database_value($x){
-    extract(shortcode_atts(array('data'=>array()), $x));
+    extract(shortcode_atts(array('data'=>array(), 'form_id'=>0), $x));
+    $your_form_id = 12345;
+    if($form_id!==$your_form_id) return;
     $data = wp_unslash($data);
     // Our form has a field named `code` and we will lookup if this code exists in our custom databaset table named `wp_codes`
     // Make sure to trim whitespaces at the start and end of the string

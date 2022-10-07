@@ -1440,6 +1440,9 @@ class SUPER_Shortcodes {
                 $result .= ' super-has-only-desc';
             }
         }
+        if( !isset( $atts['icon'] ) ) $atts['icon'] = '';
+        if( !isset( $atts['icon_position'] ) ) $atts['icon_position'] = 'outside';
+        if( !isset( $atts['icon_align'] ) ) $atts['icon_align'] = 'left';
         $result .= ' ' . (!empty($atts['icon']) ? ' super-icon-' . $atts['icon_position'] . ' super-icon-' . $atts['icon_align'] : '');
         if(!empty($atts['value'])) $result .= ' super-filled';
         $align = '';

@@ -209,7 +209,6 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     if(fwrite($fp, $bom)===false){
                         // Print error message
                         SUPER_Common::output_message( array(
-                            'error' => true,
                             'msg' => "Unable to write to file ($filename)",
                             'form_id' => absint($atts['form_id'])
                         ));
@@ -239,7 +238,6 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                 } catch (Exception $e) {
                     // Print error message
                     SUPER_Common::output_message( array(
-                        'error' => true,
                         'msg' => $e->getMessage(),
                         'form_id' => absint($atts['form_id'])
                     ));

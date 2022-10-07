@@ -1,3 +1,25 @@
+/* Resize UI */
+/*
+.super-builder {
+    height: 100vh;
+}
+.super-preview {
+    flex: 1;
+}
+.super-ui-resize-bar {
+    background: #F0F0F2;
+    height: 100%;
+    width: 10px;
+    cursor: e-resize;
+    position: relative;
+    z-index: 10;
+}
+.super-ui-resize-bar:hover {
+    width: 10px;
+    background: #484848;
+}
+*/
+
 .super-preview .super-demos-notice {
     border: 4px dashed red;
     background-color: white;

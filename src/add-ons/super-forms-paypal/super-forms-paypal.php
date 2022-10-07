@@ -498,7 +498,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		 */
 		public static function super_paypal_txn_columns($columns){
     		
-    		$global_settings = get_option( 'super_settings' );
+			$global_settings = SUPER_Common::get_global_settings();
     		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
 
     		foreach($columns as $k => $v) {
@@ -525,7 +525,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		 */
 		public static function super_paypal_sub_columns($columns){
     		
-    		$global_settings = get_option( 'super_settings' );
+			$global_settings = SUPER_Common::get_global_settings();
     		$GLOBALS['backend_contact_entry_status'] = SUPER_Settings::get_entry_statuses($global_settings);
 
     		foreach($columns as $k => $v) {
@@ -1625,7 +1625,7 @@ if( !class_exists('SUPER_PayPal') ) :
 					// Can only work if entry was created
 					if( !empty($contact_entry_id) && !empty($settings['paypal_completed_email']) ) {
 						$data = get_post_meta($contact_entry_id, '_super_contact_entry_data', true);
-						$global_settings = get_option( 'super_settings' );
+						$global_settings = SUPER_Common::get_global_settings();
 						if( $settings!=false ) {
 							// @since 4.0.0 - when adding new field make sure we merge settings from global settings with current form settings
 							foreach( $settings as $k => $v ) {
@@ -3037,7 +3037,7 @@ if( !class_exists('SUPER_PayPal') ) :
                 }
                 unset($fields[$k]);
                 $k = str_replace('confirm', 'paypal_completed', $k);
-                $v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
+                //$v['default'] = SUPER_Settings::get_value( $default, $k, $settings, $v['default'] );
                 $new_fields[$k] = $v;
             }
             $array['paypal_checkout']['fields'] = array_merge($array['paypal_checkout']['fields'], $new_fields);
