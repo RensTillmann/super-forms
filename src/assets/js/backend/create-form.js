@@ -2,6 +2,50 @@
 "use strict";
 (function ($) { // Hide scope, no $ conflict
 
+    function checkNewerForVersion(){
+        // Check if this form was edited somewhere else, and the current version is outdated
+        // Notify the user so their changes won't be lost
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4) {
+                if (this.status == 200) {
+                    // Success:
+                    debugger;
+                    if(this.responseText==='true'){
+                        debugger;
+                        var reload = confirm(super_create_form_i18n.new_version_found);
+                        if(reload === true){
+                            window.location.href = window.location.href;
+                        }
+                    }else{
+                        // Already latest version, do nothing
+                        setTimeout(function(){
+                            checkNewerForVersion(); // Re-check every 10s.
+                        }, 60000);
+                    }
+                }
+                // Complete:
+            }
+        };
+        xhttp.onerror = function () {
+            console.log(this);
+            console.log("** An error occurred during the transaction");
+        };
+        xhttp.open("POST", ajaxurl, true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        var params = {
+            action: 'super_new_version_check',
+            form_id: $('.super-create-form input[name="form_id"]').val(),
+            modifiedTime: $('.super-create-form .super-header .super-get-form-shortcodes')[0].dataset.modifiedTime
+        };
+        params = $.param(params);
+        xhttp.send(params);
+
+    }
+    setTimeout(function(){
+        checkNewerForVersion();
+    }, 60000);
+
     function isEmpty(obj) {
         for (var prop in obj) {
             if (obj.hasOwnProperty(prop)) {
@@ -229,7 +273,6 @@
             subData, keys, fields, value, names,
             parentRepeater;
         for(i=0; i<nodes.length; i++){
-            debugger;
             // Check if key consist of multiple levels
             keys = k.split('.');
             if(keys.length>1){
@@ -240,51 +283,39 @@
                 if(typeof args.data[k] === 'undefined') args.data[k] = {};
                 if(typeof args.data[k][i] === 'undefined') args.data[k][i] = {};
             }
-            debugger;
             x, fields = nodes[i].querySelectorAll('[name]');
             for(x=0; x<fields.length; x++){
-                debugger;
                 parentRepeater = fields[x].closest('.sfui-repeater');
                 if(parentRepeater && parentRepeater!==args.node){
                     // is inner repeater, must process it
                     if(keys.length>1){
-                        debugger;
                         args.data[keys[0]][keys[1]][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[keys[0]][keys[1]][i]});
                     }else{
-                        debugger;
                         args.data[k][i] = SUPER.processRepeaterItems({tab: args.tab, node: parentRepeater, depth: args.depth, data: args.data[k][i]});
                     }
                     continue;
                 }
                 // is direct inner field, must add it to the data
                 value = fields[x].value;
-                debugger;
                 if(fields[x].type==='checkbox') value = fields[x].checked;
                 if(fields[x].type==='radio') value = (args.tab.querySelector('[name="'+fields[x].name+'"]:checked') ? args.tab.querySelector('[name="'+fields[x].name+'"]:checked').value : '');
                 if(value===true) value = "true"; 
-                if(value===false) value = ""; // We use "empty" instead of "false" to have a more cleaned up data
+                if(value===false) value = "false"; // We use "empty" instead of "false" to have a more cleaned up data
                 if(fields[x].tagName==='TEXTAREA' && tinymce.get(fields[x].id)){
                     value = tinymce.get(fields[x].id).getContent();
                 }
-                debugger;
-                if(value==='') continue;
-                debugger;
+                // @TODO: if(value==='') continue;
                 names = fields[x].name.split('.');
-                debugger;
                 if(names.length>1){
-                    debugger;
                     if(keys.length>1){
                         subData = args.data[keys[0]][keys[1]][i];
                     }else{
                         subData = args.data[k][i];
                     }
-                    debugger;
                     if(typeof subData[names[0]] === 'undefined') subData[names[0]] = {};
-                    debugger;
                     if(names.length===2){
                         subData[names[0]][names[1]] = value;
                     }else{
-                        debugger;
                         if(names.length===3){
                             if(typeof subData[names[0]][names[1]] === 'undefined') subData[names[0]][names[1]] = {};
                             subData[names[0]][names[1]][names[2]] = value;
@@ -295,14 +326,12 @@
                             }
                         }
                     }
-                    debugger;
                     if(keys.length>1){
                         args.data[keys[0]][keys[1]][i] = subData;
                     }else{
                         args.data[k][i] = subData;
                     }
                 }else{
-                    debugger;
                     if(keys.length>1){
                         args.data[keys[0]][keys[1]][i][names[0]] = value;
                     }else{
@@ -315,18 +344,14 @@
     };
     SUPER.get_obj_value_by_key = function(obj, is, value){
         if(typeof is==='string'){
-            debugger;
             return SUPER.get_obj_value_by_key(obj, is.split('.'), value);
         }else if(is.length===1 && value!==undefined && value!==''){
-            debugger;
             return obj[is[0]] = value;
         }else if(is.length===0){
-            debugger;
             return obj;
         }else{
             if(typeof obj[is[0]]==='undefined'){
                 //if(is.length===1) return obj[is[0]] = value;
-                debugger;
                 if(is.length>1) obj[is[0]] = {}
             }
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
@@ -350,7 +375,6 @@
                     value = tinymce.get(nodes[i].id).getContent();
                 }
                 name = nodes[i].name;
-                debugger;
                 SUPER.get_obj_value_by_key(data, name, value);
 
                 p = nodes[i].closest('.sfui-setting');
@@ -359,7 +383,6 @@
                     if(sub){
                         xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
                         for(x=0; x<xnodes.length; x++){
-                            debugger;
                             data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
                         }
                     }
@@ -367,18 +390,24 @@
             }
             settings['_'+slug] = data;
 
-            //// Process repeater items
-            //if(slug==='stripe'){
-            //    nodes = tab.querySelectorAll('.sfui-repeater');
-            //    for(x=0; x<nodes.length; x++){
-            //        data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
-            //    }
-            //}
+            // Process repeater items
+            if(slug==='triggers'){
+                nodes = tab.querySelectorAll('.sfui-setting > .sfui-repeater');
+                for(x=0; x<nodes.length; x++){
+                    data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
+                }
+            }
+            // Process repeater items
+            if(slug==='stripe'){
+                nodes = tab.querySelectorAll('.sfui-repeater');
+                for(x=0; x<nodes.length; x++){
+                    data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
+                }
+            }
         }
         return settings;
     }
     SUPER.get_trigger_settings = function(string){
-        debugger;
         if(typeof string === 'undefined') string = false;
         var $triggers = SUPER.get_tab_settings({}, 'triggers');
         $triggers = $triggers['_triggers'];
@@ -1129,14 +1158,16 @@
                 if (this.status == 200) {
                     $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
+                    debugger;
                     var response = this.responseText;
                     response = JSON.parse(response);
                     if(response.error===true){
                         // Display error message
                         alert(response.msg);
                     }else{
-                        $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response + '"]');
-                        $('.super-create-form input[name="form_id"]').val(response);
+                        $('.super-create-form .super-header .super-get-form-shortcodes')[0].dataset.modifiedTime = response.modifiedTime;
+                        $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response.form_id + '"]');
+                        $('.super-create-form input[name="form_id"]').val(response.form_id);
                         if ($method == 3) { // When switching from language
                             if (typeof callback === "function") { 
                                 callback($button); // safe to trigger callback
@@ -1148,6 +1179,7 @@
                                 if (typeof callback === "function") { 
                                     callback(); // safe to trigger callback
                                 }
+                                debugger;
                                 SUPER.preview_form($this);
                                 $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                                 return false;
@@ -1156,7 +1188,7 @@
                                 var page = href.substr(href.lastIndexOf('/') + 1);
                                 var str2 = "admin.php?page=super_create_form&id";
                                 if (page.indexOf(str2) == -1) {
-                                    window.location.href = "admin.php?page=super_create_form&id=" + response;
+                                    window.location.href = "admin.php?page=super_create_form&id=" + response.form_id;
                                 } else {
                                     if ($method == 2) {
                                         location.reload();
@@ -1215,6 +1247,7 @@
         xhttp.send(params);
     };
     SUPER.preview_form = function ($this) {
+        debugger;
         if ($('input[name="form_id"]').val() === '') {
             alert(super_create_form_i18n.alert_save);
             return false;
@@ -1223,23 +1256,32 @@
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display', 'block');
+            debugger;
             var $form_id = $('.super-create-form input[name="form_id"]').val();
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
                     // Success:
                     if (this.status == 200) {
+                        debugger;
                         $('.super-live-preview').removeClass('super-loading');
                         $('.super-live-preview').html(this.responseText);
                         $this.html('Builder');
                     }
                     // Complete:
+                    debugger;
                     SUPER.files = [];
+                    debugger;
                     SUPER.handle_columns();
+                    debugger;
                     SUPER.init_button_colors();
+                    debugger;
                     SUPER.init_super_responsive_form_fields({form: $('.super-live-preview > .super-form')[0]});
+                    debugger;
                     SUPER.init_super_form_frontend();
+                    debugger;
                     SUPER.after_preview_loaded_hook($form_id);
+                    debugger;
                 }
             };
             xhttp.onerror = function () {
@@ -1248,6 +1290,7 @@
             };
             xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            debugger;
             var params = {
                 action: 'super_load_preview',
                 form_id: $form_id
@@ -1255,6 +1298,7 @@
             params = $.param(params);
             xhttp.send(params);
         } else {
+            debugger;
             $('.super-live-preview').css('display', 'none');
             $('.super-tabs-content').css('display', '');
             $this.html('Preview');
@@ -1717,9 +1761,10 @@
                 document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
             }
             $('.super-tabs-content').css('display', '');
-            $('.super-preview.switch').removeClass('super-active');
+            $('.super-preview.super-switch').removeClass('super-active');
+            $('.super-preview.super-switch').html('Builder');
             $('.super-live-preview').css('display', 'none');
-            $('.super-preview.switch').removeClass('super-active');
+            $('.super-live-preview').html('');
             $('.super-tabs-content .super-tab-content').removeClass('super-active');
             $('.super-tabs-content .super-tab-' + $tab).addClass('super-active');
         });
@@ -1731,6 +1776,7 @@
                 $shortcode = '[form-not-saved-yet]',
                 $language = $this.html(),
                 $value = $this.attr('data-value'),
+
                 $dropdown = $this.parents('.super-dropdown:eq(0)'),
                 $row = $dropdown.parents('li:eq(0)');
             $dropdown.find('li.super-active').removeClass('super-active');
@@ -2892,8 +2938,10 @@
         });
 
         $doc.on('click', '.super-create-form .super-actions .super-preview', function () {
+            debugger;
             var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
             if ($(this).hasClass('super-mobile')) {
+                debugger;
                 $('.super-live-preview').removeClass('super-tablet');
                 $('.super-create-form .super-actions .super-preview.super-tablet').removeClass('super-active');
                 $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
@@ -2910,6 +2958,7 @@
                 return false;
             }
             if ($(this).hasClass('super-tablet')) {
+                debugger;
                 $('.super-live-preview').removeClass('super-mobile');
                 $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');
                 $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
@@ -2926,6 +2975,7 @@
                 return false;
             }
             if ($(this).hasClass('super-desktop')) {
+                debugger;
                 $('.super-live-preview').removeClass('super-tablet');
                 $('.super-live-preview').removeClass('super-mobile');
                 $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');
@@ -2949,6 +2999,7 @@
             } else {
                 $('.super-tabs-content').css('display', '');
                 $('.super-live-preview').css('display', 'none');
+                $('.super-live-preview').html('');
                 $this.html('Preview').removeClass('super-active');
             }
         });
@@ -3992,6 +4043,72 @@
 
         // Required for fields like Toggle element to be rendered properly
         SUPER.init_super_responsive_form_fields({form: $('.super-preview-elements')[0]});
+
+        // tmp // UI Resize bar
+        // tmp var resize = document.querySelector(".super-ui-resize-bar");
+        // tmp var left = document.querySelector(".super-preview");
+        // tmp var right = document.querySelector(".super-elements");
+        // tmp var container = document.querySelector(".super-builder");
+        // tmp var drag = false;
+        // tmp window.initialResizePosition = 0;
+
+        // tmp resize.addEventListener("touchstart", handleStart, false);
+        // tmp document.body.addEventListener("touchend", handleEnd, false);
+        // tmp document.body.addEventListener("touchcancel", handleCancel, false);
+        // tmp document.body.addEventListener("touchleave", handleEnd, false);
+        // tmp document.body.addEventListener("touchmove", handleMove, false);
+        // tmp var handleStart = function(){
+        // tmp     console.log('handleStart');
+        // tmp }
+        // tmp var handleEnd = function(){
+        // tmp     console.log('handleEnd');
+        // tmp }
+        // tmp var handleCancel = function(){
+        // tmp     console.log('handleCancel');
+        // tmp }
+        // tmp var handleMove = function(){
+        // tmp     console.log('handleMove');
+        // tmp }
+        // tmp resize.addEventListener("mousedown", function(e){
+        // tmp     window.initialResizePosition = e.x - left.getBoundingClientRect().width;
+        // tmp     window.initialWidth = right.getBoundingClientRect().width;
+        // tmp     drag = true;
+        // tmp });
+        // tmp resize.addEventListener("touchstart", function(e){
+        // tmp     window.initialResizePosition = e.x - left.getBoundingClientRect().width;
+        // tmp     window.initialWidth = right.getBoundingClientRect().width;
+        // tmp     drag = true;
+        // tmp });
+        // tmp container.addEventListener("touchmove", function(e){
+        // tmp     if(drag){
+        // tmp         var newWidth = 0;
+        // tmp         // Shrink
+        // tmp         var moveX = e.x - left.getBoundingClientRect().width;
+        // tmp         if(window.initialResizePosition < moveX) newWidth = window.initialWidth + (window.initialResizePosition - moveX);
+        // tmp         // Grow
+        // tmp         if(window.initialResizePosition > moveX) newWidth = window.initialWidth - (moveX - window.initialResizePosition);
+        // tmp         // Only if not zero
+        // tmp         if(newWidth>0) right.style.width = newWidth+'px';
+        // tmp     }
+        // tmp });
+        // tmp container.addEventListener("mousemove", function(e){
+        // tmp     if(drag){
+        // tmp         var newWidth = 0;
+        // tmp         // Shrink
+        // tmp         var moveX = e.x - left.getBoundingClientRect().width;
+        // tmp         if(window.initialResizePosition < moveX) newWidth = window.initialWidth + (window.initialResizePosition - moveX);
+        // tmp         // Grow
+        // tmp         if(window.initialResizePosition > moveX) newWidth = window.initialWidth - (moveX - window.initialResizePosition);
+        // tmp         // Only if not zero
+        // tmp         if(newWidth>0) right.style.width = newWidth+'px';
+        // tmp     }
+        // tmp });
+        // tmp container.addEventListener("touchend", function(){
+        // tmp     drag = false;
+        // tmp });
+        // tmp container.addEventListener("mouseup", function(){
+        // tmp     drag = false;
+        // tmp });
     });
 
     window.addEventListener('beforeunload', function (e) {

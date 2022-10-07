@@ -3783,25 +3783,21 @@ if(!class_exists('SUPER_Stripe')) :
         // no longer used...?                 $global_settings = SUPER_Common::get_global_settings();
         // no longer used...?                 if( (!empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_sandbox_key'])) ) {
         // no longer used...?                     SUPER_Common::output_message( array(
-        // no longer used...?                         'error' => true,
         // no longer used...?                         'msg' => sprintf( esc_html__( 'Stripe Sandbox API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' )
         // no longer used...?                     ));
         // no longer used...?                 }
         // no longer used...?                 if( (empty($global_settings['stripe_mode'])) && (empty($global_settings['stripe_live_key'])) ) {
         // no longer used...?                     SUPER_Common::output_message( array(
-        // no longer used...?                         'error' => true,
         // no longer used...?                         'msg' => sprintf( esc_html__( 'Stripe Live API key not configured, please enter your API key under %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>' )
         // no longer used...?                     ));
         // no longer used...?                 }
         // no longer used...?                 // Check if iDeal element exists
         // no longer used...?                 if( !isset($data['stripe_ideal']) ) {
         // no longer used...?                     SUPER_Common::output_message( array(
-        // no longer used...?                         'error' => true,
         // no longer used...?                         'msg' => sprintf( esc_html__( 'No element found named %sstripe_ideal%s. Please make sure you added the Stripe iDeal element and named it %sstripe_ideal%s.', 'super-forms' ), '<strong>', '</strong>', '<strong>', '</strong>' )
         // no longer used...?                     ));
         // no longer used...?                 }else{
         // no longer used...?                     SUPER_Common::output_message( array(
-        // no longer used...?                         'error' => true,
         // no longer used...?                         'msg' => esc_html__( 'Please choose a bank.', 'super-forms' )
         // no longer used...?                     ));
         // no longer used...?                 }

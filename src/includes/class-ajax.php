@@ -31,6 +31,7 @@ class SUPER_Ajax {
             
             // Ajax action                  => nopriv
             //'example'                     => true,
+            'new_version_check'             => false,
             'mark_unread'                   => false,
             'mark_read'                     => false,
             'delete_contact_entry'          => false,
@@ -112,7 +113,14 @@ class SUPER_Ajax {
                 add_action( 'wp_ajax_nopriv_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
             }
         }
-
+    }
+    public static function new_version_check(){
+        if($_POST['modifiedTime'] < get_post_modified_time('U', false, $_POST['form_id'])){
+            echo 'true'; // there is a newer version
+        }else{
+            echo 'false'; // this is the latest version
+        }
+        die();
     }
 
     // Used when Ajax lookup is enabled
@@ -1703,8 +1711,8 @@ class SUPER_Ajax {
             if($import_triggers=='true' && isset($contents['triggers'])) $_POST['triggerSettings']= $contents['triggers'];
             if($import_translations=='true' && isset($contents['translations'])) $_POST['translationSettings']= $contents['translations'];
             if($import_secrets=='true' && isset($contents['secrets'])) $_POST['localSecrets'] = $contents['secrets'];
-            $form_id = self::save_form();
-            echo $form_id;
+            $response = self::save_form();
+            echo $response;
         }else{
             SUPER_Common::output_message( array(
                 'msg' => sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
@@ -2114,13 +2122,16 @@ class SUPER_Ajax {
         if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
         if( empty( $form_id ) ) {
             $form = array(
+                'post_author' => get_current_user_id(),
                 'post_title' => $title,
                 'post_status' => 'publish',
                 'post_type'  => 'super_form'
             );
-            $form_id = wp_insert_post( $form ); 
+            $form_id = wp_insert_post($form);
+            //$form_id = SUPER_Common::wp_insert_post_fast($form);
             self::save_form_meta(
                 array(
+                    'title'=>$title,
                     'action'=>$action,
                     'form_id'=>$form_id,
                     'settings'=>$_super_form_settings,
@@ -2139,6 +2150,7 @@ class SUPER_Ajax {
                 'post_title' => $title
             );
             wp_update_post( $form );
+            //SUPER_Common::wp_update_post_fast($form);
             if(!empty($_POST['i18n'])){
                 // Merge with existing form settings
                 $settings = SUPER_Common::get_form_settings($form_id);
@@ -2153,6 +2165,7 @@ class SUPER_Ajax {
             }
             self::save_form_meta(
                 array(
+                    'title'=>$title,
                     'action'=>$action,
                     'form_id'=>$form_id,
                     'settings'=>$_super_form_settings,
@@ -2169,7 +2182,7 @@ class SUPER_Ajax {
         if($action==='super_save_form'){
             // Only update global secrets if we are not importing a form
             update_option( 'super_global_secrets', $super_global_secrets );
-            echo $form_id;
+            echo json_encode(array('form_id'=>$form_id, 'modifiedTime'=>get_post_modified_time('U', false, $form_id)));
             die();
         }
         // Importing single form, we must return the form ID
@@ -2177,47 +2190,44 @@ class SUPER_Ajax {
             return $form_id;
         }
     }
-    public static function save_form_meta($atts) {
-        extract($atts);
+    public static function save_form_meta($x) {
+        extract($x);
         if($new===true){
             add_post_meta( $form_id, '_super_version', SUPER_VERSION );
             add_post_meta( $form_id, '_super_form_settings', $settings );
             add_post_meta( $form_id, '_super_elements', $elements );
-            SUPER_Common::save_form_triggers($triggers, $form_id);
             add_post_meta( $form_id, '_super_translations', $translations );
             add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+            SUPER_Common::save_form_triggers($triggers, $form_id);
         }else{
             update_post_meta( $form_id, '_super_version', SUPER_VERSION );
             if($action==='super_save_form'){
                 update_post_meta( $form_id, '_super_form_settings', $settings );
                 update_post_meta( $form_id, '_super_elements', $elements );
-                //update_post_meta( $form_id, '_super_triggers', $triggers );
-                SUPER_Common::save_form_triggers($triggers, $form_id);
                 update_post_meta( $form_id, '_super_translations', $translations );
                 update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+                SUPER_Common::save_form_triggers($triggers, $form_id);
             }
             if($action==='super_import_single_form'){
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
-                if(!empty($triggers)) {
-                    //update_post_meta( $form_id, '_super_triggers', $triggers );
-                    SUPER_Common::save_form_triggers($triggers, $form_id);
-                }
+                if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
                 if(!empty($translations)) update_post_meta( $form_id, '_super_translations', $translations );
                 if(!empty($local_secrets)) update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
             }
             // @since 3.1.0 - save history (store a total of 50 backups into db)
             if($backup===false){
-                $title = get_the_title($form_id);
                 $form = array(
                     'post_parent' => $form_id,
                     'post_title' => $title,
                     'post_status' => 'backup',
                     'post_type'  => 'super_form'
                 );
-                $backup_id = wp_insert_post( $form ); 
+                $backup_id = wp_insert_post($form);
+                //$backup_id = SUPER_Common::wp_insert_post_fast($form);
                 self::save_form_meta(
                     array(
+                        'title'=>$title,
                         'action'=>$action,
                         'form_id'=>$backup_id,
                         'settings'=>$settings,
@@ -2309,7 +2319,7 @@ class SUPER_Ajax {
                     $result .= ' data-default="' . $default . '"';
                 }
                 if( !empty($fv['_styles']) ) {
-                    $result .= ' data-styles="' .esc_attr(json_encode($fv['_styles'], true)). '"';
+                    $result .= ' data-styles="' .esc_attr(json_encode($fv['_styles'])). '"';
                 }
                 $result .= '>';
                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
@@ -3382,22 +3392,7 @@ class SUPER_Ajax {
             }
         }
         if( $settings['send']=='yes' ) {
-            if(!empty($settings['email_body_open'])){
-                $settings['email_body_open'] = $settings['email_body_open'] . '<br /><br />';
-            }else{
-                $settings['email_body_open'] = '';
-            }
-            if(!empty($settings['email_body'])){
-                $settings['email_body'] = $settings['email_body'] . '<br /><br />';
-            }else{
-                $settings['email_body'] = '';
-            }
-            if(!empty($settings['email_body_close'])){
-                $settings['email_body_close'] = $settings['email_body_close'];
-            }else{
-                $settings['email_body_close'] = '';
-            }
-            $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
+            $email_body = $settings['email_body'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             
@@ -3487,23 +3482,7 @@ class SUPER_Ajax {
             // @since 2.8.0 - additional header support for confirmation emails
             if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
             $settings['header_additional'] = $settings['confirm_header_additional'];
-            
-            if(!empty($settings['confirm_body_open'])){
-                $settings['confirm_body_open'] = $settings['confirm_body_open'] . '<br /><br />';
-            }else{
-                $settings['confirm_body_open'] = '';
-            }
-            if(!empty($settings['confirm_body'])){
-                $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
-            }else{
-                $settings['confirm_body'] = '';
-            }
-            if(!empty($settings['confirm_body_close'])){
-                $settings['confirm_body_close'] = $settings['confirm_body_close'];
-            }else{
-                $settings['confirm_body_close'] = '';
-            }
-            $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
+            $email_body = $settings['confirm_body'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 

@@ -413,13 +413,8 @@ class SUPER_Pages {
         return $trigger;
     }
     public static function triggers_tab($atts) {
-        $triggers = array();
-        $enabled = '';
-        if(isset($atts['triggers']) && isset($atts['triggers']['triggers'])){
-            $enabled = $atts['triggers']['enabled'];
-            $triggers = $atts['triggers']['triggers'];
-        }
-        if(count($triggers)==0) {
+        $triggers = SUPER_Common::get_form_triggers($atts['form_id']);
+        if(count($triggers)===0) {
             $triggers[] = self::get_default_trigger_settings(array());
         }
         echo '<div class="sfui-notice sfui-desc">';
@@ -427,11 +422,11 @@ class SUPER_Pages {
         echo '</div>';
         // Enable listings
         echo '<div class="sfui-setting">';
-            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                echo '<input type="checkbox" name="enabled" value="true"' . ($enabled==='true' ? ' checked="checked"' : '') . ' />';
-                echo '<span class="sfui-title">' . esc_html__( 'Enable triggers for this form', 'super-forms' ) . '</span>';
-            echo '</label>';
-            echo '<div class="sfui-sub-settings" data-f="enabled;true">';
+            //echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            //    echo '<input type="checkbox" name="enabled" value="true"' . ($enabled==='true' ? ' checked="checked"' : '') . ' />';
+            //    echo '<span class="sfui-title">' . esc_html__( 'Enable triggers for this form', 'super-forms' ) . '</span>';
+            //echo '</label>';
+            //echo '<div class="sfui-sub-settings">';
                 // When enabled, we display the list with listings
                 echo '<div class="sfui-repeater" data-k="triggers">';
                 // Repeater Item
@@ -576,76 +571,31 @@ class SUPER_Pages {
                             echo '<div class="sfui-setting sfui-inline" data-f="event;!">';
                                 echo '<div class="sfui-sub-settings">';
                                     echo '<div class="sfui-repeater" data-k="actions">';
-                                        // "_triggers": {
-                                        //     "enabled": "true",
-                                        //     "triggers": {
-                                        //         "0": {
-                                        //             "active": "true",
-                                        //             "name": "Trigger #1",
-                                        //             "desc": "Describe what this trigger does...",
-                                        //             "order": "1",
-                                        //             "event": "stripe.checkout.session.completed",
-                                        //             "actions": {
-                                        //                 "0": {
-                                        //                     "action": "send_email",
-                                        //                     "to": "test1@test.com",
-                                        //                     "from": "",
-                                        //                     "reply_to": "",
-                                        //                     "subject": "",
-                                        //                     "body": "",
-                                        //                     "line_breaks": "true",
-                                        //                     "cc": "",
-                                        //                     "bcc": "",
-                                        //                     "headers": ""
-                                        //                 },
-                                        //                 "1": {
-                                        //                     "action": "send_email",
-                                        //                     "to": "test2@test.com",
-                                        //                     "from": "",
-                                        //                     "reply_to": "",
-                                        //                     "subject": "",
-                                        //                     "body": "",
-                                        //                     "line_breaks": "true",
-                                        //                     "cc": "",
-                                        //                     "bcc": "",
-                                        //                     "headers": ""
-                                        //                 },
-                                        //                 "2": {
-                                        //                     "action": "send_email",
-                                        //                     "to": "test3@test.com",
-                                        //                     "from": "",
-                                        //                     "reply_to": "",
-                                        //                     "subject": "",
-                                        //                     "body": "",
-                                        //                     "line_breaks": "true",
-                                        //                     "cc": "",
-                                        //                     "bcc": "",
-                                        //                     "headers": ""
-                                        //                 }
-                                        //             }
-                                        //         }
-                                        //     }
-                                        // },
-
                                         // Loop over actions for this event
-                                        if(!isset($v['actions'])) $v['actions'] = array(
-                                            array(
-                                                'action'=>'', 
-                                                'conditionally'=>'', 
-                                                'f1'=>'', 
-                                                'f2'=>'', 
-                                                'to'=>'', 
-                                                'from'=>'', 
-                                                'reply_to'=>'', 
-                                                'subject'=>'',
-                                                'body'=>'', 
-                                                'line_breaks'=>'true', 
-                                                'cc'=>'', 
-                                                'bcc'=>'', 
-                                                'headers'=>''
-                                            )
-                                        );
+                                        if(!isset($v['actions'])) $v['actions'] = array(array('action'=>''));
                                         foreach($v['actions'] as $ik => $iv){
+                                            $iv = array_merge(
+                                                array(
+                                                    'action'=>'', 
+                                                    'conditionally'=>'', 
+                                                    'logic'=>'', 
+                                                    'f1'=>'', 
+                                                    'f2'=>'', 
+                                                    'to'=>'', 
+                                                    'from'=>'', 
+                                                    'reply_to'=>'', 
+                                                    'subject'=>'',
+                                                    'body'=>'', 
+                                                    //'line_breaks'=>'true',  not used due to tinyMCE
+                                                    'cc'=>'', 
+                                                    'bcc'=>'', 
+                                                    'headers'=>'',
+                                                    'content_type'=>'html',
+                                                    'charset'=>'UTF-8'
+                                                ), 
+                                                $iv
+                                            );
+
                                             echo '<div class="sfui-repeater-item">';
                                                 echo '<div class="sfui-setting sfui-inline" style="flex:1;">';
                                                     // 3. Action - The action that is executed/performed
@@ -729,12 +679,23 @@ class SUPER_Pages {
                                                                         echo '<textarea name="body" id="'.($k.'-'.$ik.'-'.$iv['action']).'-body" class="sfui-textarea-tinymce">'.esc_textarea(wp_unslash($iv['body'])).'</textarea>';
                                                                     echo '</label>';
                                                                 echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-no-padding">';
-                                                                    echo '<label>';
-                                                                        echo '<input type="checkbox" name="line_breaks" value="true"' . ($iv['line_breaks']==='true' ? ' checked="checked"' : '') . ' />';
-                                                                        echo '<span class="sfui-title">' . esc_html__( 'Enable line breaks', 'super-forms' ) . '</span>';
+                                                                // not needed due to tinyMCE echo '<div class="sfui-setting sfui-no-padding">';
+                                                                // not needed due to tinyMCE     echo '<label>';
+                                                                // not needed due to tinyMCE         echo '<input type="checkbox" name="line_breaks" value="true"' . ($iv['line_breaks']==='true' ? ' checked="checked"' : '') . ' />';
+                                                                // not needed due to tinyMCE         echo '<span class="sfui-title">' . esc_html__( 'Enable line breaks', 'super-forms' ) . '</span>';
+                                                                // not needed due to tinyMCE     echo '</label>';
+                                                                // not needed due to tinyMCE echo '</div>';
+
+                                                                // @TODO:
+                                                                // 'attachments'=>array(),
+                                                                // 'string_attachments'=>array()
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Attachments', 'super-forms') . ':</span>';
+                                                                        echo '<span class="sfui-title">' . esc_html__('String attachments', 'super-forms') . ':</span>';
                                                                     echo '</label>';
                                                                 echo '</div>';
+
                                                                 echo '<div class="sfui-setting sfui-vertical">';
                                                                     echo '<label class="sfui-no-padding">';
                                                                         echo '<span class="sfui-title">' . esc_html__('CC', 'super-forms') . ':</span>';
@@ -745,6 +706,24 @@ class SUPER_Pages {
                                                                     echo '<label class="sfui-no-padding">';
                                                                         echo '<span class="sfui-title">' . esc_html__('BCC', 'super-forms') . ':</span>';
                                                                         echo '<input type="text" name="bcc" value="' . $iv['bcc'] . '" />';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+                                                                    echo '<label>';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Content type', 'super-forms') . ':</span>';
+                                                                        echo '<select name="content_type" onChange="SUPER.ui.updateSettings(event, this)">';
+                                                                            echo '<option value=""'.($iv['content_type']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
+                                                                            echo '<option value="html"'.($iv['content_type']==='html' ? ' selected="selected"' : '').'>HTML</option>';
+                                                                            echo '<option value="plain"'.($iv['content_type']==='plain' ? ' selected="selected"' : '').'>Plain text</option>';
+                                                                        echo '</select>';
+                                                                        echo '<span class="sfui-label"><i>' . esc_html__( 'The content type to use for this email', 'super-forms' ) . '</i></span>';
+                                                                    echo '</label>';
+                                                                echo '</div>';
+                                                                echo '<div class="sfui-setting sfui-vertical">';
+                                                                    echo '<label class="sfui-no-padding">';
+                                                                        echo '<span class="sfui-title">' . esc_html__('Charset', 'super-forms') . ':</span>';
+                                                                        echo '<input type="text" name="charset" value="' . $iv['charset'] . '" />';
+                                                                        echo '<span class="sfui-label"><i>' . sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), ' ' ) . '</i></span>';
                                                                     echo '</label>';
                                                                 echo '</div>';
                                                                 echo '<div class="sfui-setting sfui-vertical">';
@@ -789,10 +768,7 @@ class SUPER_Pages {
                     echo '</div>';
                 }
                 echo '</div>';
-
-
-
-            echo '</div>';
+            //echo '</div>';
         echo '</div>';
     }
 
@@ -834,7 +810,7 @@ class SUPER_Pages {
         $shortcodes = SUPER_Shortcodes::shortcodes();
         
         // @since 4.7.0 - translations
-        $triggers = SUPER_Common::get_form_triggers($form_id);
+        //$triggers = SUPER_Common::get_form_triggers($form_id);
 
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($form_id);

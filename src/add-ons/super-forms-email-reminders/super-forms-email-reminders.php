@@ -153,6 +153,8 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             // Upon activating & deactivating the bundled plugin
             add_action( 'after_super_forms_deactivated', array( $this, 'plugin_deactivation' ) );
 
+            add_filter( 'super_form_settings_filter', array( $this, 'filter_settings' ), 10, 2 );
+
             if ( $this->is_request( 'admin' ) ) {
                 // Filters since 1.0.0
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
@@ -161,6 +163,34 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 add_action( 'super_before_email_success_msg_action', array( $this, 'set_reminder' ) );
             }
 
+        }
+        public static function filter_settings($settings, $x){
+            // Loop until we can't find reminder
+            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
+            $limit = absint($settings['email_reminder_amount']);
+            if($limit==0) $limit = 3;
+            $x = 1;
+            while( $x <= $limit ) {
+                if( (!empty($settings['email_reminder_' . $x])) && ($settings['email_reminder_' . $x]=='true') ) {
+                    $email_body = '';
+                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $email_body .= $settings['email_reminder_' . $x . '_body_open'] . "\n\n";
+                    unset($settings['email_reminder_' . $x . '_body_open']);
+                    $email_body .= $settings['email_reminder_' . $x . '_body'];
+                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $email_body .= "\n\n" . $settings['email_reminder_' . $x . '_body_close'];
+                    unset($settings['email_reminder_' . $x . '_body_close']);
+                    $settings['email_reminder_' . $x . '_body'] = $email_body;
+
+                    $confirm_body = '';
+                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $confirm_body .= $settings['email_reminder_' . $x . '_body_open'] . "\n\n";
+                    unset($settings['email_reminder_' . $x . '_body_open']);
+                    $confirm_body .= $settings['email_reminder_' . $x . '_body'];
+                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $confirm_body .= "\n\n" . $settings['email_reminder_' . $x . '_body_close'];
+                    unset($settings['email_reminder_' . $x . '_body_close']);
+                    $settings['email_reminder_' . $x . '_body'] = $confirm_body;
+                }
+                $x++;
+            }
+            return $settings;
         }
 
 
@@ -415,7 +445,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 // Test if time was set to 24 hour format
                 if(!preg_match("#([0-1]{1}[0-9]{1}|[2]{1}[0-3]{1}):[0-5]{1}[0-9]{1}#", $reminder_time)){
                     SUPER_Common::output_message( array(
-                        'error' => true, 
                         'msg' => $reminder_time . esc_html__( 'is not a valid 24-hour clock format, please correct and make sure to use a 24-hour format e.g: 21:45', 'super-forms' ),
                         'form_id' => absint($atts['form_id'])
                     ));
@@ -432,7 +461,6 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             $reminder_date = strtotime($reminder_real_date);
             if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
                 SUPER_Common::output_message( array(
-                    'error' => true, 
                     'msg' => '<strong>' . $reminder_real_date . '</strong> ' . esc_html__( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ),
                     'form_id' => absint($atts['form_id'])
                 ));

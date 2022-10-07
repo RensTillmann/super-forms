@@ -531,10 +531,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 //     if( (absint($args['product_id'])===0) || (absint($args['quantity'])===0) ) {
 //                 //         // Return the error message to the user
 //                 //         SUPER_Common::output_message( array(
-//                 //             'error' => true,
 //                 //             'msg' => esc_html__( 'The order couldn\'t be created because it is missing products!', 'super-forms' ),
-//                 //             'redirect' => null
-
 //                 //         );
 //                 //     }
 //                 // }
@@ -571,10 +568,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     if(is_wp_error($order)){
 //                         // Return the error message to the user
 //                         SUPER_Common::output_message( array(
-//                             'error' => true,
 //                             'msg' => esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
-//                             'redirect' => null
-
 //                         );
 //                     }else{
 //                         $order->remove_order_items();
@@ -594,10 +588,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     if(is_wp_error($order)){
 //                         // Return the error message to the user
 //                         SUPER_Common::output_message( array(
-//                             'error' => true,
 //                             'msg' => esc_html__('Error: Unable to create order. Please try again.', 'woocommerce'),
-//                             'redirect' => null
-
 //                         );
 //                     }else{
 //                         do_action('woocommerce_new_order', $order->id);
@@ -620,10 +611,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                         wp_delete_post($order->id, true);
 //                         // Return the error message to the user
 //                         SUPER_Common::output_message( array(
-//                             'error' => true,
 //                             'msg' => esc_html__( 'Invalid payment method.', 'woocommerce' ),
-//                             'redirect' => null
-
 //                         );
 //                     }
 //                 }
@@ -762,10 +750,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     wp_delete_post($order->id, true);
 //                     // Return the error message to the user
 //                     SUPER_Common::output_message( array(
-//                         'error' => true,
 //                         'msg' => $e->getMessage(),
-//                         'redirect' => null
-
 //                     );
 //                 }
 // 
@@ -789,10 +774,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     wp_delete_post($order->id, true);
 //                     // Return the error message to the user
 //                     SUPER_Common::output_message( array(
-//                         'error' => true,
 //                         'msg' => $e->getMessage(),
-//                         'redirect' => null
-
 //                     );
 //                 }
 // 

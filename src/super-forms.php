@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.631
+ * Version:           6.3.633
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.631';
+        public $version = '6.3.633';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1982,7 +1982,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'super_create_form_secrets_tab', array( 'SUPER_Pages', 'secrets_tab' ), 10, 1 );
                 add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
                 add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
-                add_action( 'admin_footer', function(){ echo SUPER_Common::get_transient(array('slug'=>'super-forms_page_super_create_form'));}, 15);
+                add_action( 'admin_footer', function(){echo SUPER_Common::get_transient(array('slug'=>'super-forms_page_super_create_form'));}, 15);
             }
 
             // @since 1.7 - add the export button only on the super_contact_entry page
@@ -2581,6 +2581,7 @@ if(!class_exists('SUPER_Forms')) :
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
+                            'new_version_found' => esc_html__( 'This form was edited in a different browser TAB or by a different user. Do you wish to reload the form?', 'super-forms' ),
                             'confirm_deletion' => esc_html__( 'Please confirm deletion!', 'super-forms' ),
                             'confirm_import' => esc_html__( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
                             'export_form_error' => esc_html__( 'Something went wrong while exporting form data.', 'super-forms' ),
