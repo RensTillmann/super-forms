@@ -390,6 +390,7 @@
                 document.body.appendChild(modalWrapper);
                 if (app.q('.super-field-type-currency input')) {
                     jQuery(app.q('.super-field-type-currency input')).maskMoney({
+                        allowZero: true,
                         affixesStay: true,
                         allowNegative: true,
                         thousands: ',',

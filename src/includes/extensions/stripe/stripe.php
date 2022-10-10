@@ -1179,6 +1179,7 @@ if(!class_exists('SUPER_Stripe')) :
 
             $domain = home_url(); // e.g: 'http://domain.com';
             $home_url = trailingslashit($domain);
+            if(empty($settings['_stripe'])) return true;
             $s = $settings['_stripe'];
             // Skip if Stripe checkout is not enabled
             if($s['enabled']!=='true') return true;

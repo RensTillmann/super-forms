@@ -279,6 +279,7 @@
             $(this).maskMoney({
                 prefix: $currency,
                 suffix: $format,
+                allowZero: true,
                 affixesStay: true,
                 allowNegative: true,
                 thousands: $thousand_separator,

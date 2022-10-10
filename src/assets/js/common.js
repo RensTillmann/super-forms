@@ -3906,7 +3906,7 @@ function SUPERreCaptcha(){
         if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
 
         // Reset preflight values
-        if(SUPER.preFlightMappings[formId].fieldNames[args.el.name]){
+        if(args.el && SUPER.preFlightMappings[formId].fieldNames[args.el.name]){
             for(var i=0; i<SUPER.preFlightMappings[formId].fieldNames[args.el.name].length; i++){
                 var indexMapping = SUPER.preFlightMappings[formId].fieldNames[args.el.name][i];
                 delete SUPER.preFlightMappings[formId].tags[indexMapping];
