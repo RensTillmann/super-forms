@@ -1165,6 +1165,12 @@
                         // Display error message
                         alert(response.msg);
                     }else{
+                        if(!isNaN(Number(response))){
+                            response = {
+                                form_id: response,
+                                modifiedTime: 0
+                            }
+                        }
                         $('.super-create-form .super-header .super-get-form-shortcodes')[0].dataset.modifiedTime = response.modifiedTime;
                         $('.super-create-form .super-header .super-get-form-shortcodes').val('[super_form id="' + response.form_id + '"]');
                         $('.super-create-form input[name="form_id"]').val(response.form_id);
