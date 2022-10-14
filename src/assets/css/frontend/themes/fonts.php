@@ -70,6 +70,7 @@ return "
 .tooltip-super-form-".$form_id." {
     ".(!empty($v['font_global_family']) ? "font-family: ".$v['font_global_family'].";" : "")."
 }
+".$s.".super-field-type-date .super-adaptive-placeholder,
 ".$s.".super-focus .super-adaptive-placeholder,
 ".$s.".super-filled .super-adaptive-placeholder {
     font-size: 10px;

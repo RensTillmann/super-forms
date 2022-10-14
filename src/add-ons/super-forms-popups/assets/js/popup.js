@@ -5,9 +5,10 @@
 	SUPER.init_before_scrolling_to_error_popup = function(proceed, form, $scroll){
 		var popupContent = form.closest('.super-popup-content');
 		if(popupContent){
-            $(popupContent).animate({
-                scrollTop: $scroll
-            }, 1000);
+			$(popupContent)[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+            //$(popupContent).animate({
+            //    scrollTop: $scroll
+            //}, 1000);
             proceed = false;
         }
 		return proceed;
@@ -16,9 +17,10 @@
 	// Scroll to top of popup content after appending message
 	SUPER.init_before_scrolling_to_message_popup = function(proceed, form){
         if($(form).parents('.super-popup-content:eq(0)').length){
-            $(form).parents('.super-popup-content:eq(0)').animate({
-				scrollTop: 0
-            }, 1000);
+			$(form).parents('.super-popup-content:eq(0)')[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+			//$(form).parents('.super-popup-content:eq(0)').animate({
+			//	scrollTop: 0
+			//}, 1000);
             proceed = false;
         }
 		return proceed;

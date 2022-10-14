@@ -11,6 +11,7 @@ $v = array_merge($global_settings, $v);
 $bottom = $v['adaptive_placeholder_bg_bottom_focus'];
 $top = $v['adaptive_placeholder_bg_top_focus'];
 $placeholder_bg_focus = "
+".$s.".super-field-type-date .super-adaptive-placeholder span,
 ".$s.".super-focus .super-adaptive-placeholder span,
 ".$s.".super-adaptive-positioning span {
     ".(!empty($bottom) ? "background: ".$bottom."; /* Old browsers */" : "")."

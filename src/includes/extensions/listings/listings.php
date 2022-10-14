@@ -1577,6 +1577,17 @@ if(!class_exists('SUPER_Listings')) :
                 $limit = absint($_GET['limit']);
             }
 
+            // Hardcoded filters
+            foreach($atts as $k => $v){
+                if($k==='id' || $k==='list') continue;
+                if($k==='limit' && !isset($_GET['limit'])) {
+                    $limit = absint($v);
+                }
+                if(!isset($_GET['fc_'.$k])){
+                    $_GET['fc_'.$k] = sanitize_text_field($v);
+                }
+            }
+
             // Check if we need to filter on a column
             $filterColumns = array();
             foreach($_GET as $gk => $gv){
@@ -2310,8 +2321,8 @@ END AS paypalSubscriptionId
                                                             $linkUrl = '';
                                                             $imgUrl = esc_url( $data[$column_key]['value'], array( 'data' ) );
                                                             $cellValue = '<a href="' . $imgUrl . '" download>';
-                                                            $cellValue .= '<img class="super-signature" src="' . $imgUrl . '" />';
                                                             $cellValue .= '<span class="super-icon-download"></span></a>';
+                                                            $cellValue .= '<img class="super-signature" src="' . $imgUrl . '" />';
                                                         }else{
                                                             $cellValue = esc_html($data[$column_key]['value']);
                                                         }
@@ -2329,10 +2340,10 @@ END AS paypalSubscriptionId
                                                                     if(!empty($url)){
                                                                         $cellValue .= '<a target="_blank" download href="' . esc_url( $url ) . '">';
                                                                     }
-                                                                    $cellValue .= esc_html( $fv['value'] ); // The filename
                                                                     if(!empty($url)){
                                                                         $cellValue .= '<span class="super-icon-download"></span></a>';
                                                                     }
+                                                                    $cellValue .= esc_html( $fv['value'] ); // The filename
                                                                     $cellValue .= '<br />';
                                                                 }
                                                             }else{
@@ -2347,13 +2358,13 @@ END AS paypalSubscriptionId
                                             if($linkUrl!==''){
                                                 if($linkUrl==='mailto') $linkUrl = 'mailto:'.$cellValue;
                                                 $result .= '<a target="_blank" href="' . esc_url($linkUrl) . '">';
-                                                $result .= $cellValue;
                                                 if(!empty($cellValue)){
                                                     if($linkType==='edit') $result .= '<span class="super-icon-edit" title="'.esc_attr($linkTitle).'"></span>';
                                                     if($linkType==='view') $result .= '<span class="super-icon-view" title="'.esc_attr($linkTitle).'"></span>';
                                                     if($linkType==='download') $result .= '<span class="super-icon-download" title="'.esc_attr($linkTitle).'"></span>';
                                                     if($linkType==='mail') $result .= '<span class="super-icon-mail" title="'.esc_attr($linkTitle).'"></span>';
                                                 }
+                                                $result .= $cellValue;
                                                 $result .= '</a>';
                                             }else{
                                                 $result .= $cellValue;

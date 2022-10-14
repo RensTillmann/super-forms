@@ -1669,17 +1669,21 @@ class SUPER_Common {
                 }
                 $invoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'  ", $option_name_old, $option_name));
                 // If this number doesn't exist yet create it
-                if($invoiceNumber===false){
-                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, 0, 'no' ) ) );
+                if($invoiceNumber===null){
+                    $invoiceNumber = 1;
+                    $filterCode = '_sf_unique_code-'.$prefix.'%'; // 
+                    $lastKnownInvoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name LIKE '%s'", $filterCode));
+                    if($lastKnownInvoiceNumber!==null){
+                        $invoiceNumber = intval($lastKnownInvoiceNumber);
+                    }else{
+                        $invoiceNumber = 0;
+                    }
+                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, $invoiceNumber, 'no' ) ) );
                 }
                 $invoiceNumber = intval($invoiceNumber);
+                $invoiceNumber = $invoiceNumber+1;
                 if($submittingForm){
-                    $invoiceNumber = $invoiceNumber+1;
                     $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s' OR option_name = '%s'", $invoiceNumber, $option_name_old, $option_name));
-                }else{
-                    if($invoiceNumber===0){
-                        $invoiceNumber = 1;
-                    }
                 }
                 $code .= sprintf('%0'.$invoice_padding.'d', $invoiceNumber );
             }
@@ -2450,7 +2454,7 @@ class SUPER_Common {
                     }
                     if( isset( $v['name'] ) ) {
                         if( (isset($v['type'])) && ($v['type']=='text') ) {
-                            $v['value'] = self::decode_textarea( $v, $v['value'] );
+                            $v['value'] = self::decode_textarea_v5( $v, $v['value'] );
                         }
                         if( isset( $v['timestamp'] ) ) {
                             $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );

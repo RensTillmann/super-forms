@@ -301,10 +301,14 @@
   margin-right: 10px;
 }
 
-.super-col-wrap .super-col-name {
+.super-col-wrap .super-col-name,
+.super-col-sort .super-sort-up,
+.super-col-sort .super-sort-down {
   font-weight: 600;
   width: 100%;
   font-size: 12px;
+  line-height:normal;
+  padding-bottom: 4px;
 }
 
 .super-col-sort {
@@ -389,9 +393,13 @@
 .super-entry .super-col {
   width: 150px;
   margin-right: 10px;
-  min-height: 20px;
+  min-height: 25px;
   line-break: normal;
   white-space: normal;
+  display:inline-flex!important;
+  line-height: normal;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .super-entry .super-entry-status {
@@ -402,7 +410,7 @@
   border-radius: 5px;
   cursor: default;
   width: auto;
-  padding: 0px 10px 0px 10px;
+  padding: 5px 10px 5px 10px;
 }
 
 .super-listings .super-pagination {
@@ -1127,7 +1135,7 @@
 .super-listings .super-icon-view,
 .super-listings .super-icon-download,
 .super-listings .super-icon-mail {
-  padding: 1px 0 0 5px;
+  padding: 0px 5px 0px 0px;
   margin: 0;
   display: flex;
   width: 20px;

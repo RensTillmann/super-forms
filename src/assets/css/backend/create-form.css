@@ -2673,7 +2673,9 @@
     padding: 0px 0px 30px 0px;
     font-size: 16px;
 }
-
+div[data-shortcode-tag="form"] .super-field {
+    margin-bottom:25px!important;
+}
 
 .super-local-secrets > ul,
 .super-global-secrets > ul {
@@ -2765,8 +2767,11 @@
 .sfui-setting .sfui-notice {
     margin: 10px 0px 0px 0px;
 }
-.sfui-setting > .sfui-notice {
+.sfui-setting-group > .sfui-setting > .sfui-notice {
   margin-top: 0;
+}
+.sfui-setting > .sfui-notice {
+  margin-top: 10px;
 }
 .sfui-info {
     background-color: #ffe694;
@@ -2855,6 +2860,7 @@
     flex: 1;
     width: 100%;
 }
+.sfui-sub-settings > .sfui-setting,
 .sfui-setting-group > .sfui-setting {
     border-bottom: 1px solid #d0d0d0;
 }
