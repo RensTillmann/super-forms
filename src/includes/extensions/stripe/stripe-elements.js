@@ -442,13 +442,9 @@
             var $proceed = SUPER.before_scrolling_to_message_hook($form, $form.offset().top - 30);
             if ($proceed === true) {
                 if(args.form0.closest('.super-popup-content')){
-                    $(args.form0.closest('.super-popup-content')).animate({
-                        scrollTop: $form.offset().top - 200
-                    }, 1000);
+                    args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                 }else{
-                    $('html, body').animate({
-                        scrollTop: $form.offset().top - 200
-                    }, 1000);
+                    args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                 }
             }
             $form.find('.super-form-button.super-loading .super-button-name').html($oldHtml);

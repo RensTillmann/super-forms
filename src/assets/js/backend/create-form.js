@@ -10,12 +10,10 @@
             if (this.readyState == 4) {
                 if (this.status == 200) {
                     // Success:
-                    debugger;
                     if(this.responseText==='true'){
-                        debugger;
                         var reload = confirm(super_create_form_i18n.new_version_found);
                         if(reload === true){
-                            window.location.href = window.location.href;
+                            window.location = window.location.href
                         }
                     }else{
                         // Already latest version, do nothing
@@ -257,11 +255,11 @@
         // Trigger settings
         // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
         // PDF settings
-        //$settings = SUPER.get_tab_settings($settings, 'pdf');
-        //// Listing settings
-        //$settings = SUPER.get_tab_settings($settings, 'listings');
-        //// Stripe settings
-        //$settings = SUPER.get_tab_settings($settings, 'stripe');
+        $settings = SUPER.get_tab_settings($settings, 'pdf');
+        // Listing settings
+        $settings = SUPER.get_tab_settings($settings, 'listings');
+        // Stripe settings
+        $settings = SUPER.get_tab_settings($settings, 'stripe');
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
@@ -1158,7 +1156,6 @@
                 if (this.status == 200) {
                     $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
-                    debugger;
                     var response = this.responseText;
                     response = JSON.parse(response);
                     if(response.error===true){
@@ -1185,7 +1182,6 @@
                                 if (typeof callback === "function") { 
                                     callback(); // safe to trigger callback
                                 }
-                                debugger;
                                 SUPER.preview_form($this);
                                 $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                                 return false;
@@ -1253,7 +1249,6 @@
         xhttp.send(params);
     };
     SUPER.preview_form = function ($this) {
-        debugger;
         if ($('input[name="form_id"]').val() === '') {
             alert(super_create_form_i18n.alert_save);
             return false;
@@ -1262,32 +1257,23 @@
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display', 'block');
-            debugger;
             var $form_id = $('.super-create-form input[name="form_id"]').val();
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
                     // Success:
                     if (this.status == 200) {
-                        debugger;
                         $('.super-live-preview').removeClass('super-loading');
                         $('.super-live-preview').html(this.responseText);
                         $this.html('Builder');
                     }
                     // Complete:
-                    debugger;
                     SUPER.files = [];
-                    debugger;
                     SUPER.handle_columns();
-                    debugger;
                     SUPER.init_button_colors();
-                    debugger;
                     SUPER.init_super_responsive_form_fields({form: $('.super-live-preview > .super-form')[0]});
-                    debugger;
                     SUPER.init_super_form_frontend();
-                    debugger;
                     SUPER.after_preview_loaded_hook($form_id);
-                    debugger;
                 }
             };
             xhttp.onerror = function () {
@@ -1296,7 +1282,6 @@
             };
             xhttp.open("POST", ajaxurl, true);
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-            debugger;
             var params = {
                 action: 'super_load_preview',
                 form_id: $form_id
@@ -1304,7 +1289,6 @@
             params = $.param(params);
             xhttp.send(params);
         } else {
-            debugger;
             $('.super-live-preview').css('display', 'none');
             $('.super-tabs-content').css('display', '');
             $this.html('Preview');
@@ -2944,10 +2928,8 @@
         });
 
         $doc.on('click', '.super-create-form .super-actions .super-preview', function () {
-            debugger;
             var $this = $('.super-create-form .super-actions .super-preview:eq(3)');
             if ($(this).hasClass('super-mobile')) {
-                debugger;
                 $('.super-live-preview').removeClass('super-tablet');
                 $('.super-create-form .super-actions .super-preview.super-tablet').removeClass('super-active');
                 $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
@@ -2964,7 +2946,6 @@
                 return false;
             }
             if ($(this).hasClass('super-tablet')) {
-                debugger;
                 $('.super-live-preview').removeClass('super-mobile');
                 $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');
                 $('.super-create-form .super-actions .super-preview.super-desktop').removeClass('super-active');
@@ -2981,7 +2962,6 @@
                 return false;
             }
             if ($(this).hasClass('super-desktop')) {
-                debugger;
                 $('.super-live-preview').removeClass('super-tablet');
                 $('.super-live-preview').removeClass('super-mobile');
                 $('.super-create-form .super-actions .super-preview.super-mobile').removeClass('super-active');

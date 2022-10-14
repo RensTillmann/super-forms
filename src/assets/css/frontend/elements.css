@@ -3528,10 +3528,12 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-textarea .super-adaptive-placeholder > span {
   margin-top: 8px;
 }
+.super-form .super-field-type-date .super-adaptive-placeholder,
 .super-form .super-focus .super-adaptive-placeholder,
 .super-form .super-filled .super-adaptive-placeholder {
   align-items: flex-start;
 }
+.super-form .super-field-type-date .super-adaptive-placeholder > span,
 .super-form .super-focus .super-adaptive-placeholder > span,
 .super-form .super-filled .super-adaptive-placeholder > span {
   margin-top: -8px;

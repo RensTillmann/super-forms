@@ -1,5 +1,6 @@
 # Super Forms - Changelog
 
+
 ## Listings Add-on now available! More info here:
 
 - [Listings Add-on](https://renstillmann.github.io/super-forms/#/listings-add-on)
@@ -8,15 +9,18 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Oct 10, 2022 - Version 6.3.650
+## Oct 14, 2022 - Version 6.3.657
 
 - **Improved:** Significant speed improvements/optimization for large/complex forms with a lot of conditional logic/variable conditions/calculations.
+- **Added:** Option to add attributes on the listings shortcode to apply hardcoded filters e.g: `[super_listings list="1" id="61602" entry_status="completed"]` would only display entries with status `Completed`
 - **Added:** Extra tags to retrieve date names for datepicker element: `{date;day_name}`, `{date;day_name_short}`, `{date;day_name_shortest}`, `{date;day_of_week}`. This way you can display specific time slots based on a specific week day
 - **Added:** Filter logic option `Exact match` for autosuggest feature to filter exact `Label` value for an item
 - **Added:** Filter logic case sensitive search
 - **Added:** Form locker option `Do not lock form, but still display a message` to only display a message but still allow user to submit the form even if the threshold was reached.
 - **Added:** Option to pre-load conditional logics via Ajax request, to store it into an object on the client side, instead of in the source code. Useful/required when dealing with 500+ conditions
 - **Fix:** Allow the `Currency` field to have zero value e.g: `0.00`
+- **Fix:** Issue with `{register_generated_password}` tag not working when sending activation email after user registration
+- **Fix:** Issue with `Unique code generation` when using invoice increment option. Not saving the invoice number increment in some ocassions depending on the configured settings
 
 ## Sep 07, 2022 - Version 6.3.600
 

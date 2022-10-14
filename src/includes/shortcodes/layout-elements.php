@@ -1491,6 +1491,39 @@ $array['layout_elements'] = array(
                     )
                 )
             )
+        ),
+        'form_pre' => array(
+            'name' => esc_html__( 'Include form', 'super-forms' ),
+            'predefined' => array(
+                array(
+                    'tag' => 'form',
+                    'group' => 'layout_elements',
+                    'inner' => '',
+                    'data' => array(
+                        'id' => '',
+                    )
+                )
+            ),
+            'atts' => array(),
+            'html' => '<span>' . esc_html__( 'Include Form', 'super-forms' ) . '</span>'
+        ),
+        'form' => array(
+            'callback' => 'SUPER_Shortcodes::form',
+            'hidden' => true,
+            'name' => esc_html__( 'Include form', 'super-forms' ),
+            'atts' => array(
+                'general' => array(
+                    'name' => esc_html__( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'id' => array(
+                            'name' => esc_html__( 'Form ID', 'super-forms' ),
+                            'label' => '(' . esc_html__( 'Enter the ID of the form that you wish to include', 'super-forms' ) . ')',
+                            'default' => ( !isset( $attributes['id'] ) ? '' : $attributes['id'] ),
+                            'type' => 'text',
+                        ),
+                    )
+                ),
+            )
         )
     )
 );

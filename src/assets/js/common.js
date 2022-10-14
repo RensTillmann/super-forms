@@ -1166,13 +1166,15 @@ function SUPERreCaptcha(){
                             $html += '</div>';
                             $($html).prependTo($(form));
                             if(form.closest('.super-popup-content')){
-                                $(form.closest('.super-popup-content')).animate({
-                                    scrollTop: $(form).offset().top-200
-                                }, 1000);
+                                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                //$(form.closest('.super-popup-content')).animate({
+                                //    scrollTop: $(form).offset().top-200
+                                //}, 1000);
                             }else{
-                                $('html, body').animate({
-                                    scrollTop: $(form).offset().top-200
-                                }, 1000);
+                                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                //$('html, body').animate({
+                                //    scrollTop: $(form).offset().top-200
+                                //}, 1000);
                             }
                         }
                     },
@@ -2432,7 +2434,6 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
-        debugger;
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.value !== 'undefined' && args.bwc){
             // If field name is empty do nothing
@@ -2441,7 +2442,6 @@ function SUPERreCaptcha(){
             if(args.value.indexOf('{')===-1) args.value = '{'+args.value+'}';   
         }
         // First check if tag exists
-        debugger;
         if(args.value==='' || typeof args.value==='undefined') return '';
         var indexMapping = args.value;
         var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
@@ -2483,25 +2483,21 @@ function SUPERreCaptcha(){
             $element = undefined; // @important!
             $name = $array[$i];
             if($name=='pdf_page' && typeof SUPER.pdf_tags !== 'undefined' ){
-                if(indexMapping!==SUPER.pdf_tags.pdf_page) SUPER.preFlightMappings[formId].tags[indexMapping] = SUPER.pdf_tags.pdf_page;
                 SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, SUPER.pdf_tags.pdf_page);
                 return SUPER.pdf_tags.pdf_page;
             }
             if($name=='pdf_total_pages' && typeof SUPER.pdf_tags !== 'undefined' ){
-                if(indexMapping!==SUPER.pdf_tags.pdf_total_pages) SUPER.preFlightMappings[formId].tags[indexMapping] = SUPER.pdf_tags.pdf_total_pages;
                 SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, SUPER.pdf_tags.pdf_total_pages);
                 return SUPER.pdf_tags.pdf_total_pages;
             }
             if($name=='dynamic_column_counter'){
                 if(args.target){
                     args.value = $(args.target).parents('.super-duplicate-column-fields:eq(0)').index()+1;
-                    if(indexMapping!==args.value) SUPER.preFlightMappings[formId].tags[indexMapping] = args.value;
                     SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                     return args.value;
                 }else{
                     if(args.currentTextarea){
                         args.value = $(args.currentTextarea).parents('.super-duplicate-column-fields:eq(0)').index()+1;
-                        if(indexMapping!==args.value) SUPER.preFlightMappings[formId].tags[indexMapping] = args.value;
                         SUPER.beforeReturnReplacedTagValue(formId, $name, indexMapping, args.value);
                         return args.value;
                     }
@@ -2836,7 +2832,6 @@ function SUPERreCaptcha(){
 
                         // Check if datepicker field
                         if($parent.classList.contains('super-date')){
-                            debugger;
                             $text_field = false;
                             $value = $element.value;
                             if($value_n === 'day' || $value_n === 'day_of_week' || $value_n === 'day_name' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
@@ -2979,13 +2974,15 @@ function SUPERreCaptcha(){
                                 var $newMessage = $(html).insertBefore(container);
                                 container.remove();
                                 if(args.form.closest('.super-popup-content')){
-                                    $(args.form.closest('.super-popup-content')).animate({
-                                        scrollTop: $newMessage.offset().top-200
-                                    }, 1000);
+                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$(args.form.closest('.super-popup-content')).animate({
+                                    //    scrollTop: $newMessage.offset().top-200
+                                    //}, 1000);
                                 }else{
-                                    $('html, body').animate({
-                                        scrollTop: $newMessage.offset().top-200
-                                    }, 1000);
+                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$('html, body').animate({
+                                    //    scrollTop: $newMessage.offset().top-200
+                                    //}, 1000);
                                 }
                             }
                         }
@@ -3121,13 +3118,15 @@ function SUPERreCaptcha(){
                     $(html).prependTo($(args.form));
                     SUPER.init_resend_verification_code(args);
                     if(args.form.closest('.super-popup-content')){
-                        $(args.form.closest('.super-popup-content')).animate({
-                            scrollTop: $(args.form).offset().top-200
-                        }, 1000);
+                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        //$(args.form.closest('.super-popup-content')).animate({
+                        //    scrollTop: $(args.form).offset().top-200
+                        //}, 1000);
                     }else{
-                        $('html, body').animate({
-                            scrollTop: $(args.form).offset().top-200
-                        }, 1000);
+                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        //$('html, body').animate({
+                        //    scrollTop: $(args.form).offset().top-200
+                        //}, 1000);
                     }
                 }
             }
@@ -3645,13 +3644,15 @@ function SUPERreCaptcha(){
             }
             if(scroll){
                 if(form.closest('.super-popup-content')){
-                    $(form.closest('.super-popup-content')).animate({
-                        scrollTop: $(form).offset().top-30
-                    }, 1000);
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    //$(form.closest('.super-popup-content')).animate({
+                    //    scrollTop: $(form).offset().top-30
+                    //}, 1000);
                 }else{
-                    $('html, body').animate({
-                        scrollTop: $(form).offset().top-30
-                    }, 1000);
+                    form[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    //$('html, body').animate({
+                    //    scrollTop: $(form).offset().top-30
+                    //}, 1000);
                 }
             }
             return false;
@@ -3692,13 +3693,15 @@ function SUPERreCaptcha(){
             proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
             if(proceed!==true) return false;
             if(form.closest('.super-popup-content')){
-                $(form.closest('.super-popup-content')).animate({
-                    scrollTop: $(form).find('.super-error-active').offset().top-200
-                }, 1000);
+                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                //$(form.closest('.super-popup-content')).animate({
+                //    scrollTop: $(form).find('.super-error-active').offset().top-200
+                //}, 1000);
             }else{
-                $('html, body').animate({
-                    scrollTop: $(form).find('.super-error-active').offset().top-200
-                }, 1000);
+                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                //$('html, body').animate({
+                //    scrollTop: $(form).find('.super-error-active').offset().top-200
+                //}, 1000);
             }
         }
     };
@@ -3797,13 +3800,15 @@ function SUPERreCaptcha(){
                         btn.classList.remove('super-loading');
                     }
                     if(args.form.closest('.super-popup-content')){
-                        $(args.form.closest('.super-popup-content')).animate({
-                            scrollTop: $(args.form).offset().top-200
-                        }, 1000);
+                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        //$(args.form.closest('.super-popup-content')).animate({
+                        //    scrollTop: $(args.form).offset().top-200
+                        //}, 1000);
                     }else{
-                        $('html, body').animate({
-                            scrollTop: $(args.form).offset().top-200
-                        }, 1000);
+                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        //$('html, body').animate({
+                        //    scrollTop: $(args.form).offset().top-200
+                        //}, 1000);
                     }
                 }
             }
@@ -3913,6 +3918,10 @@ function SUPERreCaptcha(){
             }
             delete SUPER.preFlightMappings[formId].fieldNames[args.el.name];
         }
+        // Values that we always need to reset
+        delete SUPER.preFlightMappings[formId].tags['{pdf_page}'];
+        delete SUPER.preFlightMappings[formId].tags['{dynamic_column_counter}'];
+
         var $functions = super_common_i18n.dynamic_functions.after_field_change_blur_hook;
         jQuery.each($functions, function(key, value){
             if(typeof SUPER[value.name] !== 'undefined') {
@@ -5570,7 +5579,6 @@ function SUPERreCaptcha(){
     // Replace HTML element {tags} with field values
     // @since 1.2.7
     SUPER.init_replace_html_tags = function(args){
-        debugger;
         var originalFormReference,
             decodeHtml,
             $i,
@@ -5620,7 +5628,6 @@ function SUPERreCaptcha(){
         }
         $regex = /{([^\\\/\s"'+]*?)}/g;
         Object.keys($html_fields).forEach(function(key) {
-            debugger;
             var $counter = 0;
             $target = $html_fields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
@@ -5686,7 +5693,6 @@ function SUPERreCaptcha(){
                 $values = $n+$d+$s;
                 args.value = '{'+$values+'}'; //values[1];
                 args.target = $target;
-                debugger;
                 $new_value = SUPER.update_variable_fields.replace_tags(args);
                 delete args.target;
                 if(decodeHtml){

@@ -1430,6 +1430,7 @@ class SUPER_Shortcodes {
         $result = '<div';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . ($tag==='tinymce' ? 'html' : $tag);
+        if(!empty($atts['type'])) $result .= ' super-field-type-'.esc_attr($atts['type']);
         if( !empty($atts['label'])  && (!empty($atts['description'])) ) {
             $result .= ' super-has-label-desc';
         }else{
@@ -2294,6 +2295,31 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+
+    public static function form($x) {
+        extract(self::extract($x));
+        $form_id = absint( $atts['id'] );
+        if($form_id===0) return '<strong style="color:red;">' . esc_html__( 'Please define the form ID from which you wish to include elements from.', 'super-forms' ) . '</strong>';
+        $result = '';
+        // Grab all form elements
+        $elements = get_post_meta( $form_id, '_super_elements', true );
+        if( !is_array($elements) ) {
+            $elements = json_decode( $elements, true );
+        }
+        // Loop through all form elements
+        if( !empty( $elements ) ) {
+            $shortcodes = self::shortcodes();
+            // Before doing the actuall loop we need to know how many columns this form contains
+            // This way we can make sure to correctly close the column system
+            foreach( $elements as $k => $v ) {
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
+            }
+        }
+        return $result;
+    }
+
 
     /** 
      *  Callback functions for each element to output the HTML

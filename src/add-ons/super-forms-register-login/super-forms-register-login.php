@@ -1680,7 +1680,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
             $message = str_replace( '{register_activation_code}', $code, $message );
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
             if(!empty($password)){
                 $message = str_replace( '{register_generated_password}', $password, $message );
             }
