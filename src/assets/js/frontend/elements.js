@@ -2246,9 +2246,7 @@
             for(i=0; i<foundElements.length; i++) {
                 if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
-                debugger;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                debugger;
                 html = SUPER.replaceAll(html, '<%', '{');
                 html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;
@@ -2422,9 +2420,7 @@
             }
             for (i = 0; i < foundElements.length; ++i) {
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
-                debugger;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                debugger;
                 html = SUPER.replaceAll(html, '<%', '{');
                 html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;

@@ -2042,7 +2042,6 @@ function SUPERreCaptcha(){
 
     // @since 5.0.120 Filter foreach() statements
     SUPER.filter_foreach_statements = function($htmlElement, $counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
-        debugger;
         // Before we continue replace any foreach(file_upload_fieldname)
         var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
         var m;
@@ -2097,10 +2096,8 @@ function SUPERreCaptcha(){
         if(typeof $fileLoopRows === 'undefined') $fileLoopRows = [];
         // Check if endforeach; was found otherwise skip it
         if($html.indexOf('endforeach;')===-1) {
-            debugger;
             return $html;  
         }
-        debugger;
         var $chars = $html.split(''),
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
@@ -2113,7 +2110,6 @@ function SUPERreCaptcha(){
             $k,
             $v;
 
-        debugger;
         Object.keys($chars).forEach(function(k) {
             $k = parseInt(k, 10);
             $v = $chars[k];
@@ -2211,7 +2207,6 @@ function SUPERreCaptcha(){
             $ii = 0,
             $rows = '';
 
-        debugger;
         var currentField = SUPER.field(originalFormReference, $field_name);
         var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
@@ -2321,15 +2316,11 @@ function SUPERreCaptcha(){
                     if(childParentIndex!==0){
                         //replaceTagsWithValue['<%counter%>'] = (childParentIndex+1);
                         replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
-                        if($start==='{'){
-                            replaceTagsWithValue['<%counter%>'] = $start+$n+levels+'_'+(childParentIndex+1)+';index'+$end;
-                        }
+                        replaceTagsWithValue['<%counter%>'] = $start+$n+levels+'_'+(childParentIndex+1)+';index'+$end;
                         continue;
                     }
                     replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
-                    if($start==='{'){
-                        replaceTagsWithValue['<%counter%>'] = $start+$n+levels+$c+';index'+$end;
-                    }
+                    replaceTagsWithValue['<%counter%>'] = $start+$n+levels+$c+';index'+$end;
                     //$row = SUPER.replaceAll($row, '<%counter%>', '<%'+$field_name+';index%>');
                 }
             }
@@ -5917,9 +5908,7 @@ function SUPERreCaptcha(){
             if ((m = regex.exec(html)) !== null) {
                 skipUpdate = false;
             }
-            debugger;
             html = SUPER.filter_foreach_statements(target, 0, 0, html, undefined, formId, originalFormReference);
-            debugger;
             html = SUPER.replaceAll(html, '<%', '{');
             html = SUPER.replaceAll(html, '%>', '}');
 
