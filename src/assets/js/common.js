@@ -167,7 +167,6 @@ function SUPERreCaptcha(){
     };
     // Send form submission through ajax request
     SUPER.create_ajax_request = function(args){
-        debugger;
         var json_data;
         args.form = $(args.form);
         args.form0 = args.form[0];
@@ -198,16 +197,13 @@ function SUPERreCaptcha(){
             args.version = 'v3';
         }
         // Create loader overlay
-        debugger;
         args = SUPER.createLoadingOverlay(args);
         args.callback = function(){
-            debugger;
             SUPER.submit_form(args);
         };
         SUPER.before_email_send_hook(args);
     };
     SUPER.createLoadingOverlay = function(args){
-        debugger;
         args.loadingOverlay = document.createElement('div');
         var html = '';
         html += '<div class="super-loading-wrapper">';
@@ -227,7 +223,6 @@ function SUPERreCaptcha(){
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         args.loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
         if(args.showOverlay==="true"){
-            debugger;
             document.body.appendChild(args.loadingOverlay);
         }
         // Close modal (should also reset pdf generation)
@@ -242,7 +237,6 @@ function SUPERreCaptcha(){
         return args;
     };
     SUPER.submit_form = function(args){
-        debugger;
         var total = 0;
         args.files = SUPER.files[args.form_id];
         if(args.files){
@@ -252,15 +246,12 @@ function SUPERreCaptcha(){
             });
         }
         if(total>0){
-            debugger;
             args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.uploading_files+'</span>';
             SUPER.upload_files(args, function(args){
                 args.fileUpload = true;
-                debugger;
                 SUPER.process_form_data(args);
             });
         }else{
-            debugger;
             SUPER.process_form_data(args);
         }
     };
@@ -423,7 +414,6 @@ function SUPERreCaptcha(){
         });
     };
     SUPER.process_form_data = function(args){
-        debugger;
         args.generatePdf = false;
         args.pdfSettings = null;
         if( typeof SUPER.form_js !== 'undefined' && 
@@ -457,7 +447,6 @@ function SUPERreCaptcha(){
             SUPER.pdf_generator_init(args, function(args){
                 // When debugging is enabled download file instantly without submitting the form
                 if(args.pdfSettings.debug==="true"){
-                    debugger;
                     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
                     // Direct download of PDF
                     args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
@@ -479,11 +468,9 @@ function SUPERreCaptcha(){
                         args.loadingOverlay.classList.add('super-error');
                     });
                 }
-                debugger;
                 SUPER.save_data(args); 
             });
         }else{
-            debugger;
             SUPER.save_data(args);
         }
     };
@@ -2055,6 +2042,7 @@ function SUPERreCaptcha(){
 
     // @since 5.0.120 Filter foreach() statements
     SUPER.filter_foreach_statements = function($htmlElement, $counter, $depth, $html, $fileLoopRows, formId, originalFormReference){
+        debugger;
         // Before we continue replace any foreach(file_upload_fieldname)
         var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
         var m;
@@ -2109,8 +2097,10 @@ function SUPERreCaptcha(){
         if(typeof $fileLoopRows === 'undefined') $fileLoopRows = [];
         // Check if endforeach; was found otherwise skip it
         if($html.indexOf('endforeach;')===-1) {
+            debugger;
             return $html;  
         }
+        debugger;
         var $chars = $html.split(''),
             $prefix = '', // any content before loop starts
             $innerContent = '', // any content inside the loop
@@ -2123,6 +2113,7 @@ function SUPERreCaptcha(){
             $k,
             $v;
 
+        debugger;
         Object.keys($chars).forEach(function(k) {
             $k = parseInt(k, 10);
             $v = $chars[k];
@@ -2220,6 +2211,7 @@ function SUPERreCaptcha(){
             $ii = 0,
             $rows = '';
 
+        debugger;
         var currentField = SUPER.field(originalFormReference, $field_name);
         var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
@@ -3193,22 +3185,17 @@ function SUPERreCaptcha(){
     };
     // Form submission is finished
     SUPER.form_submission_finished = function(args, result){ 
-        debugger;
         // Update Listings entry?
         if(args.list_id && args.list_id!==''){
-            debugger;
             if(result.response_data.enableFormProcessingOverlay!=='true'){
-                debugger;
                 document.querySelector('.super-loading-overlay').remove();
             }
             if(result.response_data.enableFormProcessingOverlay && result.response_data.enableFormProcessingOverlay==='true'){
                 if(result.response_data.closeFormProcessingOverlay && result.response_data.closeFormProcessingOverlay==='true'){
-                    debugger;
                     document.querySelector('.super-loading-overlay').remove();
                 }
             }
             if(result.response_data.closeEditorWindowAfterEditing && result.response_data.closeEditorWindowAfterEditing==='true'){
-                debugger;
                 document.querySelector('.super-listings-modal').remove();
             }
             var nodes = document.querySelectorAll('.super-listings > .super-listings-wrap > .super-entries > .super-entry.super-updated');
@@ -3217,14 +3204,11 @@ function SUPERreCaptcha(){
             }
             nodes = document.querySelectorAll('.super-listings > .super-listings-wrap > .super-entries > .super-entry[data-id="'+args.entry_id+'"]');
             for(i=0; i<nodes.length; i++){
-                debugger;
                 nodes[i].classList.add('super-updated');
                 var cols = nodes[i].querySelectorAll('.super-col:not(.super-actions)');
                 for(var x=0; x<cols.length; x++){
-                    debugger;
                     var fieldName = cols[x].className.replace('super-col super-','');
                     if(fieldName==='entry_status'){
-                        debugger;
                         console.log(args);
                         var status = result.response_data.entry_status;
                         cols[x].innerHTML = '<span class="super-entry-status super-entry-status-' + status.key + '" style="color:' + status.color + ';background-color:' + status.bg_color + '">' + status.name + '</span>';
@@ -3257,11 +3241,7 @@ function SUPERreCaptcha(){
 
                     if(fieldName==='generated_pdf'){
                         // Replace URL with blob
-                        debugger;
                         if(result.response_data._generated_pdf_file){
-                            debugger;
-                            console.log(result.response_data._generated_pdf_file.files[0].value);
-                            console.log(result.response_data._generated_pdf_file.files[0].url);
                             // Check if contains a link
                             if(cols[x].querySelector('a')){
                                 cols[x].querySelector('a').href = result.response_data._generated_pdf_file.files[0].url;
@@ -3281,9 +3261,7 @@ function SUPERreCaptcha(){
                         continue;
                     }
                     // Grab field value from data
-                    debugger;
                     if(args.data[fieldName]){
-                        debugger;
                         if(args.data[fieldName].entry_value){
                             cols[x].innerText = args.data[fieldName].entry_value;
                             continue;
@@ -5939,7 +5917,9 @@ function SUPERreCaptcha(){
             if ((m = regex.exec(html)) !== null) {
                 skipUpdate = false;
             }
+            debugger;
             html = SUPER.filter_foreach_statements(target, 0, 0, html, undefined, formId, originalFormReference);
+            debugger;
             html = SUPER.replaceAll(html, '<%', '{');
             html = SUPER.replaceAll(html, '%>', '}');
 
@@ -8996,7 +8976,6 @@ function SUPERreCaptcha(){
         SUPER.init_super_responsive_form_fields({form: form});
     };
     SUPER.save_data = function(args){
-        debugger;
         if(args.progressBar) args.progressBar.style.width = 0+'%';
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         var formData = new FormData();
@@ -9009,7 +8988,6 @@ function SUPERreCaptcha(){
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
         if(args.fileUpload) formData.append('fileUpload', true);
-        debugger;
         formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
         $.ajax({
             type: 'post',
@@ -9039,14 +9017,12 @@ function SUPERreCaptcha(){
                 return xhr;
             },
             success: function(result){
-                debugger;
                 result = JSON.parse(result);
                 if(result.error===true){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
                     // Update new nonce
-                    debugger;
                     if(result.response_data && result.response_data.sf_nonce){
                         $('input[name="sf_nonce"]').val(result.response_data.sf_nonce);
                     }
