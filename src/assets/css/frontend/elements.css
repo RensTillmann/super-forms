@@ -267,6 +267,8 @@ h1.super-thanks-title {
   line-height: normal;
   margin-bottom: 30px;
   font-size: 12px;
+  float: left;
+  width: 100%;
 }
 .super-msg:after {
   content: "\f071";
@@ -3181,8 +3183,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   height: 23px;
   border: 0;
 }
-
-.sp-preview-inner {
+.sp-replacer.super-forms .sp-preview .sp-preview-inner {
+  height: 100%;
   border: 1px solid black;
 }
 

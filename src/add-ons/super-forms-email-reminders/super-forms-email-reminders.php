@@ -496,9 +496,10 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>$email_reminders  ) );
 
             // Store as submission info
-            $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+            $uniqueSubmissionId = $atts['uniqueSubmissionId'];
+            $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
             $submissionInfo['reminders'] = $email_reminders;
-            update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
         }
 
 

@@ -34,7 +34,7 @@ class SUPER_Pages {
                 'plugin_version' => SUPER_VERSION,
                 'api_endpoint' => SUPER_API_ENDPOINT,
                 'api_version' => SUPER_API_VERSION,
-                'home_url' => get_home_url(),
+                'home_url' => get_option('home'),
                 'site_url' => site_url(),
                 'protocol' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https" : "http",
                 'email' => $userEmail,
@@ -231,11 +231,15 @@ class SUPER_Pages {
         $language_placeholder = esc_html__( 'Choose language', 'super-forms' );
         $flags_placeholder = esc_html__( 'Choose a flag', 'super-forms' );
         $flags = SUPER_Common::get_flags();
+        if(empty($settings['i18n_disable_browser_translation'])) $settings['i18n_disable_browser_translation'] = 'true';
         if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
         ?>
         <div class="super-setting">
             <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
                 <?php echo esc_html__('Add Language Switch', 'super-forms' ) . ' <span>(' . esc_html__( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
+            </div>
+            <div class="super-i18n-disable-browser-translation<?php echo ($settings['i18n_disable_browser_translation']=='true' ? ' super-active' : ''); ?>">
+                <?php echo esc_html__('Disable browser translation (recommended)', 'super-forms' ) . ' <span>(' . esc_html__( 'disallow browsers to translate the form', 'super-forms') . ')</span>'; ?>
             </div>
             <ul class="super-translations-list">
                 <li>
@@ -935,9 +939,12 @@ class SUPER_Pages {
                                                 $post_author_id = get_post_field( 'post_author', $id );
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
-                                                    echo '<div class="misc-pub-section">';
-                                                        echo '<span>' . esc_html__( 'Submitted by', 'super-forms' ) . ': <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
-                                                    echo '</div>';
+                                                    // In case user no longer exists
+                                                    if($user_info!==false){ 
+                                                        echo '<div class="misc-pub-section">';
+                                                            echo '<span>' . esc_html__( 'Submitted by', 'super-forms' ) . ': <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+                                                        echo '</div>';
+                                                    }
                                                 }
                                                 ?>
                                                 <div class="misc-pub-section">

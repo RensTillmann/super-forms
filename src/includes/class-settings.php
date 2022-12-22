@@ -68,9 +68,10 @@ class SUPER_Settings {
             $raw_statuses = $g['backend_contact_entry_status'];
         }
         $raw_statuses = explode( "\n", $raw_statuses );
-        $statuses = array();
-        $statuses[''] = array(
-            'name' => esc_html__( 'None (default)', 'super-forms' )
+        $statuses = array(
+            '' => array('name' => esc_html__( 'None (default)', 'super-forms' ), 'bg_color' => '#808080', 'color' => '#FFFFFF'),
+            //'super_unread' => array('name' => esc_html__( 'Unread', 'super-forms' ), 'bg_color' => '#808080', 'color' => '#FFFFFF'),
+            //'super_read' => array('name' => esc_html__( 'Read', 'super-forms' ), 'bg_color' => '#d6d6d6', 'color' => '#FFFFFF')
         );
         foreach( $raw_statuses as $value ) {
             $status = explode( "|", $value );

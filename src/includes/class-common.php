@@ -20,6 +20,30 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
 
+    public static function get_tag_parts($tag, $i){
+        $parts = explode(';', trim($tag, '{}'));
+        $name = $parts[0];
+        $n = '';
+        if(trim($name)==='') return array('new'=>'', 'name'=>'', 'n'=>$n);
+        if(isset($parts[1])){
+            if($parts[1]!=='label'){
+                $n = intval($parts[1]);
+            }else{
+                $n = $parts[1];
+            }
+        }
+        if($i>=2) {
+            $name = $name.'_'.$i;
+        }
+        $new = '';
+        if(isset($parts[1])){
+            $new = '{'.($name.';'.$n).'}';
+        }else{
+            if($name!=='') $new = '{'.$name.'}';
+        }
+        return array('new'=>$new, 'name'=>$name, 'n'=>$n);
+    }
+
     // tmp public static function wp_insert_post_fast($data){
     // tmp     global $wpdb;
     // tmp     if(false===$wpdb->insert($wpdb->posts, wp_unslash($data))){
@@ -106,8 +130,8 @@ class SUPER_Common {
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
         });
-        error_log('form_id: '.$form_id);
-        //error_log(json_encode($triggers));
+        error_log('form_id 3: '.$form_id);
+        error_log(json_encode($triggers));
         // Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
         foreach($triggers as $k => $v){
             error_log(json_encode($v));
@@ -160,9 +184,8 @@ class SUPER_Common {
     }
 
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
-        $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-        error_log('$submissionInfo (1):');
-        error_log(json_encode($submissionInfo));
+        $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
+        //error_log('$submissionInfo (1): ' . json_encode($submissionInfo));
         // Delete contact entry
         $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
         if( !empty($entry_id) ) {
@@ -332,9 +355,17 @@ class SUPER_Common {
 		$exp_var = apply_filters( 'super_client_data_exp_var_filter', $exp_var );
 
         // Allow expiry filtering for specific client data
+        $form_id = '';
+        if(strpos($name, 'unique_submission_id')===0){
+            $s = explode('_', $name);
+            $form_id = $s[3];
+            $name = $s[0].'_'.$s[1].'_'.$s[2];
+        }
 		$expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
 		$exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
-
+        if(strpos($name, 'unique_submission_id')===0){
+            $name .= '_'.$form_id;
+        }
         $now = time();
         $force = false;
         if($name==='sf_nonce') $force = true;
@@ -353,6 +384,15 @@ class SUPER_Common {
                 }
             }
         }
+        //error_log('check if starts with `unique_submission_id_`');
+        //error_log('$name: ' . $name);
+        if(strpos($name, 'unique_submission_id_')===0){
+            //error_log('starts with `unique_submission_id_`');
+            // It starts with 'http'
+            //error_log('before, value = '.$value);
+            $value = $value . '.' . ($now+$expires);
+            //error_log('after, value = '.$value);
+        }
         $clientData[$name] = array(
             'expires'=>$now + $expires,
             'exp_var'=>$now + $exp_var,
@@ -360,8 +400,37 @@ class SUPER_Common {
         );
         // Cleanup old client data
         self::cleanupOldClientData($key, $clientData);
+        return $value;
     }
     public static function cleanupOldClientData($key, $clientData) {
+        //error_log('cleanupOldClientData()');
+        //error_log('$key: ' . $key);
+        //error_log('$clientData: ' . json_encode($clientData));
+
+        //"unique_submission_id_61768": {
+        //    "expires": 1668013567,
+        //    "exp_var": 1668012367,
+        //    "value": "d4efb589e8bdc4183b10b988884e703b.1668011767"
+        //},
+
+
+        // $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+        // error_log('$uniqueSubmissionId: '. $uniqueSubmissionId);
+        // if( $uniqueSubmissionId===false ){
+        //     $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . '.' . time();
+        //     error_log('generate new $uniqueSubmissionId: '. $uniqueSubmissionId);
+        //     SUPER_Common::setClientData( array( 'name' => 'unique_submission_id_' . $form_id, 'value' => $uniqueSubmissionId ) );
+        // }else{
+        //     // Update to increase expiry
+        //     error_log('update to increase expiry for $uniqueSubmissionId: '. $uniqueSubmissionId);
+        //     SUPER_Common::setClientData( array( 
+        //         'name' => 'unique_submission_id_' . $form_id,
+        //         'value' => $uniqueSubmissionId,
+        //         'expires' => 60*60, // 60 min. (30*60)
+        //         'exp_var' => 20*60 // 20 min. (20*60)
+        //     ) );
+        // }
+
         $now = time();
         foreach($clientData as $name => $data){
             if(is_array($data)){
@@ -481,14 +550,18 @@ class SUPER_Common {
     }
  
     public static function deleteOldClientData($limit=0) {
+        //error_log('deleteOldClientData()');
 		global $wpdb;
         if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
         // Delete old deprecated sessions from previous Super Forms versions
         $now = time();
+        //error_log('$now: '.$now);
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfs\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsdata\_%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < {$now}");
+        // Also cleanup expired submission info
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsi\_%' AND SUBSTRING_INDEX(option_name, '.', -1) < {$now}");
 	}
 
     public static function generate_nonce(){
@@ -508,7 +581,7 @@ class SUPER_Common {
 
     public static function verifyCSRF(){
         $sf_nonce = SUPER_Common::getClientData( 'sf_nonce' );
-        $v = filter_input(INPUT_POST, 'sf_nonce', FILTER_SANITIZE_STRING);
+        $v = htmlspecialchars(filter_input(INPUT_POST, 'sf_nonce'));
         if(!$v || $v !== $sf_nonce){
             return false; // invalid
         }
@@ -1507,7 +1580,8 @@ class SUPER_Common {
         if($form_id!==false){
             $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
             if( $uniqueSubmissionId!==false ){
-                $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+                $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
+                //error_log('submissionInfo: ' .json_encode($submissionInfo));
                 if($error){
                     $submissionInfo['error_msg'] = $msg;
                 }else{
@@ -1515,20 +1589,19 @@ class SUPER_Common {
                 }
                 if($redirect!=null) $submissionInfo['redirect'] = $redirect;
                 if($json!=true) $submissionInfo['response_data'] = $response_data;
-                update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                //error_log('11' . json_encode($submissionInfo));
+                //error_log('11.1' . $uniqueSubmissionId);
+                update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
             }
         }
         // When there was an error, cleanup things?
         if($error===true){
             // todo...
             if($form_id!==false){
-                $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-                if( $uniqueSubmissionId!==false ){
-                    $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-                    error_log('CLEANUP AFTER ERROR?');
-                    error_log('$submissionInfo:');
-                    error_log(json_encode($submissionInfo));
-                }
+                //error_log('CLEANUP AFTER ERROR?');
+                //error_log('uniqueSubmissionId: ' .$uniqueSubmissionId);
+                //error_log('submissionInfo: ' .json_encode($submissionInfo));
+                self::cleanupFormSubmissionInfo($uniqueSubmissionId, ''); 
             }
         }
         die();
@@ -1836,6 +1909,7 @@ class SUPER_Common {
     */
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false ) {
         if( ($value==='') && ($skip==true) ) return '';
+        $originValue = $value;
         $current_author = null;
         $current_user = wp_get_current_user();
         $product = false;
@@ -2020,6 +2094,31 @@ class SUPER_Common {
             }
     
             $tags = array(
+                'submission_date_gmt' => array(
+                    esc_html__( 'Retrieves the current date (UTC/GMT)', 'super-forms' ),
+                    date_i18n('Y-m-d', false, 'gmt')
+                ),
+                'submission_hours_gmt' => array(
+                    esc_html__( 'Retrieves the current date (UTC/GMT)', 'super-forms' ),
+                    date_i18n('H:i:s', false, 'gmt')
+                ),
+                'submission_timestamp_gmt' => array(
+                    esc_html__( 'Retrieves the current date timestamp (UTC/GMT)', 'super-forms' ),
+                    strtotime(date_i18n('Y-m-d H:i:s', false, 'gmt'))
+                ),
+                'submission_date' => array(
+                    esc_html__( 'Retrieves the current date (Local time)', 'super-forms' ),
+                    date_i18n('Y-m-d', false, false)
+                ),
+                'submission_hours' => array(
+                    esc_html__( 'Retrieves the current hour (Local time)', 'super-forms' ),
+                    date_i18n('H:i:s', false, false)
+                ),
+                'submission_timestamp' => array(
+                    esc_html__( 'Retrieves the current date timestamp (Local time)', 'super-forms' ),
+                    strtotime(date_i18n('Y-m-d H:i:s', false, false))
+                ),
+
                 'field_*****' => array(
                     esc_html__( 'Any field value submitted by the user', 'super-forms' ),
                     ''
@@ -2370,7 +2469,10 @@ class SUPER_Common {
                 }
                 $tags = array_merge( $tags, $wc_tags );
             }
+
+            // Filter to add additional email tags
             $tags = apply_filters( 'super_email_tags_filter', $tags );
+
             // Only store in case the language switch is enabled
             if(!empty($settings['i18n_switch']) && $settings['i18n_switch'] ==='true'){
                 SUPER_Common::setClientData( array( 'name'=> 'tags_values', 'value'=>$tags  ) );
@@ -2379,7 +2481,6 @@ class SUPER_Common {
         
         // Return the new value with tags replaced for data
         if( $value!=null ) {
-
             // First loop through all the data (submitted by the user)
             if( $data!=null ) {
                 foreach( $data as $k => $v ) {
@@ -2472,6 +2573,24 @@ class SUPER_Common {
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }
+                            $date = date_create($v['value']);
+                            if($date!==false){
+                                $d = date_format($date, 'd');
+                                $m = date_format($date, 'm');
+                                $y = date_format($date, 'Y');
+                                $w = date_format($date, 'w');
+                                $value = str_replace( '{' . $v['name'] . ';day}', $d, $value );
+                                $value = str_replace( '{' . $v['name'] . ';month}', $m, $value );
+                                $value = str_replace( '{' . $v['name'] . ';year}', $y, $value );
+                                $value = str_replace( '{field_' . $v['name'] . ';day}', $d, $value );
+                                $value = str_replace( '{field_' . $v['name'] . ';month}', $m, $value );
+                                $value = str_replace( '{field_' . $v['name'] . ';year}', $y, $value );
+                                $value = str_replace( '{' . $v['name'] . ';day_of_week}', $w, $value );
+                                $value = str_replace( '{' . $v['name'] . ';day_name}', SUPER_Forms()->elements_i18n['dayNames'][$w], $value );
+                                $value = str_replace( '{' . $v['name'] . ';day_name_short}', SUPER_Forms()->elements_i18n['dayNamesShort'][$w], $value );
+                                $value = str_replace( '{' . $v['name'] . ';day_name_shortest}', SUPER_Forms()->elements_i18n['dayNamesMin'][$w], $value );
+                                $value = str_replace( '{' . $v['name'] . ';timestamp}', strtotime($v['value']), $value );
+                            }
                             $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
                         }
                     }
@@ -2483,6 +2602,24 @@ class SUPER_Common {
                 foreach( $data as $k => $v ) {
                     if( isset( $v['name'] ) ) {
                         if( isset( $v['value'] ) ) {
+                            if(isset($v['raw_value'])){
+                                $fieldName = explode(';', trim($value, '{}'));
+                                if($v['name']===trim($fieldName[0])){
+                                    if(isset($fieldName[1])){
+                                        // Replace specific option value
+                                        if($fieldName[1]==='label'){
+                                            $value = $v['option_label'];
+                                            continue;
+                                        }
+                                        $n = intval($fieldName[1]) - 1;
+                                        $rawExploded = explode(';', $v['raw_value']);
+                                        if(isset($rawExploded[$n])){
+                                            $value = $rawExploded[$n];
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
                             if( (isset($v['type'])) && ($v['type']=='text') ) {
                                 $v['value'] = nl2br( $v['value'] );
                             }
@@ -2626,12 +2763,13 @@ class SUPER_Common {
                     }
                 }
             }
-
             // Now return the final output
             return $value;
-
         }
-        return $tags;
+        if( ($value===null) && ($data===null) && ($settings===null) && ($user===null) ) {
+            return $tags;
+        }
+        return '';
     }
 
 
@@ -2917,7 +3055,7 @@ class SUPER_Common {
             }
         }
     }
-    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
+    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_option('home'), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
 
     /**
      * Convert HEX color to RGB color format

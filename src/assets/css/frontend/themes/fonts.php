@@ -42,6 +42,7 @@ return "
 ".$s.".super-int-phone_country,
 ".$s.".super-int-phone_selected-dial-code,
 ".$s.".super-adaptive-placeholder,
+.ui-timepicker-wrapper.super-timepicker-dialog,
 .super-loading-overlay-".$form_id." {
     ".(!empty($v['font_global_family']) ? "font-family: ".$v['font_global_family'].";" : "")."
     ".(!empty($v['font_global_size']) ? "font-size: ".$v['font_global_size']."px;" : "")."

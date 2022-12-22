@@ -949,9 +949,9 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
 
                     // Store as submission info
                     $uniqueSubmissionId = $atts['uniqueSubmissionId'];
-                    $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
                     $submissionInfo['created_post'] = $post_id;
-                    update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
                 }
 
                 // @since 1.0.1

@@ -54,14 +54,27 @@ class SUPER_Shortcodes {
             'predefined'=>false // used by output_builder_html()
         ), $x );
     } 
-
+    public static function element_uid(){
+        $char = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($char);
+        $code = '';
+        for($i=0; $i<8; $i++){
+            $code .= $char[rand(0, $charactersLength-1)];
+        }
+        $code .= '-'.$GLOBALS['super_element_counter'];
+        return 'data-sfuid="'.$code.'"';
+    }
     // @since 4.7.5 - wrapper function to get the value for this field from entry data
     public static function get_entry_data_value($tag, $value, $name, $entry_data){
         if( isset( $entry_data[$name] ) ) {
             if( $tag=='textarea' ) {
                 $value = stripslashes( $entry_data[$name]['value'] );
             }else{
-                $value = sanitize_text_field( $entry_data[$name]['value'] );
+                if(isset($entry_data[$name]['raw_value'])){
+                    $value = sanitize_text_field( $entry_data[$name]['raw_value'] );
+                }else{
+                    $value = sanitize_text_field( $entry_data[$name]['value'] );
+                }
             }
         }
         return $value;
@@ -167,7 +180,9 @@ class SUPER_Shortcodes {
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
         }
-        if( !isset( $atts['value'] ) ) $atts['value'] = $default;
+        if( !isset( $atts['value'] ) ) {
+            $atts['value'] = $default;
+        }
 
         // Get the value from entry data
         // Skip for hidden fields?
@@ -178,7 +193,9 @@ class SUPER_Shortcodes {
             }
         }
 
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
+        if($atts['value']!='') {
+            $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
+        }
         // Add shortcode compatibility for default field value
         $atts['value'] = do_shortcode($atts['value']);
 
@@ -1427,7 +1444,7 @@ class SUPER_Shortcodes {
             wp_enqueue_style( 'tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION );    
             wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array( 'jquery' ), SUPER_VERSION, false );   
         }
-        $result = '<div';
+        $result = '<div '.self::element_uid();
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . ($tag==='tinymce' ? 'html' : $tag);
         if(!empty($atts['type'])) $result .= ' super-field-type-'.esc_attr($atts['type']);
@@ -1733,7 +1750,6 @@ class SUPER_Shortcodes {
                     $result .= ' data-minlength="' . esc_attr($atts['minlength']) . '"';
                 }
             }
-
         }else{
             if($tag=='date' || $tag=='time'){
                 if( $atts['maxlength']!='' ) {
@@ -1779,6 +1795,9 @@ class SUPER_Shortcodes {
                         $result .= ' max="' . esc_attr($atts['maxnumber']) . '"';
                     }
                 }
+            }
+            if(isset($atts['type']) && $atts['type']==='date'){
+                $result .= '" max="9999-01-01"'; // required to prevent user from entering a year that is longer than 4 characters in size
             }
         }
 
@@ -2064,7 +2083,7 @@ class SUPER_Shortcodes {
         $identifier = str_replace('.', '', microtime(true)).rand(1000000,9999999);
         $result .= self::generate_element_stylesheet($group, $tag, $identifier, $atts, $shortcodes);
 
-        $result .= '<div id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '"';
+        $result .= '<div '.self::element_uid().' id="super-id-'.$identifier.'" class="super-shortcode super-' . $tag . ' super-layout-' . $atts['layout'] . $location . $prev_next . (!empty($atts['class']) ? ' ' . $atts['class'] : '') . '"';
         $result .= self::pdf_attributes($atts);
         $result .= '>';
             // For each layout we need to generate a custom set of html
@@ -2343,7 +2362,7 @@ class SUPER_Shortcodes {
         }
 
         $result  = '';
-        $result .= '<div class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'"';
+        $result .= '<div '.self::element_uid().' class="super-shortcode super-' . $tag . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" ' . ($atts['validate']=='true' ? ' data-validate="' . $atts['validate'] . '"' : '') . 'data-step-auto="' . $atts['auto'] .'"';
         
         // @since 4.2.0 - disable scrolling when multi-part contains errors
         if( !empty($atts['disable_scroll']) ) $result .= ' data-disable-scroll="true"';
@@ -2543,7 +2562,7 @@ class SUPER_Shortcodes {
 
         $conditionAttributes = self::conditional_attributes( $atts );
         $class .= $conditionAttributes['class'];
-        $result .= '<div class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' grid-level-'.$grid['level'].' column-number-'.$grid['columns'][$grid['level']]['current'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
+        $result .= '<div '.self::element_uid().' class="super-shortcode super_' . $sizes[$atts['size']][0] . ' super-column'.$atts['invisible'].$atts['align_elements'].' grid-level-'.$grid['level'].' column-number-'.$grid['columns'][$grid['level']]['current'].' ' . $class . ' ' . $atts['margin'] . ($atts['resize_disabled_mobile']==true ? ' super-not-responsive' : '') . ($atts['resize_disabled_mobile_window']==true ? ' super-not-responsive-window' : '') . ($atts['hide_on_mobile']==true ? ' super-hide-mobile' : '') . ($atts['hide_on_mobile_window']==true ? ' super-hide-mobile-window' : '') . ($atts['force_responsiveness_mobile_window']==true ? ' super-force-responsiveness-window' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . $styles; 
         $result .= $conditionAttributes['dataset']; 
         if( $atts['duplicate']=='enabled' ) {
             // @since   1.2.8    - make sure this data is set
@@ -2616,7 +2635,7 @@ class SUPER_Shortcodes {
                                 $grid['level']++;
                                 $GLOBALS['super_grid_system'] = $grid;
                                 $GLOBALS['super_column_found'] = 0;
-                                $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                                $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
                                     foreach( $inner as $k => $v ) {
                                         if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
@@ -2645,7 +2664,7 @@ class SUPER_Shortcodes {
                         $GLOBALS['super_grid_system'] = $grid;
                         $GLOBALS['super_column_found'] = 0;
                         // No data found, let's generate at least 1 column
-                        $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                        $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
                             foreach( $inner as $k => $v ) {
                                 if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
                             }
@@ -2681,7 +2700,7 @@ class SUPER_Shortcodes {
                 $GLOBALS['super_grid_system'] = $grid;
                 $GLOBALS['super_column_found'] = 0;
                 if( $atts['duplicate']==='enabled' ) {
-                    $result .= '<div class="super-shortcode super-duplicate-column-fields">';
+                    $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
                 }
                 foreach( $inner as $k => $v ) {
                     if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
@@ -3063,6 +3082,9 @@ class SUPER_Shortcodes {
             if( $atts['distance_method']=='start' ) {
                 $data_attributes .= ' data-distance-destination="'.$atts['distance_destination'].'"';
             }else{
+                if( $atts['distance_method']=='both' ) {
+                    $data_attributes .= ' data-distance-destination="'.$atts['distance_destination'].'"';
+                }
                 $data_attributes .= ' data-distance-start="'.$atts['distance_start'].'"';
             }
             $distance_calculator_class .= ' super-distance-calculator';
@@ -3241,7 +3263,6 @@ class SUPER_Shortcodes {
                             }
                         }
                     }
-
                 }
             }
         }
@@ -4628,7 +4649,7 @@ class SUPER_Shortcodes {
         }
         if(!isset($atts['html'])) $atts['html'] = '';
         if( $atts['html']!='' ) { 
-            $re = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)/';
+            $re = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)|!?isset\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)/';
             $str = $atts['html'];
             preg_match_all($re, $atts['html'], $matches, PREG_SET_ORDER, 0);
             $data_fields = array();
@@ -4657,7 +4678,7 @@ class SUPER_Shortcodes {
 
             $dataFields = '';
             if(!empty($field_names)) $dataFields = ' data-fields="{' . $field_names . '}"';
-            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . ($dataFields ? $dataFields : '') . '>' . $html_code . '</div>';
+            $result .= '<div class="super-html-content' . (!empty($atts['nl2br']) ? ' super-nl2br' : '') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . ($dataFields ? $dataFields : '') . '>' . $html_code . '</div>';
             $result .= '<textarea>' . do_shortcode( stripslashes($html) ) . '</textarea>';
             if(!empty($atts['name'])) {
                 $result .= '<textarea class="super-shortcode-field super-hidden"';
@@ -5012,6 +5033,8 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function output_element_html($x){
+        if(!isset($GLOBALS['super_element_counter'])) $GLOBALS['super_element_counter']=0;
+        $GLOBALS['super_element_counter']++;
         extract(self::extract($x));
         // @IMPORTANT: before we proceed we must make sure that the "Default value" of a field will still be available
         // Otherwise when a user would duplicate a column that was populated with Entry data this "Default value" would be replaced with the Entry value
@@ -5791,13 +5814,15 @@ class SUPER_Shortcodes {
      *  @since      1.0.0
     */
     public static function super_form_func( $atts, $elements_only=false ) {
-        
+
         if( class_exists( 'SUPER_WooCommerce' ) ){
             remove_action( 'pre_get_posts', array( SUPER_WooCommerce(), 'exclude_products_from_shop' ) );
         }
 
         // @since 2.1.0 - make sure we reset the grid system
         unset($GLOBALS['super_grid_system']);
+        unset($GLOBALS['super_element_counter']);
+        $GLOBALS['super_element_counter'] = 0;
 
         extract( shortcode_atts( array(
             'id' => '',
@@ -6048,16 +6073,22 @@ class SUPER_Shortcodes {
 
         // If canceled Stripe checkout, try to retrieve form progress
         if(isset($_GET['sfr'])){
-            $submissionInfo = get_option('sfsi_' . sanitize_text_field($_GET['sfr']));
-            $entry_data = $submissionInfo['data'];
+            $submissionInfo = get_option('_sfsi_' . sanitize_text_field($_GET['sfr']));
+            $entry_data = (isset($submissionInfo['data']) ? $submissionInfo['data'] : array()) ;
             $formProgress = true;
         }
 
         $result = '';
         $result .= SUPER_Common::load_google_fonts($settings);
         if(!$elements_only){
+            // If browser translation is disabled:
+            if(empty($settings['i18n_disable_browser_translation'])) $settings['i18n_disable_browser_translation'] = 'true';
+            if($settings['i18n_disable_browser_translation']=='true') $class .= ' notranslate';
             $result .= '<style type="text/css">.super-form:not(.super-initialized,.super-preview-elements) *:not(.super-load-icon) { visibility: hidden !important; }</style>';
             $result .= '<div id="super-form-' . $form_id . '" '; 
+            if($settings['i18n_disable_browser_translation']=='true'){
+                $result .= 'translate="no" ';
+            }
             $result .= $styles;
             $result .= 'class="super-form ';
             $result .= ( $settings['form_preload'] == 0 ? 'preload-disabled ' : '' );
@@ -6066,6 +6097,17 @@ class SUPER_Shortcodes {
             $result .= '"';
             $result .= ( (isset($settings['form_hide_after_submitting'])) && ($settings['form_hide_after_submitting']=='true') ? ' data-hide="true"' : '' );
             $result .= ( (isset($settings['form_clear_after_submitting'])) && ($settings['form_clear_after_submitting']=='true') ? ' data-clear="true"' : '' );
+
+            if($list_id!=='' && $entry_id!==''){
+                // In case the overlay processing popup was disabled 
+                // via Listings settings when editing entries
+                if(isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
+                    $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
+                    if($list['enableFormProcessingOverlay']!=='true') {
+                        $settings['form_processing_overlay'] = 'false';
+                    }
+                }
+            }
             $result .= ( (isset($settings['form_processing_overlay'])) && ($settings['form_processing_overlay']=='true') ? ' data-overlay="true"' : '' );
             $result .= ( (!empty($settings['multipart_url_params'])) && ($settings['multipart_url_params']==='false') ? ' data-step-params="false"' : '' );
 
@@ -6088,9 +6130,6 @@ class SUPER_Shortcodes {
 
             // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
             $result .= '<span class="super-load-icon"></span>';
-
-
-
 
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
@@ -6294,7 +6333,7 @@ class SUPER_Shortcodes {
 
         // Display message to admin if the form is in debug mode for PDF generator
         if(!empty($settings['_pdf'])) {
-            if($settings['_pdf']['generate']==='true' && $settings['_pdf']['debug']==='true') {
+            if(!empty($settings['_pdf']['generate']) && $settings['_pdf']['generate']==='true' && $settings['_pdf']['debug']==='true') {
                 $result .= '<div class="super-msg super-info" data-pdfoption="exclude">';
                     if($settings['form_locker_msg_title']!='') {
                         $result .= '<h1>'.esc_html__( 'PDF Generator debug mode is enabled!', 'super-forms' ).'</h1>';
@@ -6431,7 +6470,7 @@ class SUPER_Shortcodes {
 
         // Load PDF Generator fonts (only if enabled)
         if(!empty($settings['_pdf'])) {
-            if($settings['_pdf']['generate']==='true') {
+            if(!empty($settings['_pdf']['generate']) && $settings['_pdf']['generate']==='true') {
                 // When value is not set, but PDF is activated, set it to true, to not break existing forms that might require it
                 if(!isset($settings['_pdf']['textRendering'])) $settings['_pdf']['textRendering'] = 'true';
                 if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'true'; 

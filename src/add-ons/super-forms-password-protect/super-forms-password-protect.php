@@ -236,7 +236,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                                 $msg .= '</div>';
                             $msg .= '</div>';
                             if( SUPER_Forms()->form_custom_css!='' ) {
-                                $msg .= '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+                                $msg .= '<style class="super-form-custom-css" type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                             }
                             return $msg;
                         }else{

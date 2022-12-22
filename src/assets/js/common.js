@@ -167,6 +167,7 @@ function SUPERreCaptcha(){
     };
     // Send form submission through ajax request
     SUPER.create_ajax_request = function(args){
+        debugger;
         var json_data;
         args.form = $(args.form);
         args.form0 = args.form[0];
@@ -197,13 +198,16 @@ function SUPERreCaptcha(){
             args.version = 'v3';
         }
         // Create loader overlay
+        debugger;
         args = SUPER.createLoadingOverlay(args);
         args.callback = function(){
+            debugger;
             SUPER.submit_form(args);
         };
         SUPER.before_email_send_hook(args);
     };
     SUPER.createLoadingOverlay = function(args){
+        debugger;
         args.loadingOverlay = document.createElement('div');
         var html = '';
         html += '<div class="super-loading-wrapper">';
@@ -223,6 +227,7 @@ function SUPERreCaptcha(){
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         args.loadingOverlay.querySelector('.super-close').innerHTML = '<span>'+super_common_i18n.loadingOverlay.close+'</span>';
         if(args.showOverlay==="true"){
+            debugger;
             document.body.appendChild(args.loadingOverlay);
         }
         // Close modal (should also reset pdf generation)
@@ -237,6 +242,7 @@ function SUPERreCaptcha(){
         return args;
     };
     SUPER.submit_form = function(args){
+        debugger;
         var total = 0;
         args.files = SUPER.files[args.form_id];
         if(args.files){
@@ -246,11 +252,15 @@ function SUPERreCaptcha(){
             });
         }
         if(total>0){
+            debugger;
             args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.uploading_files+'</span>';
             SUPER.upload_files(args, function(args){
+                args.fileUpload = true;
+                debugger;
                 SUPER.process_form_data(args);
             });
         }else{
+            debugger;
             SUPER.process_form_data(args);
         }
     };
@@ -413,6 +423,7 @@ function SUPERreCaptcha(){
         });
     };
     SUPER.process_form_data = function(args){
+        debugger;
         args.generatePdf = false;
         args.pdfSettings = null;
         if( typeof SUPER.form_js !== 'undefined' && 
@@ -446,6 +457,7 @@ function SUPERreCaptcha(){
             SUPER.pdf_generator_init(args, function(args){
                 // When debugging is enabled download file instantly without submitting the form
                 if(args.pdfSettings.debug==="true"){
+                    debugger;
                     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
                     // Direct download of PDF
                     args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
@@ -467,9 +479,11 @@ function SUPERreCaptcha(){
                         args.loadingOverlay.classList.add('super-error');
                     });
                 }
+                debugger;
                 SUPER.save_data(args); 
             });
         }else{
+            debugger;
             SUPER.save_data(args);
         }
     };
@@ -631,26 +645,26 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            e.preventDefault();
+            if(e) e.preventDefault();
             return false;
         }
         if( next.classList.contains('super-form-button') ) {
             next.classList.add('super-focus');
             SUPER.init_button_hover_colors( next );
             next.querySelector('.super-button-wrap').focus();
-            e.preventDefault();
+            if(e) e.preventDefault();
             return false;
         }
         if( next.classList.contains('super-color')) {
             next.classList.add('super-focus');
             $(next.querySelector('.super-shortcode-field')).spectrum('show');
-            e.preventDefault();
+            if(e) e.preventDefault();
             return false;
         }
         if( next.classList.contains('super-keyword-tags')) {
             next.classList.add('super-focus');
             next.querySelector('.super-keyword-filter').focus();
-            e.preventDefault();
+            if(e) e.preventDefault();
             return false;
         }
         if( next.classList.contains('super-dropdown') ) {
@@ -658,7 +672,7 @@ function SUPERreCaptcha(){
             next.classList.add('super-open');
             if(next.querySelector('input[name="super-dropdown-search"]')){
                 next.querySelector('input[name="super-dropdown-search"]').focus();
-                e.preventDefault();
+                if(e) e.preventDefault();
                 return false;
             }
         }else{
@@ -667,10 +681,19 @@ function SUPERreCaptcha(){
         if(next.querySelector('.super-shortcode-field')){
             next.querySelector('.super-shortcode-field').focus();
         }
-        e.preventDefault();
+        if(e) e.preventDefault();
         return false;
     };
 
+    // Only if field exists and not conditionally hidden
+    SUPER.field_isset = function(form, name, regex){
+        var el = SUPER.field(form, name, regex);
+        if(!el) return 0; // does not exist, is not set
+        if(SUPER.has_hidden_parent(el)) {
+            return 0; // was conditionally hidden
+        }
+        return 1;
+    };
     // Only if field exists
     SUPER.field_exists = function(form, name, regex){
         return (SUPER.field(form, name, regex) ? 1 : 0);
@@ -682,7 +705,7 @@ function SUPERreCaptcha(){
         if(name==='' && regex=='all') return form.querySelectorAll('.super-shortcode-field:not(.super-fileupload), .super-active-files, .super-recaptcha');
         // If name is empty just return the first field only
         if(name==='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload), .super-active-files');
-        // If no regex was defined return all field just by their exact name match
+        // If no regex was defined return field just by their exact name match
         if(name!=='' && regex==='') return form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
         // If regex is set to 'all' we want to search for multiple fields
         // This is currently being used by the builder to determine duplicate field names
@@ -699,6 +722,8 @@ function SUPERreCaptcha(){
     };
     SUPER.replaceAll = function(value, searchFor, replaceWith){
         try {
+            // Convert needle so it can be used as a regex safely
+            searchFor = searchFor.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
             var re = new RegExp(searchFor, "g");
             return value.replace(re, replaceWith);
         }catch (e) {
@@ -1067,7 +1092,9 @@ function SUPERreCaptcha(){
                 $origin_field,
                 $origin,
                 $destination_field,
+                $destination_field2,
                 $destination,
+                $destination2,
                 $value,
                 $units,
                 $result,
@@ -1085,108 +1112,222 @@ function SUPERreCaptcha(){
                     $destination = ($destination_field ? $destination_field.value : '');
                 }
             }else{
-                $origin_field = SUPER.field(form, args.el.dataset.distanceStart);
-                $origin = ($origin_field ? $origin_field.value : '');
-                $destination_field = args.el;
-                $destination = args.el.value;
+                if($method=='both'){
+                    $origin_field = SUPER.field(form, args.el.dataset.distanceStart);
+                    $origin = ($origin_field ? $origin_field.value : '');
+                    $destination_field = args.el;
+                    $destination = args.el.value;
+                    // Calculate two different distances
+                    $destination2 = args.el.dataset.distanceDestination;
+                    if(SUPER.field_exists(form, $destination2)){
+                        $destination_field2 = SUPER.field(form, $destination2);
+                        $destination2 = ($destination_field2 ? $destination_field2.value : '');
+                    }
+                }else{
+                    $origin_field = SUPER.field(form, args.el.dataset.distanceStart);
+                    $origin = ($origin_field ? $origin_field.value : '');
+                    $destination_field = args.el;
+                    $destination = args.el.value;
+                }
             }
             $value = $origin_field.dataset.distanceValue;
             $units = $origin_field.dataset.distanceUnits;
+            if($method=='both'){
+                $value = $destination_field.dataset.distanceValue;
+                $units = $destination_field.dataset.distanceUnits;
+            }
             if($value!='dis_text'){
                 $units = 'metric';
             }
             if( ($origin==='') || ($destination==='') ) {
                 return true;
             }
+            if($method=='both'){
+                if( ($origin==='') || ($destination==='' && $destination2==='') ) {
+                    return true;
+                }
+            }
             if(distance_calculator_timeout !== null){
                 clearTimeout(distance_calculator_timeout);
             }
             distance_calculator_timeout = setTimeout(function () {
                 args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance');
-                $.ajax({
-                    url: super_common_i18n.ajaxurl,
-                    type: 'post',
-                    data: {
-                        action: 'super_calculate_distance',
-                        units: $units,
-                        origin: $origin,
-                        destination: $destination
-                    },
-                    success: function (result) {
-                        $result = JSON.parse(result);
-                        if($result.status=='OK'){
-                            $leg = $result.routes[0].legs[0];
-                            $field = $origin_field.dataset.distanceField;
-                            // distance  - Distance in meters
-                            if( $value=='distance' ) {
-                                $calculation_value = $leg.distance.value;
-                            }
-                            // dis_text  - Distance text in km or miles
-                            if( $value=='dis_text' ) {
-                                $calculation_value = $leg.distance.text;
-                            }
-                            // duration  - Duration in seconds
-                            if( $value=='duration' ) {
-                                $calculation_value = $leg.duration.value;
-                            }
-                            // dur_text  - Duration text in minutes
-                            if( $value=='dur_text' ) {
-                                $calculation_value = $leg.duration.text;
-                            }
-                            $field = SUPER.field(form, $field);
-                            $field.value = $calculation_value;
-                            if($calculation_value===''){
-                                $field.closest('.super-shortcode').classList.remove('super-filled');
-                            }else{
-                                $field.closest('.super-shortcode').classList.add('super-filled');
-                            }
-                            SUPER.after_field_change_blur_hook({el: $field});
-                            SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
-                        }else{
-                            if($result.status=='ZERO_RESULTS'){
-                                $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
-                            }else{
-                                if($result.status=='OVER_QUERY_LIMIT'){
-                                    $alert_msg = $result.error_message;
+
+                if($origin!=='' && $destination!==''){
+                    $.ajax({
+                        url: super_common_i18n.ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'super_calculate_distance',
+                            units: $units,
+                            origin: $origin,
+                            destination: $destination
+                        },
+                        success: function (result) {
+                            $result = JSON.parse(result);
+                            if($result.status=='OK'){
+                                $leg = $result.routes[0].legs[0];
+                                $field = $origin_field.dataset.distanceField;
+                                // distance  - Distance in meters
+                                if( $value=='distance' ) {
+                                    $calculation_value = $leg.distance.value;
+                                }
+                                // dis_text  - Distance text in km or miles
+                                if( $value=='dis_text' ) {
+                                    $calculation_value = $leg.distance.text;
+                                }
+                                // duration  - Duration in seconds
+                                if( $value=='duration' ) {
+                                    $calculation_value = $leg.duration.value;
+                                }
+                                // dur_text  - Duration text in minutes
+                                if( $value=='dur_text' ) {
+                                    $calculation_value = $leg.duration.text;
+                                }
+                                $field = SUPER.field(form, $field);
+                                $field.value = $calculation_value;
+                                if($calculation_value===''){
+                                    $field.closest('.super-shortcode').classList.remove('super-filled');
                                 }else{
-                                    if($result.error===true){
-                                        $alert_msg = $result.msg;
+                                    $field.closest('.super-shortcode').classList.add('super-filled');
+                                }
+                                SUPER.after_field_change_blur_hook({el: $field});
+                                SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
+                            }else{
+                                if($result.status=='ZERO_RESULTS'){
+                                    $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
+                                }else{
+                                    if($result.status=='OVER_QUERY_LIMIT'){
+                                        $alert_msg = $result.error_message;
                                     }else{
-                                        $alert_msg = super_common_i18n.errors.distance_calculator.error;
+                                        if($result.error===true){
+                                            $alert_msg = $result.msg;
+                                        }else{
+                                            $alert_msg = super_common_i18n.errors.distance_calculator.error;
+                                        }
                                     }
                                 }
+                                $('.super-msg').remove();
+                                $result = JSON.parse(result);
+                                $html = '<div class="super-msg super-error">';                            
+                                $origin_field.blur();
+                                if(typeof $destination_field !== 'undefined') $destination_field.blur();
+                                $html += $alert_msg;
+                                $html += '<span class="super-close"></span>';
+                                $html += '</div>';
+                                $($html).prependTo($(form));
+                                if(form.closest('.super-popup-content')){
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$(form.closest('.super-popup-content')).animate({
+                                    //    scrollTop: $(form).offset().top-200
+                                    //}, 1000);
+                                }else{
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$('html, body').animate({
+                                    //    scrollTop: $(form).offset().top-200
+                                    //}, 1000);
+                                }
                             }
-                            $('.super-msg').remove();
-                            $result = JSON.parse(result);
-                            $html = '<div class="super-msg super-error">';                            
-                            $origin_field.blur();
-                            if(typeof $destination_field !== 'undefined') $destination_field.blur();
-                            $html += $alert_msg;
-                            $html += '<span class="super-close"></span>';
-                            $html += '</div>';
-                            $($html).prependTo($(form));
-                            if(form.closest('.super-popup-content')){
-                                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-                                //$(form.closest('.super-popup-content')).animate({
-                                //    scrollTop: $(form).offset().top-200
-                                //}, 1000);
-                            }else{
-                                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-                                //$('html, body').animate({
-                                //    scrollTop: $(form).offset().top-200
-                                //}, 1000);
-                            }
+                        },
+                        complete: function(){
+                            args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            // eslint-disable-next-line no-console
+                            console.log(xhr, ajaxOptions, thrownError);
+                            alert(super_common_i18n.errors.failed_to_process_data);
                         }
-                    },
-                    complete: function(){
-                        args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        // eslint-disable-next-line no-console
-                        console.log(xhr, ajaxOptions, thrownError);
-                        alert(super_common_i18n.errors.failed_to_process_data);
-                    }
-                });
+                    });
+                }
+
+                if($method=='both' && ($destination!=='' && $destination2!=='')) {
+                    $.ajax({
+                        url: super_common_i18n.ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'super_calculate_distance',
+                            units: $units,
+                            origin: $destination,
+                            destination: $destination2
+                        },
+                        success: function (result) {
+                            $result = JSON.parse(result);
+                            if($result.status=='OK'){
+                                $leg = $result.routes[0].legs[0];
+                                $field = $destination_field.dataset.distanceField;
+                                // distance  - Distance in meters
+                                if( $value=='distance' ) {
+                                    $calculation_value = $leg.distance.value;
+                                }
+                                // dis_text  - Distance text in km or miles
+                                if( $value=='dis_text' ) {
+                                    $calculation_value = $leg.distance.text;
+                                }
+                                // duration  - Duration in seconds
+                                if( $value=='duration' ) {
+                                    $calculation_value = $leg.duration.value;
+                                }
+                                // dur_text  - Duration text in minutes
+                                if( $value=='dur_text' ) {
+                                    $calculation_value = $leg.duration.text;
+                                }
+                                $field = SUPER.field(form, $field);
+                                $field.value = $calculation_value;
+                                if($calculation_value===''){
+                                    $field.closest('.super-shortcode').classList.remove('super-filled');
+                                }else{
+                                    $field.closest('.super-shortcode').classList.add('super-filled');
+                                }
+                                SUPER.after_field_change_blur_hook({el: $field});
+                                SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
+                            }else{
+                                if($result.status=='ZERO_RESULTS'){
+                                    $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
+                                }else{
+                                    if($result.status=='OVER_QUERY_LIMIT'){
+                                        $alert_msg = $result.error_message;
+                                    }else{
+                                        if($result.error===true){
+                                            $alert_msg = $result.msg;
+                                        }else{
+                                            $alert_msg = super_common_i18n.errors.distance_calculator.error;
+                                        }
+                                    }
+                                }
+                                $('.super-msg').remove();
+                                $result = JSON.parse(result);
+                                $html = '<div class="super-msg super-error">';                            
+                                $destination_field.blur();
+                                if(typeof $destination_field2 !== 'undefined') $destination_field2.blur();
+                                $html += $alert_msg;
+                                $html += '<span class="super-close"></span>';
+                                $html += '</div>';
+                                $($html).prependTo($(form));
+                                if(form.closest('.super-popup-content')){
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$(form.closest('.super-popup-content')).animate({
+                                    //    scrollTop: $(form).offset().top-200
+                                    //}, 1000);
+                                }else{
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    //$('html, body').animate({
+                                    //    scrollTop: $(form).offset().top-200
+                                    //}, 1000);
+                                }
+                            }
+                        },
+                        complete: function(){
+                            args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            // eslint-disable-next-line no-console
+                            console.log(xhr, ajaxOptions, thrownError);
+                            alert(super_common_i18n.errors.failed_to_process_data);
+                        }
+                    });
+                }
+                
+
             }, 1000);
         }
     };
@@ -1437,8 +1578,9 @@ function SUPERreCaptcha(){
 
     SUPER.conditional_logic.get_field_value = function($logic, $shortcode_field_value, $shortcode_field, $parent){
         if( $logic=='greater_than' || $logic=='less_than' || $logic=='greater_than_or_equal' || $logic=='less_than_or_equal' ) {
-            var $sum = 0,
-                $selected;
+            var $sum = 0, $selected;
+            // If it does not have parent, return
+            if(typeof $parent === 'undefined') return $shortcode_field_value;
             // Check if dropdown field
             if( $parent.classList.contains('super-dropdown') ){
                 $selected = $parent.querySelectorAll('.super-dropdown-list .super-item.super-active:not(.super-placeholder)');
@@ -1455,7 +1597,6 @@ function SUPERreCaptcha(){
                 });
                 $shortcode_field_value = $sum;
             }
-
             // @since 2.3.0 - compatibility with conditional logic
             // Check if currency field (since Super Forms v2.1)
             if( $parent.classList.contains('super-currency') ) {
@@ -1472,6 +1613,7 @@ function SUPERreCaptcha(){
             $this,
             $json,
             $wrapper,
+            $uid,
             $field,
             $trigger,
             $action,
@@ -1520,13 +1662,18 @@ function SUPERreCaptcha(){
                     $action = $wrapper.dataset.conditionalAction;
                 }
             }
+            if($this.value==='') return;
             $json = $this.value;
-            if(($action) && ($action!='disabled')){
-                $field = $wrapper.querySelector('.super-shortcode-field');
+            if($json!=='' && ($action) && ($action!='disabled')){
+                $field = false;
+                if($wrapper.closest('.super-field')){
+                    $field = $wrapper.closest('.super-field').querySelector('.super-shortcode-field');
+                }
                 if(!$field) {
                     // Skip if we already retrieved the conditions before
-                    if(!SUPER.allConditions[form_id]['_element_'+key]){
-                        SUPER.allConditions[form_id]['_element_'+key] = JSON.parse($json);
+                    $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
+                    if(!SUPER.allConditions[form_id]['_element_'+$uid]){
+                        SUPER.allConditions[form_id]['_element_'+$uid] = JSON.parse($json);
                     }
                     return;
                 }
@@ -1573,7 +1720,6 @@ function SUPERreCaptcha(){
                     $this = args.conditionalLogic[key];
                     args.currentTextarea = $this;
                     $wrapper = $this.closest('.super-shortcode');
-                    $field = $wrapper.querySelector('.super-shortcode-field');
                     $is_variable = false;
                     $is_validate = false;
                     if($this.classList.contains('super-variable-conditions')){
@@ -1598,10 +1744,15 @@ function SUPERreCaptcha(){
 
                     $json = $this.value;
                     if(($action) && ($action!='disabled')){
+                        $field = false;
+                        if($wrapper.closest('.super-field')){
+                            $field = $wrapper.closest('.super-field').querySelector('.super-shortcode-field');
+                        }
                         if(!$field) {
-                            $conditions = SUPER.allConditions[form_id]['_element_'+key];
+                            $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
+                            $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id]['_element_'+$uid]));
                         }else{
-                            $conditions = SUPER.allConditions[form_id][$field.name];
+                            $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id][$field.name]));
                         }
                         if($conditions){
                             $total = 0;
@@ -1682,7 +1833,7 @@ function SUPERreCaptcha(){
                                         // Generate correct value before checking conditional logic
                                         $shortcode_field_value = SUPER.conditional_logic.get_field_value(v.l, $shortcode_field_value, $shortcode_field, $parent);
                                         // Generate correct and value before checking conditional logic
-                                        if(v.a!==''){ 
+                                        if(v.a && v.a!==''){
                                             $shortcode_field_and_value = SUPER.conditional_logic.get_field_value(v.la, $shortcode_field_and_value, $shortcode_field_and, $parent_and);
                                         }
                                         if($is_variable){
@@ -1954,7 +2105,6 @@ function SUPERreCaptcha(){
         // }
         // replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
 
-
         if(typeof $counter === 'undefined') $counter = 0;
         if(typeof $fileLoopRows === 'undefined') $fileLoopRows = [];
         // Check if endforeach; was found otherwise skip it
@@ -2074,7 +2224,8 @@ function SUPERreCaptcha(){
         var fieldType = SUPER.get_field_type(originalFormReference, $field_name);
         while( currentField ) {
             var currentFieldParent = $(currentField).parents('.super-duplicate-column-fields:eq(0)');
-            var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+            //var regex = /(<%|{|foreach\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):)/g;
+            var regex = /(<%|{|foreach\(|isset\(|!isset\(|if\(!isset\(|if\(isset\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):|\)\):)/g;
             var m;
             $row = $original;
             var replaceTagsWithValue = {};
@@ -2178,13 +2329,13 @@ function SUPERreCaptcha(){
                     if(childParentIndex!==0){
                         //replaceTagsWithValue['<%counter%>'] = (childParentIndex+1);
                         replaceTagsWithValue[$o] = $start+$n+levels+'_'+(childParentIndex+1)+$s+$end;
-                        if($start!=='foreach('){
+                        if($start==='{'){
                             replaceTagsWithValue['<%counter%>'] = $start+$n+levels+'_'+(childParentIndex+1)+';index'+$end;
                         }
                         continue;
                     }
                     replaceTagsWithValue[$o] = $start+$n+levels+$c+$s+$end;
-                    if($start!=='foreach('){
+                    if($start==='{'){
                         replaceTagsWithValue['<%counter%>'] = $start+$n+levels+$c+';index'+$end;
                     }
                     //$row = SUPER.replaceAll($row, '<%counter%>', '<%'+$field_name+';index%>');
@@ -2831,24 +2982,52 @@ function SUPERreCaptcha(){
                         }
 
                         // Check if datepicker field
-                        if($parent.classList.contains('super-date')){
+                        if($parent.classList.contains('super-date') || $parent.classList.contains('super-field-type-date')){
                             $text_field = false;
                             $value = $element.value;
-                            if($value_n === 'day' || $value_n === 'day_of_week' || $value_n === 'day_name' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
-                                if($value_n === 'day') $value = ($element.getAttribute('data-math-day')) ? parseFloat($element.getAttribute('data-math-day')) : 0;
-                                if($value_n === 'day_of_week') $value = ($element.getAttribute('data-math-dayw')) ? parseFloat($element.getAttribute('data-math-dayw')) : 0;
-                                if($value_n === 'day_name') $value = ($element.getAttribute('data-math-dayn')) ? $element.getAttribute('data-math-dayn') : '';
-                                if($value_n === 'day_name_short') $value = ($element.getAttribute('data-math-dayns')) ? $element.getAttribute('data-math-dayns') : '';
-                                if($value_n === 'day_name_shortest') $value = ($element.getAttribute('data-math-daynss')) ? $element.getAttribute('data-math-daynss') : '';
-                                if($value_n === 'month') $value = ($element.getAttribute('data-math-month')) ? parseFloat($element.getAttribute('data-math-month')) : 0;
-                                if($value_n === 'year') $value = ($element.getAttribute('data-math-year')) ? parseFloat($element.getAttribute('data-math-year')) : 0;
-                                if($value_n === 'timestamp') $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
+                            if($parent.classList.contains('super-field-type-date')){
+                                // Text field with type=date
+                                if($value_n === 'day' || $value_n === 'day_of_week' || $value_n === 'day_name' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
+                                    var d = Date.parseExact($value, ['yyyy-dd-MM']);
+                                    if(d!==null){
+                                        var year = d.toString('yyyy');
+                                        var month = d.toString('MM');
+                                        var day = d.toString('dd');                        
+                                        var firstDate = new Date(Date.UTC(year, month-1, day));
+                                        var dayIndex = firstDate.getDay();
+                                        var mathDayw = dayIndex;
+                                        var mathDayn = super_common_i18n.dayNames[dayIndex]; // long (default)
+                                        var mathDayns = super_common_i18n.dayNamesShort[dayIndex]; // short
+                                        var mathDaynss = super_common_i18n.dayNamesMin[dayIndex]; // super short
+                                        var mathDiff = firstDate.getTime();
+                                        if($value_n === 'day') $value = day;
+                                        if($value_n === 'month') $value = month;
+                                        if($value_n === 'year') $value = year;
+                                        if($value_n === 'day_of_week') $value = mathDayw;
+                                        if($value_n === 'day_name') $value = mathDayn;
+                                        if($value_n === 'day_name_short') $value = mathDayns;
+                                        if($value_n === 'day_name_shortest') $value = mathDaynss;
+                                        if($value_n === 'timestamp') $value = mathDiff;
+                                    }
+                                }
                             }else{
-                                if($element.getAttribute('data-return_age')=='true') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
-                                // @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
-                                if($element.getAttribute('data-date-math')=='years') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
-                                if($element.getAttribute('data-date-math')=='months') $value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
-                                if($element.getAttribute('data-date-math')=='days') $value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
+                                // Datepicker
+                                if($value_n === 'day' || $value_n === 'day_of_week' || $value_n === 'day_name' || $value_n === 'month' || $value_n === 'year' || $value_n === 'timestamp'){
+                                    if($value_n === 'day') $value = ($element.getAttribute('data-math-day')) ? parseFloat($element.getAttribute('data-math-day')) : 0;
+                                    if($value_n === 'day_of_week') $value = ($element.getAttribute('data-math-dayw')) ? parseFloat($element.getAttribute('data-math-dayw')) : 0;
+                                    if($value_n === 'day_name') $value = ($element.getAttribute('data-math-dayn')) ? $element.getAttribute('data-math-dayn') : '';
+                                    if($value_n === 'day_name_short') $value = ($element.getAttribute('data-math-dayns')) ? $element.getAttribute('data-math-dayns') : '';
+                                    if($value_n === 'day_name_shortest') $value = ($element.getAttribute('data-math-daynss')) ? $element.getAttribute('data-math-daynss') : '';
+                                    if($value_n === 'month') $value = ($element.getAttribute('data-math-month')) ? parseFloat($element.getAttribute('data-math-month')) : 0;
+                                    if($value_n === 'year') $value = ($element.getAttribute('data-math-year')) ? parseFloat($element.getAttribute('data-math-year')) : 0;
+                                    if($value_n === 'timestamp') $value = ($element.getAttribute('data-math-diff')) ? parseFloat($element.getAttribute('data-math-diff')) : 0;
+                                }else{
+                                    if($element.getAttribute('data-return_age')=='true') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
+                                    // @since 1.2.0 - check if we want to return the date birth years, months or days for calculations
+                                    if($element.getAttribute('data-date-math')=='years') $value = ($element.getAttribute('data-math-age')) ? parseFloat($element.getAttribute('data-math-age')) : 0;
+                                    if($element.getAttribute('data-date-math')=='months') $value = ($element.getAttribute('data-math-age-months')) ? parseFloat($element.getAttribute('data-math-age-months')) : 0;
+                                    if($element.getAttribute('data-date-math')=='days') $value = ($element.getAttribute('data-math-age-days')) ? parseFloat($element.getAttribute('data-math-age-days')) : 0;
+                                }
                             }
                         }
 
@@ -3014,6 +3193,109 @@ function SUPERreCaptcha(){
     };
     // Form submission is finished
     SUPER.form_submission_finished = function(args, result){ 
+        debugger;
+        // Update Listings entry?
+        if(args.list_id && args.list_id!==''){
+            debugger;
+            if(result.response_data.enableFormProcessingOverlay!=='true'){
+                debugger;
+                document.querySelector('.super-loading-overlay').remove();
+            }
+            if(result.response_data.enableFormProcessingOverlay && result.response_data.enableFormProcessingOverlay==='true'){
+                if(result.response_data.closeFormProcessingOverlay && result.response_data.closeFormProcessingOverlay==='true'){
+                    debugger;
+                    document.querySelector('.super-loading-overlay').remove();
+                }
+            }
+            if(result.response_data.closeEditorWindowAfterEditing && result.response_data.closeEditorWindowAfterEditing==='true'){
+                debugger;
+                document.querySelector('.super-listings-modal').remove();
+            }
+            var nodes = document.querySelectorAll('.super-listings > .super-listings-wrap > .super-entries > .super-entry.super-updated');
+            for(var i=0; i<nodes.length; i++){
+                nodes[i].classList.remove('super-updated');
+            }
+            nodes = document.querySelectorAll('.super-listings > .super-listings-wrap > .super-entries > .super-entry[data-id="'+args.entry_id+'"]');
+            for(i=0; i<nodes.length; i++){
+                debugger;
+                nodes[i].classList.add('super-updated');
+                var cols = nodes[i].querySelectorAll('.super-col:not(.super-actions)');
+                for(var x=0; x<cols.length; x++){
+                    debugger;
+                    var fieldName = cols[x].className.replace('super-col super-','');
+                    if(fieldName==='entry_status'){
+                        debugger;
+                        console.log(args);
+                        var status = result.response_data.entry_status;
+                        cols[x].innerHTML = '<span class="super-entry-status super-entry-status-' + status.key + '" style="color:' + status.color + ';background-color:' + status.bg_color + '">' + status.name + '</span>';
+                        continue;
+                    }
+
+                    // // If not then it must be a special field, for instance file uploads
+                    // if($data[$column_key]['type']==='files'){
+                    //     $linkUrl = '';
+                    //     if(isset($data[$column_key]['files'])){
+                    //         $files = $data[$column_key]['files'];
+                    //         foreach($files as $fk => $fv){
+                    //             $url = (!empty($fv['url']) ? $fv['url'] : '');
+                    //             if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
+                    //                 $url = wp_get_attachment_url( $fv['attachment'] );
+                    //             }
+                    //             if(!empty($url)){
+                    //                 $cellValue .= '<a target="_blank" download href="' . esc_url( $url ) . '">';
+                    //             }
+                    //             if(!empty($url)){
+                    //                 $cellValue .= '<span class="super-icon-download"></span></a>';
+                    //             }
+                    //             $cellValue .= esc_html( $fv['value'] ); // The filename
+                    //             $cellValue .= '<br />';
+                    //         }
+                    //     }else{
+                    //         $cellValue = esc_html__( 'No files uploaded', 'super-forms' );
+                    //     }
+                    // }
+
+                    if(fieldName==='generated_pdf'){
+                        // Replace URL with blob
+                        debugger;
+                        if(result.response_data._generated_pdf_file){
+                            debugger;
+                            console.log(result.response_data._generated_pdf_file.files[0].value);
+                            console.log(result.response_data._generated_pdf_file.files[0].url);
+                            // Check if contains a link
+                            if(cols[x].querySelector('a')){
+                                cols[x].querySelector('a').href = result.response_data._generated_pdf_file.files[0].url;
+                                if(cols[x].querySelector('span')){
+                                    cols[x].querySelector('a').innerHTML = cols[x].querySelector('a > span').outerHTML+result.response_data._generated_pdf_file.files[0].value;
+                                }
+                            }else{
+                                // Just replace file name
+                                if(cols[x].querySelector('span')){
+                                    cols[x].innerHTML = cols[x].querySelector('span').outerHTML+result.response_data._generated_pdf_file.files[0].value;
+                                }else{
+                                    cols[x].innerHTML = result.response_data._generated_pdf_file.files[0].value;
+
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                    // Grab field value from data
+                    debugger;
+                    if(args.data[fieldName]){
+                        debugger;
+                        if(args.data[fieldName].entry_value){
+                            cols[x].innerText = args.data[fieldName].entry_value;
+                            continue;
+                        }
+                        if(args.data[fieldName].value){
+                            cols[x].innerText = args.data[fieldName].value;
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
         if(args.showOverlay==="true"){
             // Display message inside overlay
             if(args.progressBar) args.progressBar.style.width = 100+"%";  
@@ -3028,6 +3310,7 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
+                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     // Visually indicate which fields have errors
                     if(typeof result.fields !== 'undefined'){
                         for(var i=0; i<result.fields.length; i++){
@@ -3059,6 +3342,7 @@ function SUPERreCaptcha(){
                         // Display the error/success message
                         if(innerText) innerText.innerHTML = result.msg;
                     }
+                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 // Convert any JS to executable JS
                 var node = innerText.querySelector('script');
@@ -3117,13 +3401,13 @@ function SUPERreCaptcha(){
                 if(args.form){
                     $(html).prependTo($(args.form));
                     SUPER.init_resend_verification_code(args);
-                    if(args.form.closest('.super-popup-content')){
-                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    if(args.form0.closest('.super-popup-content')){
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         //$(args.form.closest('.super-popup-content')).animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
                     }else{
-                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         //$('html, body').animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
@@ -3146,6 +3430,11 @@ function SUPERreCaptcha(){
                         $(args.form).find('.super-field, .super-multipart-progress, .super-field, .super-multipart-steps').fadeOut(500);
                         setTimeout(function () {
                             $(args.form).find('.super-field, .super-shortcode').remove();
+                            if(args.showOverlay==="true"){
+                                if(result.msg!==''){
+                                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                            }
                         }, 500);
                     }else{
                         // @since 2.0.0 - clear form after submitting
@@ -3649,7 +3938,7 @@ function SUPERreCaptcha(){
                     //    scrollTop: $(form).offset().top-30
                     //}, 1000);
                 }else{
-                    form[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                     //$('html, body').animate({
                     //    scrollTop: $(form).offset().top-30
                     //}, 1000);
@@ -3799,13 +4088,13 @@ function SUPERreCaptcha(){
                         btnName.innerHTML = args.oldHtml;
                         btn.classList.remove('super-loading');
                     }
-                    if(args.form.closest('.super-popup-content')){
-                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    if(args.form0.closest('.super-popup-content')){
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                         //$(args.form.closest('.super-popup-content')).animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
                     }else{
-                        args.form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
                         //$('html, body').animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
@@ -3904,6 +4193,9 @@ function SUPERreCaptcha(){
 
     // After field value changed
     SUPER.after_field_change_blur_hook = function(args){
+        // Skip if google address autocomplete is enabled
+        if(args.el && args.el.classList.contains('super-address-autopopulate')) return;
+        // Otherwise continue
         args.form = SUPER.get_frontend_or_backend_form(args);
         if(args.form.id==='') return;
         var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
@@ -4177,6 +4469,7 @@ function SUPERreCaptcha(){
                     }
 
                     if( $super_field.hasClass('super-dropdown') ) {
+                        $data[$this.attr('name')].raw_value = $data[$this.attr('name')].value;
                         $i = 0;
                         $new_value = '';
                         $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-list > .super-active');
@@ -4256,6 +4549,7 @@ function SUPERreCaptcha(){
                         }
                     }
                     if( $super_field.hasClass('super-checkbox') || $super_field.hasClass('super-radio') ) {
+                        $data[$this.attr('name')].raw_value = $data[$this.attr('name')].value;
                         $i = 0;
                         $new_value = '';
                         $selected_items = $super_field.find('.super-field-wrapper .super-active');
@@ -5581,29 +5875,19 @@ function SUPERreCaptcha(){
     SUPER.init_replace_html_tags = function(args){
         var originalFormReference,
             decodeHtml,
-            $i,
-            $v,
-            $row_regex,
-            $html_fields,
-            $target,
-            $html,
-            $originalHtml,
-            $splitName,
-            $newName,
-            $original,
-            $field_name,
-            $value_n,
-            $original_field_name,
-            $rv,
-            $return,
-            $rows,
-            $row,
-            $regex,
-            $array,
-            $values,
-            $new_value,
-            $match,
-            $fileLoopRows = [],
+            htmlFields,
+            target,
+            html,
+            originalHtml,
+            original,
+            field_name,
+            regex,
+            values,
+            new_value,
+            issetContent,
+            notIssetContent,
+            content,
+            newHtml,
             formId = parseInt(args.form.id.replace('super-form-', ''), 10);
 
         // Only when not on canvas in builder mode
@@ -5614,33 +5898,32 @@ function SUPERreCaptcha(){
         // Continue otherwise
         if(typeof args.foundElements !== 'undefined') {
             if(args.foundElements.length>0){
-                $html_fields = args.foundElements;
+                htmlFields = args.foundElements;
             }else{
-                $html_fields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
+                htmlFields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
             }
         }else{
             if(typeof args.el === 'undefined') {
-                $html_fields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
+                htmlFields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
             }else{
                 var n = SUPER.get_original_field_name(args.el);
-                $html_fields = args.form.querySelectorAll('[data-tags*="{'+n+'}"], .super-google-map[data-fields*="{'+n+'}"], .super-html-content[data-fields*="{'+n+'}"]');
+                htmlFields = args.form.querySelectorAll('[data-tags*="{'+n+'}"], .super-google-map[data-fields*="{'+n+'}"], .super-html-content[data-fields*="{'+n+'}"]');
             }
         }
-        $regex = /{([^\\\/\s"'+]*?)}/g;
-        Object.keys($html_fields).forEach(function(key) {
-            var $counter = 0;
-            $target = $html_fields[key];
+        regex = /{([^\\\/\s"'+]*?)}/g;
+        Object.keys(htmlFields).forEach(function(key) {
+            target = htmlFields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
-            if( $target.dataset.tags ) {
-                $html = $target.dataset.original;
+            if( target.dataset.tags ) {
+                html = target.dataset.original;
             }else{
-                if(!$target.parentNode.querySelector('textarea')){
+                if(!target.parentNode.querySelector('textarea')){
                     return true;
                 }
-                $html = $target.parentNode.querySelector('textarea').value;
+                html = target.parentNode.querySelector('textarea').value;
             }
             // If empty skip
-            if($html===''){
+            if(html===''){
                 return true;
             }
             
@@ -5651,83 +5934,123 @@ function SUPERreCaptcha(){
             }
 
             // @since 5.0.120 - foreach statement compatibility
-            $regex = /<%(.*?)%>|{(.*?)}/;
-            var $skipUpdate = true;
-            if ((m = $regex.exec($html)) !== null) {
-                $skipUpdate = false;
+            regex = /<%(.*?)%>|{(.*?)}/;
+            var skipUpdate = true;
+            if ((m = regex.exec(html)) !== null) {
+                skipUpdate = false;
             }
-            $html = SUPER.filter_foreach_statements($target, 0, 0, $html, undefined, formId, originalFormReference);
-
-            $html = SUPER.replaceAll($html, '<%', '{');
-            $html = SUPER.replaceAll($html, '%>', '}');
+            html = SUPER.filter_foreach_statements(target, 0, 0, html, undefined, formId, originalFormReference);
+            html = SUPER.replaceAll(html, '<%', '{');
+            html = SUPER.replaceAll(html, '%>', '}');
 
             // Check if html contains {tags}, if not we don't have to do anything.
             // This also solves bugs with for instance third party plugins
             // That use shortcodes to initialize elements, which initialization would be lost
             // upon updating the HTML content based on {tags}.
             // This can be solved by NOT using either of the {} curly braces inside the HTML content
-            $regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([-_a-zA-Z0-9]{1,}))?(}|\):)/g;
+            regex = /({|foreach\()([-_a-zA-Z0-9\[\]]{1,})(\[.*?])?(?:;([-_a-zA-Z0-9]{1,}))?(}|\):)/g;
             // If it has {tags} then continue
             var m;
             var replaceTagsWithValue = {};
-            while ((m = $regex.exec($html)) !== null) {
+            while ((m = regex.exec(html)) !== null) {
                 decodeHtml = true;
-                $skipUpdate = false;
+                skipUpdate = false;
                 // This is necessary to avoid infinite loops with zero-width matches
-                if (m.index === $regex.lastIndex) {
-                    $regex.lastIndex++;
+                if (m.index === regex.lastIndex) {
+                    regex.lastIndex++;
                 }
-                var $n = (m[2] ? m[2] : ''); // name
-                var $d = (m[3] ? m[3] : ''); // depth
-                var $s = (m[4] ? m[4] : ''); // suffix
-                if($s==='allFileNames' || $s==='allFileUrls' || $s==='allFileLinks'){
+                var n = (m[2] ? m[2] : ''); // name
+                var d = (m[3] ? m[3] : ''); // depth
+                var s = (m[4] ? m[4] : ''); // suffix
+                if(s==='allFileNames' || s==='allFileUrls' || s==='allFileLinks'){
                     decodeHtml = false;
                 }else{
-                    var fieldType = SUPER.get_field_type(originalFormReference, $n);
-                    if($s==='' && fieldType.type==='file'){
+                    var fieldType = SUPER.get_field_type(originalFormReference, n);
+                    if(s==='' && fieldType.type==='file'){
                         decodeHtml = false;
                     }
                 }
                 // Get field type
-                if($s!=='') $s = ';'+$s;
-                $values = $n+$d+$s;
-                args.value = '{'+$values+'}'; //values[1];
-                args.target = $target;
-                $new_value = SUPER.update_variable_fields.replace_tags(args);
+                if(s!=='') s = ';'+s;
+                values = n+d+s;
+                args.value = '{'+values+'}'; //values[1];
+                args.target = target;
+                new_value = SUPER.update_variable_fields.replace_tags(args);
                 delete args.target;
                 if(decodeHtml){
-                    $new_value = SUPER.html_encode($new_value);
+                    new_value = SUPER.html_encode(new_value);
                 }
-                replaceTagsWithValue[$values] = $new_value;
+                replaceTagsWithValue[values] = new_value;
             }
+            newHtml = html;
+            // @IMPORTANT - must check for !isset() matches before checking for isset() due to the replacement being done
+            // Regex to check if field is not set (conditionally hidden)
+            regex = /(?:!isset|if\(!isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/gm;
+            // If it has {tags} then continue
+            while ((m = regex.exec(html)) !== null) {
+                original = m[0];
+                field_name = m[1];
+                issetContent = (m[2] ? m[2] : '');
+                notIssetContent = (m[3] ? m[3] : '');
+                content = '';
+                if(SUPER.field_isset(args.form, field_name)===0){
+                    content = issetContent;
+                }else{
+                    content = notIssetContent;
+                }
+                originalHtml = html;
+                newHtml = SUPER.replaceAll(newHtml, original, content);
+                if(originalHtml!==newHtml) skipUpdate = false;
+            }
+            html = newHtml;
+
+            regex = /(?:isset|if\(isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/gm;
+            // If it has {tags} then continue
+            while ((m = regex.exec(html)) !== null) {
+                original = m[0];
+                field_name = m[1];
+                issetContent = (m[2] ? m[2] : '');
+                notIssetContent = (m[3] ? m[3] : '');
+                content = '';
+                if(SUPER.field_isset(args.form, field_name)===1){
+                    content = issetContent;
+                }else{
+                    content = notIssetContent;
+                }
+                originalHtml = html;
+                newHtml = SUPER.replaceAll(newHtml, original, content);
+                if(originalHtml!==newHtml) skipUpdate = false;
+            }
+            html = newHtml;
+
             var key;
             for(key in replaceTagsWithValue) {
-                $html = SUPER.replaceAll($html, '{'+key+'}', replaceTagsWithValue[key]);
+                html = SUPER.replaceAll(html, '{'+key+'}', replaceTagsWithValue[key]);
             }
-            if($skipUpdate) return true;
+            if(skipUpdate) return true;
             // @since 4.6.0 - if statement compatibility
-            $html = SUPER.filter_if_statements($html);
+            html = SUPER.filter_if_statements(html);
             
-            if($target.value || $target.dataset.value){
-                if($target.value) $target.value = $html;
-                if($target.dataset.value) $target.dataset.value = $html;
+            if(target.value || target.dataset.value){
+                if(target.value) target.value = html;
+                if(target.dataset.value) target.dataset.value = html;
             }else{
                 // Not if google map
-                if($target.classList.contains('super-google-map')){
-                    var $textArea = $target.querySelector(':scope > textarea.super-hidden');
-                    if($textArea) $textArea.value = $html;
+                if(target.classList.contains('super-google-map')){
+                    var textArea = target.querySelector(':scope > textarea.super-hidden');
+                    if(textArea) textArea.value = html;
                 }else{
-                    $target.innerHTML = $html;
+                    target.innerHTML = html;
                 }
             }
             // If field label or description we must skip because we don't want to override the field value
-            if($target.classList.contains('super-label') || $target.classList.contains('super-description')){
+            if(target.classList.contains('super-label') || target.classList.contains('super-description')){
                 return true;
             }
-            var $parent = $target.closest('.super-shortcode');
-            if($parent){
-                var $field = $parent.querySelector('.super-shortcode-field');
-                if($field) $field.value = $html;
+            var parent = target.closest('.super-shortcode');
+            if(parent){
+                var field = parent.querySelector('.super-shortcode-field');
+                if(field) field.value = html;
             }
         });
     };
@@ -6528,6 +6851,19 @@ function SUPERreCaptcha(){
                     SUPER.reposition_slider_amount_label(field, data[i].value);
                     return true;
                 }
+                // Keyword tags
+                if(field.classList.contains('super-keyword-tags')){
+                    if(data[i].value!==''){
+                        options = data[i].value.split(',');
+                        html = field.querySelector('.super-autosuggest-tags').innerHTML;
+                        items = '';
+                        for(ii=0; ii<options.length; ii++){
+                            items += '<span class="super-noselect super-keyword-tag" sfevents=\'{"click":"keywords.remove"}\' data-value="'+options[ii]+'">'+options[ii]+'</span>';
+                        }
+                        field.querySelector('.super-autosuggest-tags').innerHTML = items + html;
+                    }
+                    return true;
+                }
                 // Autosuggest field
                 if(field.classList.contains('super-auto-suggest')){
                     if(data[i].value!==''){
@@ -7119,12 +7455,9 @@ function SUPERreCaptcha(){
         
         //SUPER.handle_columns();
         var $handle_columns_interval = setInterval(function(){
-            console.log('test3');
             if(($('.super-form:not(.super-preview-elements)').length != $('.super-form.super-rendered').length) || ($('.super-form:not(.super-preview-elements)').length===0)){
-                console.log('test4');
                 SUPER.handle_columns();
             }else{
-                console.log('test5');
                 clearInterval($handle_columns_interval);
             }
         }, 0);
@@ -7132,6 +7465,12 @@ function SUPERreCaptcha(){
 
     // Reposition slider amount label
     SUPER.reposition_slider_amount_label = function(field, value, conditionalUpdate){
+        if(typeof jQuery(field).data('slider-object') === 'undefined'){
+            // Regenerate slider because this is a cloned form
+            if(field.querySelector('.slider')) field.querySelector('.slider').remove();
+            if(field.querySelector('.amount')) field.querySelector('.amount').remove();
+            SUPER.init_slider_field();
+        }
         if(typeof conditionalUpdate === 'undefined') conditionalUpdate = false;
         if(typeof value === 'undefined') {
             value = field.value;
@@ -7398,9 +7737,8 @@ function SUPERreCaptcha(){
             var $field = $wrapper.children('.super-shortcode-field'); 
             if(typeof $field.data("slider-object") === 'undefined'){
                 // Regenerate slider because this is a cloned form
-                if(nodes[i].querySelector('.slider')){
-                    nodes[i].querySelector('.slider').remove();
-                }
+                if(nodes[i].querySelector('.slider')) nodes[i].querySelector('.slider').remove();
+                if(nodes[i].querySelector('.amount')) nodes[i].querySelector('.amount').remove();
                 SUPER.init_slider_field();
             }else{
                 var $value = $field.val();
@@ -7806,7 +8144,7 @@ function SUPERreCaptcha(){
         var normalizeFontStylesNodesClasses = 'h1, h2, h3, h4, h5, h6, .super-label, .super-description, .super-heading-title, .super-heading-description, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-quantity .super-shortcode-field, .super-toggle-switch, .super-currency .super-shortcode-field, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content',
         normalizeFontStylesNodesClassesExploded = normalizeFontStylesNodesClasses.split(','),
         newNormalizeFontStylesNodesClasses = '';
-        for(i=0; i<normalizeFontStylesNodesClassesExploded.length; i++){
+        for(var i=0; i<normalizeFontStylesNodesClassesExploded.length; i++){
             if(i>0) newNormalizeFontStylesNodesClasses += ', ';
             newNormalizeFontStylesNodesClasses += '.super-pdf-page-container '+normalizeFontStylesNodesClassesExploded[i];
         }
@@ -7833,6 +8171,12 @@ function SUPERreCaptcha(){
         // Remove any form padding
         css += '.super-pdf-page-container .super-form.super-adaptive { padding-top: 0px!important; }';
         css += '.super-pdf-page-container .super-i18n-switcher { display: none!important; }';
+        // Tmp text field placeholder to fix vertical alignment for text inputs
+        css += '.super-pdf-page-container .super-pdf-tmp-text-field-placeholder { display:flex; align-items:center; }';
+        css += '.super-pdf-page-container .super-textarea .super-pdf-tmp-text-field-placeholder { display:flex; align-items:flex-start; }';
+        css += '.super-pdf-page-container .super-quantity .super-pdf-tmp-text-field-placeholder { display:flex; justify-content:center; }';
+        css += '.super-pdf-page-container .super-pdf-tmp-replaced { display:none!important; }';
+        css += '.super-pdf-page-container .super-html-content.super-nl2br { white-space:pre-line; word-break:break-word; }';
         // Hide none essential elements/styles from the PDF output
         css += '.super-generating-pdf:not(.super-pdf-placeholder) *,';
         css += '.super-generating-pdf:not(.super-pdf-placeholder) *:after,';
@@ -7982,6 +8326,29 @@ function SUPERreCaptcha(){
         pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
 
+        // Copy text fields and replace with dummy elements to fix line-height issues in generated PDF
+        // Ignore any node that is excluded from the PDF
+        nodes = pdfPageContainer.querySelectorAll('.super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field, .super-currency .super-shortcode-field');
+        for( i=0; i < nodes.length; i++ ) {
+            var newNode = document.createElement('div');
+            var computedStyle = window.getComputedStyle(nodes[i]);
+            newNode.style.paddingTop = parseFloat(computedStyle.getPropertyValue('padding-top'))+'px';
+            newNode.style.paddingRight = parseFloat(computedStyle.getPropertyValue('padding-right'))+'px';
+            newNode.style.paddingBottom = parseFloat(computedStyle.getPropertyValue('padding-bottom'))+'px';
+            newNode.style.paddingLeft = parseFloat(computedStyle.getPropertyValue('padding-left'))+'px';
+            newNode.classList.add('super-shortcode-field');
+            newNode.classList.add('super-pdf-tmp-text-field-placeholder');
+            if(nodes[i].closest('.super-textarea')){
+                newNode.style.height = 'auto';
+                newNode.innerText = nodes[i].value;
+            }else{
+                newNode.innerHTML = '<span>'+nodes[i].value+'</span>';
+            }
+            nodes[i].parentNode.insertBefore(newNode, nodes[i].nextSibling);
+            // Hide/exclude origin element
+            nodes[i].classList.add('super-pdf-tmp-replaced');
+        }
+
         // Ignore any node that is excluded from the PDF
         var nodes = form.querySelector('form').querySelectorAll('.super-shortcode[data-pdfoption="exclude"]');
         for(i=0; i<nodes.length; i++){
@@ -7991,7 +8358,7 @@ function SUPERreCaptcha(){
         // Make all mutli-parts visible
         // Make all TABs visible
         // Make all accordions visible
-        var nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
+        nodes = form.querySelectorAll('.super-multipart,.super-tabs-content,.super-accordion-item');
         for( i=0; i < nodes.length; i++){
             if(nodes[i].classList.contains('super-active')){
                 nodes[i].classList.add('super-active-origin');         
@@ -8051,8 +8418,7 @@ function SUPERreCaptcha(){
                 // el.scrollHeight is the full height of the content, not just the visible part
                 el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
             }
-            // we use the "data-adaptheight" attribute as a marker
-            // iterate through all the textareas on the page
+            // Iterate through all the textareas on the page
             var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
             for(i=0; i<nodes.length; i++){
                 el = nodes[i];
@@ -8452,10 +8818,10 @@ function SUPERreCaptcha(){
 
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
         if(el.classList.contains('super-heading-title')){
-            el = nodes[i].children[0];
+            if(nodes[i].children[0]) el = nodes[i].children[0];
         }
         if(el.classList.contains('super-heading-description')){
-            el = nodes[i].children[0];
+            if(nodes[i].children[0]) el = nodes[i].children[0];
         }
         if(el.classList.contains('super-toggle-switch')){
             if(el.classList.contains('super-active')){
@@ -8618,9 +8984,19 @@ function SUPERreCaptcha(){
         placeholder.remove();
         var pdfPageContainer = document.querySelector('.super-pdf-page-container');
         if(pdfPageContainer) pdfPageContainer.remove();
+        // Restore temporary replaced fields back to original
+        nodes = form.querySelectorAll('.super-pdf-tmp-text-field-placeholder');
+        for( i=0; i < nodes.length; i++ ) {
+            nodes[i].remove();
+        }
+        nodes = form.querySelectorAll('.super-pdf-tmp-replaced');
+        for( i=0; i < nodes.length; i++ ) {
+            nodes[i].classList.remove('super-pdf-tmp-replaced');
+        }
         SUPER.init_super_responsive_form_fields({form: form});
     };
     SUPER.save_data = function(args){
+        debugger;
         if(args.progressBar) args.progressBar.style.width = 0+'%';
         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.processing+'</span>';
         var formData = new FormData();
@@ -8632,6 +9008,8 @@ function SUPERreCaptcha(){
         if(args.token) formData.append('token', args.token);
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
+        if(args.fileUpload) formData.append('fileUpload', true);
+        debugger;
         formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
         $.ajax({
             type: 'post',
@@ -8661,12 +9039,14 @@ function SUPERreCaptcha(){
                 return xhr;
             },
             success: function(result){
+                debugger;
                 result = JSON.parse(result);
                 if(result.error===true){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
                     // Update new nonce
+                    debugger;
                     if(result.response_data && result.response_data.sf_nonce){
                         $('input[name="sf_nonce"]').val(result.response_data.sf_nonce);
                     }

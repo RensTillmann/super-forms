@@ -1034,9 +1034,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
 
                     // Store as submission info
-                    $submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
+                    $uniqueSubmissionId = $atts['uniqueSubmissionId'];
+                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
                     $submissionInfo['updatedUser'] = $user_id;
-                    update_option( 'sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
 
                 }else{
                     // @since 1.4.0 - register new user if user doesn't exists while updating user
@@ -1175,7 +1176,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 'settings'=>array(),
                 'form_id'=>false
             ), $x));
-            if($post['action']==='super_upload_files') return true;
+
             if( !isset( $settings['register_login_action'] ) ) return true;
             if( $settings['register_login_action']=='none' ) return true;
 
@@ -1214,7 +1215,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                 if( ($settings['register_login_action_skip_register']=='true') && ( (!isset($data['user_login'])) || (!isset($data['user_email'])) ) ) {
                     // do nothing
                 }else{
-
                     // Before we proceed, lets check if we have at least a user_login and user_email field
                     if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
                         $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
