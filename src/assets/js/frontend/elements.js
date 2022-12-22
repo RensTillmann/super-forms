@@ -1342,7 +1342,7 @@
             }
             // Keep valid TAB index
             if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
-                last_tab_index = parseFloat(parseFloat(last_tab_index)+0.001).toFixed(3);
+                last_tab_index = parseFloat(parseFloat(parent.dataset.superTabIndex)+0.001).toFixed(3);
                 parent.dataset.superTabIndex = last_tab_index;
             }
             added_fields[field.name] = field;
@@ -2246,7 +2246,9 @@
             for(i=0; i<foundElements.length; i++) {
                 if(!foundElements[i].parentNode.querySelector('textarea')) continue;
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
+                debugger;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
+                debugger;
                 html = SUPER.replaceAll(html, '<%', '{');
                 html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;
@@ -2420,7 +2422,9 @@
             }
             for (i = 0; i < foundElements.length; ++i) {
                 var html = foundElements[i].parentNode.querySelector('textarea').value;
+                debugger;
                 html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
+                debugger;
                 html = SUPER.replaceAll(html, '<%', '{');
                 html = SUPER.replaceAll(html, '%>', '}');
                 foundElements[i].innerHTML = html;

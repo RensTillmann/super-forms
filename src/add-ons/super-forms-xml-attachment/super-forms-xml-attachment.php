@@ -45,9 +45,8 @@ if( !class_exists('SUPER_XML_Attachment') ) :
         }
         public static function add_xml_attachment( $attachments, $atts ) {
             if( (isset($atts['settings']['xml_attachment_enable'])) && ($atts['settings']['xml_attachment_enable']=='true') ) {
-                if(!isset($atts['settings']['xml_attachment_name'])) {
-                    $xml_attachment_name = 'super-xml-attachment';
-                }else{
+                $xml_attachment_name = 'super-xml-attachment';
+                if(isset($atts['settings']['xml_attachment_name'])) {
                     // @since 1.1.2 - compatibility with {tags}
                     $xml_attachment_name = SUPER_Common::email_tags( $atts['settings']['xml_attachment_name'], $atts['data'], $atts['settings'] );
                 }
