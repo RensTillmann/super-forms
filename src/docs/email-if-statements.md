@@ -8,6 +8,8 @@
 * [Construction of "if statements" explained](#construction-of-quotif-statementsquot-explained)
 * [How to create my own if statements?](#how-to-create-my-own-if-statements)
 * [Practical example use cases](#practical-example-use-cases)
+* [Checking if a field exists](#checking-if-a-field-exists)
+* [Foreach loops](email-foreach-loops.md)
 
 ## What is an email if statement?
 
@@ -95,3 +97,24 @@ endif;
 ```
 
 The above if statement will display the message only when the user is underaged
+
+## Checking if a field exists
+
+When you are using conditional logic in your form, in some cases a field might not be set due to it being conditionally hidden.
+
+In these cases you might want to check if a field exists (is set). You can do so by using the `isset()` method.
+
+For example:
+
+```html
+if(!isset(company_name)):
+    The field named `company_name` does not exists, this registration is not a business registration.
+endif;
+
+if(isset(tax_id)):
+    The Tax field was conditionally shown, this is a business registration.
+elseif:
+    This is a regular customer registration.
+endif;
+```
+

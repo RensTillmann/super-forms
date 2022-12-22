@@ -77,6 +77,61 @@ if(!class_exists('SUPER_Listings')) :
             add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
             add_filter( 'super_before_form_render_settings_filter', array( $this, 'alter_form_settings_before_rendering' ), 10, 2 );
             add_filter( 'super_before_submit_form_settings_filter', array( $this, 'alter_form_settings_before_submit' ), 10, 2 );
+            add_filter( 'super_form_before_first_form_element_filter', array( $this, 'display_edit_entry_status_dropdown' ), 10, 2 );
+        }
+
+        public static function display_edit_entry_status_dropdown( $result, $x ) {
+            if(empty($_POST['action']) || $_POST['action']!=='super_listings_edit_entry') return $result;
+            extract( shortcode_atts( array( 
+                'id'=>'', 
+                'data'=>array(), 
+                'post'=>array(), 
+                'settings'=>array()
+            ), $x));
+            $list_id = absint($_POST['list_id']);
+            $lists = $settings['_listings']['lists'];
+            // The list does not exist
+            if(!isset($lists[$list_id])) return $result;
+            // This setting was added later to the plugin, so we must set it to false at first:
+            if(!isset($lists[$list_id]['allowChangingEntryStatus'])) {
+                $lists[$list_id]['allowChangingEntryStatus'] = 'false';
+            }
+            $list = self::get_default_listings_settings($lists[$list_id]);
+            if($list['allowChangingEntryStatus']!=='true') return $result;
+            // If enabled, return the custom made Entry status dropdown
+            $items = array();
+            foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
+                $items[$k] = array();
+                if($k===''){
+                    $items[$k]['checked'] = 'true';
+                    $items[$k]['value'] = '0';
+                }else{
+                    $items[$k]['checked'] = 'false';
+                    $items[$k]['value'] = $k;
+                }
+                $items[$k]['label'] = $v['name'];
+            }
+            $result .= '<div class="super-listings-entry-status-changer">';
+            $args = array(
+                'tag'=>'dropdown',
+                'atts'=>array(
+                    'name' => 'update_entry_status',
+                    'email' => '',
+                    'dropdown_items' => $items,
+                    'placeholder' => '- entry status -',
+                    'placeholderFilled' => '- entry status -',
+                    'absolute_default' => ''
+                ),
+                'settings'=>$settings
+            );
+            if($settings['enable_adaptive_placeholders']!=='true'){
+                // When adaptive placeholders are not enabled, fall back to `Field label` setting:
+                $args['atts']['label'] = esc_html__( 'Contact Entry Status', 'super-forms' ).':';
+            } 
+
+            $result .= SUPER_Shortcodes::dropdown($args);
+            $result .= '</div>';
+            return $result;
         }
 
         // Required to change some settings when editing/updating an existing entry via Listings Add-on
@@ -437,7 +492,7 @@ if(!class_exists('SUPER_Listings')) :
             $form_id = absint($atts['form_id']);
             $lists = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
-                $lists = $atts['settings']['_'.$slug]['lists'];
+                $lists = (is_array($atts['settings']['_'.$slug]['lists']) ? $atts['settings']['_'.$slug]['lists'] : array());
             }
             if(count($lists)==0) {
                 $lists[] = self::get_default_listings_settings(array());
@@ -680,9 +735,36 @@ if(!class_exists('SUPER_Listings')) :
                                             echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($v['edit_any']['user_ids']) . '" />';
                                         echo '</label>';
                                     echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="checkbox" name="enableFormProcessingOverlay" value="true"' . ($v['enableFormProcessingOverlay']==='true' ? ' checked="checked"' : '') . ' />';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Enable form processing overlay (popup)', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                        echo '<div class="sfui-sub-settings" data-f="enableFormProcessingOverlay;true">';
+                                            echo '<div class="sfui-setting">';
+                                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                                    echo '<input type="checkbox" name="closeFormProcessingOverlay" value="true"' . ($v['closeFormProcessingOverlay']==='true' ? ' checked="checked"' : '') . ' />';
+                                                    echo '<span class="sfui-label">' . esc_html__( 'Close the overlay directly after editing the entry', 'super-forms' ) . '</span>';
+                                                echo '</label>';
+                                            echo '</div>';
+                                        echo '</div>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="checkbox" name="closeEditorWindowAfterEditing" value="true"' . ($v['closeEditorWindowAfterEditing']==='true' ? ' checked="checked"' : '') . ' />';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Close the editor window after editing the entry', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
+                                    echo '<div class="sfui-setting">';
+                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                            echo '<input type="checkbox" name="allowChangingEntryStatus" value="true"' . ($v['allowChangingEntryStatus']==='true' ? ' checked="checked"' : '') . ' />';
+                                            echo '<span class="sfui-label">' . esc_html__( 'Allow users to edit the Contact Entry status', 'super-forms' ) . '</span>';
+                                        echo '</label>';
+                                    echo '</div>';
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
+
                         // Allow editing own entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -924,6 +1006,12 @@ if(!class_exists('SUPER_Listings')) :
             if(!isset($list['noResultsFilterMessage'])) $list['noResultsFilterMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    Clear your filters or try a different filter.\n</div>";
             if(!isset($list['noResultsMessage'])) $list['noResultsMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>";
             if(!isset($list['onlyDisplayMessage'])) $list['onlyDisplayMessage'] = 'true';
+
+            if(!isset($list['enableFormProcessingOverlay'])) $list['enableFormProcessingOverlay'] = 'true';
+            if(!isset($list['closeFormProcessingOverlay'])) $list['closeFormProcessingOverlay'] = 'true';
+            if(!isset($list['closeEditorWindowAfterEditing'])) $list['closeEditorWindowAfterEditing'] = 'true';
+            if(!isset($list['allowChangingEntryStatus'])) $list['allowChangingEntryStatus'] = 'true';
+
             if(empty($list['date_range'])) $list['date_range'] = array(
                 'enabled'=>'false',
                 'from'=>'',
@@ -1543,7 +1631,7 @@ if(!class_exists('SUPER_Listings')) :
                         }
                     }
                     if($sk=='entry_status'){
-                        $items = array();
+                        $items = array('super_unread' => esc_html__('Unread', 'super-forms'));
                         foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
                             $items[$k] = $v['name']; 
                         }
@@ -1792,8 +1880,24 @@ END AS paypalSubscriptionId
             $where = '';
             $whereWithoutFilters = '';
             if( $list['retrieve']=='this_form' ) {
-                $where .= " AND post.post_parent = '" . absint($form_id) . "'";
-                $whereWithoutFilters .= " AND post.post_parent = '" . absint($form_id) . "'";
+                $where .= " AND post.post_parent != 0 AND post.post_parent = '" . absint($form_id) . "'";
+                $whereWithoutFilters .= " AND post.post_parent != 0 AND post.post_parent = '" . absint($form_id) . "'";
+            }
+            if( $list['retrieve']=='specific_forms' ) {
+                $form_ids = preg_replace('/\s+/', '', $list['form_ids']);
+                $form_ids = explode(",", $form_ids);
+                $q = '';
+                foreach($form_ids as $k => $v){
+                    $id = absint($v);
+                    if($id===0) continue;
+                    if($q===''){
+                        $q .= $id;
+                        continue;
+                    }
+                    $q .= ','.$id;
+                }
+                $where .= " AND post.post_parent IN($q)";
+                $whereWithoutFilters .= " AND post.post_parent IN($q)";
             }
 
             if( $list['date_range']['enabled']==='true'){
@@ -1816,8 +1920,8 @@ END AS paypalSubscriptionId
                 // Allow user to see any entries in the list
             }else{
                 // Only allow to see entries that belong to the currently logged in user
-                $where .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
-                $whereWithoutFilters .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
+                $where .= ' AND post.post_author != 0 AND post.post_author = "' . absint( $current_user->ID ) . '"';
+                $whereWithoutFilters .= ' AND post.post_author != 0 AND post.post_author = "' . absint( $current_user->ID ) . '"';
             }
 
             if( !empty($filters) ) {
@@ -1926,6 +2030,7 @@ END AS paypalSubscriptionId
             post.post_type AS post_type,
             post.post_title AS post_title,
             post.post_date AS post_date,
+            post.post_parent AS post_parent,
             meta.meta_value AS contact_entry_data,
             entry_status.meta_value AS status,
             created_post.ID AS created_post_id, 
@@ -2079,7 +2184,9 @@ END AS paypalSubscriptionId
                             if(class_exists('SUPER_PayPal')) {
                                 $paypal_payment_statuses = SUPER_PayPal::$paypal_payment_statuses;
                             }
+                            $foundFormIds = array();
                             foreach($entries as $entry){
+                                $foundFormIds[$entry->post_parent] = $entry->post_parent;
                                 $data = unserialize($entry->contact_entry_data);
                                 $result .= '<div class="super-entry" data-id="' . $entry->entry_id . '">';
                                     $allow = self::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
@@ -2417,6 +2524,22 @@ END AS paypalSubscriptionId
                 }
             $result .= '</div>';
 
+            $js = '';
+            foreach($foundFormIds as $form_id){
+                $settings = SUPER_Common::get_form_settings($form_id);
+                $js .= apply_filters( 'super_form_js_filter', $js, array( 'id'=>$form_id, 'settings'=>$settings ) );
+            }
+            ob_start();
+                ?>
+                <script type="text/javascript">
+                /* <![CDATA[ */
+                if(typeof SUPER === 'undefined') window.SUPER = {};
+                <?php echo stripslashes($js); ?>
+                /* ]]> */
+                </script>
+                <?php
+            $result .= ob_get_clean();
+
             $css = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
             $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
             $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
@@ -2584,7 +2707,8 @@ END AS paypalSubscriptionId
             if(!empty($list['view_own']) && isset($entry)) {
                 if($list['view_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if( absint($current_user->ID)!==0 && 
+                       (absint($current_user->ID) === absint($authorId))){
                         $allowViewOwn = true;
                     }
                 }
@@ -2642,7 +2766,8 @@ END AS paypalSubscriptionId
             if(!empty($list['edit_own']) && isset($entry)) {
                 if($list['edit_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if( absint($current_user->ID)!==0 && 
+                       (absint($current_user->ID) === absint($authorId))){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
                             $allowEditOwn = true;
@@ -2737,7 +2862,8 @@ END AS paypalSubscriptionId
             if(!empty($list['delete_own']) && isset($entry)) {
                 if($list['delete_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if( absint($current_user->ID)!==0 && 
+                       (absint($current_user->ID) === absint($authorId))){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
                             $allowDeleteOwn = true;

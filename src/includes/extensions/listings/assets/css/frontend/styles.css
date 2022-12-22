@@ -231,6 +231,9 @@
   white-space: nowrap;
   min-width: 100%;
 }
+.super-listings .super-listings-wrap .super-entries .super-entry.super-updated {
+  background-color:#cfffe1;
+}
 
 .super-listings .super-listings-wrap .super-entries {
   margin-top: 5px;

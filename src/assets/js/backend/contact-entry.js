@@ -185,31 +185,55 @@
             });
         });
 
-        $doc.on('click','.super-mark-unread',function(){
-            var $this = $(this);
+        $doc.on('click','.super-mark-unread',function(e){
+            e.preventDefault();
+            var el = this;
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
                 data: {
                     action: 'super_mark_unread',
-                    contact_entry: $(this).attr('data-contact-entry')
+                    contact_entry: el.dataset.contactEntry
                 },
                 success: function () {
-                   $this.parents('.status-super_read').removeClass('status-super_read').addClass('status-super_unread');
+                    // Change to Unread
+                    var p = el.closest('.type-super_contact_entry');
+                    if(p){
+                        debugger;
+                        if(p.classList.contains('status-super_read') && p.querySelector('.column-entry_status')){
+                            if(p.querySelector('.super-entry-status').classList.contains('super-entry-status-super_read')){
+                                p.querySelector('.column-entry_status').innerHTML = '<span class="super-entry-status super-entry-status-super_unread">Unread</span>';
+                            }
+                        }
+                        p.classList.remove('status-super_read');
+                        p.classList.add('status-super_unread');
+                    }
                 }
             });
         });
-        $doc.on('click','.super-mark-read',function(){
-            var $this = $(this);
+        $doc.on('click','.super-mark-read', function(e){
+            e.preventDefault();
+            var el = this;
             $.ajax({
                 type: 'post',
                 url: ajaxurl,
                 data: {
                     action: 'super_mark_read',
-                    contact_entry: $(this).attr('data-contact-entry')
+                    contact_entry: el.dataset.contactEntry
                 },
                 success: function () {
-                   $this.parents('.status-super_unread').removeClass('status-super_unread').addClass('status-super_read');
+                    // Change to Unread
+                    var p = el.closest('.type-super_contact_entry');
+                    if(p){
+                        debugger;
+                        if(p.classList.contains('status-super_unread') && p.querySelector('.column-entry_status')){
+                            if(p.querySelector('.super-entry-status').classList.contains('super-entry-status-super_unread')){
+                                p.querySelector('.column-entry_status').innerHTML = '<span class="super-entry-status super-entry-status-super_read" style="background-color: #d6d6d6;">Read</span>';
+                            }
+                        }
+                        p.classList.remove('status-super_unread');
+                        p.classList.add('status-super_read');
+                    }
                 }
             });
         });

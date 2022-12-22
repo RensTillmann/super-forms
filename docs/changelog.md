@@ -9,8 +9,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Oct 14, 2022 - Version 6.3.657
+## Dec 21, 2022 - Version 6.3.679
 
+- **Added:** Option to calculate distances between multiple addresses e.g: (between A to B, between B to C and from C back to A)
+- **Added:** Option `Disable browser translation` under `Translations` TAB to disable browsers to translate the form
+- **Added:** New predefined tags to retrieve form submission date inside emails: `submission_date_gmt`, `submission_hours_gmt`, `submission_timestamp_gmt`, `submission_date`, `submission_hours`, `submission_timestamp`
+- **Added:** `isset()` and `!isset()` methods to check if a field was conditionally hidden/visible. Useful inside HTML elements and E-mails. Example here: (https://renstillmann.github.io/super-forms/#/email-if-statements?id=checking-if-a-field-exists)
 - **Improved:** Significant speed improvements/optimization for large/complex forms with a lot of conditional logic/variable conditions/calculations.
 - **Added:** Option to add attributes on the listings shortcode to apply hardcoded filters e.g: `[super_listings list="1" id="61602" entry_status="completed"]` would only display entries with status `Completed`
 - **Added:** Extra tags to retrieve date names for datepicker element: `{date;day_name}`, `{date;day_name_short}`, `{date;day_name_shortest}`, `{date;day_of_week}`. This way you can display specific time slots based on a specific week day
@@ -18,9 +22,15 @@
 - **Added:** Filter logic case sensitive search
 - **Added:** Form locker option `Do not lock form, but still display a message` to only display a message but still allow user to submit the form even if the threshold was reached.
 - **Added:** Option to pre-load conditional logics via Ajax request, to store it into an object on the client side, instead of in the source code. Useful/required when dealing with 500+ conditions
+- **Added:** Option to attach XML file with form data to admin E-mails via `Form Settings > XML Attachment` on builder page
 - **Fix:** Allow the `Currency` field to have zero value e.g: `0.00`
 - **Fix:** Issue with `{register_generated_password}` tag not working when sending activation email after user registration
 - **Fix:** Issue with `Unique code generation` when using invoice increment option. Not saving the invoice number increment in some ocassions depending on the configured settings
+- **Fix:** Issue with generated PDF when theme placing footer scripts/styles inside a custom node. Causing PDF to miss specific styles. An example them is the famous `Avada` theme.
+- **Fix:** PDF line-height/vertical alignment of text for text and textarea input fields improvements
+- **Fix:** Issue with Listings filters causing to display entries that have `post_author` value `0` to all users even though it shouldn't
+- **Fix:** Prevent users from entering with a year longer than 4 characters in size for datepicker
+- **Fix:** Form data population issue for `Keyword/tags field`
 
 ## Sep 07, 2022 - Version 6.3.600
 

@@ -1,5 +1,5 @@
 <?php
-if(SUPER_WC_ACTIVE){
+if(SUPER_WC_ACTIVE && function_exists('wc_get_order_statuses')) {
     $wc_get_order_statuses = wc_get_order_statuses();
 }else{
     $wc_get_order_statuses = array('WooCommerce is not activated on this site!');
@@ -456,7 +456,8 @@ $array['form_elements'] = array(
                                 'month' => esc_html__( '[month] for choosing months', 'super-forms' ),
                                 'time' => esc_html__( '[time] for choosing time', 'super-forms' )
                             ),
-                            'filter'=>true
+                            'filter'=>true,
+                            'i18n' => true
                         ),
 
                         // International phonenumber options
@@ -467,7 +468,9 @@ $array['form_elements'] = array(
                             'allow_empty'=>true,
                             'filter'=>true,
                             'parent'=>'type',
-                            'filter_value'=>'int-phone'
+                            'filter_value'=>'int-phone',
+                            'i18n' => true,
+                            'filterAlwaysShowOnTranslate' => true
                         ),
                         'onlyCountries' => array(
                             'name' => esc_html__( 'Only display the following countries', 'super-forms' ), 
@@ -476,7 +479,9 @@ $array['form_elements'] = array(
                             'allow_empty'=>true,
                             'filter'=>true,
                             'parent'=>'type',
-                            'filter_value'=>'int-phone'
+                            'filter_value'=>'int-phone',
+                            'i18n' => true,
+                            'filterAlwaysShowOnTranslate' => true
                         ),
                         'placeholderNumberType' => array(
                             'name' => esc_html__( 'Set the type of number to be used as the placeholder', 'super-forms' ), 
@@ -618,7 +623,8 @@ $array['form_elements'] = array(
                             'type' => 'select', 
                             'values' => array(
                                 'start' => esc_html__( 'Start address', 'super-forms' ), 
-                                'destination' => esc_html__( 'Destination address', 'super-forms' )
+                                'destination' => esc_html__( 'Destination address', 'super-forms' ),
+                                'both' => esc_html__( 'Act as both start and destination (use this when you have 3 or more addresses to calculate)', 'super-forms' )
                             ),
                             'filter'=>true,
                             'parent'=>'enable_distance_calculator',
@@ -631,7 +637,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['start'] ) ? '' : $attributes['start'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'destination'
+                            'filter_value'=>'destination,both'
                         ),
                         'distance_destination' => array(
                             'name' => esc_html__( 'Destination address (required)', 'super-forms' ), 
@@ -640,7 +646,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['destination'] ) ? '' : $attributes['destination'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                         'distance_value' => array(
                             'name' => esc_html__( 'Select what value to return (distance or duration)', 'super-forms' ), 
@@ -655,7 +661,7 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                         'distance_units' => array(
                             'name' => esc_html__( 'Select a unit system', 'super-forms' ), 
@@ -677,7 +683,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['distance_field'] ) ? '' : $attributes['distance_field'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                     )
                 ),
@@ -1375,7 +1381,8 @@ $array['form_elements'] = array(
                             'type' => 'select', 
                             'values' => array(
                                 'start' => esc_html__( 'Start address', 'super-forms' ), 
-                                'destination' => esc_html__( 'Destination address', 'super-forms' )
+                                'destination' => esc_html__( 'Destination address', 'super-forms' ),
+                                'both' => esc_html__( 'Act as both start and destination (use this when you have 3 or more addresses to calculate)', 'super-forms' )
                             ),
                             'filter'=>true,
                             'parent'=>'enable_distance_calculator',
@@ -1388,7 +1395,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['start'] ) ? '' : $attributes['start'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'destination'
+                            'filter_value'=>'destination,both'
                         ),
                         'distance_destination' => array(
                             'name' => esc_html__( 'Destination address (required)', 'super-forms' ), 
@@ -1397,7 +1404,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['destination'] ) ? '' : $attributes['destination'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                         'distance_value' => array(
                             'name' => esc_html__( 'Select what value to return (distance or duration)', 'super-forms' ), 
@@ -1412,7 +1419,7 @@ $array['form_elements'] = array(
                             ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                         'distance_units' => array(
                             'name' => esc_html__( 'Select a unit system', 'super-forms' ), 
@@ -1434,7 +1441,7 @@ $array['form_elements'] = array(
                             'default'=> ( !isset( $attributes['distance_field'] ) ? '' : $attributes['distance_field'] ),
                             'filter'=>true,
                             'parent'=>'distance_method',
-                            'filter_value'=>'start'
+                            'filter_value'=>'start,both'
                         ),
                     )
                 ),
@@ -3453,7 +3460,7 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => esc_html__ ( 'When value equals "yes" this will be the new value....', 'super-forms' )
+                                'new_value' => esc_html__ ( 'When value equals `yes` this will be the new value....', 'super-forms' )
                             ),
                             array(
                                 'field' => '{field_name_here}',
@@ -3463,7 +3470,7 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => esc_html__ ( 'When value is not "yes" this will be the new value....', 'super-forms' )
+                                'new_value' => esc_html__ ( 'When value is not `yes` this will be the new value....', 'super-forms' )
                             )
                         )
                     )

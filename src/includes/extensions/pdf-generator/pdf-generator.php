@@ -54,7 +54,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
         public static function enqueue_element_scripts($atts){
             $settings = $atts['settings'];
             // @since 4.9.500 - PDF Generation
-            if( !empty($settings['_pdf']) && $settings['_pdf']['generate']=='true' ) {
+            if( !empty($settings['_pdf']) && !empty($settings['_pdf']['generate']) && $settings['_pdf']['generate']=='true' ) {
                 wp_enqueue_script( 'super-html-canvas', SUPER_PLUGIN_FILE.'includes/extensions/pdf-generator/super-html-canvas.min.js', array(), SUPER_VERSION, false );
                 wp_enqueue_script( 'super-pdf-gen', SUPER_PLUGIN_FILE.'includes/extensions/pdf-generator/super-pdf-gen.min.js', array( 'super-html-canvas' ), SUPER_VERSION, false );
             }
@@ -376,10 +376,10 @@ if(!class_exists('SUPER_PDF_Generator')) :
             );
             return $s;
         }
-        public function pdf_form_js($js, $attr){
-            $form_id = $attr['id'];
+        public function pdf_form_js($js, $x){
+            $form_id = $x['id'];
             if(absint($form_id)!==0){ 
-                $settings = $attr['settings'];
+                $settings = $x['settings'];
                 if(isset($settings['_pdf'])){
                     $_pdf = wp_slash(wp_slash(json_encode($settings['_pdf'], JSON_UNESCAPED_UNICODE)));
                     $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse("'.$_pdf.'");';

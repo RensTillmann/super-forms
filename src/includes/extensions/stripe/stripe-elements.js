@@ -250,7 +250,7 @@
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
-                            alert('Failed to process data, please try again');
+                            alert('Failed to process data, check server error log and browser console for details!');
                         }
                     });
                 }
@@ -419,7 +419,7 @@
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
-                            alert('Failed to process data, please try again');
+                            alert('Failed to process data, check server error log and browser console for details!');
                         }
                     });
                 }
@@ -516,7 +516,7 @@
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert('Failed to process data, please try again');
+                        alert('Failed to process data, check server error log and browser console for details!');
                     }
                 });
             } else {
@@ -629,7 +629,7 @@
                         },
                         error: function (xhr, ajaxOptions, thrownError) {
                             console.log(xhr, ajaxOptions, thrownError);
-                            alert('Failed to process data, please try again');
+                            alert('Failed to process data, check server error log and browser console for details!');
                         }
                     });
                 }

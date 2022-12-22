@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.657
+ * Version:           6.3.679
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '7.3.657';
+        public $version = '6.3.679';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -281,7 +281,17 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi'));
-            
+
+            // Set unique submission ID to expire after 7 days 
+            // due to possible delayed payment methods used by Stripe
+            add_filter( 'super_client_data_unique_submission_id_expires_filter', 
+                function($expires) { 
+                    // 15 days, required for Sofort and SEPA Direct Debit payments
+                    // we will store the submission data for this long, but the data
+                    // will be cleaned up if payment failed or succeeded before expiring
+                    return 60*60*24*15; 
+                } 
+            );
 
             // Filters since 4.8.0
             add_filter( 'post_types_to_delete_with_user', array( $this, 'post_types_to_delete_with_user'), 10, 2 );
@@ -624,65 +634,68 @@ if(!class_exists('SUPER_Forms')) :
                 // Retry URL (from async failed email)
                 SUPER_Stripe::setAppInfo();
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
-                $submissionInfo = get_option( 'sfsi_' . $s['metadata']['sfsi_id'], array() );
+                $submissionInfo = get_option( '_sfsi_' . $s['metadata']['sfsi_id'], array() );
                 $checkout_session = \Stripe\Checkout\Session::create($submissionInfo['stripeData']);
                 wp_redirect($checkout_session->url);
                 exit;
             }
             if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
                 // Cancel URL
-                error_log('Returned from Stripe Checkout session via cancel URL');
-                error_log($wp->query_vars['sfssidc']);
+                //error_log('Returned from Stripe Checkout session via cancel URL');
+                //error_log($wp->query_vars['sfssidc']);
                 // Do things
-                error_log('test1');
+                //error_log('test1');
                 SUPER_Stripe::setAppInfo();
-                error_log('test2');
+                //error_log('test2');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
-                error_log('test3');
+                //error_log('test3');
                 $m = $s['metadata'];
-                error_log('test4');
-                error_log('metadata:');
-                error_log(json_encode($m));
+                //error_log('test4');
+                //error_log('metadata:');
+                //error_log(json_encode($m));
                 // Get form submission info
-                $submissionInfo = get_option( 'sfsi_' . $m['sfsi_id'], array() );
+                $submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 SUPER_Common::cleanupFormSubmissionInfo($m['sfsi_id'], 'stripe'); // stored in `wp_options` table as sfsi_%
-                error_log('test5');
+                //error_log('test5');
                 // Now redirect to cancel URL without checkout session ID parameter
-                //$m['stripe_home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $m['stripe_home_cancel_url'] );
                 $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_cancel_url'] );
-                error_log('test6');
-                //error_log($m['stripe_home_cancel_url']);
-                error_log('test7');
+                //error_log('test6');
+                ////error_log($m['stripe_home_cancel_url']);
+                //error_log('test7');
                 if($submissionInfo){
-                    error_log('test8');
-                    error_log($wp->query_vars['sfssidc']);
-                    error_log($submissionInfo['referer']);
-                    error_log('sfsi_id: ' . $m['sfsi_id']);
-                    error_log('test9');
-                    $url = esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']));
-                    error_log('url: ' . $url);
-                    wp_redirect($url);
-                    //esc_url(add_query_arg( 'sfr', $m['sfsi_id'], $submissionInfo['referer'])));
-                    //wp_redirect(esc_url($submissionInfo['referer']));
-                    exit;
+                    //error_log('test8');
+                    //error_log($wp->query_vars['sfssidc']);
+                    //error_log($submissionInfo['referer']);
+                    if(!empty($submissionInfo['referer'])){
+                        $url = esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']));
+                        wp_redirect($url);
+                        exit;
+                    }else{
+                        wp_redirect(home_url());
+                        exit;
+                    }
                 }
                 // Redirect to home url instead
-                error_log($wp->query_vars['sfssidc']);
-                //error_log($m['stripe_home_cancel_url']);
+                //error_log($wp->query_vars['sfssidc']);
                 wp_redirect(esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url'])));
-                wp_redirect(esc_url($submissionInfo['stripe_home_cancel_url']));
-                error_log('test10');
+                //error_log('test10');
                 exit;
             }
             if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
                 // Success URL
-                error_log('Returned from Stripe Checkout session via success URL');
-                error_log($wp->query_vars['sfssids']);
+                //error_log('Returned from Stripe Checkout session via success URL');
+                //error_log($wp->query_vars['sfssids']);
+                //error_log('1');
                 // Do things
                 SUPER_Stripe::setAppInfo();
+                //error_log('2');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
+                //error_log('3');
                 $m = $s['metadata'];
-                $submissionInfo = get_option( 'sfsi_' . $m['sfsi_id'], array() );
+                //error_log('4');
+                var_dump($m);
+                //error_log('5');
+                //$submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 // NOW DO THINGS :) 
                 // "metadata": {
                 //     "super_forms_email_reminders": "[59774]",
@@ -696,15 +709,21 @@ if(!class_exists('SUPER_Forms')) :
                 // },
                 // ...
                 // ...
+
                 // Now redirect to success URL without checkout session ID parameter
-                wp_redirect(esc_url(remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_success_url'])));
+                $url = SUPER_Common::getClientData('stripe_home_success_url_'.$m['sf_id']);
+                if($url===false){
+                    wp_redirect(home_url());
+                    exit;
+                }
+                wp_redirect(esc_url(remove_query_arg(array('sfssid'), $url)));
                 exit;
             }
             if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
                 if($wp->query_vars['sfstripewebhook']==='true'){
                     // Success URL
-                    error_log('Stripe Checkout Session webhook');
-                    error_log($wp->query_vars['sfstripewebhook']);
+                    //error_log('Stripe Checkout Session webhook');
+                    //error_log($wp->query_vars['sfstripewebhook']);
                     // Set your secret key. Remember to switch to your live secret key in production.
                     // See your keys here: https://dashboard.stripe.com/apikeys
                     SUPER_Stripe::setAppInfo();
@@ -727,48 +746,72 @@ if(!class_exists('SUPER_Forms')) :
                         exit();
                     }
 
-                    error_log('Stripe Event: ' . $event->type);
+                    //error_log('Stripe Event: ' . $event->type);
                     // Handle the checkout.session.completed event
                     switch ($event->type) {
                         case 'checkout.session.completed':
+                            // The customer has successfully authorized the 
+                            // debit payment by submitting the Checkout form.	
+                            // Wait for the payment to succeed or fail.
                             $session = $event->data->object;
-                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('session'=>$session));
-                            error_log('status: ' . $session->status); // open, complete, or expired
-                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            error_log('Stripe Session: ' . json_encode($session));
+                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
+                            $form_id = $submissionInfo['form_id'];
+                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('form_id'=>$form_id, 'data'=>$session));
+                            //error_log('status: ' . $session->status); // open, complete, or expired
+                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
+                            //error_log('Stripe Session: ' . json_encode($session));
                             // Check if the order is paid (for example, from a card payment)
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
                             if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
                                 // Fulfill the purchase
-                                SUPER_Common::triggerEvent('stripe.fulfill_order', array('session' => $session));
+                                SUPER_Common::triggerEvent('stripe.fulfill_order', array('form_id'=>$form_id, 'data'=>$session));
                                 //SUPER_Stripe::fulfillOrder($session);
+                                // Delete submission info
+                                //error_log('Delete submission info 1: ' . $session->metadata->sfsi_id);
+                                delete_option( '_sfsi_' . $session->metadata->sfsi_id );
                             }
                             break;
                         case 'checkout.session.async_payment_succeeded':
+                            // This step is only required if you plan to use any of 
+                            // the following payment methods:
+                            // Bacs Direct Debit, Boleto, Canadian pre-authorized debits, 
+                            // Konbini, OXXO, SEPA Direct Debit, SOFORT, or ACH Direct Debit.
+
+                            // Timings: bacs-debit T+6 (7 days max)
+                            // Timings: ...
+
                             $session = $event->data->object;
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('session'=>$session));
-                            error_log('status: ' . $session->status); // open, complete, or expired
-                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            error_log('Stripe Session: ' . json_encode($session));
+                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
+                            $form_id = $submissionInfo['form_id'];
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('form_id'=>$form_id, 'data'=>$session));
+                            //error_log('status: ' . $session->status); // open, complete, or expired
+                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
+                            //error_log('Stripe Session: ' . json_encode($session));
                             // Fulfill the purchase
-                            SUPER_Common::triggerEvent('stripe.fulfill_order', array('session' => $session));
+                            SUPER_Common::triggerEvent('stripe.fulfill_order', array('form_id'=>$form_id, 'data'=>$session));
                             //SUPER_Stripe::fulfillOrder($session);
+                            // Delete submission info
+                            //error_log('Delete submission info 2: ' . $session->metadata->sfsi_id);
+                            delete_option( '_sfsi_' . $session->metadata->sfsi_id );
                             break;
                         case 'checkout.session.async_payment_failed':
-                            $session = $event->data->object;
-                            $submissionInfo = get_option( 'sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $submissionInfo['form_id'];
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('form_id'=>$form_id,'session'=>$session));
+                            // The payment was declined, or failed for some other reason.
+                            // Contact the customer via email and request that they 
+                            // place a new order.
 
-                            error_log('status: ' . $session->status); // open, complete, or expired
-                            error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            error_log('Stripe Session: ' . json_encode($session));
-                            error_log('Send an email to the customer asking them to retry their order');
+                            $session = $event->data->object;
+                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
+                            $form_id = $submissionInfo['form_id'];
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('form_id'=>$form_id,'data'=>$session));
+                            //error_log('status: ' . $session->status); // open, complete, or expired
+                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
+                            //error_log('Stripe Session: ' . json_encode($session));
+                            //error_log('Send an email to the customer asking them to retry their order');
                             $to = $session->customer_details->email;
-                            $submissionInfo = get_option( 'sfsi_' . $session->metadata->sfsi_id, array() );
+                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
                             $form_id = $submissionInfo['form_id'];
                             $data = $submissionInfo['data'];
-                            error_log('form_id: ' . $form_id);
+                            //error_log('form_id 1: ' . $form_id);
                             // Get form settings
                             $settings = SUPER_Common::get_form_settings($form_id);
                             $s = SUPER_Stripe::get_default_stripe_settings();
@@ -785,14 +828,14 @@ if(!class_exists('SUPER_Forms')) :
                             $domain = home_url(); // e.g: 'http://domain.com';
                             $home_url = trailingslashit($domain);
                             $retryUrl = $home_url . 'sfssid/retry/' . $session->id; //{CHECKOUT_SESSION_ID}';
-                            error_log('retry URL: ' . $retryUrl);
+                            //error_log('retry URL: ' . $retryUrl);
                             $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
                             if($s['retryPaymentEmail']['lineBreaks']==='true'){
                                 $body = nl2br($body);
                             }
                             $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
                             if($mail==false){
-                                error_log('Stripe `Payment failed` email could not be send through wp_mail()');
+                                //error_log('Stripe `Payment failed` email could not be send through wp_mail()');
                                 http_response_code(400);
                             }
                             break;
@@ -808,20 +851,20 @@ if(!class_exists('SUPER_Forms')) :
                 $fileLocation = $wp->query_vars['sfdlfi'];
                 $url = wp_get_attachment_url( $fileLocation );
                 if(empty($url)){
-                    error_log('Super Forms: [HTTP/1.1 404 Not Found]');
+                    //error_log('Super Forms: [HTTP/1.1 404 Not Found]');
                     wp_delete_attachment( $fileLocation, true );
-                    error_log('File with ID '.$fileLocation.' deleted');
-                    error_log('File URL: '.$url);
+                    //error_log('File with ID '.$fileLocation.' deleted');
+                    //error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
                 $request = wp_safe_remote_get($url);
                 if ( is_wp_error( $request ) ) {
-                    error_log('Super Forms: [HTTP/1.1 404 Not Found]');
-                    error_log(json_encode($request->errors));
+                    //error_log('Super Forms: [HTTP/1.1 404 Not Found]');
+                    //error_log(json_encode($request->errors));
                     wp_delete_attachment( $fileLocation, true );
-                    error_log('File with ID '.$fileLocation.' deleted');
-                    error_log('File URL: '.$url);
+                    //error_log('File with ID '.$fileLocation.' deleted');
+                    //error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
@@ -1007,7 +1050,7 @@ if(!class_exists('SUPER_Forms')) :
                     'data_format' => 'body',
                     'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
                     'body' => json_encode(array(
-                        'home_url' => get_home_url(),
+                        'home_url' => get_option('home'),
                         'site_url' => site_url(),
                         'email' => $userEmail,
                         'addons_activated' => array('super-forms'=>SUPER_VERSION),
@@ -1037,9 +1080,6 @@ if(!class_exists('SUPER_Forms')) :
                             $removeNoneChars = $text.replace(/\s/g, ""); // use the \s quantifier to remove all white space, is equivalent to [\r\n\t\f\v ]
                             $chars = $removeNoneChars.length; // count only characters after removing any whitespace, tabs, linebreaks etc.
                             $allChars = $text.length; // count all characters
-                            console.log($words);
-                            console.log($chars);
-                            console.log($allChars);
                             jQuery($this.targetElm).attr("data-word-count", $words);
                             jQuery($this.targetElm).attr("data-chars-count", $chars);
                             jQuery($this.targetElm).attr("data-allchars-count", $allChars);
@@ -1124,7 +1164,6 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      3.6.0
         */
         public static function email_if_statements($email_body, $data) {
-            
             // The following function parses E-mail If Statements and E-mail foreach loops
             // Refer the documentation for more info about this:
             // https://renstillmann.github.io/super-forms/#/email-if-statements
@@ -1147,7 +1186,8 @@ if(!class_exists('SUPER_Forms')) :
                 $i = 1;
                 $rows = '';
                 while( isset( $data['data'][$field_name] ) ){
-                    $row_regex = '/<%(.*?)%>/';
+                    //$row_regex = '/<%(.*?)%>/';
+                    $row_regex = '/(<%|{|foreach\(|isset\(|!isset\(|if\(!isset\(|if\(isset\()([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([-_a-zA-Z0-9]{1,}))?(%>|}|\):|\)\):)/';
                     $row = $return;
                     $row_match = preg_match_all($row_regex, $row, $row_matches, PREG_SET_ORDER, 0);
                     foreach($row_matches as $rk => $rv){
@@ -1157,27 +1197,27 @@ if(!class_exists('SUPER_Forms')) :
                             if(!isset($fileLoopRows[$field_name])) $fileLoopRows[$field_name] = array();
                             foreach($files as $x => $fv){
                                 if(!isset($fileLoopRows[$field_name][$x])) $fileLoopRows[$field_name][$x] = $row;
-                                if($rv[1]==='counter'){
+                                if($rv[2]==='counter'){
                                     $fileLoopRows[$field_name][$x] = str_replace( $rv[0], $x+1, $fileLoopRows[$field_name][$x]);
                                     continue;
                                 }
-                                $fileLoopRows[$field_name][$x] = str_replace( $rv[0], '{'.$field_name.';'.$rv[1].'['.($x).']}', $fileLoopRows[$field_name][$x]);
+                                $fileLoopRows[$field_name][$x] = str_replace( $rv[0], '{'.$field_name.';'.$rv[2].'['.($x).']}', $fileLoopRows[$field_name][$x]);
                             }
                         }else{
-                            if($rv[1]==='counter'){
+                            if($rv[2]==='counter'){
                                 $row = str_replace( $rv[0], $i, $row);
                                 continue;
                             }
                             if($i<2){
-                                $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
+                                //$row = str_replace( $rv[0], '{'.$rv[2].'}', $row);
+                                $newName = $rv[2];
+                                if($rv[5]!=='') $newName .= ';'.$rv[5];
+                                $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
                                 continue;
                             }
-                            $splitName = explode(';', $rv[1]);
-                            $newName = $splitName[0].'_'.$i;
-                            if(count($splitName)>1){
-                                $newName .= ';'.$splitName[1];
-                            }
-                            $row = str_replace( $rv[0], '{'.$newName.'}', $row);
+                            $newName = $rv[2].'_'.$i;
+                            if($rv[5]!=='') $newName .= ';'.$rv[5];
+                            $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
                         }
                     }
                     if($value_n==='loop'){
@@ -1195,7 +1235,7 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             // Regex to check if field was submitted (with isset and !isset)
-            $regex = '/!isset\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+            $regex = '/(?:!isset|if\(!isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 $original = $v[0];
@@ -1213,7 +1253,7 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             // Regex to check if field was submitted (with isset and !isset)
-            $regex = '/isset\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endif\s?;|(?:elseif\s?:([\s\S]*?))endif\s?;)/';
+            $regex = '/(?:isset|if\(isset)\([-_a-zA-Z0-9]{1,}(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 $original = $v[0];
@@ -1229,7 +1269,6 @@ if(!class_exists('SUPER_Forms')) :
                 }
                 $email_body = str_replace( $original, $statement, $email_body);
             }
-
             $email_body = SUPER_Common::filter_if_statements($email_body);
             return $email_body;
         }
@@ -1372,7 +1411,7 @@ if(!class_exists('SUPER_Forms')) :
                         $global_css = stripslashes(SUPER_Forms()->global_settings['theme_custom_css']);
                     }
                 }
-                if( $css!='' ) echo '<style type="text/css">' . $global_css . $css . '</style>';
+                if( $css!='' ) echo '<style class="super-form-styles" type="text/css">' . $global_css . $css . '</style>';
             }
         }
 
@@ -1388,9 +1427,9 @@ if(!class_exists('SUPER_Forms')) :
                 if( $js!='' ) {
                     ?>
                     <script type="text/javascript">
-                    //<![CDATA[
-                        <?php echo stripslashes($js); ?>
-                    //]]>
+                    /* <![CDATA[ */
+                    <?php echo stripslashes($js); ?>
+                    /* ]]> */
                     </script>
                     <?php
                 }
@@ -1834,7 +1873,7 @@ if(!class_exists('SUPER_Forms')) :
  
             $this->load_plugin_textdomain();
 
-            $failed_to_process_data = esc_html__( 'Failed to process data, please try again', 'super-forms' );
+            $failed_to_process_data = esc_html__( 'Failed to process data, check server error log and browser console for details!', 'super-forms' );
 
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
@@ -1874,21 +1913,7 @@ if(!class_exists('SUPER_Forms')) :
                             'zero_results' => esc_html__( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
                             'error' => esc_html__( 'Something went wrong while calculating the distance.', 'super-forms' )
                         )
-                    )
-                )
-            );
-
-            // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
-            $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
-                array(
-
-                    'ajaxurl' => SUPER_Forms()->ajax_url(),
-
-                    'failed_to_process_data' => $failed_to_process_data,
-
-                    // @since 3.2.0 - dynamic tab index class exclusion
-                    'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
-
+                    ),
                     'monthNames' => array(
                         esc_html__( 'January', 'super-forms' ),
                         esc_html__( 'February', 'super-forms' ),
@@ -1944,6 +1969,26 @@ if(!class_exists('SUPER_Forms')) :
                         esc_html__( 'Fr', 'super-forms' ),
                         esc_html__( 'Sa', 'super-forms' )
                     ),
+                )
+            );
+
+            // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
+            $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
+                array(
+
+                    'ajaxurl' => SUPER_Forms()->ajax_url(),
+
+                    'failed_to_process_data' => $failed_to_process_data,
+
+                    // @since 3.2.0 - dynamic tab index class exclusion
+                    'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
+
+                    'monthNames' => $this->common_i18n['monthNames'],
+                    'monthNamesShort' => $this->common_i18n['monthNamesShort'],
+                    'dayNames' => $this->common_i18n['dayNames'],
+                    'dayNamesShort' => $this->common_i18n['dayNamesShort'],
+                    'dayNamesMin' => $this->common_i18n['dayNamesMin'],
+
                     'weekHeader' => esc_html__( 'Wk', 'super-forms' ),
                 )
             );
@@ -2906,7 +2951,7 @@ if(!class_exists('SUPER_Forms')) :
                     SUPER_Forms()->form_custom_css .= $settings['form_custom_css'];
                     
                     if( SUPER_Forms()->form_custom_css!='' ) {
-                        echo '<style type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
+                        echo '<style class="super-form-custom-css" type="text/css">' . SUPER_Forms()->form_custom_css . '</style>';
                     }
 
                     SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>false  ) );

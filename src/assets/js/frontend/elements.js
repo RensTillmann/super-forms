@@ -3,7 +3,6 @@
 (function($) { // Hide scope, no $ conflict
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
-        console.log('switch');
         // First get active part
         var i, index, validate, result, skip, progress, multipart,
             form = target.closest('.super-form'),
@@ -1307,6 +1306,17 @@
                 }
             }
             var currentParent = this;
+            //console.log($(currentParent).parents('.super-duplicate-column-fields'));
+            //var found = $(currentParent).parents('.super-duplicate-column-fields').length;
+            //if(found===0){
+            //    return;
+            //}
+            //if(!currentParent.closest('.super-duplicate-column-fields')){
+            //    return;
+            //}
+            //if(currentParent.parentNode.classList.contains('super-preview-elements')){
+            //    return;
+            //}
             var currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
             if(currentParentIndex===0 && key===0){
                 // Skip it
@@ -2109,7 +2119,6 @@
         });
         
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            
             var i, x, y,
                 nodes,
                 v,vv,
@@ -2172,7 +2181,6 @@
                 return false;
             }
 
-            
             unique_field_names = {}; // @since 2.4.0
             field_names = {};
             field_labels = {};
@@ -2197,7 +2205,6 @@
 
             // @since 3.3.0 - hook after appending new column
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
-
             // Now reset field values to default
             SUPER.init_clear_form({form: form, clone: clone});
 
@@ -2260,7 +2267,8 @@
                     continue;
                 }
                 // Before we continue replace any foreach(file_upload_fieldname)
-                var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
+                //var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
+                var regex = /(?:isset\(|!isset\(|{)([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(?:\):|})/g;
                 var m;
                 var replaceTagsWithValue = {};
                 while ((m = regex.exec(html)) !== null) {
@@ -2292,11 +2300,24 @@
                         delete suffix[0];
                     }
                     var levels = suffix.reverse().join('');
-                    if(childParentIndex!==0){
-                        replaceTagsWithValue[$o] = '{'+$n+levels+'_'+(childParentIndex+1)+$s+'}';
-                        continue;
+                    if(childParentIndex!==0) $c = '_'+(childParentIndex+1);
+                    if($o.indexOf('isset(')!==-1){
+                        if($o.indexOf('!isset(')!==-1){
+                            if($o.indexOf('if(!isset(')!==-1){
+                                replaceTagsWithValue[$o] = 'if(!isset('+$n+levels+$c+$s+')):';
+                            }else{
+                                replaceTagsWithValue[$o] = '!isset('+$n+levels+$c+$s+'):';
+                            }
+                        }else{
+                            if($o.indexOf('if(isset(')!==-1){
+                                replaceTagsWithValue[$o] = 'if(isset('+$n+levels+$c+$s+')):';
+                            }else{
+                                replaceTagsWithValue[$o] = 'isset('+$n+levels+$c+$s+'):';
+                            }
+                        }
+                    }else{
+                        replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
                     }
-                    replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
                 }
                 var key;
                 for(key in replaceTagsWithValue) {
@@ -2848,6 +2869,11 @@
                                 $form.removeClass('super-rendered');
                                 $form.find('.super-multipart-progress').remove();
                                 $form.find('.super-multipart-steps').remove();
+                                SUPER.handle_columns();
+                                SUPER.init_button_colors();
+                                SUPER.init_super_responsive_form_fields({form: $form[0]});
+                                SUPER.init_super_form_frontend();
+                                SUPER.after_preview_loaded_hook($form_id);
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 // eslint-disable-next-line no-console

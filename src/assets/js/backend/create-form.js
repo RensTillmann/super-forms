@@ -19,7 +19,7 @@
                         // Already latest version, do nothing
                         setTimeout(function(){
                             checkNewerForVersion(); // Re-check every 10s.
-                        }, 60000);
+                        }, 10000);
                     }
                 }
                 // Complete:
@@ -42,7 +42,7 @@
     }
     setTimeout(function(){
         checkNewerForVersion();
-    }, 60000);
+    }, 10000);
 
     function isEmpty(obj) {
         for (var prop in obj) {
@@ -565,8 +565,10 @@
 
     // Check if the added field has an unique field name
     SUPER.check_for_unique_field_name = function ($element, dragDrop) {
+        debugger;
         if(typeof dragDrop === 'undefined') dragDrop = false;
         var i, nodes = $element.querySelectorAll('.super-shortcode-field');
+        debugger;
         for(i=0; i<nodes.length; i++){
             var field = nodes[i];
             if (typeof field.name !== 'undefined') {
@@ -582,6 +584,7 @@
                         // Skip if there is no field name (for instance for the MailChimp element)
                         continue;
                     }
+                    debugger;
                     var uniqueName = SUPER.generate_unique_field_name(field, name, undefined, undefined, dragDrop);
                     // Now set the new field name for this element
                     elementWrapperInput.value = uniqueName;
@@ -598,34 +601,46 @@
 
     // Generate unique field name for a given element
     SUPER.generate_unique_field_name = function (field, name, newName, counter, dragDrop) {
+        debugger;
         if(typeof newName === 'undefined') newName = name;
         if(typeof counter === 'undefined') counter = 1;
         if(typeof dragDrop === 'undefined') dragDrop = false;
+        debugger;
         var form = document.querySelector('.super-preview-elements'),
             fields = SUPER.field(form, newName, 'all'),
             levels = SUPER.get_dynamic_column_depth(fields[0]);
 
         // Lookup field name after levels are added
+        debugger;
         if(counter>1){
+            debugger;
             field.name = name+'_'+counter+levels;
         }else{
+            debugger;
             if(dragDrop){
+                debugger;
                 name = name.split('[')[0]; // strip levels from field name if any
                 field.name = name+levels;
                 newName = name;
             }else{
+                debugger;
                 field.name = newName+levels;
             }
         }
+        debugger;
         fields = SUPER.field(form, newName+levels, 'all');
         if (fields.length > 1) {
+            debugger;
             counter++;
             newName = field.name;
             return SUPER.generate_unique_field_name(field, name, newName, counter, dragDrop);
         } else {
+            debugger;
             if(field.closest('.super-element').classList.contains('editing')){
+                debugger;
                 var settingsName = document.querySelector('.super-element.super-element-settings input[name="name"]');
                 if(settingsName){
+                    debugger;
                     settingsName.value = field.name;
                 }
             }
@@ -769,6 +784,7 @@
                         return false;
                     }
                 }
+                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -791,6 +807,7 @@
                         return false;
                     }
                 }
+                debugger;
                 SUPER.check_for_unique_field_name(ui.item[0], true);
                 SUPER.init_drop_here_placeholder();
                 SUPER.regenerate_element_inner();
@@ -1064,6 +1081,7 @@
                                 var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
                                 $elements.each(function(){
+                                    debugger;
                                     SUPER.check_for_unique_field_name(this);
                                 });
                                 SUPER.regenerate_element_inner();
@@ -1222,6 +1240,7 @@
             triggerSettings: (document.querySelector('.super-raw-code-trigger-settings textarea') ? document.querySelector('.super-raw-code-trigger-settings textarea').value : ''),
             translationSettings: document.querySelector('.super-raw-code-translation-settings textarea').value, // @since 4.7.0 translation
             i18n: $initial_i18n, // @since 4.7.0 translation
+            i18n_disable_browser_translation: ($('.super-i18n-disable-browser-translation').hasClass('super-active') ? 'true' : 'false'),
             i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
         };
 
@@ -1258,6 +1277,7 @@
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display', 'block');
             var $form_id = $('.super-create-form input[name="form_id"]').val();
+            SUPER.preFlightMappings = {}; // Reset
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
@@ -1814,6 +1834,10 @@
         $doc.on('click', '.super-translations-list .super-rtl', function () {
             $(this).toggleClass('super-active');
         });
+        // disable browser translation
+        $doc.on('click', '.super-tab-translations .super-i18n-disable-browser-translation', function () {
+            $(this).toggleClass('super-active');
+        });
         // enable language switch
         $doc.on('click', '.super-tab-translations .super-i18n-switch', function () {
             $(this).toggleClass('super-active');
@@ -2176,6 +2200,7 @@
         });
         $doc.on('blur', '.super-element.super-element-settings input[name="name"]', function () {
             var $editing = $('.super-preview-elements .super-element.editing');
+            debugger;
             SUPER.check_for_unique_field_name($editing[0], true);
         });
         $doc.on('change keyup', '.super-element.super-element-settings input[name="name"]', function () {
@@ -2291,6 +2316,7 @@
             this.value = this.value.split('[')[0];
         });
         $doc.on('blur', '.super-element-header .super-title > input', function () {
+            debugger;
             SUPER.check_for_unique_field_name(this.closest('.super-element'), true);
         });
         $doc.on('keyup change', '.super-element-header .super-title > input', function () {
@@ -2680,6 +2706,7 @@
                         className += ' editing';
                         $element.attr('class', className);
                         if($fields.duplicate && $fields.duplicate==='enabled'){
+                            debugger;
                             SUPER.check_for_unique_field_name($element[0], true);
                         }
                         $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);

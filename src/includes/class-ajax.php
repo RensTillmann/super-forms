@@ -115,6 +115,8 @@ class SUPER_Ajax {
         }
     }
     public static function new_version_check(){
+        //error_log('loaded modifiedTime: '.$_POST['modifiedTime']);
+        //error_log('current modifiedTime: '.get_post_modified_time('U', false, $_POST['form_id']));
         if($_POST['modifiedTime'] < get_post_modified_time('U', false, $_POST['form_id'])){
             echo 'true'; // there is a newer version
         }else{
@@ -728,8 +730,8 @@ class SUPER_Ajax {
                 $data = $_POST['data'];
             }
             $settings = SUPER_Common::get_form_settings($data['hidden_form_id']['value']);
-            $html = SUPER_Common::email_tags( $html, $data, $settings );
             $html = SUPER_Forms()->email_if_statements( $html, $data );
+            $html = SUPER_Common::email_tags( $html, $data, $settings );
             echo $html;
         }else{
             echo '404 file with ID #'.$file_id.' not found!';
@@ -2119,6 +2121,7 @@ class SUPER_Ajax {
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
         // @since 4.7.0 - translation language switcher
+        if(isset($_POST['i18n_disable_browser_translation'])) $_super_form_settings['i18n_disable_browser_translation'] = sanitize_text_field($_POST['i18n_disable_browser_translation']);
         if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
         if( empty( $form_id ) ) {
             $form = array(
@@ -2407,18 +2410,22 @@ class SUPER_Ajax {
                 foreach( $tabs as $k => $v ){                
                     if( isset( $v['fields'] ) ) {
                         foreach( $v['fields'] as $fk => $fv ) {
-                            if(!isset($data[$fk]) || empty($fv['i18n'])) continue;
-
-                            // Make sure to skip this file if it's source location is invalid
-                            if( ( isset( $fv['filter'] ) ) && ( $fv['filter']==true ) && (isset($fv['parent'])) ) {
-                                if (strpos($v['fields'][$fv['parent']]['default'], $fv['filter_value']) === false) {
-                                    continue;
+                            if(!isset($data[$fk]) || empty($fv['i18n'])) {
+                                continue;
+                            }
+                            if((isset($fv['filter'])) && ($fv['filter']==true) && (isset($fv['parent']))){
+                                if(strpos($v['fields'][$fv['parent']]['default'], $fv['filter_value'])===false) {
+                                    if(isset($fv['filterAlwaysShowOnTranslate']) && $fv['filterAlwaysShowOnTranslate']==true){
+                                        // Do not skip, currently used by
+                                        // international phone number to display different
+                                        // preferred/default flags based on choosen language
+                                    }else{
+                                        // Skip (don't show this setting)
+                                        continue;
+                                    }
                                 }
                             }
                             $default = SUPER_Common::get_default_element_setting_value($shortcodes, $group, $tag, $k, $fk);
-
-
-
 
                             $hidden = '';
                             if( isset( $fv['hidden'] ) && ( $fv['hidden']==true ) ) {
@@ -2570,7 +2577,7 @@ class SUPER_Ajax {
         die();        
     }
 
-    public static function submit_form_checks( $settings=null ) {
+    public static function submit_form_checks($skipChecks=false) {
         $csrfValidation = SUPER_Common::verifyCSRF();
         if(!$csrfValidation && empty($GLOBALS['super_csrf'])){
             // Only if not previously validated
@@ -2623,63 +2630,17 @@ class SUPER_Ajax {
             exit;
         }
         unset($data['super_hp']);
-        
-        // @since 1.7.6
-        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );        
-
         // Return extra data via ajax response
         $response_data = array();
         // Get form settings
         $form_id = absint( $_POST['form_id'] );
         $response_data['form_id'] = $form_id;
-        if( $settings==null ) {
-            $settings = SUPER_Common::get_form_settings($form_id);
-            // @since 4.4.0 - Let's unset some settings we don't need
-            unset($settings['theme_custom_js']);
-            unset($settings['theme_custom_css']);
-            unset($settings['form_custom_css']);
-        }
+        $settings = SUPER_Common::get_form_settings($form_id);
+        // @since 4.4.0 - Let's unset some settings we don't need
+        unset($settings['theme_custom_js']);
+        unset($settings['theme_custom_css']);
+        unset($settings['form_custom_css']);
 
-        // Before we continue we might want to alter the form settings
-        $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
-        $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
-        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
-        
-        // @since 4.6.0 - verify reCAPTCHA token
-        if(!empty($_POST['version'])){
-            $version = sanitize_text_field( $_POST['version'] );
-            $secret = $settings['form_recaptcha_secret'];
-            if($version==='v3'){
-                $secret = $settings['form_recaptcha_v3_secret'];
-            }
-            $url = 'https://www.google.com/recaptcha/api/siteverify';
-            $args = array(
-                'secret' => $secret, 
-                'response' => $_POST['token']
-            );
-            // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
-            $response = wp_remote_post( 
-                $url, 
-                array(
-                    'timeout' => 45,
-                    'body' => $args
-                )
-            );
-            if ( is_wp_error( $response ) ) {
-                $error_message = $response->get_error_message();
-                SUPER_Common::output_message( array(
-                    'msg' => esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
-                ));
-            } else {
-                $result = json_decode( $response['body'], true );
-                if( $result['success']!==true ) {
-                    SUPER_Common::output_message( array( 
-                        'msg' => esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' )
-                    ));
-                }
-            }
-        }
-        
         // @since 4.7.0 - translation
         if(!empty($_POST['i18n'])){
             $i18n = sanitize_text_field($_POST['i18n']);
@@ -2688,58 +2649,128 @@ class SUPER_Ajax {
                 unset($settings['i18n']);
             }
         }
-          
-        // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
-        if( !empty($settings['form_locker']) ) {
-            if( !isset($settings['form_locker_allow_submit']) ) $settings['form_locker_allow_submit'] = 'false';
-            if($settings['form_locker_allow_submit']!=='true'){
-                if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
-                $limit = $settings['form_locker_limit'];
-                $count = get_post_meta( $form_id, '_super_submission_count', true );
-                if( $count>=$limit ) {
-                    $msg = '';
-                    if($settings['form_locker_msg_title']!='') {
-                        $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
-                    }
-                    $msg .= nl2br($settings['form_locker_msg_desc']);
-                    SUPER_Common::output_message( array( 
-                        'msg' => $msg
+        
+        // @since 1.7.6
+        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );        
+
+        // Before we continue we might want to alter the form settings
+        $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
+        $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
+        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
+        
+        // @since 4.6.0 - verify reCAPTCHA token
+        if($skipChecks===false){
+            if(!empty($_POST['version'])){
+                $version = sanitize_text_field( $_POST['version'] );
+                $secret = $settings['form_recaptcha_secret'];
+                if($version==='v3'){
+                    $secret = $settings['form_recaptcha_v3_secret'];
+                }
+                $url = 'https://www.google.com/recaptcha/api/siteverify';
+                $args = array(
+                    'secret' => $secret, 
+                    'response' => $_POST['token']
+                );
+                // @since 1.2.2   use wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
+                $response = wp_remote_post( 
+                    $url, 
+                    array(
+                        'timeout' => 45,
+                        'body' => $args
+                    )
+                );
+                if ( is_wp_error( $response ) ) {
+                    $error_message = $response->get_error_message();
+                    SUPER_Common::output_message( array(
+                        'msg' => esc_html__( 'Something went wrong:', 'super-forms' ) . ' ' . $error_message
                     ));
+                } else {
+                    $result = json_decode( $response['body'], true );
+                    if( $result['success']!==true ) {
+                        SUPER_Common::output_message( array( 
+                            'msg' => esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' )
+                        ));
+                    }
                 }
             }
-        }
-        
-        // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
-        if( !empty($settings['user_form_locker']) ) {
-            // Let's check if the user is logged in
-            $current_user_id = get_current_user_id();
-            if( $current_user_id!=0 ) {
-                if(!isset($settings['user_form_locker_allow_submit'])) $settings['user_form_locker_allow_submit'] = 'false';
-                if($settings['user_form_locker_allow_submit']!=='true'){
-                    $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
-                    $count = 0;
-                    if(!empty($user_limits[$current_user_id])) {
-                        $count = absint($user_limits[$current_user_id])+1;
-                    }
-                    $limit = 0;
-                    if( !empty($settings['user_form_locker_limit']) ){
-                        $limit = absint($settings['user_form_locker_limit']);
-                    } 
-                    if( $count>$limit ) {
+         
+            // @since 3.4.0 - Lock form after specific amount of submissions (based on total contact entries created)
+            if( !empty($settings['form_locker']) ) {
+                if( !isset($settings['form_locker_allow_submit']) ) $settings['form_locker_allow_submit'] = 'false';
+                if($settings['form_locker_allow_submit']!=='true'){
+                    if( !isset($settings['form_locker_limit']) ) $settings['form_locker_limit'] = 0;
+                    $limit = $settings['form_locker_limit'];
+                    $count = get_post_meta( $form_id, '_super_submission_count', true );
+                    if( $count>=$limit ) {
                         $msg = '';
-                        if($settings['user_form_locker_msg_title']!='') {
-                            $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                        if($settings['form_locker_msg_title']!='') {
+                            $msg .= '<h1>' . $settings['form_locker_msg_title'] . '</h1>';
                         }
-                        $msg .= nl2br($settings['user_form_locker_msg_desc']);
+                        $msg .= nl2br($settings['form_locker_msg_desc']);
                         SUPER_Common::output_message( array( 
-                            'msg'=>$msg
+                            'msg' => $msg
                         ));
+                    }
+                }
+            }
+        
+            // @since 3.8.0 - Lock form after specific amount of submissions for logged in user (based on total contact entries created by user)
+            if( !empty($settings['user_form_locker']) ) {
+                // Let's check if the user is logged in
+                $current_user_id = get_current_user_id();
+                if( $current_user_id!=0 ) {
+                    if(!isset($settings['user_form_locker_allow_submit'])) $settings['user_form_locker_allow_submit'] = 'false';
+                    if($settings['user_form_locker_allow_submit']!=='true'){
+                        $user_limits = get_post_meta( $form_id, '_super_user_submission_counter', true );
+                        $count = 0;
+                        if(!empty($user_limits[$current_user_id])) {
+                            $count = absint($user_limits[$current_user_id])+1;
+                        }
+                        $limit = 0;
+                        if( !empty($settings['user_form_locker_limit']) ){
+                            $limit = absint($settings['user_form_locker_limit']);
+                        } 
+                        if( $count>$limit ) {
+                            $msg = '';
+                            if($settings['user_form_locker_msg_title']!='') {
+                                $msg .= '<h1>' . $settings['user_form_locker_msg_title'] . '</h1>';
+                            }
+                            $msg .= nl2br($settings['user_form_locker_msg_desc']);
+                            SUPER_Common::output_message( array( 
+                                'msg'=>$msg
+                            ));
+                        }
                     }
                 }
             }
         }
 
-        SUPER_Common::triggerEvent('sf.before.submission', array(
+        // Get/set unique submission identifier
+        $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+        if( $uniqueSubmissionId===false ){
+            $uniqueSubmissionId = md5(uniqid(mt_rand(), true)); 
+            // . '.' . $expires . '.'. $exp_var;
+            $uniqueSubmissionId = SUPER_Common::setClientData(
+                array( 
+                    'name' => 'unique_submission_id_' . $form_id, 
+                    'value' => $uniqueSubmissionId
+                )
+            );
+        }else{
+            // Update to increase expiry
+            $s = explode('.', $uniqueSubmissionId);
+            delete_option( '_sfsi_'.$s[0].'.'.$s[1]);
+            $uniqueSubmissionId = $s[0];
+            error_log('AFTER update to increase expiry for $uniqueSubmissionId: '. $uniqueSubmissionId);
+            $uniqueSubmissionId = SUPER_Common::setClientData( array( 
+                'name' => 'unique_submission_id_' . $form_id,
+                'value' => $uniqueSubmissionId
+                //'expires' => 60*60, // 60 min. (30*60)
+                //'exp_var' => 20*60 // 20 min. (20*60)
+            ) );
+        }
+        $x = array(
+            'uniqueSubmissionId'=>$uniqueSubmissionId,
             'data'=>$data,
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -2747,11 +2778,32 @@ class SUPER_Ajax {
             'settings'=>$settings, 
             'response_data'=>$response_data, 
             'post'=>$_POST
-        ));
+        );
+        SUPER_Common::triggerEvent('sf.before.submission', $x);
 
-        do_action( 'super_before_sending_email_hook', array( 'data'=>$data, 'form_id'=>$form_id, 'entry_id'=>$entry_id, 'list_id'=>$list_id, 'settings'=>$settings, 'response_data'=>$response_data, 'post'=>$_POST) );
-
+        $sfsi = $x;
+        // Store currently logged in user id
+        $sfsi['user_id'] = get_current_user_id(); // currently logged in user ID
+        $sfsi['referer'] = wp_get_referer(); // page URL before loading form page
+        $sfsi['permalink'] = get_permalink(); // page URL user submitted the form from
+        $files = array();
+        foreach($data as $k => $v){
+            if(isset($v['type']) && $v['type']==='files'){
+                foreach($v['files'] as $f){
+                    $x = array();
+                    if(!empty($f['attachment'])) $x['attachment'] = $f['attachment'];
+                    if(!empty($f['path'])) $x['path'] = $f['path'];
+                    if(!empty($f['subdir'])) $x['subdir'] = $f['subdir'];
+                    $files[] = $x;
+                }
+            }
+        }
+        $sfsi['files'] = $files;
+        unset($sfsi['settings']); // remove settings, not needed
+        update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
         return array(
+            'uniqueSubmissionId' => $uniqueSubmissionId,
+            'sfsi'=>$sfsi,
             'data'=>$data,
             'form_id'=>$form_id,
             'entry_id'=>$entry_id,
@@ -2761,10 +2813,10 @@ class SUPER_Ajax {
         );
     }
     public static function upload_files() {
-        error_log('upload_files()');
         $atts = self::submit_form_checks();
         $form_id = $atts['form_id'];
         $data = $atts['data'];
+        $odata = $data;
         // Dependencies for file upload
         $global_settings = SUPER_Common::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
@@ -2847,6 +2899,50 @@ class SUPER_Ajax {
                         $GLOBALS['super_upload_dir'] = wp_upload_dir();
                     }
                     $d = $GLOBALS['super_upload_dir'];
+
+                    /*
+                    add_action('wp_handle_upload', function($file){
+                        /*
+                        $image = imagecreatefromstring(file_get_contents($file['tmp_name']));
+                        $exif = exif_read_data($_FILES['image_upload']['tmp_name']);
+                        if(!empty($exif['Orientation'])) {
+                            switch($exif['Orientation']) {
+                                case 8:
+                                    $image = imagerotate($image, 90, 0);
+                                    break;
+                                case 3:
+                                    $image = imagerotate($image, 180, 0);
+                                    break;
+                                case 6:
+                                    $image = imagerotate($image, -90, 0);
+                                    break;
+                            }
+                        }
+                        */
+                        /*
+                        $image = wp_get_image_editor($file['file']);
+                        if(!is_wp_error($image)){
+                            $exif = exif_read_data($file['file']);
+                            $orientation = $exif['Orientation'];
+                            if (!empty($orientation)) {
+                                switch ($orientation) {
+                                    case 8:  
+                                        $image->rotate(90);
+                                        break;  
+                                    case 3:
+                                        $image->rotate(180);
+                                        break;
+                                    case 6:
+                                        $image->rotate(-90);
+                                        break;
+                                }   
+                            }
+                            $image->save($file['file']);
+                        }
+                        return $file;
+                    });
+                    */
+
                     $uploaded_file = wp_handle_upload($file, array('test_form'=>false));
                     $filename = $uploaded_file['file'];
                     if(isset($uploaded_file['error'])){
@@ -2895,6 +2991,18 @@ class SUPER_Ajax {
             'files' => $data,
             'sf_nonce' => SUPER_Common::generate_nonce()
         );
+        $x = array(
+            'uniqueSubmissionId'=>$uniqueSubmissionId,
+            'data'=>$odata,
+            'files'=>$data,
+            'form_id'=>$form_id, 
+            'entry_id'=>$entry_id, 
+            'list_id'=>$list_id, 
+            'settings'=>$settings, 
+            'response_data'=>$response_data, 
+            'post'=>$_POST
+        );
+        SUPER_Common::triggerEvent('sf.after.files.uploaded', $x);
         echo json_encode($response);
         die();
     }
@@ -2918,50 +3026,39 @@ class SUPER_Ajax {
     }
 
 
-    public static function submit_form( $settings=null ) {
-        error_log('submit_form()');
-        $atts = self::submit_form_checks($settings);
+    public static function submit_form() {
+        if(empty($_POST['fileUpload'])) {
+            $atts = self::submit_form_checks();
+        }else{
+            $atts = self::submit_form_checks(true);
+        }
         $form_id = $atts['form_id'];
+        $sfsi = $atts['sfsi'];
 
         // Get/set unique submission identifier
-        $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-        if( $uniqueSubmissionId===false ){
-            $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . time();
-            SUPER_Common::setClientData( array( 'name' => 'unique_submission_id_' . $form_id, 'value' => $uniqueSubmissionId ) );
-        }else{
-            // Update to increase expiry
-            SUPER_Common::setClientData( array( 
-                'name' => 'unique_submission_id_' . $form_id,
-                'value' => $uniqueSubmissionId,
-                'expires' => 60*60, // 60 min. (30*60)
-                'exp_var' => 20*60 // 20 min. (20*60)
-            ) );
-        }
-        error_log('super_unique_submission_id: ' . $uniqueSubmissionId);
-
+        $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $data = $atts['data'];
         $entry_id = $atts['entry_id'];
         $list_id = $atts['list_id'];
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
-
-        $submissionInfo = get_option('sfsi_' . $uniqueSubmissionId, array());
-        $sfsi = $atts;
-        unset($sfsi['settings']);
-        // Store currently logged in user id
-        $sfsi['user_id'] = get_current_user_id(); // currently logged in user ID
-        $sfsi['referer'] = wp_get_referer(); // page user submitted the form from
-
+        error_log('get PDF url?');
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
+                error_log('get PDF url 2?');
                 if( !isset($v['type']) ) continue;
                 if( $v['type']=='files' ) {
+                    error_log('get PDF url 3?');
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
+                        error_log('get PDF url 4?');
                         foreach( $v['files'] as $key => $value ) {
+                            error_log('get PDF url 5?');
                             // If there is a generated PDF let it act as a regular file upload
                             // Try to generate PDF file
                             if(isset($value['datauristring'])){
+                                error_log('get PDF url 6?');
                                 try {
+                                    error_log('get PDF url 7?');
                                     $imgData = str_replace( ' ', '+', $value['datauristring']);
                                     unset($value['datauristring']);
                                     $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
@@ -3017,6 +3114,7 @@ class SUPER_Ajax {
                                     if(!empty($settings['_pdf']['excludeEntry']) && $settings['_pdf']['excludeEntry']==='true'){
                                         $data[$k]['exclude_entry'] = 'true';
                                     }
+                                    error_log(json_encode($data));
                                 } catch (Exception $e) {
                                     // Print error message
                                     SUPER_Common::output_message( array(
@@ -3051,27 +3149,12 @@ class SUPER_Ajax {
                 }
             }
         }
+        error_log(json_encode($files));
         $sfsi['files'] = $files;
-        //{
-        //    "label":"File:",
-        //    "type":"files",
-        //    "files":[{"name":"file",
-        //        "value":"mobile_wallpaper.jpg",
-        //        "url":"https:\/\/f4d.nl\/dev\/wp-content\/uploads\/superforms\/2022\/05\/2597728734047\/mobile_wallpaper.jpg",
-        //        "label":"File:",
-        //        "type":"image\/jpeg",
-        //        "attachment":59616
-        //    }]
-        //},"
-        //$data[$fieldName]['files'][$k]['url'] = $fileUrl;
-        //$data[$fieldName]['files'][$k]['subdir'] = $fileSubdir; // dir relative to site root
-        //$data[$fieldName]['files'][$k]['url'] = wp_get_attachment_url( $attachment_id );
-        //$data[$fieldName]['files'][$k]['attachment'] = $attachment_id;
         unset($GLOBALS['super_upload_dir']);
         unset($GLOBALS['super_allowed_mime_types']);
-  
         $sfsi['data'] = $data;
-        update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
+        update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -3117,6 +3200,7 @@ class SUPER_Ajax {
             }
         }
             
+        
         if( ($entry_id!=0) && (!empty($settings['contact_entry_prevent_creation'])) ) {
             $settings['save_contact_entry'] = 'no';
         }
@@ -3137,7 +3221,7 @@ class SUPER_Ajax {
             $contact_entry_id = wp_insert_post($post);
 
             $sfsi['contact_entry_id'] = $contact_entry_id;
-            update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
+            update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
             // Store entry ID for later use
             set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
@@ -3220,9 +3304,6 @@ class SUPER_Ajax {
                     $settings['contact_entry_custom_status'] = $entry_status;
                 }
             }
-            if(!empty($settings['contact_entry_custom_status'])){
-                add_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
-            }
 
             // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
             $data['contact_entry_id']['name'] = 'contact_entry_id';
@@ -3285,6 +3366,11 @@ class SUPER_Ajax {
 
         // @since 2.2.0 - update contact entry data by ID
         if($entry_id!=0){
+            $update_entry_status = false;
+            if(isset($final_entry_data['update_entry_status'])){
+                $update_entry_status = $final_entry_data['update_entry_status']['value'];
+                unset($final_entry_data['update_entry_status']);
+            }
             $result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data);
 
             // Check if we prevent saving duplicate entry titles
@@ -3308,14 +3394,21 @@ class SUPER_Ajax {
             // Update title
             $post = array('ID' => $entry_id, 'post_title' => $contact_entry_title);
             wp_update_post($post);
-
-            // @since 3.4.0 - update contact entry status
-            $entry_status_update = (isset($_POST['entry_status_update']) ? sanitize_text_field( $_POST['entry_status_update'] ) : '');
-            if($entry_status_update!=''){
-                $settings['contact_entry_custom_status_update'] = $entry_status_update;
+            if($update_entry_status!==false) {
+                update_post_meta( $entry_id, '_super_contact_entry_status', $update_entry_status );
+                $global_settings = SUPER_Common::get_global_settings();
+                $entry_statuses = SUPER_Settings::get_entry_statuses($global_settings);
+                $_entry_status = (isset($entry_statuses[$update_entry_status]) ? $entry_statuses[$update_entry_status] : $entry_statuses['']);
+                $_entry_status['key'] = $update_entry_status;
+                $response_data['entry_status'] = $_entry_status;
             }
-            if( (isset($settings['contact_entry_custom_status_update'])) && ($settings['contact_entry_custom_status_update']!='') ) {
-                add_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
+            $list_id = '';
+            if(isset($_POST['list_id'])) $list_id = absint($_POST['list_id']);
+            if($list_id!=='' && isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
+                $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
+                $response_data['enableFormProcessingOverlay'] = $list['enableFormProcessingOverlay'];
+                $response_data['closeFormProcessingOverlay'] = $list['closeFormProcessingOverlay'];
+                $response_data['closeEditorWindowAfterEditing'] = $list['closeEditorWindowAfterEditing'];
             }
         }
 
@@ -3391,9 +3484,20 @@ class SUPER_Ajax {
                 if(!empty($global_settings[$k . '_confirm_force'])) $settings['confirm_reply_name'] = $global_settings[$k];
             }
         }
+
+        do_action( 'super_before_sending_email_hook', array( 
+            'data'=>$data, 
+            'form_id'=>$form_id, 
+            'entry_id'=>$entry_id, 
+            'list_id'=>$list_id, 
+            'settings'=>$settings,
+            'response_data'=>$response_data, 
+            'post'=>$_POST
+        ));
         if( $settings['send']=='yes' ) {
             $email_body = $settings['email_body'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
+            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
             
             // @since 3.1.0 - optionally automatically add line breaks
@@ -3405,7 +3509,6 @@ class SUPER_Ajax {
             if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
             $email_body = do_shortcode($email_body);
-            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
                 $settings['header_from_name'] = get_option( 'blogname' );
@@ -3463,11 +3566,6 @@ class SUPER_Ajax {
             $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
             $mail = SUPER_Common::email( $params );
             
-            //$submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-            //$submissionInfo['admin_email_params'] = $params;
-            //unset($submissionInfo['admin_email_params']['settings']);
-            //update_option('sfsi_' . $uniqueSubmissionId, $submissionInfo);
-
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
                 $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
@@ -3484,6 +3582,7 @@ class SUPER_Ajax {
             $settings['header_additional'] = $settings['confirm_header_additional'];
             $email_body = $settings['confirm_body'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
+            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
             $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 
             // @since 3.1.0 - optionally automatically add line breaks
@@ -3495,7 +3594,6 @@ class SUPER_Ajax {
             if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
             
             $email_body = do_shortcode($email_body);
-            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
             if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {
                 $settings['confirm_from_name'] = get_option( 'blogname' );
@@ -3551,11 +3649,6 @@ class SUPER_Ajax {
             // Send the email
             $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
             $mail = SUPER_Common::email( $params );
-
-            //$submissionInfo = get_option( 'sfsi_' . $uniqueSubmissionId, array() );
-            //$submissionInfo['confirmation_email_params'] = $params;
-            //unset($submissionInfo['confirmation_email_params']['settings']);
-            //update_option('sfsi_' . $uniqueSubmissionId, $submissionInfo);
 
             // Return error message
             if( !empty( $mail->ErrorInfo ) ) {
@@ -3686,7 +3779,7 @@ class SUPER_Ajax {
                 }
 
                 $sfsi['post_body'] = $parameters;
-                update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
+                update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
                 $response = wp_remote_post(
                     $settings['form_post_url'], 
@@ -3710,7 +3803,7 @@ class SUPER_Ajax {
                 SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
                 $sfsi['post_response'] = $response;
-                update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
+                update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -3752,7 +3845,7 @@ class SUPER_Ajax {
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             $sfsi['attachments'] = $attachments;
-            update_option('sfsi_' . $uniqueSubmissionId, $sfsi);
+            update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
             SUPER_Common::triggerEvent('sf.after.submission', array(
                 'uniqueSubmissionId'=>$uniqueSubmissionId, 
@@ -3799,7 +3892,7 @@ class SUPER_Ajax {
             }
 
             // Currently used by Stripe to redirect to checkout session
-            do_action( 'super_before_redirect_action', array( 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_redirect_action', array( 'form_id'=>$form_id, 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // Clear form progression
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
@@ -3811,11 +3904,11 @@ class SUPER_Ajax {
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
 
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
-            $msg = SUPER_Common::email_tags( $msg, $data, $settings );
             
             // @since 4.1.0 - option to do if statements in success message
             $msg = SUPER_Forms()->email_if_statements( $msg, $data );
 
+            $msg = SUPER_Common::email_tags( $msg, $data, $settings );
             $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             if( !empty( $settings['form_redirect_option'] ) ) {
                 if( $settings['form_redirect_option']=='page' ) {
@@ -3851,11 +3944,31 @@ class SUPER_Ajax {
             */
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             if($redirect!=='' && $redirect!==false){
-                $sfsi['redirectedTo'] = $redirect;
-                update_option( 'sfsi_' . $uniqueSubmissionId, $sfsi );
+                // tmp $sfsi['redirectedTo'] = $redirect;
+                // tmp error_log('10' . json_encode($sfsi));
+                // tmp error_log('10.1' . $uniqueSubmissionId);
+                // tmp update_option('_sfsi_' . $uniqueSubmissionId, $sfsi );
             }
             
+            SUPER_Common::triggerEvent('sf.submission.finalized', $atts);
+            // Clean up submission info
+            delete_option('_sfsi_' . $uniqueSubmissionId);
+            //$atts = self::submit_form_checks(true);
+            //    'uniqueSubmissionId'=>$uniqueSubmissionId, 
+            //    'post'=>$_POST, 
+            //    'data'=>$data, 
+            //    'settings'=>$settings, 
+            //    'entry_id'=>$contact_entry_id, 
+            //    'attachments'=>$attachments,
+            //    'form_id'=>$form_id
+            //));
+
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
+
+            // Required by Listings to replace the old PDF URL with the newly generated URL:
+            error_log(json_encode($sfsi));
+            if(isset($sfsi['data']['_generated_pdf_file'])) $response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];
+            error_log(json_encode($response_data));
             SUPER_Common::output_message( array(
                 'error'=>false, 
                 'msg' => $msg,

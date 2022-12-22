@@ -5827,7 +5827,7 @@ msgstr ""
 
 #: super-forms.php:1936
 msgid "Fr"
-msgstr "Fr"
+msgstr "Ve"
 
 #: includes/shortcodes/form-elements.php:2690
 msgid "French"
@@ -5835,7 +5835,7 @@ msgstr "français"
 
 #: super-forms.php:1927
 msgid "Fri"
-msgstr "ven"
+msgstr "Ven"
 
 #: super-forms.php:1918 includes/shortcodes/form-elements.php:2857
 msgid "Friday"
@@ -7760,7 +7760,7 @@ msgstr "Mis."
 
 #: super-forms.php:1932
 msgid "Mo"
-msgstr "Mo"
+msgstr "Lu"
 
 #: includes/admin/views/page-create-form.php:203
 msgid "Mobile preview"
@@ -7768,7 +7768,7 @@ msgstr "Aperçu mobile"
 
 #: super-forms.php:1923
 msgid "Mon"
-msgstr "lun"
+msgstr "Lun"
 
 #: super-forms.php:1914
 msgid "Monday"
@@ -10496,7 +10496,7 @@ msgstr "Sam"
 
 #: super-forms.php:1919 includes/shortcodes/form-elements.php:2858
 msgid "Saturday"
-msgstr "samedi"
+msgstr "Samedi"
 
 #: includes/admin/views/page-create-form.php:198
 msgid "Save"
@@ -11849,7 +11849,7 @@ msgstr "Poids de course"
 
 #: super-forms.php:1931
 msgid "Su"
-msgstr "Su"
+msgstr "Di"
 
 #: includes/shortcodes/html-elements.php:356
 msgid "Sub Title"
@@ -11995,11 +11995,11 @@ msgstr "Texte de l'infobulle de l'icône de la question du suffixe"
 
 #: super-forms.php:1922
 msgid "Sun"
-msgstr "Soleil"
+msgstr "Dim"
 
 #: super-forms.php:1913 includes/shortcodes/form-elements.php:2859
 msgid "Sunday"
-msgstr "dimanche"
+msgstr "Dimanche"
 
 #: super-forms.php:1248
 msgid "Super Form"
@@ -12263,7 +12263,7 @@ msgstr ""
 
 #: super-forms.php:1935
 msgid "Th"
-msgstr "Th"
+msgstr "Je"
 
 #: includes/shortcodes/form-elements.php:2729
 msgid "Thai"
@@ -13613,7 +13613,7 @@ msgstr ""
 
 #: super-forms.php:1926
 msgid "Thu"
-msgstr "jeu"
+msgstr "Jeu"
 
 #: super-forms.php:1917 includes/shortcodes/form-elements.php:2856
 msgid "Thursday"
@@ -13908,7 +13908,7 @@ msgstr ""
 
 #: super-forms.php:1933
 msgid "Tu"
-msgstr "Tu"
+msgstr "Ma"
 
 #: super-forms.php:1924
 msgid "Tue"
@@ -14741,7 +14741,7 @@ msgstr "Statut de la commande WC"
 
 #: super-forms.php:1934
 msgid "We"
-msgstr "nous"
+msgstr "Me"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:839
 msgid "We couldn't find a user with the given email address!"
@@ -14838,7 +14838,7 @@ msgstr "URL de site web"
 
 #: super-forms.php:1925
 msgid "Wed"
-msgstr "mer"
+msgstr "Mer"
 
 #: super-forms.php:1916 includes/shortcodes/form-elements.php:2855
 msgid "Wednesday"

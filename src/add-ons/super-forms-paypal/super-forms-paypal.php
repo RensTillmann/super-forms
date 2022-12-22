@@ -197,7 +197,7 @@ if( !class_exists('SUPER_PayPal') ) :
 
 			}
 			if ($this->is_request('ajax')) {
-				add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ) );
+				add_action( 'super_before_email_success_msg_action', array( $this, 'before_email_success_msg' ), 20 );
 			}
 
 
