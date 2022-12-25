@@ -3200,14 +3200,15 @@ function SUPERreCaptcha(){
                 for(var x=0; x<cols.length; x++){
                     var fieldName = cols[x].className.replace('super-col super-','');
                     if(fieldName==='entry_status'){
-                        console.log(args);
                         var status = result.response_data.entry_status;
                         cols[x].innerHTML = '<span class="super-entry-status super-entry-status-' + status.key + '" style="color:' + status.color + ';background-color:' + status.bg_color + '">' + status.name + '</span>';
                         continue;
                     }
 
                     // // If not then it must be a special field, for instance file uploads
+                    // debugger;
                     // if($data[$column_key]['type']==='files'){
+                    //     debugger;
                     //     $linkUrl = '';
                     //     if(isset($data[$column_key]['files'])){
                     //         $files = $data[$column_key]['files'];
@@ -4131,7 +4132,6 @@ function SUPERreCaptcha(){
                 defaultValues[i].closest('.super-replace-tags').classList.remove('super-replace-tags');
             }
         }
-
         args.callback(args);
     };
 
@@ -4218,18 +4218,35 @@ function SUPERreCaptcha(){
             SUPER.prepare_form_data($(args.form), function(formData){
                 var $form_id = formData.form_id;
                 formData = SUPER.after_form_data_collected_hook(formData.data);
-                $.ajax({
-                    url: super_common_i18n.ajaxurl,
-                    type: 'post',
-                    data: {
-                        action: 'super_save_form_progress',
-                        data: formData,
-                        form_id: $form_id
-                    }
-                });
+                SUPER.save_form_progress_request(formData, $form_id);
             }, false); // define false, to skip saving nonce (not required when saving progress)
         }, 1000); 
         // 1 second timeout, to make sure that we do not make unnecessary requests to the server
+    };
+
+    SUPER.save_form_progress_request = function($data, $form_id){
+        var formData = new FormData();
+        formData.append('action', 'super_save_form_progress');
+        formData.append('form_id', $form_id);
+        var data = JSON.stringify($data);
+        formData.append('data', data);
+        $.ajax({
+            type: 'post',
+            url: super_common_i18n.ajaxurl,
+            data: formData,
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false,
+            timeout: 60000, // 1m
+            xhr: function() {
+                return new window.XMLHttpRequest();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // eslint-disable-next-line no-console
+                console.log(xhr, ajaxOptions, thrownError);
+            }
+        });
     };
 
     // @since 1.2.8 
@@ -4624,7 +4641,7 @@ function SUPERreCaptcha(){
             $dynamic_arrays = [];
             $map_key_names = [];
             $first_property_name = undefined;
-            $(this).find('.super-duplicate-column-fields').each(function(){
+            $(this).children('.super-duplicate-column-fields').each(function(){
                 $dynamic_column_fields_data = SUPER.prepare_form_data_fields($(this));
                 if(typeof $first_property_name === 'undefined'){
                     $first_property_name = Object.getOwnPropertyNames($dynamic_column_fields_data)[0];
@@ -5815,7 +5832,13 @@ function SUPERreCaptcha(){
                     }
                 }
             };
+
             SUPER.after_initializing_forms_hook(args);
+            
+            if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
+                var data = SUPER.form_js[formId]['_entry_data'];
+                if(data) SUPER.populate_form_with_entry_data(data, args.form, args.clear);
+            }
 
             // Trigger fake windows resize
             var resizeEvent = window.document.createEvent('UIEvents');
@@ -6026,6 +6049,7 @@ function SUPERreCaptcha(){
 
     // Replace datepickers default value {tags} with field values
     SUPER.init_replace_datepicker_default_value_tags = function(args){
+        //debugger;
         var i, nodes;
         if(typeof args.el === 'undefined') {
             nodes = args.form.querySelectorAll('.super-shortcode-field.super-datepicker');
@@ -6058,6 +6082,7 @@ function SUPERreCaptcha(){
                 }
             }
             nodes[i].classList.remove('super-picker-initialized');
+            console.log('test3');
             SUPER.init_datepicker(nodes[i]);
             $(nodes[i]).datepicker('setDate', absoluteDefault);
         }
@@ -6411,7 +6436,23 @@ function SUPERreCaptcha(){
         // @since 4.5.0 - remove color picker initialized class
         nodes = args.form.querySelectorAll('.super-picker-initialized');
         for (i = 0; i < nodes.length; i++) { 
+            console.log('test1');
             nodes[i].classList.remove('super-picker-initialized');
+            //SUPER.init_datepicker(nodes[i]);
+            //$(nodes[i]).datepicker('setDate', nodes[i].value);
+            // Reset all values?
+            //nodes[i].value = '';
+            //console.log('test1');
+            //SUPER.init_datepicker(nodes[i]);
+            //$(nodes[i]).datepicker('setDate', nodes[i].value);
+
+            //element.value = data[i].value;
+            //element.classList.remove('super-picker-initialized');
+            //console.log('test2');
+            //SUPER.init_datepicker(element);
+            //$(field).datepicker('setDate', element.value);
+
+
         }
 
         // @since 3.6.0 - remove the active class from autosuggest fields
@@ -6486,6 +6527,8 @@ function SUPERreCaptcha(){
         nodes = args.form.querySelectorAll('.super-shortcode-field');
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].name=='hidden_form_id') continue;
+            if(nodes[i].name=='hidden_list_id') continue;
+            if(nodes[i].name=='hidden_contact_entry_id') continue;
             element = nodes[i];
             default_value = '';
             default_value = element.dataset.defaultValue;
@@ -6681,43 +6724,47 @@ function SUPERreCaptcha(){
 
     // Populate form with entry data found after ajax call
     SUPER.populate_form_with_entry_data = function(data, form, clear){
+        if(!data) return;
         if(typeof clear === 'undefined') clear = true;
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
-            html,files,element,field,stars,currentStar,firstField,firstFieldName,
+            html,files,element,field,stars,currentStar,
             switchBtn,activeItem,signatureDataUrl,fieldName,
-            dynamicFields = {},        
             updatedFields = {};        
-        
+
         data = JSON.parse(data);
         if(data!==false && data.length!==0){
-        
             // First clear the form
             SUPER.init_clear_form({form: form, clear: clear});
-
             // Find all dynamic columns and get the first field name
-            nodes = form.querySelectorAll('.super-duplicate-column-fields');
-            for ( i = 0; i < nodes.length; i++ ) {
-                firstField = SUPER.field(nodes[i]);
-                if(firstField){
-                    firstFieldName = firstField.name;
-                    dynamicFields[firstFieldName] = firstField;
-                }
-            }
-            // Create extra dynamic columns as long as they exist in the data
-            Object.keys(dynamicFields).forEach(function(index) {
-                i = 2;
-                while(typeof data[index+'_'+i] !== 'undefined'){
-                    if(SUPER.field_exists(form, index+'_'+i)===0) {
-                        dynamicFields[index].closest('.super-duplicate-column-fields').querySelector('.super-add-duplicate').click();
+            if(data._super_dynamic_data){
+                Object.keys(data._super_dynamic_data).forEach(function(name) {
+                    // Check how many times to click/duplicate this dynamic column
+                    var clicks = data._super_dynamic_data[name].length;
+                    if(clicks>1){
+                        // Add it to the list
+                        var field = SUPER.field_exists(form, name);
+                        if(!field) return;
+                        field = SUPER.field(form, name);
+                        // Click so that other fields become available
+                        var p = field.closest('.super-duplicate-column-fields');
+                        if(!p) return;
+                        // Click so that other fields become available
+                        for(i=1; i<clicks; i++){
+                            p.querySelector(':scope > .super-duplicate-actions .super-add-duplicate').click();
+                        }
                     }
-                    i++;
-                }
-            });
+                });
+            }
             Object.keys(data).forEach(function(i) {
                 if(data[i].length===0) return true;
                 html = '';
                 files = '';
                 fieldName = data[i].name;
+                // Skip these fields (required for Listings edit)
+                if( fieldName==='hidden_form_id' ||
+                    fieldName==='hidden_list_id' ||
+                    fieldName==='hidden_contact_entry_id') return;
+
                 // If we are dealing with files we must set name to the first item (if it exists), if no files exists, we skip it
                 if( data[i].type=='files' ) {
                     if( (typeof data[i].files !== 'undefined') && (data[i].files.length!==0) ) {
@@ -6921,8 +6968,10 @@ function SUPERreCaptcha(){
                     if(data[i].value===''){
                         // Radio button can only have 1 active item
                         item = wrapper.querySelector('.super-item.super-default-selected');
-                        item.classList.add('super-active');  
-                        item.querySelector('input').checked = true;
+                        if(item){
+                            item.classList.add('super-active');  
+                            item.querySelector('input').checked = true;
+                        }
                     }
                     return true;
                 }
@@ -6965,6 +7014,16 @@ function SUPERreCaptcha(){
                     }
                     return true;
                 }
+
+                if(field.classList.contains('super-date')){
+                    // Reset all values?
+                    element.value = data[i].value;
+                    element.classList.remove('super-picker-initialized');
+                    console.log('test2');
+                    SUPER.init_datepicker(element);
+                    $(field).datepicker('setDate', element.value);
+                }
+
             });
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields
             Object.keys(updatedFields).forEach(function(key) {
@@ -7221,6 +7280,38 @@ function SUPERreCaptcha(){
             }
         });
 
+
+        // Provide each dynamic column with correct levels
+        var i, nodes = document.querySelectorAll('.super-column[data-duplicate-limit]');
+        for(i=0; i<nodes.length; i++){
+            // Only proceed with those that are top level
+            if(nodes[i].parentNode.closest('.super-column[data-duplicate-limit]')){
+                continue;
+            }
+            // This is a top level dynamic column
+            var levels = '';
+            // Look for inner dynamic columns
+            var counter=0, x, innerNodes = nodes[i].querySelectorAll('.super-column[data-duplicate-limit]');
+            for(x=0; x<innerNodes.length; x++){
+                // Compare this parents against this current dynamic column
+                if(innerNodes[x].parentNode.closest('.super-column[data-duplicate-limit]')!==nodes[i]){
+                    continue;
+                }
+                innerNodes[x].dataset.level = '['+counter+']';
+                // Now lookup inner nodes of this inner node
+                var counter2=0, y, innerNodes2 = innerNodes[x].querySelectorAll('.super-column[data-duplicate-limit]');
+                for(y=0; y<innerNodes2.length; y++){
+                    // Compare this parents against this current dynamic column
+                    if(innerNodes2[y].parentNode.closest('.super-column[data-duplicate-limit]')!==innerNodes[x]){
+                        continue;
+                    }
+                    innerNodes2[y].dataset.level = innerNodes[x].dataset.level+'['+counter2+']';
+                    counter2++;
+                }
+                counter++;
+            }
+        }
+
         // Loop over all fields that are inside dynamic column and rename them accordingly
         var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
         for (i = 0; i < nodes.length; ++i) {
@@ -7229,27 +7320,14 @@ function SUPERreCaptcha(){
                 field = field.parentNode.querySelector('.super-active-files');
             }
             // Figure out how deep this node is inside dynamic columns
-            var parent = nodes[i].closest('.super-duplicate-column-fields');
-            var parentIndex = $(parent).index();  // e.g: 0, 1, 2
-            var nameSuffix = '_'+parentIndex;
-            if(parentIndex===0) nameSuffix = '';
             var originalFieldName = field.dataset.oname;
-            var newName = originalFieldName+nameSuffix;
-            field.name = newName;
-            var allParents = $(nodes[i]).parents('.super-duplicate-column-fields');
-            var suffix = [];
-            $(allParents).each(function(key){
-                // Skip last parent, because we don't need it
-                if(allParents.length===(key+1)){
-                    return;
-                }
-                var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-                suffix.push('['+currentParentIndex+']');
-            });
-            var levels = suffix.reverse().join('');
-            field.name = originalFieldName+levels;
-            //field.value = field.name; 
-            field.dataset.olevels = levels;
+            var levels = nodes[i].closest('.super-column[data-duplicate-limit]').dataset.level;
+            if(levels){
+                field.name = originalFieldName+levels;
+                field.dataset.olevels = levels;
+            }else{
+                field.name = originalFieldName;
+            }
         }
 
         // Multi-part
@@ -9017,15 +9095,7 @@ function SUPERreCaptcha(){
                     }
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {
-                        $.ajax({
-                            url: super_common_i18n.ajaxurl,
-                            type: 'post',
-                            data: {
-                                action: 'super_save_form_progress',
-                                data: '',
-                                form_id: args.form_id
-                            }
-                        });
+                        SUPER.save_form_progress_request('', args.form_id);
                     }
                     // Trigger js hook and continue
                     SUPER.after_email_send_hook(args);

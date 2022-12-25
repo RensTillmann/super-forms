@@ -2590,138 +2590,43 @@ class SUPER_Shortcodes {
         }
 
         if( !empty( $inner ) ) {
-            if($atts['duplicate']==='enabled' && $entry_data){
-                $GLOBALS['super_grid_system'] = $grid;
-                $GLOBALS['super_column_found'] = 0;
-
-                // Before we proceed we must fetch all the inner field names
-                // This way we can check if a specific field exists inside the dynamic column when replacing {tags}.
-                // If no field name exists we will not replace the {tag} and thus not increment from {tag} to {tag_2} to {tag_3} etc.
-                $re = '/{"name":"(.*?)"/';
-                $str = json_encode($inner);
-                preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
-                $dynamic_field_names = array();
-                foreach($matches as $mk => $mv){
-                    $dynamic_field_names[] = $mv[1];
+            // Loop through inner elements
+            foreach($inner as $ik => $iv){
+                if( !empty($iv['data']['name']) ) {
+                    $inner_field_names[$iv['data']['name']] = array(
+                        'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
+                        'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
+                    );
                 }
-
-                // Loop through inner elements
-                foreach($inner as $ik => $iv){
-                    if( !empty($iv['data']['name']) ) {
-                        $inner_field_names[$iv['data']['name']] = array(
-                            'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
-                            'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
-                        );
-                    }
-                }
-
-                // Grab first field name inside the dynamic column
-                // This is always the index on the saved data
-                $regex = '/"name":"(.*?)",/';
-                preg_match($regex, $str, $matches, PREG_OFFSET_CAPTURE, 0);
-                if( isset($matches[1]) && isset($matches[1][0]) ){
-                    $field_name = $matches[1][0];
-                    $no_data = false;
-                    if(isset($entry_data['_super_dynamic_data'])){
-                        if(!is_array($entry_data['_super_dynamic_data'])){
-                            $_super_dynamic_data = json_decode($entry_data['_super_dynamic_data'], true);
-                        }else{
-                            $_super_dynamic_data = $entry_data['_super_dynamic_data'];
-                        }
-                        if( (is_array($_super_dynamic_data)) && (!empty($_super_dynamic_data[$field_name])) ) {
-                            $i=1;
-                            $re = '/\{(.*?)\}/';
-                            foreach($_super_dynamic_data[$field_name] as $dk => $dv){
-                                $grid['level']++;
-                                $GLOBALS['super_grid_system'] = $grid;
-                                $GLOBALS['super_column_found'] = 0;
-                                $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
-                                    foreach( $inner as $k => $v ) {
-                                        if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
-                                    }
-                                    foreach( $inner as $k => $v ) {
-                                        if( empty($v['data']) ) $v['data'] = null;
-                                        if( empty($v['inner']) ) $v['inner'] = null;
-                                        $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'dv'=>$dv) );
-                                        $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
-                                    }
-                                    $result .= '<div class="super-duplicate-actions">';
-                                    $result .= '<span class="super-add-duplicate"></span>';
-                                    $result .= '<span class="super-delete-duplicate"></span>';
-                                    $result .= '</div>';
-                                $result .= '</div>';
-                                $grid['level']--;
-                                $i++;
-                            }
-                        }else{
-                            $no_data = true;
-                        }
-                    }else{
-                        $no_data = true;
-                    }
-                    if($no_data){
-                        $grid['level']++;
-                        $GLOBALS['super_grid_system'] = $grid;
-                        $GLOBALS['super_column_found'] = 0;
-                        // No data found, let's generate at least 1 column
-                        $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
-                            foreach( $inner as $k => $v ) {
-                                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
-                            }
-                            foreach( $inner as $k => $v ) {
-                                if( empty($v['data']) ) $v['data'] = null;
-                                if( empty($v['inner']) ) $v['inner'] = null;
-                                $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
-                            }
-                            $result .= '<div class="super-duplicate-actions">';
-                            $result .= '<span class="super-add-duplicate"></span>';
-                            $result .= '<span class="super-delete-duplicate"></span>';
-                            $result .= '</div>';
-                        $result .= '</div>';
-                        $grid['level']--;
-                    }else{
-                    }
-                }
-            }else{
-                // Loop through inner elements
-                foreach($inner as $ik => $iv){
-                    if( !empty($iv['data']['name']) ) {
-                        $inner_field_names[$iv['data']['name']] = array(
-                            'name' => (isset($iv['data']['name']) ? $iv['data']['name'] : 'undefined'), // Field name
-                            'email' => (isset($iv['data']['email']) ? $iv['data']['email'] : '') // Email label
-                        );
-                    }
-                }
-                
-                $grid['level']++;
-                if($atts['duplicate']==='enabled') {
-                    $grid['dynamicLevel']++;
-                }
-                $GLOBALS['super_grid_system'] = $grid;
-                $GLOBALS['super_column_found'] = 0;
-                if( $atts['duplicate']==='enabled' ) {
-                    $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
-                }
-                foreach( $inner as $k => $v ) {
-                    if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
-                }
-                $re = '/\{(.*?)\}/';
-                $i = $dynamic;
-                foreach( $inner as $k => $v ) {
-                    if( empty($v['data']) ) $v['data'] = null;
-                    if( empty($v['inner']) ) $v['inner'] = null;
-                    $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
-                    $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
-                }
-                if( $atts['duplicate']==='enabled' ) {
-                    $result .= '<div class="super-duplicate-actions">';
-                    $result .= '<span class="super-add-duplicate"></span>';
-                    $result .= '<span class="super-delete-duplicate"></span>';
-                    $result .= '</div>';
-                    $result .= '</div>';
-                }
-                $grid['level']--;
             }
+            $grid['level']++;
+            if($atts['duplicate']==='enabled') {
+                $grid['dynamicLevel']++;
+            }
+            $GLOBALS['super_grid_system'] = $grid;
+            $GLOBALS['super_column_found'] = 0;
+            if( $atts['duplicate']==='enabled' ) {
+                $result .= '<div '.self::element_uid().' class="super-shortcode super-duplicate-column-fields">';
+            }
+            foreach( $inner as $k => $v ) {
+                if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
+            }
+            $re = '/\{(.*?)\}/';
+            $i = $dynamic;
+            foreach( $inner as $k => $v ) {
+                if( empty($v['data']) ) $v['data'] = null;
+                if( empty($v['inner']) ) $v['inner'] = null;
+                $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
+                $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
+            }
+            if( $atts['duplicate']==='enabled' ) {
+                $result .= '<div class="super-duplicate-actions">';
+                $result .= '<span class="super-add-duplicate"></span>';
+                $result .= '<span class="super-delete-duplicate"></span>';
+                $result .= '</div>';
+                $result .= '</div>';
+            }
+            $grid['level']--;
             $GLOBALS['super_grid_system'] = $grid;      
         }
 
@@ -6446,7 +6351,7 @@ class SUPER_Shortcodes {
             if( !empty($global_settings['theme_custom_js']) ) {
                 $js .= $global_settings['theme_custom_js'];
             }
-            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $js, array( 'id'=>$form_id, 'settings'=>$settings ) );
+            SUPER_Forms()->theme_custom_js = apply_filters( 'super_form_js_filter', $js, array( 'id'=>$form_id, 'settings'=>$settings, 'entry_data'=>$entry_data) );
 
             $result = apply_filters( 'super_form_before_do_shortcode_filter', $result, array( 'id'=>$form_id, 'settings'=>$settings ) );
 

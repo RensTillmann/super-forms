@@ -79,84 +79,84 @@
 							superMath = superMath.replace('{'+name+suffix+'}', '{'+newField+suffix+'}');
 
 							// @since 1.4.1 - also update the data fields attribute names
-							dataFields = dataFields.replace('{'+name+'}', '{'+newField+'}');
+							//dataFields = dataFields.replace('{'+name+'}', '{'+newField+'}');
 						}
 					}
 				}
 				wrapper.dataset.superMath = superMath;
-				wrapper.dataset.fields = dataFields;
+				//wrapper.dataset.fields = dataFields;
 			}
 		}
 	};
 	
 	// @since 1.5.0 - update the data fields attribute after duplicating a column
-	SUPER.init_calculator_after_duplicating_column = function(form, uniqueFieldNames){
-		var i = 0, ii, elements, calculatorFields = [];
-		Object.keys(uniqueFieldNames).forEach(function(fieldName) {
-			elements = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+fieldName+'}"]');
-			for (ii = 0; ii < elements.length; ++ii) {
-				calculatorFields[i] = elements[ii];
-				i++;
-			}
-		});
-		SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
-	};
+	//SUPER.init_calculator_after_duplicating_column = function(form, uniqueFieldNames){
+		//var i = 0, ii, elements, calculatorFields = [];
+		//Object.keys(uniqueFieldNames).forEach(function(fieldName) {
+		//	elements = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+fieldName+'}"]');
+		//	for (ii = 0; ii < elements.length; ++ii) {
+		//		//calculatorFields[i] = elements[ii];
+		//		i++;
+		//	}
+		//});
+		////SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
+	//};
 
 	// @since 1.5.0 - update the data fields attribute to make sure regex tags are replaced with according field names
-	SUPER.init_calculator_update_fields_attribute = function(form, calculatorFields){
-		var i,ii,iii,$elements,$name,$field,dataFields,newDataFields,v,oldv;
-		for (i = 0; i < calculatorFields.length; ++i) {
-			$field = calculatorFields[i];
-			dataFields = $field.dataset.fields;
-			if(!dataFields) continue; // In case Math is empty this attribute will not exists
-			
-			dataFields = dataFields.split('}');
-			newDataFields = {};
-			for (ii = 0; ii < dataFields.length; ++ii) {
-				v = dataFields[ii];
-				if(v!=''){
-					v = v.replace('{','');
-                    v = v.toString().split(';');
-                    v = v[0];
-					oldv = v;
-					if(v.indexOf('*') >= 0){
-						v = v.replace('*','');
-						$elements = SUPER.field(form, v, '*');
-						newDataFields[oldv] = '{'+oldv+'}';
-						for (iii = 0; iii < $elements.length; ++iii) {
-							$name = $elements[iii].name;
-							// Skip form id
-							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-						}
-					}
-					if(v.indexOf('^') >= 0){
-						v = v.replace('^','');
-						$elements = SUPER.field(form, v, '^');
-						newDataFields[oldv] = '{'+oldv+'}';
-						for (iii = 0; iii < $elements.length; ++iii) {
-							$name = $elements[iii].name;
-							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-						}
-					}
-					if(v.indexOf('$') >= 0){
-						v = v.replace('$','');
-						$elements = SUPER.field(form, v, '$');
-						newDataFields[oldv] = '{'+oldv+'}';
-						for (iii = 0; iii < $elements.length; ++iii) {
-							$name = $elements[iii].name;
-							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-						}
-					}
-					newDataFields[v] = '{'+v+'}';
-				}
-			}
-			dataFields = '';
-            $.each(newDataFields, function( k, v ) {
-                dataFields += v;
-            });
-            $field.dataset.fields = dataFields;
-		}
-	};
+//	SUPER.init_calculator_update_fields_attribute = function(form, calculatorFields){
+//		var i,ii,iii,$elements,$name,$field,dataFields,newDataFields,v,oldv;
+//		for (i = 0; i < calculatorFields.length; ++i) {
+//			$field = calculatorFields[i];
+//			dataFields = $field.dataset.fields;
+//			if(!dataFields) continue; // In case Math is empty this attribute will not exists
+//			
+//			dataFields = dataFields.split('}');
+//			newDataFields = {};
+//			for (ii = 0; ii < dataFields.length; ++ii) {
+//				v = dataFields[ii];
+//				if(v!=''){
+//					v = v.replace('{','');
+//                    v = v.toString().split(';');
+//                    v = v[0];
+//					oldv = v;
+//					if(v.indexOf('*') >= 0){
+//						v = v.replace('*','');
+//						$elements = SUPER.field(form, v, '*');
+//						newDataFields[oldv] = '{'+oldv+'}';
+//						for (iii = 0; iii < $elements.length; ++iii) {
+//							$name = $elements[iii].name;
+//							// Skip form id
+//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
+//						}
+//					}
+//					if(v.indexOf('^') >= 0){
+//						v = v.replace('^','');
+//						$elements = SUPER.field(form, v, '^');
+//						newDataFields[oldv] = '{'+oldv+'}';
+//						for (iii = 0; iii < $elements.length; ++iii) {
+//							$name = $elements[iii].name;
+//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
+//						}
+//					}
+//					if(v.indexOf('$') >= 0){
+//						v = v.replace('$','');
+//						$elements = SUPER.field(form, v, '$');
+//						newDataFields[oldv] = '{'+oldv+'}';
+//						for (iii = 0; iii < $elements.length; ++iii) {
+//							$name = $elements[iii].name;
+//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
+//						}
+//					}
+//					newDataFields[v] = '{'+v+'}';
+//				}
+//			}
+//			dataFields = '';
+//            $.each(newDataFields, function( k, v ) {
+//                dataFields += v;
+//            });
+//            $field.dataset.fields = dataFields;
+//		}
+//	};
 
 	// Init Calculator
 	SUPER.init_calculator = function(args){
@@ -175,9 +175,9 @@
             doNotSkip = true;
             calculatorFields = form.querySelectorAll('.super-calculator-wrapper');
             // @since 1.5.0 - first update the data fields attribute to make sure regex tags are replaced with according field names
-            SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
+            //SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
         }else{
-            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.name+'}"]');
+            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.dataset.oname+'}"]');
         }
 
         if(calculatorFields.length===0) return true;

@@ -117,6 +117,8 @@ class SUPER_Ajax {
     public static function new_version_check(){
         //error_log('loaded modifiedTime: '.$_POST['modifiedTime']);
         //error_log('current modifiedTime: '.get_post_modified_time('U', false, $_POST['form_id']));
+        //var_dump($_POST['modifiedTime']);
+        //var_dump(get_post_modified_time('U', false, $_POST['form_id']));
         if($_POST['modifiedTime'] < get_post_modified_time('U', false, $_POST['form_id'])){
             echo 'true'; // there is a newer version
         }else{
@@ -2761,7 +2763,6 @@ class SUPER_Ajax {
             $s = explode('.', $uniqueSubmissionId);
             delete_option( '_sfsi_'.$s[0].'.'.$s[1]);
             $uniqueSubmissionId = $s[0];
-            error_log('AFTER update to increase expiry for $uniqueSubmissionId: '. $uniqueSubmissionId);
             $uniqueSubmissionId = SUPER_Common::setClientData( array( 
                 'name' => 'unique_submission_id_' . $form_id,
                 'value' => $uniqueSubmissionId
@@ -3016,9 +3017,11 @@ class SUPER_Ajax {
     public static function save_form_progress() {
         if(!empty($_POST['form_id'])){
             $form_id = absint($_POST['form_id']);
-            $data = false; // Clear date by default
-            if(!empty($_POST['data'])){
-                $data = $_POST['data'];
+            $data = false; // Clear data by default
+            if( !empty( $_POST['data'] ) ) {
+                $data = wp_unslash($_POST['data']);
+                $data = json_decode($data, true);
+                $data = wp_slash($data);
             }
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
         }
@@ -3042,23 +3045,16 @@ class SUPER_Ajax {
         $list_id = $atts['list_id'];
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
-        error_log('get PDF url?');
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
-                error_log('get PDF url 2?');
                 if( !isset($v['type']) ) continue;
                 if( $v['type']=='files' ) {
-                    error_log('get PDF url 3?');
                     if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                        error_log('get PDF url 4?');
                         foreach( $v['files'] as $key => $value ) {
-                            error_log('get PDF url 5?');
                             // If there is a generated PDF let it act as a regular file upload
                             // Try to generate PDF file
                             if(isset($value['datauristring'])){
-                                error_log('get PDF url 6?');
                                 try {
-                                    error_log('get PDF url 7?');
                                     $imgData = str_replace( ' ', '+', $value['datauristring']);
                                     unset($value['datauristring']);
                                     $imgData =  substr( $imgData, strpos( $imgData, "," )+1 );
@@ -3114,7 +3110,6 @@ class SUPER_Ajax {
                                     if(!empty($settings['_pdf']['excludeEntry']) && $settings['_pdf']['excludeEntry']==='true'){
                                         $data[$k]['exclude_entry'] = 'true';
                                     }
-                                    error_log(json_encode($data));
                                 } catch (Exception $e) {
                                     // Print error message
                                     SUPER_Common::output_message( array(
@@ -3149,7 +3144,6 @@ class SUPER_Ajax {
                 }
             }
         }
-        error_log(json_encode($files));
         $sfsi['files'] = $files;
         unset($GLOBALS['super_upload_dir']);
         unset($GLOBALS['super_allowed_mime_types']);
@@ -3945,8 +3939,6 @@ class SUPER_Ajax {
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             if($redirect!=='' && $redirect!==false){
                 // tmp $sfsi['redirectedTo'] = $redirect;
-                // tmp error_log('10' . json_encode($sfsi));
-                // tmp error_log('10.1' . $uniqueSubmissionId);
                 // tmp update_option('_sfsi_' . $uniqueSubmissionId, $sfsi );
             }
             
@@ -3966,9 +3958,7 @@ class SUPER_Ajax {
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
 
             // Required by Listings to replace the old PDF URL with the newly generated URL:
-            error_log(json_encode($sfsi));
             if(isset($sfsi['data']['_generated_pdf_file'])) $response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];
-            error_log(json_encode($response_data));
             SUPER_Common::output_message( array(
                 'error'=>false, 
                 'msg' => $msg,

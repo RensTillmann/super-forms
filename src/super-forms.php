@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.679
+ * Version:           6.3.683
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.679';
+        public $version = '6.3.683';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -264,6 +264,8 @@ if(!class_exists('SUPER_Forms')) :
             // Add minute schedule for cron system
             add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );
 
+            add_filter( 'super_form_js_filter', array( $this, 'inject_entry_data' ), 10, 2);
+
             add_action( 'wp', array( $this, 'super_client_data_register_garbage_collection' ) );
             add_action( 'super_client_data_garbage_collection', array( $this, 'super_client_data_cleanup' ) );
             
@@ -428,6 +430,19 @@ if(!class_exists('SUPER_Forms')) :
                 SUPER_Common::delete_file( $path );
             }
         }
+
+        public static function inject_entry_data($js, $x){
+            if(isset($x['entry_data'])){
+                $form_id = $x['id'];
+                $entry_data = $x['entry_data'];
+                if(absint($form_id)!==0 && !empty($entry_data) && is_array($entry_data) && count($entry_data)!==0){
+                    $entry_data = wp_slash(wp_slash(json_encode($entry_data, JSON_UNESCAPED_UNICODE)));
+                    $js .= 'if(typeof SUPER.form_js === "undefined"){SUPER.form_js = {};SUPER.form_js['.$form_id.'] = {};}else{if(!SUPER.form_js['.$form_id.']){SUPER.form_js['.$form_id.'] = {};}};SUPER.form_js['.$form_id.']["_entry_data"] = "'.$entry_data.'";';
+                }
+            }
+            return $js;
+        }
+
 
         /**
          * Add minute schedule for cron system
@@ -1575,7 +1590,11 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.7
         */
-        public static function custom_posts_where( $where, $object ) {
+        public static function custom_posts_where( $where, $query ) {
+            // Bail if not type is not entries
+            $type = $query->query_vars['post_type'];
+            if($type!=='super_contact_entry') return $where;
+
             global $wpdb;
             $table = $wpdb->prefix . 'posts';
             $table_meta = $wpdb->prefix . 'postmeta';
@@ -1614,6 +1633,8 @@ if(!class_exists('SUPER_Forms')) :
             $where .= " AND (";
                 $where .= "($table.post_type = 'super_contact_entry')";
             $where .= ")";
+            
+            error_log($where);
             return $where;
         }
 
@@ -2030,13 +2051,6 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_footer', function(){echo SUPER_Common::get_transient(array('slug'=>'super-forms_page_super_create_form'));}, 15);
             }
 
-            // @since 1.7 - add the export button only on the super_contact_entry page
-            if( $current_screen->id=='edit-super_contact_entry' ) {
-                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
-                add_filter( 'posts_where', array( $this, 'custom_posts_where' ), 0, 2 );
-                add_filter( 'posts_join', array( $this, 'custom_posts_join' ), 0, 2 );
-                add_filter( 'posts_groupby', array( $this, 'custom_posts_groupby' ), 0, 2 );
-            }
 
             if( $current_screen->id=='edit-super_form' ) {
                 add_filter('post_row_actions', array( $this, 'super_remove_row_actions' ), 10, 1);
@@ -2044,7 +2058,13 @@ if(!class_exists('SUPER_Forms')) :
                 add_action('admin_head', array( $this, 'add_post_link' ));
 
             }
+
+            // @since 1.7 - add the export button only on the super_contact_entry page
             if( $current_screen->id=='edit-super_contact_entry' ) {
+                add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
+                add_filter( 'posts_where', array( $this, 'custom_posts_where' ), 0, 2 );
+                add_filter( 'posts_join', array( $this, 'custom_posts_join' ), 0, 2 );
+                add_filter( 'posts_groupby', array( $this, 'custom_posts_groupby' ), 0, 2 );
                 add_filter( 'manage_super_contact_entry_posts_columns', array( $this, 'super_contact_entry_columns' ), 999999 );
                 add_filter( 'manage_super_form_posts_columns', array( $this, 'super_form_columns' ), 999999 );
                 add_action( 'manage_super_contact_entry_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );

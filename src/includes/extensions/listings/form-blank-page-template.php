@@ -1,4 +1,5 @@
 <?php
+ob_start();
 // View entry
 if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_id']) && isset($_POST['list_id']) ) {
     $entry_id = absint($_POST['entry_id']);
@@ -31,23 +32,40 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                     // Must be set to populate the form with the entry data
                     $_GET['contact_entry_id'] = $entry_id; 
                     // Check if the form ID equals the post_parent, if not something isn't right and we will not allow the user to edit this entry for savety reasons
-                    if($entry->post_parent !== $form_id){
+                    $error = false;
+                    if($list['retrieve']==='this_form' && $entry->post_parent!==$form_id){
+                        $error = true;
+                    }
+                    if($list['retrieve']==='specific_forms' &&  strpos($list['form_ids'], strval($form_id))===false){
+                        $error = true;
+                    }
+                    if($error){
                         $html = '<div class="super-msg super-error">';
                             $html .= esc_html__( 'You do not have permissions to edit this entry.', 'super-forms' ) . ' ' . $entry_id;
                         $html .= '</div>';
                         echo $html;
-                    }else{
+                    }
+                    if($error===false){
                         // Check if this entry belongs to a WooCommerce Order
                         // If so display a message to the user that the entry can't be edited
                         $wc_order_id = get_post_meta( $entry_id, '_super_contact_entry_wc_order_id', true );
                         if(!empty($order_id)){
+                            $error = true;
                             $html = '<div class="super-msg super-error">';
                                 $html .= esc_html__( 'You are not allowed to edit this entry because it is connected to Order: ', 'super-forms' ) . ' <a href="' . esc_url(get_admin_url() . 'post.php?post=' . $order_id . '&action=edit') . '">#' . $order_id . '</a>';
                             $html .= '</div>';
                             echo $html;
-                        }else{
-                            // All checks passsed, show the form
-                            echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id, 'list_id'=>$list_id, 'entry_id'=>$entry_id ) );
+                        }
+                    }
+                    if($error===false){
+                        // All checks passsed, show the form
+                        echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id, 'list_id'=>$list_id, 'entry_id'=>$entry_id ) );
+                        // Apply these styles only in `Edit` window
+                        $css = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
+                        $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
+                        $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
+                        if( $css!='' ) {
+                            echo '<style type="text/css">' . $css . '</style>';
                         }
                     }
                 }
@@ -94,3 +112,17 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
         }
     }
 }
+$html = ob_get_contents();
+ob_end_clean();
+
+$return = array('html'=>$html, 'entry_data'=>'');
+if($_POST['action']==='super_listings_edit_entry'){
+    // JS injection to populate form with entry data
+    $entry_data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+    if(isset($entry_data)){
+        if(absint($form_id)!==0 && !empty($entry_data) && is_array($entry_data) && count($entry_data)!==0){
+            $return['entry_data'] = $entry_data;
+        }
+    }
+}
+echo json_encode($return);
