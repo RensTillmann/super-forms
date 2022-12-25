@@ -2539,12 +2539,6 @@ END AS paypalSubscriptionId
                 </script>
                 <?php
             $result .= ob_get_clean();
-
-            $css = require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php' );
-            $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php' );
-            $css .= require( SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php' );
-            if( $css!='' ) $result .= '<style type="text/css">' . $css . '</style>';
-
             return $result;
         }
         public static function get_action_permissions($atts){

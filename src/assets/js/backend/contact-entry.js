@@ -199,7 +199,6 @@
                     // Change to Unread
                     var p = el.closest('.type-super_contact_entry');
                     if(p){
-                        debugger;
                         if(p.classList.contains('status-super_read') && p.querySelector('.column-entry_status')){
                             if(p.querySelector('.super-entry-status').classList.contains('super-entry-status-super_read')){
                                 p.querySelector('.column-entry_status').innerHTML = '<span class="super-entry-status super-entry-status-super_unread">Unread</span>';
@@ -225,7 +224,6 @@
                     // Change to Unread
                     var p = el.closest('.type-super_contact_entry');
                     if(p){
-                        debugger;
                         if(p.classList.contains('status-super_unread') && p.querySelector('.column-entry_status')){
                             if(p.querySelector('.super-entry-status').classList.contains('super-entry-status-super_unread')){
                                 p.querySelector('.column-entry_status').innerHTML = '<span class="super-entry-status super-entry-status-super_read" style="background-color: #d6d6d6;">Read</span>';

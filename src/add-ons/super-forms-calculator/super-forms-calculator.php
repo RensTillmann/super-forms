@@ -280,9 +280,9 @@ if( !class_exists('SUPER_Calculator') ) :
             );
 
             // @since 1.5.0
-            $functions['after_duplicating_column_hook'][] = array(
-                'name' => 'init_calculator_after_duplicating_column'
-            );
+            //$functions['after_duplicating_column_hook'][] = array(
+                //'name' => 'init_calculator_after_duplicating_column'
+            //);
 
             return $functions;
         }

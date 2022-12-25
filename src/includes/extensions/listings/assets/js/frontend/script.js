@@ -195,9 +195,10 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    var result = JSON.parse(this.responseText);
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
-                    node.innerHTML = this.responseText;
+                    node.innerHTML = result.html;
                     modal.appendChild(node);
                     loadingIcon.remove();
                 }
@@ -248,19 +249,23 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    var result = JSON.parse(this.responseText);
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
-                    node.innerHTML = this.responseText;
+                    node.innerHTML = result.html;
                     modal.appendChild(node);
+                    if(typeof SUPER.form_js === "undefined"){
+                        SUPER.form_js = {};
+                        SUPER.form_js[form_id] = {};
+                    }else{
+                        if(!SUPER.form_js[form_id]){
+                            SUPER.form_js[form_id] = {};
+                        }
+                    }
+                    SUPER.form_js[form_id]['_entry_data'] = JSON.stringify(result.entry_data);
                     SUPER.init_tooltips(); 
                     SUPER.init_distance_calculators();
                     SUPER.init_super_form_frontend();
-                    //var form = modal.querySelector('.super-form');
-                    //form.classList.add('super-initialized');
-                    //SUPER.init_common_fields();
-                    //SUPER.init_replace_html_tags({el: undefined, form: form});
-                    //SUPER.init_super_responsive_form_fields({form: form});
-                    //SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
                     loadingIcon.remove();
                 }
                 // Complete:

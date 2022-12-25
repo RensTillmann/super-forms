@@ -486,6 +486,7 @@
 
     // init Datepicker
     SUPER.init_datepicker = function(skipFieldChangeForElement){
+        debugger;
         if(typeof skipFieldChangeForElement === 'undefined') skipFieldChangeForElement = ''
         var i;
 
@@ -506,6 +507,7 @@
 
         nodes = document.querySelectorAll('.super-datepicker:not(.super-picker-initialized)');
         for (i = 0; i < nodes.length; ++i) {
+            debugger;
             var el = nodes[i],
                 form = SUPER.get_frontend_or_backend_form({el: el}),
                 format = el.dataset.format, //'MM/dd/yyyy';
@@ -1298,33 +1300,12 @@
         var allParents = $(field).parents('.super-duplicate-column-fields');
         var suffix = [];
         $(allParents).each(function(key){
-            if(key===0){
-                if(clone===this){
-                    if(cloneIndex>0){
-                        return;
-                    }
-                }
-            }
-            var currentParent = this;
-            //console.log($(currentParent).parents('.super-duplicate-column-fields'));
-            //var found = $(currentParent).parents('.super-duplicate-column-fields').length;
-            //if(found===0){
-            //    return;
-            //}
-            //if(!currentParent.closest('.super-duplicate-column-fields')){
-            //    return;
-            //}
-            //if(currentParent.parentNode.classList.contains('super-preview-elements')){
-            //    return;
-            //}
             var currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
-            if(currentParentIndex===0 && key===0){
-                // Skip it
-                return;
-            }
             suffix.push('['+currentParentIndex+']');
         });
-        return suffix.reverse().join('');
+        var reversed = suffix.reverse();
+        reversed.shift();
+        return reversed.join('');
     }
     SUPER.append_dynamic_column_depth = function(clone){
         var added_fields = {},
@@ -1354,7 +1335,8 @@
             if(cloneIndex>0 && clone===dynamicParent){
                 nameSuffix = '_'+(cloneIndex+1);
             }
-            var levels = SUPER.get_dynamic_column_depth(field, nameSuffix, clone, cloneIndex);
+            var levels = field.closest('.super-column[data-duplicate-limit]').dataset.level;
+            if(!levels) levels = '';
             var originalFieldName = field.dataset.oname;
             field.name = originalFieldName+levels+nameSuffix;
             //field.value = field.name; 
@@ -1366,16 +1348,16 @@
         }
 
 
-        // Now replace {tags} inside conditional logic/variable logic
-        // Update conditional logic names
-        // Update validate condition names
-        // Update variable condition names 
-        nodes = clone.querySelectorAll('.super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
+        nodes = clone.querySelectorAll('.super-html-content, .super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
             // Before we continue replace any foreach(file_upload_fieldname)
             var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
-            var m;
-            var conditions = nodes[i].value;
+            var conditions, m;
+            if(nodes[i].classList.contains('super-html-content')){
+                conditions = nodes[i].parentNode.querySelector('textarea').value;
+            }else{
+                conditions = nodes[i].value;
+            }
             var replaceTagsWithValue = {};
             while ((m = regex.exec(conditions)) !== null) {
                 // This is necessary to avoid infinite loops with zero-width matches
@@ -1385,36 +1367,34 @@
                 var $o = (m[0] ? m[0] : ''); // original tag
                 var $n = (m[1] ? m[1] : ''); // name
                 var $d = (m[2] ? m[2] : ''); // depth
-                var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
+                //var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
                 var $c = (m[3] ? m[3] : ''); // counter e.g: _2 or _3 etc.
                 var $s = (m[4] ? m[4] : ''); // suffix
                 if($s!=='') $s = ';'+$s;
                 var currentFieldParent = $(nodes[i]).parents('.super-duplicate-column-fields:eq(0)');
-                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+                //var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$d+'"]').first();
+                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"]').first();
                 if(findChildField.length===0) continue;
-                var allParents = $(findChildField).parents('.super-duplicate-column-fields');
+                levels = clone.closest('.super-column[data-duplicate-limit]').dataset.level;
+                if(!levels) levels = '';
                 var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
-                var suffix = [];
-                $(allParents).each(function(key){
-                    var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-                    if(key===0 && currentParentIndex===0){
-                        return;
-                    }
-                    suffix.push('['+currentParentIndex+']');
-                });
-                if(childParentIndex!==0){
-                    delete suffix[0];
-                }
-                levels = suffix.reverse().join('');
                 if(childParentIndex!==0){
                     replaceTagsWithValue[$o] = '{'+$n+levels+'_'+(childParentIndex+1)+$s+'}';
                     continue;
                 }
                 replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
             }
-            var key;
+            var key, oldValue, newValue;
             for(key in replaceTagsWithValue) {
-                nodes[i].value = SUPER.replaceAll(nodes[i].value, key, replaceTagsWithValue[key]);
+                if(nodes[i].classList.contains('super-html-content')){
+                    oldValue = nodes[i].parentNode.querySelector('textarea').value;
+                    newValue = SUPER.replaceAll(oldValue, key, replaceTagsWithValue[key]);
+                    nodes[i].parentNode.querySelector('textarea').value = newValue;
+                    continue;
+                }
+                oldValue = nodes[i].value;
+                newValue = SUPER.replaceAll(oldValue, key, replaceTagsWithValue[key]);
+                nodes[i].value = newValue;
             }
         }
         $.each(added_fields, function(name, field) {
@@ -2173,7 +2153,7 @@
             // If custom padding is being used set $column to be the padding wrapper `div`
             column = ( parent.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form({el: el, form: form});
-            var duplicateColumns = column.querySelectorAll('.super-duplicate-column-fields');
+            var duplicateColumns = column.querySelectorAll(':scope > .super-duplicate-column-fields');
             firstColumn = duplicateColumns[0];
             found = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
@@ -2284,7 +2264,8 @@
                     var $s = (m[4] ? m[4] : ''); // suffix
                     if($s!=='') $s = ';'+$s;
                     var currentFieldParent = $(foundElements[i]).parents('.super-duplicate-column-fields:eq(0)');
-                    var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+                    //var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
+                    var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"]').first();
                     if(findChildField.length===0) continue;
                     var allParents = $(findChildField).parents('.super-duplicate-column-fields');
                     var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
@@ -2337,9 +2318,9 @@
 
             }
             // Required to update calculations after adding dynamic column
-            SUPER.after_field_change_blur_hook({form: form, el: undefined});
+            SUPER.after_field_change_blur_hook({form: clone, el: undefined});
 
-            SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
+            SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
             
             // @since 2.4.0 - hook after adding new column
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
