@@ -561,14 +561,6 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfstripewebhook=true', 
                 'top' 
             );
-            if(!get_option('_sf_permalinks_flushed_v5')){
-                flush_rewrite_rules(false);
-                update_option('_sf_permalinks_flushed_v5', 1);
-                delete_option('_sf_permalinks_flushed');
-                delete_option('_sf_permalinks_flushed_v2');
-                delete_option('_sf_permalinks_flushed_v3');
-                delete_option('_sf_permalinks_flushed_v4');
-            }
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';
@@ -656,31 +648,31 @@ if(!class_exists('SUPER_Forms')) :
             }
             if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
                 // Cancel URL
-                //error_log('Returned from Stripe Checkout session via cancel URL');
-                //error_log($wp->query_vars['sfssidc']);
+                error_log('Returned from Stripe Checkout session via cancel URL');
+                error_log($wp->query_vars['sfssidc']);
                 // Do things
-                //error_log('test1');
+                error_log('test1');
                 SUPER_Stripe::setAppInfo();
-                //error_log('test2');
+                error_log('test2');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
-                //error_log('test3');
+                error_log('test3');
                 $m = $s['metadata'];
-                //error_log('test4');
-                //error_log('metadata:');
-                //error_log(json_encode($m));
+                error_log('test4');
+                error_log('metadata:');
+                error_log(json_encode($m));
                 // Get form submission info
                 $submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 SUPER_Common::cleanupFormSubmissionInfo($m['sfsi_id'], 'stripe'); // stored in `wp_options` table as sfsi_%
-                //error_log('test5');
+                error_log('test5');
                 // Now redirect to cancel URL without checkout session ID parameter
                 $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_cancel_url'] );
-                //error_log('test6');
-                ////error_log($m['stripe_home_cancel_url']);
-                //error_log('test7');
+                error_log('test6');
+                //error_log($m['stripe_home_cancel_url']);
+                error_log('test7');
                 if($submissionInfo){
-                    //error_log('test8');
-                    //error_log($wp->query_vars['sfssidc']);
-                    //error_log($submissionInfo['referer']);
+                    error_log('test8');
+                    error_log($wp->query_vars['sfssidc']);
+                    error_log($submissionInfo['referer']);
                     if(!empty($submissionInfo['referer'])){
                         $url = esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']));
                         wp_redirect($url);
@@ -691,9 +683,9 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
                 // Redirect to home url instead
-                //error_log($wp->query_vars['sfssidc']);
+                error_log($wp->query_vars['sfssidc']);
                 wp_redirect(esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url'])));
-                //error_log('test10');
+                error_log('test10');
                 exit;
             }
             if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
@@ -1028,7 +1020,19 @@ if(!class_exists('SUPER_Forms')) :
             }
             return $args;
         }
+        public function flush_rules(){
+            // Make sure to flush any rewrites on upgrading
+            flush_rewrite_rules();
+            delete_option('_sf_permalinks_flushed');
+            $i = 2;
+            while($i<7){
+                delete_option('_sf_permalinks_flushed_v'.$i);
+                $i++;
+            }
+        }
         public function api_post_activation() {
+            // Make sure to flush any rewrites on upgrading
+            self::flush_rules();
             self::api_post('activation');
         }
         public function api_post_deactivation() {
@@ -1040,6 +1044,8 @@ if(!class_exists('SUPER_Forms')) :
                 if( (isset($options['plugins'])) && (is_array($options['plugins'])) ) {
                     foreach($options['plugins'] as $each_plugin){
                         if ($each_plugin==$current_plugin_path_name){
+                            // Make sure to flush any rewrites on upgrading
+                            self::flush_rules();
                             // Delete deprecated files
                             $deprecatedFiles = array(
                                 'includes/ajax-handler.php'
