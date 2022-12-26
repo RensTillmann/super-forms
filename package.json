@@ -61,7 +61,7 @@
   "devDependencies": {
     "clean-css": "^4.2.1",
     "eslint": "^5.16.0",
-    "jshint": "^2.10.2",
+    "jshint": "^2.13.6",
     "uglify-js": "^3.6.0"
   },
   "dependencies": {
