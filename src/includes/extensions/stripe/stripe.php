@@ -779,7 +779,7 @@ if(!class_exists('SUPER_Stripe')) :
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Collect customer phone number', 'super-forms' ) . '</span>';
                             echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>false</code> <code>true</code></span>';
-                            echo '<input type="text" name="phone_number_collection.enabled" value="true"' . ($s['phone_number_collection']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
+                            echo '<input type="text" name="phone_number_collection.enabled" value="' . ($s['phone_number_collection']['enabled']) . '" />';
                         echo '</label>';
                         echo '<div class="sfui-sub-settings sfui-inline" data-f="phone_number_collection.enabled;true">';
                             echo '<div class="sfui-notice sfui-desc">';
@@ -1532,7 +1532,9 @@ if(!class_exists('SUPER_Stripe')) :
             if( !in_array('checkout.session.completed', $webhook['enabled_events']) ) {
                 $eventMissing = true;
             }
-            // ? string(24) "checkout.session.expired"
+            if( !in_array('checkout.session.expired', $webhook['enabled_events']) ) {
+                $eventMissing = true;
+            }
             if($eventMissing){
                 $msg = sprintf(
                     esc_html( 'Your webhook is missing a required event, please make sure the following events are enabled:%sYou can enable these events via %swebhook settings%s.', 'super-forms' ), 
@@ -1871,14 +1873,17 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 
                 $stripeData = array_remove_empty($stripeData);
-                error_log(json_encode($stripeData));
+                $stripeData = apply_filters( 'super_stripe_checkout_session_create_data_filter', $stripeData );
                 error_log('uniqueSubmissionId: ' . $uniqueSubmissionId);
-                error_log(json_encode($stripeData));
+                error_log('stripeData: ' . json_encode($stripeData));
+
+                // Append stripe data to submission info
                 $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
                 $submissionInfo['stripeData'] = $stripeData;
-                error_log('13' . json_encode($submissionInfo));
-                error_log('13.1' . $uniqueSubmissionId);
                 update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                error_log('submissionInfo: ' . json_encode($submissionInfo));
+
+                // Create the checkout session via Stripe API
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
                 if ($e instanceof \Stripe\Error\Card ||
@@ -1897,18 +1902,8 @@ if(!class_exists('SUPER_Stripe')) :
                     self::exceptionHandler($e, $metadata);
                 }
             }
-
-            error_log('uniqueSubmissionId: ' . $uniqueSubmissionId);
-            $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-            $submissionInfo['stripeData'] = $stripeData; // Perhaps used when we can "recover" a checkout session?
-            error_log('14' . json_encode($submissionInfo));
-            error_log('14.1' . $uniqueSubmissionId);
-            update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
-            error_log(json_encode($submissionInfo));
-
-            //header("HTTP/1.1 303 See Other");
-            //header("Location: " . $checkout_session->url);
-            SUPER_Common::output_message( array( 
+            // Redirect to Stripe checkout page
+            SUPER_Common::output_message( array(
                 'error'=>false, 
                 'msg' => '', 
                 'redirect' => $checkout_session->url,
@@ -4505,6 +4500,16 @@ if(!class_exists('SUPER_Stripe')) :
                         'parent' => 'stripe_mode',
                         'filter_value' => 'sandbox'
                     ),
+                    'stripe_sandbox_api_version' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Sandbox API version', 'super-forms' ),
+                        'desc' => esc_html__( 'Enter the API version', 'super-forms' ) . ' (e.g: 2022-11-15)',
+                        'placeholder' => 'YYYY-MM-DD',
+                        'default' =>  '2022-11-15',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => 'sandbox'
+                    ),
                     'stripe_sandbox_webhook_id' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox webhook ID', 'super-forms' ),
@@ -4512,9 +4517,10 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => sprintf( 
                             esc_html__( 'Make sure the following events are enabled for this webhook:%s%s%s%s', 'super-forms' ), 
                             '<br />',
-                            '<code>checkout.session.async_payment_failed</code><br />',
-                            '<code>checkout.session.async_payment_succeeded</code><br />',
-                            '<code>checkout.session.completed</code><br />'
+                            '<code>checkout.session.async_payment_failed</code></br />',
+                            '<code>checkout.session.async_payment_succeeded</code></br />',
+                            '<code>checkout.session.completed</code></br />',
+                            '<code>checkout.session.expired</code></br />'
                         ),
                         'placeholder' => 'we_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
@@ -4540,6 +4546,10 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'placeholder' => 'pk_live_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => '',
+                        'force_save' => true // if conditionally hidden, still store/save the value
                     ),
                     'stripe_live_secret_key' => array(
                         'hidden' => true,
@@ -4547,6 +4557,21 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'placeholder' => 'sk_live_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => '',
+                        'force_save' => true // if conditionally hidden, still store/save the value
+                    ),
+                    'stripe_live_api_version' => array(
+                        'hidden' => true,
+                        'name' => esc_html__( 'Live API version', 'super-forms' ),
+                        'desc' => esc_html__( 'Enter the API version', 'super-forms' ) . ' (e.g: 2022-11-15)',
+                        'placeholder' => 'YYYY-MM-DD',
+                        'default' =>  '2022-11-15',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => '',
+                        'force_save' => true // if conditionally hidden, still store/save the value
                     ),
                     'stripe_live_webhook_id' => array(
                         'hidden' => true,
@@ -4555,12 +4580,17 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => sprintf( 
                             esc_html__( 'Make sure the following events are enabled for this webhook:%s%s%s%s', 'super-forms' ), 
                             '<br />',
-                            '<code>checkout.session.async_payment_failed</code><br />',
-                            '<code>checkout.session.async_payment_succeeded</code><br />',
-                            '<code>checkout.session.completed</code><br />'
+                            '<code>checkout.session.async_payment_failed</code></br />',
+                            '<code>checkout.session.async_payment_succeeded</code></br />',
+                            '<code>checkout.session.completed</code></br />',
+                            '<code>checkout.session.expired</code></br />'
                         ),
                         'placeholder' => 'we_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => '',
+                        'force_save' => true // if conditionally hidden, still store/save the value
                     ),
                     'stripe_live_webhook_secret' => array(
                         'hidden' => true,
@@ -4568,6 +4598,10 @@ if(!class_exists('SUPER_Stripe')) :
                         'desc' => '<a target="_blank" href="https://dashboard.stripe.com/webhooks">' . esc_html__( 'Get your webhook signing secret key', 'super-forms' ) . '</a>',
                         'placeholder' => 'whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'stripe_mode',
+                        'filter_value' => '',
+                        'force_save' => true // if conditionally hidden, still store/save the value
                     ),
                 )
             );

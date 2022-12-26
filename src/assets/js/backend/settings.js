@@ -322,9 +322,9 @@
                 var $this = $(this);
                 var $hidden = false;
                 $this.parents('.super-field.super-filter').each(function(){
-                    if($(this).css('display')=='none'){
-                        $hidden = true;
-                    }
+                    // Skip when force save is enabled
+                    if(this.dataset.forceSave==='true') return;
+                    if($(this).css('display')=='none') $hidden = true;
                 });
                 if($hidden===false){
                     var $name = $this.attr('name');

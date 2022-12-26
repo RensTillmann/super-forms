@@ -39,9 +39,11 @@ class SUPER_Field_Types {
         }
         if(!empty($styles))  $styles = ' style="' . $styles . '"';
 
+        $force_save = '';
+        if( isset( $fv['force_save'] ) ) $force_save = ' data-force-save="true"';
         $filter_value = '';
-        if( isset( $fv['filter_value'] ) ) $filter_value = 'data-filtervalue="' . $fv['filter_value'] . '"';
-        echo '<div class="super-field super-field-' . $fk . $filter . $hidden . '" ' . $parent . ' ' . $filter_value . $styles . '>';
+        if( isset( $fv['filter_value'] ) ) $filter_value = ' data-filtervalue="' . $fv['filter_value'] . '"';
+        echo '<div class="super-field super-field-' . $fk . $filter . $hidden . '" ' . $parent . $force_save . $filter_value . $styles . '>';
             echo '<div class="super-field-info">';
                 if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
                     echo '&nbsp;';
