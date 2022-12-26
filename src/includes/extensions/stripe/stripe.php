@@ -4483,7 +4483,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'stripe_sandbox_public_key' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox publishable key', 'super-forms' ),
-                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/test/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'placeholder' => 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                         'filter' => true,
@@ -4493,7 +4493,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'stripe_sandbox_secret_key' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox secret key', 'super-forms' ),
-                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/test/apikeys">' . esc_html__( 'Get your API key', 'super-forms' ) . '</a>',
                         'placeholder' => 'sk_test_XXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                         'filter' => true,
@@ -4513,7 +4513,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'stripe_sandbox_webhook_id' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox webhook ID', 'super-forms' ),
-                        'label' => sprintf( esc_html__( '%sCreate a webhook ID%s%sEndpoint URL must be: %s', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>', '<br /><br />', '<code>' . $webhookUrl . '</code>' ),
+                        'label' => sprintf( esc_html__( '%sCreate a webhook ID%s%sEndpoint URL must be: %s', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/test/webhooks">', '</a>', '<br /><br />', '<code>' . $webhookUrl . '</code>' ),
                         'desc' => sprintf( 
                             esc_html__( 'Make sure the following events are enabled for this webhook:%s%s%s%s', 'super-forms' ), 
                             '<br />',
@@ -4531,7 +4531,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'stripe_sandbox_webhook_secret' => array(
                         'hidden' => true,
                         'name' => esc_html__( 'Sandbox webhook signing secret key', 'super-forms' ),
-                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/webhooks">' . esc_html__( 'Get your webhook signing secret key', 'super-forms' ) . '</a>',
+                        'desc' => '<a target="_blank" href="https://dashboard.stripe.com/test/webhooks">' . esc_html__( 'Get your webhook signing secret key', 'super-forms' ) . '</a>',
                         'placeholder' => 'whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
                         'default' =>  '',
                         'filter' => true,
