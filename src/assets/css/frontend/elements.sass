@@ -380,6 +380,10 @@ h1.super-thanks-title
 .super-grid
   width: 100%
   float: left
+  display: flex
+  flex-wrap: wrap
+  flex-direction: row
+  align-items: stretch
 
 .super-preview-elements .super-grid
   margin: 0px
@@ -391,6 +395,25 @@ h1.super-thanks-title
     margin-bottom: 0px
     min-height: 1px
     background-size: cover
+    flex: 1
+    &.super_four_fifth
+      max-width:80%
+    &.super_three_fourth
+      max-width:75%
+    &.super_two_third
+      max-width: 66.66%
+    &.super_three_fifth
+      max-width: 60%
+    &.super_one_half
+      max-width: 50%
+    &.super_two_fifth
+      max-width: 40%
+    &.super_one_third
+      max-width: 33.33%
+    &.super_one_fourth
+      max-width:25%
+    &.super_one_fifth
+      max-width:20%
     > .super-column-custom-padding
       float: left
       width: 100%
@@ -455,78 +478,79 @@ h1.super-thanks-title
     left: 0px
   .last-column
     right: 0px
-  .super_one_fifth
-    width: 20%
-  .super-column.super_one_fifth
-    &.first-column
-      width: -moz-calc(20% - 20px)
-      width: calc(20% - 20px)
-    width: -moz-calc(20% + 5px)
-    width: calc(20% + 5px)
-  .super_one_fourth
-    width: 25%
-  .super-column.super_one_fourth
-    &.first-column
-      width: -moz-calc(25% - 18.75px)
-      width: calc(25% - 18.75px)
-    width: -moz-calc(25% + 6.20px)
-    width: calc(25% + 6.20px)
-  .super_one_third
-    width: 33.333333333%
-  .super-column.super_one_third
-    &.first-column
-      width: -moz-calc(33.333333333% - 16.7px)
-      width: calc(33.333333333% - 16.7px)
-    width: -moz-calc(33.333333333% + 8.3px)
-    width: calc(33.333333333% + 8.3px)
-  .super_two_fifth
-    width: 40%
-  .super-column.super_two_fifth
-    &.first-column
-      width: -moz-calc(40% - 20px)
-      width: calc(40% - 20px)
-    width: -moz-calc(40% + 5px)
-    width: calc(40% + 5px)
-  .super_one_half
-    width: 50%
-  .super-column.super_one_half
-    &.first-column
-      width: -moz-calc(50% - 12.5px)
-      width: calc(50% - 12.5px)
-    width: -moz-calc(50% + 12.5px)
-    width: calc(50% + 12.5px)
-  .super_three_fifth
-    width: 60%
-  .super-column.super_three_fifth
-    &.first-column
-      width: -moz-calc(60% - 10px)
-      width: calc(60% - 10px)
-    width: -moz-calc(60% + 5px)
-    width: calc(60% + 5px)
-  .super_two_third
-    width: 66.66666666666666%
-  .super-column.super_two_third
-    &.first-column
-      width: -moz-calc(66.66666666666666% - 8.5px)
-      width: calc(66.66666666666666% - 8.5px)
-    width: -moz-calc(66.66666666666666% + 5px)
-    width: calc(66.66666666666666% + 5px)
-  .super_three_fourth
-    width: 75%
-  .super-column.super_three_fourth
-    &.first-column
-      width: -moz-calc(75% - 6.5px)
-      width: calc(75% - 6.5px)
-    width: -moz-calc(75% + 5px)
-    width: calc(75% + 5px)
-  .super_four_fifth
-    width: 80%
-  .super-column.super_four_fifth
-    &.first-column
-      width: -moz-calc(80% - 5px)
-      width: calc(80% - 5px)
-    width: -moz-calc(80% + 5px)
-    width: calc(80% + 5px)
+
+//  .super_one_fifth
+//    width: 20%
+//  .super-column.super_one_fifth
+//    &.first-column
+//      width: -moz-calc(20% - 20px)
+//      width: calc(20% - 20px)
+//    width: -moz-calc(20% + 5px)
+//    width: calc(20% + 5px)
+//  .super_one_fourth
+//    width: 25%
+//  .super-column.super_one_fourth
+//    &.first-column
+//      width: -moz-calc(25% - 18.75px)
+//      width: calc(25% - 18.75px)
+//    width: -moz-calc(25% + 6.5px)
+//    width: calc(25% + 6.5px)
+//  .super_one_third
+//    width: 33.333333333%
+//  .super-column.super_one_third
+//    &.first-column
+//      width: -moz-calc(33.333333333% - 16.7px)
+//      width: calc(33.333333333% - 16.7px)
+//    width: -moz-calc(33.333333333% + 8.5px)
+//    width: calc(33.333333333% + 8.5px)
+//  .super_two_fifth
+//    width: 40%
+//  .super-column.super_two_fifth
+//    &.first-column
+//      width: -moz-calc(40% - 20px)
+//      width: calc(40% - 20px)
+//    width: -moz-calc(40% + 10px)
+//    width: calc(40% + 10px)
+//  .super_one_half
+//    width: 50%
+//  .super-column.super_one_half
+//    &.first-column
+//      width: -moz-calc(50% - 12.5px)
+//      width: calc(50% - 12.5px)
+//    width: -moz-calc(50% + 12.5px)
+//    width: calc(50% + 12.5px)
+//  .super_three_fifth
+//    width: 60%
+//  .super-column.super_three_fifth
+//    &.first-column
+//      width: -moz-calc(60% - 10px)
+//      width: calc(60% - 10px)
+//    width: -moz-calc(60% + 20px)
+//    width: calc(60% + 20px)
+//  .super_two_third
+//    width: 66.66666666666666%
+//  .super-column.super_two_third
+//    &.first-column
+//      width: -moz-calc(66.66666666666666% - 8.5px)
+//      width: calc(66.66666666666666% - 8.5px)
+//    width: -moz-calc(66.66666666666666% + 16.7px)
+//    width: calc(66.66666666666666% + 16.7px)
+//  .super_three_fourth
+//    width: 75%
+//  .super-column.super_three_fourth
+//    &.first-column
+//      width: -moz-calc(75% - 6.5px)
+//      width: calc(75% - 6.5px)
+//    width: -moz-calc(75% + 18.7px)
+//    width: calc(75% + 18.7px)
+//  .super_four_fifth
+//    width: 80%
+//  .super-column.super_four_fifth
+//    &.first-column
+//      width: -moz-calc(80% - 5px)
+//      width: calc(80% - 5px)
+//    width: -moz-calc(80% + 20px)
+//    width: calc(80% + 20px)
 
 .super-column.super-vertical-align
   width: 50%
@@ -1455,6 +1479,8 @@ textarea
   .super-grid > .super-column
     &:not(.super-not-responsive), &.super-force-responsiveness-window
       width: 100% !important
+      max-width: 100% !important
+      flex: 0 0 100%!important
       padding-left: 0px
     &.first-column:not(.super-not-responsive)
       padding-right: 0px

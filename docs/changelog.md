@@ -9,6 +9,8 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+- **Improved:** Grid/Columns now using flex method
+
 ## Dec 21, 2022 - Version 6.3.679
 
 - **Added:** Option to calculate distances between multiple addresses e.g: (between A to B, between B to C and from C back to A)
