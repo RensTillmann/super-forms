@@ -23,7 +23,6 @@
     "copyaddons": "cp -r dist/super-forms/add-ons/* dist/ && cp -r dist/super-forms/* dist/super-forms-bundle",
     "zip": "bash zip.sh",
     "prod": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copyaddons && npm run zip && rm -rf gitzip* && npm run deldevaddons",
-
     "old-minifyjs": "node build/uglify.js",
     "old-minifycss": "node build/cleancss.js",
     "old-copybundle": "cp -r dist/super-forms/* dist/super-forms-bundle/",
@@ -67,6 +66,6 @@
   "dependencies": {
     "help": "^3.0.2",
     "html2canvas": "^1.0.0-rc.5",
-    "sass": "^1.23.0"
+    "sass": "^1.57.1"
   }
 }
