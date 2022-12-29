@@ -48,7 +48,24 @@
 </details>
 
 
+<details>
+  <summary id="4">
+      Why do I get an error message when uploading a file?
+  </summary>
 
+  If you are unable to upload files via your form the first thing you should try is to check if the server returns a 403 error (Forbidden) on the following URL:
+  `http://yourdomain.com/wp-content/plugins/super-forms/uploads/php/`
+
+  If it returns a **403 error**, please contact your hosting company to let them fix this issue.
+  It should return a blank page in order for the file upload field to work correctly.
+
+  Check if uploading a small file works. If this doesn't work, it is most likely due to incorrect file permissions on the plugin folders, contact your hosting company to let them look at the file permissions.
+
+  If you are able to upload smaller files, it is most likely due to your PHP settings regarding file uploads. In this case you can adjust the `post_max_size and`, `memory_limit` and `upload_max_filesize` values in your **php.ini** file or ask your hosting company to increase these values to suite your needs. Remember the following rules when changing these values:
+
+  1. To upload large files, `post_max_size` value must be larger than `upload_max_filesize`.
+  2. `memory_limit` should be larger than `post_max_size`
+</details>
 
 
 
