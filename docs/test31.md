@@ -1,3 +1,4 @@
+
 # FAQ
 
 **Commonly asked questions:**
@@ -96,7 +97,7 @@
   With this element you can simply **Drag & Drop** any form at a specific location in your page.
   After you dropped the element you can choose which form it should load simply with the use of a dropdown that will list all the forms you have created.
 
-  The Super Forms [shortcode] can also be inserted into a Visual Composer **HTML element**. This makes it easy to insert it into any area within your Visual Composer pages.
+  The Super Forms `[shortcode]` can also be inserted into a Visual Composer **HTML element**. This makes it easy to insert it into any area within your Visual Composer pages.
 </details>
 
 <details>
@@ -139,7 +140,7 @@
       Can I do price calculations based on user selection?
   </summary>
 
-  Yes, you can do this with the [Calculator Element]
+  Yes, you can do this with the `[Calculator Element]`
 </details>
 
 <details>
