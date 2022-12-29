@@ -3,9 +3,6 @@
 **Commonly asked questions:**
   
 <details>
-  <summary id="7">
-      Is it compatible with Visual Composer?
-  </summary>
   Super Forms has it's own Visual Composer (JS Composer) element.
 
   With this element you can simply **Drag & Drop** any form at a specific location in your page.
