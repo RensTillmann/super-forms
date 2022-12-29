@@ -74,19 +74,19 @@
 
   No, all data will remain and will **not** be deleted. Even if you would delete Super Forms through FTP.
 </details>
-
+  
 <details>
-  <summary id="6">
-      How to redirect a user after submitting the form?
+  <summary id="7">
+      Is it compatible with Visual Composer?
   </summary>
 
-  When editing the form you can enable redirect under: `Form Settings (panel)` > `Form Settings (TAB)` > `Form redirect option`.
+  Super Forms has it's own Visual Composer (JS Composer) element.
 
-  When using **custom URL redirect** you can retrieve form values with [{tags}](tags-system) to parse them in your GET request like so:
+  With this element you can simply **Drag & Drop** any form at a specific location in your page.
+  After you dropped the element you can choose which form it should load simply with the use of a dropdown that will list all the forms you have created.
 
-  <http://domain.com/page/?name={first_name}+{last_name}&age={birthdate}>
+  The Super Forms [shortcode] can also be inserted into a Visual Composer **HTML element**. This makes it easy to insert it into any area within your Visual Composer pages.
 </details>
-
 
 
 
