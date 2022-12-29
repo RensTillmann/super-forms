@@ -150,21 +150,7 @@
   You can add a tooltip when editing the element under `General` > `Tooltip text`
 </details>
 
-<details>
-  <summary id="14">
-      I changed the settings but it doesn't seem to affect the form?
-  </summary>
 
-  Please make change to the form it self, and not via the global settings under `Super Forms` > `Settings` from the menu. Each form upon creating will grab the global settings, and use them. When a setting is changed for a form and it equals to the global setting, it will use the global setting _now_ and in _the future_ **untill they differ** from each other and only then the form will use it's own setting.
-</details>
-
-<details>
-  <summary id="15">
-      Is it compatible with MailChimp?
-  </summary>
-
-  The [MailChimp Add-on](https://codecanyon.net/item/super-forms-mailchimp-addon/14126404) for Super Forms makes it possible to integrate your form(s) with MailChimp service.
-</details>
 
 
 
