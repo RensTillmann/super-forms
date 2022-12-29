@@ -1,6 +1,5 @@
 # FAQ
 
-**Commonly asked questions:**
   
 
   Super Forms has it's own Visual Composer (JS Composer) element.
