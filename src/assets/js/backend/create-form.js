@@ -645,6 +645,7 @@
         SUPER.update_translation_settings(true);
         document.querySelector('.super-raw-code-form-elements > textarea').value = $elements;
         if ($history) SUPER.trigger_redo_undo($elements, $old_code);
+        SUPER.init_common_fields();
     };
     SUPER.regenerate_element_inner.get_elements = function ($target) {
         if(typeof $target === 'undefined') $target = $('.super-preview-elements');
@@ -1067,7 +1068,6 @@
                                     SUPER.check_for_unique_field_name(this);
                                 });
                                 SUPER.regenerate_element_inner();
-                                SUPER.init_common_fields();
                                 SUPER.init_drop_here_placeholder();
                             }
                             // Complete:
@@ -1271,9 +1271,6 @@
                     }
                     // Complete:
                     SUPER.files = [];
-                    SUPER.handle_columns();
-                    SUPER.init_button_colors();
-                    SUPER.init_super_responsive_form_fields({form: $('.super-live-preview > .super-form')[0]});
                     SUPER.init_super_form_frontend();
                     SUPER.after_preview_loaded_hook($form_id);
                 }
@@ -1929,7 +1926,7 @@
                     success: function (data) {
                         data = JSON.parse(data);
                         $('.super-preview-elements').html(data.elements);
-                        SUPER.init_common_fields();
+                        SUPER.regenerate_element_inner();
                         $('.super-form-settings .super-elements-container').html(data.settings);
                         $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                     },
@@ -2691,7 +2688,6 @@
                         $element.attr('data-size', $fields.size).find('.super-element-header .super-resize .current').html($fields.size);
                     }
                     SUPER.regenerate_element_inner();
-                    SUPER.init_common_fields();
                     $button.removeClass('super-loading');
                 }
             };
@@ -4035,72 +4031,6 @@
 
         // Required for fields like Toggle element to be rendered properly
         SUPER.init_super_responsive_form_fields({form: $('.super-preview-elements')[0]});
-
-        // tmp // UI Resize bar
-        // tmp var resize = document.querySelector(".super-ui-resize-bar");
-        // tmp var left = document.querySelector(".super-preview");
-        // tmp var right = document.querySelector(".super-elements");
-        // tmp var container = document.querySelector(".super-builder");
-        // tmp var drag = false;
-        // tmp window.initialResizePosition = 0;
-
-        // tmp resize.addEventListener("touchstart", handleStart, false);
-        // tmp document.body.addEventListener("touchend", handleEnd, false);
-        // tmp document.body.addEventListener("touchcancel", handleCancel, false);
-        // tmp document.body.addEventListener("touchleave", handleEnd, false);
-        // tmp document.body.addEventListener("touchmove", handleMove, false);
-        // tmp var handleStart = function(){
-        // tmp     console.log('handleStart');
-        // tmp }
-        // tmp var handleEnd = function(){
-        // tmp     console.log('handleEnd');
-        // tmp }
-        // tmp var handleCancel = function(){
-        // tmp     console.log('handleCancel');
-        // tmp }
-        // tmp var handleMove = function(){
-        // tmp     console.log('handleMove');
-        // tmp }
-        // tmp resize.addEventListener("mousedown", function(e){
-        // tmp     window.initialResizePosition = e.x - left.getBoundingClientRect().width;
-        // tmp     window.initialWidth = right.getBoundingClientRect().width;
-        // tmp     drag = true;
-        // tmp });
-        // tmp resize.addEventListener("touchstart", function(e){
-        // tmp     window.initialResizePosition = e.x - left.getBoundingClientRect().width;
-        // tmp     window.initialWidth = right.getBoundingClientRect().width;
-        // tmp     drag = true;
-        // tmp });
-        // tmp container.addEventListener("touchmove", function(e){
-        // tmp     if(drag){
-        // tmp         var newWidth = 0;
-        // tmp         // Shrink
-        // tmp         var moveX = e.x - left.getBoundingClientRect().width;
-        // tmp         if(window.initialResizePosition < moveX) newWidth = window.initialWidth + (window.initialResizePosition - moveX);
-        // tmp         // Grow
-        // tmp         if(window.initialResizePosition > moveX) newWidth = window.initialWidth - (moveX - window.initialResizePosition);
-        // tmp         // Only if not zero
-        // tmp         if(newWidth>0) right.style.width = newWidth+'px';
-        // tmp     }
-        // tmp });
-        // tmp container.addEventListener("mousemove", function(e){
-        // tmp     if(drag){
-        // tmp         var newWidth = 0;
-        // tmp         // Shrink
-        // tmp         var moveX = e.x - left.getBoundingClientRect().width;
-        // tmp         if(window.initialResizePosition < moveX) newWidth = window.initialWidth + (window.initialResizePosition - moveX);
-        // tmp         // Grow
-        // tmp         if(window.initialResizePosition > moveX) newWidth = window.initialWidth - (moveX - window.initialResizePosition);
-        // tmp         // Only if not zero
-        // tmp         if(newWidth>0) right.style.width = newWidth+'px';
-        // tmp     }
-        // tmp });
-        // tmp container.addEventListener("touchend", function(){
-        // tmp     drag = false;
-        // tmp });
-        // tmp container.addEventListener("mouseup", function(){
-        // tmp     drag = false;
-        // tmp });
     });
 
     window.addEventListener('beforeunload', function (e) {

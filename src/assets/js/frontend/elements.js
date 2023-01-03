@@ -486,7 +486,6 @@
 
     // init Datepicker
     SUPER.init_datepicker = function(skipFieldChangeForElement){
-        debugger;
         if(typeof skipFieldChangeForElement === 'undefined') skipFieldChangeForElement = ''
         var i;
 
@@ -507,7 +506,6 @@
 
         nodes = document.querySelectorAll('.super-datepicker:not(.super-picker-initialized)');
         for (i = 0; i < nodes.length; ++i) {
-            debugger;
             var el = nodes[i],
                 form = SUPER.get_frontend_or_backend_form({el: el}),
                 format = el.dataset.format, //'MM/dd/yyyy';
@@ -1409,8 +1407,6 @@
 
     jQuery(document).ready(function ($) {
         
-        SUPER.init_common_fields();
-
         var $doc = $(document);
 
         // When Elementor popup is opened re-init super forms
@@ -2326,6 +2322,25 @@
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
             
             SUPER.init_common_fields();
+            //debugger;
+            //SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
+            //debugger;
+            //SUPER.init_common_fields();
+            //debugger;
+            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
+            //// Required to update calculations after adding dynamic column
+            //debugger;
+            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
+
+            //debugger;
+            //SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
+            //debugger;
+            //SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
+            //debugger;
+            //SUPER.init_common_fields();
+            //debugger;
+            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
+            //debugger;
         });
 
         // Delete dynamic column
@@ -2850,9 +2865,6 @@
                                 $form.removeClass('super-rendered');
                                 $form.find('.super-multipart-progress').remove();
                                 $form.find('.super-multipart-steps').remove();
-                                SUPER.handle_columns();
-                                SUPER.init_button_colors();
-                                SUPER.init_super_responsive_form_fields({form: $form[0]});
                                 SUPER.init_super_form_frontend();
                                 SUPER.after_preview_loaded_hook($form_id);
                             },

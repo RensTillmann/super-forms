@@ -320,7 +320,7 @@ if(!class_exists('SUPER_Stripe')) :
                 add_action( 'manage_super_stripe_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
                 add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 
-                add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
+                //add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
 
                 add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
@@ -1487,12 +1487,10 @@ if(!class_exists('SUPER_Stripe')) :
 
             // Before we continue, let's check if the Webhook is configured properly
             $global_settings = SUPER_Common::get_global_settings();
-            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
             // Get webhook ID and secret
             $webhookId = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id'] : '');
             $webhookSecret = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret'] : '');
-            //error_log('webhookId: ' . $webhookId);
-            //error_log('webhookSecret: ' . $webhookSecret);
             if(empty($webhookId)){
                 $msg = sprintf(
                     esc_html( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
@@ -1521,7 +1519,6 @@ if(!class_exists('SUPER_Stripe')) :
             }
             // Check if this webhook has a correct endpoint URL and Events defined
             $webhook = \Stripe\WebhookEndpoint::retrieve($webhookId, []);
-            error_log('webhook: ' . json_encode($webhook));
             $eventMissing = false;
             if( !in_array('checkout.session.async_payment_failed', $webhook['enabled_events']) ) {
                 $eventMissing = true;
@@ -2293,8 +2290,12 @@ if(!class_exists('SUPER_Stripe')) :
                 SUPER_VERSION,
                 'https://f4d.nl/super-forms'
             );
-            \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
-            \Stripe\Stripe::setApiVersion('2019-12-03');
+            $global_settings = SUPER_Common::get_global_settings();
+            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            $key = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key'] : '');
+            $version = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version'] : '');
+            \Stripe\Stripe::setApiKey($key);
+            \Stripe\Stripe::setApiVersion($version);
         }
         
         public static function delete_list_views_filter($views){
@@ -2727,9 +2728,6 @@ if(!class_exists('SUPER_Stripe')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_pk'])){
-                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-            }
             $idealPadding = '9px 15px 9px 15px';
             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
                 $idealPadding = '13px 15px 13px 15px';
@@ -2942,7 +2940,7 @@ if(!class_exists('SUPER_Stripe')) :
 
             if($configured){
                 self::setAppInfo();
-                require_once('dashboard.php');
+                // tmp require_once('dashboard.php');
             }
         }
         public static function getInvoice($id) {
@@ -2950,7 +2948,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function exceptionHandler($e, $metadata=array()){
             error_log("e: " . json_encode($e));
-            error_log("err: " . json_encode($e->getError()));
+            //error_log("err: " . json_encode($e->getError()));
             error_log("metadata: " . json_encode($metadata));
             $form_id = SUPER_Common::cleanupFormSubmissionInfo($metadata['sfsi_id'], '');
             error_log("form_id 1: " . $form_id);
@@ -4228,10 +4226,6 @@ if(!class_exists('SUPER_Stripe')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_pk'])){
-                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-            }
-
             $idealPadding = '9px 15px 9px 15px';
             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
                 $idealPadding = '13px 15px 13px 15px';
@@ -4287,9 +4281,6 @@ if(!class_exists('SUPER_Stripe')) :
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_pk'])){
-                $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-            }
 
             $idealPadding = '9px 15px 9px 15px';
             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
@@ -4373,9 +4364,6 @@ if(!class_exists('SUPER_Stripe')) :
                 $name = str_replace( '-', '_', $handle ) . '_i18n';
                 wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_VERSION, false ); 
                 $global_settings = SUPER_Common::get_global_settings();
-                if(empty($global_settings['stripe_pk'])){
-                    $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
-                }
                 wp_localize_script(
                     $handle,
                     $name,
@@ -4466,6 +4454,7 @@ if(!class_exists('SUPER_Stripe')) :
             $webhookUrl = $home_url . 'sfstripe/webhook'; // super forms stripe webhook e.g: https://domain.com/sfstripe/webhook will be converted into https://domain.com/index.php?sfstripewebhook=true 
             // Stripe Settings
             $array['stripe_checkout'] = array(        
+                'hidden' => true,
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/stripe-add-on">', '</a>' ) . '</p>' ),

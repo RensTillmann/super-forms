@@ -92,31 +92,33 @@ class SUPER_Common {
         // Also delete all global triggers
         $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
         $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
-        foreach($triggers['triggers'] as $trigger){
-            $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
-            // Skip if no event was choosen
-            if(empty($trigger['event'])) continue; 
-            // Only current form
-            if(empty($trigger['listen_to'])){
-                update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
-                continue;
-            }
-            // Global trigger (for all forms)
-            if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
-                //var_dump('save global trigger...()');
-                // Use our custom update_metadata function because we can't parse zero value otherwise
-                self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
-                //var_dump($result);
-                continue;
-            }
-            // Specific forms only (by ID)
-            if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
-                self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
-                //$forms = explode(',', $trigger['listen_to_ids']);
-                //foreach($forms as $id){
-                //    //update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
-                //}
-                continue;
+        if(isset($triggers['triggers']) && is_array($triggers['triggers'])){
+            foreach($triggers['triggers'] as $trigger){
+                $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
+                // Skip if no event was choosen
+                if(empty($trigger['event'])) continue; 
+                // Only current form
+                if(empty($trigger['listen_to'])){
+                    update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    continue;
+                }
+                // Global trigger (for all forms)
+                if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
+                    //var_dump('save global trigger...()');
+                    // Use our custom update_metadata function because we can't parse zero value otherwise
+                    self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
+                    //var_dump($result);
+                    continue;
+                }
+                // Specific forms only (by ID)
+                if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
+                    self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
+                    //$forms = explode(',', $trigger['listen_to_ids']);
+                    //foreach($forms as $id){
+                    //    //update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
+                    //}
+                    continue;
+                }
             }
         }
     }

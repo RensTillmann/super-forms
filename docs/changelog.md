@@ -9,7 +9,21 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jan 03, 2022 - Version 6.3.688
+
+- **Added:** `Listings` when editing entries, you can define if the user is allowed to change the entry status, and disallow to change the entry if it already has a specific status
 - **Improved:** Grid/Columns now using flex method
+- **Improved:** `Color picker` element small responsiveness fix
+- **Improved:** `PDF page breaks` are cacluated after HTML block is updated/changed. Allowing to use the PDF page break html directly inside foreach loops. Example which loops over uploaded files:
+```html
+foreach(file;loop):
+  if(<%counter%>!='1'):<div class="super-shortcode super-field super-pdf_page_break"></div>endif;
+  <img src="<%url%>" style="display:block;width:300px;" />
+endforeach;
+```
+- **Fix:** `Signature` element, rare bug which caused the canvas to not be full width, which would cut off the signature by 50%
+- **Fix:** `<%attachment%>` and `<%attachment_id%>` inside `foreach` loop inside HTML element should return the file attachment ID not the file name
+
 
 ## Dec 21, 2022 - Version 6.3.679
 

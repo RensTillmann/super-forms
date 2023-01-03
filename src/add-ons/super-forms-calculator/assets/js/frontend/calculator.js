@@ -47,7 +47,7 @@
 	// Update the math after dynamically adding a new set of field (add more +)
 	// @since 1.8.5 - make sure we execute this function AFTER all other fields have been renamed otherwise fields would be skipped if the are placed below the calculator element
 	SUPER.init_calculator_update_math = function(form, uniqueFieldNames, clone){
-		var i,ii,wrapper,calculatorFields,column,counter,dataFields,superMath,regex,array,match,values,names,name,suffix,newField;
+		var i,ii,wrapper,calculatorFields,column,counter,superMath,regex,array,match,values,names,name,suffix,newField;
 		if(typeof clone !== 'undefined'){
 			form = clone.closest('.super-form');
 			column = clone.closest('.super-column');
@@ -55,7 +55,6 @@
 			calculatorFields = clone.querySelectorAll('.super-shortcode.super-calculator');
 			for (ii = 0; ii < calculatorFields.length; ii++) {
 				wrapper = calculatorFields[ii].querySelector('.super-calculator-wrapper');
-				dataFields = wrapper.dataset.fields;
 				superMath = wrapper.dataset.superMath;
 				if( superMath!='' ) {
 					regex = /{([^\\\/\s"'+]*?)}/g;
@@ -77,86 +76,14 @@
 						newField = name+'_'+(counter+1);
 						if(SUPER.field_exists(form, newField)!==0){
 							superMath = superMath.replace('{'+name+suffix+'}', '{'+newField+suffix+'}');
-
-							// @since 1.4.1 - also update the data fields attribute names
-							//dataFields = dataFields.replace('{'+name+'}', '{'+newField+'}');
 						}
 					}
 				}
 				wrapper.dataset.superMath = superMath;
-				//wrapper.dataset.fields = dataFields;
 			}
 		}
 	};
 	
-	// @since 1.5.0 - update the data fields attribute after duplicating a column
-	//SUPER.init_calculator_after_duplicating_column = function(form, uniqueFieldNames){
-		//var i = 0, ii, elements, calculatorFields = [];
-		//Object.keys(uniqueFieldNames).forEach(function(fieldName) {
-		//	elements = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+fieldName+'}"]');
-		//	for (ii = 0; ii < elements.length; ++ii) {
-		//		//calculatorFields[i] = elements[ii];
-		//		i++;
-		//	}
-		//});
-		////SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
-	//};
-
-	// @since 1.5.0 - update the data fields attribute to make sure regex tags are replaced with according field names
-//	SUPER.init_calculator_update_fields_attribute = function(form, calculatorFields){
-//		var i,ii,iii,$elements,$name,$field,dataFields,newDataFields,v,oldv;
-//		for (i = 0; i < calculatorFields.length; ++i) {
-//			$field = calculatorFields[i];
-//			dataFields = $field.dataset.fields;
-//			if(!dataFields) continue; // In case Math is empty this attribute will not exists
-//			
-//			dataFields = dataFields.split('}');
-//			newDataFields = {};
-//			for (ii = 0; ii < dataFields.length; ++ii) {
-//				v = dataFields[ii];
-//				if(v!=''){
-//					v = v.replace('{','');
-//                    v = v.toString().split(';');
-//                    v = v[0];
-//					oldv = v;
-//					if(v.indexOf('*') >= 0){
-//						v = v.replace('*','');
-//						$elements = SUPER.field(form, v, '*');
-//						newDataFields[oldv] = '{'+oldv+'}';
-//						for (iii = 0; iii < $elements.length; ++iii) {
-//							$name = $elements[iii].name;
-//							// Skip form id
-//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-//						}
-//					}
-//					if(v.indexOf('^') >= 0){
-//						v = v.replace('^','');
-//						$elements = SUPER.field(form, v, '^');
-//						newDataFields[oldv] = '{'+oldv+'}';
-//						for (iii = 0; iii < $elements.length; ++iii) {
-//							$name = $elements[iii].name;
-//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-//						}
-//					}
-//					if(v.indexOf('$') >= 0){
-//						v = v.replace('$','');
-//						$elements = SUPER.field(form, v, '$');
-//						newDataFields[oldv] = '{'+oldv+'}';
-//						for (iii = 0; iii < $elements.length; ++iii) {
-//							$name = $elements[iii].name;
-//							if($name!='hidden_form_id') newDataFields[$name] = '{'+$name+'}';
-//						}
-//					}
-//					newDataFields[v] = '{'+v+'}';
-//				}
-//			}
-//			dataFields = '';
-//            $.each(newDataFields, function( k, v ) {
-//                dataFields += v;
-//            });
-//            $field.dataset.fields = dataFields;
-//		}
-//	};
 
 	// Init Calculator
 	SUPER.init_calculator = function(args){
@@ -383,11 +310,20 @@
         }
 		element = SUPER.field(form, name);
         if(!element) {
+			// Try to lookup on real form instead of dynamic column
+            if(form.classList.contains('super-duplicate-column-fields')){
+                if(form.closest('.super-form')){
+					form = form.closest('.super-form');
+					element = SUPER.field(form, name);
+				}
+            }
+        }
+        if(!element) {
 			// Lets just replace the field name with 0 as a value
 			numericMath = target.dataset.superNumericMath.replace('{'+oldName+'}', 0);
 			target.dataset.superNumericMath = numericMath;
 			return numericMath;
-        }
+		}
 
 		// Check if parent column or element is hidden (conditionally hidden)
 		if(SUPER.has_hidden_parent(element)){

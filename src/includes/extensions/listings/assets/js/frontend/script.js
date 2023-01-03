@@ -263,8 +263,6 @@
                         }
                     }
                     SUPER.form_js[form_id]['_entry_data'] = JSON.stringify(result.entry_data);
-                    SUPER.init_tooltips(); 
-                    SUPER.init_distance_calculators();
                     SUPER.init_super_form_frontend();
                     loadingIcon.remove();
                 }

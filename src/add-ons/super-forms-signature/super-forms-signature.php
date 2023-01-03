@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Signature
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
- * Version:     1.8.2
+ * Version:     1.8.4
  * Plugin URI:  http://f4d.nl/super-forms
  * Author URI:  http://f4d.nl/super-forms
  * Author:      feeling4design
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Signature') ) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.8.2';
+        public $version = '1.8.4';
 
 
         /**
@@ -433,7 +433,7 @@ if( !class_exists('SUPER_Signature') ) :
 	                        'email' => SUPER_Shortcodes::email( $attributes, '' ),
 	                        'label' => $label,
 	                        'description'=>$description,
-	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=1, $max=20, $steps=1, $name=esc_html__( 'Line Thickness', 'super-forms' ), $desc=esc_html__( 'The thickness of the signature when drawing', 'super-forms' ) ),
+	                        'thickness' => SUPER_Shortcodes::width( $attributes=null, $default=1, $min=1, $max=20, $steps=1, $name=esc_html__( 'Line Thickness', 'super-forms' ), $desc=esc_html__( 'The thickness of the signature when drawing', 'super-forms' ) ),
                             'color' => array(
                                 'name' => esc_html__( 'Line color', 'super-forms' ),
                                 'default' => (!isset($attributes['color']) ? '' : $attributes['color']),
