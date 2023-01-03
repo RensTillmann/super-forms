@@ -40,16 +40,19 @@
 		if(typeof form === 'undefined') form = document;
 		// Do not refresh if generating PDF
 		if(form.closest('.super-pdf-page-container')) return true;
-		var i,x,y, 
+		var i, x, y, jsonLength, thickness, color,
+			canvasWrapperWidth, canvasWrapperHeight, canvas, newLines = [],
+			maxX, maxY, ratioX, ratioY, finalRatio,
+			canvasWrapper, disallowEdit, json, lines,
 			nodes = form.querySelectorAll('.super-signature-canvas');
 
 		for( i = 0; i < nodes.length; i++ ) {
 			// Make drawing smaller by 50% (just as an example)
-			var canvasWrapper = nodes[i];
-			var disallowEdit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowEdit;
+			canvasWrapper = nodes[i];
+			disallowEdit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowEdit;
 			$(canvasWrapper).signature('enable');
-			var json = $(canvasWrapper).signature('toJSON');
-			var lines = JSON.parse(json).lines;
+			json = $(canvasWrapper).signature('toJSON');
+			lines = JSON.parse(json).lines;
 			if(lines.length===0){
 				if(disallowEdit==='true'){
 					$(canvasWrapper).signature('disable');
@@ -58,30 +61,46 @@
 						canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
 					}
 				} 
+				// Resize canvas correctly
+				canvasWrapperWidth = canvasWrapper.clientWidth;
+				canvasWrapperHeight = canvasWrapper.clientHeight;
+				if(canvasWrapperWidth===0 && canvasWrapperHeight===0){
+					// Do not refresh in case this singature was inside a multi-part and user switched to previous or next multi-part the canvas would have size of 0px by 0px
+					continue;
+				}
+				canvas = nodes[i].querySelector('canvas');
+				canvas.width = canvasWrapperWidth;
+				canvas.height = canvasWrapperHeight;
+				thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
+				color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
+				$(canvasWrapper).signature({
+					thickness: thickness,
+					color: color
+				});
 				continue;
 			}
-			var canvasWrapperWidth = canvasWrapper.clientWidth;
-			var canvasWrapperHeight = canvasWrapper.clientHeight;
+
+			canvasWrapperWidth = canvasWrapper.clientWidth;
+			canvasWrapperHeight = canvasWrapper.clientHeight;
 			if(canvasWrapperWidth===0 && canvasWrapperHeight===0){
 				// Do not refresh in case this singature was inside a multi-part and user switched to previous or next multi-part the canvas would have size of 0px by 0px
 				continue;
 			}
-			var canvas = nodes[i].querySelector('canvas');
+			canvas = nodes[i].querySelector('canvas');
 			canvas.width = canvasWrapperWidth;
 			canvas.height = canvasWrapperHeight;
-			var newLines = [];
-
-			var maxX = 0;
-			var maxY = 0;
+			newLines = [];
+			maxX = 0;
+			maxY = 0;
 			for(x=0; x < lines.length; x++){
 				for(y=0; y < lines[x].length; y++){
 					if(maxX < lines[x][y][0]) maxX = lines[x][y][0];
 					if(maxY < lines[x][y][1]) maxY = lines[x][y][1];
 				}
 			}
-			var ratioX = maxX / canvasWrapper.clientWidth;
-			var ratioY = maxY / canvasWrapper.clientHeight;
-			var finalRatio = ratioX;
+			ratioX = maxX / canvasWrapper.clientWidth;
+			ratioY = maxY / canvasWrapper.clientHeight;
+			finalRatio = ratioX;
 			if(ratioX < ratioY) finalRatio = ratioY;
 			if(finalRatio<1) finalRatio = 1;
 			// In case finalRatio equals Infinity, it means that the signature was inside a multipart, hence the size of canvas would equal to 0x0
@@ -101,9 +120,9 @@
 			}else{
 				// Do not resize, keep original
 			}
-			var jsonLength = JSON.parse(json).lines.length;
-			var thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
-			var color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
+			jsonLength = JSON.parse(json).lines.length;
+			thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
+			color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
 			$(canvasWrapper).signature({
                 thickness: thickness,
                 color: color

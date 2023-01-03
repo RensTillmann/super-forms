@@ -393,6 +393,7 @@ h1.super-thanks-title
     position: relative
     float: left
     margin-bottom: 0px
+    margin-left: 12.5px
     min-height: 1px
     background-size: cover
     flex: 1
@@ -462,13 +463,16 @@ h1.super-thanks-title
         .super-delete-duplicate:before
           content: unicode("f057")
           color: red
-    &.super_one_full
-      width: 100%
-      padding: 0 !important
     &.first-column
       padding-left: 0px
       padding-right: 0px
-    padding-left: 25px
+      margin-right: 12.5px
+      margin-left: 0
+    &.super_one_full
+      width: 100%
+      padding: 0 !important
+      margin-right: 0
+      margin-left: 0
     &.last-column
       padding-left: 25px
       padding-right: 0px
@@ -965,8 +969,14 @@ textarea
         display: none
       .sp-top
         margin-bottom: 0px
-      .sp-color, .sp-hue, .sp-clear
+      .sp-color, 
+      .sp-hue, 
+      .sp-clear
         border: 0
+      .sp-color
+        right: 20% 
+      .sp-hue
+        left: 84% 
     .sp-input-container
       width: 100%
       margin-top: -7px
@@ -2665,7 +2675,7 @@ textarea
     width: 100%
   /* Default stylings */
   .super-multipart-step.super-error:before
-    content:'\f071'
+    content: unicode("f071")
     position: absolute
     width: 100%
     text-align: center
@@ -5008,6 +5018,8 @@ textarea
     border-bottom-right-radius: 0px
     margin: 0px
     margin-left: -1px
+    padding-left: 0
+    padding-right: 0
     &:not(.super-int-phone_country-list--dropup)
       border-top: 0
     &.super-int-phone_country-list--dropup
@@ -5741,7 +5753,7 @@ html[dir="rtl"]
       &:after
         font-family: 'Font Awesome 5 Free'
         font-weight: 900
-        content: '\f057'
+        content: unicode("f057")
         font-size: 15px
         height: 15px
         line-height: normal

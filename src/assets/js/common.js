@@ -264,7 +264,15 @@ function SUPERreCaptcha(){
         return {name: n, ext: e};
     };
     SUPER.get_single_uploaded_file_html = function(withoutHeader, uploaded, fileName, fileType, fileUrl){
-        var html = '', classes = '';
+        var html = '',
+            classes = '';
+        if(typeof fileType==='undefined') {
+            var f = SUPER.get_file_name_and_extension(fileName);
+            if(f.ext==='jpg'  || f.ext==='jpeg') fileType = 'image/jpeg';
+            if(f.ext==='png'  || f.ext==='gif' || f.ext==='webp' || f.ext==='bmp') fileType = 'image/'+f.ext;
+            if(f.ext==='tiff' || f.ext==='tif') fileType = 'image/tiff';
+            if(f.ext==='svg') fileType = 'svg+xml';
+        }
         if(uploaded) classes = ' class="super-uploaded"';
         if(withoutHeader) {
             // We do not want a header
@@ -344,7 +352,9 @@ function SUPERreCaptcha(){
                     // Display error message
                     SUPER.form_submission_finished(args, result);
                 }else{
-                    var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field, file, files = result.files;
+                    var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field,
+                        file, 
+                        files = result.files;
                     // Update nonce
                     args.sf_nonce = result.sf_nonce;
                     $('input[name="sf_nonce"]').val(result.sf_nonce.trim());
@@ -388,6 +398,17 @@ function SUPERreCaptcha(){
                                 args.data[fieldName]['files'][i]['value'] = file.value;
                                 args.data[fieldName]['files'][i]['type'] = file.type;
                                 args.data[fieldName]['files'][i]['url'] = file.url;
+                                var blob = SUPER.files[args.form_id][fieldName][i];
+                                delete SUPER.files[args.form_id][fieldName][i];
+                                SUPER.files[args.form_id][fieldName][i] = {
+                                    url: file.url,
+                                    lastModified: blob.lastModified,
+                                    lastModifiedDate: blob.lastModifiedDate,
+                                    name: file.value,
+                                    size: blob.size,
+                                    type: file.type,
+                                    webkitRelativePath: blob.webkitRelativePath
+                                };
                                 if(file.subdir) {
                                     args.data[fieldName]['files'][i]['subdir'] = file.subdir;
                                 }
@@ -400,6 +421,8 @@ function SUPERreCaptcha(){
                     });
                     Object.keys(updateHtml).forEach(function(fieldName) {
                         updateHtml[fieldName].filesWrapper.innerHTML = updateHtml[fieldName].html;
+                        var field = SUPER.field(args.form0, fieldName);
+                        SUPER.after_field_change_blur_hook({el: field, form: args.form0});
                     });
 
                     // Now process form data
@@ -977,7 +1000,7 @@ function SUPERreCaptcha(){
                             if(data.context[0].querySelector('img')){
                                 var img = data.context[0].querySelector('img');
                                 img.onload = function(){
-                                    //URL.revokeObjectURL(img.src); // free memory
+                                    // URL.revokeObjectURL(img.src); // free memory
                                 }
                             }
                             SUPER.after_field_change_blur_hook({el: field, form: form});
@@ -2281,8 +2304,8 @@ function SUPERreCaptcha(){
                                 replaceTagsWithValue['<%ext%>'] = f.ext.toLowerCase();
                                 replaceTagsWithValue['<%extension%>'] = f.ext.toLowerCase();
                                 // Attachment
-                                replaceTagsWithValue['<%attachment_id%>'] = files[x].name;
-                                replaceTagsWithValue['<%attachment%>'] = files[x].name;
+                                replaceTagsWithValue['<%attachment_id%>'] = files[x].attachment;
+                                replaceTagsWithValue['<%attachment%>'] = files[x].attachment;
                                 var key;
                                 $row = $original;
                                 for(key in replaceTagsWithValue) {
@@ -2578,7 +2601,20 @@ function SUPERreCaptcha(){
         // First check if tag exists
         if(args.value==='' || typeof args.value==='undefined') return '';
         var indexMapping = args.value;
-        var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        var formId = 0;
+        if(args.form.id){
+            formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        }else{
+            // Check if duplicated column
+            if(args.form.classList.contains('super-duplicate-column-fields')){
+                // Find form ID based on cloned column
+                if(args.form.closest('.super-form')){
+                    formId = parseInt(args.form.closest('.super-form').id.replace('super-form-', ''), 10);
+                }
+            }
+        }
+        if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
+        if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
         if(SUPER.preFlightMappings[formId].tags[indexMapping]){
             return SUPER.preFlightMappings[formId].tags[indexMapping];
         }
@@ -3178,15 +3214,17 @@ function SUPERreCaptcha(){
     SUPER.form_submission_finished = function(args, result){ 
         // Update Listings entry?
         if(args.list_id && args.list_id!==''){
-            if(result.response_data.enableFormProcessingOverlay!=='true'){
-                document.querySelector('.super-loading-overlay').remove();
-            }
-            if(result.response_data.enableFormProcessingOverlay && result.response_data.enableFormProcessingOverlay==='true'){
-                if(result.response_data.closeFormProcessingOverlay && result.response_data.closeFormProcessingOverlay==='true'){
+            if(document.querySelector('.super-loading-overlay')){
+                if(result.response_data.enableFormProcessingOverlay!=='true'){
                     document.querySelector('.super-loading-overlay').remove();
                 }
+                if(result.response_data.enableFormProcessingOverlay && result.response_data.enableFormProcessingOverlay==='true'){
+                    if(result.response_data.closeFormProcessingOverlay && result.response_data.closeFormProcessingOverlay==='true'){
+                        document.querySelector('.super-loading-overlay').remove();
+                    }
+                }
             }
-            if(result.response_data.closeEditorWindowAfterEditing && result.response_data.closeEditorWindowAfterEditing==='true'){
+            if(document.querySelector('.super-listings-modal') && result.response_data.closeEditorWindowAfterEditing && result.response_data.closeEditorWindowAfterEditing==='true'){
                 document.querySelector('.super-listings-modal').remove();
             }
             var nodes = document.querySelectorAll('.super-listings > .super-listings-wrap > .super-entries > .super-entry.super-updated');
@@ -4166,8 +4204,20 @@ function SUPERreCaptcha(){
         if(args.el && args.el.classList.contains('super-address-autopopulate')) return;
         // Otherwise continue
         args.form = SUPER.get_frontend_or_backend_form(args);
-        if(args.form.id==='') return;
-        var formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        var formId = 0;
+        if(args.form.id==='') {
+            // Unless dynamic added column
+            if(args.form.classList.contains('super-duplicate-column-fields')){
+                // Find form ID based on cloned column
+                if(args.form.closest('.super-form')){
+                    formId = parseInt(args.form.closest('.super-form').id.replace('super-form-', ''), 10);
+                }
+            }else{
+                return;
+            }
+        }else{
+            formId = parseInt(args.form.id.replace('super-form-', ''), 10);
+        }
         if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
         if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
 
@@ -5818,22 +5868,42 @@ function SUPERreCaptcha(){
                 form: $this,
                 callback: function(args){
                     args.form.classList.add('super-rendered');
-                    if (!args.form.classList.contains('preload-disabled')) {
-                        if (!args.form.classList.contains('super-initialized')) {
+                    if(args.form.parentNode.closest('.super-live-preview') || args.form.classList.contains('preload-disabled')){
+                        if(!args.form.classList.contains('preload-disabled')){
+                            debugger;
                             setTimeout(function (){
+                                debugger;
                                 $(args.form).fadeOut(100, function () {
+                                    debugger;
                                     args.form.classList.add('super-initialized');
+                                    debugger;
                                     $(args.form).fadeIn(500);
+                                    debugger;
                                 });
                             }, 500);
+                            return;
                         }
-                    } else {
-                        args.form.classList.add('super-initialized');
+                        if(!args.form.classList.contains('super-initialized')) {
+                            args.form.classList.add('super-initialized');
+                            debugger;
+                            //SUPER.handle_columns();
+                            //SUPER.after_initializing_forms_hook(args);
+                        }
+                        return;
+                    }
+                    if (!args.form.classList.contains('super-initialized')) {
+                        setTimeout(function (){
+                            $(args.form).fadeOut(100, function () {
+                                args.form.classList.add('super-initialized');
+                                $(args.form).fadeIn(500);
+                            });
+                        }, 500);
                     }
                 }
             };
 
-            SUPER.after_initializing_forms_hook(args);
+            debugger;
+            //SUPER.after_initializing_forms_hook(args);
             
             if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
                 var data = SUPER.form_js[formId]['_entry_data'];
@@ -6049,7 +6119,6 @@ function SUPERreCaptcha(){
 
     // Replace datepickers default value {tags} with field values
     SUPER.init_replace_datepicker_default_value_tags = function(args){
-        //debugger;
         var i, nodes;
         if(typeof args.el === 'undefined') {
             nodes = args.form.querySelectorAll('.super-shortcode-field.super-datepicker');
@@ -6082,8 +6151,8 @@ function SUPERreCaptcha(){
                 }
             }
             nodes[i].classList.remove('super-picker-initialized');
-            console.log('test3');
-            SUPER.init_datepicker(nodes[i]);
+            nodes[i].classList.remove('hasDatepicker');
+            nodes[i].id = '';
             $(nodes[i]).datepicker('setDate', absoluteDefault);
         }
     };
@@ -6429,30 +6498,16 @@ function SUPERreCaptcha(){
         
         // @since 3.2.0 - remove the google autocomplete init class from fields
         nodes = args.form.querySelectorAll('.super-address-autopopulate.super-autopopulate-init');
-        for (i = 0; i < nodes.length; i++) { 
+        for (i = 0; i < nodes.length; i++) {
             nodes[i].classList.remove('super-autopopulate-init');
         }
         // @since 3.5.0 - remove datepicker picker initialized class
         // @since 4.5.0 - remove color picker initialized class
         nodes = args.form.querySelectorAll('.super-picker-initialized');
         for (i = 0; i < nodes.length; i++) { 
-            console.log('test1');
             nodes[i].classList.remove('super-picker-initialized');
-            //SUPER.init_datepicker(nodes[i]);
-            //$(nodes[i]).datepicker('setDate', nodes[i].value);
-            // Reset all values?
-            //nodes[i].value = '';
-            //console.log('test1');
-            //SUPER.init_datepicker(nodes[i]);
-            //$(nodes[i]).datepicker('setDate', nodes[i].value);
-
-            //element.value = data[i].value;
-            //element.classList.remove('super-picker-initialized');
-            //console.log('test2');
-            //SUPER.init_datepicker(element);
-            //$(field).datepicker('setDate', element.value);
-
-
+            nodes[i].classList.remove('hasDatepicker');
+            nodes[i].id = '';
         }
 
         // @since 3.6.0 - remove the active class from autosuggest fields
@@ -7019,8 +7074,8 @@ function SUPERreCaptcha(){
                     // Reset all values?
                     element.value = data[i].value;
                     element.classList.remove('super-picker-initialized');
-                    console.log('test2');
-                    SUPER.init_datepicker(element);
+                    element.classList.remove('hasDatepicker');
+                    element.id = '';
                     $(field).datepicker('setDate', element.value);
                 }
 
@@ -7282,14 +7337,13 @@ function SUPERreCaptcha(){
 
 
         // Provide each dynamic column with correct levels
-        var i, nodes = document.querySelectorAll('.super-column[data-duplicate-limit]');
+        var i, nodes = document.querySelectorAll('.super-form:not(.super-preview-elements) .super-column[data-duplicate-limit]');
         for(i=0; i<nodes.length; i++){
             // Only proceed with those that are top level
             if(nodes[i].parentNode.closest('.super-column[data-duplicate-limit]')){
                 continue;
             }
             // This is a top level dynamic column
-            var levels = '';
             // Look for inner dynamic columns
             var counter=0, x, innerNodes = nodes[i].querySelectorAll('.super-column[data-duplicate-limit]');
             for(x=0; x<innerNodes.length; x++){
@@ -7313,7 +7367,8 @@ function SUPERreCaptcha(){
         }
 
         // Loop over all fields that are inside dynamic column and rename them accordingly
-        var i, nodes = document.querySelectorAll('.super-duplicate-column-fields .super-shortcode-field[name]');
+        nodes = document.querySelectorAll('.super-form:not(.super-preview-elements) .super-duplicate-column-fields .super-shortcode-field[name]');
+        var levels;
         for (i = 0; i < nodes.length; ++i) {
             var field = nodes[i];
             if(field.classList.contains('super-fileupload')){
@@ -7321,8 +7376,10 @@ function SUPERreCaptcha(){
             }
             // Figure out how deep this node is inside dynamic columns
             var originalFieldName = field.dataset.oname;
-            var levels = nodes[i].closest('.super-column[data-duplicate-limit]').dataset.level;
-            if(levels){
+            var dynamicColum = nodes[i].parentNode.closest('.super-column[data-duplicate-limit]');
+            levels = '';
+            if(dynamicColum) levels = dynamicColum.dataset.level;
+            if(levels && levels!==''){
                 field.name = originalFieldName+levels;
                 field.dataset.olevels = levels;
             }else{
@@ -7489,7 +7546,6 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            SUPER.init_common_fields({form: form});
             SUPER.init_super_responsive_form_fields({form: form});
         });
 
@@ -7500,7 +7556,6 @@ function SUPERreCaptcha(){
             }
         });
         
-        //SUPER.handle_columns();
         var $handle_columns_interval = setInterval(function(){
             if(($('.super-form:not(.super-preview-elements)').length != $('.super-form.super-rendered').length) || ($('.super-form:not(.super-preview-elements)').length===0)){
                 SUPER.handle_columns();
@@ -7810,6 +7865,7 @@ function SUPERreCaptcha(){
 			clearTimeout(SUPER.responsive_form_fields_timeout[formId]);
 		}
         SUPER.responsive_form_fields_timeout[formId] = setTimeout(function () {
+            SUPER.init_common_fields();
             var $classes = [
                 'super-first-responsiveness',
                 'super-second-responsiveness',
@@ -8437,7 +8493,6 @@ function SUPERreCaptcha(){
         }
 
         SUPER.init_super_responsive_form_fields({form: form, callback: function(){
-
             // First disable the UI on the map for nicer print of the map
             // And make map fullwidth and directions fullwidth
             for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
@@ -8486,30 +8541,8 @@ function SUPERreCaptcha(){
                 adjustHeight(el, minHeight);
             }
 
-            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
-            nodes = form.querySelectorAll('.super-pdf_page_break');
-            args.pageOrientationChanges = {};
-            for(i=0; i<nodes.length; i++){
-                var pos = nodes[i].getBoundingClientRect();
-                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                var belongsToPage = Math.ceil((pos.top-headerHeight)/args.scrollAmount)-1;
-                var dynamicHeight = (args.scrollAmount*(belongsToPage+1)) - (pos.top - headerHeight);
-                nodes[i].style.height = dynamicHeight+'px';
-                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
-                if(nodes[i].classList.contains('pdf-orientation-portrait')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-landscape')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-default')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'default';
-                }
-            }
-
             // Grab the total form height, this is required to know how many pages will be generated for the PDF file
             // This way we can also show the progression to the end user
-            //scrollAmount = (pageHeightInPixels*2);
             args.totalPages = Math.ceil(form.clientHeight/args.scrollAmount);
             args.totalPercentagePerPage = (100/args.totalPages) / 3;
             args.pdfPercentageCompleted = 0;
@@ -8517,6 +8550,33 @@ function SUPERreCaptcha(){
         }});
     };
 
+    SUPER.resize_pdf_page_breaks = function(args){
+        // Reset any PDF page break heights
+        var i, nodes = args.form0.querySelectorAll('.super-pdf_page_break');
+        for(i=0; i<nodes.length; i++){
+            nodes[i].style.height = '0px';
+        }
+        nodes = args.form0.querySelectorAll('.super-pdf_page_break');
+        args.pageOrientationChanges = {};
+        for(i=0; i<nodes.length; i++){
+            var pos = nodes[i].getBoundingClientRect();
+            var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+            var belongsToPage = Math.ceil((pos.top-headerHeight)/args.scrollAmount)-1;
+            var dynamicHeight = (args.scrollAmount*(belongsToPage+1)) - (pos.top - headerHeight);
+            nodes[i].style.height = dynamicHeight+'px';
+            args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
+            if(nodes[i].classList.contains('pdf-orientation-portrait')){
+                args.pageOrientationChanges[belongsToPage+2] = 'portrait';
+            }
+            if(nodes[i].classList.contains('pdf-orientation-landscape')){
+                args.pageOrientationChanges[belongsToPage+2] = 'landscape';
+            }
+            if(nodes[i].classList.contains('pdf-orientation-default')){
+                args.pageOrientationChanges[belongsToPage+2] = 'default';
+            }
+        }
+        return args;
+    };
 
 
     // PDF Generation
@@ -8563,27 +8623,6 @@ function SUPERreCaptcha(){
             }
             // Reset scroll
             form.querySelector('form').style.marginTop = '';
-
-            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
-            nodes = form.querySelectorAll('.super-pdf_page_break');
-            args.pageOrientationChanges = {};
-            for(i=0; i<nodes.length; i++){
-                var pos = nodes[i].getBoundingClientRect();
-                var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
-                var belongsToPage = Math.ceil((pos.top-headerHeight)/args.scrollAmount)-1;
-                var dynamicHeight = (args.scrollAmount*(belongsToPage+1)) - (pos.top - headerHeight);
-                nodes[i].style.height = dynamicHeight+'px';
-                args.pageOrientationChanges[belongsToPage+2] = 'unchanged';
-                if(nodes[i].classList.contains('pdf-orientation-portrait')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'portrait';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-landscape')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'landscape';
-                }
-                if(nodes[i].classList.contains('pdf-orientation-default')){
-                    args.pageOrientationChanges[belongsToPage+2] = 'default';
-                }
-            }
             args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
             args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
             // Scroll to the "fake" page
@@ -8609,6 +8648,9 @@ function SUPERreCaptcha(){
         SUPER.after_field_change_blur_hook({el: undefined, form: pdfHeaderForm});
         var pdfFooterForm = document.querySelector('.super-pdf-footer .super-form');
         SUPER.after_field_change_blur_hook({el: undefined, form: pdfFooterForm});
+
+        // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
+        args = SUPER.resize_pdf_page_breaks(args);
 
         // Scroll to the "fake" page
         //form.querySelector('form').style.marginTop = "-"+(args.scrollAmount * (args.currentPage-1))+'px';
@@ -9229,9 +9271,6 @@ function SUPERreCaptcha(){
                 SUPER.populate_form_order_data_ajax({el: field});
             }, 1000);
         });
-
-        SUPER.init_common_fields();
     });
-
 })(jQuery);
 

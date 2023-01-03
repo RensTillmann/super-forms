@@ -158,7 +158,7 @@ $array['layout_elements'] = array(
                         ),
                         'duplicate_limit' => array(
                             'name' => esc_html__( 'Limit for dynamic fields (0 = unlimited)', 'super-forms' ), 
-                            'label' => esc_html__( 'The total of times a user can click the "+" icon', 'super-forms' ), 
+                            'label' => esc_html__( 'Example: for a maximum of four columns, set the value to "4".', 'super-forms' ), 
                             'type' => 'slider', 
                             'default' => ( !isset( $attributes['duplicate_limit'] ) ? 0 : $attributes['duplicate_limit'] ),
                             'min' => 0,

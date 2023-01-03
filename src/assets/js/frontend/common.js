@@ -14,8 +14,6 @@
             SUPER.validate_form(args);
             return false;
         });
-        SUPER.init_tooltips(); 
-        SUPER.init_distance_calculators();
         SUPER.init_super_form_frontend();
 		$( document ).ajaxComplete(function(event, xhr, settings) {
 			SUPER.init_super_form_frontend({
