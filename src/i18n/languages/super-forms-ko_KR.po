@@ -1563,7 +1563,7 @@ msgid "Auto populate data with fields"
 msgstr "필드로 데이터 자동 채우기"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "자동 제안"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

@@ -1621,7 +1621,7 @@ msgid "Auto populate data with fields"
 msgstr "फील्डसह डेटा स्वयंचलितपणे पॉप्युलेट करा"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "वाहन सूचना"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

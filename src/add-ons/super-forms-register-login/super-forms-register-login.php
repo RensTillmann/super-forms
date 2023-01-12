@@ -426,14 +426,14 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
             if( $return==true ) {
                 $atts['name'] = 'activation_code';
-                $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
+                $result = SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
                 $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
                 $result .= '<input class="super-shortcode-field" type="text"';
                 $result .= ' name="' . esc_attr($atts['name']) . '" value="' . esc_attr($code) . '"';
                 $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
                 $result .= ' />';
                 $result .= '</div>';
-                $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+                $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
                 $result .= '</div>';
                 return $result;
             }
@@ -488,7 +488,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             'grouped' => $grouped,                    
                             'width' => $width,
                             'exclude' => $exclude, 
-                            'error_position' => $error_position_left_only,
+                            'error_position' => $error_position,
                         ),
                     ),
                     'icon' => array(

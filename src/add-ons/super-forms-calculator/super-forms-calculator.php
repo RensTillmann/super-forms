@@ -279,11 +279,6 @@ if( !class_exists('SUPER_Calculator') ) :
                 'name' => 'conditional_logic'
             );
 
-            // @since 1.5.0
-            //$functions['after_duplicating_column_hook'][] = array(
-                //'name' => 'init_calculator_after_duplicating_column'
-            //);
-
             return $functions;
         }
 
@@ -443,7 +438,7 @@ if( !class_exists('SUPER_Calculator') ) :
             if( $atts['margin']!='' ) {
                 $class = 'super-remove-margin'; 
             }
-            $result = SUPER_Shortcodes::opening_tag( $tag, $atts, $class );
+            $result = SUPER_Shortcodes::opening_tag( array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings ));
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             if( !isset( $atts['decimals'] ) ) $atts['decimals'] = 2;
             if( !isset( $atts['thousand_separator'] ) ) $atts['thousand_separator'] = ',';
@@ -473,7 +468,7 @@ if( !class_exists('SUPER_Calculator') ) :
             if(!empty($jsformat)) $result .= ' data-jsformat="' . $jsformat . '"';
             $result .= '>';
 
-            $result .= '<span class="super-calculator-label">' . $atts['amount_label'] . '</span>';
+            $result .= '<span class="super-calculator-label'.(empty($atts['amount_label']) ? ' super-empty-label' : '').'">' . $atts['amount_label'] . '</span>';
 
             $style = '';
             if( !isset( $atts['amount_width'] ) ) $atts['amount_width'] = 0;
@@ -499,7 +494,7 @@ if( !class_exists('SUPER_Calculator') ) :
 	        $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
 	        $result .= ' />';
 	        $result .= '</div>';
-	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
 	        $result .= '</div>';
 	        return $result;
         }

@@ -39,7 +39,6 @@
 			}
 			
 		});
-
 		return $data;
 	};
 
@@ -51,7 +50,7 @@
 		if(typeof clone !== 'undefined'){
 			form = clone.closest('.super-form');
 			column = clone.closest('.super-column');
-			counter = column.querySelectorAll(':scope > .super-duplicate-column-fields').length-1;
+			counter = column.querySelectorAll(':scope > .super-duplicate-column-fields, :scope > .super-column-custom-padding > .super-duplicate-column-fields').length-1;
 			calculatorFields = clone.querySelectorAll('.super-shortcode.super-calculator');
 			for (ii = 0; ii < calculatorFields.length; ii++) {
 				wrapper = calculatorFields[ii].querySelector('.super-calculator-wrapper');
@@ -261,28 +260,10 @@
 						amount = parseFloat(amount).toFixed(decimals);
 						$numeric_amount = amount;
 						amount = (decimalSeparator ? amount.replace('.', decimalSeparator) : amount).replace(new RegExp('\\d(?=(\\d{' + (3 || 3) + '})+' + (decimals > 0 ? '\\D' : '$') + ')', 'g'), '$&' + (thousandSeparator || ''));
-						if ($numeric_amount >= 0) {
-							//if(target.querySelector('.super-calculator-currency .super-minus-value')){
-							//	target.querySelector('.super-calculator-currency .super-minus-value').remove();
-							//}
-							target.querySelector('.super-calculator-amount').innerText = amount;
-							currency = target.querySelector('.super-calculator-currency').innerHTML;
-							format = target.querySelector('.super-calculator-format').innerHTML;
-							$field.dataset.value =currency+''+amount+''+format;
-						}else{
-							target.querySelector('.super-calculator-amount').innerText = amount.replace('-','');
-							currency = target.querySelector('.super-calculator-currency').innerHTML;
-							format = target.querySelector('.super-calculator-format').innerHTML;
-							$field.dataset.value = currency+''+amount+''+format;
-							//if(currency===''){
-							//	if(!target.querySelector('.super-calculator-currency .super-minus-value')){
-							//		span = document.createElement('span');
-							//		span.classList.add('super-minus-value');
-							//		span.innerHTML = '-';
-							//		target.querySelector('.super-calculator-currency').prepend(span);
-							//	}
-							//}
-						}
+						target.querySelector('.super-calculator-amount').innerText = amount;
+						currency = target.querySelector('.super-calculator-currency').innerHTML;
+						format = target.querySelector('.super-calculator-format').innerHTML;
+						$field.dataset.value = currency+''+amount+''+format;
 					}
 				}
 			}

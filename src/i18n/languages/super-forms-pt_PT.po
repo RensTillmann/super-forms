@@ -1664,7 +1664,7 @@ msgid "Auto populate data with fields"
 msgstr "Preencher dados automaticamente com campos"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "Sugestão automática"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

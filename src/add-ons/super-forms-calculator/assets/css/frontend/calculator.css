@@ -24,6 +24,9 @@
 	font-size: 12px;
     padding-right: 5px;
 }
+.super-field.super-calculator .super-calculator-wrapper span.super-calculator-label.super-empty-label {
+    padding-right: 0px;
+}
 .super-field.super-calculator.super-align-left {
 	text-align: left;
 }

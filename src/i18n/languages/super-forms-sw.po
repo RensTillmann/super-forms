@@ -1653,7 +1653,7 @@ msgid "Auto populate data with fields"
 msgstr "Jaza data kiotomatiki na sehemu"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "Pendekeza kiotomatiki"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

@@ -2112,6 +2112,7 @@ END AS paypalSubscriptionId
             ";
             $entries = $wpdb->get_results($query);
 
+            $foundFormIds = array();
             $result = '';
             $result .= SUPER_Common::load_google_fonts($settings);
             $result .= '<div class="super-listings'.($hasFilters ? ' super-has-filters' : '').'" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'">';
@@ -2222,7 +2223,6 @@ END AS paypalSubscriptionId
                             if(class_exists('SUPER_PayPal')) {
                                 $paypal_payment_statuses = SUPER_PayPal::$paypal_payment_statuses;
                             }
-                            $foundFormIds = array();
                             foreach($entries as $entry){
                                 $foundFormIds[$entry->post_parent] = $entry->post_parent;
                                 $data = unserialize($entry->contact_entry_data);

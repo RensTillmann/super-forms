@@ -1555,7 +1555,7 @@ msgid "Auto populate data with fields"
 msgstr "使用字段自动填充数据"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "自动提示"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

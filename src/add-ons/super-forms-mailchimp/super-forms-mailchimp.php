@@ -300,16 +300,15 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 $atts['icon'] = '';
             }
 
-            $conditions = SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $conditions = SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result = '<div class="super-grid super-shortcode">';
             $result .= '<div class="super-shortcode super_one_full super-column column-number-1 first-column"' . ( $conditions!='' ? ' data-conditional-action="show" data-conditional-trigger="all"' : '' ) . '>';
             $tag = 'checkbox';
-            $classes = ' super-mailchimp';
-            $classes .= ' display-' . $atts['display'];
-            $result .= SUPER_Shortcodes::opening_tag( $tag, $atts, $classes );
-
+            $class = ' super-mailchimp';
+            $class .= ' display-' . $atts['display'];
+            $global_settings = SUPER_Common::get_global_settings();
+            $result .= SUPER_Shortcodes::opening_tag( array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$global_settings ));
             $show_hidden_field = true;
-
             // Retrieve groups based on the given List ID:
             $global_settings = SUPER_Common::get_global_settings();
             // Check if the API key has been set
@@ -390,16 +389,16 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 $atts['label'] = '';
                 $atts['description'] = '';
                 $atts['icon'] = '';
-                $classes = ' hidden';
-                $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
+                $class = ' hidden';
+                $result .= SUPER_Shortcodes::opening_tag( array('tag'=>'hidden', 'atts'=>$atts, 'class'=>$class, 'settings'=>$global_settings ));
                 $result .= '<input class="super-shortcode-field" type="hidden" value="1" name="mailchimp_send_confirmation" data-exclude="2" />';
                 $result .= '</div>';
             }else{
                 $atts['label'] = '';
                 $atts['description'] = '';
                 $atts['icon'] = '';
-                $classes = ' hidden';
-                $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
+                $class = ' hidden';
+                $result .= SUPER_Shortcodes::opening_tag( array('tag'=>'hidden', 'atts'=>$atts, 'class'=>$class, 'settings'=>$global_settings ));
                 if( empty($atts['subscriber_status'] ) ) $atts['subscriber_status'] = 'subscribed';
                 $result .= '<input class="super-shortcode-field" type="hidden" value="'.esc_attr($atts['subscriber_status']).'" name="mailchimp_subscriber_status" data-exclude="2" />';
                 $result .= '</div>';
@@ -408,8 +407,8 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 $atts['label'] = '';
                 $atts['description'] = '';
                 $atts['icon'] = '';
-                $classes = ' hidden';
-                $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
+                $class = ' hidden';
+                $result .= SUPER_Shortcodes::opening_tag( array('tag'=>'hidden', 'atts'=>$atts, 'class'=>$class, 'settings'=>$global_settings ));
                 $result .= '<input class="super-shortcode-field" type="hidden" value="' . $list_id . '" name="mailchimp_list_id" data-exclude="2"';
                 if( !empty($atts['subscriber_tags'] ) ) $result .= ' data-subscriber-tags="' . $atts['subscriber_tags'] . '"';
                 if( !empty($atts['vip'] ) ) $result .= ' data-vip="' . $atts['vip'] . '"';
@@ -420,7 +419,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 if( (isset($atts['custom_fields'])) && ($atts['custom_fields']!='') ) $result .= '<textarea class="super-shortcode-field super-hidden" name="mailchimp_custom_fields_' . $list_id . '" data-exclude="2">' . $atts['custom_fields'] . '</textarea>';
             }
 
-            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result .= '</div>';
             $result .= '</div>';
 
@@ -530,7 +529,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                             'grouped' => $grouped,                    
                             'width' => $width,
                             'exclude' => $exclude, 
-                            'error_position' => $error_position_left_only,
+                            'error_position' => $error_position,
                             
                         ),
                     ),

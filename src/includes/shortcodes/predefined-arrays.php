@@ -377,23 +377,13 @@ $error_position = array(
     'default'=> (!isset($attributes['error_position']) ? '' : $attributes['error_position']),
     'type'=>'select', 
     'values'=>array(
-        ''=>esc_html__( 'Default positioning (bottom right)', 'super-forms' ), 
+        ''=>esc_html__( 'Default positioning', 'super-forms' ), 
+        'bottom-left'=>esc_html__( 'Bottom left (recommended)', 'super-forms' ), 
         'bottom-right'=>esc_html__( 'Bottom right', 'super-forms' ), 
-        'bottom-left'=>esc_html__( 'Bottom left', 'super-forms' ), 
         'top-right'=>esc_html__( 'Top right', 'super-forms' ), 
         'top-left'=>esc_html__( 'Top left', 'super-forms' ), 
     )
-); 
-$error_position_left_only = array(
-    'name'=>esc_html__( 'Error message positioning', 'super-forms' ), 
-    'default'=> (!isset($attributes['error_position']) ? '' : $attributes['error_position']),
-    'type'=>'select', 
-    'values'=>array(
-        ''=>esc_html__( 'Default positioning', 'super-forms' ), 
-        'bottom-left'=>esc_html__( 'Bottom left', 'super-forms' ), 
-        'top-left'=>esc_html__( 'Top left', 'super-forms' ), 
-    )
-);         
+);
 $styles = array(
     'type' => 'textarea', 
     'default'=> (!isset($attributes['styles']) ? '' : $attributes['styles']),

@@ -1433,7 +1433,15 @@ class SUPER_Shortcodes {
     }
 
 
-    public static function opening_tag( $tag, $atts, $class='', $styles='') {
+    public static function opening_tag( $x ) { //$tag, $atts, $class='', $styles='') {
+        extract(shortcode_atts(array(
+            'tag'=>'',
+            'atts'=>array(),
+            'class'=>'',
+            'styles'=>'',
+            'settings'=>array()
+        ), $x));
+
         $style = '';
         if($tag=='divider') $atts['width'] = 0;
         if($tag!='image'){
@@ -1468,7 +1476,7 @@ class SUPER_Shortcodes {
         $result .= $align;
 
         if( !empty( $atts['tooltip'] ) ) $result .= ' super-tooltip';
-        if( !isset( $atts['error_position'] ) ) $atts['error_position'] = '';
+        if(empty($atts['error_position'])) $atts['error_position'] = (empty($settings['theme_error_position']) ? 'bottom-right' : $settings['theme_error_position']);
         $result .= ' ' . $atts['error_position'];
         if( !isset( $atts['grouped'] ) ) $atts['grouped'] = 0;
         if($atts['grouped']==0) $result .= ' super-ungrouped ';
@@ -1524,7 +1532,7 @@ class SUPER_Shortcodes {
         }
 
         // Display errors that need to be positioned below the field
-        $result .= self::field_error_msg( $tag, $atts, 'top' );
+        $result .= self::field_error_msg(array('tag'=>$tag, 'atts'=>$atts, 'position'=>'top', 'settings'=>$settings));
         return $result;
     }
 
@@ -1564,7 +1572,13 @@ class SUPER_Shortcodes {
         $atts = SUPER_Common::get_tags_attributes(stripslashes($description));
         return '<div class="super-description"'.$atts.'>' . stripslashes($description) . '</div>';
     }
-    public static function field_error_msg( $tag, $atts, $position ) {
+    public static function field_error_msg( $x ){ //} $tag, $atts, $position ) {
+        extract(shortcode_atts(array(
+            'tag'=>'',
+            'atts'=>array(),
+            'position'=>'',
+            'settings'=>array()
+        ), $x));
         // Do not render error message for non fields (those that do not have a name)
         if(!isset($atts['name'])) return '';
         if($tag=='column' || $tag=='multipart') return '';
@@ -1575,7 +1589,7 @@ class SUPER_Shortcodes {
         if(empty($atts['emptyError'])) { // if empty fall back to the validation error message
             $atts['emptyError'] = $atts['error'];
         }
-        if( empty( $atts['error_position'] ) ) $atts['error_position'] = 'bottom-right';
+        if(empty($atts['error_position'])) $atts['error_position'] = (empty($settings['theme_error_position']) ? 'bottom-right' : $settings['theme_error_position']);
         if($position=='top'){
             if($atts['error_position']=='top-left' || $atts['error_position']=='top-right'){
                 return '<div class="super-error-msg">' . stripslashes($atts['error']) . '</div><div class="super-empty-error-msg">' . stripslashes($atts['emptyError']) . '</div>';
@@ -1823,7 +1837,7 @@ class SUPER_Shortcodes {
         if( !empty($regex) ) return '<textarea disabled class="super-custom-regex">' . $regex . '</textarea>';
     }
 
-    public static function loop_conditions( $atts, $tag ) {
+    public static function loop_conditions( $atts, $tag, $settings ) {
 
         $result = '';
 
@@ -1887,7 +1901,7 @@ class SUPER_Shortcodes {
         }
 
         // Display errors that need to be positioned below the field
-        $result .= self::field_error_msg( $tag, $atts, 'bottom' );
+        $result .= self::field_error_msg(array('tag'=>$tag, 'atts'=>$atts, 'position'=>'bottom', 'settings'=>$settings));
 
         return $result;
     }
@@ -2635,7 +2649,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
 
         $result .= '</div>';
         if($close_grid==true){
@@ -2668,7 +2682,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
         
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= '<div class="super-quantity-field-wrap">';
 
             if($atts['icon']!=''){
@@ -2717,7 +2731,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
             $result .= '<span class="super-plus-button super-noselect"><i>+</i></span>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -2747,7 +2761,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         
         // required to add a new line between label/description and the toggle itself
         $result .= '<div class="super-break"></div>';
@@ -2793,7 +2807,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -2816,7 +2830,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
 
         // required to add a new line between label/description and the toggle itself
         $result .= '<div class="super-break"></div>';
@@ -2850,7 +2864,7 @@ class SUPER_Shortcodes {
             $result .= '</div>';
         }
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -2873,7 +2887,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data, '0');
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         $result .= '<input tabindex="-1" class="super-shortcode-field" type="text"';
@@ -2886,7 +2900,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -2915,7 +2929,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -2941,7 +2955,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -3072,7 +3086,7 @@ class SUPER_Shortcodes {
         
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
-        $result = self::opening_tag( $tag, $atts, $class );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
 
         $wrapper_class = '';
         if( ($atts['enable_auto_suggest']=='true') && (!empty($entry_data[$atts['name']])) && (!empty($entry_data[$atts['name']]['value'])) ) {
@@ -3308,7 +3322,7 @@ class SUPER_Shortcodes {
             $result .= '<strong style="color:red;">' . esc_html__( 'Please edit this field and enter your "Google API key" under the "Address auto complete" TAB', 'super-forms' ) . '</strong>';
         }
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
@@ -3322,7 +3336,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result  = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since   1.2.4
@@ -3501,7 +3515,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -3549,7 +3563,7 @@ class SUPER_Shortcodes {
         }
         $atts = $get_items['atts'];
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         $multiple = '';
@@ -3610,7 +3624,7 @@ class SUPER_Shortcodes {
         $atts['placeholderFilled'] = $placeholderFilled;
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;    
     }
@@ -3622,15 +3636,15 @@ class SUPER_Shortcodes {
 
         // @since 4.7.7 - new radio and checkbox layout options
         $layout = $atts['display'];
-        $classes = ' display-' . str_replace('_', '-', $layout);
+        $class = ' display-' . str_replace('_', '-', $layout);
         if($layout=='grid'){
-            $classes .= ' super-c-' . $atts['display_columns'];
+            $class .= ' super-c-' . $atts['display_columns'];
         }
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts, $classes );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -3701,7 +3715,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -3713,15 +3727,15 @@ class SUPER_Shortcodes {
        
         // @since 4.7.7 - new radio and checkbox layout options
         $layout = $atts['display'];
-        $classes = ' display-' . str_replace('_', '-', $layout);
+        $class = ' display-' . str_replace('_', '-', $layout);
         if($layout=='grid'){
-            $classes .= ' super-c-' . $atts['display_columns'];
+            $class .= ' super-c-' . $atts['display_columns'];
         }
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts, $classes );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -3792,7 +3806,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -3808,7 +3822,7 @@ class SUPER_Shortcodes {
         wp_enqueue_script( 'jquery-fileupload', $dir . 'jquery.fileupload.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         wp_enqueue_script( 'jquery-fileupload-process', $dir . 'jquery.fileupload-process.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
         wp_enqueue_script( 'jquery-fileupload-validate', $dir . 'jquery.fileupload-validate.js', array( 'jquery', 'jquery-ui-widget' ), SUPER_VERSION, false );
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         
         // @since 1.2.8
@@ -3934,7 +3948,7 @@ class SUPER_Shortcodes {
             $result .= $files;
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -3990,7 +4004,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -4117,7 +4131,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4138,7 +4152,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);        
         
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -4157,7 +4171,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }    
@@ -4170,7 +4184,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);   
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $result .= '<div class="super-rating">';
 
@@ -4193,7 +4207,7 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4208,7 +4222,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);   
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
         $multiple = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
@@ -4258,7 +4272,7 @@ class SUPER_Shortcodes {
         $result .= self::adaptivePlaceholders( $settings, $atts, $tag );
         $result .= '</div>';
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4271,7 +4285,7 @@ class SUPER_Shortcodes {
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
         // @since 1.9 - custom class
@@ -4289,7 +4303,7 @@ class SUPER_Shortcodes {
         if( !empty($atts['custom_regex']) ) $result .= self::custom_regex( $atts['custom_regex'] );
 
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4342,8 +4356,8 @@ class SUPER_Shortcodes {
             }
         }
 
-        $classes = ' hidden';
-        $result = self::opening_tag( $tag, $atts, $classes );
+        $class = ' hidden';
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         
         $result .= '<input class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
@@ -4382,7 +4396,7 @@ class SUPER_Shortcodes {
         }else{
             wp_enqueue_script('recaptcha', '//www.google.com/recaptcha/api.js?onload=SUPERreCaptcha&render=explicit');
         }
-        $result = self::opening_tag( $tag, $atts, $class );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
 
         if( empty( $atts['error'] ) ) $atts['error'] = '';
         if( empty( $atts['align'] ) ) $atts['align'] = '';
@@ -4410,7 +4424,7 @@ class SUPER_Shortcodes {
             }
         }
 
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4421,7 +4435,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
         
-        $result = self::opening_tag( $tag, $atts, 'align-' . $atts['alignment'] );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>'align-'.$atts['alignment'], 'settings'=>$settings));
         $style = '';
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
         if( $atts['width']!=0 ) $style .= 'max-width:' . $atts['width'] . 'px;';
@@ -4457,7 +4471,7 @@ class SUPER_Shortcodes {
                 if(!empty($url)) $result .= '</a>';
             $result .= '</div>';
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4469,7 +4483,7 @@ class SUPER_Shortcodes {
         $atts = wp_parse_args( $atts, $defaults );
         $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         if( !empty($atts['title']) ) {
             $result .= '<div class="super-heading-title';
             if(!empty($atts['heading_align']) && $atts['heading_align']!=='none') {
@@ -4521,7 +4535,7 @@ class SUPER_Shortcodes {
             $result .= '<div>' . stripslashes($atts['desc']) . '</div>';
             $result .= '</div>';
         }
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4535,14 +4549,16 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result = self::opening_tag( $tag, $atts );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         if( !isset( $atts['title'] ) ) $atts['title'] = '';
         if( $atts['title']!='' ) {
             $class = '';
             if( ( $atts['subtitle']=='' ) && ( $atts['html']=='' ) ) {
                 $class = ' super-bottom-margin';
             }
-            $result .= '<div class="super-html-title' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['title']) . '</div>';
+            $result .= '<div class="super-html-title' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
+            $result .= '"' . SUPER_Common::get_tags_attributes($atts['title']) . '>';
+            $result .= stripslashes($atts['title']) . '</div>';
         }
         if( !isset( $atts['subtitle'] ) ) $atts['subtitle'] = '';
         if( $atts['subtitle']!='' ) {
@@ -4550,7 +4566,9 @@ class SUPER_Shortcodes {
             if( $atts['html']!='' ) { 
                 $class = ' super-no-bottom-margin'; 
             }
-            $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '">' . stripslashes($atts['subtitle']) . '</div>';
+            $result .= '<div class="super-html-subtitle' . $class . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"';
+            $result .= '"' . SUPER_Common::get_tags_attributes($atts['subtitle']) . '>';
+            $result .= stripslashes($atts['subtitle']) . '</div>';
         }
         if(!isset($atts['html'])) $atts['html'] = '';
         if( $atts['html']!='' ) { 
@@ -4592,7 +4610,7 @@ class SUPER_Shortcodes {
                 $result .= ' >' . do_shortcode( stripslashes($html) ) . '</textarea>';
             }
         }
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4602,9 +4620,9 @@ class SUPER_Shortcodes {
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
 
-        $classes = ' align-' . $atts['align'] . ' border-' . $atts['border'] . ' style-' . $atts['border_style'] . ' back-' . $atts['back'];
+        $class = ' align-' . $atts['align'] . ' border-' . $atts['border'] . ' style-' . $atts['border_style'] . ' back-' . $atts['back'];
         $styles = 'padding-top:' . $atts['padding_top'] . 'px;padding-bottom:' . $atts['padding_bottom'] . 'px;';
-        $result = self::opening_tag( $tag, $atts, $classes, $styles );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'styles'=>$styles, 'settings'=>$settings));
         $styles = '';
         $i_styles = '';
         if( $atts['width']!='100' ) {
@@ -4632,7 +4650,7 @@ class SUPER_Shortcodes {
             $result .= '<span class="super-back-to-top"' . $i_styles . '><i class="fas fa-chevron-up"></i></span>';
         }
         $result .= '</div>';
-        $result .= self::loop_conditions( $atts, $tag );
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4645,8 +4663,8 @@ class SUPER_Shortcodes {
         if( $atts['height']!='' ) {
             $styles = 'height:' . $atts['height'] . 'px;';
         }
-        $result = self::opening_tag( $tag, $atts, '', $styles );
-        $result .= self::loop_conditions( $atts, $tag );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'styles'=>$styles, 'settings'=>$settings));
+        $result .= self::loop_conditions( $atts, $tag, $settings );
         $result .= '</div>';
         return $result;
     }
@@ -4658,7 +4676,7 @@ class SUPER_Shortcodes {
         if(!empty($atts['orientation'])){
             $class = 'pdf-orientation-'.$atts['orientation'];
         }
-        $result = self::opening_tag( $tag, $atts, $class );
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         $result .= '</div>';
         return $result;
     }
@@ -6371,6 +6389,9 @@ class SUPER_Shortcodes {
                 }
             }
             if( $css!='' ) $result .= '<style type="text/css">' . $global_css . $css . '</style>';
+            ob_start();
+            SUPER_Forms()->add_form_scripts();
+            $result .= ob_get_clean();
         }
 
         // Load PDF Generator fonts (only if enabled)
@@ -6378,6 +6399,7 @@ class SUPER_Shortcodes {
             if(!empty($settings['_pdf']['generate']) && $settings['_pdf']['generate']==='true') {
                 // When value is not set, but PDF is activated, set it to true, to not break existing forms that might require it
                 if(!isset($settings['_pdf']['textRendering'])) $settings['_pdf']['textRendering'] = 'true';
+                if(!isset($settings['_pdf']['normalizeFonts'])) $settings['_pdf']['normalizeFonts'] = 'true';
                 if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'true'; 
                 if(!isset($settings['_pdf']['arabicText'])) $settings['_pdf']['arabicText'] = 'false'; 
                 // Only if text rendering is enabled, and cyrillic text is enabled

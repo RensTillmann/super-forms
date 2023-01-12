@@ -1647,7 +1647,7 @@ msgid "Auto populate data with fields"
 msgstr "புலங்களுடன் தரவை தானாக நிரப்பவும்"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "ஆட்டோ பரிந்துரைக்கிறது"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

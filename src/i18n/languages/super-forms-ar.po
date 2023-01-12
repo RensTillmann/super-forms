@@ -1623,7 +1623,7 @@ msgid "Auto populate data with fields"
 msgstr "ملء البيانات تلقائيًا بالحقول"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "اقتراح تلقائي"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

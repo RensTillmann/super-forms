@@ -283,6 +283,13 @@ if(!class_exists('SUPER_PDF_Generator')) :
                     echo '</div>';
                     // PDF Text rendering
                     echo '<div class="sfui-setting sfui-inline">';
+                        echo '<span class="sfui-title">' . esc_html__( 'PDF font normalization', 'super-forms' ) . ':</span>';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<input type="checkbox" name="normalizeFonts" value="true"' . ($s['normalizeFonts']==='true' ? ' checked="checked"' : '') . ' />';
+                            echo '<span class="sfui-label">' . esc_html__( 'Enable (recommended)', 'super-forms' ) . '</span>';
+                        echo '</label>';
+                    echo '</div>';
+                    echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'PDF Text rendering', 'super-forms' ) . ':</span>';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                             echo '<input type="checkbox" name="textRendering" value="true"' . ($s['textRendering']==='true' ? ' checked="checked"' : '') . ' />';
@@ -342,6 +349,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
             if(empty($s['format'])) $s['format'] = 'a4';
             if(empty($s['customFormat'])) $s['customFormat'] = '';
             if(empty($s['textRendering'])) $s['textRendering'] = 'true';
+            if(empty($s['normalizeFonts'])) $s['normalizeFonts'] = 'true';
             // Only if form already exists otherwise set to false by default
             if(!empty($_GET['id'])){
                 // Form already exists (previously saved)

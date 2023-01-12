@@ -1616,7 +1616,7 @@ msgid "Auto populate data with fields"
 msgstr "فیلڈز کے ساتھ ڈیٹا کو خود بخود آباد کریں۔"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "آٹو تجویز"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076
