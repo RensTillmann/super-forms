@@ -1204,7 +1204,7 @@ class SUPER_Common {
             $names[$n] = $n;
         }
         if(!empty($names)){
-            return ' data-tags="{' . implode('}{', $names) . '}" data-original="' . esc_attr($value) . '"';
+            return ' data-tags="' . esc_attr('{' . implode('}{', $names) . '}') . '" data-original="' . esc_attr($value) . '"';
         }
         return '';
     }

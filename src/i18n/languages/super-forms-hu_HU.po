@@ -1662,7 +1662,7 @@ msgid "Auto populate data with fields"
 msgstr "Adatok automatikus kitöltése mezőkkel"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "Automatikus javaslat"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

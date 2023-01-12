@@ -23,16 +23,16 @@ All forms are stored inside `wp_posts` table as post_type `super_form`
 
 ## Where are the individual form settings stored?
 
-Individual form settings are stored inside `wp_postmeta` table under the meta key `_super_form_settings`
+Individual form Settings are stored inside `wp_postmeta` table under the meta key `_super_form_settings`
 
 ## Where are the form elements stored?
 
-Individual form settings are stored inside `wp_postmeta` table under the meta key `_super_elements`
+Individual form Elements are stored inside `wp_postmeta` table under the meta key `_super_elements`
 
 ## Where are the form triggers stored?
 
-Triggers are stored inside `wp_postmeta` table under the meta key `_super_triggers`
+Individual form Triggers are stored inside `wp_postmeta` table under the meta key `_super_triggers`
 
 ## Where are the form translations stored?
 
-Individual form settings are stored inside `wp_postmeta` table under the meta key `_super_translations`
+Individual form translations are stored inside `wp_postmeta` table under the meta key `_super_translations`

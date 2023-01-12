@@ -539,7 +539,7 @@ $array['form_elements'] = array(
                     ),
                 ),
                 'auto_suggest' => array(
-                    'name' => esc_html__( 'Auto suggest', 'super-forms' ),
+                    'name' => esc_html__( 'Autosuggest', 'super-forms' ),
                     'fields' => array(
                         'enable_auto_suggest' => array(
                             'desc' => esc_html__( 'Wether or not to use the auto suggest feature', 'super-forms' ), 
@@ -1458,7 +1458,7 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
-                        'error_position' => $error_position_left_only,
+                        'error_position' => $error_position,
 
                         // @since 3.2.0 - custom TAB index
                         'custom_tab_index' => $custom_tab_index,
@@ -1619,7 +1619,7 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
-                        'error_position' => $error_position_left_only,
+                        'error_position' => $error_position,
                         
                         // @since 1.9
                         'class' => $class,
@@ -1775,7 +1775,7 @@ $array['form_elements'] = array(
                         'exclude' => $exclude,
                         'replace_commas' => $replace_commas,
                         'exclude_entry' => $exclude_entry, // @since 3.3.0 - exclude data from being saved into contact entry
-                        'error_position' => $error_position_left_only,
+                        'error_position' => $error_position,
                         
                         // @since 1.9
                         'class' => $class,

@@ -374,7 +374,7 @@
     };
 
     // init connected datepickers
-    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay, skipFieldChangeForElement){
+    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay){
         if(selectedDate===''){
             $this.closest('.super-field').classList.remove('super-filled');
         }else{
@@ -485,8 +485,7 @@
     };
 
     // init Datepicker
-    SUPER.init_datepicker = function(skipFieldChangeForElement){
-        if(typeof skipFieldChangeForElement === 'undefined') skipFieldChangeForElement = ''
+    SUPER.init_datepicker = function(){
         var i;
 
         Date.prototype.getWeek = function() {
@@ -622,7 +621,7 @@
                     $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
                     if($date!==null){
                         $date = $date.toString("dd-MM-yyyy");
-                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay, skipFieldChangeForElement);
+                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay);
                     }
                 }
             }else{
@@ -639,7 +638,7 @@
                 singleDatesClassName = 'super-datepicker-singledates';
             var options = {
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay, skipFieldChangeForElement);
+                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
                 },
                 beforeShowDay: function(dt) {
                     workDays = (this.dataset.workDays == 'true');
@@ -1305,12 +1304,12 @@
         reversed.shift();
         return reversed.join('');
     }
-    SUPER.append_dynamic_column_depth = function(clone){
+    SUPER.append_dynamic_column_depth = function(args){
         var added_fields = {},
             added_fields_with_suffix = {},
             added_fields_without_suffix = [],
             i, field, parent, last_tab_index,
-            nodes = clone.querySelectorAll('.super-shortcode-field[name]');
+            nodes = args.clone.querySelectorAll('.super-shortcode-field[name]');
 
         for (i = 0; i < nodes.length; ++i) {
             field = nodes[i];
@@ -1327,10 +1326,10 @@
             added_fields[field.name] = field;
 
             // Figure out how deep this node is inside dynamic columns
-            var cloneIndex = $(clone).index();
+            var cloneIndex = $(args.clone).index();
             var dynamicParent = field.closest('.super-duplicate-column-fields');
             var nameSuffix = '';
-            if(cloneIndex>0 && clone===dynamicParent){
+            if(cloneIndex>0 && args.clone===dynamicParent){
                 nameSuffix = '_'+(cloneIndex+1);
             }
             var levels = field.closest('.super-column[data-duplicate-limit]').dataset.level;
@@ -1346,15 +1345,19 @@
         }
 
 
-        nodes = clone.querySelectorAll('.super-html-content, .super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
+        nodes = args.clone.querySelectorAll('.super-shortcode div[data-original], .super-html-content, .super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
             // Before we continue replace any foreach(file_upload_fieldname)
             var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
             var conditions, m;
-            if(nodes[i].classList.contains('super-html-content')){
-                conditions = nodes[i].parentNode.querySelector('textarea').value;
+            if(nodes[i].dataset.original){
+                conditions = nodes[i].dataset.original;
             }else{
-                conditions = nodes[i].value;
+                if(nodes[i].classList.contains('super-html-content')){
+                    conditions = nodes[i].parentNode.querySelector('textarea').value;
+                }else{
+                    conditions = nodes[i].value;
+                }
             }
             var replaceTagsWithValue = {};
             while ((m = regex.exec(conditions)) !== null) {
@@ -1371,9 +1374,9 @@
                 if($s!=='') $s = ';'+$s;
                 var currentFieldParent = $(nodes[i]).parents('.super-duplicate-column-fields:eq(0)');
                 //var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$d+'"]').first();
-                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"]').first();
+                var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"], .super-active-files[data-oname="'+$n+'"]').first();
                 if(findChildField.length===0) continue;
-                levels = clone.closest('.super-column[data-duplicate-limit]').dataset.level;
+                levels = args.clone.closest('.super-column[data-duplicate-limit]').dataset.level;
                 if(!levels) levels = '';
                 var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
                 if(childParentIndex!==0){
@@ -1384,7 +1387,18 @@
             }
             var key, oldValue, newValue;
             for(key in replaceTagsWithValue) {
+                if(nodes[i].dataset.original){
+                    oldValue = nodes[i].dataset.original;
+                    newValue = SUPER.replaceAll(oldValue, key, replaceTagsWithValue[key]);
+                    nodes[i].dataset.original = newValue;
+                    continue;
+                }
                 if(nodes[i].classList.contains('super-html-content')){
+                    debugger;
+                    debugger;
+                    debugger;
+                    debugger;
+                    debugger;
                     oldValue = nodes[i].parentNode.querySelector('textarea').value;
                     newValue = SUPER.replaceAll(oldValue, key, replaceTagsWithValue[key]);
                     nodes[i].parentNode.querySelector('textarea').value = newValue;
@@ -1396,7 +1410,7 @@
             }
         }
         $.each(added_fields, function(name, field) {
-            SUPER.after_field_change_blur_hook({form: clone, el: field});
+            SUPER.after_field_change_blur_hook({form: args.clone, el: field});
         });
         return {
             added_fields: added_fields,
@@ -2095,63 +2109,19 @@
         });
         
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            var i, x, y,
-                nodes,
-                v,vv,
-                found_field,
-                el,
-                parent,
-                column,
-                form,
-                firstColumn,
-                lastColumn,
-                found,
-                limit,
-                unique_field_names = {},
-                field_names = {},
-                field_name,
-                field_labels = {},
-                counter = 0,
-                field,
-                clone,
-                last_tab_index,
-                added_fields = {},
-                added_fields_with_suffix = {},
-                added_fields_without_suffix = [],
-                //field_counter = 0,
-                element,
-                foundElements = [],
-                html_fields,
-                data_fields,
-                conditions,
-                new_data_attr,
-                new_data_fields,
-                new_text,
-                condition,
-                replace_names,
-                new_field,
-                new_count,
-                suffix,
-                superMath,
-                value_n,
-                names,
-                name,
-                values,
-                array,
-                match,
-                number,
-                regex = /{([^\\\/\s"'+]*?)}/g,
-                oldv,
-                duplicate_dynamically;
+            var i, x, nodes, el, parent, column, form, firstColumn, lastColumn,
+                found, limit, unique_field_names = {}, field_names = {}, field_labels = {}, counter = 0,
+                field, clone, added_fields_with_suffix = {}, foundElements = [], html_fields, suffix, name, 
+                regex = /{([^\\\/\s"'+]*?)}/g;
 
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');
             // If custom padding is being used set $column to be the padding wrapper `div`
             column = ( parent.parentNode.classList.contains('super-column-custom-padding') ? el.closest('.super-column-custom-padding') : parent.closest('.super-column') );
             form = SUPER.get_frontend_or_backend_form({el: el, form: form});
-            var duplicateColumns = column.querySelectorAll(':scope > .super-duplicate-column-fields');
+			var duplicateColumns = column.querySelectorAll(':scope > .super-duplicate-column-fields, :scope > .super-column-custom-padding > .super-duplicate-column-fields');
             firstColumn = duplicateColumns[0];
-            found = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
+			found = column.querySelectorAll(':scope > .super-duplicate-column-fields, :scope > .super-column-custom-padding > .super-duplicate-column-fields').length;
             limit = parseInt(column.dataset.duplicateLimit, 10);
             if( (limit!==0) && (found >= limit) ) {
                 return false;
@@ -2174,181 +2144,30 @@
                 counter++;
             }
 
-            counter = column.querySelectorAll(':scope > .super-duplicate-column-fields').length;
+			counter = column.querySelectorAll(':scope > .super-duplicate-column-fields, :scope > .super-column-custom-padding > .super-duplicate-column-fields').length;
             clone = firstColumn.cloneNode(true);
             lastColumn = duplicateColumns[(found-1)];
             lastColumn.parentNode.insertBefore(clone, lastColumn.nextElementSibling);
-
             // @since 3.3.0 - hook after appending new column
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
             // Now reset field values to default
             SUPER.init_clear_form({form: form, clone: clone});
-
-            // @since 3.2.0 - increment for tab index fields when dynamic column is cloned
-            if($(clone).find('.super-shortcode[data-super-tab-index]').last().length){
-                last_tab_index = $(clone).find('.super-shortcode[data-super-tab-index]').last().attr('data-super-tab-index');
-            }else{
-                last_tab_index = '';
-            }
-            last_tab_index = parseFloat(last_tab_index);
             
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
             // Loop over all fields that are inside dynamic column and rename them accordingly
-            var $info = SUPER.append_dynamic_column_depth(clone);
-            added_fields_with_suffix = $info.added_fields_with_suffix;
- 
-            // @since 4.6.0 - update html field tags attribute
-            // @since 4.6.0 - update accordion title and description field tags attribute
-            // @since 4.9.6 - update google maps field tags attribute
-            // Get all elements based on field tag attribute that contain one of these field names
-            // Then convert it to an array and append the missing field names
-            // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
-            foundElements = [];
-            $.each(added_fields_with_suffix, function( index ) {
-                html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
-                for (i = 0; i < html_fields.length; ++i) {
-                    found = false;
-                    for (x=0; x<foundElements.length; x++) {
-                        if($(foundElements[x]).is(html_fields[i])) found = true;
-                    }
-                    if(!found) foundElements.push(html_fields[i]);
-                }
-            });
-
-            var formId = 0;
-            if(form.querySelector('input[name="hidden_form_id"]')){
-                formId = form.querySelector('input[name="hidden_form_id"]').value;
-            }
-            for(i=0; i<foundElements.length; i++) {
-                if(!foundElements[i].parentNode.querySelector('textarea')) continue;
-                var html = foundElements[i].parentNode.querySelector('textarea').value;
-                html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                html = SUPER.replaceAll(html, '<%', '{');
-                html = SUPER.replaceAll(html, '%>', '}');
-                foundElements[i].innerHTML = html;
-            }
-            
-            // Now replace {tags} inside HTML element
-            for(i=0; i<foundElements.length; i++) {
-                var html;
-                // @since 4.9.0 - accordion title description {tags} compatibility
-                if( foundElements[i].dataset.tags ) {
-                    html = foundElements[i].dataset.original;
-                }else{
-                    if(!foundElements[i].parentNode.querySelector('textarea')) continue;
-                    html = foundElements[i].parentNode.querySelector('textarea').value;
-                }
-                // If empty skip
-                if(html===''){
-                    continue;
-                }
-                // Before we continue replace any foreach(file_upload_fieldname)
-                //var regex = /{([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?}/g;
-                var regex = /(?:isset\(|!isset\(|{)([-_a-zA-Z0-9]{1,})(\[.*?\])?(_\d{1,})?(?:;([a-zA-Z0-9]{1,}))?(?:\):|})/g;
-                var m;
-                var replaceTagsWithValue = {};
-                while ((m = regex.exec(html)) !== null) {
-                    // This is necessary to avoid infinite loops with zero-width matches
-                    if (m.index === regex.lastIndex) {
-                        regex.lastIndex++;
-                    }
-                    var $o = (m[0] ? m[0] : ''); // original tag
-                    var $n = (m[1] ? m[1] : ''); // name
-                    var $d = (m[2] ? m[2] : ''); // depth
-                    var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
-                    var $c = (m[3] ? m[3] : ''); // counter e.g: _2 or _3 etc.
-                    var $s = (m[4] ? m[4] : ''); // suffix
-                    if($s!=='') $s = ';'+$s;
-                    var currentFieldParent = $(foundElements[i]).parents('.super-duplicate-column-fields:eq(0)');
-                    //var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"][data-olevels="'+$dr+'"]').first();
-                    var findChildField = $(currentFieldParent).find('.super-shortcode-field[data-oname="'+$n+'"]').first();
-                    if(findChildField.length===0) continue;
-                    var allParents = $(findChildField).parents('.super-duplicate-column-fields');
-                    var childParentIndex = $(findChildField).parents('.super-duplicate-column-fields:eq(0)').index();
-                    var suffix = [];
-                    $(allParents).each(function(key){
-                        var currentParentIndex = $(this).index();  // e.g: 0, 1, 2
-                        if(key===0 && currentParentIndex===0){
-                            return;
-                        }
-                        suffix.push('['+currentParentIndex+']');
-                    });
-                    if(childParentIndex!==0){
-                        delete suffix[0];
-                    }
-                    var levels = suffix.reverse().join('');
-                    if(childParentIndex!==0) $c = '_'+(childParentIndex+1);
-                    if($o.indexOf('isset(')!==-1){
-                        if($o.indexOf('!isset(')!==-1){
-                            if($o.indexOf('if(!isset(')!==-1){
-                                replaceTagsWithValue[$o] = 'if(!isset('+$n+levels+$c+$s+')):';
-                            }else{
-                                replaceTagsWithValue[$o] = '!isset('+$n+levels+$c+$s+'):';
-                            }
-                        }else{
-                            if($o.indexOf('if(isset(')!==-1){
-                                replaceTagsWithValue[$o] = 'if(isset('+$n+levels+$c+$s+')):';
-                            }else{
-                                replaceTagsWithValue[$o] = 'isset('+$n+levels+$c+$s+'):';
-                            }
-                        }
-                    }else{
-                        replaceTagsWithValue[$o] = '{'+$n+levels+$c+$s+'}';
-                    }
-                }
-                var key;
-                for(key in replaceTagsWithValue) {
-                    html = SUPER.replaceAll(html, key, replaceTagsWithValue[key]);
-                }
-                if( foundElements[i].dataset.tags ) {
-                    if(foundElements[i].value || foundElements[i].dataset.value){
-                        if(foundElements[i].value) foundElements[i].value = html;
-                        if(foundElements[i].dataset.value) foundElements[i].dataset.value = html;
-                    }else{
-                        foundElements[i].dataset.original = html;
-                    }
-                }else{
-                    if(!foundElements[i].parentNode.querySelector('textarea')) continue;
-                    foundElements[i].parentNode.querySelector('textarea').value = html;
-                }
-
-            }
-            // Required to update calculations after adding dynamic column
-            SUPER.after_field_change_blur_hook({form: clone, el: undefined});
-
-            SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
-            
-            // @since 2.4.0 - hook after adding new column
-            SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
-            
+            SUPER.append_dynamic_column_depth({form: form, clone: clone});
             SUPER.init_common_fields();
-            //debugger;
-            //SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
-            //debugger;
-            //SUPER.init_common_fields();
-            //debugger;
-            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
-            //// Required to update calculations after adding dynamic column
-            //debugger;
-            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
-
-            //debugger;
-            //SUPER.init_replace_html_tags({el: undefined, form: clone, foundElements: foundElements});
-            //debugger;
-            //SUPER.after_duplicating_column_hook(form, unique_field_names, clone);            
-            //debugger;
-            //SUPER.init_common_fields();
-            //debugger;
-            //SUPER.after_field_change_blur_hook({form: clone, el: undefined});
-            //debugger;
+            SUPER.init_replace_html_tags({el: undefined, form: clone});
+            SUPER.after_duplicating_column_hook(form, unique_field_names, clone);
+            SUPER.after_field_change_blur_hook({form: clone, el: undefined});
         });
 
         // Delete dynamic column
         $doc.on('click', '.super-duplicate-column-fields .super-delete-duplicate', function(){
             var i, x, nodes, found,
                 form = this.closest('.super-form'),
+                formId = form.querySelector('input[name="hidden_form_id"]').value,
                 removedFields = {},
-                dataFields,
                 parent = this.closest('.super-duplicate-column-fields'),
                 foundElements = [];
             nodes = parent.querySelectorAll('.super-shortcode-field');
@@ -2390,37 +2209,39 @@
             // Now we can remove the dynamic column
             parent.remove();
 
-            // @since 4.6.0 - update html field tags attribute
-            // @since 4.6.0 - update accordion title and description field tags attribute
-            // @since 4.9.6 - update google maps field tags attribute
-            // Get all elements based on field tag attribute that contain one of these field names
-            // Then convert it to an array and append the missing field names
-            // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
-            foundElements = [];
-            $.each(removedFields, function( index ) {
-                var html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
-                for (i = 0; i < html_fields.length; ++i) {
-                    if(!html_fields[i].closest('.super-duplicate-column-fields')){
-                        found = false;
-                        for(x=0; x<foundElements.length; x++) {
-                            if($(foundElements[x]).is(html_fields[i])) found = true;
-                        }
-                        if(!found) foundElements.push(html_fields[i]);
-                    }
-                }
-            });
+            // tmp // @since 4.6.0 - update html field tags attribute
+            // tmp // @since 4.6.0 - update accordion title and description field tags attribute
+            // tmp // @since 4.9.6 - update google maps field tags attribute
+            // tmp // Get all elements based on field tag attribute that contain one of these field names
+            // tmp // Then convert it to an array and append the missing field names
+            // tmp // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
+            // tmp foundElements = [];
+            // tmp $.each(removedFields, function( index ) {
+            // tmp     var html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
+            // tmp     for (i = 0; i < html_fields.length; ++i) {
+            // tmp         if(!html_fields[i].closest('.super-duplicate-column-fields')){
+            // tmp             found = false;
+            // tmp             for(x=0; x<foundElements.length; x++) {
+            // tmp                 if($(foundElements[x]).is(html_fields[i])) found = true;
+            // tmp             }
+            // tmp             if(!found) foundElements.push(html_fields[i]);
+            // tmp         }
+            // tmp     }
+            // tmp });
 
-            var formId = 0;
-            if(form.querySelector('input[name="hidden_form_id"]')){
-                formId = form.querySelector('input[name="hidden_form_id"]').value;
-            }
-            for (i = 0; i < foundElements.length; ++i) {
-                var html = foundElements[i].parentNode.querySelector('textarea').value;
-                html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
-                html = SUPER.replaceAll(html, '<%', '{');
-                html = SUPER.replaceAll(html, '%>', '}');
-                foundElements[i].innerHTML = html;
-            }
+            // tmp var formId = 0;
+            // tmp if(form.querySelector('input[name="hidden_form_id"]')){
+            // tmp     formId = form.querySelector('input[name="hidden_form_id"]').value;
+            // tmp }
+            // tmp for (i = 0; i < foundElements.length; ++i) {
+            // tmp     if(!foundElements[i].parentNode.querySelector('textarea')) continue;
+            // tmp     var html = foundElements[i].parentNode.querySelector('textarea').value;
+            // tmp     html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
+            // tmp     html = SUPER.replaceAll(html, '<%', '{');
+            // tmp     html = SUPER.replaceAll(html, '%>', '}');
+            // tmp     debugger;
+            // tmp     foundElements[i].innerHTML = html;
+            // tmp }
 
             // @IMPORTANT
             // The below hook should come before the field change hook
@@ -2429,7 +2250,7 @@
             SUPER.after_duplicating_column_hook(form, removedFields);
 
             // Now we need to update the html elements
-            SUPER.init_replace_html_tags({el: undefined, form: form, foundElements: foundElements});
+            SUPER.init_replace_html_tags({el: undefined, form: form});
 
             // Reload google maps
             SUPER.google_maps_api.initMaps({form: form});

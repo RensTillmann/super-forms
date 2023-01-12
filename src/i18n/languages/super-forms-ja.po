@@ -1544,7 +1544,7 @@ msgid "Auto populate data with fields"
 msgstr "フィールドを使用してデータを自動入力する"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "自動提案"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

@@ -2740,7 +2740,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $name,
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
                     'choose_payment_method' => esc_html__( 'Please choose a payment method!', 'super-forms' ),
                     'ideal_subscription_error' => esc_html__( 'Subscriptions can not be paid through iDeal, please choose a different payment method!', 'super-forms' ),
                     'styles' => array(
@@ -4158,7 +4158,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $handle,
                 $name,
                 array( 
-                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
                     'styles' => array(
                         
                     )
@@ -4166,7 +4166,7 @@ if(!class_exists('SUPER_Stripe')) :
             );
             wp_enqueue_script( $handle );
 
-            $result = SUPER_Shortcodes::opening_tag( $tag, $atts );
+            $result = SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             $result .= '<input hidden class="super-shortcode-field super-hidden" data-validation="empty" type="text" name="super_stripe_ideal" style="display:none;"';
             $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
@@ -4174,7 +4174,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-ideal-element"></div>';
             $result .= '<div class="super-ideal-errors" role="alert"></div>';
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result .= '</div>';
             return $result;        
         }
@@ -4189,7 +4189,7 @@ if(!class_exists('SUPER_Stripe')) :
         public static function stripe_element($x) {
             extract($x); // $tag, $atts, $inner, $shortcodes=null, $settings=null, $i18n=null
             self::stripe_element_scripts();
-            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result = SUPER_Shortcodes::opening_tag(array('tag'=>'text', 'atts'=>$atts, 'settings'=>$settings));
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             if( empty($atts['payment_method']) ) {
                 $result .= esc_html__( 'Please edit this Stripe element and choose a payment gateway!', 'super-forms' );
@@ -4207,7 +4207,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result .= '</div>';
             return $result;
         }
@@ -4239,7 +4239,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $name,
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
                     'styles' => array(
                         'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Helvetica", "Arial", sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
@@ -4255,7 +4255,7 @@ if(!class_exists('SUPER_Stripe')) :
             );
             wp_enqueue_script( $handle );
 
-            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result = SUPER_Shortcodes::opening_tag(array('tag'=>'text', 'atts'=>$atts, 'settings'=>$settings));
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             $result .= '<div class="super-stripe-ideal-element">';
             $result .= '</div>';
@@ -4263,7 +4263,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result .= '</div>';
             return $result;
         }
@@ -4295,7 +4295,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $name,
                 array( 
                     'ajaxurl' => admin_url( 'admin-ajax.php', 'relative' ),
-                    'stripe_pk' => $global_settings['stripe_pk'],
+                    'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
                     'styles' => array(
                         'fontFamily' => ( isset( $settings['font_global_family'] ) ? stripslashes($settings['font_global_family']) : '"Helvetica", "Arial", sans-serif' ),
                         'fontSize' => ( isset( $settings['font_global_size'] ) ? $settings['font_global_size'] : 12 ),
@@ -4311,7 +4311,7 @@ if(!class_exists('SUPER_Stripe')) :
             );
             wp_enqueue_script( $handle );
 
-            $result = SUPER_Shortcodes::opening_tag( 'text', $atts );
+            $result = SUPER_Shortcodes::opening_tag(array('tag'=>'text', 'atts'=>$atts, 'settings'=>$settings));
             $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             $result .= '<div class="super-stripe-cc-element">';
             $result .= '</div>';
@@ -4319,7 +4319,7 @@ if(!class_exists('SUPER_Stripe')) :
             $result .= '<div class="super-stripe-errors" role="alert"></div>';
             $result .= SUPER_Shortcodes::common_attributes( $atts, 'text' );
             $result .= '</div>';
-            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+            $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
             $result .= '</div>';
             return $result;                 
         }
@@ -4368,7 +4368,7 @@ if(!class_exists('SUPER_Stripe')) :
                     $handle,
                     $name,
                     array( 
-                        'stripe_pk' => $global_settings['stripe_pk'],
+                        'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
                         'status' => (!empty($GLOBALS['stripe_obj']) ? $GLOBALS['stripe_obj']->status : ''),
                         'client_secret' => $client_secret,
                         'livemode' => $livemode,

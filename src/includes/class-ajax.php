@@ -115,10 +115,8 @@ class SUPER_Ajax {
         }
     }
     public static function new_version_check(){
-        //error_log('loaded modifiedTime: '.$_POST['modifiedTime']);
-        //error_log('current modifiedTime: '.get_post_modified_time('U', false, $_POST['form_id']));
-        //var_dump($_POST['modifiedTime']);
-        //var_dump(get_post_modified_time('U', false, $_POST['form_id']));
+        error_log('loaded modifiedTime: '.$_POST['modifiedTime']);
+        error_log('current modifiedTime: '.get_post_modified_time('U', false, $_POST['form_id']));
         if($_POST['modifiedTime'] < get_post_modified_time('U', false, $_POST['form_id'])){
             echo 'true'; // there is a newer version
         }else{
@@ -2815,7 +2813,12 @@ class SUPER_Ajax {
     }
     public static function upload_files() {
         $atts = self::submit_form_checks();
+        $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $form_id = $atts['form_id'];
+        $entry_id = $atts['entry_id'];
+        $list_id = $atts['list_id'];
+        $settings = $atts['settings'];
+        $response_data = $atts['response_data'];
         $data = $atts['data'];
         $odata = $data;
         // Dependencies for file upload

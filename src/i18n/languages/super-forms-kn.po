@@ -1634,7 +1634,7 @@ msgid "Auto populate data with fields"
 msgstr "ಕ್ಷೇತ್ರಗಳೊಂದಿಗೆ ಡೇಟಾವನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಜನಪ್ರಿಯಗೊಳಿಸಿ"
 
 #: includes/shortcodes/form-elements.php:537
-msgid "Auto suggest"
+msgid "Autosuggest"
 msgstr "ಸ್ವಯಂ ಸೂಚಿಸುತ್ತದೆ"
 
 #: add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php:1076

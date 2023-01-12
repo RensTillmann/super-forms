@@ -349,7 +349,7 @@ if( !class_exists('SUPER_Signature') ) :
             wp_enqueue_script( 'super-jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
 			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-jquery-signature' ), SUPER_Signature()->version );
 
-            $result .= SUPER_Shortcodes::opening_tag( $tag, $atts );
+            $result .= SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
             
             if( !isset( $atts['background_img'] ) ) $atts['background_img'] = 0;
@@ -388,7 +388,7 @@ if( !class_exists('SUPER_Signature') ) :
             }
             $result .= '</textarea>';
 	        $result .= '</div>';
-	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag );
+	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
 	        $result .= '</div>';
 	        return $result;
         }
