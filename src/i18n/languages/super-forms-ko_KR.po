@@ -13972,7 +13972,7 @@ msgstr "관리자가 등록을 승인하면 이 이메일이 사용자에게 전
 #: add-ons/super-forms-woocommerce/super-forms-woocommerce.php:1618
 #, php-format
 msgid ""
-"When configured, the product(s) will not be listend on the Archive pages "
+"When configured, the product(s) will not be listed on the Archive pages "
 "(shop, category, tag and search pages). This way the product can only be "
 "ordered by submitting the form.%1$s%1$sPut each product ID and or Category "
 "slug on a new line. For example:"

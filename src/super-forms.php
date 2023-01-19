@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.690
+ * Version:           6.3.694
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.690';
+        public $version = '6.3.694';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -653,7 +653,7 @@ if(!class_exists('SUPER_Forms')) :
                 // Do things
                 error_log('test1');
                 SUPER_Stripe::setAppInfo();
-                error_log('test2');
+                error_log('test21');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
                 error_log('test3');
                 $m = $s['metadata'];
@@ -700,7 +700,7 @@ if(!class_exists('SUPER_Forms')) :
                 //error_log('3');
                 $m = $s['metadata'];
                 //error_log('4');
-                var_dump($m);
+                //var_dump($m);
                 //error_log('5');
                 //$submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 // NOW DO THINGS :) 
@@ -1256,6 +1256,7 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             // Regex to check if field was submitted (with isset and !isset)
+            $email_body = SUPER_Common::email_tags( $email_body, $data['data'], $data['settings'] );
             $regex = '/(?:!isset|if\(!isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
@@ -1274,7 +1275,7 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             // Regex to check if field was submitted (with isset and !isset)
-            $regex = '/(?:isset|if\(isset)\([-_a-zA-Z0-9]{1,}(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
+            $regex = '/(?:isset|if\(isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
                 $original = $v[0];
@@ -1639,8 +1640,6 @@ if(!class_exists('SUPER_Forms')) :
             $where .= " AND (";
                 $where .= "($table.post_type = 'super_contact_entry')";
             $where .= ")";
-            
-            error_log($where);
             return $where;
         }
 
@@ -1692,8 +1691,10 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.1.9.5
         */
-        public static function enqueue_element_styles() {
-            self::enqueue_fontawesome_styles();
+        public static function enqueue_element_styles($loadFontAwesomev5=true) {
+            if($loadFontAwesomev5){
+                self::enqueue_fontawesome_styles();
+            }
             wp_enqueue_style( 'super-elements', SUPER_PLUGIN_FILE . 'assets/css/frontend/elements.css', array(), SUPER_VERSION );
         }
 

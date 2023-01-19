@@ -730,7 +730,7 @@ class SUPER_Ajax {
                 $data = $_POST['data'];
             }
             $settings = SUPER_Common::get_form_settings($data['hidden_form_id']['value']);
-            $html = SUPER_Forms()->email_if_statements( $html, $data );
+            $html = SUPER_Forms()->email_if_statements( $html, array('settings'=>$settings, 'data'=>$data) );
             $html = SUPER_Common::email_tags( $html, $data, $settings );
             echo $html;
         }else{
@@ -3403,9 +3403,9 @@ class SUPER_Ajax {
             if(isset($_POST['list_id'])) $list_id = absint($_POST['list_id']);
             if($list_id!=='' && isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
                 $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
-                $response_data['enableFormProcessingOverlay'] = $list['enableFormProcessingOverlay'];
-                $response_data['closeFormProcessingOverlay'] = $list['closeFormProcessingOverlay'];
-                $response_data['closeEditorWindowAfterEditing'] = $list['closeEditorWindowAfterEditing'];
+                $response_data['form_processing_overlay'] = $list['form_processing_overlay'];
+                $response_data['close_form_processing_overlay'] = $list['close_form_processing_overlay'];
+                $response_data['close_editor_window_after_editing'] = $list['close_editor_window_after_editing'];
             }
         }
 
@@ -3903,7 +3903,7 @@ class SUPER_Ajax {
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
             
             // @since 4.1.0 - option to do if statements in success message
-            $msg = SUPER_Forms()->email_if_statements( $msg, $data );
+            $msg = SUPER_Forms()->email_if_statements( $msg, array('settings'=>$settings, 'data'=>$data) );
 
             $msg = SUPER_Common::email_tags( $msg, $data, $settings );
             $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );

@@ -3,6 +3,7 @@
     <div class="super-wrapper">
         <ul class="super-tabs super-noselect">
             <?php
+            echo '<label class="super-search-filter-input-field"><input type="text" name="search" placeholder="'.esc_html__( 'Search settings...', 'super-forms' ).'" /><span class="super-clear-search"></span></label>';
             $counter = 0;
             foreach( $fields as $k => $v ) {
                 if(!isset($v['name'])) continue;

@@ -249,10 +249,15 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    debugger;
                     var result = JSON.parse(this.responseText);
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
-                    node.innerHTML = result.html;
+                    if(result.error===true){
+                        node.innerHTML = result.msg;
+                    }else{
+                        node.innerHTML = result.html;
+                    }
                     modal.appendChild(node);
                     if(typeof SUPER.form_js === "undefined"){
                         SUPER.form_js = {};

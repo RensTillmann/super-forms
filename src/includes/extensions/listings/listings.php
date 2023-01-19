@@ -117,25 +117,20 @@ if(!class_exists('SUPER_Listings')) :
             $items = array();
             $checked = false;
             foreach(SUPER_Settings::get_entry_statuses() as $k => $v){
-                if($k==='') continue;
                 $items[$k] = array();
+                if($k==='') $items['']['value'] = '0';
                 if($k===$entry_status && $checked===false){
-                    $items[$k]['value'] = $k;
+                    if($k!=='') $items[$k]['value'] = $k;
                     $items[$k]['label'] = $v['name'];
                     $items[$k]['checked'] = 'true';
                     $checked = true;
                     continue;
                 }
-                $items[$k]['value'] = $k;
+                if($k!=='') $items[$k]['value'] = $k;
                 $items[$k]['label'] = $v['name'];
                 $items[$k]['checked'] = 'false';
             }
-            if($checked===false){
-                $items['']['value'] = '0';
-                $items['']['checked'] = 'true';
-            }
-
-            $result .= '<div class="super-listings-entry-status-changer">';
+            $result .= '<div class="super-listings-entry-status-changer" data-pdfoption="exclude">';
             $args = array(
                 'tag'=>'dropdown',
                 'atts'=>array(
@@ -761,26 +756,6 @@ if(!class_exists('SUPER_Listings')) :
                                     echo '</div>';
                                     echo '<div class="sfui-setting">';
                                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="edit_any.form_processing_overlay" value="true"' . ($v['edit_any']['form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Enable form processing overlay (popup)', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                        echo '<div class="sfui-sub-settings" data-f="edit_any.form_processing_overlay;true">';
-                                            echo '<div class="sfui-setting">';
-                                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                    echo '<input type="checkbox" name="edit_any.close_form_processing_overlay" value="true"' . ($v['edit_any']['close_form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Close the overlay directly after editing the entry', 'super-forms' ) . '</span>';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="edit_any.close_editor_window_after_editing' . ($v['edit_any']['close_editor_window_after_editing']==='true' ? ' checked="checked"' : '') . ' />';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Close the editor window after editing the entry', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                                             echo '<input type="checkbox" name="edit_any.change_status.enabled" value="true"' . ($v['edit_any']['change_status']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
                                             echo '<span class="sfui-label">' . esc_html__( 'Allow these users to edit the Contact Entry status', 'super-forms' ) . '</span>';
                                             echo '<div class="sfui-sub-settings" data-f="edit_any.change_status.enabled;true">';
@@ -792,12 +767,10 @@ if(!class_exists('SUPER_Listings')) :
                                                 echo '</div>';
                                             echo '</div>';
                                         echo '</label>';
-
                                     echo '</div>';
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
-
                         // Allow editing own entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -818,6 +791,29 @@ if(!class_exists('SUPER_Listings')) :
                                 echo '</div>';
                             echo '</label>';
                         echo '</div>';
+                        // Edit overlay settings
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="form_processing_overlay" value="true"' . ($v['form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
+                                echo '<span class="sfui-label">' . esc_html__( 'Enable form processing overlay (popup)', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                            echo '<div class="sfui-sub-settings" data-f="form_processing_overlay;true">';
+                                echo '<div class="sfui-setting">';
+                                    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                        echo '<input type="checkbox" name="close_form_processing_overlay" value="true"' . ($v['close_form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
+                                        echo '<span class="sfui-label">' . esc_html__( 'Close the overlay directly after editing the entry', 'super-forms' ) . '</span>';
+                                    echo '</label>';
+                                echo '</div>';
+                            echo '</div>';
+                        echo '</div>';
+                        // Close editor popup after making edits
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="close_editor_window_after_editing"' . ($v['close_editor_window_after_editing']==='true' ? ' checked="checked"' : '') . ' />';
+                                echo '<span class="sfui-label">' . esc_html__( 'Close the editor window after editing the entry', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                        echo '</div>';
+
                         // Allow deleting any entries
                         echo '<div class="sfui-setting">';
                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
@@ -1040,9 +1036,10 @@ if(!class_exists('SUPER_Listings')) :
             if(!isset($list['noResultsMessage'])) $list['noResultsMessage'] = "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>";
             if(!isset($list['onlyDisplayMessage'])) $list['onlyDisplayMessage'] = 'true';
 
-            if(!isset($list['edit_any']['form_processing_overlay'])) $list['edit_any']['form_processing_overlay'] = 'true';
-            if(!isset($list['edit_any']['close_form_processing_overlay'])) $list['edit_any']['close_form_processing_overlay'] = 'true';
-            if(!isset($list['edit_any']['close_editor_window_after_editing'])) $list['edit_any']['close_editor_window_after_editing'] = 'true';
+            if(!isset($list['form_processing_overlay'])) $list['form_processing_overlay'] = 'true';
+            if(!isset($list['close_form_processing_overlay'])) $list['close_form_processing_overlay'] = 'true';
+            if(!isset($list['close_editor_window_after_editing'])) $list['close_editor_window_after_editing'] = 'true';
+
             if(!isset($list['edit_any']['change_status'])) {
                 $list['edit_any']['change_status'] = array(
                     'enabled' => 'true',

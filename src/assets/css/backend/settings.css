@@ -2,7 +2,6 @@
     margin: 20px 0px 0px 0px;
     word-break: break-word;
 }
-
 .super-settings .super-field .super-field-fields code {
     line-height: 1.2;
     display: block;
@@ -11,30 +10,6 @@
     font-style: initial;
     margin: 3px 0px 0px 0px;
 }
-
-.super-settings .super-donation {
-    float: right;
-    margin: -4px 15px 1px 0px;
-    text-align: center;
-    border: 1px solid #4eb1b6;
-    background-color: #ffffff;
-    padding: 10px 30px 10px 30px;
-    position: relative;
-    z-index: 2;
-    border-bottom: 0;
-}
-
-.super-settings .super-donation h1 {
-    font-size: 14px;
-    width: 100%;
-    text-align: center;
-    margin: 0px 0px 5px 0px;
-}
-
-.super-settings .super-donation form {
-    display: inline-block;
-}
-
 .super-settings .super-header {
     border: 1px solid #4EB1B6;
     height: 99px;
@@ -48,7 +23,6 @@
     border-bottom: 0px solid white;
     background-color: white;
 }
-
 .super-settings .super-wrapper {
     border: 1px solid #4EB1B6;
     position: relative;
@@ -59,7 +33,6 @@
     width: 99%;
     background-color: white;
 }
-
 .super-settings .super-msg {
     color: red;
     display: inline-block;
@@ -67,17 +40,6 @@
     width: 100%;
     text-align: left;
 }
-
-.super-settings .super-wrapper .super-tabs {
-    width: 18%;
-    float: left;
-    list-style: none;
-    margin: 0;
-    padding: 30px 0px 30px 0px;
-    border-right: 1px solid rgb(234, 234, 234);
-    position: relative;
-}
-
 .super-settings .super-wrapper .super-tabs::after {
     position: absolute;
     height: 100%;
@@ -85,7 +47,6 @@
     border: 1px solid red;
     box-shadow: inset -30px 0 25px -25px hsla(0, 0%, 0%, 0.04);
 }
-
 .super-settings .super-wrapper .super-tabs li {
     float: left;
     width: 100%;
@@ -98,14 +59,12 @@
     position: relative;
     color: #999;
 }
-
 .super-settings .super-wrapper .super-tabs li.save {
     margin: 0px 0px 0px 0px;
     padding: 50px 0px 0px 0px;
     border-top: 1px solid rgb(234, 234, 234);
     border-bottom: 0px;
 }
-
 .super-settings .super-wrapper .super-tabs li.save input {
     background: rgb(0, 0, 0);
     border-color: black;
@@ -113,7 +72,6 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0);
     text-shadow: none;
 }
-
 .super-settings .message {
     border: 1px solid;
     padding: 10px;
@@ -125,21 +83,18 @@
     transition: all 0.3s ease;
     font-size: 12px;
 }
-
 .super-settings .message.super-success {
     border-color: rgb(52, 182, 52);
     background-color: rgb(196, 255, 196);
     color: rgb(0, 0, 0);
     opacity: 1;
 }
-
 .super-settings .message.error {
     border-color: rgb(226, 71, 71);
     background-color: rgb(255, 229, 229);
     color: rgb(0, 0, 0);
     opacity: 1;
 }
-
 .super-settings .super-wrapper .super-tabs li:not(.save).super-active,
 .super-settings .super-wrapper .super-tabs li:not(.save):hover {
     cursor: pointer;
@@ -152,22 +107,18 @@
     /* fallback if needed */
     width: calc(100% - -1px);
 }
-
 .super-settings .super-wrapper .super-tabs li:not(.save).super-active {
     padding-left: 10px;
     -webkit-box-shadow: -2px 0px 2px .1px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: -2px 0px 2px .1px rgba(0, 0, 0, 0.1);
     box-shadow: -2px 0px 2px .1px rgba(0, 0, 0, 0.1);
 }
-
 .super-settings .super-wrapper .super-tabs li.super-active {
     font-weight: bold;
 }
-
 .super-settings .super-wrapper .super-tabs li:hover {
     z-index: 3;
 }
-
 .super-settings .super-wrapper .super-tabs li.save:hover {
     z-index: 1;
     color: #999;
@@ -175,20 +126,9 @@
     border-bottom: 0px;
     cursor: default;
 }
-
-.super-settings .super-wrapper .super-fields {
-    width: 75%;
-    float: left;
-    border-left: 1px solid rgb(234, 234, 234);
-    margin: 0px 0px 0px -1px;
-    padding: 0px 0px 0px 4%;
-    display: none;
-}
-
 .super-settings .super-wrapper .super-subscribe {
     border: 1px solid red;
 }
-
 .super-settings .super-wrapper .super-subscribe {
     border: 1px dashed #d4c38e;
     background-color: #fff3cc;
@@ -197,126 +137,102 @@
     width: 100%;
     margin-bottom: 25px;
 }
-
 .super-settings .super-wrapper .super-subscribe form {
     float: left;
     width: 100%;
 }
-
 .super-settings .super-wrapper .super-subscribe form>div {
     width: 100%;
 }
-
 .super-settings .super-wrapper .super-subscribe form * {
     float: left;
     clear: inherit;
 }
-
 .super-settings .super-wrapper .super-subscribe form input {
     width: 250px;
 }
-
 .super-settings .super-wrapper .super-subscribe form input[type="submit"] {
     width: 100px;
 }
-
 .super-settings .super-wrapper .super-fields>h2 {
     margin: 0px 0px 30px 0px;
     line-height: 26px;
 }
-
 .super-settings .super-wrapper .super-fields>p {
     font-size: 11px;
     line-height: 12px;
 }
-
 .super-settings .super-wrapper .super-fields.super-active {
     display: block;
 }
-
 .super-settings .super-wrapper .super-fields>.super-field {
     margin: 0px 0px 10px 0px;
     border-bottom: 1px dashed #DEDEDE;
     padding: 0px 0px 20px 0px;
     display: flex;
 }
-
 .super-settings .super-wrapper .super-fields .super-field.super-hidden {
     display: none;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-info {
     width: 25%;
     padding-right: 10px;
     flex-grow: 1;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-fields {
     width: 75%;
     flex-grow: 1;
     position: relative;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-fields .super-field-fields {
     width: 100%;
     box-sizing: border-box;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-fields .super-field-info {
     display: none;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-fields .super-field {
     border: 0;
     margin: 0;
     padding: 10px 0px 0px 0px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field textarea {
     min-height: 100px;
     width: 100%;
 }
-
 .super-settings .super-wrapper .super-fields .super-field textarea[name="backend_contact_entry_list_fields"],
 .super-settings .super-wrapper .super-fields .super-field textarea[name="backend_contact_entry_status"] {
     min-height: 150px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .slider-field {
     float: left;
     width: 70%;
     margin-top: 5px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .slider-field .slider {
     width: 50%;
     margin-top: 5px !important;
     margin-right: 10% !important;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .slider-field>input {
     float: left;
     font-size: 11px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-info h2 {
     font-size: 11px;
     line-height: 1.2;
     margin: 0px 0px 0px 0px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .super-field-info .field-description {
     font-size: 11px;
     font-style: italic;
     padding: 0px 20px 0px 0px;
     line-height: 1.2;
 }
-
 .super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_css"],
 .super-settings .super-wrapper .super-fields .super-field textarea[name="theme_custom_js"] {
     min-height: 300px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input>*,
 .super-smtp-test .super-smtp-test-row input[type="text"] {
     width: 100%;
@@ -325,25 +241,21 @@
     line-height: 1.2;
     padding: 0px 0px 0px 5px;
 }
-
 .super-settings .super-checkbox label {
     display: flex;
     align-items: center;
     font-size: 12px;
 }
-
 .super-settings .super-checkbox input[type="checkbox"] {
     margin: 0px 5px 0px 0px;
     min-height: initial;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input>br,
 .super-settings .super-wrapper .super-fields .super-field .input>strong {
     height: auto;
     padding: 0px;
     line-height: 12px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input>.deactivate,
 .super-settings .super-wrapper .super-fields .super-field .input>.deactivate-add-on {
     padding: 0px 15px 0px 15px;
@@ -354,11 +266,9 @@
     color: white;
     width: auto !important;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input>select {
     padding: 0px 0px 0px 5px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container,
 .super-form-settings .super-color-picker-container {
     float: left;
@@ -366,18 +276,15 @@
     margin: 0px;
     height: auto;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .super-color-picker-label,
 .super-form-settings .super-color-picker-container .super-color-picker-label {
     font-size: 11px;
     padding: 0px 0px 3px 0px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container,
 .super-form-settings .super-color-picker-container .wp-picker-container {
     position: relative;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder,
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder {
     position: absolute;
@@ -385,7 +292,6 @@
     left: 10px;
     top: 35px;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker,
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
     padding: 0px 0px 0px 0px;
@@ -393,35 +299,29 @@
     border: 0px;
     height: 160px !important;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner,
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
     top: 30px;
     left: 0px;
 }
-
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
     width: 140px !important;
     height: 140px !important;
     margin-right: 5px;
 }
-
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
     height: 140px !important;
 }
-
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
     bottom: 0px;
     left: 0px;
 }
-
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container>* {
     padding: 0px;
     margin: 0px;
     width: 20px !important;
     height: 20px !important;
 }
-
 .super-settings .super-wrapper .super-fields .super-field .input .super-color-picker-container .wp-picker-container .wp-picker-input-wrap,
 .super-form-settings .super-color-picker-container .wp-picker-container .wp-picker-input-wrap {
     position: absolute;
@@ -430,15 +330,12 @@
     top: 40px;
     width: 182px;
 }
-
 .super-settings .super-wrapper .super-tags {
     display: none;
 }
-
 .super-settings .super-wrapper .super-field .super-tags {
     display: block;
 }
-
 .super-settings .super-wrapper .super-tags {
     border: 1px solid #CACACA;
     float: right;
@@ -455,18 +352,15 @@
     right: 0px;
     top: 0px;
 }
-
 .super-settings .super-wrapper .super-tags:before {
     content:'Insert {tags}';
 }
-
 .super-settings .super-wrapper .super-tags:after {
     content: '\f0d7';
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     padding: 0px 0px 0px 10px;
 }
-
 .super-settings .super-wrapper .super-tags ul {
     margin: 0px;
     padding: 5px 0px 5px 0px;
@@ -480,7 +374,6 @@
     overflow-y: scroll;
     max-height: 300px;
 }
-
 .super-settings .super-wrapper .super-tags ul li {
     margin: 0px;
     float: left;
@@ -489,27 +382,22 @@
     line-height: 1.2;
     cursor: pointer;
 }
-
 .super-settings .super-wrapper .super-tags ul li:hover {
     background-color: #DEDEDE;
 }
-
 .super-settings .super-wrapper .super-tags.super-active {
     overflow: visible;
     z-index: 2;
 }
-
 .super-settings .super-export-import-single-form {
     display: none;
 }
-
 .super-settings .super-export-import {
     margin: 0px 0px 50px 0px;
     border: 1px dashed #bfbfbf;
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
 }
-
 .super-settings .super-export-import textarea {
     margin: 5px 0px 10px 0px;
     min-height: 100px;
@@ -518,17 +406,14 @@
     letter-spacing: 0px;
     font-family: monospace;
 }
-
 .super-export-import .super-button {
     margin: 5px 5px 5px 0px;
 }
-
 .super-settings .super-export-import,
 .super-settings .super-export-import * {
     float: left;
     width: 100%;
 }
-
 .super-settings .super-export-import-entries,
 .super-settings .super-export-import-forms {
     float: left;
@@ -538,7 +423,6 @@
     padding: 10px 20px 20px 20px;
     background-color: #fbfbfb;
 }
-
 .super-settings .super-export-import-entries>p {
     float: left;
     width: 100%;
@@ -546,12 +430,10 @@
     padding: 0px;
     font-style: italic;
 }
-
 .super-settings .super-export-import-entries .import-column-connections {
     float: left;
     width: 100%;
 }
-
 .super-settings .super-export-import-entries .import-column-connections li {
     border-bottom: 1px solid #e8e8e8;
     float: left;
@@ -559,7 +441,6 @@
     margin: 0px 0px 8px 0px;
     padding-bottom: 5px;
 }
-
 .super-settings .super-export-import-entries .import-column-connections li select {
     float: left;
     margin: 0px;
@@ -568,13 +449,11 @@
     height: 24px;
     line-height: 1.2;
 }
-
 .super-settings .super-export-import-entries .import-column-connections li label {
     float: left;
     margin-right: 30px;
     font-size: 10px;
 }
-
 .super-settings .super-export-import-entries .import-column-connections li label input {
     width: 180px;
     text-align: left;
@@ -583,70 +462,58 @@
     height: 24px;
     line-height: 1.2;
 }
-
 .super-settings .super-export-import-entries .import-column-connections li label span {
     height: 24px;
     line-height: 24px;
 }
-
 .super-settings .super-export-import-entries .file-preview {
     float: left;
     clear: both;
     margin-top: 10px;
     width: 100%;
 }
-
 .super-settings .super-export-import-entries .file-preview .super-import-contact-entries {
     float: left;
     clear: both;
     background-color: #f5234b;
 }
-
 .super-settings .super-export-import-entries .file-preview a {
     text-decoration: none;
     color: #888888;
     cursor: default;
 }
-
 .super-settings .super-export-import-entries .file-preview img {
     float: left;
     width: 14px;
     margin: 0px 10px 0px 0px;
 }
-
 .super-settings .super-export-import-entries .file-preview .super-delete {
     color: red;
     margin: 0px 0px 0px 10px;
 }
-
 .super-settings .super-export-import-entries .file-preview .super-delete:hover {
     text-decoration: underline;
     cursor: pointer;
 }
-
 .super-settings .super-export-import-entries strong,
 .super-settings .super-export-import-forms strong {
     float: left;
     width: 100%;
     margin-bottom: 10px;
 }
-
 .super-settings .super-export-import-entries .super-export-entries {
     float: left;
     display: block;
     margin-top: 25px;
 }
-
 .super-settings .super-export-import-entries .super-export-entries[data-type="csv"] {
     clear: left;
 }
-
 .super-settings .super-export-import-entries span {
     float: left;
     line-height: 30px;
     padding-right: 10px;
 }
-
 .super-settings .super-export-import-entries input,
 .super-settings .super-export-import-entries select {
     float: left;
@@ -658,39 +525,32 @@
     width: 250px;
     text-align: left;
 }
-
 .super-settings .super-export-import-entries input[name="delimiter"],
 .super-settings .super-export-import-entries input[name="enclosure"] {
     width: 30px;
 }
-
 .super-settings .super-export-import-entries span.button {
     padding-left: 10px;
 }
-
 .super-settings .super-export-import-entries span.button i {
     padding-right: 5px;
 }
-
 .super-settings .delimiter-enclosure {
     margin: 0px 0px 20px 0px;
     float: left;
     width: 100%;
 }
-
 .super-settings .skip-first-row {
     width: 100%;
     display: block;
     margin: 0px 0px 20px 0px;
     float: left;
 }
-
 .super-settings .skip-first-row>input {
     width: 16px;
     height: 16px;
     margin: 1px 10px 0px 0px;
 }
-
 .super-datepicker-dialog {
     margin-top: 5px;
     padding: 10px;
@@ -700,12 +560,10 @@
     border: solid 1px #cdcdcd;
     background-color: white;
 }
-
 .super-datepicker-dialog .ui-datepicker-header {
     position: relative;
     height: 30px;
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
     font-size: 12px;
     line-height: 20px;
@@ -714,7 +572,6 @@
     margin: 0px 0px 0px 5px;
     min-height: initial;
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next {
     position: absolute;
@@ -725,42 +582,34 @@
     cursor: pointer;
     color: #444444;
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev {
     right: 19px;
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev span,
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next span {
     display: none;
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-prev::after {
     content: "<";
 }
-
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-next::after {
     content: ">";
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar th,
 .super-datepicker-dialog .ui-datepicker-calendar td {
     border: 0px;
     text-align: center;
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar {
     border-spacing: 5px;
     width: auto;
     border: 0px;
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar td {
     text-align: center;
     margin: 0px;
     padding: 0px;
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar td a,
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
     text-align: center;
@@ -773,23 +622,19 @@
     color: #444444;
     margin: 2px;
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar td span.ui-state-default {
     border: 0;
     height: 27px;
     line-height: 27px;
 }
-
 .super-datepicker-dialog .ui-datepicker-calendar td a.ui-state-active {
     border: 1px solid #909090;
     background-color: #E4E4E4;
 }
-
 .super-smtp-test .super-smtp-test-row {
     margin-bottom: 10px;
     font-size: 14px;
 }
-
 .super-settings .super-field-form_locker_submission_reset .super-field-fields .input {
   justify-content: flex-start !important;
   align-items: flex-start !important;
@@ -802,7 +647,6 @@
 .super-settings .super-field-form_locker_submission_reset .super-field-fields .input:hover {
   margin-left: 0 !important;
 }
-
 .super-settings .super-fields .super-field .super-field-info code {
   font-style: normal;
   font-family: monospace;
@@ -814,24 +658,19 @@
   line-height: normal;
 }
 
-
 /* For large screens make font bigger, otherwise it's barely readable */
-@media only screen and (min-width: 1930px) {
-
+@media only screen and (min-width: 1950px) {
     .super-settings .super-wrapper .super-fields .super-field,
     .super-settings .super-wrapper .super-fields .super-field .super-field-info h2 {
         font-size: 14px;
     }
-
     .super-settings .super-wrapper .super-fields .super-field .super-field-info .field-description {
         font-size: 13px;
     }
-
     .super-settings .super-wrapper .super-fields .super-field .input>* {
         font-size: 14px;
         height: 25px;
     }
-
     .super-settings .super-wrapper .super-fields .super-field .input,
     .super-settings .super-wrapper .super-fields .super-field textarea,
     .super-settings .super-smtp-test {
@@ -856,4 +695,116 @@
     .super-settings .super-wrapper .super-tags ul li {
         padding: 3px 10px;
     }
+}
+.super-search-filter-input-field {
+  margin: 0 0 20px;
+  display: inline-block;
+  position: relative;
+  width: 230px;
+}
+.super-search-filter-input-field .super-clear-search {
+  position: absolute;
+  right: -45px;
+  background-color: #14a6ee;
+  color: white;
+  border-radius: 4px;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.super-search-filter-input-field .super-clear-search:after {
+  content: '\f002';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+}
+.super-search-filter-input-field input {
+  min-width: initial !important;
+  width: 100%;
+  padding: 5px 10px;
+}
+.super-settings {
+  float: left;
+  width: 100%;
+}
+.super-settings .super-wrapper {
+  max-width: 2400px;
+}
+.super-settings .super-wrapper .super-tabs {
+  float: left;
+  list-style: none;
+  margin: 0;
+  width: 300px;
+  position: relative;
+  border-right: 1px solid #eaeaea;
+  padding: 0;
+}
+.super-settings .super-wrapper .super-fields {
+  float: right;
+  padding: 0 30px;
+  border-left: 1px solid #eaeaea;
+  display: none;
+  left: -1px;
+  position: relative;
+  width: calc(100% - 300px);
+}
+@media only screen and (max-width: 1950px) {
+  .super-settings .super-search-filter-input-field {
+    width: 190px;
+  }
+  .super-settings .super-wrapper {
+    max-width: 1750px;
+  }
+  .super-settings .super-wrapper .super-tabs {
+    width: 250px;
+  }
+  .super-settings .super-wrapper .super-fields {
+    width: calc(100% - 250px);
+  }
+}
+@media only screen and (max-width: 1600px) {
+  .super-settings .super-wrapper .super-fields {
+    overflow-x: auto;
+  }
+  .super-settings .super-wrapper .super-fields > .super-field {
+    width: 100%;
+    min-width: 450px;
+    margin-right: 0;
+    flex-direction: column;
+  }
+  .super-settings .super-wrapper .super-fields > .super-field .super-field-info {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  .super-settings .super-wrapper .super-fields > .super-field .super-field-fields {
+    width: 100%;
+  }
+}
+.super-display-search-results .super-search-filter-input-field .super-clear-search {
+  background-color: #ff3a3a;
+}
+.super-display-search-results .super-search-filter-input-field .super-clear-search:after {
+  content: '\f00d';
+}
+.super-display-search-results .super-tabs > li:not(.save) {
+  display: none;
+}
+.super-display-search-results .super-fields {
+  border-bottom: 4px solid #dbdbdb;
+  padding-top: 30px !important;
+  padding-bottom: 30px !important;
+}
+.super-display-search-results .super-fields.super-active {
+  display: none !important;
+}
+.super-display-search-results .super-fields.super-search-found {
+  display: block !important;
+}
+.super-display-search-results .super-fields.super-search-found > .super-field:not(.super-search-found) {
+  display: none;
+}
+.super-display-search-results .super-fields.super-search-found > .super-field.super-search-found-main {
+  display: flex;
 }
