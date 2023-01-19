@@ -6,6 +6,81 @@
     jQuery(document).ready(function ($) {
     
         var $doc = $(document);
+        function checkForDependencies(dependencies, el){
+            if(el.querySelector('.super-element-field')){
+                var name = el.querySelector('.super-element-field').name;
+                var i, nodes = document.querySelectorAll('.super-filter[data-parent="'+name+'"]');
+                for(i=0; i<nodes.length; i++){
+                    dependencies.push(nodes[i]);
+                    // Check if this field has any dependencies too
+                    dependencies = checkForDependencies(dependencies, nodes[i]);
+                }
+            }
+            return dependencies;
+        }
+        function resetSearch(){
+            if(document.querySelector('.super-settings.super-display-search-results')){
+                document.querySelector('.super-settings.super-display-search-results').classList.remove('super-display-search-results');
+            }
+            var i, nodes = document.querySelectorAll('.super-search-found');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].parentNode.classList.remove('super-search-found');
+                nodes[i].parentNode.classList.remove('super-search-found-main');
+            }
+        }
+        var searchTimeout = null;
+        $doc.on('click', '.super-clear-search', function(e){
+            document.querySelector('.super-tabs > .super-search-filter-input-field > input[name="search"]').value = '';
+            resetSearch();
+            e.preventDefault();
+            return false;
+        });
+        $doc.on('keyup paste', '.super-tabs > .super-search-filter-input-field > input[name="search"]', function(){ 
+            if(searchTimeout !== null) clearTimeout(searchTimeout);
+            if(this.value.length>=3){
+                searchTimeout = setTimeout(function(value){
+                    value = value.toLowerCase();
+                    // Lookup settings
+                    var i, nodes = document.querySelectorAll('.super-search-found');
+                    for(i=0; i<nodes.length; i++){
+                        nodes[i].parentNode.classList.remove('super-search-found');
+                        nodes[i].parentNode.classList.remove('super-search-found-main');
+                    }
+                    var dependencies = [], found = false, i, nodes = document.querySelectorAll(':scope .super-wrapper > .super-fields > .super-field');
+                    for(i=0; i<nodes.length; i++){
+                        // Skip this if it has style.display=='none';
+                        if(nodes[i].style.display==='none') continue;
+                        var text = (nodes[i].querySelector('.super-field-info') ? nodes[i].querySelector('.super-field-info').innerText : '');
+                        text += ((nodes[i].querySelector('select') && nodes[i].querySelector('select').name!=='form_redirect_page') ? nodes[i].querySelector('select').innerText : '');
+                        text += (nodes[i].querySelector('.super-checkbox') ? nodes[i].querySelector('.super-checkbox').innerText : '');
+                        text += (nodes[i].querySelector('.input input') ? nodes[i].querySelector('.input input').value : '');
+                        text += (nodes[i].querySelector('.input textarea') ? nodes[i].querySelector('.input textarea').value : '');
+                        text += (nodes[i].querySelector('.super-field-fields > p') ? nodes[i].querySelector('.super-field-fields > p').innerText : '');
+                        if(text.toLowerCase().indexOf(value)!==-1){
+                            found = true;
+                            nodes[i].parentNode.classList.add('super-search-found');
+                            nodes[i].classList.add('super-search-found');
+                            nodes[i].classList.add('super-search-found-main');
+                            // Add this field name to the list of other fields that should also be visible because of possible filters
+                            dependencies = checkForDependencies(dependencies, nodes[i]);
+                        }else{
+                            nodes[i].classList.remove('super-search-found');
+                            nodes[i].classList.remove('super-search-found-main');
+                        }
+                    }
+                    if(found){
+                        document.querySelector('.super-settings').classList.add('super-display-search-results');
+                        for(i=0; i<dependencies.length; i++){
+                            dependencies[i].classList.add('super-search-found');
+                        }
+                    }else{
+                        document.querySelector('.super-settings').classList.remove('super-display-search-results');
+                    }
+                }, 1000, this.value);
+            }else{
+                resetSearch();
+            }
+        });
 
         SUPER.init_image_browser();
        
@@ -369,7 +444,7 @@
                 $('.super-tabs li').removeClass('super-active');
                 $(this).addClass('super-active');
                 $('.super-wrapper .super-fields').removeClass('super-active');
-                $('.super-wrapper .super-fields:eq('+$(this).index()+')').addClass('super-active');
+                $('.super-wrapper .super-fields:eq('+($(this).index()-1)+')').addClass('super-active');
                 location.hash = $(this).attr('data-key');
             }
         });

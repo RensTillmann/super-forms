@@ -5830,7 +5830,13 @@ class SUPER_Shortcodes {
             }
         }
 
-        SUPER_Forms()->enqueue_element_styles();
+        $loadFontAwesomev5 = true;
+        if(isset($settings['disable_fontawesome']) && $settings['disable_fontawesome']==='true'){
+            $loadFontAwesomev5 = false; // Do not load Font Awesome v5
+            $settings['theme_hide_icons'] = 'yes'; // Make sure to hide icons
+            $settings['form_preload'] = '0'; // Disable form preloader, because of the spinning icon
+        }
+        SUPER_Forms()->enqueue_element_styles($loadFontAwesomev5);
         SUPER_Forms()->enqueue_element_scripts(array('settings'=>$settings, 'ajax'=>false, 'form_id'=>$form_id));
 
         $styles = '';
@@ -6026,7 +6032,7 @@ class SUPER_Shortcodes {
                 // via Listings settings when editing entries
                 if(isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
                     $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
-                    if($list['enableFormProcessingOverlay']!=='true') {
+                    if($list['form_processing_overlay']!=='true') {
                         $settings['form_processing_overlay'] = 'false';
                     }
                 }

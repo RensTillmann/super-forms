@@ -1356,6 +1356,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $p = SUPER_Common::get_tag_parts($v['quantity'], $i);
                 $op = $p;
                 $v['quantity'] = SUPER_Common::email_tags( $v['quantity'], $data, $settings );
+                $v['price'] = SUPER_Common::email_tags( $v['price'], $data, $settings );
                 if($v['type'] === 'price'){
                     if(trim($v['price'])===''){
                         SUPER_Common::output_message( array( 
@@ -1393,6 +1394,8 @@ if(!class_exists('SUPER_Stripe')) :
                 $i=2;
                 while( isset( $data[$op['name'] . '_' . ($i)]) ) {
                     $p = SUPER_Common::get_tag_parts($ov['quantity'], $i);
+                    $v['quantity'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
+                    $p = SUPER_Common::get_tag_parts($ov['price'], $i);
                     $v['quantity'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
                     if($ov['type'] === 'price'){
                         if(trim($ov['price'])===''){

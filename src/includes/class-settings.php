@@ -1267,6 +1267,16 @@ class SUPER_Settings {
                     'filter_value' => 'true',
                     'i18n'=>true
                 ),
+                'disable_fontawesome' => array(
+                    'hidden' => true,
+                    'name' => esc_html__( 'Disable Font Awesome v5', 'super-forms' ),
+                    'label' => esc_html__( 'If your theme uses Font Awesome v4 you can fix any conflicts by disabling the loading of Font Awesome v5 by Super Forms. Keep in mind that when you disable this option, any icons you use in your forms will not display. So make sure to disable the use of Icons on your forms.', 'super-forms' ),
+                    'type' => 'checkbox',
+                    'default' =>  '',
+                    'values' => array(
+                        'true' => esc_html__( 'Do not load Font Awesome v5.9 (not recommended)', 'super-forms' ),
+                    ),
+                ),
                 'form_preload' => array(
                     'name' => esc_html__( 'Preloader (form loading icon)', 'super-forms' ),
                     'label' => esc_html__( 'Custom use of preloader for the form.', 'super-forms' ),
@@ -1293,7 +1303,7 @@ class SUPER_Settings {
                     'type'=>'select',
                     'default' =>  '0',
                     'values'=>array(
-                        '0' => esc_html__( 'Disabled', 'super-forms' ),
+                        '0' => esc_html__( 'Disabled', 'super-forms' ) . ' (' . esc_html__( 'recommended', 'super-forms' ) . ')',
                         '1' => esc_html__( 'Enabled', 'super-forms' ),
                     ),
                 ),

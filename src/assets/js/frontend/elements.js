@@ -1394,11 +1394,6 @@
                     continue;
                 }
                 if(nodes[i].classList.contains('super-html-content')){
-                    debugger;
-                    debugger;
-                    debugger;
-                    debugger;
-                    debugger;
                     oldValue = nodes[i].parentNode.querySelector('textarea').value;
                     newValue = SUPER.replaceAll(oldValue, key, replaceTagsWithValue[key]);
                     nodes[i].parentNode.querySelector('textarea').value = newValue;
@@ -2239,7 +2234,6 @@
             // tmp     html = SUPER.filter_foreach_statements(foundElements[i], 0, 0, html, undefined, formId, form);
             // tmp     html = SUPER.replaceAll(html, '<%', '{');
             // tmp     html = SUPER.replaceAll(html, '%>', '}');
-            // tmp     debugger;
             // tmp     foundElements[i].innerHTML = html;
             // tmp }
 

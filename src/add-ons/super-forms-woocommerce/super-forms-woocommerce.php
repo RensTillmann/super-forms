@@ -1615,7 +1615,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     // This allows the product to only be added via a Super Forms submission
                     'wc_hide_products_by_id_or_slug' => array(
                         'name' => esc_html__( 'Hide products from the shop', 'super-forms' ),
-                        'label' => sprintf( esc_html__( 'When configured, the product(s) will not be listend on the Archive pages (shop, category, tag and search pages). This way the product can only be ordered by submitting the form.%1$s%1$sPut each product ID and or Category slug on a new line. For example:%1$s%1$s3245%1$s3246%1$s3247%1$sbooks%1$scars%1$scomputers', 'super-forms' ), '<br />' ),
+                        'label' => sprintf( esc_html__( 'When configured, the product(s) will not be listed on the Archive pages (shop, category, tag and search pages). This way the product can only be ordered by submitting the form.%1$s%1$sPut each product ID and or Category slug on a new line. For example:%1$s%1$s3245%1$s3246%1$s3247%1$sbooks%1$scars%1$scomputers', 'super-forms' ), '<br />' ),
                         'default' =>  '',
                         'type'=>'textarea'
                     ),

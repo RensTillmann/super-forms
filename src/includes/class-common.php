@@ -1250,17 +1250,25 @@ class SUPER_Common {
             }
         }
         $email_body = '';
-        if(!empty(SUPER_Forms()->global_settings['email_body_open'])) $email_body .= SUPER_Forms()->global_settings['email_body_open'] . "\n\n";
+        if(!empty(SUPER_Forms()->global_settings['email_body_open'])) {
+            $email_body .= SUPER_Forms()->global_settings['email_body_open'] . "\n\n";
+        }
         unset(SUPER_Forms()->global_settings['email_body_open']);
-        $email_body .= SUPER_Forms()->global_settings['email_body'];
-        if(!empty(SUPER_Forms()->global_settings['email_body_close'])) $email_body .= "\n\n" . SUPER_Forms()->global_settings['email_body_close'];
+        $email_body .= (isset(SUPER_Forms()->global_settings['email_body']) ? SUPER_Forms()->global_settings['email_body'] : '');
+        if(!empty(SUPER_Forms()->global_settings['email_body_close'])) {
+            $email_body .= "\n\n" . SUPER_Forms()->global_settings['email_body_close'];
+        }
         unset(SUPER_Forms()->global_settings['email_body_close']);
         SUPER_Forms()->global_settings['email_body'] = $email_body;
         $confirm_body = '';
-        if(!empty(SUPER_Forms()->global_settings['confirm_body_open'])) $confirm_body .= SUPER_Forms()->global_settings['confirm_body_open'] . "\n\n";
+        if(!empty(SUPER_Forms()->global_settings['confirm_body_open'])) {
+            $confirm_body .= SUPER_Forms()->global_settings['confirm_body_open'] . "\n\n";
+        }
         unset(SUPER_Forms()->global_settings['confirm_body_open']);
-        $confirm_body .= SUPER_Forms()->global_settings['confirm_body'];
-        if(!empty(SUPER_Forms()->global_settings['confirm_body_close'])) $confirm_body .= "\n\n" . SUPER_Forms()->global_settings['confirm_body_close'];
+        $confirm_body .= (isset(SUPER_Forms()->global_settings['confirm_body']) ? SUPER_Forms()->global_settings['confirm_body'] : '');
+        if(!empty(SUPER_Forms()->global_settings['confirm_body_close'])) {
+            $confirm_body .= "\n\n" . SUPER_Forms()->global_settings['confirm_body_close'];
+        }
         unset(SUPER_Forms()->global_settings['confirm_body_close']);
         SUPER_Forms()->global_settings['confirm_body'] = $confirm_body;
         return SUPER_Forms()->global_settings;
@@ -2593,7 +2601,13 @@ class SUPER_Common {
                                 $value = str_replace( '{' . $v['name'] . ';day_name_shortest}', SUPER_Forms()->elements_i18n['dayNamesMin'][$w], $value );
                                 $value = str_replace( '{' . $v['name'] . ';timestamp}', strtotime($v['value']), $value );
                             }
-                            $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            if( (isset($v['type'])) && ($v['type']=='html') ) {
+                                $value = str_replace( '{field_' . $v['name'] . ';decode}', self::decode($v['value']), $value );
+                                $value = str_replace( '{field_' . $v['name'] . ';escaped}', esc_html($v['value']), $value );
+                                $value = str_replace( '{field_' . $v['name'] . '}', $v['value'], $value );
+                            }else{
+                                $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            }
                         }
                     }
                 }
@@ -2628,7 +2642,13 @@ class SUPER_Common {
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }
-                            $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            if( (isset($v['type'])) && ($v['type']=='html') ) {
+                                $value = str_replace( '{' . $v['name'] . ';decode}', self::decode($v['value']), $value );
+                                $value = str_replace( '{' . $v['name'] . ';escape}', esc_html($v['value']), $value );
+                                $value = str_replace( '{' . $v['name'] . '}', $v['value'], $value );
+                            }else{
+                                $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            }
                         }
                     }
                 }
