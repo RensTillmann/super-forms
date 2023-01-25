@@ -2243,6 +2243,20 @@ class SUPER_Ajax {
                         'backup'=>true
                     )
                 );
+                // Delete backups 50+
+                $args = array(
+                    'post_parent' => $form_id,
+                    'post_type' => 'super_form',
+                    'post_status' => 'backup',
+                    'posts_per_page' => -1 //Make sure all matching backups will be retrieved
+                );
+                $backups = get_posts($args);
+                if(is_array($backups) && count($backups)!==0){
+                    foreach($backups as $k => $v){
+                        if($k<50) continue;
+                        wp_delete_post($v->ID, true);
+                    }
+                }
             }
         }
     }

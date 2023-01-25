@@ -1615,6 +1615,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   font-size: 12px;
   line-height: normal;
   padding: 0px 0px 0px 0px;
+  float: left;
+  width: 100%;
 }
 
 .super-form .wp-editor-wrap .wp-editor-tools {
