@@ -27,6 +27,11 @@ if (!Element.prototype.closest) {
 if(typeof window.SUPER === 'undefined'){
     window.SUPER = {};
 }
+
+SUPER.round = function(number, decimals){
+    return Number(Math.round(number + "e" + decimals) + "e-" + decimals);
+};
+
 SUPER.files = [];
 
 // reCaptcha
@@ -1673,9 +1678,17 @@ function SUPERreCaptcha(){
                     $action = $wrapper.dataset.conditionalAction;
                 }
             }
-            if($this.value==='') return;
+            if($this.value==='') {
+                // Except when ajax request
+                if($this.dataset.ajax && $this.dataset.ajax==='true'){
+                    // Don't skip
+                }else{
+                    // Skip
+                    return;
+                }
+            }
             $json = $this.value;
-            if($json!=='' && ($action) && ($action!='disabled')){
+            if(($json!=='' || ($this.dataset.ajax && $this.dataset.ajax==='true')) && ($action) && ($action!='disabled')){
                 $field = false;
                 if($wrapper.closest('.super-field')){
                     $field = $wrapper.closest('.super-field').querySelector('.super-shortcode-field');
@@ -3324,9 +3337,7 @@ function SUPERreCaptcha(){
                     }
 
                     // // If not then it must be a special field, for instance file uploads
-                    // debugger;
                     // if($data[$column_key]['type']==='files'){
-                    //     debugger;
                     //     $linkUrl = '';
                     //     if(isset($data[$column_key]['files'])){
                     //         $files = $data[$column_key]['files'];
@@ -8303,19 +8314,94 @@ function SUPERreCaptcha(){
         // Add a timeout (just to be sure)
         setTimeout(function(){
             SUPER.pdf_generator_prepare(args, function(args){
+                debugger;
                 // First scroll over all pages, and determine total pages we have
                 SUPER.pdf_determine_pages(args, function(args){
+                    debugger;
                     // Start generating pages (starting at page 1)
                     args.currentPage = 1;
+                    debugger;
                     SUPER.pdf_generator_generate_page(args);
                 });
             });
         }, 5000);
         return false;
     };
+
+    SUPER.pdf_set_page_break_height = function(h, result, top, el, args){
+        debugger;
+        if(el.classList.contains('super-pdf_page_break')) {
+            debugger;
+            debugger;
+            debugger;
+            debugger;
+            // Do not resize, but set new orienation
+            if(el.classList.contains('pdf-orientation-portrait')) args.orientation = 'portrait';
+            if(el.classList.contains('pdf-orientation-landscape')) args.orientation = 'landscape';
+            if(el.classList.contains('pdf-orientation-default')) args.orientation = args.pdfSettings.orientation;
+            if(top===0){ 
+                debugger;
+                // For current page
+                args.pageOrientationChanges[result.currentPage] = args.orientation;
+            }else{
+                debugger;
+                // For next page
+                args.pageOrientationChanges[result.currentPage+1] = args.orientation;
+            }
+            debugger;
+            args.orientation = args.pageOrientationChanges[result.currentPage];
+            if(args.orientation==='portrait'){
+                args.pageWidth = args.pageWidthPortrait;
+                args.pageHeight = args.pageHeightPortrait;
+            }
+            if(args.orientation==='landscape'){
+                args.pageWidth = args.pageWidthLandscape;
+                args.pageHeight = args.pageHeightLandscape;
+            }
+            args.pageWidthInPixels = args.pageWidth / args.unitRatio;
+            args.pageHeightInPixels = args.pageHeight / args.unitRatio;
+            args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+            args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
+            args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+            var headerFooterHeight = SUPER.pdf_get_header_height(args)+SUPER.pdf_get_footer_height(args);
+            //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+            //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
+            debugger;
+            debugger;
+            debugger;
+            args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+            debugger;
+            debugger;
+            debugger;
+            args.scrollAmount = SUPER.round(args.scrollAmount, 4);
+            args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
+            args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
+            debugger;
+            // Resize this up to next page
+            if(top>0){ 
+                el.style.height = ((args.scrollAmount*result.currentPage)-top)+'px';
+            }
+            h = SUPER.getNodeHeight(el, true, true, true);
+            //if(result.currentPageHeight>0){
+                //args.tmpPageBreakHeights.push(args.scrollAmount-top);
+            //}else{
+                //args.tmpPageBreakHeights.push(0);
+            //}
+            //result.currentPageHeight=0;
+            //result.currentPage++;
+            //result.totalPages++;
+            //// Once we go to the next page, increase total "totalScrolled" amount
+            //result.totalScrolled = result.totalScrolled + args.scrollAmount;
+            //x++;
+            //continue;
+        }
+        return h;
+    };
+
     SUPER.pdf_determine_pages = function(args, callback){
+        debugger;
         args.pageOrientationChanges = {};
-        args.tmpPageBreakHeights = [];
+        //args.tmpPageBreakHeights = [];
         var result = {
             allowIncreasePage: true, // this is important
             belongsTo: [],
@@ -8329,30 +8415,42 @@ function SUPERreCaptcha(){
         args.pageOrientationChanges[result.currentPage] = args.orientation;
         //var i, nodes = args.form0.querySelectorAll('.super-shortcode');
         var i, el, h, nodes = args.form0.querySelectorAll(':scope > form > .super-shortcode');
-        var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+        //var headerHeight = SUPER.pdf_get_header_height(args);
+        //var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+        debugger;
         for(i=0; i<nodes.length; i++){
+            debugger;
             el = nodes[i];
             h = SUPER.getNodeHeight(el, true, true, true);
-            if(h===0) {
+            if(el.classList.contains('super-pdf_page_break')) {
+                debugger;
+            }
+            if(h===0 && !el.classList.contains('super-pdf_page_break')) {
+                debugger;
                 //el.setAttribute('data-html2canvas-ignore', 'true');
                 //el.setAttribute('data-html2canvas-fake-ignore', 'true');
                 continue;
             }
+            debugger;
             var top = SUPER.getNodeTop(el, args);
             // tmp disabled? var pos = el.getBoundingClientRect();
             // tmp disabled? var top = Math.round(pos.top, 1e2) - headerHeight;
+            debugger;
             if(top<=args.scrollAmount){
                 // Part of current page
                 args.allowIncreasePage = false; // can not contain overlapping elements
             }
+            debugger;
             if((top+h)>args.scrollAmount){
                 // Also part of next page
                 args.allowIncreasePage = el; // might be that inside this element already are overlapping elements
             }else{
                 // Only part of current page
             }
+            debugger;
             result.belongsTo = [];
             result = SUPER.pdf_determine_belong_to(nodes, nodes[i], result, args);
+            debugger;
             if(result.belongsTo.length>1){
                 if(result.nodesOffsetsToBottoms[top]){
                     if(result.nodesOffsetsToBottoms[top]<h){
@@ -8362,7 +8460,11 @@ function SUPERreCaptcha(){
                     result.nodesOffsetsToBottoms[top] = h;
                 }
             }
+            debugger;
             el.dataset.belongsToPages = JSON.stringify(result.belongsTo);
+            debugger;
+            h = SUPER.pdf_set_page_break_height(h, result, top, el, args);
+
             // If we exceed scroll amount, we are on the next page
             // tmp if((top+h)>args.scrollAmount){
             // tmp     result.currentPageHeight=0;
@@ -8375,8 +8477,8 @@ function SUPERreCaptcha(){
             var x = 1;
             while((top+h)>args.scrollAmount*x){
                 result.currentPageHeight=0;
-                result.currentPage++;
-                result.totalPages++;
+                result.currentPage = x+1; //++;
+                result.totalPages = x; //++;
                 // Once we go to the next page, increase total "totalScrolled" amount
                 result.totalScrolled = result.totalScrolled + args.scrollAmount;
                 x++;
@@ -8399,9 +8501,12 @@ function SUPERreCaptcha(){
         callback(args);
     };
     SUPER.getNodeHeight = function(el, padding, margin, border){
+        debugger;
         var computedStyle = window.getComputedStyle(el), 
             elementHeight = parseFloat(el.clientHeight), 
-            //elementHeight = parseFloat(el.offsetHeight), 
+            elementHeight = parseFloat(el.offsetHeight), 
+            pos = el.getBoundingClientRect(),
+            elementHeight = pos.height,
             paddingTop = 0, paddingBottom = 0, marginTop = 0, marginBottom = 0, borderTopWidth = 0, borderBottomWidth = 0,
             isVisible = computedStyle.visibility !== "hidden" && computedStyle.display !== "none";
         if(!isVisible) return 0;
@@ -8417,21 +8522,27 @@ function SUPERreCaptcha(){
             borderTopWidth = parseFloat(computedStyle.borderTopWidth);
             borderBottomWidth = parseFloat(computedStyle.borderBottomWidth);
         }
-        return Math.round(elementHeight + paddingTop + paddingBottom + borderTopWidth + borderBottomWidth + marginTop + marginBottom, 1e2);
+        //return Math.round(elementHeight + paddingTop + paddingBottom + borderTopWidth + borderBottomWidth + marginTop + marginBottom, 1e2);
+        debugger;
+        return elementHeight + paddingTop + paddingBottom + borderTopWidth + borderBottomWidth + marginTop + marginBottom;
     };
     SUPER.getNodeTop = function(el, args){
-        var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+        //var headerHeight = args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight;
+        //var header = args.pdfPageContainer.querySelector('.super-pdf-header');
+        //var pos = header.getBoundingClientRect();
+        //var headerHeight = pos.height;
+        var headerHeight = SUPER.pdf_get_header_height(args);
         var pos = el.getBoundingClientRect();
         var computedStyle = window.getComputedStyle(el);
         var marginTop = parseFloat(computedStyle.marginTop);
+        return pos.top-marginTop-headerHeight;
         //return Math.round(headerHeight, 1e2)+Math.round(pos.top, 1e2)-Math.round(marginTop, 1e2);
-        return Math.round(pos.top, 1e2)-Math.round(marginTop, 1e2)-Math.round(headerHeight, 1e2);
     };
     SUPER.pdf_determine_belong_to = function(nodes, el, result, args){
         var i, h, innerNodes = el.children;
         for(i=0; i<innerNodes.length; i++){
             h = SUPER.getNodeHeight(innerNodes[i], true, true, true);
-            if(h===0) {
+            if(h===0 && !innerNodes[i].classList.contains('super-pdf_page_break')){
                 //innerNodes[i].setAttribute('data-html2canvas-ignore', 'true');
                 //innerNodes[i].setAttribute('data-html2canvas-fake-ignore', 'true');
                 continue;
@@ -8470,39 +8581,49 @@ function SUPERreCaptcha(){
             //0 <= 1110*1     &&   1300 >= 1110*1
             //if(1110 >= 0 && 1110 <= 1300){
             //if(1110 >= 0 && 1110 <= 89){
-            if(top > args.scrollAmount*page){
+            //if(top > args.scrollAmount*page){
+            //Math.round(top, 1e4);
+            //Math.round(args.scrollAmount, 1e4);
+            //if(top >= args.scrollAmount*page){
+            debugger;
+            debugger;
+            debugger;
+            debugger;
+            debugger;
+            var tmpTop = SUPER.round(top, 4);
+            var tmpScrollAmount = SUPER.round(args.scrollAmount, 4);
+            if(tmpTop >= tmpScrollAmount*page){
                 page++;
                 continue;
             }
-            if(args.scrollAmount*page >= top && args.scrollAmount*page <= top+h){
+            if(tmpScrollAmount*page >= tmpTop && tmpScrollAmount*page <= tmpTop+h){
                 // Belongs to this page
                 if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
                 if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
+                // Only belongs to this page?
+                if(tmpTop+h<=tmpScrollAmount*page){
+                    stop = true;
+                    continue;
+                }
             }else{
-                if(top+h<=args.scrollAmount*page){
+                if(tmpTop+h<=tmpScrollAmount*page){
                     // Belongs to this page
                     if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
                     if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
                     // Also part of next page, apply top margin to put the element as a whole on to the next page
                     // Only if the height of the element is 40% of the scrollAmount
-                    debugger;
-                    debugger;
-                    debugger;
-                    if(belongsTo.length>1 && h<=(args.scrollAmount/100)*40){
+                    args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : 40); // defulat to 50% of page height
+                    if(belongsTo.length>1 && h<=(tmpScrollAmount/100)*args.pdfSettings.smartPageBreaksMaxHeight){
                         if(el.querySelector('.super-pdf-el-with-margin')){
                             stop = true;
                             continue;
                         }
-                        debugger;
-                        debugger;
-                        debugger;
-                        debugger;
-                        debugger;
-                        debugger;
                         // Difference
-                        var diff = Math.round((args.scrollAmount*(page-1))-(top), 1e2);
+                        //var diff = Math.round((args.scrollAmount*(page-1))-(top), 1e2);
+                        var diff = (tmpScrollAmount*(page-1))-(tmpTop);
                         var computedStyle = window.getComputedStyle(el);
-                        var marginTop = Math.round(parseFloat(computedStyle.marginTop), 1e2) + diff;
+                        //var marginTop = Math.round(parseFloat(computedStyle.marginTop), 1e2) + diff;
+                        var marginTop = parseFloat(computedStyle.marginTop) + diff;
                         el.style.marginTop = marginTop+'px';
                         el.classList.add('super-pdf-el-with-margin');
                         // Recheck children again?
@@ -8517,45 +8638,30 @@ function SUPERreCaptcha(){
             }
             page++;
             //if(top<=(args.scrollAmount*page) && top+h>=args.scrollAmount*page){
-            //    debugger;
             //    if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //    debugger;
             //    if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
-            //    debugger;
             //    if(top+h<=(args.scrollAmount*page)){
-            //        debugger;
             //        // Part of this page
             //        if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //        debugger;
             //        if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
             //        // Only part of first page
             //        stop = true;
             //    }else{
             //        // Also part of next page, apply top margin to put the element as a whole on to the next page
             //        // Only if the height of the element is 40% of the scrollAmount
-            //        debugger;
             //        if(h<=(args.scrollAmount/100)*40){
             //            // Difference
-            //            debugger;
             //            var diff = Math.round(args.scrollAmount-(top+h), 1e2);
             //            var computedStyle = window.getComputedStyle(el);
-            //            debugger;
             //            var marginTop = Math.round(parseFloat(computedStyle.marginTop), 1e2) - diff;
-            //            debugger;
             //            el.style.marginTop = '-'+(Math.round(marginTop, 1e2))+'px';
-            //            debugger;
             //            page++;
             //            if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //            debugger;
             //            if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
-            //            debugger;
             //            continue;
-            //        }else{
-            //            debugger;
             //        }
             //    }
             //}
-            //debugger;
             //page++;
         }
 
@@ -8563,23 +8669,19 @@ function SUPERreCaptcha(){
         //var x=1, partOf = true;
         //while(partOf){
         //    partOf = false;
-        //    debugger;
         //    if(x===1 && top<=args.scrollAmount){
-        //        debugger;
         //        // Part of page 1
         //        partOf = true;
         //        if(result.belongsTo.indexOf(x)===-1) result.belongsTo.push(x);
         //        if(belongsTo.indexOf(x)===-1) belongsTo.push(x);
         //    }
         //    if(top+h>args.scrollAmount*(x+1) && top+h<args.scrollAmount*(x+2)){
-        //        debugger;
         //        partOf = true;
         //        // Part of page 2
         //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
         //        if(belongsTo.indexOf(x+1)===-1) belongsTo.push(x+1);
         //    }
         //    if(top<args.scrollAmount*(x+1) && top+h>=args.scrollAmount*(x+1)){
-        //        debugger;
         //        partOf = true;
         //        // Part of page 2
         //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
@@ -8587,7 +8689,6 @@ function SUPERreCaptcha(){
         //    }
         //    // 200 < 250 && 300 > 250
         //    if(args.scrollAmount*(x+1)<top+h && args.scrollAmount*(x+2)>=top+h){
-        //        debugger;
         //        partOf = true;
         //        // Part of page 3
         //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
@@ -8606,8 +8707,6 @@ function SUPERreCaptcha(){
         //    // Also part of next page(s)
         //    var x = 1;
         //    while((top+h)>args.scrollAmount*x){
-        //        debugger;
-        //        debugger;
         //        if(top>args.scrollAmount*x){
         //            // 2496 > 2220
         //            x++;
@@ -8615,14 +8714,8 @@ function SUPERreCaptcha(){
         //        }
         //        // Check if also bigger than next, if so skip
         //        if((top+h)>args.scrollAmount*(x+1)){
-        //            debugger;
-        //            debugger;
-        //            debugger;
         //            // Does not belong to this page, but belongs to the next one probably.
         //        }else{
-        //            debugger;
-        //            debugger;
-        //            debugger;
         //            if(result.belongsTo.indexOf(result.currentPage+x)===-1) result.belongsTo.push(result.currentPage+x);
         //            if(belongsTo.indexOf(result.currentPage+x)===-1) belongsTo.push(result.currentPage+x);
         //        }
@@ -8644,15 +8737,16 @@ function SUPERreCaptcha(){
         if(args.allowIncreasePage===el && belongsTo.length>1){
             // When it belongs to both current and next page, then we must add an offset
             // When going to the next page we will apply the offset to move the element up relatively to the current page
-            var offset = (args.scrollAmount*result.currentPage) - top;
+            var offset = (Math.round(args.scrollAmount, 1e4)*result.currentPage) - Math.round(top, 1e4);
             result.currentPageHeight = result.currentPageHeight-(h-offset);
             el.dataset.offsetTop = offset;
         }
         el.dataset.belongsToPages = JSON.stringify(belongsTo);
         result.belongsTo = belongsTo;
+        debugger;
+        h = SUPER.pdf_set_page_break_height(h, result, top, el, args);
         return result;
         // tmp // If we exceed scroll amount, we are on the next page
-        // tmp debugger;
         // tmp if(args.allowIncreasePage && result.currentPageHeight>=args.scrollAmount){
         // tmp     result.currentPageHeight=0;
         // tmp     result.currentPage++;
@@ -8885,12 +8979,14 @@ function SUPERreCaptcha(){
         css += '.super-pdf-page-container .super-textarea .super-pdf-tmp-text-field-placeholder { display:flex; align-items:flex-start; }';
         css += '.super-pdf-page-container .super-quantity .super-pdf-tmp-text-field-placeholder { display:flex; justify-content:center; }';
         css += '.super-pdf-page-container .super-pdf-tmp-replaced { display:none!important; }';
-        css += '.super-pdf-page-container .super-html-content.super-nl2br { white-space:pre-line; word-break:break-word; }';
+        // @IMPORTANT NEEDED? css += '.super-pdf-page-container .super-html-content.super-nl2br { white-space:pre-line; word-break:break-word; }';
         // Required styles for correct element margin tops
         css += '.super-pdf-page-container .super-html-content ol {float:left;width:100%;}';
         css += '.super-pdf-page-container .super-html-content ul {float:left;width:100%;}';
         // Hide elements that do not belong to the current page
         css += '.super-pdf-page-container .super-hide-from-current-page { display:none!important; }';
+        css += '.super-pdf-page-container .super-pdf-body .super-shortcode[data-pdfoption=include].super-hide-from-current-page { display:none!important; }';
+        css += '.super-pdf-page-container .super-pdf-body [data-pdfoption=include].super-hide-from-current-page { display:none!important; }';
         css += '.super-pdf-page-container .super-pdf_page_break { display:inline-block!important; }';
         css += '.super-pdf-page-container .super-pdf_page_break.super-hide-from-current-page { display:none!important; }';
         // Hide none essential elements/styles from the PDF output
@@ -8995,7 +9091,6 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         if(args.debugger===true){
-            //debugger;
             pdfPageContainer.style.zIndex = "9999999999";
             pdfPageContainer.style.left = "0px";
             pdfPageContainer.style.top = "0px";
@@ -9037,10 +9132,18 @@ function SUPERreCaptcha(){
         }
 
         // Resize PDF body height based on header/footer heights
-        var headerFooterHeight = 0;
-        headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-        args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2)*2)-headerFooterHeight;
+        var headerFooterHeight = SUPER.pdf_get_header_height(args)+SUPER.pdf_get_footer_height(args);
+        //var headerFooterHeight = 0;
+        //headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+        //headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
+        debugger;
+        debugger;
+        debugger;
+        args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+        debugger;
+        debugger;
+        debugger;
+        args.scrollAmount = SUPER.round(args.scrollAmount, 4);
         pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
 
@@ -9329,15 +9432,25 @@ function SUPERreCaptcha(){
                 //nodes = args.form0.querySelectorAll(':scope > form > .super-shortcode');
                 nodes = args.form0.querySelectorAll('[data-belongs-to-pages]');
                 var morePages = false;
+                //var additionalMarginTop = 0;
                 for(i=0; i<nodes.length; i++){
                     nodes[i].classList.remove('super-hide-from-current-page');
+                    if($(nodes[i]).parents('.super-hide-from-current-page:eq(0)').length!==0){
+                        continue;
+                    }
                     var belongsTo = JSON.parse(nodes[i].dataset.belongsToPages);
                     if(belongsTo.indexOf(args.currentPage)===-1){
                         // Does not belong to current page
                         // Except if parent has an offset
                         //nodes[i].setAttribute('data-html2canvas-fake-ignore', 'true');
                         if(args.currentPage>1 && $(nodes[i]).parents('.super-shortcode[data-offset-top]:eq(0)').length===0){
+                            //var h = SUPER.getNodeHeight(nodes[i], true, true, true);
+                            //additionalMarginTop = additionalMarginTop+h;
                             nodes[i].classList.add('super-hide-from-current-page');
+                            if(morePages===false && belongsTo.indexOf(args.currentPage+1)!==-1){
+                                morePages = true;
+                            }
+                            continue;
                         }
                     }else{
                         //nodes[i].removeAttribute('data-html2canvas-fake-ignore');
@@ -9350,7 +9463,22 @@ function SUPERreCaptcha(){
                     var index = belongsTo.indexOf(args.currentPage);
                     if(args.currentPage>1 && index!==-1){
                         if(nodes[i].dataset.offsetTop && Number(nodes[i].dataset.offsetTop)>0){
-                            nodes[i].style.marginTop = '-'+(Math.round(Number(nodes[i].dataset.offsetTop)*(index), 1e2))+'px';
+                            if(index===1){
+                                // First page
+                                //nodes[i].style.marginTop = '-'+(Math.round(Number(nodes[i].dataset.offsetTop), 1e2))+'px';
+                                nodes[i].style.marginTop = '-'+(Number(nodes[i].dataset.offsetTop))+'px';
+                            }else{
+                                if(index>1){
+                                    // Second or third, etc. page
+                                    // e.g. 1 equals (750)
+                                    //var initialOffset = (Math.round(Number(nodes[i].dataset.offsetTop), 1e2));
+                                    var initialOffset = (Number(nodes[i].dataset.offsetTop));
+                                    // Rest of pagees, e.g. 2,3,4 equals (1110*3) = 3330+750 in total
+                                    //var restOfPagesOffset = Math.round(args.scrollAmount*(index-1), 1e2);
+                                    var restOfPagesOffset = args.scrollAmount*(index-1);
+                                    nodes[i].style.marginTop = '-'+(initialOffset+restOfPagesOffset)+'px';
+                                }
+                            }
                         }
                     }
                     // tmp if(belongsTo[1] && args.currentPage===belongsTo[1]){
@@ -9368,6 +9496,7 @@ function SUPERreCaptcha(){
                     return;
                 }
                 // Update page width and height based on current page orientation
+                debugger;
                 args.orientation = args.pageOrientationChanges[args.currentPage];
                 //if(args.orientation==='unchanged'){
                 //    if(args.pageOrientationChanges[args.currentPage-1]){
@@ -9392,10 +9521,19 @@ function SUPERreCaptcha(){
                 args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
                 args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
                 args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
-                var headerFooterHeight = 0;
-                headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-                headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-                args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2)*2)-headerFooterHeight;
+                var headerFooterHeight = SUPER.pdf_get_header_height(args)+SUPER.pdf_get_footer_height(args);
+                //var headerFooterHeight = 0;
+                //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+                //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
+                //args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2)*2)-headerFooterHeight;
+                debugger;
+                debugger;
+                debugger;
+                args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+                debugger;
+                debugger;
+                debugger;
+                args.scrollAmount = SUPER.round(args.scrollAmount, 4);
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
                 if(args.currentPage===1 && args.pdfSettings.orientation!==args.orientation){
@@ -9631,6 +9769,16 @@ function SUPERreCaptcha(){
             if(resume) continue;
         }
     };
+    SUPER.pdf_get_header_height = function(args){
+        var node = args.pdfPageContainer.querySelector('.super-pdf-header'),
+            pos = node.getBoundingClientRect();
+        return pos.height;
+    }
+    SUPER.pdf_get_footer_height = function(args){
+        var node = args.pdfPageContainer.querySelector('.super-pdf-footer'),
+            pos = node.getBoundingClientRect();
+        return pos.height;
+    }
     // PDF Draw text
     SUPER.pdf_generator_draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
         if(super_common_i18n.fonts){
@@ -9674,13 +9822,16 @@ function SUPERreCaptcha(){
         tmpPosTop = pos.top;
         // Only if not header and not footer, because these are printed on every single page
         if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
-            var headerHeight = Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+            //var headerHeight = Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
+            var headerHeight = SUPER.pdf_get_header_height(args);
             if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
                 return true; //continue;
             }
         }
         var posWidth = (pos.width/scale)*convertFromPixel;
+        posWidth = Math.ceil(posWidth);
         var posHeight = (pos.height/scale)*convertFromPixel;
+        var posHeight = (SUPER.getNodeHeight(el, false, false, false)/scale)*convertFromPixel;
         var posLeft = ((pos.left+9999)/scale)*convertFromPixel;
         if(args.debugger===true){
             posLeft = ((pos.left)/scale)*convertFromPixel;
@@ -9711,7 +9862,9 @@ function SUPERreCaptcha(){
         var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
         if(el.closest('.super-adaptive-placeholder')){
             posLeft = posLeft+(posWidth/2);
-            if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            if(drawRectangle) {
+                args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+            }
             args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
             return true; //continue;
         }
@@ -9779,10 +9932,13 @@ function SUPERreCaptcha(){
             }
         }
         // Reset ignore attributes
-        nodes = document.body.querySelectorAll('[data-html2canvas-ignore="true"], [data-html2canvas-fake-ignore="true"]');
+        nodes = document.body.querySelectorAll('[data-belongs-to-pages], [data-html2canvas-ignore="true"], .super-pdf-el-with-margin');
         for(i=0; i<nodes.length; i++){
             nodes[i].removeAttribute('data-html2canvas-ignore');
             //nodes[i].removeAttribute('data-html2canvas-fake-ignore');
+            nodes[i].classList.remove('super-pdf-el-with-margin');
+            nodes[i].style.marginTop = null
+            delete nodes[i].dataset.belongsToPages;
         }
         // Reset currentPage offsets
         nodes = form.querySelectorAll('[data-offset-top]');
