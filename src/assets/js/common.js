@@ -8187,6 +8187,26 @@ function SUPERreCaptcha(){
             }
         }
     };
+    SUPER.setPageSize = function(args){
+        if(args.format==='a4'){
+            if(args.orientation==='portrait'){
+                args.pageWidthInPixels = 793;
+                args.pageHeightInPixels = 1122;
+            }else{
+                args.pageWidthInPixels = 1122;
+                args.pageHeightInPixels = 793;
+            }
+            return args;
+        }
+        if(args.orientation==='portrait'){
+            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthPortrait * args.unitRatio),0);
+            args.pageHeightInPixels = SUPER.round(Math.ceil( args.pageHeightPortrait * args.unitRatio),0);
+        }else{
+            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthLandscape * args.unitRatio),0);
+            args.pageHeightInPixels = SUPER.round(Math.ceil(args.pageHeightLandscape * args.unitRatio),0);
+        }
+        return args;
+    };
     SUPER.pdf_generator_init = function(args, callback){
         args._save_data_callback = callback;
 
@@ -8280,29 +8300,45 @@ function SUPERreCaptcha(){
         // mm to px  = X / 0.4703703703703702
         // cm to px  = X / 0.04703703703703702
         // in to px  = X / 0.0185185185010975
+
+
+        // A4 paper size = 210 x 297 mm
+        // is in pixels 595 x 842 px
+        // * 2.8350168350168350168350168350168
+
+        debugger;
         args.unitRatio = 1;
         if(args.pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
-        if(args.pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
+        if(args.pdfSettings.unit=='mm') {
+            debugger;
+            debugger;
+            //args.unitRatio = 0.4703703703703702;
+            //args.unitRatio = 4.2525252525252525252525252525253;
+            //args.unitRatio = 2.8350168350168350168350168350168;
+            // width : 595.3535353535354
+            // height: 842.0000000000001
+            args.unitRatio = 2.8333333333333333333333333333333;
+            args.unitRatioHeight = 2.8350168350168350168350168350168;
+        }
         if(args.pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
         if(args.pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
         if(args.orientation==='portrait'){
+            debugger;
             var pageWidth = args._pdf.internal.pageSize.getWidth();
             var pageHeight = args._pdf.internal.pageSize.getHeight();
         }else{
+            debugger;
             var pageHeight = args._pdf.internal.pageSize.getWidth();
             var pageWidth = args._pdf.internal.pageSize.getHeight();
         }
-        args.pageWidthPortrait = pageWidth;
-        args.pageHeightPortrait = pageHeight;
-        args.pageWidthLandscape = pageHeight;
-        args.pageHeightLandscape = pageWidth;
-        if(args.orientation==='portrait'){
-            args.pageWidthInPixels = args.pageWidthPortrait / args.unitRatio;
-            args.pageHeightInPixels = args.pageHeightPortrait / args.unitRatio;
-        }else{
-            args.pageWidthInPixels = args.pageWidthLandscape / args.unitRatio;
-            args.pageHeightInPixels = args.pageHeightLandscape / args.unitRatio;
-        }
+        debugger;
+        args.pageWidthPortrait =   SUPER.round(pageWidth, 2);
+        args.pageHeightPortrait =  SUPER.round(pageHeight,2);
+        args.pageWidthLandscape =  SUPER.round(pageHeight,2);
+        args.pageHeightLandscape = SUPER.round(pageWidth, 2);
+        debugger;
+        args = SUPER.setPageSize(args);
+        debugger;
         // Make form scrollable based on a4 height
         args.scrollAmount = 0;
         args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
@@ -8314,13 +8350,10 @@ function SUPERreCaptcha(){
         // Add a timeout (just to be sure)
         setTimeout(function(){
             SUPER.pdf_generator_prepare(args, function(args){
-                debugger;
                 // First scroll over all pages, and determine total pages we have
                 SUPER.pdf_determine_pages(args, function(args){
-                    debugger;
                     // Start generating pages (starting at page 1)
                     args.currentPage = 1;
-                    debugger;
                     SUPER.pdf_generator_generate_page(args);
                 });
             });
@@ -8329,64 +8362,55 @@ function SUPERreCaptcha(){
     };
 
     SUPER.pdf_set_page_break_height = function(h, result, top, el, args){
-        debugger;
         if(el.classList.contains('super-pdf_page_break')) {
-            debugger;
-            debugger;
-            debugger;
-            debugger;
             // Do not resize, but set new orienation
             if(el.classList.contains('pdf-orientation-portrait')) args.orientation = 'portrait';
             if(el.classList.contains('pdf-orientation-landscape')) args.orientation = 'landscape';
             if(el.classList.contains('pdf-orientation-default')) args.orientation = args.pdfSettings.orientation;
             if(top===0){ 
-                debugger;
                 // For current page
-                args.pageOrientationChanges[result.currentPage] = args.orientation;
+                //args.pageOrientationChanges[result.currentPage] = args.orientation;
+                args.pageOrientationChanges[result.belongsTo[0]] = args.orientation;
             }else{
-                debugger;
                 // For next page
-                args.pageOrientationChanges[result.currentPage+1] = args.orientation;
+                //args.pageOrientationChanges[result.currentPage+1] = args.orientation;
+                args.pageOrientationChanges[result.belongsTo[0]+1] = args.orientation;
             }
-            debugger;
-            args.orientation = args.pageOrientationChanges[result.currentPage];
+            //args.orientation = args.pageOrientationChanges[result.currentPage];
+            //args.orientation = args.pageOrientationChanges[result.belongsTo[0]];
             if(args.orientation==='portrait'){
+                debugger;
                 args.pageWidth = args.pageWidthPortrait;
                 args.pageHeight = args.pageHeightPortrait;
             }
             if(args.orientation==='landscape'){
+                debugger;
                 args.pageWidth = args.pageWidthLandscape;
                 args.pageHeight = args.pageHeightLandscape;
             }
-            args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-            args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-            args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-            args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-            args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+            //args.pageWidthInPixels = args.pageWidth * args.unitRatio;
+            //args.pageHeightInPixels = args.pageHeight * args.unitRatio;
+            args = SUPER.setPageSize(args);
+            args.pdfPageContainer.style.width = (args.pageWidthInPixels)+'px';
+            args.pdfPageContainer.style.height = (args.pageHeightInPixels)+'px';
+            args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels)+'px';
             var headerFooterHeight = SUPER.pdf_get_header_height(args)+SUPER.pdf_get_footer_height(args);
             //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
             //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-            debugger;
-            debugger;
-            debugger;
-            args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-            debugger;
-            debugger;
-            debugger;
+            args.scrollAmount = (args.pageHeightInPixels)-headerFooterHeight;
             args.scrollAmount = SUPER.round(args.scrollAmount, 4);
             args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
             args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
-            debugger;
             // Resize this up to next page
-            if(top>0){ 
-                el.style.height = ((args.scrollAmount*result.currentPage)-top)+'px';
+            if(top>0){
+                debugger;
+                debugger;
+                debugger;
+                var height = (args.scrollAmount*result.currentPage)-top;
+                el.style.height = SUPER.round(Math.ceil(height), 0)+'px';
+                result.currentPageHeight = result.currentPageHeight+SUPER.round(height, 4);
             }
             h = SUPER.getNodeHeight(el, true, true, true);
-            //if(result.currentPageHeight>0){
-                //args.tmpPageBreakHeights.push(args.scrollAmount-top);
-            //}else{
-                //args.tmpPageBreakHeights.push(0);
-            //}
             //result.currentPageHeight=0;
             //result.currentPage++;
             //result.totalPages++;
@@ -8399,9 +8423,7 @@ function SUPERreCaptcha(){
     };
 
     SUPER.pdf_determine_pages = function(args, callback){
-        debugger;
         args.pageOrientationChanges = {};
-        //args.tmpPageBreakHeights = [];
         var result = {
             allowIncreasePage: true, // this is important
             belongsTo: [],
@@ -8417,40 +8439,31 @@ function SUPERreCaptcha(){
         var i, el, h, nodes = args.form0.querySelectorAll(':scope > form > .super-shortcode');
         //var headerHeight = SUPER.pdf_get_header_height(args);
         //var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        debugger;
         for(i=0; i<nodes.length; i++){
-            debugger;
             el = nodes[i];
             h = SUPER.getNodeHeight(el, true, true, true);
             if(el.classList.contains('super-pdf_page_break')) {
-                debugger;
             }
             if(h===0 && !el.classList.contains('super-pdf_page_break')) {
-                debugger;
                 //el.setAttribute('data-html2canvas-ignore', 'true');
                 //el.setAttribute('data-html2canvas-fake-ignore', 'true');
                 continue;
             }
-            debugger;
             var top = SUPER.getNodeTop(el, args);
             // tmp disabled? var pos = el.getBoundingClientRect();
             // tmp disabled? var top = Math.round(pos.top, 1e2) - headerHeight;
-            debugger;
             if(top<=args.scrollAmount){
                 // Part of current page
                 args.allowIncreasePage = false; // can not contain overlapping elements
             }
-            debugger;
             if((top+h)>args.scrollAmount){
                 // Also part of next page
                 args.allowIncreasePage = el; // might be that inside this element already are overlapping elements
             }else{
                 // Only part of current page
             }
-            debugger;
             result.belongsTo = [];
             result = SUPER.pdf_determine_belong_to(nodes, nodes[i], result, args);
-            debugger;
             if(result.belongsTo.length>1){
                 if(result.nodesOffsetsToBottoms[top]){
                     if(result.nodesOffsetsToBottoms[top]<h){
@@ -8460,19 +8473,8 @@ function SUPERreCaptcha(){
                     result.nodesOffsetsToBottoms[top] = h;
                 }
             }
-            debugger;
             el.dataset.belongsToPages = JSON.stringify(result.belongsTo);
-            debugger;
             h = SUPER.pdf_set_page_break_height(h, result, top, el, args);
-
-            // If we exceed scroll amount, we are on the next page
-            // tmp if((top+h)>args.scrollAmount){
-            // tmp     result.currentPageHeight=0;
-            // tmp     result.currentPage++;
-            // tmp     result.totalPages++;
-            // tmp     // Once we go to the next page, increase total "totalScrolled" amount
-            // tmp     result.totalScrolled = result.totalScrolled + args.scrollAmount;
-            // tmp }
             // Also part of next page(s)
             var x = 1;
             while((top+h)>args.scrollAmount*x){
@@ -8483,16 +8485,6 @@ function SUPERreCaptcha(){
                 result.totalScrolled = result.totalScrolled + args.scrollAmount;
                 x++;
             }
-
-
-            //if(result.currentPageHeight>=args.scrollAmount){
-            //    result.currentPageHeight=0;
-            //    result.currentPage++;
-            //    result.totalPages++;
-            //    // Once we go to the next page, increase total "totalScrolled" amount
-            //    result.totalScrolled = result.totalScrolled + args.scrollAmount;
-            //}
-            //nodes[i].dataset.belongsToPages = JSON.stringify(result.belongsTo);
         }
         // Store total pages
         args.totalPages = result.totalPages+1;
@@ -8501,29 +8493,27 @@ function SUPERreCaptcha(){
         callback(args);
     };
     SUPER.getNodeHeight = function(el, padding, margin, border){
-        debugger;
         var computedStyle = window.getComputedStyle(el), 
-            elementHeight = parseFloat(el.clientHeight), 
-            elementHeight = parseFloat(el.offsetHeight), 
+            //elementHeight = el.clientHeight, // Includes vertical padding
+            //elementHeight = parseFloat(el.offsetHeight), 
             pos = el.getBoundingClientRect(),
             elementHeight = pos.height,
             paddingTop = 0, paddingBottom = 0, marginTop = 0, marginBottom = 0, borderTopWidth = 0, borderBottomWidth = 0,
             isVisible = computedStyle.visibility !== "hidden" && computedStyle.display !== "none";
         if(!isVisible) return 0;
-        if(padding){
-            paddingTop = parseFloat(computedStyle.paddingTop);
-            paddingBottom = parseFloat(computedStyle.paddingBottom);
-        }
+        // tmp if(padding){
+        // tmp     paddingTop = parseFloat(computedStyle.paddingTop);
+        // tmp     paddingBottom = parseFloat(computedStyle.paddingBottom);
+        // tmp }
         if(margin){
             marginTop = parseFloat(computedStyle.marginTop);
             marginBottom = parseFloat(computedStyle.marginBottom);
         }
-        if(border){
-            borderTopWidth = parseFloat(computedStyle.borderTopWidth);
-            borderBottomWidth = parseFloat(computedStyle.borderBottomWidth);
-        }
+        //if(border){
+        //    borderTopWidth = parseFloat(computedStyle.borderTopWidth);
+        //    borderBottomWidth = parseFloat(computedStyle.borderBottomWidth);
+        //}
         //return Math.round(elementHeight + paddingTop + paddingBottom + borderTopWidth + borderBottomWidth + marginTop + marginBottom, 1e2);
-        debugger;
         return elementHeight + paddingTop + paddingBottom + borderTopWidth + borderBottomWidth + marginTop + marginBottom;
     };
     SUPER.getNodeTop = function(el, args){
@@ -8555,41 +8545,9 @@ function SUPERreCaptcha(){
         }
         var top = SUPER.getNodeTop(el, args);
         var belongsTo = [];
-        //var belongsToCurrentPage = false;
-        //var belongsToNextPage = false;
-        // Check if prev node has offset
-        //var pos = el.getBoundingClientRect();
-        //var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        //var top = Math.round(pos.top, 1e2) - headerHeight;
-        //if(top<=args.scrollAmount){
-        //    // Part of current page
-        //    //belongsToCurrentPage = true;
-        //    if(result.belongsTo.indexOf(result.currentPage)===-1) result.belongsTo.push(result.currentPage);
-        //    if(belongsTo.indexOf(result.currentPage)===-1) belongsTo.push(result.currentPage);
-        //}
-        //if TOP is between 0 and 100 then part of page 1
-        //if 200 is between TOP and BOTTOM part of page 2
-        //if 300 is between TOP and BOTTOM part of page 3
-        //if BOTTOM is between 200 and 300 part of page 3
-        //top = 1396
-        //h = 54
-        //bottom = 1450
         var stop = false;
         var page = 1;
-        var disAllowedTags = ['SPAN'];
         while(!stop){
-            //0 <= 1110*1     &&   1300 >= 1110*1
-            //if(1110 >= 0 && 1110 <= 1300){
-            //if(1110 >= 0 && 1110 <= 89){
-            //if(top > args.scrollAmount*page){
-            //Math.round(top, 1e4);
-            //Math.round(args.scrollAmount, 1e4);
-            //if(top >= args.scrollAmount*page){
-            debugger;
-            debugger;
-            debugger;
-            debugger;
-            debugger;
             var tmpTop = SUPER.round(top, 4);
             var tmpScrollAmount = SUPER.round(args.scrollAmount, 4);
             if(tmpTop >= tmpScrollAmount*page){
@@ -8619,17 +8577,13 @@ function SUPERreCaptcha(){
                             continue;
                         }
                         // Difference
-                        //var diff = Math.round((args.scrollAmount*(page-1))-(top), 1e2);
                         var diff = (tmpScrollAmount*(page-1))-(tmpTop);
                         var computedStyle = window.getComputedStyle(el);
-                        //var marginTop = Math.round(parseFloat(computedStyle.marginTop), 1e2) + diff;
                         var marginTop = parseFloat(computedStyle.marginTop) + diff;
                         el.style.marginTop = marginTop+'px';
                         el.classList.add('super-pdf-el-with-margin');
                         // Recheck children again?
                         args.recheckChildrenAgain = true;
-                        // tmp belongsTo = [];
-                        //belongsTo.push(page);
                         stop = true;
                         continue;
                     }
@@ -8637,237 +8591,32 @@ function SUPERreCaptcha(){
                 stop = true;
             }
             page++;
-            //if(top<=(args.scrollAmount*page) && top+h>=args.scrollAmount*page){
-            //    if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //    if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
-            //    if(top+h<=(args.scrollAmount*page)){
-            //        // Part of this page
-            //        if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //        if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
-            //        // Only part of first page
-            //        stop = true;
-            //    }else{
-            //        // Also part of next page, apply top margin to put the element as a whole on to the next page
-            //        // Only if the height of the element is 40% of the scrollAmount
-            //        if(h<=(args.scrollAmount/100)*40){
-            //            // Difference
-            //            var diff = Math.round(args.scrollAmount-(top+h), 1e2);
-            //            var computedStyle = window.getComputedStyle(el);
-            //            var marginTop = Math.round(parseFloat(computedStyle.marginTop), 1e2) - diff;
-            //            el.style.marginTop = '-'+(Math.round(marginTop, 1e2))+'px';
-            //            page++;
-            //            if(result.belongsTo.indexOf(page)===-1) result.belongsTo.push(page);
-            //            if(belongsTo.indexOf(page)===-1) belongsTo.push(page);
-            //            continue;
-            //        }
-            //    }
-            //}
-            //page++;
         }
-
-
-        //var x=1, partOf = true;
-        //while(partOf){
-        //    partOf = false;
-        //    if(x===1 && top<=args.scrollAmount){
-        //        // Part of page 1
-        //        partOf = true;
-        //        if(result.belongsTo.indexOf(x)===-1) result.belongsTo.push(x);
-        //        if(belongsTo.indexOf(x)===-1) belongsTo.push(x);
-        //    }
-        //    if(top+h>args.scrollAmount*(x+1) && top+h<args.scrollAmount*(x+2)){
-        //        partOf = true;
-        //        // Part of page 2
-        //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
-        //        if(belongsTo.indexOf(x+1)===-1) belongsTo.push(x+1);
-        //    }
-        //    if(top<args.scrollAmount*(x+1) && top+h>=args.scrollAmount*(x+1)){
-        //        partOf = true;
-        //        // Part of page 2
-        //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
-        //        if(belongsTo.indexOf(x+1)===-1) belongsTo.push(x+1);
-        //    }
-        //    // 200 < 250 && 300 > 250
-        //    if(args.scrollAmount*(x+1)<top+h && args.scrollAmount*(x+2)>=top+h){
-        //        partOf = true;
-        //        // Part of page 3
-        //        if(result.belongsTo.indexOf(x+1)===-1) result.belongsTo.push(x+1);
-        //        if(belongsTo.indexOf(x+1)===-1) belongsTo.push(x+1);
-        //    }
-        //    x++;
-        //}
-        //var x = 1;
-        //while(top>args.scrollAmount*x){
-        //    if(top>args.scrollAmount*(x+1)){
-        //        x++;
-        //        continue;
-        //    }
-        //}
-        //if((top+h)>args.scrollAmount){
-        //    // Also part of next page(s)
-        //    var x = 1;
-        //    while((top+h)>args.scrollAmount*x){
-        //        if(top>args.scrollAmount*x){
-        //            // 2496 > 2220
-        //            x++;
-        //            continue;
-        //        }
-        //        // Check if also bigger than next, if so skip
-        //        if((top+h)>args.scrollAmount*(x+1)){
-        //            // Does not belong to this page, but belongs to the next one probably.
-        //        }else{
-        //            if(result.belongsTo.indexOf(result.currentPage+x)===-1) result.belongsTo.push(result.currentPage+x);
-        //            if(belongsTo.indexOf(result.currentPage+x)===-1) belongsTo.push(result.currentPage+x);
-        //        }
-        //        x++;
-        //    }
-        //}else{
-        //    // Only part of current page
-        //}
-        //if(belongsToCurrentPage){
-        //}
-        //if(belongsToNextPage){
-        //    //if(result.belongsTo.indexOf(result.currentPage+1)===-1) result.belongsTo.push(result.currentPage+1);
-        //    //if(belongsTo.indexOf(result.currentPage+1)===-1) belongsTo.push(result.currentPage+1);
-        //    //// Check if has offset, if so apply it
-        //}
         if(el.dataset.offsetTop){
             result.currentPageHeight = result.currentPageHeight - el.dataset.offsetTop;
         }
         if(args.allowIncreasePage===el && belongsTo.length>1){
             // When it belongs to both current and next page, then we must add an offset
             // When going to the next page we will apply the offset to move the element up relatively to the current page
-            var offset = (Math.round(args.scrollAmount, 1e4)*result.currentPage) - Math.round(top, 1e4);
+            var offset = (SUPER.round(args.scrollAmount, 4)*(result.currentPage)) - SUPER.round(top, 4);
             result.currentPageHeight = result.currentPageHeight-(h-offset);
             el.dataset.offsetTop = offset;
+        }else{
+            result.currentPageHeight = result.currentPageHeight+h;
         }
         el.dataset.belongsToPages = JSON.stringify(belongsTo);
         result.belongsTo = belongsTo;
-        debugger;
         h = SUPER.pdf_set_page_break_height(h, result, top, el, args);
+
+        // If we exceed scroll amount, we are on the next page
+        if(args.allowIncreasePage===el && result.currentPageHeight>=args.scrollAmount){
+            result.currentPageHeight=0;
+            result.currentPage++;
+            result.totalPages++;
+            // Once we go to the next page, increase total "totalScrolled" amount
+            result.totalScrolled = result.totalScrolled + args.scrollAmount;
+        }
         return result;
-        // tmp // If we exceed scroll amount, we are on the next page
-        // tmp if(args.allowIncreasePage && result.currentPageHeight>=args.scrollAmount){
-        // tmp     result.currentPageHeight=0;
-        // tmp     result.currentPage++;
-        // tmp     result.totalPages++;
-        // tmp     // Once we go to the next page, increase total "totalScrolled" amount
-        // tmp     result.totalScrolled = result.totalScrolled + args.scrollAmount;
-        // tmp }
-        // tmp return result;
-
-
-        // tmp disabled var i, innerNodes = el.querySelectorAll(':scope > .super-html-content > *, :scope > .super-shortcode, :scope > .super-column-custom-padding');
-        // tmp disabled for(i=0; i<innerNodes.length; i++){
-        // tmp disabled     // Check if has inner elements
-        // tmp disabled     result = SUPER.pdf_determine_belong_to(innerNodes, innerNodes[i], result, args);
-        // tmp disabled }
-        // tmp disabled if(el.classList.contains('super-html') && result.belongsTo.length>0){
-        // tmp disabled     el.dataset.belongsToPages = JSON.stringify(result.belongsTo);
-        // tmp disabled     return result;
-        // tmp disabled }
-        // tmp disabled if(el.classList.contains('super-pdf_page_break')){
-        // tmp disabled     // Do not resize, but set new orienation
-        // tmp disabled     if(el.classList.contains('pdf-orientation-portrait')) args.orientation = 'portrait';
-        // tmp disabled     if(el.classList.contains('pdf-orientation-landscape')) args.orientation = 'landscape';
-        // tmp disabled     if(el.classList.contains('pdf-orientation-default')) args.orientation = args.pdfSettings.orientation;
-        // tmp disabled     if(result.currentPageHeight===0){
-        // tmp disabled         // For current page
-        // tmp disabled         args.pageOrientationChanges[result.currentPage] = args.orientation;
-        // tmp disabled     }else{
-        // tmp disabled         // For next page
-        // tmp disabled         args.pageOrientationChanges[result.currentPage+1] = args.orientation;
-        // tmp disabled     }
-        // tmp disabled }
-        // tmp disabled args.orientation = args.pageOrientationChanges[result.currentPage];
-        // tmp disabled if(args.orientation==='portrait'){
-        // tmp disabled     args.pageWidth = args.pageWidthPortrait;
-        // tmp disabled     args.pageHeight = args.pageHeightPortrait;
-        // tmp disabled }
-        // tmp disabled if(args.orientation==='landscape'){
-        // tmp disabled     args.pageWidth = args.pageWidthLandscape;
-        // tmp disabled     args.pageHeight = args.pageHeightLandscape;
-        // tmp disabled }
-        // tmp disabled args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-        // tmp disabled args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-        // tmp disabled args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-        // tmp disabled args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-        // tmp disabled args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
-        // tmp disabled var headerFooterHeight = 0;
-        // tmp disabled headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        // tmp disabled headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-        // tmp disabled args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2)*2)-headerFooterHeight;
-        // tmp disabled args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
-        // tmp disabled args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
-        // tmp disabled if(el.classList.contains('super-pdf_page_break')){
-        // tmp disabled     if(result.currentPageHeight>0){
-        // tmp disabled         // Resize this up to next page
-        // tmp disabled         el.style.height = (args.scrollAmount-result.currentPageHeight)+'px';
-        // tmp disabled         args.tmpPageBreakHeights.push(args.scrollAmount-result.currentPageHeight);
-        // tmp disabled     }else{
-        // tmp disabled         args.tmpPageBreakHeights.push(0);
-        // tmp disabled     }
-        // tmp disabled }
-        // tmp disabled var belongsTo = [];
-        // tmp disabled var belongsToCurrentPage = false;
-        // tmp disabled var belongsToNextPage = false;
-        // tmp disabled // Check if prev node has offset
-        // tmp disabled var h = SUPER.getNodeHeight(el, true, true, true);
-        // tmp disabled if(nodes[i-1] && nodes[i-1].dataset.offsetTop){
-        // tmp disabled     result.currentPageHeight = h - nodes[i-1].dataset.offsetTop; // remove offset top of this element, to start with the correct page height
-        // tmp disabled }
-        // tmp disabled result.currentPageHeight = result.currentPageHeight+h; // page height including this element
-        // tmp disabled var pos = el.getBoundingClientRect();
-        // tmp disabled var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        // tmp disabled var top = Math.round(pos.top, 1e2) - headerHeight;
-        // tmp disabled if(top<=args.scrollAmount){
-        // tmp disabled     // Part of current page
-        // tmp disabled     belongsToCurrentPage = true;
-        // tmp disabled }
-        // tmp disabled // tmp if(result.currentPageHeight<=args.scrollAmount){
-        // tmp disabled // tmp     // Part of current page
-        // tmp disabled // tmp     belongsToCurrentPage = true;
-        // tmp disabled // tmp }
-        // tmp disabled if(result.currentPageHeight>args.scrollAmount){
-        // tmp disabled     // Also part of next page
-        // tmp disabled     belongsToCurrentPage = true;
-        // tmp disabled     belongsToNextPage = true;
-        // tmp disabled }else{
-        // tmp disabled     // Only part of current page
-        // tmp disabled }
-        // tmp disabled if(belongsToCurrentPage){
-        // tmp disabled     if(result.belongsTo.indexOf(result.currentPage)===-1) result.belongsTo.push(result.currentPage);
-        // tmp disabled     if(belongsTo.indexOf(result.currentPage)===-1) belongsTo.push(result.currentPage);
-        // tmp disabled }
-        // tmp disabled if(belongsToNextPage){
-        // tmp disabled     if(result.belongsTo.indexOf(result.currentPage+1)===-1) result.belongsTo.push(result.currentPage+1);
-        // tmp disabled     if(belongsTo.indexOf(result.currentPage+1)===-1) belongsTo.push(result.currentPage+1);
-        // tmp disabled     // Check if has offset, if so apply it
-        // tmp disabled }
-        // tmp disabled if(el.dataset.offsetTop){
-        // tmp disabled     result.currentPageHeight = result.currentPageHeight - el.dataset.offsetTop;
-        // tmp disabled }
-        // tmp disabled if(belongsToCurrentPage && belongsToNextPage){
-        // tmp disabled     // When it belongs to both current and next page, then we must add an offset
-        // tmp disabled     // When going to the next page we will apply the offset to move the element up relatively to the current page
-        // tmp disabled     var pos = el.getBoundingClientRect();
-        // tmp disabled     var headerHeight = Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
-        // tmp disabled     var top = Math.round(pos.top, 1e2) - headerHeight;
-        // tmp disabled     var offset = (args.scrollAmount*result.currentPage) - top;
-        // tmp disabled     result.currentPageHeight = result.currentPageHeight-(h-offset);
-        // tmp disabled     el.dataset.offsetTop = offset;
-        // tmp disabled }
-
-        // tmp disabled el.dataset.belongsToPages = JSON.stringify(belongsTo);
-        // tmp disabled // If we exceed scroll amount, we are on the next page
-        // tmp disabled if(result.currentPageHeight>=args.scrollAmount){
-        // tmp disabled     result.currentPageHeight=0;
-        // tmp disabled     result.currentPage++;
-        // tmp disabled     result.totalPages++;
-        // tmp disabled     // Once we go to the next page, increase total "totalScrolled" amount
-        // tmp disabled     result.totalScrolled = result.totalScrolled + args.scrollAmount;
-        // tmp disabled }
-        // tmp disabled return result;
     };
 
     SUPER._pdf_generator_done_callback = function(args){
@@ -9085,7 +8834,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.innerHTML = html;
         pdfPageContainer.classList.add('super-pdf-page-container');
         document.body.appendChild(pdfPageContainer);
-        pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
+        pdfPageContainer.style.width = (args.pageWidthInPixels)+'px';
         pdfPageContainer.style.zIndex = "-999999999";
         pdfPageContainer.style.left = "-9999px";
         pdfPageContainer.style.top = "0px";
@@ -9098,8 +8847,8 @@ function SUPERreCaptcha(){
         // ------- for debugging only: ----
         pdfPageContainer.style.position = "fixed";
         pdfPageContainer.style.backgroundColor = "#ffffff";
-        pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-        pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+        pdfPageContainer.style.height = (args.pageHeightInPixels)+'px';
+        pdfPageContainer.style.maxHeight = (args.pageHeightInPixels)+'px';
         pdfPageContainer.style.overflow = "hidden";
         pdfPageContainer.querySelector('.super-pdf-header').appendChild(headerClone);
         pdfPageContainer.querySelector('.super-pdf-body').appendChild(args.form0);
@@ -9136,13 +8885,7 @@ function SUPERreCaptcha(){
         //var headerFooterHeight = 0;
         //headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
         //headerFooterHeight += Math.round(pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-        debugger;
-        debugger;
-        debugger;
-        args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-        debugger;
-        debugger;
-        debugger;
+        args.scrollAmount = (args.pageHeightInPixels)-headerFooterHeight;
         args.scrollAmount = SUPER.round(args.scrollAmount, 4);
         pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
         pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
@@ -9234,7 +8977,7 @@ function SUPERreCaptcha(){
             function adjustHeight(el, minHeight) {
                 // compute the height difference which is caused by border and outline
                 var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-                var diff = outerHeight - Math.round(el.clientHeight, 1e2);
+                var diff = outerHeight - SUPER.round(el.clientHeight, 4);
                 // set the height to 0 in case of it has to be shrinked
                 el.style.height = 0;
                 // set the correct height
@@ -9305,15 +9048,15 @@ function SUPERreCaptcha(){
     // tmp                 args.pageWidth = args.pageWidthLandscape;
     // tmp                 args.pageHeight = args.pageHeightLandscape;
     // tmp             }
-    // tmp             args.currentPageScrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
+    // tmp             args.currentPageScrollAmount = (args.pageHeightInPixels)-headerFooterHeight;
     // tmp             args.prevPageWidthInPixels = args.pageWidthInPixels;
     // tmp             args.prevPageHeightInPixels = args.pageHeightInPixels;
-    // tmp             args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-    // tmp             args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-    // tmp             args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-    // tmp             args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-    // tmp             args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-    // tmp             args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+    // tmp             args.pageWidthInPixels = args.pageWidth * args.unitRatio;
+    // tmp             args.pageHeightInPixels = args.pageHeight * args.unitRatio;
+    // tmp             args.scrollAmount = (args.pageHeightInPixels)-headerFooterHeight;
+    // tmp             args.pdfPageContainer.style.width = (args.pageWidthInPixels)+'px';
+    // tmp             args.pdfPageContainer.style.height = (args.pageHeightInPixels)+'px';
+    // tmp             args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels)+'px';
     // tmp             args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.currentPageScrollAmount+'px';
     // tmp             args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.currentPageScrollAmount+'px';
     // tmp         }
@@ -9496,7 +9239,6 @@ function SUPERreCaptcha(){
                     return;
                 }
                 // Update page width and height based on current page orientation
-                debugger;
                 args.orientation = args.pageOrientationChanges[args.currentPage];
                 //if(args.orientation==='unchanged'){
                 //    if(args.pageOrientationChanges[args.currentPage-1]){
@@ -9509,30 +9251,27 @@ function SUPERreCaptcha(){
                 //    args.orientation = args.pageOrientationChanges[args.currentPage];
                 //}
                 if(args.orientation==='portrait'){
+                    debugger;
                     args.pageWidth = args.pageWidthPortrait;
                     args.pageHeight = args.pageHeightPortrait;
                 }
                 if(args.orientation==='landscape'){
+                    debugger;
                     args.pageWidth = args.pageWidthLandscape;
                     args.pageHeight = args.pageHeightLandscape;
                 }
-                args.pageWidthInPixels = args.pageWidth / args.unitRatio;
-                args.pageHeightInPixels = args.pageHeight / args.unitRatio;
-                args.pdfPageContainer.style.width = (args.pageWidthInPixels*2)+'px';
-                args.pdfPageContainer.style.height = (args.pageHeightInPixels*2)+'px';
-                args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels*2)+'px';
+                //args.pageWidthInPixels = args.pageWidth * args.unitRatio;
+                //args.pageHeightInPixels = args.pageHeight * args.unitRatio;
+                args = SUPER.setPageSize(args);
+                args.pdfPageContainer.style.width = (args.pageWidthInPixels)+'px';
+                args.pdfPageContainer.style.height = (args.pageHeightInPixels)+'px';
+                args.pdfPageContainer.style.maxHeight = (args.pageHeightInPixels)+'px';
                 var headerFooterHeight = SUPER.pdf_get_header_height(args)+SUPER.pdf_get_footer_height(args);
                 //var headerFooterHeight = 0;
                 //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
                 //headerFooterHeight += Math.round(args.pdfPageContainer.querySelector('.super-pdf-footer').clientHeight, 1e2);
-                //args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2)*2)-headerFooterHeight;
-                debugger;
-                debugger;
-                debugger;
-                args.scrollAmount = (args.pageHeightInPixels*2)-headerFooterHeight;
-                debugger;
-                debugger;
-                debugger;
+                //args.scrollAmount = (Math.round(args.pageHeightInPixels, 1e2))-headerFooterHeight;
+                args.scrollAmount = (args.pageHeightInPixels)-headerFooterHeight;
                 args.scrollAmount = SUPER.round(args.scrollAmount, 4);
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
@@ -9570,6 +9309,9 @@ function SUPERreCaptcha(){
                         args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
                     }
                 }
+                debugger;
+                debugger;
+                debugger;
                 html2canvas(document.querySelector('.super-pdf-page-container'), {
                     scrollX: 0, // Important, do not remove
                     scrollY: 0,  // -window.scrollY, // Important, do not remove
@@ -9593,6 +9335,9 @@ function SUPERreCaptcha(){
                     //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
                     var imgData = canvas.toDataURL("image/jpeg", 1.0);
                     // Add this image as 1 single page
+                    debugger;
+                    debugger;
+                    debugger;
                     args._pdf.addImage(
                         imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
                         'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
@@ -9625,12 +9370,10 @@ function SUPERreCaptcha(){
                     // If there are more pages to be processed, go ahead
                     if(morePages){
                         args.currentPage++;
-                        debugger;
                         args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
                         //pageOrientationChanges[args.currentPage]);
                         SUPER.pdf_generator_generate_page(args);
                     }else{                   
-                        debugger;
                         // No more pages to generate (submit form / send email)
                         SUPER._pdf_generator_done_callback(args);
                     }
