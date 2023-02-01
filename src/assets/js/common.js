@@ -8188,23 +8188,26 @@ function SUPERreCaptcha(){
         }
     };
     SUPER.setPageSize = function(args){
-        if(args.format==='a4'){
-            if(args.orientation==='portrait'){
-                args.pageWidthInPixels = 793;
-                args.pageHeightInPixels = 1122;
-            }else{
-                args.pageWidthInPixels = 1122;
-                args.pageHeightInPixels = 793;
-            }
-            return args;
-        }
+        debugger;
+        //if(args.format==='a4'){
+        //    if(args.orientation==='portrait'){
+        //        args.pageWidthInPixels = 989;
+        //        args.pageHeightInPixels = 1400;
+        //    }else{
+        //        args.pageWidthInPixels = 1400;
+        //        args.pageHeightInPixels = 989;
+        //    }
+        //    return args;
+        //}
         if(args.orientation==='portrait'){
-            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthPortrait * args.unitRatio),0);
-            args.pageHeightInPixels = SUPER.round(Math.ceil( args.pageHeightPortrait * args.unitRatio),0);
+            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthPortrait / args.unitRatio),0);
+            args.pageHeightInPixels = SUPER.round(Math.ceil( args.pageHeightPortrait / args.unitRatio),0);
         }else{
-            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthLandscape * args.unitRatio),0);
-            args.pageHeightInPixels = SUPER.round(Math.ceil(args.pageHeightLandscape * args.unitRatio),0);
+            args.pageWidthInPixels = SUPER.round(Math.ceil(args.pageWidthLandscape / args.unitRatio),0);
+            args.pageHeightInPixels = SUPER.round(Math.ceil(args.pageHeightLandscape / args.unitRatio),0);
         }
+        args.pageWidthInPixels = args.pageWidthInPixels*2;
+        args.pageHeightInPixels = args.pageHeightInPixels*2;
         return args;
     };
     SUPER.pdf_generator_init = function(args, callback){
@@ -8306,39 +8309,33 @@ function SUPERreCaptcha(){
         // is in pixels 595 x 842 px
         // * 2.8350168350168350168350168350168
 
-        debugger;
         args.unitRatio = 1;
         if(args.pdfSettings.unit=='pt') args.unitRatio = 1.333333333333333;
-        if(args.pdfSettings.unit=='mm') {
-            debugger;
-            debugger;
-            //args.unitRatio = 0.4703703703703702;
-            //args.unitRatio = 4.2525252525252525252525252525253;
-            //args.unitRatio = 2.8350168350168350168350168350168;
-            // width : 595.3535353535354
-            // height: 842.0000000000001
-            args.unitRatio = 2.8333333333333333333333333333333;
-            args.unitRatioHeight = 2.8350168350168350168350168350168;
-        }
+        if(args.pdfSettings.unit=='mm') args.unitRatio = 0.4703703703703702;
+        // tmp if(args.pdfSettings.unit=='mm') {
+        // tmp     //args.unitRatio = 0.4703703703703702;
+        // tmp     //args.unitRatio = 4.2525252525252525252525252525253;
+        // tmp     //args.unitRatio = 2.8350168350168350168350168350168;
+        // tmp     // width : 595.3535353535354
+        // tmp     // height: 842.0000000000001
+        // tmp     args.unitRatio = 2.8333333333333333333333333333333;
+        // tmp     args.unitRatioHeight = 2.8350168350168350168350168350168;
+        // tmp }
         if(args.pdfSettings.unit=='cm') args.unitRatio = 0.04703703703703702;
         if(args.pdfSettings.unit=='in') args.unitRatio = 0.0185185185010975;
+        debugger;
         if(args.orientation==='portrait'){
-            debugger;
             var pageWidth = args._pdf.internal.pageSize.getWidth();
             var pageHeight = args._pdf.internal.pageSize.getHeight();
         }else{
-            debugger;
             var pageHeight = args._pdf.internal.pageSize.getWidth();
             var pageWidth = args._pdf.internal.pageSize.getHeight();
         }
-        debugger;
         args.pageWidthPortrait =   SUPER.round(pageWidth, 2);
         args.pageHeightPortrait =  SUPER.round(pageHeight,2);
         args.pageWidthLandscape =  SUPER.round(pageHeight,2);
         args.pageHeightLandscape = SUPER.round(pageWidth, 2);
-        debugger;
         args = SUPER.setPageSize(args);
-        debugger;
         // Make form scrollable based on a4 height
         args.scrollAmount = 0;
         args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
@@ -8370,21 +8367,22 @@ function SUPERreCaptcha(){
             if(top===0){ 
                 // For current page
                 //args.pageOrientationChanges[result.currentPage] = args.orientation;
+                debugger;
                 args.pageOrientationChanges[result.belongsTo[0]] = args.orientation;
             }else{
                 // For next page
                 //args.pageOrientationChanges[result.currentPage+1] = args.orientation;
+                debugger;
                 args.pageOrientationChanges[result.belongsTo[0]+1] = args.orientation;
             }
             //args.orientation = args.pageOrientationChanges[result.currentPage];
             //args.orientation = args.pageOrientationChanges[result.belongsTo[0]];
+            debugger;
             if(args.orientation==='portrait'){
-                debugger;
                 args.pageWidth = args.pageWidthPortrait;
                 args.pageHeight = args.pageHeightPortrait;
             }
             if(args.orientation==='landscape'){
-                debugger;
                 args.pageWidth = args.pageWidthLandscape;
                 args.pageHeight = args.pageHeightLandscape;
             }
@@ -8403,9 +8401,6 @@ function SUPERreCaptcha(){
             args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
             // Resize this up to next page
             if(top>0){
-                debugger;
-                debugger;
-                debugger;
                 var height = (args.scrollAmount*result.currentPage)-top;
                 el.style.height = SUPER.round(Math.ceil(height), 0)+'px';
                 result.currentPageHeight = result.currentPageHeight+SUPER.round(height, 4);
@@ -8423,6 +8418,7 @@ function SUPERreCaptcha(){
     };
 
     SUPER.pdf_determine_pages = function(args, callback){
+        debugger;
         args.pageOrientationChanges = {};
         var result = {
             allowIncreasePage: true, // this is important
@@ -8434,6 +8430,7 @@ function SUPERreCaptcha(){
             totalPages: 0,
             currentPageHeight: 0
         }
+        debugger;
         args.pageOrientationChanges[result.currentPage] = args.orientation;
         //var i, nodes = args.form0.querySelectorAll('.super-shortcode');
         var i, el, h, nodes = args.form0.querySelectorAll(':scope > form > .super-shortcode');
@@ -9239,6 +9236,7 @@ function SUPERreCaptcha(){
                     return;
                 }
                 // Update page width and height based on current page orientation
+                debugger;
                 args.orientation = args.pageOrientationChanges[args.currentPage];
                 //if(args.orientation==='unchanged'){
                 //    if(args.pageOrientationChanges[args.currentPage-1]){
@@ -9250,13 +9248,12 @@ function SUPERreCaptcha(){
                 //    }
                 //    args.orientation = args.pageOrientationChanges[args.currentPage];
                 //}
+                debugger;
                 if(args.orientation==='portrait'){
-                    debugger;
                     args.pageWidth = args.pageWidthPortrait;
                     args.pageHeight = args.pageHeightPortrait;
                 }
                 if(args.orientation==='landscape'){
-                    debugger;
                     args.pageWidth = args.pageWidthLandscape;
                     args.pageHeight = args.pageHeightLandscape;
                 }
@@ -9309,9 +9306,6 @@ function SUPERreCaptcha(){
                         args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
                     }
                 }
-                debugger;
-                debugger;
-                debugger;
                 html2canvas(document.querySelector('.super-pdf-page-container'), {
                     scrollX: 0, // Important, do not remove
                     scrollY: 0,  // -window.scrollY, // Important, do not remove
@@ -9321,6 +9315,7 @@ function SUPERreCaptcha(){
                     allowTaint: false,
                     backgroundColor: '#ffffff'
                 }).then(function(canvas) {
+                    debugger;
                     document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     // Only if not already canceled/reset
                     if(form && !form.classList.contains('super-generating-pdf')){
@@ -9335,8 +9330,6 @@ function SUPERreCaptcha(){
                     //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
                     var imgData = canvas.toDataURL("image/jpeg", 1.0);
                     // Add this image as 1 single page
-                    debugger;
-                    debugger;
                     debugger;
                     args._pdf.addImage(
                         imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
@@ -9354,6 +9347,7 @@ function SUPERreCaptcha(){
                         //args._pdf.text(20, 20, 'Hello world!');
                         //args._pdf.text(120, 20, 'الرقم الوطني');
                         //args._pdf.text(220, 20, 'ФанцыТеxтЦлоуд.Цом');
+                        debugger;
                         SUPER.pdf_generator_render_text(args);
                     }
 
@@ -9370,6 +9364,11 @@ function SUPERreCaptcha(){
                     // If there are more pages to be processed, go ahead
                     if(morePages){
                         args.currentPage++;
+                        debugger;
+                        if(!args.pageOrientationChanges[args.currentPage]){
+                            debugger;
+                            args.pageOrientationChanges[args.currentPage] = args.pageOrientationChanges[args.currentPage-1];
+                        }
                         args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
                         //pageOrientationChanges[args.currentPage]);
                         SUPER.pdf_generator_generate_page(args);
@@ -9427,6 +9426,7 @@ function SUPERreCaptcha(){
     }
     // PDF render text
     SUPER.pdf_generator_render_text = function(args){
+        debugger;
         // If so add a text node on the exact position
         var i, nodes, formWidth, pdfPageWidth, scale,
             lineHeight = 1.194,
@@ -9444,6 +9444,7 @@ function SUPERreCaptcha(){
         }
 
         // Convert unit to pixel
+        debugger;
         if(args.pdfSettings.unit=='pt') convertToPixel = 1.333333333333333;
         if(args.pdfSettings.unit=='mm') convertToPixel = 3.7795275591;
         if(args.pdfSettings.unit=='cm') convertToPixel = 37.7952755906
@@ -9461,6 +9462,7 @@ function SUPERreCaptcha(){
         var topLineHeightDivider = 1;
         if(args.pdfSettings.unit=='px') topLineHeightDivider = 2;
         var m = args.pdfSettings.margins;
+        debugger;
         var bodyMargins = {
             top: parseFloat(m.body.top)*convertToPixel,
             right: parseFloat(m.body.right)*convertToPixel,
@@ -9469,21 +9471,26 @@ function SUPERreCaptcha(){
         };
         
         // Determine scale
+        debugger;
         formWidth = args.form0.clientWidth;
         formWidth = formWidth + bodyMargins.left + bodyMargins.right;
         pdfPageWidth = args._pdf.internal.pageSize.getWidth()*convertToPixel;
         scale = formWidth / pdfPageWidth;
 
+        debugger;
         if(super_common_i18n.fonts){
             args._pdf.setFont('NotoSans-Regular');
         }else{
             args._pdf.setFont('Helvetica');
         }
+        debugger;
         args._pdf.setTextColor('red');
         args._pdf.setLineWidth(1*convertFromPixel);
 
+        debugger;
         nodes = pdfPageContainer.querySelectorAll('.super-label, .super-description, .super-heading-title, .super-heading-description, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-toggle-switch, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-currency .super-shortcode-field');
         for( i=0; i < nodes.length; i++ ) {
+            debugger;
             el = nodes[i];
             // For HTML content we will need to do some special things because a HTML element will contain unkown nodes with unkown styles
             // We will first have to wrap any stand alone text inside a <div> tag. This way we can more accurately position the overlapping text
@@ -9508,6 +9515,7 @@ function SUPERreCaptcha(){
                 //}
                 continue;
             }
+            debugger;
             resume = SUPER.pdf_generator_draw_pdf_text(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
             if(resume) continue;
         }
@@ -9524,6 +9532,7 @@ function SUPERreCaptcha(){
     }
     // PDF Draw text
     SUPER.pdf_generator_draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
+        debugger;
         if(super_common_i18n.fonts){
             args._pdf.setFont('NotoSans-Regular');
         }else{
@@ -9531,6 +9540,7 @@ function SUPERreCaptcha(){
         }
         args._pdf.setFontType('normal');
 
+        debugger;
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
         if(el.classList.contains('super-heading-title')){
             if(nodes[i].children[0]) el = nodes[i].children[0];
@@ -9559,11 +9569,15 @@ function SUPERreCaptcha(){
                 value = el.innerText;
             }
         }
+        debugger;
         if(value==='') return true; //continue;
+        debugger;
         pos = el.getBoundingClientRect();
         // Before we print the text, we must check if it's visible for this specific PDF page
+        debugger;
         tmpPosTop = pos.top;
         // Only if not header and not footer, because these are printed on every single page
+        debugger;
         if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
             //var headerHeight = Math.round(pdfPageContainer.querySelector('.super-pdf-header').clientHeight, 1e2);
             var headerHeight = SUPER.pdf_get_header_height(args);
@@ -9571,14 +9585,17 @@ function SUPERreCaptcha(){
                 return true; //continue;
             }
         }
+        debugger;
         var posWidth = (pos.width/scale)*convertFromPixel;
         posWidth = Math.ceil(posWidth);
         var posHeight = (pos.height/scale)*convertFromPixel;
         var posHeight = (SUPER.getNodeHeight(el, false, false, false)/scale)*convertFromPixel;
         var posLeft = ((pos.left+9999)/scale)*convertFromPixel;
+        debugger;
         if(args.debugger===true){
             posLeft = ((pos.left)/scale)*convertFromPixel;
         }
+        debugger;
         var posTop = ((tmpPosTop)/scale)*convertFromPixel;
         if(el.classList.contains('super-pdf-text')){
             if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
@@ -9591,18 +9608,23 @@ function SUPERreCaptcha(){
             }
             posWidth = ((pos.width+1)/scale)*convertFromPixel;
         }
+        debugger;
         if(el.closest('.super-toggle-prefix-label') || el.closest('.super-toggle-suffix-label')){
             posTop = ((tmpPosTop+1)/scale)*convertFromPixel;
             posWidth = ((pos.width+1)/scale)*convertFromPixel;
         }
+        debugger;
         if(el.closest('.super-radio') || el.closest('.super-checkbox') || el.classList.contains('super-fileupload-button-text')){
             posWidth = ((pos.width+1)/scale)*convertFromPixel;
         }
+        debugger;
         var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
         var fontSizePoint = fontSize * 0.67;
+        debugger;
         value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth);
         var charSpace = -(fontSize*charSpaceMultiplier)*convertFromPixel;
         var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
+        debugger;
         if(el.closest('.super-adaptive-placeholder')){
             posLeft = posLeft+(posWidth/2);
             if(drawRectangle) {
@@ -9611,16 +9633,19 @@ function SUPERreCaptcha(){
             args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-dropdown')){
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-radio') || el.closest('.super-checkbox')){
             if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
             args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-toggle-switch')){
             if(el.closest('.super-toggle-switch').classList.contains('super-active')){
                 if(drawRectangle) args._pdf.rect(posLeft+((posWidth-paddingRight)/2), posTop, posWidth-paddingRight, posHeight);
@@ -9631,12 +9656,14 @@ function SUPERreCaptcha(){
             }
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-quantity')){
             if(drawRectangle) args._pdf.rect(posLeft, posTop+(posHeight/2), posWidth, posHeight);
             posLeft = posLeft+(posWidth/2);
             args._pdf.text(value, posLeft, posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-textarea')){
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/scale)*convertFromPixel;
@@ -9644,13 +9671,16 @@ function SUPERreCaptcha(){
             args._pdf.text(value, posLeft+paddingLeft, posTop+paddingTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
             return true; //continue;
         }
+        debugger;
         if(el.closest('.super-text') || el.closest('.super-currency')){
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             if(drawRectangle) args._pdf.rect(posLeft, posTop, posWidth, posHeight);
             args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
+        debugger;
         if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
+        debugger;
         args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
         return true; //continue;
     };

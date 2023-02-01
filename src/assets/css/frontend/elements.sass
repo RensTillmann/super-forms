@@ -1185,7 +1185,12 @@ textarea
     .super-field-wrapper
       .super-rating
         flex-direction: row-reverse
-
+html[dir="rtl"] 
+  .super-rtl
+    .super-rating
+      .super-field-wrapper
+        .super-rating
+          flex-direction: row
 .super-slider
   .slider
     width: auto
