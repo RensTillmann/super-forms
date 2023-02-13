@@ -32,4 +32,5 @@
 .super-signature-canvas canvas {
 	position: relative;
 	z-index: 1;
+	max-width: 100%;
 }

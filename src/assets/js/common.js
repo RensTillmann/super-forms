@@ -5912,8 +5912,9 @@ function SUPERreCaptcha(){
             for(i=0; i<nodes.length; i++){
                 value = nodes[i].querySelector('.super-signature-lines').value;
                 if(value!==''){
-                    value = value.replace('\\"lines\\"', '"lines"');
-                    $(nodes[i]).find('.super-signature-canvas').signature('enable').signature('draw', value);
+                    debugger;
+                    //value = value.replace('\\"lines\\"', '"lines"');
+                    //$(nodes[i]).find('.super-signature-canvas').signature('enable').signature('draw', value);
                 }
             }
             // .. but for toggle field
@@ -5997,6 +5998,7 @@ function SUPERreCaptcha(){
             
             if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
                 var data = SUPER.form_js[formId]['_entry_data'];
+                debugger;
                 if(data) SUPER.populate_form_with_entry_data(data, args.form, args.clear);
             }
 
@@ -6880,6 +6882,7 @@ function SUPERreCaptcha(){
 
     // Populate form with entry data found after ajax call
     SUPER.populate_form_with_entry_data = function(data, form, clear){
+        debugger;
         if(!data) return;
         if(typeof clear === 'undefined') clear = true;
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
@@ -6983,19 +6986,48 @@ function SUPERreCaptcha(){
 
                 // Signature element
                 if(field.classList.contains('super-signature')){
+                    debugger;
                     if(typeof $.fn.signature === "function") {
-                        signatureDataUrl = data[i].value;
-                        field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
-                        $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
-                        field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
-                        var canvasWrapper = field.querySelector('.super-signature-canvas');
-                        field.classList.add('super-filled');
-                        $(canvasWrapper).signature('disable');
-                        // Remove clear button
-                        if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
-                            canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                        if(data[i].signatureLines && data[i].signatureLines!==''){
+                            debugger;
+                            debugger;
+                            debugger;
+                            signatureDataUrl = data[i].signatureLines.replace('\\"lines\\"', '"lines"');
+                            // tmp delete field.querySelector('.super-shortcode-field').dataset.disallowEdit;
+                        }else{
+                            debugger;
+                            debugger;
+                            debugger;
+                            signatureDataUrl = data[i].value;
+                            // Remove clear button
+                            debugger;
+                            if(signatureDataUrl!==''){
+                                field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                                debugger;
+                                var canvasWrapper = field.querySelector('.super-signature-canvas');
+                                $(canvasWrapper).signature('disable');
+                                debugger;
+                                if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+                                    debugger;
+                                    canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                                }
+                            }
+                        }
+                        if(signatureDataUrl!==''){
+                            field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
+                            $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
+                            field.classList.add('super-filled');
+                            debugger;
+                            if(data.contact_entry_id){
+                                debugger;
+                                field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                            }
                         }
                     }
+                    debugger;
+                    debugger;
+                    debugger;
+                    debugger;
                     return true;
                 }
 
@@ -7440,19 +7472,34 @@ function SUPERreCaptcha(){
             $(this).mask($(this).data('mask'));
         });
 
-        // Populate signature element with possible saved form progress
-        $('.super-form').each(function(){
-            if($(this).hasClass('super-save-progress')){
-                $(this).find('.super-signature').each(function(){
-                    var value = $(this).find('.super-signature-lines').val();
-                    if(value!==''){
-                        value = value.replace('\\"lines\\"', '"lines"');
-                        $(this).find('.super-signature-canvas').signature('enable').signature('draw', value);
-                    }
-                });
-            }
-        });
-
+        // tmp // Populate signature element with possible saved form progress
+        // tmp $('.super-form').each(function(){
+        // tmp     if($(this).hasClass('super-save-progress')){
+        // tmp         $(this).find('.super-signature').each(function(){
+        // tmp             var value = $(this).find('.super-signature-lines').val();
+        // tmp             if(value!==''){
+        // tmp                 debugger;
+        // tmp                 value = value.replace('\\"lines\\"', '"lines"');
+        // tmp                 debugger;
+        // tmp                 try {
+        // tmp                     debugger;
+        // tmp                     $(this).find('.super-signature-canvas').signature('enable').signature('draw', value);
+        // tmp                     debugger;
+        // tmp                 }
+        // tmp                 catch(error) {
+        // tmp                     SUPER.init_signature();
+        // tmp                     $(this).find('.super-signature-canvas').signature('enable').signature('draw', value);
+        // tmp                     debugger;
+        // tmp                     console.log("Error: ", error);
+        // tmp                     debugger;
+        // tmp                     //$(this).find('.super-signature-canvas').signature('draw', value);
+        // tmp                     debugger;
+        // tmp                 }
+        // tmp                 debugger;
+        // tmp             }
+        // tmp         });
+        // tmp     }
+        // tmp });
 
         // Provide each dynamic column with correct levels
         var i, nodes = document.querySelectorAll('.super-form:not(.super-preview-elements) .super-column[data-duplicate-limit]');
@@ -8352,9 +8399,6 @@ function SUPERreCaptcha(){
             }
             if((top+h)>args.scrollAmount){
                 // Also part of next page
-                debugger;
-                debugger;
-                debugger;
                 args.allowIncreasePage = el; // might be that inside this element already are overlapping elements
             }else{
                 // Only part of current page
@@ -8423,9 +8467,6 @@ function SUPERreCaptcha(){
             return result;
         }
         if(args.allowIncreasePage===el){
-            debugger;
-            debugger;
-            debugger;
             result.currentPage = 1;
         }
         //if(el.classList.contains('super-html') && result.belongsTo.length>0){
@@ -8467,14 +8508,11 @@ function SUPERreCaptcha(){
         if(el.classList.contains('super-pdf_page_break')){
             if(result.currentPageHeight>0){
                 // Resize this up to next page
-                debugger;
                 var newHeight = SUPER.round(args.scrollAmount-result.currentPageHeight,2);
                 if(newHeight<0){
-                    debugger;
                     newHeight = args.scrollAmount+newHeight;
                 }
                 if(newHeight>args.scrollAmount){
-                    debugger;
                     newHeight = args.scrollAmount;
                 }
                 el.style.height = newHeight+'px';
@@ -8489,6 +8527,7 @@ function SUPERreCaptcha(){
         var stop = false;
         var page = result.currentPage;
         var counter = 1;
+        args.recheckChildrenAgain = false;
         while(!stop){
             var tmpTop = SUPER.round(top, 2);
             var tmpScrollAmount = SUPER.round(args.scrollAmount, 2);
@@ -8559,6 +8598,34 @@ function SUPERreCaptcha(){
             page++;
             counter++;
         }
+        if(args.recheckChildrenAgain===true){
+            // Reset ignore attributes
+            nodes = el.querySelectorAll('[data-belongs-to-pages], [data-html2canvas-ignore="true"], .super-pdf-el-with-margin');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].removeAttribute('data-html2canvas-ignore');
+                nodes[i].classList.remove('super-pdf-el-with-margin');
+                nodes[i].style.marginTop = null
+                delete nodes[i].dataset.belongsToPages;
+            }
+            // Reset currentPage offsets
+            nodes = el.querySelectorAll('[data-offset-top]');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].style.marginTop = null
+                delete nodes[i].dataset.offsetTop;
+            }
+            // Reset any PDF page break heights
+            nodes = el.querySelectorAll('.super-pdf_page_break');
+            for(i=0; i<nodes.length; i++){
+                nodes[i].style.height = '0px';
+            }
+            for(i=0; i<innerNodes.length; i++){
+                h = SUPER.getNodeHeight(innerNodes[i], true, true, true);
+                if(h===0 && !innerNodes[i].classList.contains('super-pdf_page_break')){
+                    continue;
+                }
+                result = SUPER.pdf_determine_belong_to(innerNodes, innerNodes[i], result, args);
+            }
+        }
         if(el.classList.contains('super-pdf_page_break')){
             belongsTo = [belongsTo[0]];
             result.belongsTo = [belongsTo[0]];
@@ -8599,9 +8666,6 @@ function SUPERreCaptcha(){
         }
 
         if(args.allowIncreasePage===el && belongsTo.length>1){
-            debugger;
-            debugger;
-            debugger;
             // When it belongs to both current and next page, then we must add an offset
             // When going to the next page we will apply the offset to move the element up relatively to the current page
             //var offset = (SUPER.round(args.scrollAmount, 2)*(result.currentPage)) - SUPER.round(top, 2);
@@ -8628,6 +8692,16 @@ function SUPERreCaptcha(){
         // tmp disabled ---->     el.dataset.offsetTop = offset;
         // tmp disabled ----> }
 
+        // Find all inner belong to, and make sure that we add any missing pages
+        for(i=0; i<innerNodes.length; i++){
+            if(!innerNodes[i].dataset.belongsToPages) continue;
+            var innerBelongsTo = JSON.parse(innerNodes[i].dataset.belongsToPages);
+            for(var x=0; x<innerBelongsTo.length; x++){
+                if(belongsTo.indexOf(innerBelongsTo[x])===-1){
+                    belongsTo.push(innerBelongsTo[x]);
+                }
+            }
+        }
         el.dataset.belongsToPages = JSON.stringify(belongsTo);
 
         if(changeOrientation){
@@ -8682,13 +8756,9 @@ function SUPERreCaptcha(){
         // tmp disabled ----> result.belongsTo = belongsTo;
         // If we exceed scroll amount, we are on the next page
         if(args.allowIncreasePage===el && result.currentPageHeight>=args.scrollAmount){
-            debugger;
-            debugger;
-            debugger;
         // tmp disabled ----> if(result.currentPageHeight>=args.scrollAmount){
             result.currentPageHeight=0;
-            debugger;
-            result.currentPage++;
+            //tmpresult.currentPage++;
             result.currentPage = result.totalPages+1;
             SUPER.pdf_hide_previous_page_elements(args, result);
             //result.currentPage = result.totalPages+1;
@@ -9191,6 +9261,12 @@ function SUPERreCaptcha(){
                 if(form && !form.classList.contains('super-generating-pdf')){
                     return false;
                 }
+                if(args.currentPage===1){
+                    nodes = args.form0.querySelectorAll('.super-hide-from-current-page');
+                    for(i=0; i<nodes.length; i++){
+                        nodes[i].classList.remove('super-hide-from-current-page');
+                    }
+                }
                 // eslint-disable-next-line no-undef
                 args.pdfPercentageCompleted += args.totalPercentagePerPage;
                 if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
@@ -9330,12 +9406,11 @@ function SUPERreCaptcha(){
                     if(morePages===false && belongsTo.indexOf(args.currentPage+1)!==-1){
                         morePages = true;
                     }
-
                 }
                 // When the page is empty, we can skip it
                 if(args.pdfPageContainer.querySelector(':scope > .super-pdf-body > .super-form').clientHeight===0){
-                    SUPER._pdf_generator_done_callback(args);
-                    return;
+                    //SUPER._pdf_generator_done_callback(args);
+                    //return;
                 }
                 // Update page width and height based on current page orientation
                 args.orientation = args.pageOrientationChanges[args.currentPage];

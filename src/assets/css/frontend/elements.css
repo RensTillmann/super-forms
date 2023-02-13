@@ -1314,6 +1314,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   flex-direction: row-reverse;
 }
 
+html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
+  flex-direction: row;
+}
+
 .super-slider .slider {
   width: auto;
   z-index: 2;
@@ -1715,6 +1719,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   max-width: 100% !important;
   flex: 0 0 100% !important;
   padding-left: 0px;
+  margin: 0;
 }
 .super-first-responsiveness .super-grid > .super-column.first-column:not(.super-not-responsive) {
   padding-right: 0px;
