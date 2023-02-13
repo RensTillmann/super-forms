@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.696
+ * Version:           6.3.697
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.696';
+        public $version = '6.3.697';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -260,6 +260,12 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      1.0.0
         */
         private function init_hooks() {
+            // Required because any blocks theme has this enabled, and we don't want this.
+            // If you want "smart" quotes then you can type them yourself.
+            // Manipulating output of shortcodes is a big no-go, and the current WP filters do
+            // not seem to be working at all. Until this is addressed by WP core team we can
+            // remove the below filter, but for now we will use it to avoid any issues
+            add_filter( 'run_wptexturize', '__return_false', 9999999 );
 
             // Add minute schedule for cron system
             add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );

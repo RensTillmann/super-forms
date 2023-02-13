@@ -50,11 +50,21 @@
 			// Make drawing smaller by 50% (just as an example)
 			canvasWrapper = nodes[i];
 			disallowEdit = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.disallowEdit;
+			debugger;
 			$(canvasWrapper).signature('enable');
 			json = $(canvasWrapper).signature('toJSON');
 			lines = JSON.parse(json).lines;
 			if(lines.length===0){
+				json = canvasWrapper.parentNode.querySelector('.super-signature-lines').value;
+				if(json && json!==''){
+					json = json.replace('\\"lines\\"', '"lines"');
+					lines = JSON.parse(json).lines;
+				}
+			}
+			debugger;
+			if(lines.length===0){
 				if(disallowEdit==='true'){
+					debugger;
 					$(canvasWrapper).signature('disable');
 					// Remove clear button
 					if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
@@ -79,6 +89,7 @@
 				});
 				continue;
 			}
+			debugger;
 
 			canvasWrapperWidth = canvasWrapper.clientWidth;
 			canvasWrapperHeight = canvasWrapper.clientHeight;
@@ -86,18 +97,21 @@
 				// Do not refresh in case this singature was inside a multi-part and user switched to previous or next multi-part the canvas would have size of 0px by 0px
 				continue;
 			}
+			debugger;
 			canvas = nodes[i].querySelector('canvas');
 			canvas.width = canvasWrapperWidth;
 			canvas.height = canvasWrapperHeight;
 			newLines = [];
 			maxX = 0;
 			maxY = 0;
+			debugger;
 			for(x=0; x < lines.length; x++){
 				for(y=0; y < lines[x].length; y++){
 					if(maxX < lines[x][y][0]) maxX = lines[x][y][0];
 					if(maxY < lines[x][y][1]) maxY = lines[x][y][1];
 				}
 			}
+			debugger;
 			ratioX = maxX / canvasWrapper.clientWidth;
 			ratioY = maxY / canvasWrapper.clientHeight;
 			finalRatio = ratioX;
@@ -105,6 +119,7 @@
 			if(finalRatio<1) finalRatio = 1;
 			// In case finalRatio equals Infinity, it means that the signature was inside a multipart, hence the size of canvas would equal to 0x0
 			// we shouldn't resize the signature in these scenario's
+			debugger;
 			if(finalRatio!==Infinity && finalRatio>1){
 				// Resize
 				for(x=0; x < lines.length; x++){
@@ -115,20 +130,29 @@
 						newLines[x][y][1] = lines[x][y][1]/finalRatio;
 					}
 				}
+				debugger;
                 json = {"lines":newLines};
                 json = JSON.stringify(json);
 			}else{
 				// Do not resize, keep original
 			}
+			debugger;
 			jsonLength = JSON.parse(json).lines.length;
 			thickness = parseFloat(canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.thickness);
 			color = canvasWrapper.parentNode.querySelector('.super-shortcode-field').dataset.color;
+			debugger;
 			$(canvasWrapper).signature({
                 thickness: thickness,
                 color: color
             });
+			debugger;
+			debugger;
+			debugger;
 			$(canvasWrapper).signature('draw', json);
 			if(disallowEdit==='true' && jsonLength>0 ){ // But only if form was populated with form data
+				debugger;
+				debugger;
+				debugger;
 				$(canvasWrapper).signature('disable');
 				// Remove clear button
 				if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
