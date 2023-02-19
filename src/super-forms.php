@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.697
+ * Version:           6.3.699
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.697';
+        public $version = '6.3.699';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -739,11 +739,10 @@ if(!class_exists('SUPER_Forms')) :
                     //error_log($wp->query_vars['sfstripewebhook']);
                     // Set your secret key. Remember to switch to your live secret key in production.
                     // See your keys here: https://dashboard.stripe.com/apikeys
-                    SUPER_Stripe::setAppInfo();
+                    $stripe_mode = SUPER_Stripe::setAppInfo()['stripe_mode'];
                     // You can find your endpoint's secret in your webhook settings
                     $global_settings = SUPER_Common::get_global_settings();
-                    if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
-                    $endpoint_secret = $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']; // e.g: whsec_XXXXXXX
+                    $endpoint_secret = $global_settings['stripe_' . $stripe_mode . '_webhook_secret']; // e.g: whsec_XXXXXXX
                     $payload = @file_get_contents('php://input');
                     $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
                     $event = null;
