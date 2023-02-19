@@ -249,7 +249,6 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
-                    debugger;
                     var result = JSON.parse(this.responseText);
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');

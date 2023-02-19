@@ -1490,7 +1490,8 @@ if(!class_exists('SUPER_Stripe')) :
 
             // Before we continue, let's check if the Webhook is configured properly
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'test';
             // Get webhook ID and secret
             $webhookId = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id'] : '');
             $webhookSecret = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret'] : '');
@@ -1845,7 +1846,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // [optional] Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, 
                     // such as the submit button. `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in subscription or setup mode.
                     //'submit_type' => 'auto', //  payment mode must be `payment` in order for this to work, possible values are `auto` `pay` `book` `donate`
-                    $stripeData['submit_type'] = $s['submit_type'];
+                    $stripeData['submit_type'] = (!empty($s['submit_type']) ? $s['submit_type'] : 'auto');
                 }
 
                 // Tax ID collection requires updating business name on the customer. 
@@ -2294,7 +2295,8 @@ if(!class_exists('SUPER_Stripe')) :
                 'https://f4d.nl/super-forms'
             );
             $global_settings = SUPER_Common::get_global_settings();
-            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
+            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'test';
             $key = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key'] : '');
             $version = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version'] : '');
             \Stripe\Stripe::setApiKey($key);
