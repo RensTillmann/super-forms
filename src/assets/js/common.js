@@ -8811,7 +8811,7 @@ function SUPERreCaptcha(){
         args._save_data_callback(args);
     };
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -8876,7 +8876,11 @@ function SUPERreCaptcha(){
         css += '.super-pdf-page-container .super-html-content ol {float:left;width:100%;}';
         css += '.super-pdf-page-container .super-html-content ul {float:left;width:100%;}';
         // Hide elements that do not belong to the current page
-        css += '.super-pdf-page-container .super-hide-from-current-page { opacity:0!important;height:0px!important;overflow:hidden!important;margin:0!important;padding:0!important; }';
+
+        // To resolve the "start" attribute on "ol" element
+        css += '.super-pdf-page-container .super-hide-from-current-page { height:0px!important;overflow:hidden!important;margin:0!important;padding:0!important; }';
+        //css += '.super-pdf-page-container .super-hide-from-current-page { opacity:0!important;height:0px!important;overflow:hidden!important;margin:0!important;padding:0!important; }';
+
         css += '.super-pdf-page-container .super-hide-from-current-page > * { display:none; }';
         //css += '.super-pdf-page-container .super-html-content { display:flex!important;flex-direction:column!important; }';
         //css += '.super-pdf-page-container .super-pdf-body .super-shortcode[data-pdfoption=include].super-hide-from-current-page { display:none!important; }';
