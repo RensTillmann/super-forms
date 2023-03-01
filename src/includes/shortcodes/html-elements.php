@@ -121,6 +121,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
 
@@ -313,6 +315,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
 
@@ -386,6 +390,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -434,6 +440,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
                 'conditional_logic' => $conditional_logic_array
@@ -553,6 +561,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
 
@@ -617,6 +627,8 @@ $array['html_elements'] = array(
                     'fields' => array(
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
 

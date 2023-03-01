@@ -544,13 +544,17 @@ function SUPERreCaptcha(){
         }
     };
     SUPER.focusNextTabField = function(e, next, form, skipNext){
+        debugger;
+        debugger;
+        debugger;
         var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = -1;
-        if(e) keyCode = e.keyCode || e.which;
-         
-        if(typeof skipNext !== 'undefined'){
-            next = skipNext;
-        }else{
-            next = SUPER.nextTabField(e, next, form);
+        if(e){
+            keyCode = e.keyCode || e.which;
+            if(typeof skipNext !== 'undefined'){
+                next = skipNext;
+            }else{
+                next = SUPER.nextTabField(e, next, form);
+            }
         }
         if(!next) return false;
 
@@ -655,7 +659,7 @@ function SUPERreCaptcha(){
                     activeFound.classList.add('super-focus');
                 }else{
                     // var innerNodes = next.querySelectorAll('.super-item');
-                    if(e.shiftKey){
+                    if(e && e.shiftKey){
                         innerNodes[innerNodes.length-1].classList.add('super-focus');
                     }else{
                         innerNodes[0].classList.add('super-focus');
@@ -697,11 +701,46 @@ function SUPERreCaptcha(){
         }
         if(next.querySelector('.super-shortcode-field')){
             next.querySelector('.super-shortcode-field').focus();
+            if(e) {
+                debugger;
+                SUPER.scrollToTopOfForm(e, form);
+            }
         }
-        if(e) e.preventDefault();
+        if(e){
+            debugger;
+            e.preventDefault();
+        }else{
+            debugger;
+            next.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
+        }
         return false;
     };
-
+    SUPER.scrollToTopOfForm = function(e, form){
+        // First check if scrolling is disabled on next/prev button for multi-part
+        debugger;
+        var multipart = form.querySelector('.super-multipart.super-active');
+        if(typeof multipart.dataset.disableScrollPn === 'undefined'){
+            if(e && !e.shiftKey){
+                if(form.closest('.super-popup-content')){
+                    debugger;
+                    form.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
+                    //form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    //containerChoosed.scrollIntoView({ block: "center", behavior: "smooth" });
+                    //$(form.closest('.super-popup-content')).animate({
+                    //    scrollTop: $(form).offset().top - 30
+                    //}, 500);
+                }else{
+                    debugger;
+                    form.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
+                    //form.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    //$('html, body').animate({
+                    //    scrollTop: $(form).offset().top - 30
+                    //}, 500);
+                }
+            }
+        }
+        debugger;
+    };
     // Only if field exists and not conditionally hidden
     SUPER.field_isset = function(form, name, regex){
         var el = SUPER.field(form, name, regex);
@@ -1234,12 +1273,12 @@ function SUPERreCaptcha(){
                                 $html += '</div>';
                                 $($html).prependTo($(form));
                                 if(form.closest('.super-popup-content')){
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$(form.closest('.super-popup-content')).animate({
                                     //    scrollTop: $(form).offset().top-200
                                     //}, 1000);
                                 }else{
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$('html, body').animate({
                                     //    scrollTop: $(form).offset().top-200
                                     //}, 1000);
@@ -1321,12 +1360,12 @@ function SUPERreCaptcha(){
                                 $html += '</div>';
                                 $($html).prependTo($(form));
                                 if(form.closest('.super-popup-content')){
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$(form.closest('.super-popup-content')).animate({
                                     //    scrollTop: $(form).offset().top-200
                                     //}, 1000);
                                 }else{
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$('html, body').animate({
                                     //    scrollTop: $(form).offset().top-200
                                     //}, 1000);
@@ -3266,12 +3305,12 @@ function SUPERreCaptcha(){
                                 var $newMessage = $(html).insertBefore(container);
                                 container.remove();
                                 if(args.form.closest('.super-popup-content')){
-                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$(args.form.closest('.super-popup-content')).animate({
                                     //    scrollTop: $newMessage.offset().top-200
                                     //}, 1000);
                                 }else{
-                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
                                     //$('html, body').animate({
                                     //    scrollTop: $newMessage.offset().top-200
                                     //}, 1000);
@@ -3410,7 +3449,7 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
-                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                     // Visually indicate which fields have errors
                     if(typeof result.fields !== 'undefined'){
                         for(var i=0; i<result.fields.length; i++){
@@ -3442,7 +3481,7 @@ function SUPERreCaptcha(){
                         // Display the error/success message
                         if(innerText) innerText.innerHTML = result.msg;
                     }
-                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 }
                 // Convert any JS to executable JS
                 var node = innerText.querySelector('script');
@@ -3531,7 +3570,7 @@ function SUPERreCaptcha(){
                             $(args.form).find('.super-field, .super-shortcode').remove();
                             if(args.showOverlay==="true"){
                                 if(result.msg!==''){
-                                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                                 }
                             }
                         }, 500);
@@ -4032,12 +4071,12 @@ function SUPERreCaptcha(){
             }
             if(scroll){
                 if(form.closest('.super-popup-content')){
-                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     //$(form.closest('.super-popup-content')).animate({
                     //    scrollTop: $(form).offset().top-30
                     //}, 1000);
                 }else{
-                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                     //$('html, body').animate({
                     //    scrollTop: $(form).offset().top-30
                     //}, 1000);
@@ -4072,7 +4111,7 @@ function SUPERreCaptcha(){
             if(scroll){
                 // Scroll to first error field
                 var current = multipart.querySelector('.super-error-active');
-                current.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+                current.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
                 // Focus first error field
                 SUPER.focusNextTabField({keyCode: 32, preventDefault: function(){}}, current, form, current);
             }
@@ -4081,12 +4120,12 @@ function SUPERreCaptcha(){
             proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
             if(proceed!==true) return false;
             if(form.closest('.super-popup-content')){
-                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
                 //$(form.closest('.super-popup-content')).animate({
                 //    scrollTop: $(form).find('.super-error-active').offset().top-200
                 //}, 1000);
             }else{
-                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
                 //$('html, body').animate({
                 //    scrollTop: $(form).find('.super-error-active').offset().top-200
                 //}, 1000);
@@ -4188,12 +4227,12 @@ function SUPERreCaptcha(){
                         btn.classList.remove('super-loading');
                     }
                     if(args.form0.closest('.super-popup-content')){
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' })
                         //$(args.form.closest('.super-popup-content')).animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
                     }else{
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' })
                         //$('html, body').animate({
                         //    scrollTop: $(args.form).offset().top-200
                         //}, 1000);
@@ -4238,6 +4277,7 @@ function SUPERreCaptcha(){
         }
     };
     SUPER.after_initializing_forms_hook = function(args){
+        debugger;
         var i, name, functions = super_common_i18n.dynamic_functions.after_initializing_forms_hook;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
@@ -5967,34 +6007,52 @@ function SUPERreCaptcha(){
                 el: undefined,
                 form: $this,
                 callback: function(args){
+                    debugger;
                     args.form.classList.add('super-rendered');
                     if(args.form.parentNode.closest('.super-live-preview') || args.form.classList.contains('preload-disabled')){
+                        debugger;
                         if(!args.form.classList.contains('preload-disabled')){
                             setTimeout(function (){
+                                debugger;
                                 $(args.form).fadeOut(100, function () {
+                                    debugger;
                                     args.form.classList.add('super-initialized');
-                                    $(args.form).fadeIn(500);
+                                    debugger;
+                                    $(args.form).fadeIn(500, function(){
+                                        debugger;
+                                        SUPER.switch_to_step_and_or_field(args.form);
+                                    });
                                 });
                             }, 500);
                             return;
                         }
                         if(!args.form.classList.contains('super-initialized')) {
+                            debugger;
                             args.form.classList.add('super-initialized');
+                            SUPER.switch_to_step_and_or_field(args.form);
                         }
                         return;
                     }
                     if (!args.form.classList.contains('super-initialized')) {
+                        debugger;
                         setTimeout(function (){
+                            debugger;
                             $(args.form).fadeOut(100, function () {
+                                debugger;
                                 args.form.classList.add('super-initialized');
-                                $(args.form).fadeIn(500);
+                                $(args.form).fadeIn(500, function(){
+                                    debugger;
+                                    SUPER.switch_to_step_and_or_field(args.form);
+                                });
                             });
                         }, 500);
                     }
                 }
             };
 
+            debugger;
             SUPER.after_initializing_forms_hook(args);
+            debugger;
             
             if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
                 var data = SUPER.form_js[formId]['_entry_data'];
@@ -7653,40 +7711,8 @@ function SUPERreCaptcha(){
                 
                 // @SINCE 4.9.520 - Remember multi-part position/location and allow to anchor to a specific multi-part
                 // Example: http://domain.com/page#step-49344-3
-                var currentStep = window.location.hash.substring(1);
-                if(currentStep!==''){
-                    var explodedStep = currentStep.split('-');
-                    if(explodedStep[0]==='step'){
-                        var stepFormID = explodedStep[1];
-                        var multiPart = explodedStep[2];
-                        // Lookup the form based on the ID
-                        var multiPartForm = document.querySelector('.super-form-'+stepFormID);
-                        if(multiPartForm){
-                            // We found a form, check if it contains a multi-part, if so then make it active
-                            var nodes = multiPartForm.querySelectorAll('.super-multipart');
-                            // If there are not enough multi-parts default to the first one
-                            if(nodes.length < multiPart) multiPart = "1";
-                            for(var i = 0; i < nodes.length; i++){
-                                if(multiPart==(i+1)){
-                                    nodes[i].classList.add('super-active');
-                                }else{
-                                    nodes[i].classList.remove('super-active');
-                                }
-                            }
-                            nodes = multiPartForm.querySelectorAll('.super-multipart-step');
-                            for(i = 0; i < nodes.length; i++){
-                                if(multiPart==(i+1)){
-                                    nodes[i].classList.add('super-active');
-                                }else{
-                                    nodes[i].classList.remove('super-active');
-                                }
-                            }
-                            var progress = 100 / nodes.length;
-                            progress = progress * parseInt(multiPart, 10);
-                            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
-                        }
-                    }
-                }
+                debugger;
+                //tmpSUPER.switch_to_step_and_or_field(form);
             }
             SUPER.init_super_responsive_form_fields({form: form, callback: callback, formId: formId});
         });
@@ -7705,6 +7731,123 @@ function SUPERreCaptcha(){
                 clearInterval($handle_columns_interval);
             }
         }, 0);
+    };
+    $(window).on('hashchange', function() {
+        //.. work ..
+        debugger;
+        var currentStep = window.location.hash.substring(1);
+        if(currentStep!==''){
+            debugger;
+            var form, explodedStep = currentStep.split('-');
+            if(explodedStep[0]==='step' && currentStep[4]==='-'){
+                debugger;
+                var stepFormID = explodedStep[1];
+                debugger;
+                form = document.querySelector('#super-form-'+stepFormID);
+                debugger;
+                if(form.classList.contains('super-initialized')){
+                    debugger;
+                    debugger;
+                    SUPER.switch_to_step_and_or_field(form);
+                }
+            }else{
+                // Check if a field with this name exists
+                debugger;
+                debugger;
+                debugger;
+                debugger;
+                var fields = SUPER.fieldsByName(document, currentStep);
+                if(fields){
+                    // If so, then try to focus it
+                    debugger;
+                    debugger;
+                    debugger;
+                    debugger;
+                    form = fields[0].closest('.super-form');
+                    var formId = parseInt(form.id.replace('super-form-', ''), 10);
+                    var multipartIndex = $(fields[0]).parents('.super-multipart:eq(0)').index('.super-form form .super-multipart');
+                    var currentStep = 'step-'+formId+'-'+(multipartIndex+1)+';'+currentStep;
+                    debugger;
+                    if(form.classList.contains('super-initialized')){
+                        debugger;
+                        debugger;
+                        SUPER.switch_to_step_and_or_field(form, currentStep);
+                    }
+                }
+            }
+        }
+    });
+
+    SUPER.switch_to_step_and_or_field = function(form, currentStep){
+        debugger;
+        if(typeof currentStep === 'undefined'){
+            currentStep = window.location.hash.substring(1);
+        }
+        if(currentStep!==''){
+            var explodedStep = currentStep.split('-');
+            if(explodedStep[0]==='step'){
+                var stepFormID = explodedStep[1];
+                var multiPart = explodedStep[2].split(';');
+                debugger;
+                var fieldName = (multiPart[1] ? multiPart[1] : '');
+                var step = multiPart[0];
+                // Lookup the form based on the ID
+                var multiPartForm = document.querySelector('.super-form-'+stepFormID);
+                if(multiPartForm){
+                    // We found a form, check if it contains a multi-part, if so then make it active
+                    var nodes = multiPartForm.querySelectorAll('.super-multipart');
+                    // If there are not enough multi-parts default to the first one
+                    if(nodes.length < step) step = "1";
+                    for(var i = 0; i < nodes.length; i++){
+                        if(step==(i+1)){
+                            nodes[i].classList.add('super-active');
+                        }else{
+                            nodes[i].classList.remove('super-active');
+                        }
+                    }
+                    nodes = multiPartForm.querySelectorAll('.super-multipart-step');
+                    for(i = 0; i < nodes.length; i++){
+                        if(step==(i+1)){
+                            nodes[i].classList.add('super-active');
+                        }else{
+                            nodes[i].classList.remove('super-active');
+                        }
+                    }
+                    var progress = 100 / nodes.length;
+                    progress = progress * parseInt(step, 10);
+                    form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+                    // Scroll to field
+                    if(fieldName!==''){
+                        debugger;
+                        debugger;
+                        debugger;
+                        var wrapper = form.querySelector('#sf-wrapper-'+fieldName);
+                        if(!wrapper) wrapper = form.querySelector('#sf-field-'+fieldName);
+                        if(!wrapper) {
+                            wrapper = SUPER.field(form, fieldName);
+                            wrapper = wrapper.closest('.super-field');
+                        }
+                        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' });
+                        debugger;
+                        debugger;
+                        debugger;
+                        SUPER.focusNextTabField(undefined, wrapper, form);
+                        //if(init){
+                        //    // Don't focus first field upon initializing form
+                        //}else{
+                        //}
+                        //var field = SUPER.field(form, fieldName);
+                        //if(field){
+                        //    debugger;
+                        //    var e = undefined;
+                        //    SUPER.focusNextTabField(e, field, form);
+                        //}
+                        //SUPER.focusForm(field);
+                        //SUPER.focusField(field);
+                    }
+                }
+            }
+        }
     };
 
     // Reposition slider amount label
@@ -8238,7 +8381,7 @@ function SUPERreCaptcha(){
         // A9           37 x 52	                1.5 x 2.0
         // A10          26 x 37                 1.0 x 1.5
 
-
+        args.pdfSettings.renderNativeElements = true;
         args.orientation = args.pdfSettings.orientation;
         args.format = args.pdfSettings.format;
         // Check if custom format is defined
@@ -8446,8 +8589,11 @@ function SUPERreCaptcha(){
         if(h===0 && !el.classList.contains('super-pdf_page_break')){
             return result;
         }
+        result.alreadyIncreasedCurrentPage = false;
         if(args.allowIncreasePage===el){
-            result.currentPage = 1;
+            result.alreadyIncreasedCurrentPage = true;
+            //result.currentPage++;
+            // tmp ? result.currentPage = 1;
         }
         //if(el.classList.contains('super-html') && result.belongsTo.length>0){
             //return result;
@@ -8745,7 +8891,11 @@ function SUPERreCaptcha(){
         // tmp disabled ----> if(result.currentPageHeight>=args.scrollAmount){
             result.currentPageHeight=0;
             //tmpresult.currentPage++;
-            result.currentPage = result.totalPages+1;
+            if(result.alreadyIncreasedCurrentPage){
+                result.currentPage++;
+            }else{
+                result.currentPage = result.totalPages+1;
+            } 
             SUPER.pdf_hide_previous_page_elements(args, result);
             //result.currentPage = result.totalPages+1;
             // Once we go to the next page, increase total "totalScrolled" amount
@@ -8811,7 +8961,7 @@ function SUPERreCaptcha(){
         args._save_data_callback(args);
     };
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
@@ -8859,7 +9009,11 @@ function SUPERreCaptcha(){
         // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
         if(!args.pdfSettings.normalizeFonts) args.pdfSettings.normalizeFonts = 'true';
         if(args.pdfSettings.normalizeFonts==='true'){
-            css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
+            if(args.pdfSettings.renderNativeElements===true){
+                css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;line-height:1.2!important;letter-spacing:0!important;}';
+            }else{
+                css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
+            }
             css += newNormalizeFontStylesNodesClasses + '{max-height:5000em!important;text-size-adjust:none!important;-webkit-text-size-adjust:none!important;-moz-text-size-adjust:none!important;-ms-text-size-adjust:none!important;}';
             css += hidePseudoElements + '{display:none!important;height:0px!important;max-height:0px!important;}';
         }
@@ -9348,7 +9502,6 @@ function SUPERreCaptcha(){
                         //if(args.currentPage>1 && $(nodes[i]).parents('.super-shortcode[data-offset-top]:eq(0)').length===0){
                             //var h = SUPER.getNodeHeight(nodes[i], true, true, true);
                             //additionalMarginTop = additionalMarginTop+h;
-                            debugger;
                             nodes[i].classList.add('super-hide-from-current-page');
                             if(morePages===false && belongsTo.indexOf(args.currentPage+1)!==-1){
                                 morePages = true;
@@ -9467,17 +9620,8 @@ function SUPERreCaptcha(){
                         args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
                     }
                 }
-                debugger;
-                html2canvas(document.querySelector('.super-pdf-page-container'), {
-                    scrollX: 0, // Important, do not remove
-                    scrollY: 0,  // -window.scrollY, // Important, do not remove
-                    scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
-                    currentPage: args.currentPage,
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#ffffff'
-                }).then(function(canvas) {
-                    debugger;
+                if(args.pdfSettings.renderNativeElements===true){
+                    // Experimental
                     document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     // Only if not already canceled/reset
                     if(form && !form.classList.contains('super-generating-pdf')){
@@ -9488,40 +9632,7 @@ function SUPERreCaptcha(){
                         args.pdfPercentageCompleted = 100;
                     }
                     if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
-                    //var percentage = (100/args.totalPages)*args.currentPage;
-                    //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
-                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
-                    // Add this image as 1 single page
-                    debugger;
-                    args._pdf.addImage(
-                        imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
-                        'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
-                                    // e.g. 'JPEG', 'PNG', 'WEBP'
-                        0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
-                        0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-                        args.pageWidth,
-                        args.pageHeight
-                    );
-                    // Make PDF searchable when text rendering is enabled
-                    if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
-                    if(args.pdfSettings.textRendering==='true'){
-                        //args._pdf.text('Testing text'); //, 0, 0, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
-                        //args._pdf.text(20, 20, 'Hello world!');
-                        //args._pdf.text(120, 20, 'الرقم الوطني');
-                        //args._pdf.text(220, 20, 'ФанцыТеxтЦлоуд.Цом');
-                        SUPER.pdf_generator_render_text(args);
-                    }
-
-                    // Reset ignore attributes
-                    // tmp disabled not sure? var nodes = document.body.querySelectorAll('[data-html2canvas-ignore="true"]');
-                    // tmp disabled not sure? for(i=0; i<nodes.length; i++){
-                    // tmp disabled not sure?     nodes[i].removeAttribute('data-html2canvas-ignore');
-                    // tmp disabled not sure? }
-                    // tmp disabled not sure? nodes = args.pdfPageContainer.querySelectorAll('.super-pdf-ignored-el-placeholder');
-                    // tmp disabled not sure? for(i=0; i<nodes.length; i++){
-                    // tmp disabled not sure?     nodes[i].remove();
-                    // tmp disabled not sure? }
-
+                    SUPER.pdf_render_native_elements(args);
                     // If there are more pages to be processed, go ahead
                     if(morePages){
                         args.currentPage++;
@@ -9534,60 +9645,152 @@ function SUPERreCaptcha(){
                         // No more pages to generate (submit form / send email)
                         SUPER._pdf_generator_done_callback(args);
                     }
+                }else{
+                    html2canvas(document.querySelector('.super-pdf-page-container'), {
+                        scrollX: 0, // Important, do not remove
+                        scrollY: 0,  // -window.scrollY, // Important, do not remove
+                        scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
+                        currentPage: args.currentPage,
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: '#ffffff'
+                    }).then(function(canvas) {
+                        document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
+                        // Only if not already canceled/reset
+                        if(form && !form.classList.contains('super-generating-pdf')){
+                            return false;
+                        }
+                        args.pdfPercentageCompleted += args.totalPercentagePerPage;
+                        if(args.pdfPercentageCompleted > 99){
+                            args.pdfPercentageCompleted = 100;
+                        }
+                        if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
+                        //var percentage = (100/args.totalPages)*args.currentPage;
+                        //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
+                        var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                        // Add this image as 1 single page
+                        args._pdf.addImage(
+                            imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
+                            'JPEG',     // format of file if filetype-recognition fails or in case of a Canvas-Element needs to be specified (default for Canvas is JPEG),
+                                        // e.g. 'JPEG', 'PNG', 'WEBP'
+                            0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
+                            0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+                            args.pageWidth,
+                            args.pageHeight
+                        );
+                        // Make PDF searchable when text rendering is enabled
+                        if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
+                        if(args.pdfSettings.textRendering==='true'){
+                            //args._pdf.text('Testing text'); //, 0, 0, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+                            //args._pdf.text(20, 20, 'Hello world!');
+                            //args._pdf.text(120, 20, 'الرقم الوطني');
+                            //args._pdf.text(220, 20, 'ФанцыТеxтЦлоуд.Цом');
+                            SUPER.pdf_generator_render_text(args);
+                        }
+
+                        // Reset ignore attributes
+                        // tmp disabled not sure? var nodes = document.body.querySelectorAll('[data-html2canvas-ignore="true"]');
+                        // tmp disabled not sure? for(i=0; i<nodes.length; i++){
+                        // tmp disabled not sure?     nodes[i].removeAttribute('data-html2canvas-ignore');
+                        // tmp disabled not sure? }
+                        // tmp disabled not sure? nodes = args.pdfPageContainer.querySelectorAll('.super-pdf-ignored-el-placeholder');
+                        // tmp disabled not sure? for(i=0; i<nodes.length; i++){
+                        // tmp disabled not sure?     nodes[i].remove();
+                        // tmp disabled not sure? }
+
+                        // If there are more pages to be processed, go ahead
+                        if(morePages){
+                            args.currentPage++;
+                            if(!args.pageOrientationChanges[args.currentPage]){
+                                args.pageOrientationChanges[args.currentPage] = args.pageOrientationChanges[args.currentPage-1];
+                            }
+                            args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
+                            SUPER.pdf_generator_generate_page(args);
+                        }else{                   
+                            // No more pages to generate (submit form / send email)
+                            SUPER._pdf_generator_done_callback(args);
+                        }
 
 
-                    //var formClientHeight = Math.round(form.querySelector('form').clientHeight, 1e2);
-                    //if(formClientHeight > args.totalScrolled){
-                    //}
-                    //if(formClientHeight > (args.totalScrolled+args.scrollAmount)){
-                    //}
-                    ////if(form.querySelector('form').clientHeight > args.totalScrolled){
-                    //if(formClientHeight > (args.currentPageScrollAmount * args.currentPage)){
-                    //}
-                    //if(formClientHeight > (args.totalScrolled+args.currentPageScrollAmount)){
-                    //    args.currentPage++;
-                    //    if(typeof args.pageOrientationChanges[args.currentPage] !== 'undefined' ){
-                    //        if(args.pageOrientationChanges[args.currentPage]==='unchanged'){
-                    //            if(typeof args.lastPageOrientation === 'undefined' ){
-                    //                args.lastPageOrientation = args.pdfSettings.orientation;
-                    //            }
-                    //            args._pdf.addPage(args.pdfSettings.format, args.lastPageOrientation);
-                    //        }else{
-                    //            if(args.pageOrientationChanges[args.currentPage]==='default'){
-                    //                args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
-                    //                args.lastPageOrientation = args.pdfSettings.orientation;
-                    //            }else{
-                    //                args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
-                    //                args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
-                    //            }
-                    //        }
-                    //    }else{
-                    //        if(typeof args.pageOrientationChanges[args.currentPage-1] !== 'undefined' ){
-                    //            args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
-                    //            args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
-                    //        }else{
-                    //            args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
-                    //            args.lastPageOrientation = args.pdfSettings.orientation;
-                    //        }
-                    //    }
-                    //    SUPER.pdf_generator_generate_page(args);
-                    //}else{                   
-                    //    // No more pages to generate (submit form / send email)
-                    //    SUPER._pdf_generator_done_callback(args);
-                    //}
-                });
+                        //var formClientHeight = Math.round(form.querySelector('form').clientHeight, 1e2);
+                        //if(formClientHeight > args.totalScrolled){
+                        //}
+                        //if(formClientHeight > (args.totalScrolled+args.scrollAmount)){
+                        //}
+                        ////if(form.querySelector('form').clientHeight > args.totalScrolled){
+                        //if(formClientHeight > (args.currentPageScrollAmount * args.currentPage)){
+                        //}
+                        //if(formClientHeight > (args.totalScrolled+args.currentPageScrollAmount)){
+                        //    args.currentPage++;
+                        //    if(typeof args.pageOrientationChanges[args.currentPage] !== 'undefined' ){
+                        //        if(args.pageOrientationChanges[args.currentPage]==='unchanged'){
+                        //            if(typeof args.lastPageOrientation === 'undefined' ){
+                        //                args.lastPageOrientation = args.pdfSettings.orientation;
+                        //            }
+                        //            args._pdf.addPage(args.pdfSettings.format, args.lastPageOrientation);
+                        //        }else{
+                        //            if(args.pageOrientationChanges[args.currentPage]==='default'){
+                        //                args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                        //                args.lastPageOrientation = args.pdfSettings.orientation;
+                        //            }else{
+                        //                args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
+                        //                args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
+                        //            }
+                        //        }
+                        //    }else{
+                        //        if(typeof args.pageOrientationChanges[args.currentPage-1] !== 'undefined' ){
+                        //            args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
+                        //            args.lastPageOrientation = args.pageOrientationChanges[args.currentPage];
+                        //        }else{
+                        //            args._pdf.addPage(args.pdfSettings.format, args.pdfSettings.orientation);
+                        //            args.lastPageOrientation = args.pdfSettings.orientation;
+                        //        }
+                        //    }
+                        //    SUPER.pdf_generator_generate_page(args);
+                        //}else{                   
+                        //    // No more pages to generate (submit form / send email)
+                        //    SUPER._pdf_generator_done_callback(args);
+                        //}
+                    });
+                }
             }
             catch(error) {
                 console.log("Error: ", error);
             }
         }, timeout );
     }
+
+
+    // PDF render native elements instead of image snapshot
+    SUPER.pdf_render_native_elements = function(args){
+        SUPER.pdf_generator_render_text(args, true);
+        //var i, nodes = args.form0.querySelectorAll('form > .super-field');
+        //for(i=0; i<nodes.length; i++){
+        //    if(nodes[i].classList.contains('super-hide-from-current-page')) continue;
+        //    if(nodes[i].dataset.pdfoption && (nodes[i].dataset.pdfoption==='exclude' || (nodes[i].dataset.pdfoption==='header' || nodes[i].dataset.pdfoption==='footer'))){
+        //        continue;
+        //    }
+        //    // Text field
+        //    if(nodes[i].classList.contains('super-text')){
+        //        args._pdf.text('TextField:', 10, 145);
+        //        var textField = new args._pdf.TextField();
+        //        textField.Rect = [50, 140, 30, 10];
+        //        textField.multiline = false;
+        //        textField.value = "The quick brown fox ate the lazy mouse The quick brown fox ate the lazy mouse The quick brown fox ate the lazy mouse";//
+        //        textField.fieldName = "TestTextBox";
+        //        //SET FONT SIZE
+        //        textField.maxFontSize = 39;
+        //        args._pdf.addField(textField);
+        //    }
+        //}
+    };
+
     // PDF render text
-    SUPER.pdf_generator_render_text = function(args){
+    SUPER.pdf_generator_render_text = function(args, native){
+        if(typeof native === 'undefined') native = false;
         // If so add a text node on the exact position
         var i, nodes, formWidth, pdfPageWidth, scale,
             lineHeight = 1.194,
-            drawRectangle = false, // true,
             renderingMode = 'invisible', //'invisible', // fill,
             resume, el,
             // Loop over all elements and see if the element is included in the PDF
@@ -9595,8 +9798,8 @@ function SUPERreCaptcha(){
             convertToPixel = 1,
             convertFromPixel = 1,
             charSpaceMultiplier = 0.00135;
-        if(args.debugger===true){
-            drawRectangle = true; // true,
+        if(args.debugger===true || native===true){
+            //debugger;
             renderingMode = 'fill'; //'invisible', // fill,
         }
 
@@ -9636,11 +9839,46 @@ function SUPERreCaptcha(){
         }else{
             args._pdf.setFont('Helvetica');
         }
-        args._pdf.setTextColor('red');
+        args._pdf.setTextColor('black');
+        if(args.debugger===true){
+            //debugger;
+            //args._pdf.setTextColor('red');
+        }
         args._pdf.setLineWidth(1*convertFromPixel);
 
-        nodes = pdfPageContainer.querySelectorAll('.super-label, .super-description, .super-heading-title, .super-heading-description, .super-filled .super-adaptive-placeholder > span, .super-dropdown.super-filled .super-item.super-placeholder, .super-checkbox .super-item > div, .super-radio .super-item > div, .super-toggle-switch, .super-slider .amount, .super-calculator-currency-wrapper, .super-calculator-label, .super-fileupload-name, .super-fileupload-button-text, .super-toggle-prefix-label > span, .super-toggle-suffix-label > span, .super-html-title, .super-html-subtitle, .super-html-content, .super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-currency .super-shortcode-field');
+        nodes = pdfPageContainer.querySelectorAll(`
+        .super-label, 
+        .super-description,
+        .super-heading-title, 
+        .super-heading-description, 
+        .super-filled .super-adaptive-placeholder > span, 
+        .super-dropdown.super-filled .super-item.super-placeholder, 
+        .super-checkbox .super-item > div,
+        .super-radio .super-item > div, 
+        .super-toggle-switch,
+        .super-slider .amount, 
+        .super-calculator-currency-wrapper, 
+        .super-calculator-label, 
+        .super-fileupload-name, 
+        .super-fileupload-button-text, 
+        .super-toggle-prefix-label > span, 
+        .super-toggle-suffix-label > span, 
+        .super-html-title, 
+        .super-html-subtitle,
+        .super-html-content, 
+        .super-text .super-shortcode-field, 
+        .super-textarea .super-shortcode-field, 
+        .super-quantity .super-shortcode-field,
+        .super-currency .super-shortcode-field
+        `);
         for( i=0; i < nodes.length; i++ ) {
+            if(nodes[i].classList.contains('super-pdf-tmp-replaced') || $(nodes[i]).parents('.super-pdf-tmp-replaced:eq(0)').length!==0){
+                continue;
+            }
+            if($(nodes[i]).parents('.super-hide-from-current-page:eq(0)').length!==0) {
+                // Skip :)
+                continue;
+            }
             el = nodes[i];
             // For HTML content we will need to do some special things because a HTML element will contain unkown nodes with unkown styles
             // We will first have to wrap any stand alone text inside a <div> tag. This way we can more accurately position the overlapping text
@@ -9660,12 +9898,12 @@ function SUPERreCaptcha(){
                 //el.innerHTML = str.replace(regex, subst);
                 //var childNodes = el.querySelectorAll('.super-pdf-text');
                 //for(var x=0; x < childNodes.length; x++){
-                //    resume = SUPER.draw_pdf_text(i, childNodes[x], childNodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+                //    resume = SUPER.draw_pdf_text(i, childNodes[x], childNodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider);
                 //    if(resume) continue;
                 //}
                 continue;
             }
-            resume = SUPER.pdf_generator_draw_pdf_text(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle);
+            resume = SUPER.pdf_generator_draw_pdf_text(native, i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider);
             if(resume) continue;
         }
     };
@@ -9679,14 +9917,47 @@ function SUPERreCaptcha(){
             pos = node.getBoundingClientRect();
         return pos.height;
     }
+    SUPER.pdf_get_native_el_position = function(el, args, scale, convertFromPixel){
+        var pos = el.getBoundingClientRect();
+        var w = (pos.width/scale)*convertFromPixel;
+        var h = (pos.height/scale)*convertFromPixel;
+        var t = ((pos.top)/scale)*convertFromPixel;
+        var l = ((pos.left+9999)/scale)*convertFromPixel;
+        if(args.debugger===true) l = ((pos.left)/scale)*convertFromPixel;
+        return { w: w, h: h, t: t, l: l }
+    }
+    SUPER.pdf_rgba2hex = function(args, rgba, setters){
+        //var hex = SUPER.pdf_rgba2hex(color, ['drawColor','fillColor']);
+        var i, c, hex = '#'+(rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/).slice(1).map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join(''));
+        if(hex.length>=9){
+            c = rgba.split(',');
+            var ch1 = SUPER.round(c[0].split('(')[1]);
+            var ch2 = SUPER.round(c[1]);
+            var ch3 = SUPER.round(c[2]);
+            var ch4 = SUPER.round(c[3].split(')')[0]);
+            for(i=0; i<setters.length; i++){
+                if(setters[i]==='textColor'){args._pdf.setTextColor(ch1, ch2, ch3, ch4);continue;}
+                if(setters[i]==='drawColor'){args._pdf.setDrawColor(ch1, ch2, ch3, ch4);continue;}
+                if(setters[i]==='fillColor'){args._pdf.setFillColor(ch1, ch2, ch3, ch4);continue;}
+            }
+        }else{
+            for(i=0; i<setters.length; i++){
+                if(setters[i]==='textColor'){args._pdf.setTextColor(hex);continue;}
+                if(setters[i]==='drawColor'){args._pdf.setDrawColor(hex);continue;}
+                if(setters[i]==='fillColor'){args._pdf.setFillColor(hex);continue;}
+            }
+        }
+    }
+
     // PDF Draw text
-    SUPER.pdf_generator_draw_pdf_text = function(i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider, drawRectangle){
+    SUPER.pdf_generator_draw_pdf_text = function(native, i, el, nodes, args, renderingMode, charSpaceMultiplier, convertFromPixel, scale, pdfPageContainer, lineHeight, topLineHeightDivider){
         if(super_common_i18n.fonts){
             args._pdf.setFont('NotoSans-Regular');
         }else{
             args._pdf.setFont('Helvetica');
         }
         args._pdf.setFontType('normal');
+        args._pdf.setTextColor('black');
 
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
         if(el.classList.contains('super-heading-title')){
@@ -9706,14 +9977,18 @@ function SUPERreCaptcha(){
                 paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             }
         }else{
-            if(el.closest('.super-text, .super-textarea, .super-quantity, .super-currency')){
-                if(el.value) {
-                    value = el.value;
-                }else if(el.innerText) {
+            if(el.classList.contains('super-pdf-tmp-text-field-placeholder')){
+                value = el.innerText;
+            }else{
+                if(el.closest('.super-text, .super-textarea, .super-quantity')){
+                    if(el.value) {
+                        value = el.value;
+                    }else if(el.innerText) {
+                        value = el.innerText;
+                    }
+                }else{
                     value = el.innerText;
                 }
-            }else{
-                value = el.innerText;
             }
         }
         if(value==='') return true; //continue;
@@ -9757,53 +10032,163 @@ function SUPERreCaptcha(){
         value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth);
         var charSpace = -(fontSize*charSpaceMultiplier)*convertFromPixel;
         var topLineHeight = (((fontSize*lineHeight)-fontSize)/topLineHeightDivider)*convertFromPixel;
+        if(el.classList.contains('super-label') || el.classList.contains('super-description')){
+            if(native){
+                var fontWeight = window.getComputedStyle(el).fontWeight;
+                if(SUPER.round(fontWeight) >= 600){
+                    args._pdf.setFontType('bold');
+                }
+                var color = window.getComputedStyle(el, null).color;
+                SUPER.pdf_rgba2hex(args, color, ['textColor']);
+            }
+            args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'left', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+            return true;
+        }
         if(el.closest('.super-adaptive-placeholder')){
-            posLeft = posLeft+(posWidth/2);
-            if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-            args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
+            //posLeft = posLeft+(posWidth/2);
+            if(native) {
+                //var color = window.getComputedStyle(el, null).getPropertyValue('background-color');  
+                var bgColor = window.getComputedStyle(el, null).getPropertyValue('background-image');
+                var color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight, 'FD');
+                // Set color
+                var color = window.getComputedStyle(el, null).color;
+                SUPER.pdf_rgba2hex(args, color, ['textColor']);
+            }
+            paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
+            args._pdf.text(value, posLeft+paddingLeft, posTop+topLineHeight, {align: 'left', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode});
             return true; //continue;
         }
         if(el.closest('.super-dropdown')){
+            if(native){
+                var node = el.closest('.super-dropdown').querySelector('.super-dropdown-list');
+                // Draw input box
+                var color = window.getComputedStyle(node, null).borderColor;
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
+                // Text color
+                var placeholder = node.querySelector('.super-item.super-placeholder');
+                var color = window.getComputedStyle(placeholder, null).color;
+                SUPER.pdf_rgba2hex(args, color, ['textColor']);
+            }
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
         if(el.closest('.super-radio') || el.closest('.super-checkbox')){
-            if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-            args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
-            return true; //continue;
-        }
-        if(el.closest('.super-toggle-switch')){
-            if(el.closest('.super-toggle-switch').classList.contains('super-active')){
-                if(drawRectangle) args._pdf.rect(posLeft+((posWidth-paddingRight)/2), posTop, posWidth-paddingRight, posHeight);
-                args._pdf.text(value, posLeft+((posWidth-paddingRight)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            if(el.closest('.super-radio')){
+                var before = el.parentNode.querySelector('.super-before');
+                var color = window.getComputedStyle(before, null).borderColor;  
+                var borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                var pos = SUPER.pdf_get_native_el_position(before, args, scale, convertFromPixel);
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.setLineWidth(borderWidth*convertFromPixel);
+                args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'D');
+                var after = el.parentNode.querySelector('.super-after');
+                var color = window.getComputedStyle(after, null).backgroundColor;  
+                var pos = SUPER.pdf_get_native_el_position(after, args, scale, convertFromPixel);
+                SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'F');
+                args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
             }else{
-                if(drawRectangle) args._pdf.rect(posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop, posWidth-paddingLeft, posHeight);
-                args._pdf.text(value, posLeft+paddingLeft+((posWidth-paddingLeft)/2), posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+                var before = el.parentNode.querySelector('.super-before');
+                var color = window.getComputedStyle(before, null).borderColor;  
+                var borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                var pos = SUPER.pdf_get_native_el_position(before, args, scale, convertFromPixel);
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.setLineWidth(borderWidth*convertFromPixel);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
+                var after = el.parentNode.querySelector('.super-after');
+                var color = window.getComputedStyle(after, null).backgroundColor;  
+                var pos = SUPER.pdf_get_native_el_position(after, args, scale, convertFromPixel);
+                SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
+                args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
             }
             return true; //continue;
         }
+        if(el.closest('.super-toggle-switch')){
+            debugger;
+            if(el.closest('.super-toggle-switch').classList.contains('super-active')){
+                debugger;
+                var node = el.closest('.super-toggle-switch').querySelector('.super-toggle-on');
+            }else{
+                debugger;
+                var node = el.closest('.super-toggle-switch').querySelector('.super-toggle-off');
+            }
+            // Background
+            var color = window.getComputedStyle(node, null).backgroundColor;
+            SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+            pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+            args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
+            // Text
+            var node = node.querySelector('span');
+            var color = window.getComputedStyle(node, null).color;
+            SUPER.pdf_rgba2hex(args, color, ['textColor']);
+            pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+            args._pdf.text(value, pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            // Box
+            var node = el.closest('.super-toggle-switch');
+            var color = window.getComputedStyle(node, null).borderColor;
+            SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+            pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+            args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+            return true; //continue;
+        }
         if(el.closest('.super-quantity')){
-            if(drawRectangle) args._pdf.rect(posLeft, posTop+(posHeight/2), posWidth, posHeight);
+            if(native){
+                // Draw input box
+                var color = window.getComputedStyle(el, null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.line(posLeft, posTop, posLeft+posWidth, posTop);
+                args._pdf.line(posLeft, posTop+posHeight, posLeft+posWidth, posTop+posHeight);
+                //args._pdf.rect(posLeft, posTop, posWidth, posHeight);
+                // Draw minus and plus buttons
+                // Now it doesn't matter if 'rgb' or 'rgba'...
+                // Minus
+                var node = el.closest('.super-quantity').querySelector('.super-minus-button');
+                var color = window.getComputedStyle(node, null).getPropertyValue('background-color');  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                args._pdf.setTextColor('white');
+                args._pdf.text('-', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+                // Plus
+                var node = el.closest('.super-quantity').querySelector('.super-plus-button');
+                var color = window.getComputedStyle(node, null).getPropertyValue('background-color');  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                pos = SUPER.pdf_get_native_el_position(node, args, scale, convertFromPixel);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                args._pdf.text('+', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
+            }
             posLeft = posLeft+(posWidth/2);
+            var color = window.getComputedStyle(el, null).color;
+            SUPER.pdf_rgba2hex(args, color, ['textColor']);
             args._pdf.text(value, posLeft, posTop+(posHeight/2), {align: 'center', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
         if(el.closest('.super-textarea')){
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
             paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/scale)*convertFromPixel;
-            if(drawRectangle) args._pdf.rect(posLeft, posTop, posWidth, posHeight);
             args._pdf.text(value, posLeft+paddingLeft, posTop+paddingTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
             return true; //continue;
         }
         if(el.closest('.super-text') || el.closest('.super-currency')){
+            if(native){
+                // Draw input box
+                var color = window.getComputedStyle(el, null).borderColor;
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.rect(posLeft, posTop, posWidth, posHeight);
+            }
             paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/scale)*convertFromPixel;
-            if(drawRectangle) args._pdf.rect(posLeft, posTop, posWidth, posHeight);
+            var color = window.getComputedStyle(el, '::placeholder').getPropertyValue('color');
+            SUPER.pdf_rgba2hex(args, color, ['textColor']);
             args._pdf.text(value, posLeft+paddingLeft, posTop+(posHeight/2), {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'middle', renderingMode: renderingMode}); 
             return true; //continue;
         }
-        if(drawRectangle) args._pdf.rect(posLeft, posTop+topLineHeight, posWidth, posHeight);
-        args._pdf.text(value, posLeft, posTop+topLineHeight, {charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
+        args._pdf.text(value, posLeft, posTop+topLineHeight, {align: 'left', charSpace: charSpace, lineHeightFactor: lineHeight, baseline: 'hanging', renderingMode: renderingMode}); 
         return true; //continue;
     };
     SUPER.pdf_generator_reset = function(form){

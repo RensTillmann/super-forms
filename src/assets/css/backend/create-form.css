@@ -1402,14 +1402,50 @@
     margin-top: 5px;
 }
 
-.super-element-settings .super-field-name, .super-form-settings .super-field-name {
+.super-element-settings .super-field-name,
+.super-element-settings .sf-docs,
+.super-form-settings .super-field-name {
     position: relative;
     font-size: 12px;
     font-weight: bold;
     color: black;
     float: left;
 }
+.super-element-settings .sf-docs,
+.super-form-settings .sf-docs {
+    color:#aaaaaa;
+    float:left;
+    width:100%;
+    display:block;
+    text-decoration:none;
+    font-weight:normal;
+    margin-bottom:4px;
+    font-size: 12px;
+}
+.super-form-settings .sf-docs {
+    padding-left:5px;
+}
 
+.super-element-settings .sf-docs:hover,
+.super-form-settings .sf-docs:hover{
+    color:#737cff;
+}
+.super-element-settings .sf-docs:before,
+.super-form-settings .sf-docs:before{
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    content: '\f02d';
+    padding-right: 4px;
+    color:#9fa5ff;
+}
+.super-element-settings .sf-docs:hover:before,
+.super-form-settings .sf-docs:hover:before{
+    color:#737cff;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 .super-element-settings .super-field-name > i, .super-form-settings .super-field-name > i {
     font-weight: normal;
     font-style: normal;

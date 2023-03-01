@@ -640,6 +640,7 @@ class SUPER_Ajax {
                                     }
                                     if( isset( $v['label'] ) ) $settings_html .= '</div>';
                                     if( isset( $v['name'] ) ) $settings_html .= '</div>';
+                                    $settings_html .= SUPER_Common::docs($v);
                                     $settings_html .= '<div class="super-field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                         $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
@@ -670,6 +671,7 @@ class SUPER_Ajax {
                                     }
                                     if( isset( $v['label'] ) ) $settings_html .= '</div>';
                                     if( isset( $v['name'] ) ) $settings_html .= '</div>';
+                                    $settings_html .= SUPER_Common::docs($v);
                                     $settings_html .= '<div class="super-field-input">';
                                         if( !isset( $v['type'] ) ) $v['type'] = 'text';
                                         $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
@@ -2327,7 +2329,7 @@ class SUPER_Ajax {
                 }
                 if( isset( $fv['label'] ) ) $result .= '</div>';
                 if( isset( $fv['name'] ) ) $result .= '</div>';
-
+                $result .= SUPER_Common::docs($fv);
                 $result .= '<div class="super-field-input"';
                 if( !empty($fv['allow_empty']) ) {
                     $result .= ' data-allow-empty="true"';
@@ -2460,7 +2462,7 @@ class SUPER_Ajax {
                                 }
                                 if( isset( $fv['label'] ) ) $result .= '</div>';
                                 if( isset( $fv['name'] ) ) $result .= '</div>';
-
+                                $result .= SUPER_Common::docs($fv);
                                 $result .= '<div class="super-field-input"';
                                 if( !empty($fv['allow_empty']) ) {
                                     $result .= ' data-allow-empty="true"';

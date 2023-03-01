@@ -143,6 +143,7 @@ class SUPER_Settings {
             'label' => esc_html__( 'Admin E-mail', 'super-forms' ),
             'fields' => array(
                 'send' => array(
+                    'docs' => array(array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')),
                     'name' => esc_html__( 'Send admin email', 'super-forms' ),
                     'label' => esc_html__( 'Send or do not send the admin emails', 'super-forms' ),
                     'default' => 'yes',
@@ -336,6 +337,7 @@ class SUPER_Settings {
             'label' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
             'fields' => array(
                 'confirm' => array(
+                    'docs' => array(array('title'=>'Retrieve user email with the use of tags', 'url'=>'/features/advanced/tags-system')),
                     'name' => esc_html__( 'Send confirmation email', 'super-forms' ),
                     'label' => esc_html__( 'Send or do not send confirmation emails', 'super-forms' ),
                     'default' =>  'yes',

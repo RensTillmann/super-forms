@@ -668,7 +668,6 @@ $conditional_variable_array = array(
 
     )
 );
-
 // @since 1.9
 $class = array(
     'name' => esc_html__( 'Custom field class', 'super-forms' ),
@@ -680,6 +679,20 @@ $wrapper_class = array(
     'name' => esc_html__( 'Custom wrapper class', 'super-forms' ),
     'desc' => '(' . esc_html__( 'Add a custom class to append extra styles', 'super-forms' ) . ')',
     'default'=> ( !isset( $attributes['wrapper_class'] ) ? '' : $attributes['wrapper_class'] ),
+    'type'=>'text',
+);
+$field_id = array(
+    'docs' => array(array('title'=>'Creating anchor links', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')),
+    'name' => esc_html__( 'Custom field ID attribute', 'super-forms' ),
+    'desc' => '(' . esc_html__( 'Define a custom ID for the field', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['field_id'] ) ? '' : $attributes['field_id'] ),
+    'type'=>'text',
+);
+$wrapper_id = array(
+    'docs' => array(array('title'=>'Creating anchor links', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')),
+    'name' => esc_html__( 'Custom wrapper ID attribute', 'super-forms' ),
+    'desc' => '(' . esc_html__( 'Define a custom ID for the wrapper', 'super-forms' ) . ')',
+    'default'=> ( !isset( $attributes['wrapper_id'] ) ? '' : $attributes['wrapper_id'] ),
     'type'=>'text',
 );
 
