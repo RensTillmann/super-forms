@@ -459,11 +459,10 @@ if( !class_exists('SUPER_Calculator') ) :
             }
 
             // @since 2.3.0 - speed improvement, only do calculations for applied fields
-            preg_match_all('/{\K[^}]*(?=})/m', $atts['math'], $matches);
-            $fields = implode('}{', $matches[0]);
-
+            $names = array();
+            $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$atts['math']));
             $dataFields = '';
-            if(!empty($fields)) $dataFields = ' data-fields="{' . $fields . '}"';
+            if(!empty($names)) $dataFields = ' data-fields="{' . implode('}{', $names) . '}"';
             $result .= '<div class="super-calculator-wrapper"' . ($dataFields ? $dataFields : '') . ($atts['date_math']!='' ? ' data-date-math="' . $atts['date_math'] . '"' : '') . ' data-decimals="' . $atts['decimals'] . '" data-thousand-separator="' . $atts['thousand_separator'] . '" data-decimal-separator="' . $atts['decimal_separator'] . '" data-super-math="' . $atts['math'] . '"';
             if(!empty($jsformat)) $result .= ' data-jsformat="' . $jsformat . '"';
             $result .= '>';

@@ -1452,7 +1452,12 @@ class SUPER_Shortcodes {
             wp_enqueue_style( 'tooltips', SUPER_PLUGIN_FILE.'assets/css/backend/tooltips.css', array(), SUPER_VERSION );    
             wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array( 'jquery' ), SUPER_VERSION, false );   
         }
+        // Wrapper ID
+        if($atts['wrapper_id']==='' && isset($atts['name'])){
+            $atts['wrapper_id'] = 'sf-wrapper-'.$atts['name'];
+        }
         $result = '<div '.self::element_uid();
+        if($atts['wrapper_id']!=='') $result .= ' id="' . $atts['wrapper_id'] . '"';
         if( ( $style!='' ) || ( $styles!='' ) ) $result .= ' style="' . $style . $styles . '"';
         $result .= ' class="super-shortcode super-field super-' . ($tag==='tinymce' ? 'html' : $tag);
         if(!empty($atts['type'])) $result .= ' super-field-type-'.esc_attr($atts['type']);
@@ -1640,19 +1645,20 @@ class SUPER_Shortcodes {
         return $result;
     }
     public static function common_attributes( $atts, $tag, $settings = array() ) {
-        
+        // Field ID
+        if( !isset( $atts['email'] ) ) $atts['email'] = (isset($atts['name']) ? $atts['name'] : '');
         if( !isset( $atts['error'] ) ) $atts['error'] = '';
         if( !isset( $atts['validation'] ) ) $atts['validation'] = '';
         if( !isset( $atts['conditional_validation'] ) ) $atts['conditional_validation'] = '';
         if( !isset( $atts['conditional_validation_value'] ) ) $atts['conditional_validation_value'] = '';
         if( !isset( $atts['conditional_validation_value2'] ) ) $atts['conditional_validation_value2'] = ''; // @since 3.6.0
         if( !isset( $atts['may_be_empty'] ) ) $atts['may_be_empty'] = 'false';
-        if( !isset( $atts['email'] ) ) $atts['email'] = (isset($atts['name']) ? $atts['name'] : '');
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['replace_commas'] ) ) $atts['replace_commas'] = '';
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
         if( !isset( $atts['maxlength'] ) ) $atts['maxlength'] = 0;
         if( !isset( $atts['minlength'] ) ) $atts['minlength'] = 0;
+
 
         // @since 2.6.0 - IBAN validation
         if( $atts['validation']=='iban' ) {
@@ -1676,8 +1682,13 @@ class SUPER_Shortcodes {
         if( $atts['conditional_validation']=='none' ) unset($data_attributes['conditional-validation']);
 
         $result = '';
-
-        if( !empty($atts['originalFieldName']) ) {
+        // Field ID
+        if($atts['field_id']==='' && isset($atts['name'])){
+            $atts['field_id'] = 'sf-field-'.$atts['name'];
+        }
+        $result = '<div '.self::element_uid();
+        if($atts['field_id']!=='') $result .= ' id="' . $atts['field_id'] . '"';
+        if(!empty($atts['originalFieldName'])) {
             // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
             $result .= ' data-oname="' . explode('[', $atts['originalFieldName'])[0] . '"';
         }
@@ -4867,9 +4878,8 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['wrapper_class'] ) ) $atts['wrapper_class'] = '';
-        if( $atts['wrapper_class']!='' ) $class .= ' ' . $atts['wrapper_class'];
-
         $attributes = '';
+        if($atts['wrapper_id']!=='') $attributes .= ' id="' . $atts['wrapper_id'] . '"';
         if( $color!='' ) {
             $light = SUPER_Common::adjust_brightness( $color, 20 );
             $dark = SUPER_Common::adjust_brightness( $color, -30 );
@@ -4888,6 +4898,7 @@ class SUPER_Shortcodes {
         if( $font_hover!='' ) $attributes .= ' data-font-hover="' . esc_attr($font_hover) . '"';
         $result = '';
 
+        if( $atts['wrapper_class']!='' ) $class .= ' ' . $atts['wrapper_class'];
         $result .= '<div' . $attributes . ' data-radius="' . esc_attr($radius) . '" data-type="' . esc_attr($type) . '" class="' . esc_attr($class) . '">';
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
             if( !isset( $atts['action'] ) ) $atts['action'] = 'submit';
@@ -4903,8 +4914,7 @@ class SUPER_Shortcodes {
                 }
                 if( !empty( $atts['target'] ) ) $atts['target'] = 'data-target="' . esc_attr($atts['target']) . '" ';
             }
-
-            $result .= '<div ' . $atts['target'] . 'data-href="' . esc_attr($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
+            $result .= '<div ' . ($atts['field_id']!=='' ? 'id="'.esc_attr($atts['field_id']).'" ' : '') . $atts['target'] . 'data-href="' . esc_attr($url) . '" class="super-button-wrap no_link' . ($atts['class']!='' ? ' ' . esc_attr($atts['class']) : '') . '">';
                 if( ( $icon!='' ) && ( $icon_option!='none' ) ) {
                     $icon_tag = explode(' ', $icon);
                     if(isset($icon_tag[1])){

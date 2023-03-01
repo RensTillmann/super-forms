@@ -359,6 +359,7 @@
                                         echo $v;
                                     }
                                 }
+                                echo SUPER_Common::docs($value);
                                 if( isset( $value['fields'] ) ) {
                                     foreach( $value['fields'] as $k => $v ) {
                                         if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
@@ -400,6 +401,7 @@
                                                 }
                                                 if( isset( $v['label'] ) ) echo '</div>';
                                                 if( isset( $v['name'] ) ) echo '</div>';
+                                                echo SUPER_Common::docs($v);
                                                 echo '<div class="super-field-input">';
                                                     if($v['type']==='multicolor'){
                                                         foreach($v['colors'] as $ck => $cv){

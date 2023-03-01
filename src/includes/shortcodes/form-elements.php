@@ -1018,6 +1018,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -1114,6 +1116,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -1466,6 +1470,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
                 'icon' => array(
@@ -1624,6 +1630,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -1780,6 +1788,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -1902,6 +1912,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -2028,6 +2040,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -2143,6 +2157,8 @@ $array['form_elements'] = array(
 
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                     ),
                 ),
                 'icon' => array(
@@ -2295,6 +2311,8 @@ $array['form_elements'] = array(
 
                         // @since 1.9
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -2451,6 +2469,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -2566,6 +2586,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -2988,6 +3010,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -3113,6 +3137,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
                         
                     ),
                 ),
@@ -3229,6 +3255,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -3330,6 +3358,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -3410,6 +3440,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,            
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),
@@ -3951,6 +3983,8 @@ $array['form_elements'] = array(
                         // @since 1.9
                         'class' => $class,
                         'wrapper_class' => $wrapper_class,
+                        'field_id' => $field_id,
+                        'wrapper_id' => $wrapper_id
 
                     ),
                 ),

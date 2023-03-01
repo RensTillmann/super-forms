@@ -2,6 +2,125 @@
 "use strict";
 (function($) { // Hide scope, no $ conflict
     
+    // Init docs
+    SUPER.init_docs = function(){
+        debugger;
+        $('.sf-docs').on('click', function(e){
+            e.preventDefault();
+            debugger;
+            // create a new div element for the background overlay
+            var overlay = document.createElement('div');
+            // set the overlay styles
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '9998';
+            // create a new div element
+            var popup = document.createElement('div');
+            // set the popup styles
+            popup.style.position = 'fixed';
+            popup.style.top = '5%';
+            popup.style.left = '0';
+            popup.style.height = '90%';
+            popup.style.maxHeight = '100%';
+            popup.style.width = '90%';
+            popup.style.maxWidth = '1710px';
+            popup.style.zIndex = '9999';
+            popup.style.overflow = 'hidden';
+            // create an X button to close the popup
+            var closeButton = document.createElement('button');
+            closeButton.innerText = 'x';
+            closeButton.style.position = 'absolute';
+            closeButton.style.width = '50px';
+            closeButton.style.height = '50px';
+            closeButton.style.top = '3px';
+            closeButton.style.right = '3px';
+            closeButton.style.fontSize = '1.5rem';
+            closeButton.style.border = 'none';
+            closeButton.style.backgroundColor = '#F5234B';
+            closeButton.style.color = '#FFFFFF';
+            closeButton.style.border = '1px solid #F5234B';
+            closeButton.style.borderRadius = '100px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.margin = '0px';
+            closeButton.style.padding = '5px';
+            closeButton.style.display = 'flex';
+            closeButton.style.justifyContent = 'center';
+            closeButton.style.zIndex = '4';
+            //closeButton.style.alignItems = 'center';
+            closeButton.addEventListener('click', function() {
+                popup.remove();
+                overlay.remove();
+            });
+            overlay.addEventListener('click', function() {
+                popup.remove();
+                overlay.remove();
+            });
+            // create the spinner element
+            const spinner = document.createElement('div');
+            spinner.style.position = 'absolute';
+            spinner.style.top = '50%';
+            spinner.style.left = '50%';
+            spinner.style.border = '4px solid rgba(0, 0, 0, 0.1)';
+            spinner.style.borderTopColor = '#333';
+            spinner.style.borderRadius = '50%';
+            spinner.style.width = '40px';
+            spinner.style.height = '40px';
+            spinner.style.margin = '-50px 0px 0px -20px';
+            spinner.style.zIndex = '2';
+            spinner.style.animation = 'spin 1s linear infinite';
+            // create an iframe element and set its source to google.com
+            var iframebg = document.createElement('div');
+            iframebg.style.position = 'absolute';
+            iframebg.style.height = 'calc(100% - 120px)'; // 40px is the height of the close buttons
+            iframebg.style.width = 'calc(100% - 20px)'; // 40px is the height of the close buttons
+            iframebg.style.marginTop = '30px';
+            iframebg.style.marginRight = '0px';
+            iframebg.style.marginLeft = '0px';
+            iframebg.style.zIndex = '1';
+            iframebg.style.backgroundColor = '#FFFFFF';
+            // create an iframe element and set its source to google.com
+            var iframe = document.createElement('iframe');
+            iframe.style.border = '1px solid #EEE';
+            iframe.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)'; // add box shadow
+            iframe.style.height = 'calc(100% - 120px)'; // 40px is the height of the close buttons
+            iframe.style.width = 'calc(100% - 20px)'; // 40px is the height of the close buttons
+            iframe.style.marginTop = '30px';
+            iframe.style.marginRight = '20px';
+            iframe.style.marginLeft = '0px';
+            iframe.style.backgroundColor = '#FFFFFF';
+            iframe.src = this.attributes.href.value;
+            iframe.addEventListener('load', function() {
+                spinner.style.display = 'none';
+                iframebg.style.display = 'none';
+            });
+            var bottomCloseButton = closeButton.cloneNode(true);
+            bottomCloseButton.innerText = 'Close';
+            bottomCloseButton.style.top = 'initial';
+            bottomCloseButton.style.bottom = '0';
+            bottomCloseButton.style.left = '50%';
+            bottomCloseButton.style.transform = 'translate(-50%, 0%)';
+            bottomCloseButton.style.width = '150px';
+            bottomCloseButton.style.borderRadius = '4px';
+            bottomCloseButton.addEventListener('click', function() {
+                popup.remove();
+                overlay.remove();
+            });
+            // add the close buttons and iframe element to the popup element
+            popup.appendChild(spinner);
+            popup.appendChild(iframebg);
+            popup.appendChild(iframe);
+            popup.appendChild(closeButton);
+            popup.appendChild(bottomCloseButton);
+            // append the popup and overlay to the document body
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+        });
+    };
+
     // Init WP Image Browser
     SUPER.init_image_browser = function(){
 

@@ -349,6 +349,7 @@ return "
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper {
   ".(!empty($v['theme_progress_step_primary_color']) ? "background-color: ".$v['theme_progress_step_primary_color'].";" : "")."
 }
+".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper .super-multipart-step-icon,
 ".$s.".super-multipart-steps .super-multipart-step .super-multipart-step-wrapper .super-multipart-step-count {
   ".(!empty($v['theme_progress_step_font_color']) ? "color: ".$v['theme_progress_step_font_color'].";" : "")."
 }

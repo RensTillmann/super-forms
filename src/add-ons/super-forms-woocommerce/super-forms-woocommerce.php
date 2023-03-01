@@ -1682,11 +1682,17 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
                 'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
-                'html' => array(
-                    sprintf( esc_html__( '%s%sNote:%s if you only want users to be able to order products via this form you can configure the products in question to be excluded from your regular shop. Alternatively you can also define to replace the product "Add to cart" area with your form. You can define those settings here: %sSuper Forms > Settings > WooCommerce Checkout%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#woocommerce-checkout-global">', '</a>', '</div>' ),
-                   sprintf( esc_html__( '%s%sDocumentation:%s %sSingle product checkout with a fixed quantity and price%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/articles/360018449398"">', '</a>', '</div>' )
-               
+                'docs' => array(
+                    array('title'=>'Fixed price checkout', 'url'=>'/features/integrations/woocommerce-checkout/fixed-price-checkout'),
+                    array('title'=>'Dynamic price checkout', 'url'=>'/features/integrations/woocommerce-checkout/dynamic-price-checkout'),
+                    array('title'=>'Variable product checkout (variations)', 'url'=>'/features/integrations/woocommerce-checkout/variable-product-checkout-variations'),
+                    array('title'=>'Replacing the "Add to cart" on a product page with a form', 'url'=>'/features/integrations/woocommerce-checkout/replacing-the-add-to-cart-on-a-product-page-with-a-form'),
+                    array('title'=>'Hiding product from shop and order via custom form', 'url'=>'/features/integrations/woocommerce-checkout/hiding-product-from-shop-and-order-via-custom-form'),
                 ),
+                // tmp 'html' => array(
+                // tmp     sprintf( esc_html__( '%s%sNote:%s if you only want users to be able to order products via this form you can configure the products in question to be excluded from your regular shop. Alternatively you can also define to replace the product "Add to cart" area with your form. You can define those settings here: %sSuper Forms > Settings > WooCommerce Checkout%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#woocommerce-checkout-global">', '</a>', '</div>' ),
+                // tmp     sprintf( esc_html__( '%s%sDocumentation:%s %sSingle product checkout with a fixed quantity and price%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/articles/360018449398"">', '</a>', '</div>' )
+                // tmp ),
                 'fields' => array(
                     'woocommerce_checkout' => array(
                         'default' =>  '',

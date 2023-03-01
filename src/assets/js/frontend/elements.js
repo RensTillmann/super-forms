@@ -3,6 +3,7 @@
 (function($) { // Hide scope, no $ conflict
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
+        debugger;
         // First get active part
         var i, index, validate, result, skip, progress, multipart,
             form = target.closest('.super-form'),
@@ -16,6 +17,7 @@
             currentStep = children.indexOf(activeMultipart);
 
         if(dir==='prev'){
+            debugger;
             // From first to last?
             if(currentStep===0){
                 index = nodes.length-1;
@@ -24,6 +26,7 @@
             }
         }
         if(dir==='next'){
+            debugger;
             // From last to first?
             if(total===currentStep+1){
                 index = 0;
@@ -47,23 +50,28 @@
         }
         
         // Required for toggle field and other possible elements to rerender proper size
+        debugger;
         SUPER.init_super_responsive_form_fields({form: form});
 
         // Update URL parameters
+        debugger;
         if(stepParams!=='false'){
             window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
         }
         
         // Make sure to skip the multi-part if no visible elements are found
+        debugger;
         skip = SUPER.skipMultipart(target, form);
         if(skip===true) return false;
 
         // Update progress bar
+        debugger;
         progress = 100 / total;
         progress = progress * (index+1);
         form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
         index = 0;
         
+        debugger;
         nodes = form.querySelectorAll('.super-multipart');
         for( i = 0; i < nodes.length; i++){
             if(!nodes[i].querySelector('.super-error-active')){
@@ -71,26 +79,10 @@
             }
             index++;
         }
-        // Disable scrolling for multi-part prev/next
-        multipart = form.querySelector('.super-multipart.super-active');
-        if(typeof multipart.dataset.disableScrollPn === 'undefined'){
-            if(e && !e.shiftKey){
-                if(form.closest('.super-popup-content')){
-                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-                    //$(form.closest('.super-popup-content')).animate({
-                    //    scrollTop: $(form).offset().top - 30
-                    //}, 500);
-                }else{
-                    form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-                    //$('html, body').animate({
-                    //    scrollTop: $(form).offset().top - 30
-                    //}, 500);
-                }
-            }
-        }
+        SUPER.scrollToTopOfForm(e, form);
         // Focus first TAB index field in next multi-part
+        multipart = form.querySelector('.super-multipart.super-active');
         SUPER.focusFirstTabIndexField(e, form, multipart);
-
     };
     // Make sure to skip the multi-part if no visible elements are found
     SUPER.skipMultipart = function(el, form, index, activeIndex){
@@ -126,7 +118,6 @@
     };
     SUPER.focusFirstTabIndexField = function(e, form, multipart) {
         var fields,highestIndex,lowestIndex,index,next, disableAutofocus = multipart.dataset.disableAutofocus;
-
         if( typeof disableAutofocus === 'undefined' ) {
             fields = $(multipart).find('.super-field:not('+super_elements_i18n.tab_index_exclusion+')[data-super-tab-index]');
             highestIndex = 0;
@@ -159,7 +150,7 @@
             incNext = 1,
             incNextSmall = 0.001;
 
-        if(e.shiftKey){
+        if(e && e.shiftKey){
             incNext = -incNext;
             incNextSmall = -incNextSmall;
         }
@@ -2715,12 +2706,12 @@
         $doc.on('click','.super-back-to-top',function(){
             var form = SUPER.get_frontend_or_backend_form({el: this});
             if(form.closest('.super-popup-content')){
-                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 //$(form.closest('.super-popup-content')).animate({
                 //    scrollTop: $(form).offset().top-200
                 //}, 1000);
             }else{
-                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 //$('html, body').animate({
                 //    scrollTop: $(form).offset().top-200
                 //}, 1000);

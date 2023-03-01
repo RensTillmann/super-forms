@@ -1423,6 +1423,7 @@
     jQuery(document).ready(function ($) {
 
         SUPER.ui.showHideSubsettings();
+        SUPER.init_docs();
 
         $('body.wp-admin').addClass('folded');
         init_form_settings_container_heights();
@@ -1855,6 +1856,7 @@
             });
             $clone.insertAfter($last);
             SUPER.init_tooltips();
+            SUPER.init_docs();
         });
         // edit translation
         $doc.on('click', '.super-translations-list .super-edit', function () {
@@ -2930,6 +2932,7 @@
                     SUPER.init_previously_created_fields();
                     SUPER.init_slider_field();
                     SUPER.init_tooltips();
+                    SUPER.init_docs();
                     SUPER.init_image_browser();
                     SUPER.init_color_pickers();
                     SUPER.init_field_filter_visibility(undefined, 'element_settings');

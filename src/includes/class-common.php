@@ -1811,12 +1811,13 @@ class SUPER_Common {
         if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if ( !mkdir($folderPath, 0755, true) ) {
+            if(!wp_mkdir_p($folderPath)){
                 $error = error_get_last();
                 SUPER_Common::output_message( array(
                     'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']
                 ));
             }
+            chmod($folderPath, 0755);
             return array(
                 'folderPath' => $folderPath,
                 'folderName' => $folderName
@@ -1824,6 +1825,15 @@ class SUPER_Common {
         }
     }
 
+    public static function docs($v){
+        $result = '';
+        if(isset($v['docs'])){
+            foreach($v['docs'] as $doc){
+                $result .= '<a class="sf-docs" target="_blank" href="https://docs.super-forms.com'.$doc['url'].'">'.$doc['title'].'</a>';
+            }
+        }
+        return $result;
+    }
 
     /**
      * Get the IP address of the user that submitted the form
