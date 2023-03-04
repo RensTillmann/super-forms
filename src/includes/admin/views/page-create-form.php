@@ -124,30 +124,32 @@
             <div class="super-wizard-backup-history super-wizard-settings">
                 <h2><?php echo esc_html__( 'Available backups:', 'super-forms' ); ?></h2>
                 <?php
-                if( count($backups)==0 ) {
-                    echo '<i>' . esc_html__( 'No backups found...', 'super-forms' ) . '</i>';
-                }else{
-                    echo '<ul>';
-                    $today = date_i18n('d-m-Y');
-                    $yesterday = date_i18n('d-m-Y', strtotime($today . ' -1 day'));
-                    foreach( $backups as $k => $v ) {
-                        echo '<li data-id="' . $v->ID . '">';
-                        echo '<i></i>';
-                        $date = date_i18n('d-m-Y', strtotime($v->post_date));
-                        if( $today==$date ) {
-                            $to_time = strtotime(date_i18n('Y-m-d H:i:s'));
-                            $from_time = strtotime($v->post_date);
-                            $minutes = round(abs($to_time - $from_time) / 60, 0);
-                            echo 'Today @ ' . date_i18n('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
-                        }elseif( $yesterday==$date ) {
-                            echo esc_html__( 'Yesterday', 'super-forms' ) . ' @ ' . date_i18n('H:i:s', strtotime($v->post_date));
-                        }else{
-                            echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
-                        }
-                        echo '<span>' . esc_html__( 'Restore backup', 'super-forms' ) . '</span></li>';
-                    }
-                    echo '</ul>';
-                }
+                //if( count($backups)==0 ) {
+                //    echo '<i>' . esc_html__( 'No backups found...', 'super-forms' ) . '</i>';
+                //}else{
+                //    echo '<ul>';
+                //    $today = date_i18n('d-m-Y');
+                //    $yesterday = date_i18n('d-m-Y', strtotime($today . ' -1 day'));
+                //    foreach( $backups as $k => $v ) {
+                //        echo '<li data-id="' . $v->ID . '">';
+                //        echo '<i></i>';
+                //        $date = date_i18n('d-m-Y', strtotime($v->post_date));
+                //        $author = $v->post_author;
+                //        if( $today==$date ) {
+                //            $to_time = strtotime(date_i18n('Y-m-d H:i:s'));
+                //            $from_time = strtotime($v->post_date);
+                //            $minutes = round(abs($to_time - $from_time) / 60, 0);
+                //            echo 'Today @ ' . date_i18n('H:i:s', strtotime($v->post_date)) . ' <strong>(' . $minutes . ($minutes==1 ? ' minute' : ' minutes') . ' ago)</strong>';
+                //        }elseif( $yesterday==$date ) {
+                //            echo esc_html__( 'Yesterday', 'super-forms' ) . ' @ ' . date_i18n('H:i:s', strtotime($v->post_date));
+                //        }else{
+                //            echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
+                //        }
+                //        echo ' by '.$author;
+                //        echo '<span>' . esc_html__( 'Restore backup', 'super-forms' ) . '</span></li>';
+                //    }
+                //    echo '</ul>';
+                //}
                 ?>
             </div>
             <span class="super-button super-skip-wizard"><?php echo esc_html__( 'Close', 'super-forms' ); ?></span>

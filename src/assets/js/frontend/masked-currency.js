@@ -227,6 +227,13 @@
                             value = value.slice(0, decimalPointIndex);
                         }
                         $input.val(maskValue(value, settings));
+                        value = $input.val();
+                        if(value===''){
+                            $input[0].closest('.super-shortcode').classList.remove('super-filled');
+                        }else{
+                            $input[0].closest('.super-shortcode').classList.add('super-filled');
+                        }
+                        SUPER.after_field_change_blur_hook({el: $input[0]});
                     }
 
                     function changeSign() {

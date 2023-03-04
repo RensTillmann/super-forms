@@ -27,6 +27,7 @@ class SUPER_Shortcodes {
      *  @since      3.5.0
     */
     public static $current_form_id = 0;
+    public static $current_form_index = 0;
 
     public static $shortcodes = false;
     
@@ -1453,8 +1454,9 @@ class SUPER_Shortcodes {
             wp_enqueue_script( 'tooltips', SUPER_PLUGIN_FILE.'assets/js/backend/tooltips.js', array( 'jquery' ), SUPER_VERSION, false );   
         }
         // Wrapper ID
+        if(!isset($atts['wrapper_id'])) $atts['wrapper_id'] = '';
         if($atts['wrapper_id']==='' && isset($atts['name'])){
-            $atts['wrapper_id'] = 'sf-wrapper-'.$atts['name'];
+            $atts['wrapper_id'] = 'sf-wrapper-'.self::$current_form_id.'-'.self::$current_form_index.'-'.$atts['name'];
         }
         $result = '<div '.self::element_uid();
         if($atts['wrapper_id']!=='') $result .= ' id="' . $atts['wrapper_id'] . '"';
@@ -1683,8 +1685,9 @@ class SUPER_Shortcodes {
 
         $result = '';
         // Field ID
+        if(!isset($atts['field_id'])) $atts['field_id'] = '';
         if($atts['field_id']==='' && isset($atts['name'])){
-            $atts['field_id'] = 'sf-field-'.$atts['name'];
+            $atts['field_id'] = 'sf-field-'.self::$current_form_id.'-'.self::$current_form_index.'-'.$atts['name'];
         }
         $result = '<div '.self::element_uid();
         if($atts['field_id']!=='') $result .= ' id="' . $atts['field_id'] . '"';
@@ -5038,8 +5041,9 @@ class SUPER_Shortcodes {
                 $return .= '</div>';
             }
             if( isset( $value['predefined'] ) ) {
+                $pre = $value['predefined'];
                 $pre = htmlentities( json_encode( $value['predefined'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED );
-                $return .= '<textarea class="predefined" style="display:none;">' . $pre . '</textarea>';
+                $return .= '<textarea class="predefined" style="display:none;">' . wp_unslash($pre) . '</textarea>';
             }
         $return .= '</div>';
             
@@ -5793,6 +5797,7 @@ class SUPER_Shortcodes {
         $form_id = absint($id);
 
         self::$current_form_id = $form_id;
+        self::$current_form_index++;
 
         // Check if the post exists
         if ( FALSE === get_post_status( $form_id ) ) {

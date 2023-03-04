@@ -280,7 +280,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
          *  @since      1.0.0
         */
         public static function mailchimp($x) {
-            extract( shortcode_atts( array( 'tag'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null), $x ) );
+            extract( shortcode_atts( array( 'tag'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>array(), 'i18n'=>null), $x ) );
 
             wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
 

@@ -3492,7 +3492,7 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => esc_html__ ( 'When value equals `yes` this will be the new value....', 'super-forms' )
+                                'new_value' => __( 'When value equals \"yes\" this will be the new value....', 'super-forms' )
                             ),
                             array(
                                 'field' => '{field_name_here}',
@@ -3502,7 +3502,7 @@ $array['form_elements'] = array(
                                 'field_and' => '',
                                 'logic_and' => '',
                                 'value_and' => '',
-                                'new_value' => esc_html__ ( 'When value is not `yes` this will be the new value....', 'super-forms' )
+                                'new_value' => __( 'When value is not \"yes\" this will be the new value....', 'super-forms' )
                             )
                         )
                     )

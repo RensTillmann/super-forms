@@ -3,7 +3,6 @@
 (function($) { // Hide scope, no $ conflict
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
-        debugger;
         // First get active part
         var i, index, validate, result, skip, progress, multipart,
             form = target.closest('.super-form'),
@@ -17,7 +16,6 @@
             currentStep = children.indexOf(activeMultipart);
 
         if(dir==='prev'){
-            debugger;
             // From first to last?
             if(currentStep===0){
                 index = nodes.length-1;
@@ -26,7 +24,6 @@
             }
         }
         if(dir==='next'){
-            debugger;
             // From last to first?
             if(total===currentStep+1){
                 index = 0;
@@ -50,28 +47,23 @@
         }
         
         // Required for toggle field and other possible elements to rerender proper size
-        debugger;
         SUPER.init_super_responsive_form_fields({form: form});
 
         // Update URL parameters
-        debugger;
         if(stepParams!=='false'){
             window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
         }
         
         // Make sure to skip the multi-part if no visible elements are found
-        debugger;
         skip = SUPER.skipMultipart(target, form);
         if(skip===true) return false;
 
         // Update progress bar
-        debugger;
         progress = 100 / total;
         progress = progress * (index+1);
         form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
         index = 0;
         
-        debugger;
         nodes = form.querySelectorAll('.super-multipart');
         for( i = 0; i < nodes.length; i++){
             if(!nodes[i].querySelector('.super-error-active')){
@@ -212,7 +204,11 @@
                     parent = this.closest('.super-field');
                 if(parent.classList.contains('super-currency')){
                     if($(this).maskMoney('unmasked')[0]===0){
-                        filled = false;
+                        if(this.closest('.super-adaptive')){
+                            // @IMPORTANT - we can't really do this because it would cause overlapping issues with adaptive placeholder
+                        }else{
+                            filled = false;
+                        }
                     }
                 }
                 if (this.value.length === 0) filled = false;
@@ -220,6 +216,7 @@
                     parent.classList.add('super-filled');
                     span.innerHTML = placeholder.dataset.placeholderfilled;
                 }else{
+                    debugger;
                     parent.classList.remove('super-filled');
                     span.innerHTML = placeholder.dataset.placeholder;
                 }
@@ -909,7 +906,6 @@
             }
             $(this).datepicker('show');
         });
-
 
         function set_timepicker_dif($this){
             var $value = $this.val(),
