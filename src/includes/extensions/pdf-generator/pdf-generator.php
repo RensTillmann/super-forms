@@ -95,6 +95,16 @@ if(!class_exists('SUPER_PDF_Generator')) :
                             echo '<span class="sfui-title">' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
+                    // Native mode
+                    echo '<div class="sfui-setting">';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)" style="align-items: flex-start;">';
+                            echo '<input type="checkbox" name="native" value="true"' . ($s['native']==='true' ? ' checked="checked"' : '') . ' />';
+                            echo '<div class="sfui-vertical" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;">';
+                                echo '<span class="sfui-title">' . esc_html__( 'Enable native mode (experimental)', 'super-forms' ) . '</span>';
+                                echo '<span class="sfui-label">' . esc_html__( 'Pros: smaller PDF size and quicker rendering. Cons: might not look 100% identical', 'super-forms' ) . '</span>';
+                            echo '</div>';
+                        echo '</label>';
+                    echo '</div>';
                     // PDF file name
                     echo '<div class="sfui-setting sfui-inline">';
                         echo '<span class="sfui-title">' . esc_html__( 'PDF filename', 'super-forms' ) . ':</span>';
@@ -335,6 +345,11 @@ if(!class_exists('SUPER_PDF_Generator')) :
         // Get default PDF settings
         public static function get_default_pdf_settings($s) {
             if(empty($s['generate'])) $s['generate'] = 'false';
+            if(isset($s['debug'])) {
+                if(empty($s['native'])) $s['native'] = 'false';
+            }else{
+                if(empty($s['native'])) $s['native'] = 'true';
+            }
             if(empty($s['debug'])) $s['debug'] = 'false';
             if(empty($s['filename'])) $s['filename'] = esc_html__( 'form', 'super-forms' ).'.pdf';
             if(empty($s['emailLabel'])) $s['emailLabel'] = esc_html__( 'PDF file', 'super-forms' ).':';

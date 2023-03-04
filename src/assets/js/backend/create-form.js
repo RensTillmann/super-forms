@@ -14,12 +14,15 @@
                         var reload = confirm(super_create_form_i18n.new_version_found);
                         if(reload === true){
                             window.location = window.location.href
+                        }else{
+                            SUPER.alertWhenSaving = true;
                         }
                     }else{
                         // Already latest version, do nothing
+                        clearTimeout(SUPER.new_version_check);
                         SUPER.new_version_check = setTimeout(function(){
                             checkNewerForVersion();
-                        }, 10000);
+                        }, 30000);
                     }
                 }
                 // Complete:
@@ -41,7 +44,7 @@
     }
     SUPER.new_version_check = setTimeout(function(){
         checkNewerForVersion();
-    }, 10000);
+    }, 30000);
 
     function isEmpty(obj) {
         for (var prop in obj) {
@@ -1100,6 +1103,28 @@
         });
     };
 
+    SUPER.before_save_form = function(callback){
+        var save = false;
+        if(SUPER.alertWhenSaving){
+            // Tell user that she will be overriding other changes made to this form...
+            var reload = confirm(super_create_form_i18n.override_newer_version_found);
+            if(reload === true){
+                // Save the form, override other version
+                save = true;
+            }else{
+                // Otherwise cancel this action
+            }
+        }else{
+            // Save form
+            save = true;
+        }
+        if(save){
+            if (typeof callback === "function") { 
+                callback(); // safe to trigger callback
+                return false;
+            }
+        }
+    };
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
         var i,ii,
             form = document.querySelector('.super-preview-elements'),
@@ -1680,12 +1705,15 @@
             button.innerHTML = '<i class="fas fa-save"></i>'+super_create_form_i18n.save_loading;
 
             clearTimeout(SUPER.new_version_check);
-            SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, function(){
-                SUPER.new_version_check = setTimeout(function(){
-                    checkNewerForVersion();
-                }, 10000);
-                button.innerHTML = oldHtml;
-            }, true);
+            SUPER.before_save_form(function(){
+                SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, function(){
+                    clearTimeout(SUPER.new_version_check);
+                    SUPER.new_version_check = setTimeout(function(){
+                        checkNewerForVersion();
+                    }, 30000);
+                    button.innerHTML = oldHtml;
+                }, true);
+            });
         });
 
         // @since 4.0.0 - update conditional checks values
@@ -1923,41 +1951,44 @@
             // Always save the form before switching to a different language
             // This will prevent loading "old" / "unsaved" form elements and settings
             clearTimeout(SUPER.new_version_check);
-            SUPER.save_form($('.super-actions .super-save'), 3, $(this), $initial_i18n, function ($button) {
-                SUPER.new_version_check = setTimeout(function(){
-                    checkNewerForVersion();
-                }, 10000);
-                // When saving finished we can continue
-                $row = $button.parent();
-                // Reload builder html, and form settings TAB
-                $.ajax({
-                    type: 'post',
-                    url: ajaxurl,
-                    data: {
-                        action: 'super_switch_language',
-                        form_id: $('.super-create-form input[name="form_id"]').val(),
-                        i18n: $i18n
-                    },
-                    success: function (data) {
-                        data = JSON.parse(data);
-                        $('.super-preview-elements').html(data.elements);
-                        SUPER.regenerate_element_inner();
-                        $('.super-form-settings .super-elements-container').html(data.settings);
-                        $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
-                    },
-                    error: function () {
-                        alert(super_create_form_i18n.export_form_error);
-                    },
-                    complete: function () {
-                        init_form_settings_container_heights();
-                        // Disable sortable functionality
-                        if ($('.super-create-form').hasClass('super-translation-mode')) {
-                            $('.super-preview-elements').sortable('disable');
-                        } else {
-                            // Enable sortable functionality
-                            $('.super-preview-elements').sortable('enable');
+            SUPER.before_save_form(function(){
+                SUPER.save_form($('.super-actions .super-save'), 3, $(this), $initial_i18n, function ($button) {
+                    clearTimeout(SUPER.new_version_check);
+                    SUPER.new_version_check = setTimeout(function(){
+                        checkNewerForVersion();
+                    }, 30000);
+                    // When saving finished we can continue
+                    $row = $button.parent();
+                    // Reload builder html, and form settings TAB
+                    $.ajax({
+                        type: 'post',
+                        url: ajaxurl,
+                        data: {
+                            action: 'super_switch_language',
+                            form_id: $('.super-create-form input[name="form_id"]').val(),
+                            i18n: $i18n
+                        },
+                        success: function (data) {
+                            data = JSON.parse(data);
+                            $('.super-preview-elements').html(data.elements);
+                            SUPER.regenerate_element_inner();
+                            $('.super-form-settings .super-elements-container').html(data.settings);
+                            $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
+                        },
+                        error: function () {
+                            alert(super_create_form_i18n.export_form_error);
+                        },
+                        complete: function () {
+                            init_form_settings_container_heights();
+                            // Disable sortable functionality
+                            if ($('.super-create-form').hasClass('super-translation-mode')) {
+                                $('.super-preview-elements').sortable('disable');
+                            } else {
+                                // Enable sortable functionality
+                                $('.super-preview-elements').sortable('enable');
+                            }
                         }
-                    }
+                    });
                 });
             });
         });
@@ -2969,10 +3000,13 @@
             }
             var $this = $(this);
             clearTimeout(SUPER.new_version_check);
-            SUPER.save_form($this, undefined, undefined, undefined, function(){
-                SUPER.new_version_check = setTimeout(function(){
-                    checkNewerForVersion();
-                }, 10000);
+            SUPER.before_save_form(function(){
+                SUPER.save_form($this, undefined, undefined, undefined, function(){
+                    clearTimeout(SUPER.new_version_check);
+                    SUPER.new_version_check = setTimeout(function(){
+                        checkNewerForVersion();
+                    }, 30000);
+                });
             });
         });
 
@@ -2987,11 +3021,14 @@
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     clearTimeout(SUPER.new_version_check);
-                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
-                        SUPER.new_version_check = setTimeout(function(){
-                            checkNewerForVersion();
-                        }, 10000);
-                        $('.super-tabs-content').css('display', 'none');
+                    SUPER.before_save_form(function(){
+                        SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
+                            clearTimeout(SUPER.new_version_check);
+                            SUPER.new_version_check = setTimeout(function(){
+                                checkNewerForVersion();
+                            }, 30000);
+                            $('.super-tabs-content').css('display', 'none');
+                        });
                     });
                     return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
@@ -3007,11 +3044,14 @@
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     clearTimeout(SUPER.new_version_check);
-                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
-                        SUPER.new_version_check = setTimeout(function(){
-                            checkNewerForVersion();
-                        }, 10000);
-                        $('.super-tabs-content').css('display', 'none');
+                    SUPER.before_save_form(function(){
+                        SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
+                            clearTimeout(SUPER.new_version_check);
+                            SUPER.new_version_check = setTimeout(function(){
+                                checkNewerForVersion();
+                            }, 30000);
+                            $('.super-tabs-content').css('display', 'none');
+                        });
                     });
                     return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
@@ -3027,11 +3067,14 @@
                 if (!$this.hasClass('super-active')) {
                     $this.html('Loading...');
                     clearTimeout(SUPER.new_version_check);
-                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
-                        SUPER.new_version_check = setTimeout(function(){
-                            checkNewerForVersion();
-                        }, 10000);
-                        $('.super-tabs-content').css('display', 'none');
+                    SUPER.before_save_form(function(){
+                        SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
+                            clearTimeout(SUPER.new_version_check);
+                            SUPER.new_version_check = setTimeout(function(){
+                                checkNewerForVersion();
+                            }, 30000);
+                            $('.super-tabs-content').css('display', 'none');
+                        });
                     });
                     return false; // Do not execute responsiveness yet, must first save form then reload it then apply responsiveness
                 }
@@ -3041,11 +3084,14 @@
             if (!$this.hasClass('super-active')) {
                 $this.html('Loading...');
                 clearTimeout(SUPER.new_version_check);
-                SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
-                    SUPER.new_version_check = setTimeout(function(){
-                        checkNewerForVersion();
-                    }, 10000);
-                    $('.super-tabs-content').css('display', 'none');
+                SUPER.before_save_form(function(){
+                    SUPER.save_form($('.super-actions .super-save'), 1, undefined, undefined, function () {
+                        clearTimeout(SUPER.new_version_check);
+                        SUPER.new_version_check = setTimeout(function(){
+                            checkNewerForVersion();
+                        }, 30000);
+                        $('.super-tabs-content').css('display', 'none');
+                    });
                 });
             } else {
                 $('.super-tabs-content').css('display', '');

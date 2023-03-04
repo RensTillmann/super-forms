@@ -4,10 +4,8 @@
     
     // Init docs
     SUPER.init_docs = function(){
-        debugger;
         $('.sf-docs').on('click', function(e){
             e.preventDefault();
-            debugger;
             // create a new div element for the background overlay
             var overlay = document.createElement('div');
             // set the overlay styles

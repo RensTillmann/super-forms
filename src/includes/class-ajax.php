@@ -115,9 +115,7 @@ class SUPER_Ajax {
         }
     }
     public static function new_version_check(){
-        error_log('loaded modifiedTime: '.$_POST['modifiedTime']);
-        error_log('current modifiedTime: '.get_post_modified_time('U', false, $_POST['form_id']));
-        if($_POST['modifiedTime'] < get_post_modified_time('U', false, $_POST['form_id'])){
+        if(($_POST['modifiedTime']+10) < get_post_modified_time('U', false, $_POST['form_id'])){
             echo 'true'; // there is a newer version
         }else{
             echo 'false'; // this is the latest version
@@ -909,6 +907,7 @@ class SUPER_Ajax {
                     echo '<li data-id="' . $v->ID . '">';
                     echo '<i></i>';
                     $date = date_i18n('d-m-Y', strtotime($v->post_date));
+                    $post_author_id = $v->post_author;
                     if( $today==$date ) {
                         $to_time = strtotime(date_i18n('Y-m-d H:i:s'));
                         $from_time = strtotime($v->post_date);
@@ -918,6 +917,13 @@ class SUPER_Ajax {
                         echo 'Yesterday @ ' . date_i18n('H:i:s', strtotime($v->post_date));
                     }else{
                         echo date_i18n('d M Y @ H:i:s', strtotime($v->post_date));
+                    }
+                    if(!empty($post_author_id)){
+                        $user_info = get_userdata($post_author_id);
+                        // In case user no longer exists
+                        if($user_info!==false){ 
+                            echo ' by: <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '">' . $user_info->display_name . '</a>';
+                        }
                     }
                     echo '<span>'.esc_html__('Restore backup', 'super-forms').'</span></li>';
                 }
@@ -946,7 +952,8 @@ class SUPER_Ajax {
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($backup_id);
         update_post_meta( $form_id, '_super_translations', $translations );
-
+        // Required to update modified date
+        wp_update_post(array('ID'=>$form_id, 'post_title'=>get_the_title($form_id)));
         die();
     }
 
@@ -1685,11 +1692,11 @@ class SUPER_Ajax {
         $form_id = absint( $_POST['form_id'] );
         $file_id = absint( $_POST['file_id'] );
         // What do we need to import?
-        $import_elements = $_POST['elements']; // Form elements
-        $import_settings = $_POST['settings']; // Form settings
-        $import_triggers = $_POST['triggers']; // Translation settings
-        $import_translations = $_POST['translations']; // Translation settings
-        $import_secrets = $_POST['secrets']; // Secrets settings
+        $import_elements = (isset($_POST['elements']) ? $_POST['elements'] : 'false'); // Form elements
+        $import_settings = (isset($_POST['settings']) ? $_POST['settings'] : 'false'); // Form settings
+        $import_triggers = (isset($_POST['triggers']) ? $_POST['triggers'] : 'false'); // Translation settings
+        $import_translations = (isset($_POST['translations']) ? $_POST['translations'] : 'false'); // Translation settings
+        $import_secrets = (isset($_POST['secrets']) ? $_POST['secrets'] : 'false'); // Secrets settings
         $file = wp_get_attachment_url($file_id);
         if( $file ) {
             $contents = wp_remote_fopen($file);
@@ -2088,10 +2095,10 @@ class SUPER_Ajax {
         
         // Check if one of the keys doesn't exist, this is the case when the server was unable to process this request
         // because the form is to large to be saved by this specific server
-        if((!isset($_POST['formElements']) && ($_POST['elements']==='true')) || 
-           (!isset($_POST['formSettings']) && ($_POST['settings']==='true')) || 
-           (!isset($_POST['triggerSettings']) && ($_POST['triggers']==='true')) || 
-           (!isset($_POST['translationSettings']) && ($_POST['translations']==='true')) ){
+        if((!isset($_POST['formElements']) && (isset($_POST['elements']) && $_POST['elements']==='true')) || 
+           (!isset($_POST['formSettings']) && (isset($_POST['settings']) && $_POST['settings']==='true')) || 
+           (!isset($_POST['triggerSettings']) && (isset($_POST['triggers']) && $_POST['triggers']==='true')) || 
+           (!isset($_POST['translationSettings']) && (isset($_POST['translations']) && $_POST['translations']==='true')) ){
             // Except when importing a form from file...
             if(isset($_POST['action']) && $_POST['action']!=='super_import_single_form'){
                 // Failed, notify user
@@ -2101,10 +2108,10 @@ class SUPER_Ajax {
             }
         }
 
-        $_super_elements = wp_unslash($_POST['formElements']);
-        $_super_form_settings = wp_unslash($_POST['formSettings']);
-        $_super_triggers = wp_unslash($_POST['triggerSettings']);
-        $_super_translations = wp_unslash($_POST['translationSettings']);
+        $_super_elements = (isset($_POST['formElements']) ? wp_unslash($_POST['formElements']) : '');
+        $_super_form_settings = (isset($_POST['formSettings']) ? wp_unslash($_POST['formSettings']) : '');
+        $_super_triggers = (isset($_POST['triggerSettings']) ? wp_unslash($_POST['triggerSettings']) : '');
+        $_super_translations = (isset($_POST['translationSettings']) ? wp_unslash($_POST['translationSettings']) : '');
         if($action==='super_save_form'){
             // Decode JSON string
             $_super_elements = json_decode($_super_elements, true);
@@ -2113,7 +2120,7 @@ class SUPER_Ajax {
             $_super_translations = json_decode($_super_translations, true);
         }
         $_super_local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
-        $super_global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
+        $_super_global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
         $_super_elements = wp_slash($_super_elements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
         $_super_form_settings = wp_slash($_super_form_settings); // This is required to keep Custom CSS {content: '\x123';} working
         $_super_triggers = wp_slash($_super_triggers); // This is required to keep Custom CSS {content: '\x123';} working
@@ -2144,7 +2151,7 @@ class SUPER_Ajax {
                     'triggers'=>$_super_triggers, 
                     'translations'=>$_super_translations, 
                     'local_secrets'=>$_super_local_secrets, 
-                    'global_secrets'=>$super_global_secrets,
+                    'global_secrets'=>$_super_global_secrets,
                     'new'=>true,
                     'backup'=>false
                 )
@@ -2178,7 +2185,7 @@ class SUPER_Ajax {
                     'triggers'=>$_super_triggers, 
                     'translations'=>$_super_translations, 
                     'local_secrets'=>$_super_local_secrets, 
-                    'global_secrets'=>$super_global_secrets,
+                    'global_secrets'=>$_super_global_secrets,
                     'new'=>false,
                     'backup'=>false
                 )
@@ -2186,7 +2193,7 @@ class SUPER_Ajax {
         }
         if($action==='super_save_form'){
             // Only update global secrets if we are not importing a form
-            update_option( 'super_global_secrets', $super_global_secrets );
+            update_option( 'super_global_secrets', $_super_global_secrets );
             echo json_encode(array('form_id'=>$form_id, 'modifiedTime'=>get_post_modified_time('U', false, $form_id)));
             die();
         }
@@ -2530,6 +2537,14 @@ class SUPER_Ajax {
         }
         if( $predefined!='' ) {
             $result = '';
+            //$predefined = json_encode($predefined); // string
+            //error_log($predefined);
+            //error_log($predefined);
+            //$predefined = json_decode($predefined, true);
+            //error_log(json_encode($predefined));
+            //$predefined = wp_slash($predefined);
+            //error_log(json_encode($predefined));
+            $predefined = wp_unslash($predefined);
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
                 if( empty($v['data']) ) $v['data'] = null;
@@ -2594,8 +2609,11 @@ class SUPER_Ajax {
     }
 
     public static function submit_form_checks($skipChecks=false) {
+        error_log('submit_form_checks()');
         $csrfValidation = SUPER_Common::verifyCSRF();
+        error_log('submit_form_checks(2)');
         if(!$csrfValidation && empty($GLOBALS['super_csrf'])){
+            error_log('submit_form_checks(3)');
             // Only if not previously validated
             // For example if files are being uploaded by the user
             $GLOBALS['super_csrf'] = true;
@@ -2604,19 +2622,22 @@ class SUPER_Ajax {
             // In this case sessions won't work  because of browsers "SameSite by default cookies"
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
+                error_log('submit_form_checks(4)');
                 // Check was disabled by the user, skip it
             }else{
+                error_log('submit_form_checks(5)');
                 // Return error
                 SUPER_Common::output_message( array( 
                     'msg' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
                 ));
             }
         }
-
+        error_log('submit_form_checks(6)');
         // Check if form_id exists, this is always required
         // If it doesn't exist it is most likely due the server not being able to process all the data
         // In that case "max_input_vars" should be increased
         if(empty($_POST['form_id'])) {
+            error_log('submit_form_checks(7)');
             // First try to increase it manually
             // If it fails, tell the user about it, so they can contact the webmaster
             $max_input_vars = ini_get('max_input_vars');
@@ -2828,7 +2849,9 @@ class SUPER_Ajax {
         );
     }
     public static function upload_files() {
+        error_log('upload_files()');
         $atts = self::submit_form_checks();
+        error_log('upload_files(2)');
         $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $form_id = $atts['form_id'];
         $entry_id = $atts['entry_id'];
@@ -2854,7 +2877,9 @@ class SUPER_Ajax {
         // Allow developers to filter mime types
         $mime_types = apply_filters('super_file_upload_mime_types_validation', $mime_types);
         $str = json_encode($formEelements);
+        error_log('upload_files(3)');
         if(!empty($files)){
+            error_log('upload_files(4)');
             foreach($files['name'] as $fieldName => $fileInfo){
                 $re = '/"data":{"name":"'.$fieldName.'".*?extensions":"(.*?)"/m';
                 preg_match($re, $str, $matches, PREG_OFFSET_CAPTURE, 0);
@@ -3007,10 +3032,12 @@ class SUPER_Ajax {
                 }
             }
         }
+        error_log('upload_files(5)');
         $response = array(
             'files' => $data,
             'sf_nonce' => SUPER_Common::generate_nonce()
         );
+        error_log('upload_files(6)');
         $x = array(
             'uniqueSubmissionId'=>$uniqueSubmissionId,
             'data'=>$odata,
@@ -3022,7 +3049,9 @@ class SUPER_Ajax {
             'response_data'=>$response_data, 
             'post'=>$_POST
         );
+        error_log('upload_files(7)');
         SUPER_Common::triggerEvent('sf.after.files.uploaded', $x);
+        error_log('upload_files(8)');
         echo json_encode($response);
         die();
     }
@@ -3049,10 +3078,15 @@ class SUPER_Ajax {
 
 
     public static function submit_form() {
+        error_log('submit_form()');
         if(empty($_POST['fileUpload'])) {
+            error_log('submit_form(2)');
             $atts = self::submit_form_checks();
+            error_log('submit_form(2.1)');
         }else{
+            error_log('submit_form(3)');
             $atts = self::submit_form_checks(true);
+            error_log('submit_form(3.1)');
         }
         $form_id = $atts['form_id'];
         $sfsi = $atts['sfsi'];

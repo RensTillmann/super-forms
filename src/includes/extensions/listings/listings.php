@@ -1039,14 +1039,6 @@ if(!class_exists('SUPER_Listings')) :
             if(!isset($list['form_processing_overlay'])) $list['form_processing_overlay'] = 'true';
             if(!isset($list['close_form_processing_overlay'])) $list['close_form_processing_overlay'] = 'true';
             if(!isset($list['close_editor_window_after_editing'])) $list['close_editor_window_after_editing'] = 'true';
-
-            if(!isset($list['edit_any']['change_status'])) {
-                $list['edit_any']['change_status'] = array(
-                    'enabled' => 'true',
-                    'when_not' => ''
-                );
-            }
-
             if(empty($list['date_range'])) $list['date_range'] = array(
                 'enabled'=>'false',
                 'from'=>'',
@@ -1481,6 +1473,12 @@ if(!class_exists('SUPER_Listings')) :
                 'user_roles'=>'administrator',
                 'user_ids'=>''
             );
+            if( empty($list['edit_any']['change_status']) ) {
+                $list['edit_any']['change_status'] = array(
+                    'enabled' => 'true',
+                    'when_not' => ''
+                );
+            } 
             if( empty($list['edit_own']) ) $list['edit_own'] = array(
                 'enabled'=>'false',
                 'method'=>'modal',
