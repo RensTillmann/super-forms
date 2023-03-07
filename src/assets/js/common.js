@@ -8940,7 +8940,7 @@ function SUPERreCaptcha(){
         args._save_data_callback(args);
     };
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
@@ -9689,6 +9689,7 @@ function SUPERreCaptcha(){
         args.convertFromPixel = 1;
         args.convertToPixel = 1;
         args.lineHeight = 1.194;
+        debugger;
         args.renderingMode = 'invisible'; //'invisible', // fill,
         if(args.debugger===true || args.pdfSettings.native==='true'){
             //debugger;
@@ -9757,6 +9758,7 @@ function SUPERreCaptcha(){
     }
     SUPER.pdf_rgba2hex = function(args, rgba, setters){
         //debugger;
+        if(args.renderingMode==='invisible') rgba = 'rgba(0,0,0,0)';
         //var hex = SUPER.pdf_rgba2hex(color, ['drawColor','fillColor']);
         var i, c, hex = '#'+(rgba.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+\.{0,1}\d*))?\)$/).slice(1).map((n, i) => (i === 3 ? Math.round(parseFloat(n) * 255) : parseFloat(n)).toString(16).padStart(2, '0').replace('NaN', '')).join(''));
         if(hex.length>=9){
@@ -9918,10 +9920,12 @@ function SUPERreCaptcha(){
         .super-checkbox .super-item > div,
         .super-radio .super-item > div,
         .super-toggle-switch,
-        .super-slider
+        .super-slider,
+        .super-fileupload-button,
+        table
         `,
         i, el, node, nodes = Array.prototype.slice.call(args.pdfHeader.querySelectorAll(selectors)).concat(Array.prototype.slice.call(args.pdfPageContainer.querySelectorAll(selectors))).concat(Array.prototype.slice.call(args.pdfFooter.querySelectorAll(selectors))),
-        color, tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
+        bgColor, color, after, before, pos, tmpPosTop, borderWidth, paddingRight, paddingLeft, paddingTop, value = '';
         //.super-slider
         //.super-calculator-currency-wrapper, 
         //.super-calculator-label, 
@@ -9933,6 +9937,10 @@ function SUPERreCaptcha(){
         //`;
         for( i=0; i < nodes.length; i++ ) {
             el = nodes[i];
+            if(el.tagName==='TABLE'){
+                debugger;
+                debugger;
+            }
             if(el.classList.contains('super-pdf-tmp-replaced') || $(el).parents('.super-pdf-tmp-replaced:eq(0)').length!==0) continue;
             if($(el).parents('.super-hide-from-current-page:eq(0)').length!==0) continue;
             if($(el).parents('.super-hide-from-current-page:eq(0)').length) continue;
@@ -9981,6 +9989,20 @@ function SUPERreCaptcha(){
             if(el.closest('.super-radio') || el.closest('.super-checkbox') || el.classList.contains('super-fileupload-button-text')){
                 posWidth = ((pos.width+1)/args.scale)*args.convertFromPixel;
             }
+            if(el.closest('.super-text') || el.closest('.super-currency') || el.classList.contains('super-fileupload-button')){
+                // Draw input box
+                color = window.getComputedStyle(el, null).borderColor;
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.rect(posLeft, posTop, posWidth, posHeight, 'D');
+                // Background color
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                    args._pdf.rect(posLeft, posTop, posWidth, posHeight, 'F');
+                }
+                continue;
+            }
             if(el.closest('.super-adaptive-placeholder')){
                 var bgColor = getComputedStyle(el).backgroundImage;
                 if(bgColor!=='none'){
@@ -10021,29 +10043,29 @@ function SUPERreCaptcha(){
             }
             if(el.closest('.super-radio') || el.closest('.super-checkbox')){
                 if(el.closest('.super-radio')){
-                    var before = el.parentNode.querySelector('.super-before');
+                    before = el.parentNode.querySelector('.super-before');
                     color = window.getComputedStyle(before, null).borderColor;  
-                    var borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
-                    var pos = SUPER.pdf_get_native_el_position(before, args);
+                    borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                    pos = SUPER.pdf_get_native_el_position(before, args);
                     SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                     args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
                     args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'D');
-                    var after = el.parentNode.querySelector('.super-after');
+                    after = el.parentNode.querySelector('.super-after');
                     color = window.getComputedStyle(after, null).backgroundColor;  
-                    var pos = SUPER.pdf_get_native_el_position(after, args);
+                    pos = SUPER.pdf_get_native_el_position(after, args);
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                     args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'F');
                 }else{
-                    var before = el.parentNode.querySelector('.super-before');
+                    before = el.parentNode.querySelector('.super-before');
                     color = window.getComputedStyle(before, null).borderColor;  
-                    var borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
-                    var pos = SUPER.pdf_get_native_el_position(before, args);
+                    borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                    pos = SUPER.pdf_get_native_el_position(before, args);
                     SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                     args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
                     args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
-                    var after = el.parentNode.querySelector('.super-after');
+                    after = el.parentNode.querySelector('.super-after');
                     color = window.getComputedStyle(after, null).backgroundColor;  
-                    var pos = SUPER.pdf_get_native_el_position(after, args);
+                    pos = SUPER.pdf_get_native_el_position(after, args);
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                     args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
                 }
@@ -10071,7 +10093,7 @@ function SUPERreCaptcha(){
                 var handle = el.closest('.super-toggle-switch').querySelector('.super-toggle-handle');
                 var hpos = SUPER.pdf_get_native_el_position(handle, args);
                 args._pdf.rect(pos.l, hpos.t, pos.w, pos.h, 'F');
-                var handle = el.closest('.super-toggle-switch').querySelector('.super-toggle-handle');
+                handle = el.closest('.super-toggle-switch').querySelector('.super-toggle-handle');
                 color = getComputedStyle(handle).backgroundColor;
                 SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                 if(el.closest('.super-toggle-switch').classList.contains('super-active')){
@@ -10135,17 +10157,49 @@ function SUPERreCaptcha(){
                 posLeft = posLeft+(posWidth/2);
                 continue;
             }
+            if(el.tagName==='TABLE'){
+                debugger;
+                // Tables
+                nodes = el.querySelectorAll('th, td');
+                for(i=0; i<nodes.length; i++){
+                    debugger;
+                    node = nodes[i];
+                    // Table border width 
+                    borderWidth = parseFloat(getComputedStyle(el).borderWidth);
+                    args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
+                    // Table border color 
+                    color = getComputedStyle(el).borderColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                    // Table background color
+                    color = getComputedStyle(el).backgroundColor;
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                    // Table position/width
+                    pos = SUPER.pdf_get_native_el_position(el, args);
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                    // Background color of the cell
+                    color = getComputedStyle(node).backgroundColor;
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                    // Position/width of the cell
+                    pos = SUPER.pdf_get_native_el_position(node, args);
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
+                }
+                for(i=0; i<nodes.length; i++){
+                    debugger;
+                    node = nodes[i];
+                    // Cell border width
+                    borderWidth = parseFloat(getComputedStyle(node).borderWidth);
+                    args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
+                    // Border color of the cell
+                    color = getComputedStyle(node).borderColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                    pos = SUPER.pdf_get_native_el_position(node, args);
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                }
+                continue;
+            }
             if(el.closest('.super-textarea')){
                 paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/args.scale)*args.convertFromPixel;
                 paddingTop = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-top'))/args.scale)*args.convertFromPixel;
-                continue;
-            }
-            if(el.closest('.super-text') || el.closest('.super-currency')){
-                // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;
-                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
-                args._pdf.rect(posLeft, posTop, posWidth, posHeight);
-                paddingLeft = (parseFloat(window.getComputedStyle(el, null).getPropertyValue('padding-left'))/args.scale)*args.convertFromPixel;
                 continue;
             }
         }
