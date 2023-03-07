@@ -9,6 +9,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 07, 2023 - Version 6.3.704
+
+- **Added:** Option to jump to a specific field so that a user can edit it, simply use `#fieldname` on your href attribute like so `Summary:<br />First name: {first_name} - <a href="#first_name">EDIT</a>`
+- **Added:** Option to define wrapper and or field ID attribute elements, when left blank the default ID will be `sf-wrapper-1234-yourfieldname` and `sf-field-582-1-yourfieldname` where `582` would be the form ID and `1` the form index (if you have multiple forms this will auto increment by one).
+- **Fix:** Signature not populated from `Save form progression` and `Retrieve previous entry data`. Also, when retrieved from entry data disallow editing the existing signature.
+
 ## Jan 03, 2022 - Version 6.3.688
 
 - **Added:** `Listings` when editing entries, you can define if the user is allowed to change the entry status, and disallow to change the entry if it already has a specific status
