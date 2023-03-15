@@ -509,14 +509,16 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *
          *  @since      1.3.4
         */
-        public function add_order_item_meta( $item_id, $values, $cart_item_key ) {
+        public function add_order_item_meta($item_id, $values, $cart_item_key){
             global $woocommerce;
             if($woocommerce->cart != null){
-                foreach ( $woocommerce->cart->get_cart() as $k => $v ) {
+                foreach($woocommerce->cart->get_cart() as $k => $v){
                     if(!isset($values->legacy_cart_item_key)) continue;
-                    if( $k==$values->legacy_cart_item_key ) {
-                        foreach( $v['super_data'] as $k => $v ) {
-                            wc_add_order_item_meta( $item_id, $k, $v );
+                    if($k==$values->legacy_cart_item_key){
+                        if(!isset($v['super_data'])) continue;
+                        if(!is_array($v['super_data'])) continue;
+                        foreach($v['super_data'] as $k => $v){
+                            wc_add_order_item_meta($item_id, $k, $v);
                         }
                     }
                 }
