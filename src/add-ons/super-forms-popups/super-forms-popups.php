@@ -662,8 +662,10 @@ if( !class_exists('SUPER_Popup') ) :
                 'hidden' => 'settings',
                 'name' => esc_html__( 'Popup Settings', 'super-forms' ),
                 'label' => esc_html__( 'Popup Settings', 'super-forms' ),
-                'html' => array(
-                    sprintf( esc_html__( '%s%sNote:%s if you want to open the popup via a button you will need to put the form shortcode %s[super_form id="XXX"]%s on the page and add a button that user can click on to open the popup.%sFor example, you can use a button like so:%s%s%sOpen the Popup%s%s%sor with the use of a shortcode:%s%s[super-popup id=XXX]Open Form[/super-popup]%s%sJust replace XXX with the form ID. Via `Appearance > Menu` you can also add a `Custom Link` with URL set to %s to open the Popup from your site menu. In that case make sure you load the form on all pages. You can do this by putting the form shortcode in a footer widget.%s' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<code>', '</code>', '<br />', '<br />', '<code>', esc_html('<a href="#super-popup-XXX">'), esc_html('</a>'), '</code>', '<br />', '<br />', '<code>', '</code>', '<br />', '<code>#super-popup-XXX</code>', '</div>' ),
+                'docs' => array(
+                    array('title'=>'Popup documentation', 'url'=>'/features/basic/popups'),
+                    array('title'=>'Adding the popup to all pages', 'url'=>'/features/basic/popups#adding-the-popup-to-all-pages'),
+                    array('title'=>'Opening popup via link or button', 'url'=>'/features/basic/popups#opening-the-popup-via-a-link-or-button')
                 ),
                 'fields' => array(
                     'popup_enabled' => array(

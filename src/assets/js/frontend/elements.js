@@ -216,7 +216,6 @@
                     parent.classList.add('super-filled');
                     span.innerHTML = placeholder.dataset.placeholderfilled;
                 }else{
-                    debugger;
                     parent.classList.remove('super-filled');
                     span.innerHTML = placeholder.dataset.placeholder;
                 }
