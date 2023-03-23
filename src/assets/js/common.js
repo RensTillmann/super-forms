@@ -543,6 +543,32 @@ function SUPERreCaptcha(){
             }
         }
     };
+    SUPER.scrollToElement = function(el){
+        var pos = el.getBoundingClientRect();
+        var margin = 50; // 50 pixels margin top/bottom
+        var height = window.innerHeight;
+		var popupContent = el.closest('.super-popup-content');
+		if(popupContent) {
+            height = popupContent.getBoundingClientRect().height;
+        }else{
+            var dropdownList = el.closest('.super-dropdown-list');
+            if(dropdownList) {
+                height = dropdownList.getBoundingClientRect().height;
+            }
+        }
+        if(pos.top >= 0 && pos.top < (height*0.8)) {
+            // do nothing
+            return false;
+        }
+        var block = 'center'; // by default scroll to center
+        if(pos.top < 0) {
+            block = 'start';
+        }
+        el.scrollIntoView({ behavior: 'auto', block: block });
+        requestAnimationFrame(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: block });
+        });
+    }
     SUPER.focusNextTabField = function(e, next, form, skipNext){
         var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = -1;
         if(e){
@@ -563,6 +589,11 @@ function SUPERreCaptcha(){
         if(next.classList.contains('super-item')){
             next = next.closest('.super-field');
         }
+        
+        // Check if inside invisble element
+        if(next.closest('.super-invisible')){
+            next = SUPER.nextTabField(e, next, form);
+        } 
 
         // Check if inside multi-part, and if multi-part isn't active, make it active
         if(next.closest('.super-multipart') && !next.closest('.super-multipart').classList.contains('super-active')) {
@@ -611,7 +642,7 @@ function SUPERreCaptcha(){
 
         if(e && e.type!=='click' && keyCode != 32){
             // Only scroll into view via tabbing, not via clicking
-            next.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+            SUPER.scrollToElement(next);
         }
         if(keyCode != 32){
             // If not Space key press
@@ -699,13 +730,15 @@ function SUPERreCaptcha(){
         if(next.querySelector('.super-shortcode-field')){
             next.querySelector('.super-shortcode-field').focus();
             if(e) {
-                SUPER.scrollToTopOfForm(e, form);
+                if(form.classList.contains('super-form-focussed')){
+                    SUPER.scrollToTopOfForm(e, form);
+                }
             }
         }
         if(e){
             e.preventDefault();
         }else{
-            next.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
+            SUPER.scrollToElement(next);
         }
         return false;
     };
@@ -715,11 +748,7 @@ function SUPERreCaptcha(){
         if(!multipart) return;
         if(typeof multipart.dataset.disableScrollPn === 'undefined'){
             if(e && !e.shiftKey){
-                if(form.closest('.super-popup-content')){
-                    form.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
-                }else{
-                    form.scrollIntoView({behavior:'smooth', block:'start', inline:'start'});
-                }
+                SUPER.scrollToElement(form);
             }
         }
     };
@@ -771,13 +800,12 @@ function SUPERreCaptcha(){
     };
     SUPER.has_hidden_parent = function(changedField, includeMultiParts){
         if(changedField[0]) changedField = changedField[0];
-        
+        if(changedField.parentNode.closest('.super-invisible')) return true;
         var p, parent;
         parent = changedField.closest('.super-shortcode');
         if( parent && (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
             return true;
         }
-
         if(parent.dataset.conditionalAction){
             if((parent.classList.contains('super-conditional-hidden')) ||
                 (parent.dataset.conditionalAction==='hide' && parent.classList.contains('super-conditional-hidden')) ||
@@ -1254,17 +1282,7 @@ function SUPERreCaptcha(){
                                 $html += '<span class="super-close"></span>';
                                 $html += '</div>';
                                 $($html).prependTo($(form));
-                                if(form.closest('.super-popup-content')){
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$(form.closest('.super-popup-content')).animate({
-                                    //    scrollTop: $(form).offset().top-200
-                                    //}, 1000);
-                                }else{
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$('html, body').animate({
-                                    //    scrollTop: $(form).offset().top-200
-                                    //}, 1000);
-                                }
+                                SUPER.scrollToElement(form);
                             }
                         },
                         complete: function(){
@@ -1341,17 +1359,7 @@ function SUPERreCaptcha(){
                                 $html += '<span class="super-close"></span>';
                                 $html += '</div>';
                                 $($html).prependTo($(form));
-                                if(form.closest('.super-popup-content')){
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$(form.closest('.super-popup-content')).animate({
-                                    //    scrollTop: $(form).offset().top-200
-                                    //}, 1000);
-                                }else{
-                                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$('html, body').animate({
-                                    //    scrollTop: $(form).offset().top-200
-                                    //}, 1000);
-                                }
+                                SUPER.scrollToElement(form);
                             }
                         },
                         complete: function(){
@@ -3285,17 +3293,7 @@ function SUPERreCaptcha(){
                                 html += '</div>';
                                 var $newMessage = $(html).insertBefore(container);
                                 container.remove();
-                                if(args.form.closest('.super-popup-content')){
-                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$(args.form.closest('.super-popup-content')).animate({
-                                    //    scrollTop: $newMessage.offset().top-200
-                                    //}, 1000);
-                                }else{
-                                    $newMessage[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
-                                    //$('html, body').animate({
-                                    //    scrollTop: $newMessage.offset().top-200
-                                    //}, 1000);
-                                }
+                                SUPER.scrollToElement(args.form);
                             }
                         }
                         if(result.error!==true && result.redirect){
@@ -3430,7 +3428,7 @@ function SUPERreCaptcha(){
                     args.loadingOverlay.classList.add('super-error');
                     // Display the error/success message
                     if(innerText) innerText.innerHTML = result.msg;
-                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                    SUPER.scrollToElement(args.loadingOverlay);
                     // Visually indicate which fields have errors
                     if(typeof result.fields !== 'undefined'){
                         for(var i=0; i<result.fields.length; i++){
@@ -3462,7 +3460,7 @@ function SUPERreCaptcha(){
                         // Display the error/success message
                         if(innerText) innerText.innerHTML = result.msg;
                     }
-                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                    SUPER.scrollToElement(args.loadingOverlay);
                 }
                 // Convert any JS to executable JS
                 var node = innerText.querySelector('script');
@@ -3520,17 +3518,7 @@ function SUPERreCaptcha(){
                 if(args.form){
                     $(html).prependTo($(args.form));
                     SUPER.init_resend_verification_code(args);
-                    if(args.form0.closest('.super-popup-content')){
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        //$(args.form.closest('.super-popup-content')).animate({
-                        //    scrollTop: $(args.form).offset().top-200
-                        //}, 1000);
-                    }else{
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        //$('html, body').animate({
-                        //    scrollTop: $(args.form).offset().top-200
-                        //}, 1000);
-                    }
+                    SUPER.scrollToElement(args.form0);
                 }
             }
         }
@@ -3551,7 +3539,7 @@ function SUPERreCaptcha(){
                             $(args.form).find('.super-field, .super-shortcode').remove();
                             if(args.showOverlay==="true"){
                                 if(result.msg!==''){
-                                    args.loadingOverlay.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                                    SUPER.scrollToElement(args.loadingOverlay);
                                 }
                             }
                         }, 500);
@@ -4051,17 +4039,7 @@ function SUPERreCaptcha(){
                 scroll = false;
             }
             if(scroll){
-                if(form.closest('.super-popup-content')){
-                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    //$(form.closest('.super-popup-content')).animate({
-                    //    scrollTop: $(form).offset().top-30
-                    //}, 1000);
-                }else{
-                    form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    //$('html, body').animate({
-                    //    scrollTop: $(form).offset().top-30
-                    //}, 1000);
-                }
+                SUPER.scrollToElement(form);
             }
             return false;
         }
@@ -4092,7 +4070,7 @@ function SUPERreCaptcha(){
             if(scroll){
                 // Scroll to first error field
                 var current = multipart.querySelector('.super-error-active');
-                current.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+                SUPER.scrollToElement(current);
                 // Focus first error field
                 SUPER.focusNextTabField({keyCode: 32, preventDefault: function(){}}, current, form, current);
             }
@@ -4100,17 +4078,7 @@ function SUPERreCaptcha(){
             // @since 2.1.0
             proceed = SUPER.before_scrolling_to_error_hook(form, $(form).find('.super-error-active').offset().top-200);
             if(proceed!==true) return false;
-            if(form.closest('.super-popup-content')){
-                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
-                //$(form.closest('.super-popup-content')).animate({
-                //    scrollTop: $(form).find('.super-error-active').offset().top-200
-                //}, 1000);
-            }else{
-                $(form).find('.super-error-active')[0].scrollIntoView({ behavior: 'smooth', block: 'start' })
-                //$('html, body').animate({
-                //    scrollTop: $(form).find('.super-error-active').offset().top-200
-                //}, 1000);
-            }
+            SUPER.scrollToElement($(form).find('.super-error-active')[0]);
         }
     };
 
@@ -4207,17 +4175,7 @@ function SUPERreCaptcha(){
                         btnName.innerHTML = args.oldHtml;
                         btn.classList.remove('super-loading');
                     }
-                    if(args.form0.closest('.super-popup-content')){
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                        //$(args.form.closest('.super-popup-content')).animate({
-                        //    scrollTop: $(args.form).offset().top-200
-                        //}, 1000);
-                    }else{
-                        args.form0.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                        //$('html, body').animate({
-                        //    scrollTop: $(args.form).offset().top-200
-                        //}, 1000);
-                    }
+                    SUPER.scrollToElement(args.form0);
                 }
             }
         }
@@ -4356,7 +4314,22 @@ function SUPERreCaptcha(){
             }
         });
         if( typeof args.el !== 'undefined'  && (args.skip!==true) ) {
-            SUPER.auto_step_multipart(args);
+            // If radio
+            if(args.el.closest('.super-radio')){
+                if(args.el.closest('.super-focus')){
+                    if(typeof SUPER.preventGoingToNextMultipart!=='undefined'){
+                        SUPER.preventGoingToNextMultipart = undefined;
+                    }else{
+                        SUPER.preventGoingToNextMultipart = undefined;
+                        SUPER.auto_step_multipart(args, true);
+                    }
+                }
+            }else{
+                // Not if textarea
+                if(!args.el.closest('.super-textarea')){
+                    SUPER.auto_step_multipart(args, true);
+                }
+            }
         }
         SUPER.save_form_progress(args);
     };
@@ -5501,7 +5474,11 @@ function SUPERreCaptcha(){
                     SUPER.google_maps_api.initAutocompleteCallback(args);
                 });
             }else{
-                SUPER.google_maps_api.initAutocompleteCallback(args);
+                if(google.maps && google.maps.places){
+                    SUPER.google_maps_api.initAutocompleteCallback(args);
+                }else{
+                    console.log('Super Forms address autocomplete requires google Places API to be enabled!');
+                }
             }
         });
     };
@@ -5932,7 +5909,6 @@ function SUPERreCaptcha(){
             for(i=0; i<nodes.length; i++){
                 value = nodes[i].querySelector('.super-signature-lines').value;
                 if(value!==''){
-                    //debugger;
                     //value = value.replace('\\"lines\\"', '"lines"');
                     //$(nodes[i]).find('.super-signature-canvas').signature('enable').signature('draw', value);
                 }
@@ -7773,7 +7749,7 @@ function SUPERreCaptcha(){
                             wrapper = SUPER.field(form, fieldName);
                             wrapper = wrapper.closest('.super-field');
                         }
-                        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'start' });
+                        SUPER.scrollToElement(wrapper);
                         SUPER.focusNextTabField(undefined, wrapper, form);
                     }
                 }
@@ -8659,13 +8635,18 @@ function SUPERreCaptcha(){
                         }
                         // In some cases we want to apply the top margin to the parent element.
                         // For instance, for the slider, dropdown 
-                        // But not for radio/checkbox items 
+                        // But not for radio/checkbox items, with the exception for `super-item` class
                         var allowMargin = true;
-                        var disAllowed = ['text', 'textarea', 'dropdown', 'time', 'date', 'password', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
+                        var disAllowed = ['item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
                         for(var x=0; x<disAllowed.length; x++){
                             if(el.parentNode.closest('.super-'+disAllowed[x])){
                                 if(!el.classList.contains('super-'+disAllowed[x])) {
                                     allowMargin = false;
+                                }else{
+                                    // Exceptions
+                                    if(el.className==='super-rating'){
+                                        allowMargin = false;
+                                    }
                                 }
                             }
                         }
@@ -8810,14 +8791,10 @@ function SUPERreCaptcha(){
             // tmp disabled --> result.currentPageHeight = result.currentPageHeight - el.dataset.offsetTop;
         }
 
-        if(args.allowIncreasePage===el){
-            //debugger;
-        } 
         if(args.allowIncreasePage===el && belongsTo.length>1){
             // When it belongs to both current and next page, then we must add an offset
             // When going to the next page we will apply the offset to move the element up relatively to the current page
             //var offset = (SUPER.round(args.scrollAmount, 2)*(result.currentPage)) - SUPER.round(top, 2);
-            //debugger;
             // -506 - 38 = 1172 - 628 = 544
             // 1172 - 544 = 628
             if(top>0 && top<args.scrollAmount){
@@ -8910,7 +8887,6 @@ function SUPERreCaptcha(){
             result.currentPageHeight=0;
             result.currentPage++;
             // don't do this... if(result.belongsTo.indexOf(result.currentPage)===-1) {
-            // don't do this...     debugger;
             // don't do this...     // tmp result.belongsTo.push(result.currentPage);
             // don't do this... }
             SUPER.pdf_hide_previous_page_elements(args, result);
@@ -8922,11 +8898,7 @@ function SUPERreCaptcha(){
 
         // tmp disabled ----> result.belongsTo = belongsTo;
         // If we exceed scroll amount, we are on the next page
-        if(args.allowIncreasePage===el){
-            //debugger;
-        }
         if(args.allowIncreasePage===el && result.currentPageHeight>=args.scrollAmount){
-            //debugger;
         // tmp disabled ----> if(result.currentPageHeight>=args.scrollAmount){
             result.currentPageHeight=0;
             //tmpresult.currentPage++;
@@ -8999,8 +8971,30 @@ function SUPERreCaptcha(){
         // We PDF has been generated, continue with form submission
         args._save_data_callback(args);
     };
+
+    SUPER.recheckCanvasImages = function(args, callback){
+        var node = args.pdfPageContainer.querySelector('.super-int-phone_selected-flag .super-int-phone_flag:not(.super-canvas-initialized)');
+        if(!node){
+            callback();
+        }else{
+            node.classList.add('super-canvas-initialized');
+            html2canvas(node, {
+                scrollX: 0, // Important, do not remove
+                scrollY: 0,  // -window.scrollY, // Important, do not remove
+                scale: args.pdfSettings.renderScale, // The scale to use for rendering (higher means better quality, but larger file size)
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff'
+            }).then(function(canvas) {
+                var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                node.dataset.imgData = imgData;
+                SUPER.recheckCanvasImages(args, callback);
+            });
+        }
+    }
+
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
@@ -9238,8 +9232,9 @@ function SUPERreCaptcha(){
 
         // Copy text fields and replace with dummy elements to fix line-height issues in generated PDF
         // Ignore any node that is excluded from the PDF
-        nodes = pdfPageContainer.querySelectorAll('.super-text .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field, .super-currency .super-shortcode-field');
+        nodes = pdfPageContainer.querySelectorAll('.super-text .super-shortcode-field, .super-password .super-shortcode-field, .super-textarea .super-shortcode-field, .super-quantity .super-shortcode-field, .super-date .super-shortcode-field, .super-time .super-shortcode-field, .super-currency .super-shortcode-field');
         for( i=0; i < nodes.length; i++ ) {
+            if(nodes[i].closest('.super-keyword-tags')) continue;
             var newNode = document.createElement('div');
             var computedStyle = window.getComputedStyle(nodes[i]);
             newNode.style.paddingTop = parseFloat(computedStyle.getPropertyValue('padding-top'))+'px';
@@ -9301,65 +9296,67 @@ function SUPERreCaptcha(){
                 if(el && el.style) el.style.fontSize = newFontSize+'px';
             }
         }
-
-        SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){
-            // First disable the UI on the map for nicer print of the map
-            // And make map fullwidth and directions fullwidth
-            for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
-                SUPER.google_maps_api.allMaps[formId][i].setOptions({
-                    disableDefaultUI: true
-                });
-                nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
-                for(var x=0; x < nodes.length; x++){
-                    nodes[x].style.width = '100%';
-                    if(nodes[x].classList.contains('super-google-map-directions')){
-                        nodes[x].style.overflowY = 'initial';
-                        nodes[x].style.height = 'auto';
+        SUPER.recheckCanvasImages(args, function(){
+            SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){
+                // First disable the UI on the map for nicer print of the map
+                // And make map fullwidth and directions fullwidth
+                for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
+                    SUPER.google_maps_api.allMaps[formId][i].setOptions({
+                        disableDefaultUI: true
+                    });
+                    nodes = SUPER.google_maps_api.allMaps[formId][i]['super_el'].querySelectorAll(':scope > div');
+                    for(var x=0; x < nodes.length; x++){
+                        nodes[x].style.width = '100%';
+                        if(nodes[x].classList.contains('super-google-map-directions')){
+                            nodes[x].style.overflowY = 'initial';
+                            nodes[x].style.height = 'auto';
+                        }
                     }
                 }
-            }
-            
-            // Convert height of textarea to fit content (otherwie it would be cut of during printing)
-            function adjustHeight(el, minHeight) {
-                // compute the height difference which is caused by border and outline
-                var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
-                var diff = outerHeight - Math.round(el.clientHeight, 1e2);
-                // set the height to 0 in case of it has to be shrinked
-                el.style.height = 0;
-                // set the correct height
-                // el.scrollHeight is the full height of the content, not just the visible part
-                el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
-            }
-            // Iterate through all the textareas on the page
-            var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
-            for(i=0; i<nodes.length; i++){
-                el = nodes[i];
-                // we need box-sizing: border-box, if the textarea has padding
-                el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
-                // we don't need any scrollbars, do we? :)
-                el.style.overflowY = 'hidden';
-                // the minimum height initiated through the "rows" attribute
-                minHeight = el.scrollHeight * 1.03;
-                el.addEventListener('input', function() {
+                
+                // Convert height of textarea to fit content (otherwie it would be cut of during printing)
+                function adjustHeight(el, minHeight) {
+                    // compute the height difference which is caused by border and outline
+                    var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+                    var diff = outerHeight - Math.round(el.clientHeight, 1e2);
+                    // set the height to 0 in case of it has to be shrinked
+                    el.style.height = 0;
+                    // set the correct height
+                    // el.scrollHeight is the full height of the content, not just the visible part
+                    el.style.height = Math.max(minHeight, el.scrollHeight + diff) + 'px';
+                }
+                // Iterate through all the textareas on the page
+                var i, el, minHeight, nodes = form.querySelectorAll('.super-textarea .super-shortcode-field');
+                for(i=0; i<nodes.length; i++){
+                    el = nodes[i];
+                    // we need box-sizing: border-box, if the textarea has padding
+                    el.style.boxSizing = el.style.mozBoxSizing = 'border-box';
+                    // we don't need any scrollbars, do we? :)
+                    el.style.overflowY = 'hidden';
+                    // the minimum height initiated through the "rows" attribute
+                    minHeight = el.scrollHeight * 1.03;
+                    el.addEventListener('input', function() {
+                        adjustHeight(el, minHeight);
+                    });
+                    // we have to readjust when window size changes (e.g. orientation change)
+                    window.addEventListener('resize', function() {
+                        adjustHeight(el, minHeight);
+                    });
+                    // we adjust height to the initial content
                     adjustHeight(el, minHeight);
-                });
-                // we have to readjust when window size changes (e.g. orientation change)
-                window.addEventListener('resize', function() {
-                    adjustHeight(el, minHeight);
-                });
-                // we adjust height to the initial content
-                adjustHeight(el, minHeight);
-            }
+                }
 
-            // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
-            // tmp args = SUPER.resize_pdf_page_breaks(args);
-            // tmp // Grab the total form height, this is required to know how many pages will be generated for the PDF file
-            // tmp // This way we can also show the progression to the end user
-            // tmp args.totalPages = Math.ceil(Math.round(form.clientHeight, 1e2)/args.scrollAmount);
-            // tmp args.totalPercentagePerPage = (100/args.totalPages) / 3;
-            // tmp args.pdfPercentageCompleted = 0;
-            callback(args);
-        }});
+                // Loop over any possible PDF page break elements, and add the height to fill up the rest of the page with "nothing"
+                // tmp args = SUPER.resize_pdf_page_breaks(args);
+                // tmp // Grab the total form height, this is required to know how many pages will be generated for the PDF file
+                // tmp // This way we can also show the progression to the end user
+                // tmp args.totalPages = Math.ceil(Math.round(form.clientHeight, 1e2)/args.scrollAmount);
+                // tmp args.totalPercentagePerPage = (100/args.totalPages) / 3;
+                // tmp args.pdfPercentageCompleted = 0;
+                callback(args);
+            }});
+        });
+
     };
 
     // PDF Generation
@@ -9650,9 +9647,6 @@ function SUPERreCaptcha(){
     SUPER.pdfWrapTextNodes = function(node){
         // Loop through each child node
         for(var childNode of node.childNodes) {
-            if(childNode.nodeType===Node.ELEMENT_NODE && childNode.classList.contains('super-adaptive-placeholder')){
-                //debugger;
-            }
             if(childNode.parentNode.className==='sp-dd'){
                 continue;
             }
@@ -9695,7 +9689,6 @@ function SUPERreCaptcha(){
         args.lineHeight = 1.194;
         args.renderingMode = 'invisible'; //'invisible', // fill,
         if(args.debugger===true || args.pdfSettings.native==='true'){
-            //debugger;
             args.renderingMode = 'fill'; //'invisible', // fill,
         }
         // Convert unit to pixel
@@ -9733,11 +9726,6 @@ function SUPERreCaptcha(){
             args._pdf.setFont('Helvetica', 'normal', 'normal');
         }
         args._pdf.setTextColor('black');
-        if(args.debugger===true){
-            //debugger;
-            //args._pdf.setTextColor('red');
-        }
-        //args._pdf.setLineWidth(1*args.convertFromPixel);
         SUPER.pdfWrapTextNodes(args.pdfPageContainer);
         return args;
     };
@@ -9851,16 +9839,12 @@ function SUPERreCaptcha(){
             posLeft = ((pos.left)/args.scale)*args.convertFromPixel;
         }
         var posTop = ((tmpPosTop)/args.scale)*args.convertFromPixel;
-
-        
-
         var fontSize = parseFloat(getComputedStyle(el.parentNode).fontSize);
         var fontSizePoint = fontSize * 0.67;
         value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth+1);
         var charSpace = -(fontSize*args.charSpaceMultiplier)*args.convertFromPixel;
         var topLineHeight = (((fontSize*1.32)-fontSize)/args.topLineHeightDivider)*args.convertFromPixel;
         if(el.classList.contains('super-pdf-text')){
-            if(el.closest('.super-textarea')) debugger;
             if(el.parentNode.tagName==='STRONG' || el.parentNode.tagName==='TH'){
                 if(super_common_i18n.fonts){
                     args._pdf.setFont('NotoSans-Bold', 'normal', 'bold');
@@ -9884,7 +9868,11 @@ function SUPERreCaptcha(){
     // PDF render native elements
     SUPER.pdf_generator_render_elements = function(args){
         var selectors = `
+        .super-keyword-tags,
         .super-text .super-shortcode-field,
+        .super-password .super-shortcode-field,
+        .super-date .super-shortcode-field,
+        .super-time .super-shortcode-field,
         .super-textarea .super-shortcode-field,
         .super-currency .super-shortcode-field,
         .super-quantity .super-shortcode-field,
@@ -9895,13 +9883,13 @@ function SUPERreCaptcha(){
         .super-toggle-switch,
         .super-slider,
         .super-color,
-        .super-rating,
+        .super-rating > .super-field-wrapper > .super-rating,
         .super-fileupload-button,
         .super-fileupload-files > div,
         table
         `,
-        i, el, node, nodes = Array.prototype.slice.call(args.pdfHeader.querySelectorAll(selectors)).concat(Array.prototype.slice.call(args.pdfPageContainer.querySelectorAll(selectors))).concat(Array.prototype.slice.call(args.pdfFooter.querySelectorAll(selectors))),
-        x, cells, bgColor, color, after, before, pos, tmpPosTop, borderWidth, paddingRight, paddingLeft, paddingTop, value = '';
+        i, el, node, inodes, nodes = Array.prototype.slice.call(args.pdfHeader.querySelectorAll(selectors)).concat(Array.prototype.slice.call(args.pdfPageContainer.querySelectorAll(selectors))).concat(Array.prototype.slice.call(args.pdfFooter.querySelectorAll(selectors))),
+        x, y, z, cells, bgColor, color, after, before, pos, tmpPosTop, borderWidth, paddingRight, paddingLeft, paddingTop, value = '';
         //.super-slider
         //.super-calculator-currency-wrapper, 
         //.super-calculator-label, 
@@ -9913,9 +9901,6 @@ function SUPERreCaptcha(){
         //`;
         for( i=0; i < nodes.length; i++ ) {
             el = nodes[i];
-            if(el.tagName==='TABLE'){
-                //debugger;
-            }
             if(el.classList.contains('super-pdf-tmp-replaced') || $(el).parents('.super-pdf-tmp-replaced:eq(0)').length!==0) continue;
             if($(el).parents('.super-hide-from-current-page:eq(0)').length!==0) continue;
             if($(el).parents('.super-hide-from-current-page:eq(0)').length) continue;
@@ -9937,44 +9922,67 @@ function SUPERreCaptcha(){
             // Reset line width
             //args._pdf.setLineWidth(1*args.convertFromPixel);
 
-            // First render adaptive placeholders to avoid conflicts
-            if(el.closest('.super-adaptive-placeholder')){
-                bgColor = getComputedStyle(el).backgroundImage;
-                if(bgColor!=='none'){
-                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
-                    SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
-                    pos = SUPER.pdf_get_native_el_position(el, args);
-                    args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
+            // Keywords
+            if(el.classList.contains('super-keyword-tags')){
+                // Draw input box
+                node = el.querySelector('.super-autosuggest-tags');
+                color = window.getComputedStyle(node, null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(node, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                // Render after border but before keywords
+                if(el.querySelector('.super-adaptive-placeholder > span')){
+                    bgColor = getComputedStyle(el.querySelector('.super-adaptive-placeholder > span')).backgroundImage;
+                    if(bgColor!=='none'){
+                        color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                        pos = SUPER.pdf_get_native_el_position(el.querySelector('.super-adaptive-placeholder > span'), args);
+                        args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
+                    }
+                }
+                // Render keywords after placeholder
+                inodes = node.querySelectorAll('.super-keyword-tag');
+                for(x=0; x<inodes.length; x++){
+                    bgColor = getComputedStyle(inodes[x]).backgroundColor;
+                    SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
+                    pos = SUPER.pdf_get_native_el_position(inodes[x], args);
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
+                    // Close icon
+                    color = getComputedStyle(inodes[x],':after').color;
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                    var radius = pos.h/3;
+                    var margin = (pos.h-radius)/4;
+                    args._pdf.circle(pos.l+pos.w-radius-margin, pos.t+radius+margin, radius, 'F');
+                    SUPER.pdf_rgba2hex(args, bgColor, ['drawColor']);
+                    args._pdf.setLineWidth(1*args.convertFromPixel);
+                    var x1 = pos.l+pos.w-radius+(radius/2);
+                    var y1 = pos.t-radius+(radius/2);
+                    var x2 = pos.l+pos.w+radius-(radius/2);
+                    var y2 = pos.t+radius-(radius/2);
+                    args._pdf.line(x1-radius-margin, y1+radius+margin, x2-radius-margin, y2+radius+margin);
+                    args._pdf.line(x1-radius-margin, y2+radius+margin, x2-radius-margin, y1+radius+margin);
                 }
                 continue;
             }
-            
-            // Now redner other elements
-            // Keywords
-            if(el.closest('.super-keyword-tags')){
-                debugger;
-                nodes = el.closest('.super-keyword-tags').querySelectorAll('.super-keyword-tag');
-                debugger;
-                for(x=0; x<nodes.length; x++){
-                    debugger;
-                    bgColor = getComputedStyle(nodes[x]).backgroundColor;
-                    SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
-                    pos = SUPER.pdf_get_native_el_position(nodes[x], args);
-                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
-                    // Close icon
-                    debugger;
-                    color = getComputedStyle(nodes[x],':after').color;
-                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
-                    args._pdf.circle((pos.l+pos.w)-(pos.h*0.8), (pos.t+(pos.h*0.1)), (pos.h-(pos.h*0.1)), 'F');
-                    SUPER.pdf_rgba2hex(args, bgColor, ['drawColor']);
-                    args._pdf.text('x', pos.l+pos.w-(pos.h*0.6), (pos.t+(pos.h*0.2)), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode});
-                }
-            }
             // Autosuggest
             if(el.closest('.super-auto-suggest')){
-                debugger;
+                var p = el.closest('.super-auto-suggest');
+                // Draw input box
+                color = window.getComputedStyle(p.querySelector('.super-dropdown-list'), null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(p.querySelector('.super-dropdown-list'), args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                // Render after border but before keywords
+                if(p.querySelector('.super-adaptive-placeholder > span')){
+                    bgColor = getComputedStyle(p.querySelector('.super-adaptive-placeholder > span')).backgroundImage;
+                    if(bgColor!=='none'){
+                        color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                        pos = SUPER.pdf_get_native_el_position(p.querySelector('.super-adaptive-placeholder > span'), args);
+                        args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
+                    }
+                }
                 if(el.closest('.super-auto-suggest').classList.contains('super-filled')){
-                    debugger;
                     // Remove icon [x]
                     node = el.closest('.super-auto-suggest').querySelector('.super-item.super-active');
                     pos = SUPER.pdf_get_native_el_position(node, args);
@@ -9990,11 +9998,63 @@ function SUPERreCaptcha(){
                     color = getComputedStyle(node,':after').color;
                     SUPER.pdf_rgba2hex(args, color, ['textColor']);
                     args._pdf.text('x', pos.l+margin+(width/2), pos.t+margin+(width/2), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode});
-                    debugger;
                 }
+                continue;
             }
+
+            // First render adaptive placeholders to avoid conflicts
+            if(el.closest('.super-adaptive-placeholder')){
+                if(el.closest('.super-auto-suggest') || el.closest('.super-keyword-tags')){
+                    // Skip it
+                    continue;
+                }
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                    pos = SUPER.pdf_get_native_el_position(el, args);
+                    args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
+                }
+                continue;
+            }
+
+            
             // Text field
             if(el.closest('.super-text')){
+                // Draw input box
+                color = window.getComputedStyle(el, null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                // If int phone number
+                var flag = el.closest('.super-text').querySelector('.super-int-phone_flag');
+                if(flag){
+                    var src = flag.dataset.imgData;
+                    pos = SUPER.pdf_get_native_el_position(flag, args);
+                    args._pdf.addImage(src, type, pos.l, pos.t, pos.w, pos.h, el.dataset.name, 'NONE', 0);
+                }
+                continue;
+            }
+            // Password
+            if(el.closest('.super-password')){
+                // Draw input box
+                color = window.getComputedStyle(el, null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                continue;
+            }
+            // Date
+            if(el.closest('.super-date')){
+                // Draw input box
+                color = window.getComputedStyle(el, null).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                continue;
+            }
+            // Time
+            if(el.closest('.super-time')){
                 // Draw input box
                 color = window.getComputedStyle(el, null).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
@@ -10045,7 +10105,7 @@ function SUPERreCaptcha(){
                     var src = image.querySelector('img').src;
                     var type = el.dataset.type;
                     pos = SUPER.pdf_get_native_el_position(image, args);
-                    args._pdf.addImage(src, type, pos.l, pos.t, pos.w, pos.h, el.dataset.name, 'NONE', 0);
+                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, 'flag', 'NONE', 0);
                 }
                 continue;
             }
@@ -10110,7 +10170,6 @@ function SUPERreCaptcha(){
             }
             // Color picker
             if(el.closest('.super-color')){
-                debugger;
                 // Wrapper
                 node = el.closest('.super-color').querySelector('.sp-replacer');
                 color = getComputedStyle(node).borderColor;
@@ -10231,8 +10290,7 @@ function SUPERreCaptcha(){
                 // Draw the border around
                 args._pdf.rect(pos.l, hpos.t, pos.w, pos.h, 'D');
 
-                //// Box
-                //debugger;
+                // Box
                 //node = el.closest('.super-toggle-switch');
                 //color = window.getComputedStyle(node, null).borderColor;
                 //SUPER.pdf_rgba2hex(args, color, ['fillColor', 'drawColor']);
@@ -10248,11 +10306,9 @@ function SUPERreCaptcha(){
                     for(i=1; i<points.length; i++) { point = points[i]; dx = point[0]-cx; dy = point[1]-cy; acc.push([dx, dy]); cx += dx; cy += dy; }
                     this.lines(acc, x1, y1, scale, style, closed);
                 }
-                debugger;
-                nodes = el.closest('.super-rating').querySelectorAll('.super-rating-star');
-                for(i=0; i<nodes.length; i++){
-                    debugger;
-                    pos = SUPER.pdf_get_native_el_position(nodes[i], args);
+                inodes = el.closest('.super-rating').querySelectorAll('.super-rating-star');
+                for(z=0; z<inodes.length; z++){
+                    pos = SUPER.pdf_get_native_el_position(inodes[z], args);
                     x = pos.l;
                     var y = pos.t;
                     var scale = 1;
@@ -10270,13 +10326,13 @@ function SUPERreCaptcha(){
                     shared8 = (width*0.3625+y)*scale,
                     shared9 = (width*0.3+x)*scale;
                     // Border
-                    bgColor = getComputedStyle(nodes[i]).backgroundColor;
+                    bgColor = getComputedStyle(inodes[z]).backgroundColor;
                     SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
-                    color = getComputedStyle(nodes[i]).borderColor;
+                    color = getComputedStyle(inodes[z]).borderColor;
                     SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                     args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                     // Stars
-                    color = getComputedStyle(nodes[i]).color;
+                    color = getComputedStyle(inodes[z]).color;
                     SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
                     // Top triangle
                     args._pdf.triangle(shared6, y*scale, shared4, shared2, shared3, shared2, 'FD');
@@ -10289,8 +10345,8 @@ function SUPERreCaptcha(){
                     // Top left triangle
                     args._pdf.triangle(shared3, shared2, shared9, shared5, (x)*scale, shared8, 'FD');
                     args._pdf.polygon([[shared3,shared2], [shared4, shared2], [shared1, shared5], [shared6, shared7], [shared9, shared5]], [1,1], 'F');
-                    debugger;
                 }
+                continue;
             }
 
             // Table
@@ -10298,7 +10354,6 @@ function SUPERreCaptcha(){
                 // Tables
                 cells = el.querySelectorAll('th, td');
                 for(x=0; x<cells.length; x++){
-                    //debugger;
                     node = cells[x];
                     // Table border width 
                     borderWidth = parseFloat(getComputedStyle(el).borderWidth);

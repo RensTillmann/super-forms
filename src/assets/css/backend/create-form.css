@@ -947,8 +947,8 @@
 }
 
 .super-preview-elements .super-element.editing {
-    border: 1px solid #D8C88C;
-    background-color: #FFF9E3;
+    border: 1px solid #D8C88C!important;
+    background-color: #FFF9E3!important;
 }
 
 .super-preview-elements .super-element.super_one_full {
@@ -1401,7 +1401,9 @@
     border-bottom: 1px solid #E0E0E0;
     position: relative;
 }
-
+.super-element-settings .super-hidden {
+    display:none!important;
+}
 .super-element-settings .super-field.super-error, .super-form-settings .super-field.super-error {
     border: 1px solid rgb(255,155,155);
     background-color: rgb(255,208,208);

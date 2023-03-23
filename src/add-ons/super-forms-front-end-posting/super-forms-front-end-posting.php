@@ -800,6 +800,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     foreach( $custom_meta as $k ) {
                         if(empty($k)) continue;
                         $field = explode( "|", $k );
+                        if(!isset($data[$field[0]])) continue;
                         // @since 1.0.3 - first check if a field with the name exists
                         $meta_data[$field[1]] = array(
                             'value' => '',
@@ -812,7 +813,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                             
                             // @since 1.1.2 - check if type is files
                             if( (!empty($data[$field[0]])) && ( ($data[$field[0]]['type']=='files') && (isset($data[$field[0]]['files'])) ) ) {
-                                if( count($data[$field[0]]['files']>1) ) {
+                                if( count($data[$field[0]]['files'])>1 ) {
                                     foreach( $data[$field[0]]['files'] as $fk => $fv ) {
                                         if($meta_data[$field[1]]['value']==''){
                                             $meta_data[$field[1]]['value'] = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
@@ -835,7 +836,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                             }else{
                                 // @since 1.0.3 - if no field exists, just save it as a string
                                 $string = SUPER_Common::email_tags( $field[0], $data, $settings );
-                                
+
                                 // @since 1.0.3 - check if string is serialized array
                                 $unserialize = unserialize($string);
                                 if ($unserialize !== false) {
@@ -970,7 +971,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
             $value = '';
             $type = $type;           
             if( ($data[$name]['type']=='files') && (isset($data[$name]['files'])) ) {
-                if( count($data[$name]['files']>1) ) {
+                if( count($data[$name]['files'])>1 ) {
                     foreach( $data[$name]['files'] as $fk => $fv ) {
                         if($value==''){
                             $value = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));

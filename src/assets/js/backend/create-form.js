@@ -1120,6 +1120,7 @@
         }
         if(save){
             if (typeof callback === "function") { 
+                SUPER.alertWhenSaving = false;
                 callback(); // safe to trigger callback
                 return false;
             }
@@ -1178,6 +1179,7 @@
             if (this.readyState == 4) {
                 // Success:
                 if (this.status == 200) {
+                    SUPER.alertWhenSaving = false;
                     $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
                     var response = this.responseText;

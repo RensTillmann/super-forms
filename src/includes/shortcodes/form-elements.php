@@ -3909,9 +3909,10 @@ $array['form_elements'] = array(
                         ),
                         'radius' => array(
                             'name'=> esc_html__('Button radius', 'super-forms' ),
-                            'default'=> ( !isset( $attributes['radius']) ? 'square' : $attributes['radius']),
+                            'default'=> ( !isset( $attributes['radius']) ? 'theme' : $attributes['radius']),
                             'type'=>'select',
                             'values'=>array(
+                                'theme'=>'Use theme style (default)',
                                 'rounded'=>'Rounded',
                                 'square'=>'Square',
                                 'full-rounded'=>'Full Rounded',

@@ -585,6 +585,8 @@ class SUPER_Common {
         $sf_nonce = SUPER_Common::getClientData( 'sf_nonce' );
         $v = htmlspecialchars(filter_input(INPUT_POST, 'sf_nonce'));
         if(!$v || $v !== $sf_nonce){
+            error_log('current nonce in database: ' . $sf_nonce);
+            error_log('nonce from form input field: ' . $v);
             return false; // invalid
         }
         // Destroy existing nonce
@@ -1811,13 +1813,12 @@ class SUPER_Common {
         if( file_exists( $folderPath ) ) {
             self::generate_random_folder( $folder );
         }else{
-            if(!wp_mkdir_p($folderPath)){
+            if(!mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();
                 SUPER_Common::output_message( array(
                     'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']
                 ));
             }
-            chmod($folderPath, 0755);
             return array(
                 'folderPath' => $folderPath,
                 'folderName' => $folderName
