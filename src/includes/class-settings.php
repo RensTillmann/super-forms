@@ -2823,9 +2823,10 @@ class SUPER_Settings {
                 ),
                 'form_button_radius' => array(
                     'name'=> esc_html__('Button radius', 'super-forms' ),
-                    'default' =>  'square',
+                    'default' =>  'theme',
                     'type'=>'select',
                     'values'=>array(
+                        'theme'=>'Use theme style (default)',
                         'rounded'=>'Rounded',
                         'square'=>'Square',
                         'full-rounded'=>'Full Rounded',

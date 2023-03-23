@@ -2354,72 +2354,6 @@ html[dir="rtl"]
       .super-before
         +transform(translate(-40px, 0))
 
-
-.super-button
-  .super-button-wrap
-    position: relative
-  &.super-type-3d
-    .super-button-wrap
-      border-bottom: 1px solid
-      +boxShadow(0px 4px 0px)
-  .super-button-wrap,
-  .super-button-name,
-  &.super-type-diagonal .super-button-wrap .super-after
-    +transition(all .25s ease-in-out)
-  &.super-type-diagonal .super-button-wrap
-    position: relative
-    border-width: 2px
-    border-style: solid
-    background: none
-    +boxShadow(none!important)
-    .super-button-name
-      z-index: 2
-      position: relative
-    .super-after
-      position: absolute
-      left: 50%
-      top: 50%
-      +transform(translateX(-50%) translateY(-50%) rotate(25deg))
-      height: 100%
-      width: 0px
-      z-index: 1
-    &:hover .super-after
-      width: 100%
-      height: 3000%
-  &.super-type-2d
-    .super-button-wrap
-      +boxShadow(none!important)
-      background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, 0.15)))
-      background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
-      background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
-      background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
-      background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
-    a
-      &:hover
-        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, 0.2)))
-        background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
-        background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
-        background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
-        background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
-      &:active
-        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.15)), to(rgba(0, 0, 0, 0.1)))
-        background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
-        background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
-        background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
-        background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
-
-  &.super-type-outline .super-button-wrap
-    border-width: 2px
-    border-style: solid
-    background: none
-    +boxShadow(none!important)
-  &.super-radius-rounded .super-button-wrap
-    +borderRadius(5px)
-  &.super-radius-full-rounded .super-button-wrap
-    +borderRadius(100px)
-  .super-button-name, i
-    text-shadow: none
-
 // Focus/Hover
 .super-button.super-focus.super-type-3d .super-button-wrap,
 .super-button.super-type-3d .super-button-wrap:hover
@@ -4674,6 +4608,73 @@ html[dir="rtl"]
       padding-right: calc(14px + 20px)
       padding-bottom: 0px
       padding-left: calc(14px + 20px)
+
+.super-button
+  .super-button-wrap
+    position: relative
+  &.super-type-3d
+    .super-button-wrap
+      border-bottom: 1px solid
+      +boxShadow(0px 4px 0px)
+  .super-button-wrap,
+  .super-button-name,
+  &.super-type-diagonal .super-button-wrap .super-after
+    +transition(all .25s ease-in-out)
+  &.super-type-diagonal .super-button-wrap
+    position: relative
+    border-width: 2px
+    border-style: solid
+    background: none
+    +boxShadow(none!important)
+    .super-button-name
+      z-index: 2
+      position: relative
+    .super-after
+      position: absolute
+      left: 50%
+      top: 50%
+      +transform(translateX(-50%) translateY(-50%) rotate(25deg))
+      height: 100%
+      width: 0px
+      z-index: 1
+    &:hover .super-after
+      width: 100%
+      height: 3000%
+  &.super-type-2d
+    .super-button-wrap
+      +boxShadow(none!important)
+      background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, 0.15)))
+      background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
+      background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
+      background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
+      background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.15))
+    a
+      &:hover
+        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.1)), to(rgba(0, 0, 0, 0.2)))
+        background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
+        background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
+        background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
+        background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2))
+      &:active
+        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.15)), to(rgba(0, 0, 0, 0.1)))
+        background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
+        background-image: -moz-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
+        background-image: -ms-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
+        background-image: -o-linear-gradient(top, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.1))
+
+  &.super-type-outline .super-button-wrap
+    border-width: 2px
+    border-style: solid
+    background: none
+    +boxShadow(none!important)
+  &.super-radius-square .super-button-wrap
+    +borderRadius(0px)
+  &.super-radius-rounded .super-button-wrap
+    +borderRadius(5px)
+  &.super-radius-full-rounded .super-button-wrap
+    +borderRadius(100px)
+  .super-button-name, i
+    text-shadow: none
 
 // Autosuggest Element
 .super-icon-inside.super-icon-left.super-overlap 

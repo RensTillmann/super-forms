@@ -9,6 +9,16 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Mar 22, 2023 - Version 6.3.708
+
+- **Improved:** When `native` PDF generation is enabled, add the country flage next to the international phonenumber field
+
+## Mar 19, 2023 - Version 6.3.707
+
+- **Improved:** Scrolling to next focussed field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to widnow height
+- **Improved:** When using keyboard arrows up/down on radio button do not go to next step automatically when enabled on multi-part
+- **Fix:** Fix file upload when using ACF Pro Gallery field when saving a custom post via `Front-end Posting` feature
+
 ## Mar 07, 2023 - Version 6.3.704
 
 - **Added:** Option to jump to a specific field so that a user can edit it, simply use `#fieldname` on your href attribute like so `Summary:<br />First name: {first_name} - <a href="#first_name">EDIT</a>`

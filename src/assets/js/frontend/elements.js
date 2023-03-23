@@ -1685,7 +1685,7 @@
                             }
                         }
                         current = field.querySelector('.super-focus');
-                        current.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
+                        SUPER.scrollToElement(current);
                         e.preventDefault();
                         return false;
                     }
@@ -1708,6 +1708,7 @@
                                 if(nextSibling && nextSibling.classList.contains('super-item')){
                                     nextSibling.classList.add('super-focus');
                                     if(field.classList.contains('super-radio')){
+                                        SUPER.preventGoingToNextMultipart = true;
                                         nextSibling.click();
                                     }
                                 }else{
@@ -1716,11 +1717,13 @@
                                     if(keyCode == 37 || keyCode == 38){
                                         innerNodes[innerNodes.length-1].classList.add('super-focus');
                                         if(field.classList.contains('super-radio')){
+                                            SUPER.preventGoingToNextMultipart = true;
                                             innerNodes[innerNodes.length-1].click();
                                         }
                                     }else{
                                         innerNodes[0].classList.add('super-focus');
                                         if(field.classList.contains('super-radio')){
+                                            SUPER.preventGoingToNextMultipart = true;
                                             innerNodes[0].click();
                                         }
                                     }
@@ -2700,17 +2703,7 @@
 
         $doc.on('click','.super-back-to-top',function(){
             var form = SUPER.get_frontend_or_backend_form({el: this});
-            if(form.closest('.super-popup-content')){
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                //$(form.closest('.super-popup-content')).animate({
-                //    scrollTop: $(form).offset().top-200
-                //}, 1000);
-            }else{
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                //$('html, body').animate({
-                //    scrollTop: $(form).offset().top-200
-                //}, 1000);
-            }
+            SUPER.scrollToElement(form);
         });
 
         $doc.on('change', '.super-shortcode-field', function (e) {

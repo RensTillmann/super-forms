@@ -3079,6 +3079,7 @@ class SUPER_Ajax {
 
     public static function submit_form() {
         error_log('submit_form()');
+        do_action( 'super_before_submit_form', array( 'post'=>$_POST ));
         if(empty($_POST['fileUpload'])) {
             error_log('submit_form(2)');
             $atts = self::submit_form_checks();
@@ -3098,6 +3099,7 @@ class SUPER_Ajax {
         $list_id = $atts['list_id'];
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
+        do_action( 'super_before_processing_data', array('atts' => $atts) );
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 if( !isset($v['type']) ) continue;
