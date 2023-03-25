@@ -29,7 +29,7 @@ if(typeof window.SUPER === 'undefined'){
 }
 
 SUPER.round = function(number, decimals){
-    decimals = 0;
+    if(typeof decimals === 'undefined') decimals = 0;
     return Number(Math.round(number + "e" + decimals) + "e-" + decimals);
 };
 
@@ -8452,7 +8452,7 @@ function SUPERreCaptcha(){
         callback(args);
     };
     SUPER.getNodeHeight = function(el, padding, margin, border){
-        var computedStyle = window.getComputedStyle(el), 
+        var computedStyle = getComputedStyle(el), 
             //elementHeight = el.clientHeight, // Includes vertical padding
             //elementHeight = parseFloat(el.offsetHeight), 
             pos = el.getBoundingClientRect(),
@@ -8481,7 +8481,7 @@ function SUPERreCaptcha(){
         //var headerHeight = pos.height;
         var headerHeight = SUPER.pdf_get_header_height(args);
         var pos = el.getBoundingClientRect();
-        var computedStyle = window.getComputedStyle(el);
+        var computedStyle = getComputedStyle(el);
         var marginTop = parseFloat(computedStyle.marginTop);
         return pos.top-marginTop-headerHeight;
         //return Math.round(headerHeight, 1e2)+Math.round(pos.top, 1e2)-Math.round(marginTop, 1e2);
@@ -8637,7 +8637,7 @@ function SUPERreCaptcha(){
                         // For instance, for the slider, dropdown 
                         // But not for radio/checkbox items, with the exception for `super-item` class
                         var allowMargin = true;
-                        var disAllowed = ['item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
+                        var disAllowed = ['item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
                         for(var x=0; x<disAllowed.length; x++){
                             if(el.parentNode.closest('.super-'+disAllowed[x])){
                                 if(!el.classList.contains('super-'+disAllowed[x])) {
@@ -8656,7 +8656,7 @@ function SUPERreCaptcha(){
                         }
                         // Difference
                         var diff = (tmpScrollAmount*(counter-1))-(tmpTop);
-                        var computedStyle = window.getComputedStyle(el);
+                        var computedStyle = getComputedStyle(el);
                         el.dataset.oldMarginTop = computedStyle.marginTop;
                         var marginTop = parseFloat(computedStyle.marginTop) + diff;
                         // If we have adaptive placeholders, then apply an extra margin
@@ -9236,7 +9236,7 @@ function SUPERreCaptcha(){
         for( i=0; i < nodes.length; i++ ) {
             if(nodes[i].closest('.super-keyword-tags')) continue;
             var newNode = document.createElement('div');
-            var computedStyle = window.getComputedStyle(nodes[i]);
+            var computedStyle = getComputedStyle(nodes[i]);
             newNode.style.paddingTop = parseFloat(computedStyle.getPropertyValue('padding-top'))+'px';
             newNode.style.paddingRight = parseFloat(computedStyle.getPropertyValue('padding-right'))+'px';
             newNode.style.paddingBottom = parseFloat(computedStyle.getPropertyValue('padding-bottom'))+'px';
@@ -9287,7 +9287,7 @@ function SUPERreCaptcha(){
                 if(!el) continue;
                 var newFontSize = 12.5;
                 try {
-                    var fontSize = parseFloat(window.getComputedStyle(el, null).getPropertyValue('font-size'));
+                    var fontSize = parseFloat(getComputedStyle(el).getPropertyValue('font-size'));
                     newFontSize = 2.5 * Math.ceil(fontSize/2.5);
                 }
                 catch(error) {
@@ -9317,7 +9317,7 @@ function SUPERreCaptcha(){
                 // Convert height of textarea to fit content (otherwie it would be cut of during printing)
                 function adjustHeight(el, minHeight) {
                     // compute the height difference which is caused by border and outline
-                    var outerHeight = parseInt(window.getComputedStyle(el).height, 10);
+                    var outerHeight = parseInt(getComputedStyle(el).height, 10);
                     var diff = outerHeight - Math.round(el.clientHeight, 1e2);
                     // set the height to 0 in case of it has to be shrinked
                     el.style.height = 0;
@@ -9757,7 +9757,7 @@ function SUPERreCaptcha(){
             var ch1 = SUPER.round(c[0].split('(')[1]);
             var ch2 = SUPER.round(c[1]);
             var ch3 = SUPER.round(c[2]);
-            var ch4 = SUPER.round(c[3].split(')')[0]);
+            var ch4 = SUPER.round(c[3].split(')')[0], 2);
             args._pdf.setGState(new args._pdf.GState({opacity: ch4}));
             for(i=0; i<setters.length; i++){
                 if(setters[i]==='textColor'){
@@ -9868,6 +9868,8 @@ function SUPERreCaptcha(){
     // PDF render native elements
     SUPER.pdf_generator_render_elements = function(args){
         var selectors = `
+        .super-signature,
+        .super-accordion-header, .super-accordion-content,
         .super-keyword-tags,
         .super-text .super-shortcode-field,
         .super-password .super-shortcode-field,
@@ -9912,7 +9914,10 @@ function SUPERreCaptcha(){
             if((!el.closest('.super-pdf-header')) && !el.closest('.super-pdf-footer')){
                 var headerHeight = SUPER.pdf_get_header_height(args);
                 if((tmpPosTop-(headerHeight-1)) < 0 || tmpPosTop > (args.scrollAmount+(headerHeight-1))){
-                    continue; //continue;
+                    // Exceptions
+                    if(!el.classList.contains('super-accordion-content')){
+                        continue; //continue;
+                    }
                 }
             }
             // Reset opacity
@@ -9922,14 +9927,129 @@ function SUPERreCaptcha(){
             // Reset line width
             //args._pdf.setLineWidth(1*args.convertFromPixel);
 
+            // Signature
+            if(el.classList.contains('super-signature')){
+                debugger;
+                node = el.querySelector('.super-signature-canvas');
+                color = getComputedStyle(node).borderColor;  
+                bgColor = getComputedStyle(node).backgroundColor;
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
+                pos = SUPER.pdf_get_native_el_position(node, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                var canvas = node.children[0];
+                var src = canvas.toDataURL('image/png');
+                pos = SUPER.pdf_get_native_el_position(canvas, args);
+                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, 'signature', 'NONE', 0);
+                continue;
+            }
+            // Accordion header
+            if(el.classList.contains('super-accordion-header')){
+                // Draw box
+                bgColor = getComputedStyle(el).backgroundColor;  
+                color = getComputedStyle(el).borderColor;  
+                borderWidth = parseFloat(getComputedStyle(el).borderWidth);
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
+                args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                // Accordion title
+                if(el.querySelector('.super-accordion-title')){
+                    el = el.querySelector('.super-accordion-title');
+                    pos = SUPER.pdf_get_native_el_position(el, args);
+                    var borderRightWidth = parseFloat(getComputedStyle(el).borderRightWidth);
+                    if(borderRightWidth>0){
+                        color = getComputedStyle(el).borderRightColor;
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                        args._pdf.setLineWidth(borderRightWidth*args.convertFromPixel);
+                        args._pdf.line(pos.l+pos.w, pos.t, pos.l+pos.w, pos.t+pos.h );
+                    }
+                    var borderLeftWidth = parseFloat(getComputedStyle(el).borderLeftWidth);
+                    if(borderLeftWidth>0){
+                        color = getComputedStyle(el).borderLeftColor;
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                        args._pdf.setLineWidth(borderLeftWidth*args.convertFromPixel);
+                        args._pdf.line(pos.l, pos.t, pos.l, pos.t+pos.h );
+                    }
+                }
+                continue;
+            }
+            // Accordion content
+            if(el.classList.contains('super-accordion-content')){
+                var renderBottomBorder = true;
+                // Draw box
+                bgColor = getComputedStyle(el).backgroundColor;  
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                SUPER.pdf_rgba2hex(args, bgColor, ['drawColor', 'fillColor']);
+                // For this element we must constrain the height to the scroll height
+                var rpos = el.getBoundingClientRect();
+                var rh = rpos.height;
+                var rt = rpos.top;
+                var rb = rpos.bottom;
+                if(rb>args.scrollAmount){
+                    renderBottomBorder = false;
+                    pos.h = ((args.scrollAmount)/args.scale)*args.convertFromPixel;
+                }else{
+                    if(pos.t<0){
+                        pos.h = pos.h+pos.t-((SUPER.pdf_get_header_height(args))/args.scale)*args.convertFromPixel;
+                    }else{
+                        pos.h = pos.h-pos.t-((SUPER.pdf_get_header_height(args))/args.scale)*args.convertFromPixel;
+                    }
+                }
+                if(rt<0) {
+                    pos.t = ((SUPER.pdf_get_header_height(args))/args.scale)*args.convertFromPixel;
+                }
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                // Left border
+                var borderLeftWidth = parseFloat(getComputedStyle(el).borderLeftWidth);
+                if(borderLeftWidth>0){
+                    color = getComputedStyle(el).borderLeftColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderLeftWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t, pos.l, pos.t+pos.h );
+                }
+                // Top border
+                var borderTopWidth = parseFloat(getComputedStyle(el).borderTopWidth);
+                if(borderTopWidth>0){
+                    color = getComputedStyle(el).borderTopColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderTopWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t, pos.l+pos.w, pos.t );
+                }
+                // Right border
+                var borderRightWidth = parseFloat(getComputedStyle(el).borderRightWidth);
+                if(borderRightWidth>0){
+                    color = getComputedStyle(el).borderRightColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderRightWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l+pos.w, pos.t, pos.l+pos.w, pos.t+pos.h );
+                }
+                // Bottom border
+                if(!renderBottomBorder) continue;
+                var borderBottomWidth = parseFloat(getComputedStyle(el).borderBottomWidth);
+                if(borderBottomWidth>0){
+                    color = getComputedStyle(el).borderBottomColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderBottomWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t+pos.h, pos.l+pos.w, pos.t+pos.h );
+                }
+                continue;
+            }
+
             // Keywords
             if(el.classList.contains('super-keyword-tags')){
                 // Draw input box
                 node = el.querySelector('.super-autosuggest-tags');
-                color = window.getComputedStyle(node, null).borderColor;  
+                bgColor = getComputedStyle(node).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(node).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 // Render after border but before keywords
                 if(el.querySelector('.super-adaptive-placeholder > span')){
                     bgColor = getComputedStyle(el.querySelector('.super-adaptive-placeholder > span')).backgroundImage;
@@ -9968,10 +10088,15 @@ function SUPERreCaptcha(){
             if(el.closest('.super-auto-suggest')){
                 var p = el.closest('.super-auto-suggest');
                 // Draw input box
-                color = window.getComputedStyle(p.querySelector('.super-dropdown-list'), null).borderColor;  
+                bgColor = getComputedStyle(p.querySelector('.super-dropdown-list')).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(p.querySelector('.super-dropdown-list')).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(p.querySelector('.super-dropdown-list'), args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 // Render after border but before keywords
                 if(p.querySelector('.super-adaptive-placeholder > span')){
                     bgColor = getComputedStyle(p.querySelector('.super-adaptive-placeholder > span')).backgroundImage;
@@ -9997,7 +10122,7 @@ function SUPERreCaptcha(){
                     args._pdf.rect(pos.l+margin, pos.t+margin, width, width, 'FD');
                     color = getComputedStyle(node,':after').color;
                     SUPER.pdf_rgba2hex(args, color, ['textColor']);
-                    args._pdf.text('x', pos.l+margin+(width/2), pos.t+margin+(width/2), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode});
+                    args._pdf.text('x', pos.l+margin+(width/2), pos.t+margin+(width/2), {align: 'center', lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode});
                 }
                 continue;
             }
@@ -10017,15 +10142,19 @@ function SUPERreCaptcha(){
                 }
                 continue;
             }
-
             
             // Text field
             if(el.closest('.super-text')){
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 // If int phone number
                 var flag = el.closest('.super-text').querySelector('.super-int-phone_flag');
                 if(flag){
@@ -10038,54 +10167,82 @@ function SUPERreCaptcha(){
             // Password
             if(el.closest('.super-password')){
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // Date
             if(el.closest('.super-date')){
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
-                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // Time
             if(el.closest('.super-time')){
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // Textarea 
             if(el.closest('.super-textarea')){
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // File upload
             if(el.classList.contains('super-fileupload-button')){
+                // Draw input box
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
+                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 if(el.querySelector(':scope > i')){
                     // Plus button
                     node = el.querySelector(':scope > i');
                     color = getComputedStyle(el).color;
                     SUPER.pdf_rgba2hex(args, color, ['textColor']);
                     pos = SUPER.pdf_get_native_el_position(node, args);
-                    args._pdf.text('+', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
+                    var fontSize = parseFloat(getComputedStyle(el).fontSize);
+                    var fontSizePoint = fontSize * 0.67 * 1.5;
+                    args._pdf.setFontSize(fontSizePoint);
+                    args._pdf.text('+', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
                 }
-                // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
-                SUPER.pdf_rgba2hex(args, color, ['drawColor']);
-                pos = SUPER.pdf_get_native_el_position(el, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
                 continue;
             }
             // File upload files
@@ -10118,52 +10275,58 @@ function SUPERreCaptcha(){
                 if(bgColor!=='none'){
                     color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
-                    //args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
                 }
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;
+                color = getComputedStyle(el).borderColor;
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // Quantity
             if(el.closest('.super-quantity')){
-                var fontSize = parseFloat(getComputedStyle(el.parentNode).fontSize);
-                var charSpace = -(fontSize*args.charSpaceMultiplier)*args.convertFromPixel;
                 // Draw input box
-                color = window.getComputedStyle(el, null).borderColor;  
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
+                color = getComputedStyle(el).borderColor;  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(el, args);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
                 args._pdf.line(pos.l, pos.t, pos.l+pos.w, pos.t);
                 args._pdf.line(pos.l, pos.t+pos.h, pos.l+pos.w, pos.t+pos.h);
                 // Minus button
                 node = el.closest('.super-quantity').querySelector('.super-minus-button');
-                color = window.getComputedStyle(node, null).getPropertyValue('background-color');  
+                var fontSize = parseFloat(getComputedStyle(node).fontSize);
+                var fontSizePoint = fontSize * 0.67 * 1.5;
+                args._pdf.setFontSize(fontSizePoint);
+                color = getComputedStyle(node).getPropertyValue('background-color');  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
                 args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 args._pdf.setTextColor('white');
-                args._pdf.text('-', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
+                args._pdf.text('-', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
                 // Plus button
                 node = el.closest('.super-quantity').querySelector('.super-plus-button');
-                color = window.getComputedStyle(node, null).getPropertyValue('background-color');  
+                color = getComputedStyle(node).getPropertyValue('background-color');  
                 SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
                 args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
-                args._pdf.text('+', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
+                args._pdf.text('+', pos.l+(pos.w/2), pos.t+(pos.h/2), {align: 'center', lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode}); 
                 continue;
             }
             // Slider
             if(el.closest('.super-slider')){
                 // Track
                 node = el.querySelector('.track');
-                color = window.getComputedStyle(node, null).getPropertyValue('background-color');  
+                color = getComputedStyle(node).getPropertyValue('background-color');  
                 SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
                 args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
                 // Dragger
                 node = el.querySelector('.dragger');
-                color = window.getComputedStyle(node).backgroundColor;  
+                color = getComputedStyle(node).backgroundColor;  
                 SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
                 args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'F');
@@ -10172,10 +10335,15 @@ function SUPERreCaptcha(){
             if(el.closest('.super-color')){
                 // Wrapper
                 node = el.closest('.super-color').querySelector('.sp-replacer');
+                bgColor = getComputedStyle(node).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+                }
                 color = getComputedStyle(node).borderColor;
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 pos = SUPER.pdf_get_native_el_position(node, args);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 // Draw input box
                 node = el.closest('.super-color').querySelector('.sp-preview-inner');
                 var ipos = SUPER.pdf_get_native_el_position(node, args);
@@ -10217,39 +10385,37 @@ function SUPERreCaptcha(){
                 if(bgColor!=='none'){
                     color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
-                }else{
-                    SUPER.pdf_rgba2hex(args, 'rgba(0,0,0,0)', ['fillColor']);
                 }
-                color = window.getComputedStyle(node, null).borderColor;
+                color = getComputedStyle(node).borderColor;
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
                 continue;
             }
             // Radio / Checkbox
             if(el.closest('.super-radio') || el.closest('.super-checkbox')){
                 if(el.closest('.super-radio')){
                     before = el.parentNode.querySelector('.super-before');
-                    color = window.getComputedStyle(before, null).borderColor;  
-                    borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                    color = getComputedStyle(before).borderColor;  
+                    borderWidth = parseFloat(getComputedStyle(before).borderWidth);
                     pos = SUPER.pdf_get_native_el_position(before, args);
                     SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                     args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
                     args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'D');
                     after = el.parentNode.querySelector('.super-after');
-                    color = window.getComputedStyle(after, null).backgroundColor;  
+                    color = getComputedStyle(after).backgroundColor;  
                     pos = SUPER.pdf_get_native_el_position(after, args);
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                     args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/2), pos.w/2, 'F');
                 }else{
                     before = el.parentNode.querySelector('.super-before');
-                    color = window.getComputedStyle(before, null).borderColor;  
-                    borderWidth = parseFloat(window.getComputedStyle(before, null).borderWidth);
+                    color = getComputedStyle(before).borderColor;  
+                    borderWidth = parseFloat(getComputedStyle(before).borderWidth);
                     pos = SUPER.pdf_get_native_el_position(before, args);
                     SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                     args._pdf.setLineWidth(borderWidth*args.convertFromPixel);
                     args._pdf.rect(pos.l, pos.t, pos.w, pos.h);
                     after = el.parentNode.querySelector('.super-after');
-                    color = window.getComputedStyle(after, null).backgroundColor;  
+                    color = getComputedStyle(after).backgroundColor;  
                     pos = SUPER.pdf_get_native_el_position(after, args);
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                     args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
@@ -10269,11 +10435,11 @@ function SUPERreCaptcha(){
                     node = el.closest('.super-toggle-switch').querySelector('.super-toggle-off');
                 }
                 // Background
-                color = window.getComputedStyle(node, null).backgroundColor;
+                color = getComputedStyle(node).backgroundColor;
                 SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                 node = el.closest('.super-toggle-switch');
                 pos = SUPER.pdf_get_native_el_position(node, args);
-                color = window.getComputedStyle(node, null).borderColor;
+                color = getComputedStyle(node).borderColor;
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
 
                 var handle = el.closest('.super-toggle-switch').querySelector('.super-toggle-handle');
@@ -10292,7 +10458,7 @@ function SUPERreCaptcha(){
 
                 // Box
                 //node = el.closest('.super-toggle-switch');
-                //color = window.getComputedStyle(node, null).borderColor;
+                //color = getComputedStyle(node).borderColor;
                 //SUPER.pdf_rgba2hex(args, color, ['fillColor', 'drawColor']);
                 //pos = SUPER.pdf_get_native_el_position(node, args);
                 //args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'D');
