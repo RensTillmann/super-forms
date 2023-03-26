@@ -7654,7 +7654,6 @@ function SUPERreCaptcha(){
                 
                 // @SINCE 4.9.520 - Remember multi-part position/location and allow to anchor to a specific multi-part
                 // Example: http://domain.com/page#step-49344-3
-                //tmpdebugger;
                 //tmpSUPER.switch_to_step_and_or_field(form);
             }
             SUPER.init_super_responsive_form_fields({form: form, callback: callback, formId: formId});
@@ -7866,12 +7865,16 @@ function SUPERreCaptcha(){
                     $amount.children('i').html($currency+''+($number)+''+$format);
                     setTimeout(function(){
                         $slider_width = $data.el[0].offsetWidth;
+                        if($slider_width===0 && $data.el[0].parentNode){
+                            $slider_width = parseFloat(getComputedStyle($data.el[0].parentNode).width);
+                        }
                         $amount_width = $amount[0].offsetWidth;
                         $dragger_margin_left = $dragger.style.marginLeft.replace('px','');
                         if($dragger_margin_left<0){
                             $dragger_margin_left = -$dragger_margin_left;
                         }
-                        $offset_left = $dragger.offsetLeft + $dragger_margin_left;
+                        //$offset_left = $dragger.offsetLeft + $dragger_margin_left;
+                        $offset_left = parseFloat(getComputedStyle($dragger).left) + $dragger_margin_left;
                         // If offset doesn't have to be less than 0
                         if($offset_left<0) $offset_left = 0;
                         if($slider_width===0) return false; // Required for PDF generator
@@ -8678,34 +8681,28 @@ function SUPERreCaptcha(){
                         //// Skip if part of super-item (checkbox/radio buttons)
                         //if(!el.classList.contains('.super-dropdown') && el.parentNode.closest('.super-dropdown')){
                         //    // If is part of dropdown, but not the dropdown itself...
-                        //    debugger;
                         //    stop = true;
                         //    continue;
                         //}
                         //if(!el.classList.contains('.super-text') && el.parentNode.closest('.super-text')){
                         //    // If is part of regular text field, but not the text field itself...
-                        //    debugger;
                         //    stop = true;
                         //    continue;
                         //}
                         //if(!el.classList.contains('.super-textarea') && el.parentNode.closest('.super-textarea')){
                         //    // If is part of regular textarea field, but not the textarea field itself...
-                        //    debugger;
                         //    stop = true;
                         //    continue;
                         //}
                         //if(el.classList.contains('super-dropdown-list') && el.parentNode.closest('.super-shortcode.super-dropdown')){
-                        //    debugger;
                         //    stop = true;
                         //    continue;
                         //}
                         //if(el.classList.contains('super-field-wrapper') && el.parentNode.closest('.super-shortcode.super-dropdown')){
-                        //    debugger;
                         //    stop = true;
                         //    continue;
                         //}
                         //if(el.classList.contains('super-item') && el.parentNode.closest('.super-shortcode.super-dropdown')){
-                        //    debugger;
                         //    // If this is a dropdown element, apply the margin on the parent element
                         //    stop = true;
                         //    continue;
@@ -8994,7 +8991,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -9929,7 +9926,6 @@ function SUPERreCaptcha(){
 
             // Signature
             if(el.classList.contains('super-signature')){
-                debugger;
                 node = el.querySelector('.super-signature-canvas');
                 color = getComputedStyle(node).borderColor;  
                 bgColor = getComputedStyle(node).backgroundColor;
