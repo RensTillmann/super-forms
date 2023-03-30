@@ -226,6 +226,9 @@ if( !class_exists('SUPER_Zapier') ) :
                 'hidden' => 'settings',
                 'name' => esc_html__( 'Zapier Settings', 'super-forms' ),
                 'label' => esc_html__( 'Zapier Settings', 'super-forms' ),
+                'docs' => array(
+                    array('title'=>'How to connect your form with Zapier', 'url'=>'/features/integrations/zapier'),
+                ),
                 'fields' => array(
                     'zapier_enable' => array(
                         'desc' => esc_html__( 'Allows you to connect this form with Zapier', 'super-forms' ), 

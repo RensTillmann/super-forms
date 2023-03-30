@@ -939,11 +939,11 @@ msgstr "చర్యలు"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "ఆక్టివేషన్ కోడ్"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "యాక్టివేషన్ ఇ-మెయిల్ బాడీ"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3250,15 +3250,15 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "ప్రియమైన {user_login},%1$s%1$sనమోదు చేసినందుకు ధన్యవాదాలు! మీరు లాగిన్ "
 "చేయడానికి ముందు మీరు మీ ఖాతాను ధృవీకరించాలి.%1$sక్రింద మీరు మీ యాక్టివేషన్ "
 "కోడ్‌ను కనుగొంటారు. మీ ఖాతాను ధృవీకరించడానికి మీకు ఈ కోడ్ అవసరం:"
-"%1$s%1$sయాక్టివేషన్ కోడ్: %2$s{register_activation_code}%3$s%1$s%1$sమీ "
+"%1$s%1$sయాక్టివేషన్ కోడ్: %2$s{email_verification_code%3$s%1$s%1$sమీ "
 "ఖాతాను ధృవీకరించడానికి %4$shere%5$s క్లిక్ చేయండి అందించిన కోడ్‌తో."
 "%1$s%1$s%1$sశుభంతో,%1$s%1$s{option_blogname}"
 
@@ -9956,7 +9956,7 @@ msgid "Retrieve value from"
 msgstr "నుండి విలువను తిరిగి పొందండి"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "యాక్టివేషన్ కోడ్‌ని తిరిగి పొందుతుంది"
 
 #: includes/class-common.php:1949
@@ -12391,9 +12391,9 @@ msgstr "ఇమెయిల్ సందేశం."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
 msgstr ""
-"ఇమెయిల్ సందేశం. మీరు {activation_code} మరియు {register_login_url}ని "
+"ఇమెయిల్ సందేశం. మీరు {email_verification_code} మరియు {register_login_url}ని "
 "ఉపయోగించవచ్చు"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856

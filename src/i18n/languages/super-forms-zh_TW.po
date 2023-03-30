@@ -885,11 +885,11 @@ msgstr "行動"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "激活碼"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "激活電子郵件正文"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3130,13 +3130,13 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "尊敬的 {user_login}"
-"，%1$s%1$s感謝您的註冊！在您登錄之前，您需要驗證您的帳戶。%1$s您將在下面找到您的激活碼。您需要此代碼來驗證您的帳戶：%1$s%1$s激活碼：%2$s{register_activation_code"
+"，%1$s%1$s感謝您的註冊！在您登錄之前，您需要驗證您的帳戶。%1$s您將在下面找到您的激活碼。您需要此代碼來驗證您的帳戶：%1$s%1$s激活碼：%2$s{email_verification_code"
 "}%3$s%1$s%1$s點擊%4$shere%5$s "
 "來驗證您的帳戶使用提供的代碼。%1$s%1$s%1$s最好的問候，%1$s%1$s{option_blogname}"
 
@@ -9536,7 +9536,7 @@ msgid "Retrieve value from"
 msgstr "從中檢索值"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "檢索激活碼"
 
 #: includes/class-common.php:1949
@@ -11866,8 +11866,8 @@ msgstr "電子郵件。"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
-msgstr "電子郵件。您可以使用 {activation_code} 和 {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
+msgstr "電子郵件。您可以使用 {email_verification_code} 和 {register_login_url}"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856
 msgid ""

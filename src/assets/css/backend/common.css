@@ -552,6 +552,9 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   padding-right: 10px !important;
 }
+.super-settings select[multiple] {
+  min-height:150px;
+}
 .super-settings input[type="text"] {
   min-width: 320px;
 }

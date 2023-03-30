@@ -935,11 +935,11 @@ msgstr "أجراءات"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "رمز التفعيل"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "هيئة البريد الإلكتروني التنشيط"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3216,8 +3216,8 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
@@ -9776,7 +9776,7 @@ msgid "Retrieve value from"
 msgstr "استرداد القيمة من"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "يسترجع كود التفعيل"
 
 #: includes/class-common.php:1949
@@ -12175,9 +12175,9 @@ msgstr "رسالة البريد الإلكتروني."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
 msgstr ""
-"رسالة البريد الإلكتروني. يمكنك استخدام {activation_code} و "
+"رسالة البريد الإلكتروني. يمكنك استخدام {email_verification_code} و "
 "{register_login_url}"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856
