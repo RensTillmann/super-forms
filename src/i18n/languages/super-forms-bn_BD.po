@@ -961,11 +961,11 @@ msgstr "কর্ম"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "অ্যাক্টিভেশন কোড"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "সক্রিয়করণ ই-মেইল বডি"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3275,15 +3275,15 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "প্রিয় {user_login}, %1$s%1$s নিবন্ধন করার জন্য আপনাকে ধন্যবাদ! আপনি লগইন "
 "করার আগে আপনাকে আপনার অ্যাকাউন্ট যাচাই করতে হবে৷%1$s নীচে আপনি আপনার "
 "অ্যাক্টিভেশন কোড পাবেন৷ আপনার অ্যাকাউন্ট যাচাই করতে আপনার এই কোডের প্রয়োজন:"
-"%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$s আপনার "
+"%1$s%1$sVerification Code: %2$s{email_verification_code}%3$s%1$s%1$s আপনার "
 "অ্যাকাউন্ট যাচাই করতে %4$shere%5$s এ ক্লিক করুন প্রদত্ত কোড সহ।%1$s%1$s%1$s "
 "শুভেচ্ছা,%1$s%1$s{option_blogname}"
 
@@ -9959,7 +9959,7 @@ msgid "Retrieve value from"
 msgstr "থেকে মানটি পুনরুদ্ধার করুন"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "অ্যাক্টিভেশন কোড পুনরুদ্ধার করে"
 
 #: includes/class-common.php:1949
@@ -12391,9 +12391,9 @@ msgstr "ইমেইল বার্তা."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
 msgstr ""
-"ইমেইল বার্তা. আপনি {activation_code} এবং {register_login_url} ব্যবহার করতে "
+"ইমেইল বার্তা. আপনি {email_verification_code} এবং {register_login_url} ব্যবহার করতে "
 "পারেন"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856

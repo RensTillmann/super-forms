@@ -948,11 +948,11 @@ msgstr "செயல்கள்"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "செயல்படுத்தும் குறியீடு"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "செயல்படுத்தும் மின்னஞ்சல் அமைப்பு"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3283,15 +3283,15 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "அன்புள்ள {user_login},%1$s%1$sபதிவு செய்ததற்கு நன்றி! நீங்கள் உள்நுழைவதற்கு "
 "முன், உங்கள் கணக்கைச் சரிபார்க்க வேண்டும்.%1$sகீழே உங்கள் செயல்படுத்தும் "
 "குறியீட்டைக் காணலாம். உங்கள் கணக்கைச் சரிபார்க்க இந்தக் குறியீடு தேவை:"
-"%1$s%1$sசெயல்படுத்தும் குறியீடு: %2$s{register_activation_code}"
+"%1$s%1$sசெயல்படுத்தும் குறியீடு: %2$s{email_verification_code"
 "%3$s%1$s%1$sஉங்கள் கணக்கைச் சரிபார்க்க %4$shere%5$sஐக் கிளிக் செய்யவும் "
 "வழங்கப்பட்ட குறியீட்டுடன்.%1$s%1$s%1$sவணக்கம்,%1$s%1$s{option_blogname}"
 
@@ -10036,7 +10036,7 @@ msgid "Retrieve value from"
 msgstr "இருந்து மதிப்பை மீட்டெடுக்கவும்"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "செயல்படுத்தும் குறியீட்டை மீட்டெடுக்கிறது"
 
 #: includes/class-common.php:1949
@@ -12512,9 +12512,9 @@ msgstr "மின்னஞ்சல் செய்தி."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
 msgstr ""
-"மின்னஞ்சல் செய்தி. நீங்கள் {activation_code} மற்றும் {register_login_url} "
+"மின்னஞ்சல் செய்தி. நீங்கள் {email_verification_code} மற்றும் {register_login_url} "
 "ஐப் பயன்படுத்தலாம்"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856

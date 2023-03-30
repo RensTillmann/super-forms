@@ -893,11 +893,11 @@ msgstr "행위"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "활성화 코드"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "활성화 이메일 본문"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3141,14 +3141,14 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "친애하는 {user_login}님, %1$s%1$s등록해주셔서 감사합니다! 로그인하기 전에 계정을 확인해야 합니다.%1$s아래에서 활성화 "
 "코드를 찾을 수 있습니다. 계정을 확인하려면 다음 코드가 필요합니다.%1$s%1$s활성화 코드: "
-"%2$s{register_activation_code}%3$s%1$s%1$s계정을 확인하려면 %4$shere%5$s를 클릭하세요. 제공된 "
+"%2$s{email_verification_code%3$s%1$s%1$s계정을 확인하려면 %4$shere%5$s를 클릭하세요. 제공된 "
 "코드로.%1$s%1$s%1$s안녕하세요,%1$s%1$s{option_blogname}"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:859
@@ -9583,7 +9583,7 @@ msgid "Retrieve value from"
 msgstr "값 검색"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification codetion code"
 msgstr "활성화 코드를 검색합니다."
 
 #: includes/class-common.php:1949
@@ -11923,8 +11923,8 @@ msgstr "이메일 메시지."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
-msgstr "이메일 메시지. {activation_code} 및 {register_login_url}을 사용할 수 있습니다."
+"The email message. You can use {email_verification_code} and {register_login_url}"
+msgstr "이메일 메시지. {email_verification_code} 및 {register_login_url}을 사용할 수 있습니다."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856
 msgid ""

@@ -159,7 +159,7 @@ if( !class_exists('SUPER_Register_Login') ) :
         private function init_hooks() {
 
             // Filters since 1.0.0
-            add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_activation_code_element' ), 10, 2 );
+            add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_verification_code_element' ), 10, 2 );
 
             // Filters since 1.0.3
             add_filter( 'wp_authenticate_user', array( $this, 'check_user_login_status' ), 10, 2 );
@@ -261,7 +261,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 remove_action('authenticate', 'wp_authenticate_username_password', 20);
                 $user = new WP_Error( 'account_not_active', sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' ) );
             }else{
-                // Check if user has not activated their account yet
+                // Check if user has not verified their email address yet.
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
                 if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_submit_form')){
                     if( $status!=1 && $status!=='' ) {
@@ -396,6 +396,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                 esc_html__( 'Retrieves the activation code', 'super-forms' ),
                 ''
             );
+            $tags['email_verification_code'] = array(
+                esc_html__( 'Retrieves the E-mail verification code', 'super-forms' ),
+                ''
+            );
             $tags['register_generated_password'] = array(
                 esc_html__( 'Retrieves the generated password', 'super-forms' ),
                 ''
@@ -405,13 +409,14 @@ if( !class_exists('SUPER_Register_Login') ) :
 
 
         /**
-         * Handle the Activation Code element output
+         * Handle the Verification Code element output
          *
          *  @since      1.0.0
         */
-        public static function activation_code($x) {
+        public static function verification_code($x) {
             extract($x); // $tag, $atts, $inner, $shortcodes=null, $settings=null
             $return = false;
+            $code = '';
             if( ( SUPER_Forms::is_request( 'frontend' ) ) && ( isset( $_GET['code'] ) ) ) {
                 $code = sanitize_text_field( $_GET['code'] );
                 $return = true;
@@ -426,12 +431,15 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
             if( $return==true ) {
                 $atts['name'] = 'activation_code';
+                $atts['value'] = $code;
                 $result = SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
                 $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
                 $result .= '<input class="super-shortcode-field" type="text"';
                 $result .= ' name="' . esc_attr($atts['name']) . '" value="' . esc_attr($code) . '"';
                 $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );
                 $result .= ' />';
+                // @since 4.9.3 - Adaptive placeholders
+                $result .= SUPER_Shortcodes::adaptivePlaceholders( $settings, $atts, $tag );
                 $result .= '</div>';
                 $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
                 $result .= '</div>';
@@ -442,22 +450,22 @@ if( !class_exists('SUPER_Register_Login') ) :
 
 
         /**
-         * Hook into elements and add Activation Code element
+         * Hook into elements and add Verification Code element
          * This element will show the activation code input field when it has been set in the URL parameter
          *
          *  @since      1.0.0
         */
-        public static function add_activation_code_element( $array, $attributes ) {
+        public static function add_verification_code_element( $array, $attributes ) {
 
             // Include the predefined arrays
             require(SUPER_PLUGIN_DIR.'/includes/shortcodes/predefined-arrays.php' );
 
-            $array['form_elements']['shortcodes']['activation_code_predefined'] = array(
-                'name' => esc_html__( 'Activation Code', 'super-forms' ),
+            $array['form_elements']['shortcodes']['verification_code_predefined'] = array(
+                'name' => esc_html__( 'Verification Code', 'super-forms' ),
                 'icon' => 'code',
                 'predefined' => array(
                     array(
-                        'tag' => 'activation_code',
+                        'tag' => 'verification_code',
                         'group' => 'form_elements',
                         'data' => array(
                             'placeholder' => '[-CODE-]',
@@ -466,10 +474,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     )
                 )
             );
-            $array['form_elements']['shortcodes']['activation_code'] = array(
+            $array['form_elements']['shortcodes']['verification_code'] = array(
                 'hidden' => true,
-                'callback' => 'SUPER_Register_Login::activation_code',
-                'name' => esc_html__( 'Activation Code', 'super-forms' ),
+                'callback' => 'SUPER_Register_Login::verification_code',
+                'name' => esc_html__( 'Verification Code', 'super-forms' ),
                 'icon' => 'code',
                 'atts' => array(
                     'general' => array(
@@ -505,6 +513,51 @@ if( !class_exists('SUPER_Register_Login') ) :
             return $array;
         }
 
+        /**
+         * Return field value for saving into post meta
+         *
+         *  @since      1.1.3
+        */
+        public static function return_field_value( $data, $name, $type, $settings ) {
+            $value = '';
+            $type = $type;           
+            if( ($data[$name]['type']=='files') && (isset($data[$name]['files'])) ) {
+                if( count($data[$name]['files'])>1 ) {
+                    foreach( $data[$name]['files'] as $fk => $fv ) {
+                        if($value==''){
+                            $value = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                        }else{
+                            $value .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+                        }
+                    }
+                }elseif( count($data[$name]['files'])==1) {
+                    $cur = $data[$name]['files'][0];
+                    if(!empty($cur['attachment'])){
+                        $value = absint($cur['attachment']);
+                    }else{
+                        $value = (!empty($cur['path']) ? $cur['path'] : 0);
+                    }
+                }else{
+                    $value = '';
+                }
+            }elseif( ($type=='checkbox') || ($type=='select') || ($type=='radio') || ($type=='gallery') ) {
+                $value = explode( ",", $data[$name]['value'] );
+            }elseif( $type=='google_map' ) {
+                if( isset($data[$name]['geometry']) ) {
+                    $data[$name]['geometry']['location']['address'] = $data[$name]['value'];
+                    $value = $data[$name]['geometry']['location'];
+                }else{
+                    $value = array(
+                        'address' => $data[$name]['value'],
+                        'lat' => '',
+                        'lng' => '',
+                    );
+                }
+            }else{
+                $value = $data[$name]['value'];
+            }
+            return $value;
+        }
 
         /**
          * Hook into settings and add Register & Login settings
@@ -518,12 +571,20 @@ if( !class_exists('SUPER_Register_Login') ) :
             $all_roles = $wp_roles->roles;
             $editable_roles = apply_filters( 'editable_roles', $all_roles );
             $roles = array();
+            $rolesString = array();
             foreach( $editable_roles as $k => $v ) {
+                $rolesString[] = $k;
                 $roles[$k] = $v['name'];
             }
             $array['register_login'] = array(        
                 'name' => esc_html__( 'Register & Login', 'super-forms' ),
                 'label' => esc_html__( 'Register & Login Settings', 'super-forms' ),
+                'docs' => array(
+                    array('title'=>'Creating a Registration form', 'url'=>'/features/advanced/custom-registration-form-for-wordpress'),
+                    array('title'=>'Creating a Login form', 'url'=>'/features/advanced/custom-login-form-for-wordpress'),
+                    array('title'=>'Creating a Lost password form', 'url'=>'/features/advanced/custom-lost-password-form-for-wordpress'),
+                    array('title'=>'Updating a logged in user', 'url'=>'/features/advanced/update-current-logged-in-user')
+                ),
                 'fields' => array(
                     'register_login_action' => array(
                         'name' => esc_html__( 'Actions', 'super-forms' ),
@@ -665,13 +726,11 @@ if( !class_exists('SUPER_Register_Login') ) :
                     ),
                     'register_user_role' => array(
                         'name' => esc_html__( 'User role', 'super-forms' ),
-                        'label' => esc_html__( 'What user role should this user get?', 'super-forms' ),
-                        'type' => 'select',
-                        'default' =>  '',
+                        'label' => esc_html__( 'What user role should this user get?', 'super-forms' ) . '<br />' . esc_html__('Available roles', 'super-forms') . ': '.(implode(', ', $rolesString)),
+                        'default' =>  'subscriber',
                         'filter' => true,
                         'parent' => 'register_login_action',
-                        'filter_value' => 'register,update',
-                        'values' => array_merge($roles, array('_super_keep_existing_role' => esc_html__( 'Keep existing role (only use this when updating existing user)', 'super-forms' ))),
+                        'filter_value' => 'register'
                     ),
                     'register_login_activation' => array(
                         'name' => esc_html__( 'Send email confirmation/verification email', 'super-forms' ),
@@ -735,10 +794,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'allow_empty' => true,
                     ),
                     'register_activation_email' => array(
-                        'name' => esc_html__( 'Activation E-mail Body', 'super-forms' ),
-                        'label' => esc_html__( 'The email message. You can use {activation_code} and {register_login_url}', 'super-forms' ),
+                        'name' => esc_html__( 'Verification E-mail Body', 'super-forms' ),
+                        'label' => esc_html__( 'The email message. You can use {email_verification_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your activation code. You need this code to verify your account:%1$s%1$sActivation Code: %2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}?code={register_activation_code}">', '</a>' ),
+                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your verification code. You need this code to verify your account:%1$s%1$sVerification Code: %2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}?code={email_verification_code}">', '</a>' ),
                         'filter' => true,
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
@@ -925,7 +984,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Approved E-mail Body', 'super-forms' ),
                         'label' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
-                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), '<br />', '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
+                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
                         'filter' => true,
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
@@ -943,6 +1002,15 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true'
                     ),
+                    'register_update_user_role' => array(
+                        'docs' => array(array('title'=>'Why you should probably leave this setting empty', 'url'=>'/features/advanced/update-current-logged-in-user#leave-the-user-role-setting-empty')),
+                        'name' => esc_html__( 'User role', 'super-forms' ),
+                        'label' => esc_html__( '(optional) Update the current user role or leave blank to keep the current role', 'super-forms' ) . '<br />' . esc_html__('Available roles', 'super-forms') . ': '.(implode(', ', $rolesString)),
+                        'default' =>  '',
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'update'
+                    )
                 )
             );
             return $array;
@@ -997,11 +1065,11 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
 
                     // Option to optionally change/update the user role or to keep the existing role
-                    if(!empty($settings['register_user_role'])){
+                    if(!empty($settings['register_update_user_role'])){
                         // Only change role if we want to
-                        if( $settings['register_user_role']!=='_super_keep_existing_role' ) {
+                        if( $settings['register_update_user_role']!=='_super_keep_existing_role' ) {
                             // Change the user role to something different
-                            $userdata['role'] = $settings['register_user_role'];
+                            $userdata['role'] = SUPER_Common::email_tags( $settings['register_update_user_role'], $data, $settings );
                         }
                     }
 
@@ -1216,7 +1284,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // do nothing
                 }else{
                     // Before we proceed, lets check if we have at least a user_login and user_email field
-                    if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_email'] ) ) ) {
+                    if((!isset($data['user_login'])) && (isset($data['user_email']))) {
+                        $data['user_login'] = $data['user_email'];
+                    }
+                    if((!isset( $data['user_login'])) || (!isset($data['user_email']))){
                         $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                         SUPER_Common::output_message( array(
                             'msg' => $msg,
@@ -1279,7 +1350,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     $userdata['user_login'] = $user_login;
                     $userdata['user_email'] = $user_email;
                     $userdata['user_pass'] = $password;
-                    $userdata['role'] = $settings['register_user_role'];
+                    $userdata['role'] = SUPER_Common::email_tags( $settings['register_user_role'], $data, $settings );
                     $userdata['user_registered'] = date('Y-m-d H:i:s');
                     $userdata['show_admin_bar_front'] = 'false';
 
@@ -1342,6 +1413,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // @since 1.2.4 - allows users to use a custom activation code, for instance generated with the unique random number with a hidden field
                         if(isset($data['register_activation_code'])){
                             $code = $data['register_activation_code']['value'];
+                        }
+                        if(isset($data['email_verification_code'])){
+                            $code = $data['email_verification_code']['value'];
                         }
                         
                         update_user_meta( $user_id, 'super_account_status', 0 ); // 0 = inactive, 1 = active
@@ -1680,6 +1754,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
             $message = str_replace( '{register_activation_code}', $code, $message );
+            $message = str_replace( '{email_verification_code}', $code, $message );
             if(!empty($password)){
                 $message = str_replace( '{register_generated_password}', $password, $message );
             }

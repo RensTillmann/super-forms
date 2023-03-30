@@ -1074,6 +1074,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 //         }
 // 
 //         
+//        /**
+//         * Return field value for saving into post meta
+//         *
+//         *  @since      1.1.3
+//        */
+//        public static function return_field_value( $data, $name, $type, $settings ) {
+//            $value = '';
+//            $type = $type;           
+//            if( ($data[$name]['type']=='files') && (isset($data[$name]['files'])) ) {
+//                if( count($data[$name]['files'])>1 ) {
+//                    foreach( $data[$name]['files'] as $fk => $fv ) {
+//                        if($value==''){
+//                            $value = (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+//                        }else{
+//                            $value .= ',' . (!empty($fv['attachment']) ? $fv['attachment'] : (!empty($fv['path']) ? $fv['path'] : 0));
+//                        }
+//                    }
+//                }elseif( count($data[$name]['files'])==1) {
+//                    $cur = $data[$name]['files'][0];
+//                    if(!empty($cur['attachment'])){
+//                        $value = absint($cur['attachment']);
+//                    }else{
+//                        $value = (!empty($cur['path']) ? $cur['path'] : 0);
+//                    }
+//                }else{
+//                    $value = '';
+//                }
+//            }elseif( ($type=='checkbox') || ($type=='select') || ($type=='radio') || ($type=='gallery') ) {
+//                $value = explode( ",", $data[$name]['value'] );
+//            }elseif( $type=='google_map' ) {
+//                if( isset($data[$name]['geometry']) ) {
+//                    $data[$name]['geometry']['location']['address'] = $data[$name]['value'];
+//                    $value = $data[$name]['geometry']['location'];
+//                }else{
+//                    $value = array(
+//                        'address' => $data[$name]['value'],
+//                        'lat' => '',
+//                        'lng' => '',
+//                    );
+//                }
+//            }else{
+//                $value = $data[$name]['value'];
+//            }
+//            return $value;
+//        }
 //         /**
 //          * Hook into settings and add WooCommerce Custom Orders settings
 //          *

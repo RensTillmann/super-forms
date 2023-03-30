@@ -925,11 +925,11 @@ msgstr "क्रिया"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:456
 #: add-ons/super-forms-register-login/super-forms-register-login.php:472
-msgid "Activation Code"
+msgid "Verification Code"
 msgstr "सक्रियन कोड"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:738
-msgid "Activation E-mail Body"
+msgid "Verification E-mail Body"
 msgstr "सक्रियकरण ई-मेल मुख्य भाग"
 
 #: includes/shortcodes/layout-elements.php:797
@@ -3223,15 +3223,15 @@ msgstr ""
 msgid ""
 "Dear {user_login},%1$s%1$sThank you for registering! Before you can login "
 "you will need to verify your account.%1$sBelow you will find your activation "
-"code. You need this code to verify your account:%1$s%1$sActivation Code: "
-"%2$s{register_activation_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your "
+"code. You need this code to verify your account:%1$s%1$sVerification Code: "
+"%2$s{email_verification_code%3$s%1$s%1$sClick %4$shere%5$s to verify your "
 "account with the provided code.%1$s%1$s%1$sBest regards,"
 "%1$s%1$s{option_blogname}"
 msgstr ""
 "प्रिय {user_login},%1$s%1$s नोंदणी केल्याबद्दल धन्यवाद! तुम्ही लॉग इन "
 "करण्यापूर्वी तुम्हाला तुमचे खाते सत्यापित करणे आवश्यक आहे.%1$s खाली तुम्हाला "
 "तुमचा सक्रियकरण कोड मिळेल. तुमचे खाते सत्यापित करण्यासाठी तुम्हाला या कोडची "
-"आवश्यकता आहे:%1$s%1$s सक्रियकरण कोड: %2$s{register_activation_code}"
+"आवश्यकता आहे:%1$s%1$s सक्रियकरण कोड: %2$s{email_verification_code"
 "%3$s%1$s%1$s तुमचे खाते सत्यापित करण्यासाठी %4$shere%5$s वर क्लिक करा प्रदान "
 "केलेल्या कोडसह.%1$s%1$s%1$s शुभेच्छा,%1$s%1$s{option_blogname}"
 
@@ -9890,7 +9890,7 @@ msgid "Retrieve value from"
 msgstr "कडून मूल्य पुनर्प्राप्त करा"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:396
-msgid "Retrieves the activation code"
+msgid "Retrieves the E-mail verification code"
 msgstr "सक्रियकरण कोड पुनर्प्राप्त करते"
 
 #: includes/class-common.php:1949
@@ -12305,9 +12305,9 @@ msgstr "ईमेल संदेश."
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:739
 msgid ""
-"The email message. You can use {activation_code} and {register_login_url}"
+"The email message. You can use {email_verification_code} and {register_login_url}"
 msgstr ""
-"ईमेल संदेश. तुम्ही {activation_code} आणि {register_login_url} वापरू शकता"
+"ईमेल संदेश. तुम्ही {email_verification_code} आणि {register_login_url} वापरू शकता"
 
 #: add-ons/super-forms-register-login/super-forms-register-login.php:856
 msgid ""
