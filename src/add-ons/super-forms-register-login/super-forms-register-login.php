@@ -1490,7 +1490,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             if( $settings['register_login_action']=='login' ) {
-
                 // Before we proceed, lets check if we have at least a user_login or user_email and user_pass field
                 if( ( !isset( $data['user_login'] ) ) || ( !isset( $data['user_pass'] ) ) ) {
                     $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s or %2$s fields which are required in order to login a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_pass</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
@@ -1596,6 +1595,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 'form_id' => absint($form_id)
                             ));
                         }else{
+                            do_action( 'super_before_login_user_action', array( 'user'=>$user, 'user_id'=>$user_id, 'form_id'=>$form_id, 'data'=>$data, 'settings'=>$settings ) );
                             wp_set_current_user($user_id);
                             wp_set_auth_cookie($user_id);
                             if( $activated=='true' ) {

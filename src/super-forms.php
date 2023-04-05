@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.708
+ * Version:           6.3.709
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.708';
+        public $version = '6.3.709';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -660,32 +660,19 @@ if(!class_exists('SUPER_Forms')) :
             if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
                 // Cancel URL
                 error_log('Returned from Stripe Checkout session via cancel URL');
-                error_log($wp->query_vars['sfssidc']);
                 // Do things
-                error_log('test1');
                 SUPER_Stripe::setAppInfo();
-                error_log('test21');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
-                error_log('test3');
                 $m = $s['metadata'];
-                error_log('test4');
-                error_log('metadata:');
-                error_log(json_encode($m));
                 // Get form submission info
                 $submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 SUPER_Common::cleanupFormSubmissionInfo($m['sfsi_id'], 'stripe'); // stored in `wp_options` table as sfsi_%
-                error_log('test5');
                 // Now redirect to cancel URL without checkout session ID parameter
                 $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_cancel_url'] );
-                error_log('test6');
-                //error_log($m['stripe_home_cancel_url']);
-                error_log('test7');
+                $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfr'), $submissionInfo['stripe_home_cancel_url'] );
                 if($submissionInfo){
-                    error_log('test8');
-                    error_log($wp->query_vars['sfssidc']);
-                    error_log($submissionInfo['referer']);
                     if(!empty($submissionInfo['referer'])){
-                        $url = esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']));
+                        $url = add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']);
                         wp_redirect($url);
                         exit;
                     }else{
@@ -693,55 +680,31 @@ if(!class_exists('SUPER_Forms')) :
                         exit;
                     }
                 }
-                // Redirect to home url instead
-                error_log($wp->query_vars['sfssidc']);
-                wp_redirect(esc_url(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url'])));
-                error_log('test10');
+                // Redirect to home URL instead
+                error_log('Redirect to home URL instead');
+                wp_redirect(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url']));
                 exit;
             }
             if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
                 // Success URL
-                //error_log('Returned from Stripe Checkout session via success URL');
-                //error_log($wp->query_vars['sfssids']);
-                //error_log('1');
+                error_log('Returned from Stripe Checkout session via success URL');
                 // Do things
                 SUPER_Stripe::setAppInfo();
-                //error_log('2');
                 $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
-                //error_log('3');
                 $m = $s['metadata'];
-                //error_log('4');
-                //var_dump($m);
-                //error_log('5');
                 //$submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-                // NOW DO THINGS :) 
-                // "metadata": {
-                //     "super_forms_email_reminders": "[59774]",
-                //     "created_post_id": "59775",
-                //     "registered_user_id": "227",
-                //     "form_id": "59391",
-                //     "stripe_home_cancel_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
-                //     "stripe_home_success_url": "https:\/\/f4d.nl\/dev\/stripe-5\/",
-                //     "user_id": "1",
-                //     "entry_id": "59773"
-                // },
-                // ...
-                // ...
-
                 // Now redirect to success URL without checkout session ID parameter
                 $url = SUPER_Common::getClientData('stripe_home_success_url_'.$m['sf_id']);
                 if($url===false){
                     wp_redirect(home_url());
                     exit;
                 }
-                wp_redirect(esc_url(remove_query_arg(array('sfssid'), $url)));
+                wp_redirect(remove_query_arg(array('sfssid'), $url));
                 exit;
             }
             if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
                 if($wp->query_vars['sfstripewebhook']==='true'){
                     // Success URL
-                    //error_log('Stripe Checkout Session webhook');
-                    //error_log($wp->query_vars['sfstripewebhook']);
                     // Set your secret key. Remember to switch to your live secret key in production.
                     // See your keys here: https://dashboard.stripe.com/apikeys
                     $stripe_mode = SUPER_Stripe::setAppInfo()['stripe_mode'];
@@ -762,8 +725,6 @@ if(!class_exists('SUPER_Forms')) :
                         http_response_code(400);
                         exit();
                     }
-
-                    //error_log('Stripe Event: ' . $event->type);
                     // Handle the checkout.session.completed event
                     switch ($event->type) {
                         case 'checkout.session.completed':
@@ -784,7 +745,6 @@ if(!class_exists('SUPER_Forms')) :
                                 SUPER_Common::triggerEvent('stripe.fulfill_order', array('form_id'=>$form_id, 'data'=>$session));
                                 //SUPER_Stripe::fulfillOrder($session);
                                 // Delete submission info
-                                //error_log('Delete submission info 1: ' . $session->metadata->sfsi_id);
                                 delete_option( '_sfsi_' . $session->metadata->sfsi_id );
                             }
                             break;
@@ -868,20 +828,13 @@ if(!class_exists('SUPER_Forms')) :
                 $fileLocation = $wp->query_vars['sfdlfi'];
                 $url = wp_get_attachment_url( $fileLocation );
                 if(empty($url)){
-                    //error_log('Super Forms: [HTTP/1.1 404 Not Found]');
                     wp_delete_attachment( $fileLocation, true );
-                    //error_log('File with ID '.$fileLocation.' deleted');
-                    //error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
                 $request = wp_safe_remote_get($url);
                 if ( is_wp_error( $request ) ) {
-                    //error_log('Super Forms: [HTTP/1.1 404 Not Found]');
-                    //error_log(json_encode($request->errors));
                     wp_delete_attachment( $fileLocation, true );
-                    //error_log('File with ID '.$fileLocation.' deleted');
-                    //error_log('File URL: '.$url);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
