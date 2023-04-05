@@ -1207,20 +1207,9 @@ if(!class_exists('SUPER_Stripe')) :
             //        ],
             //    ]);
             //}
-            error_log($home_url);
             $cancel_url = $home_url . 'sfssid/cancel/{CHECKOUT_SESSION_ID}';
             $success_url = $home_url . 'sfssid/success/{CHECKOUT_SESSION_ID}';
-            error_log($cancel_url);
-            // $cancel_url  = add_query_arg( array( 'sfssid' => '{CHECKOUT_SESSION_ID}' ), $cancel_url );  // sfssid stands for Super Forms Stripe Session ID
-            // $success_url = add_query_arg( array( 'sfssid' => '{CHECKOUT_SESSION_ID}' ), $success_url ); // sfssid stands for Super Forms Stripe Session ID
-
-            //$cancel_url = $domain . '/cancel_stripe';
-            //$success_url = $domain . '/success_stripe?session_id={CHECKOUT_SESSION_ID}';
             $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );
-
-
-            error_log('UNDEFINED customer_email?');
-            error_log(json_encode($s));
             $customer_email = (isset($s['customer_email']) ? SUPER_Common::email_tags( $s['customer_email'], $data, $settings ) : '');
             $customer = (isset($s['customer']) ? SUPER_Common::email_tags( $s['customer'], $data, $settings ) : '');
             $description = (isset($s['subscription_data']['description']) ? SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings ) : '');
@@ -1238,11 +1227,9 @@ if(!class_exists('SUPER_Stripe')) :
 
             $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
             $submissionInfo['stripe_home_cancel_url'] = $home_cancel_url;
-            $submissionInfo['stripe_home_success_url'] = $home_cancel_url;
+            $submissionInfo['stripe_home_success_url'] = $home_success_url;
             SUPER_Common::setClientData( array( 'name'=>'stripe_home_cancel_url_'.$form_id, 'value'=>$home_cancel_url ) );
-            SUPER_Common::setClientData( array( 'name'=>'stripe_home_success_url_'.$form_id, 'value'=>$home_cancel_url ) );
-            error_log('12' . json_encode($submissionInfo));
-            error_log('12.1' . $uniqueSubmissionId);
+            SUPER_Common::setClientData( array( 'name'=>'stripe_home_success_url_'.$form_id, 'value'=>$home_success_url ) );
             update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
             // Shipping options
             $shipping_options = array();
@@ -1274,7 +1261,7 @@ if(!class_exists('SUPER_Stripe')) :
             foreach($metadata as $k => $v){
                 if(is_array($v)) $metadata[$k] = json_encode($v);
             }
-            error_log('metadata: ' . json_encode($metadata));
+            //error_log('metadata: ' . json_encode($metadata));
 
             //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
             //if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
@@ -1488,8 +1475,11 @@ if(!class_exists('SUPER_Stripe')) :
 
             // Before we continue, let's check if the Webhook is configured properly
             $global_settings = SUPER_Common::get_global_settings();
-            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
-            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'test';
+            if(!empty($global_settings['stripe_mode']) ) {
+                $global_settings['stripe_mode'] = 'test';
+            }else{
+                $global_settings['stripe_mode'] = 'live';
+            }
             // Get webhook ID and secret
             $webhookId = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_id'] : '');
             $webhookSecret = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret'] : '');
@@ -1515,7 +1505,7 @@ if(!class_exists('SUPER_Stripe')) :
                     '<a target="_blank" href="https://dashboard.stripe.com/webhooks">', '</a>'
                 );
                 $e = new Exception($msg);
-                error_log("exceptionHandler19()");
+                error_log("exceptionHandler20()");
                 self::exceptionHandler($e, $metadata);
                 die();
             }
@@ -1867,21 +1857,20 @@ if(!class_exists('SUPER_Stripe')) :
                     unset($stripeData['customer_creation']);
                 }
                 // You may only specify one of these parameters: submit_type, subscription_data.
-                if($stripeData['submit_type']!=='payment'){
+                error_log(json_encode($stripeData));
+                if(isset($stripeData['submit_type']) && $mode!=='subscription'){
                     unset($stripeData['subscription_data']);
                 }
+                //if($stripeData['submit_type']!=='payment'){
+                //    unset($stripeData['subscription_data']);
+                //}
                 
                 $stripeData = array_remove_empty($stripeData);
                 $stripeData = apply_filters( 'super_stripe_checkout_session_create_data_filter', $stripeData );
-                error_log('uniqueSubmissionId: ' . $uniqueSubmissionId);
-                error_log('stripeData: ' . json_encode($stripeData));
-
                 // Append stripe data to submission info
                 $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
                 $submissionInfo['stripeData'] = $stripeData;
                 update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
-                error_log('submissionInfo: ' . json_encode($submissionInfo));
-
                 // Create the checkout session via Stripe API
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
@@ -1920,20 +1909,20 @@ if(!class_exists('SUPER_Stripe')) :
             // Delete contact entry status after failed payment
             $contact_entry_id = (isset($metadata['contact_entry_id']) ? absint($metadata['contact_entry_id']) : 0 );
             if( !empty($contact_entry_id) ) {
-                error_log('delete entry #'.$contact_entry_id);
+                //error_log('delete entry #'.$contact_entry_id);
                 wp_delete_post($contact_entry_id, true); // force delete, we no longer want it in our system
             }
             // Delete post after failed payment (only used for Front-end Posting feature)
             $frontend_post_id = (isset($metadata['_super_stripe_frontend_post_id']) ? absint($metadata['_super_stripe_frontend_post_id']) : 0 );
             if( !empty($frontend_post_id) ) {
-                error_log('delete post #'.$frontend_post_id);
+                //error_log('delete post #'.$frontend_post_id);
                 wp_delete_post($frontend_post_id, true); // force delete, we no longer want it in our system
             }
             // Delete user after failed payment (only used for Register & Login feature)
             $frontend_user_id = (isset($metadata['_super_stripe_frontend_user_id']) ? absint($metadata['_super_stripe_frontend_user_id']) : 0 );
             if( !empty($frontend_user_id) ) {
                 require_once( ABSPATH . 'wp-admin/includes/user.php' );
-                error_log('delete user #'.$frontend_user_id);
+                //error_log('delete user #'.$frontend_user_id);
                 wp_delete_user($frontend_user_id);
             }
             // Delete any E-mail reminders based on this form ID as it's parent
@@ -1941,7 +1930,7 @@ if(!class_exists('SUPER_Stripe')) :
             if (is_array($email_reminders) && count($email_reminders) > 0) {
                 // Delete all the Children of the Parent Page
                 foreach($email_reminders as $reminder){
-                    error_log('delete reminder #'.$reminder);
+                    //error_log('delete reminder #'.$reminder);
                     wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
                 }
             }
@@ -1949,7 +1938,7 @@ if(!class_exists('SUPER_Stripe')) :
 
         // When charge succeeded
         public function charge_succeeded($paymentIntent){
-            error_log("charge_succeeded()");
+            //error_log("charge_succeeded()");
             // Get the metadata from the paymentIntent
             if(isset($paymentIntent['object']) && isset($paymentIntent['payment_intent']) && $paymentIntent['object']=='charge'){
                 try {
@@ -2293,8 +2282,11 @@ if(!class_exists('SUPER_Stripe')) :
                 'https://f4d.nl/super-forms'
             );
             $global_settings = SUPER_Common::get_global_settings();
-            if(!isset($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'live';
-            if(empty($global_settings['stripe_mode'])) $global_settings['stripe_mode'] = 'test';
+            if(!empty($global_settings['stripe_mode']) ) {
+                $global_settings['stripe_mode'] = 'test';
+            }else{
+                $global_settings['stripe_mode'] = 'live';
+            }
             $key = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_secret_key'] : '');
             $version = (isset($global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version']) ? $global_settings['stripe_' . $global_settings['stripe_mode'] . '_api_version'] : '');
             \Stripe\Stripe::setApiKey($key);
@@ -2619,11 +2611,11 @@ if(!class_exists('SUPER_Stripe')) :
 
         // Create PaymentIntent
         public static function createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata){
-            error_log("createPaymentIntent()");
-            error_log("payment_method: " . $payment_method);
-            error_log("amount: " . $amount);
-            error_log("currency: " . $currency);
-            error_log("description: " . $description);
+            //error_log("createPaymentIntent()");
+            //error_log("payment_method: " . $payment_method);
+            //error_log("amount: " . $amount);
+            //error_log("currency: " . $currency);
+            //error_log("description: " . $description);
             try {
                 $data = array(
                     'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
@@ -2950,13 +2942,13 @@ if(!class_exists('SUPER_Stripe')) :
             return \Stripe\Invoice::retrieve($id);
         }
         public static function exceptionHandler($e, $metadata=array()){
-            error_log("e: " . json_encode($e));
+            //error_log("e: " . json_encode($e));
             //error_log("err: " . json_encode($e->getError()));
-            error_log("metadata: " . json_encode($metadata));
+            //error_log("metadata: " . json_encode($metadata));
             $form_id = SUPER_Common::cleanupFormSubmissionInfo($metadata['sfsi_id'], '');
-            error_log("form_id 1: " . $form_id);
+            //error_log("form_id 1: " . $form_id);
             if(isset($metadata['sf_id'])) $form_id = $metadata['sf_id'];
-            error_log("form_id 2: " . $form_id);
+            //error_log("form_id 2: " . $form_id);
             SUPER_Common::output_message( array(
                 'msg' => $e->getMessage(),
                 'form_id' => absint($form_id)
@@ -3282,7 +3274,7 @@ if(!class_exists('SUPER_Stripe')) :
                 // Retrieve subscription pricing (items)
                 try {
                     foreach($v->items->data as $kk => $vv){
-                        error_log('Product ID: ' . $vv->plan->product, 0);
+                        //error_log('Product ID: ' . $vv->plan->product, 0);
                         $product = \Stripe\Product::retrieve($vv->plan->product);
                         $v->items->data[$kk]->productName = $product->name;
                     }

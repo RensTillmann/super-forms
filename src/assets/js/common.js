@@ -9002,7 +9002,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
@@ -9189,6 +9189,7 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         if(args.debugger===true){
+            debugger;
             pdfPageContainer.style.zIndex = "9999999999";
             pdfPageContainer.style.left = "0px";
             pdfPageContainer.style.top = "0px";
@@ -9389,6 +9390,7 @@ function SUPERreCaptcha(){
         setTimeout(function(){
             // Now allow printing
             try {
+                debugger;
                 // Only if not already canceled/reset
                 if(form && !form.classList.contains('super-generating-pdf')){
                     return false;
@@ -9511,6 +9513,7 @@ function SUPERreCaptcha(){
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
                 if(args.currentPage===1 && args.pdfSettings.orientation!==args.orientation){
+                    debugger;
                     // If we need to change the PDF orientation
                     // this is only required when there is a PDF page break at the beginning of the page
                     // and when the orientation is different from the PDF settings
@@ -9555,6 +9558,7 @@ function SUPERreCaptcha(){
                     }
                 }
                 if(args.pdfSettings.native==='true'){
+                    debugger;
                     // Experimental
                     document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     // Only if not already canceled/reset
@@ -9566,15 +9570,21 @@ function SUPERreCaptcha(){
                         args.pdfPercentageCompleted = 100;
                     }
                     if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
+                    debugger;
                     args = SUPER.pdf_generator_render_text(args);
+                    debugger;
                     // Draw native elements, table cells, fields, radio/checkboxes etc.
                     SUPER.pdf_generator_render_elements(args);
+                    debugger;
                     // Now draw text for all elements that are in the current view
                     nodes = args.pdfPageContainer.querySelectorAll('.super-shortcode .super-pdf-text');
                     for(i=0; i<nodes.length; i++){
+                        debugger;
                         SUPER.pdf_generator_draw_pdf_text(i, nodes[i], nodes, args);
+                        debugger;
                     }
 
+                    debugger;
                     // If there are more pages to be processed, go ahead
                     if(morePages){
                         args.currentPage++;

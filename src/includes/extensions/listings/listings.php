@@ -2935,8 +2935,8 @@ END AS paypalSubscriptionId
                 }
             }
 
+            $allowChangeEntryStatus = false;
             if($allowEditAny===true){
-                $allowChangeEntryStatus = false;
                 if(!empty($list['edit_any'])) {
                     if(!empty($list['edit_any']['change_status'])){
                         if($list['edit_any']['change_status']['enabled']==='true'){

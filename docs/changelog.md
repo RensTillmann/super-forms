@@ -9,6 +9,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Apr 05, 2023 - Version 6.3.709
+
+- **Added:** New action hook `super_before_login_user_action` to allow for instance update user meta data directly before the user logs in
+- **Fix:** Stripe `Success URL` not working, so that user redirects to a specific thank you page after returning from a completed checkout
+
 ## Mar 22, 2023 - Version 6.3.708
 
 - **Improved:** When `native` PDF generation is enabled, add the country flage next to the international phonenumber field
