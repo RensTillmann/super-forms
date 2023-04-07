@@ -9,30 +9,16 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 05, 2023 - Version 6.3.709
+## Apr 07, 2023 - Version 6.3.710
 
+- **Added:** Option to define PDF smart page break threshold in percentage relative to page height
 - **Added:** New action hook `super_before_login_user_action` to allow for instance update user meta data directly before the user logs in
-- **Fix:** Stripe `Success URL` not working, so that user redirects to a specific thank you page after returning from a completed checkout
-
-## Mar 22, 2023 - Version 6.3.708
-
-- **Improved:** When `native` PDF generation is enabled, add the country flage next to the international phonenumber field
-
-## Mar 19, 2023 - Version 6.3.707
-
-- **Improved:** Scrolling to next focussed field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to widnow height
-- **Improved:** When using keyboard arrows up/down on radio button do not go to next step automatically when enabled on multi-part
-- **Fix:** Fix file upload when using ACF Pro Gallery field when saving a custom post via `Front-end Posting` feature
-
-## Mar 07, 2023 - Version 6.3.704
-
 - **Added:** Option to jump to a specific field so that a user can edit it, simply use `#fieldname` on your href attribute like so `Summary:<br />First name: {first_name} - <a href="#first_name">EDIT</a>`
 - **Added:** Option to define wrapper and or field ID attribute elements, when left blank the default ID will be `sf-wrapper-1234-yourfieldname` and `sf-field-582-1-yourfieldname` where `582` would be the form ID and `1` the form index (if you have multiple forms this will auto increment by one).
-- **Fix:** Signature not populated from `Save form progression` and `Retrieve previous entry data`. Also, when retrieved from entry data disallow editing the existing signature.
-
-## Jan 03, 2022 - Version 6.3.688
-
 - **Added:** `Listings` when editing entries, you can define if the user is allowed to change the entry status, and disallow to change the entry if it already has a specific status
+- **Improved:** When `native` PDF generation is enabled, add the country flag next to the international phonenumber field
+- **Improved:** Scrolling to next focussed field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to widnow height
+- **Improved:** When using keyboard arrows up/down on radio button do not go to next step automatically when enabled on multi-part
 - **Improved:** Grid/Columns now using flex method
 - **Improved:** `Color picker` element small responsiveness fix
 - **Improved:** `PDF page breaks` are cacluated after HTML block is updated/changed. Allowing to use the PDF page break html directly inside foreach loops. Example which loops over uploaded files:
@@ -42,9 +28,11 @@ foreach(file;loop):
   <img src="<%url%>" style="display:block;width:300px;" />
 endforeach;
 ```
+- **Fix:** Stripe `Success URL` not working, so that user redirects to a specific thank you page after returning from a completed checkout
+- **Fix:** Fix file upload when using ACF Pro Gallery field when saving a custom post via `Front-end Posting` feature
+- **Fix:** Signature not populated from `Save form progression` and `Retrieve previous entry data`. Also, when retrieved from entry data disallow editing the existing signature.
 - **Fix:** `Signature` element, rare bug which caused the canvas to not be full width, which would cut off the signature by 50%
 - **Fix:** `<%attachment%>` and `<%attachment_id%>` inside `foreach` loop inside HTML element should return the file attachment ID not the file name
-
 
 ## Dec 21, 2022 - Version 6.3.679
 
@@ -52,7 +40,6 @@ endforeach;
 - **Added:** Option `Disable browser translation` under `Translations` TAB to disable browsers to translate the form
 - **Added:** New predefined tags to retrieve form submission date inside emails: `submission_date_gmt`, `submission_hours_gmt`, `submission_timestamp_gmt`, `submission_date`, `submission_hours`, `submission_timestamp`
 - **Added:** `isset()` and `!isset()` methods to check if a field was conditionally hidden/visible. Useful inside HTML elements and E-mails. Example here: (https://renstillmann.github.io/super-forms/#/email-if-statements?id=checking-if-a-field-exists)
-- **Improved:** Significant speed improvements/optimization for large/complex forms with a lot of conditional logic/variable conditions/calculations.
 - **Added:** Option to add attributes on the listings shortcode to apply hardcoded filters e.g: `[super_listings list="1" id="61602" entry_status="completed"]` would only display entries with status `Completed`
 - **Added:** Extra tags to retrieve date names for datepicker element: `{date;day_name}`, `{date;day_name_short}`, `{date;day_name_shortest}`, `{date;day_of_week}`. This way you can display specific time slots based on a specific week day
 - **Added:** Filter logic option `Exact match` for autosuggest feature to filter exact `Label` value for an item
@@ -60,6 +47,7 @@ endforeach;
 - **Added:** Form locker option `Do not lock form, but still display a message` to only display a message but still allow user to submit the form even if the threshold was reached.
 - **Added:** Option to pre-load conditional logics via Ajax request, to store it into an object on the client side, instead of in the source code. Useful/required when dealing with 500+ conditions
 - **Added:** Option to attach XML file with form data to admin E-mails via `Form Settings > XML Attachment` on builder page
+- **Improved:** Significant speed improvements/optimization for large/complex forms with a lot of conditional logic/variable conditions/calculations.
 - **Fix:** Allow the `Currency` field to have zero value e.g: `0.00`
 - **Fix:** Issue with `{register_generated_password}` tag not working when sending activation email after user registration
 - **Fix:** Issue with `Unique code generation` when using invoice increment option. Not saving the invoice number increment in some ocassions depending on the configured settings
@@ -71,8 +59,8 @@ endforeach;
 
 ## Sep 07, 2022 - Version 6.3.600
 
-- **Improved:** PDF Generator speed optimization
 - **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
+- **Improved:** PDF Generator speed optimization
 - **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
 - **Fix:** PDF page break element orientation change bug
 - **Fix:** Javascript error `indexOf is not a function` when called on a number value

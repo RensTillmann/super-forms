@@ -100,9 +100,17 @@ if(!class_exists('SUPER_PDF_Generator')) :
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)" style="align-items: flex-start;">';
                             echo '<input type="checkbox" name="native" value="true"' . ($s['native']==='true' ? ' checked="checked"' : '') . ' />';
                             echo '<div class="sfui-vertical" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;">';
-                                echo '<span class="sfui-title">' . esc_html__( 'Enable native mode (experimental)', 'super-forms' ) . '</span>';
+                                echo '<span class="sfui-title">' . esc_html__( 'Enable native mode', 'super-forms' ) . ' <strong style="color:red;">(BETA)</strong></span>';
                                 echo '<span class="sfui-label">' . esc_html__( 'Pros: smaller PDF size and quicker rendering. Cons: might not look 100% identical', 'super-forms' ) . '</span>';
                             echo '</div>';
+                        echo '</label>';
+                    echo '</div>';
+                    // Smart page breaks
+                    echo '<div class="sfui-setting sfui-inline">';
+                        echo '<span class="sfui-title">' . esc_html__( 'Smart page break', 'super-forms' ) . ' <strong style="color:red;">(BETA)</strong>:</span>';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            echo '<input type="number" min="0" max="99" name="smartBreak" value="' . esc_attr($s['smartBreak']) . '" />';
+                            echo '<span class="sfui-label">' . esc_html__( 'If the element does not fit on the current page, push it to the next page automatically. Recommended value is 95%, set to 0% to disable', 'super-forms' ) . '</span>';
                         echo '</label>';
                     echo '</div>';
                     // PDF file name
@@ -351,6 +359,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                 if(empty($s['native'])) $s['native'] = 'true';
             }
             if(empty($s['debug'])) $s['debug'] = 'false';
+            if(empty($s['smartBreak'])) $s['smartBreak'] = 95;
             if(empty($s['filename'])) $s['filename'] = esc_html__( 'form', 'super-forms' ).'.pdf';
             if(empty($s['emailLabel'])) $s['emailLabel'] = esc_html__( 'PDF file', 'super-forms' ).':';
             if(empty($s['adminEmail'])) $s['adminEmail'] = 'true';
