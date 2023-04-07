@@ -8636,7 +8636,8 @@ function SUPERreCaptcha(){
                     }
                     // Also part of next page, apply top margin to put the element as a whole on to the next page
                     // Only if the height of the element is 40% of the scrollAmount
-                    args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : 40); // defulat to 50% of page height
+                    if(!args.pdfSettings.smartBreak) args.pdfSettings.smartBreak = 40;
+                    args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : Number(args.pdfSettings.smartBreak)); // defulat to 50% of page height
                     if(belongsTo.length>1 && h<=(tmpScrollAmount/100)*args.pdfSettings.smartPageBreaksMaxHeight){
                         // If already has margin
                         if(el.querySelector('.super-pdf-el-with-margin')){
@@ -8647,7 +8648,7 @@ function SUPERreCaptcha(){
                         // For instance, for the slider, dropdown 
                         // But not for radio/checkbox items, with the exception for `super-item` class
                         var allowMargin = true;
-                        var disAllowed = ['item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
+                        var disAllowed = ['toggle', 'item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
                         for(var x=0; x<disAllowed.length; x++){
                             if(el.parentNode.closest('.super-'+disAllowed[x])){
                                 if(!el.classList.contains('super-'+disAllowed[x])) {
@@ -9002,7 +9003,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -9189,7 +9190,6 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         if(args.debugger===true){
-            debugger;
             pdfPageContainer.style.zIndex = "9999999999";
             pdfPageContainer.style.left = "0px";
             pdfPageContainer.style.top = "0px";
@@ -9390,13 +9390,15 @@ function SUPERreCaptcha(){
         setTimeout(function(){
             // Now allow printing
             try {
-                debugger;
                 // Only if not already canceled/reset
                 if(form && !form.classList.contains('super-generating-pdf')){
                     return false;
                 }
                 // Make sure to position slider amount labels correctly
                 SUPER.reposition_slider_element(args.pdfPageContainer, true);
+                // Re-wrap text nodes because of possible updated HTML content such as pagination {tags}
+                SUPER.pdfWrapTextNodes(args.pdfHeader);
+                SUPER.pdfWrapTextNodes(args.pdfFooter);
                 // After setting slider position re-add text nodes
                 nodes = args.pdfPageContainer.querySelectorAll('.super-shortcode.super-slider .amount');
                 for(var i=0; i<nodes.length; i++){
@@ -9513,7 +9515,6 @@ function SUPERreCaptcha(){
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.height = args.scrollAmount+'px';
                 args.pdfPageContainer.querySelector('.super-pdf-body').style.maxHeight = args.scrollAmount+'px';
                 if(args.currentPage===1 && args.pdfSettings.orientation!==args.orientation){
-                    debugger;
                     // If we need to change the PDF orientation
                     // this is only required when there is a PDF page break at the beginning of the page
                     // and when the orientation is different from the PDF settings
@@ -9558,7 +9559,6 @@ function SUPERreCaptcha(){
                     }
                 }
                 if(args.pdfSettings.native==='true'){
-                    debugger;
                     // Experimental
                     document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     // Only if not already canceled/reset
@@ -9570,21 +9570,15 @@ function SUPERreCaptcha(){
                         args.pdfPercentageCompleted = 100;
                     }
                     if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
-                    debugger;
                     args = SUPER.pdf_generator_render_text(args);
-                    debugger;
                     // Draw native elements, table cells, fields, radio/checkboxes etc.
                     SUPER.pdf_generator_render_elements(args);
-                    debugger;
                     // Now draw text for all elements that are in the current view
                     nodes = args.pdfPageContainer.querySelectorAll('.super-shortcode .super-pdf-text');
                     for(i=0; i<nodes.length; i++){
-                        debugger;
                         SUPER.pdf_generator_draw_pdf_text(i, nodes[i], nodes, args);
-                        debugger;
                     }
 
-                    debugger;
                     // If there are more pages to be processed, go ahead
                     if(morePages){
                         args.currentPage++;
@@ -9966,9 +9960,10 @@ function SUPERreCaptcha(){
     // PDF render native elements
     SUPER.pdf_generator_render_elements = function(args){
         var selectors = `
+        .super-html-content img,
         .super-column,
         .super-signature,
-        .super-accordion-header, .super-accordion-content,
+        .super-accordion-header, .super-accordion-content, .super-tabs-content,
         .super-keyword-tags,
         .super-text .super-shortcode-field,
         .super-password .super-shortcode-field,
@@ -10023,7 +10018,8 @@ function SUPERreCaptcha(){
                 var canvas = node.children[0];
                 var src = canvas.toDataURL('image/png');
                 pos = SUPER.pdf_get_native_el_position(canvas, args);
-                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, 'signature', 'NONE', 0);
+                var fieldName = el.closest('.super-shortcode').querySelector('.super-shortcode-field').name;
+                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, fieldName, 'NONE', 0);
                 continue;
             }
             // Accordion header
@@ -10058,6 +10054,61 @@ function SUPERreCaptcha(){
                 }
                 continue;
             }
+            if(el.classList.contains('super-tabs-content')){
+                // Draw box
+                p = el.parentNode;
+                bgColor = getComputedStyle(p).backgroundColor;  
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                SUPER.pdf_rgba2hex(args, bgColor, ['drawColor', 'fillColor']);
+                // For this element we must constrain the height to the scroll height
+                if(!el.closest('.super-pdf-header')){
+                    var rpos = el.getBoundingClientRect();
+                    var rt = rpos.top-SUPER.pdf_get_header_height(args);
+                    var rb = rpos.bottom-SUPER.pdf_get_header_height(args);
+                    if(rt<0) {
+                        pos.t = (SUPER.pdf_get_header_height(args)/args.scale)*args.convertFromPixel;
+                        pos.h = ((rb/args.scale)*args.convertFromPixel);
+                    }
+                    if(rb>args.scrollAmount){
+                        renderBottomBorder = false;
+                        pos.h = (args.scrollAmount/args.scale)*args.convertFromPixel;
+                    }
+                }
+                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                // Left border
+                var borderLeftWidth = parseFloat(getComputedStyle(p).borderLeftWidth);
+                if(borderLeftWidth>0){
+                    color = getComputedStyle(p).borderLeftColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderLeftWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t, pos.l, pos.t+pos.h );
+                }
+                // Top border
+                var borderTopWidth = parseFloat(getComputedStyle(p).borderTopWidth);
+                if(borderTopWidth>0){
+                    color = getComputedStyle(p).borderTopColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderTopWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t, pos.l+pos.w, pos.t );
+                }
+                // Right border
+                var borderRightWidth = parseFloat(getComputedStyle(p).borderRightWidth);
+                if(borderRightWidth>0){
+                    color = getComputedStyle(p).borderRightColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderRightWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l+pos.w, pos.t, pos.l+pos.w, pos.t+pos.h );
+                }
+                // Bottom border
+                var borderBottomWidth = parseFloat(getComputedStyle(p).borderBottomWidth);
+                if(borderBottomWidth>0){
+                    color = getComputedStyle(p).borderBottomColor;
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                    args._pdf.setLineWidth(borderBottomWidth*args.convertFromPixel);
+                    args._pdf.line(pos.l, pos.t+pos.h, pos.l+pos.w, pos.t+pos.h );
+                }
+                continue;
+            }
             // Accordion content & column
             if(el.classList.contains('super-accordion-content') || el.classList.contains('super-column')){
                 var renderBottomBorder = true;
@@ -10089,7 +10140,11 @@ function SUPERreCaptcha(){
                     //    //pos.t = ((SUPER.pdf_get_header_height(args))/args.scale)*args.convertFromPixel;
                     //}
                 }
-                args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                if(el.classList.contains('super-column')){
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'F');
+                }else{
+                    args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
+                }
                 // Left border
                 var borderLeftWidth = parseFloat(getComputedStyle(el).borderLeftWidth);
                 if(borderLeftWidth>0){
@@ -10354,10 +10409,23 @@ function SUPERreCaptcha(){
                     var src = image.querySelector('img').src;
                     var type = el.dataset.type;
                     pos = SUPER.pdf_get_native_el_position(image, args);
-                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, 'flag', 'NONE', 0);
+                    var filename = src.split('/').pop();
+                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, 'NONE', 0);
                 }
                 continue;
             }
+
+            // Images inside HTML content
+            if(el.tagName==='IMG' && el.parentNode.closest('.super-html-content')){
+                debugger;
+                // Add the image itself:
+                pos = SUPER.pdf_get_native_el_position(el, args);
+                var src = el.src;
+                var filename = src.split('/').pop();
+                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, 'NONE', 0);
+                continue;
+            }
+
             // Currency
             if(el.closest('.super-currency')){
                 // Get position of the element

@@ -1808,6 +1808,10 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
 .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content:not(.super-active) > .super-padding > .super-element-inner {
   padding-bottom: 0;
 }
+.super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content > .super-padding {
+  float: left;
+  width: 100%;
+}
 
 .super-initialized .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active, .super-preview-elements .super-shortcode.super-tabs > .super-tabs-contents > .super-tabs-content.super-active {
   visibility: visible;
