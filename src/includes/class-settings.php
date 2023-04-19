@@ -1484,7 +1484,8 @@ class SUPER_Settings {
                         '' => esc_html__( 'No Redirect', 'super-forms' ),
                         'custom' => esc_html__( 'Custom URL', 'super-forms' ),
                         'page' => esc_html__( 'Existing Page', 'super-forms' ),
-                    )
+                    ),
+                    'i18n'=>true
                 ),
                 'form_redirect' => array(
                     'name' => esc_html__('Enter a custom URL to redirect to', 'super-forms' ),
@@ -1501,7 +1502,8 @@ class SUPER_Settings {
                     'values' => SUPER_Common::list_posts_by_type_array('page'),
                     'filter' => true,
                     'parent' => 'form_redirect_option',
-                    'filter_value' => 'page'
+                    'filter_value' => 'page',
+                    'i18n'=>true
                 ),
 
                 // @since 3.6.0 - google tracking

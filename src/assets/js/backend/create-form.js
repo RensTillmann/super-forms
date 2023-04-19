@@ -1981,6 +1981,12 @@
                             alert(super_create_form_i18n.export_form_error);
                         },
                         complete: function () {
+                            SUPER.init_slider_field();
+                            SUPER.init_tooltips();
+                            SUPER.init_docs();
+                            SUPER.init_image_browser();
+                            SUPER.init_color_pickers();
+                            SUPER.init_field_filter_visibility();
                             init_form_settings_container_heights();
                             // Disable sortable functionality
                             if ($('.super-create-form').hasClass('super-translation-mode')) {

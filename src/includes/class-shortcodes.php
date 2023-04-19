@@ -190,7 +190,14 @@ class SUPER_Shortcodes {
         if($tag!=='hidden'){
             $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
             if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
-                $atts['value'] = $entry_data_value;
+                // There is a special exception where we don't want to override the value with entry data
+                // For instance when a field named `hidden_contact_entry_id` is used and when the default value is set to `{user_last_entry_id}`
+                if($atts['name']==='hidden_contact_entry_id' && $atts['value']==='{user_last_entry_id}'){
+                    // Skip
+                }else{
+                    // Override with entry data
+                    $atts['value'] = $entry_data_value;
+                }
             }
         }
 
@@ -1689,7 +1696,6 @@ class SUPER_Shortcodes {
         if($atts['field_id']==='' && isset($atts['name'])){
             $atts['field_id'] = 'sf-field-'.self::$current_form_id.'-'.self::$current_form_index.'-'.$atts['name'];
         }
-        $result = '<div '.self::element_uid();
         if($atts['field_id']!=='') $result .= ' id="' . $atts['field_id'] . '"';
         if(!empty($atts['originalFieldName'])) {
             // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)
@@ -1869,7 +1875,18 @@ class SUPER_Shortcodes {
                         $names = SUPER_Common::get_data_fields_attribute( array( 'names'=>$names, 'value'=>$v['value_and']));
                     }
                 }
-                $result .= '<textarea class="super-validate-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($atts['may_be_empty_conditions']) . '</textarea>';
+                $compact = array();
+                foreach($atts['may_be_empty_conditions'] as $k => $v){
+                    $compact[$k]['f'] = $v['field'];
+                    $compact[$k]['l'] = $v['logic'];
+                    $compact[$k]['v'] = $v['value'];
+                    if(!empty($v['and_method'])) $compact[$k]['a'] = $v['and_method'];
+                    if(isset($v['field_and'])) $compact[$k]['fa'] = $v['field_and'];
+                    if(!empty($v['logic_and'])) $compact[$k]['la'] = $v['logic_and'];
+                    if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
+                }
+                $result .= '<textarea class="super-validate-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+
             }
         }
 
@@ -4325,6 +4342,7 @@ class SUPER_Shortcodes {
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
         $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n); // @since 4.7.0 - translation
 
         if( !isset( $atts['exclude'] ) ) $atts['exclude'] = 0;
         if( !isset( $atts['exclude_entry'] ) ) $atts['exclude_entry'] = '';
@@ -5821,6 +5839,10 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
+        if(!isset($settings['id'])){
+            $settings['id'] = $form_id;
+        }
+
         // Allow users to override any form settings through the shortcode, this way you can have a single form that can be used many times with different settings
         foreach($atts as $k => $v){
             // If the shortcode attribute starts with "_setting_" we use it 
@@ -5959,6 +5981,7 @@ class SUPER_Shortcodes {
                         LIMIT 1");
                         if( isset($entry[0])) {
                             $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                            $contact_entry_id = $entry[0]->ID;
                         }
                     }
                 }

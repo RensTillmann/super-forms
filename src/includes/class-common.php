@@ -701,8 +701,9 @@ class SUPER_Common {
         return $items;
     }
     // Function to replace tags inside dynamic columns for conditional logic and conditional variable logic
-    public static function replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, $settingName){
+    public static function replace_tags_dynamic_column_conditional_items($i, $v, $dynamic_field_names, $settingName){
         if(isset($v['data'][$settingName])){
+            $re = '/\{(.*?)\}/';
             foreach($v['data'][$settingName] as $ck => $cv){
                 // Replace {tags}
                 // `field`
@@ -829,8 +830,8 @@ class SUPER_Common {
         if($i>1){
             // If inside dynamic column, and not the first dynamic column we need to replace all the {tags} accordingly
             // Rename conditional logics accordingly
-            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, 'conditional_items');
-            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($v, $dynamic_field_names, 'conditional_variable_items');
+            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($i, $v, $dynamic_field_names, 'conditional_items');
+            $v = SUPER_Common::replace_tags_dynamic_column_conditional_items($i, $v, $dynamic_field_names, 'conditional_variable_items');
             // Replace HTML {tags}
             if($v['tag']=='html') {
                 $str = $v['data']['html'];
