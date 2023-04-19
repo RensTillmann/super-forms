@@ -9,13 +9,14 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 07, 2023 - Version 6.3.710
+## Apr 19, 2023 - Version 6.3.714
 
 - **Added:** Option to define PDF smart page break threshold in percentage relative to page height
 - **Added:** New action hook `super_before_login_user_action` to allow for instance update user meta data directly before the user logs in
 - **Added:** Option to jump to a specific field so that a user can edit it, simply use `#fieldname` on your href attribute like so `Summary:<br />First name: {first_name} - <a href="#first_name">EDIT</a>`
 - **Added:** Option to define wrapper and or field ID attribute elements, when left blank the default ID will be `sf-wrapper-1234-yourfieldname` and `sf-field-582-1-yourfieldname` where `582` would be the form ID and `1` the form index (if you have multiple forms this will auto increment by one).
 - **Added:** `Listings` when editing entries, you can define if the user is allowed to change the entry status, and disallow to change the entry if it already has a specific status
+- **Improved:** `Form Settings > Form Settings > Custom redirect URL` can now be translated to redirect to custom pages e.g. `https://domain.com/thank-you/`, `https://domain.com/de/vielen-dank/`, `https://domain.com/fr/merci-beaucoup/
 - **Improved:** When `native` PDF generation is enabled, add the country flag next to the international phonenumber field
 - **Improved:** Scrolling to next focussed field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to widnow height
 - **Improved:** When using keyboard arrows up/down on radio button do not go to next step automatically when enabled on multi-part
@@ -28,11 +29,14 @@ foreach(file;loop):
   <img src="<%url%>" style="display:block;width:300px;" />
 endforeach;
 ```
+- **Fix:** Bug when using the validation option `Allow field to be empty > Yes, but not when the following conditions are met`
+- **Fix:** Issue with populating form with entry data in combination with saving existing entry while logged in as non administrator
 - **Fix:** Stripe `Success URL` not working, so that user redirects to a specific thank you page after returning from a completed checkout
 - **Fix:** Fix file upload when using ACF Pro Gallery field when saving a custom post via `Front-end Posting` feature
 - **Fix:** Signature not populated from `Save form progression` and `Retrieve previous entry data`. Also, when retrieved from entry data disallow editing the existing signature.
 - **Fix:** `Signature` element, rare bug which caused the canvas to not be full width, which would cut off the signature by 50%
 - **Fix:** `<%attachment%>` and `<%attachment_id%>` inside `foreach` loop inside HTML element should return the file attachment ID not the file name
+- **Fix:** Bug with updating existing contact entry and preventing creating a new one when using field name `hidden_contact_entry_id` with Default value set to: `{user_last_entry_id}`
 
 ## Dec 21, 2022 - Version 6.3.679
 

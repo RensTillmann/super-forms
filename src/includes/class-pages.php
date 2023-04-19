@@ -1012,7 +1012,10 @@ class SUPER_Pages {
                                                                     echo '<tr class="super-file-upload"><th align="right">' . esc_html( $fv['label'] ) . '</th>';
                                                                     echo '<td><span class="super-contact-entry-data-value">';
                                                                 }
-                                                                $url = $fv['url'];
+                                                                $url = '';
+                                                                if(isset($fv['url'])){
+                                                                    $url = $fv['url'];
+                                                                }
                                                                 if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
                                                                 }

@@ -646,15 +646,21 @@ class SUPER_Ajax {
                                 $settings_html .= '</div>';
                             }
                         }else{
-                            if(empty($v['i18n'])) continue;
-                            // Make sure to skip this file if it's source location is invalid
-                            if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) && (isset($v['parent'])) ) {
-                                if (strpos($value['fields'][$v['parent']]['default'], $v['filter_value']) === false) {
-                                    continue;
-                                }
-                            }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                                $settings_html .= '<div class="super-field super-field-type-'.$v['type'].'">';
+                                $filter = '';
+                                $parent = '';
+                                $filtervalue = '';
+                                if( ( isset( $v['filter'] ) ) && ( $v['filter']==true ) ) {
+                                    $filter = ' super-filter';
+                                    if( isset( $v['parent'] ) ) $parent = ' data-parent="' . esc_attr($v['parent']) . '"';
+                                    if( isset( $v['filter_value'] ) ) $filtervalue = ' data-filtervalue="' . esc_attr($v['filter_value']) . '"';
+                                }
+                                $invisible = '';
+                                if(empty($v['i18n'])) {
+                                    $invisible = ' super-i18n-hidden';
+                                }
+                                $settings_html .= '<div class="super-field super-field-type-'.$v['type'] . $invisible . $filter . '"' . $parent . '' . $filtervalue;
+                                $settings_html .= '>';
                                     if( isset( $v['name'] ) ) {
                                         $settings_html .= '<div class="super-field-name">' . ($v['name']);
                                         if( isset( $v['desc'] ) ) {
@@ -675,6 +681,7 @@ class SUPER_Ajax {
                                         $settings_html .= call_user_func( array( 'SUPER_Field_Types', $v['type'] ), $k, $v );
                                     $settings_html .= '</div>';
                                 $settings_html .= '</div>';
+
                             }
                         }
                     }
@@ -3353,6 +3360,7 @@ class SUPER_Ajax {
                     $settings['contact_entry_custom_status'] = $entry_status;
                 }
             }
+            update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status'] );
 
             // @since 1.4 - add the contact entry ID to the data array so we can use it to retrieve it with {tags}
             $data['contact_entry_id']['name'] = 'contact_entry_id';
@@ -3453,6 +3461,11 @@ class SUPER_Ajax {
             }
             $list_id = '';
             if(isset($_POST['list_id'])) $list_id = absint($_POST['list_id']);
+            if($update_entry_status===false) {
+                if($list_id===''){
+                    update_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
+                }
+            }
             if($list_id!=='' && isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
                 $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
                 $response_data['form_processing_overlay'] = $list['form_processing_overlay'];

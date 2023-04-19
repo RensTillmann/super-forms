@@ -3264,7 +3264,9 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
   border-radius: 0;
   border-color: #ccc;
 }
-
+.super-form-settings  .super-i18n-hidden {
+  display:none;
+}
 .super-is-invisible:before {
   font-family: "Font Awesome 6 Free";
   font-weight: normal;
