@@ -7088,9 +7088,9 @@ function SUPERreCaptcha(){
                 }
                 // Autosuggest field
                 if(field.classList.contains('super-auto-suggest')){
+                    dropdown = field.querySelector('.super-dropdown-list');
                     if(data[i].value!==''){
                         firstValue = data[i].value.split(';')[0];
-                        dropdown = field.querySelector('.super-dropdown-list');
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
@@ -8327,7 +8327,6 @@ function SUPERreCaptcha(){
             orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
             format: args.format,             // The format of the first page.  Default is "a4"
             putOnlyUsedFonts: true,    // Only put fonts into the PDF, which were used.
-            compress: false,            // Compress the generated PDF.
             precision: 16,              // Precision of the element-positions.
             userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
             floatPrecision: 16,         // or "smart", default is 16
@@ -8464,7 +8463,10 @@ function SUPERreCaptcha(){
             // Reset belongsTo for parent element
             result.belongsTo = [];
             result = SUPER.pdf_determine_belong_to(nodes, nodes[i], result, args);
-            nodes[i].dataset.belongsToPages = JSON.stringify(result.belongsTo);
+            args.totalScrolled = result.totalScrolled;
+            if(result.belongsTo.length>0){
+                nodes[i].dataset.belongsToPages = JSON.stringify(result.belongsTo);
+            }
         }
         // Store total pages
         args.totalPages = result.totalPages;
@@ -8508,10 +8510,23 @@ function SUPERreCaptcha(){
         //return Math.round(headerHeight, 1e2)+Math.round(pos.top, 1e2)-Math.round(marginTop, 1e2);
     };
     SUPER.pdf_determine_belong_to = function(nodes, el, result, args){
+        if(el.parentNode.closest('[data-belongs-to-pages]')){
+            if(JSON.parse(el.parentNode.closest('[data-belongs-to-pages]').dataset.belongsToPages).length===1){
+                // Skip when parent is part of single page already
+                return result;
+            }
+            if(JSON.parse(el.parentNode.closest('[data-belongs-to-pages]').dataset.belongsToPages).length>1){
+                // Check if is element with margin
+                if(JSON.parse(el.parentNode.closest('[data-belongs-to-pages]').classList.contains('super-pdf-el-with-margin'))){
+                    // Skip when parent is part of single page already
+                    return result;
+                }
+            }
+        }
         //var i, innerNodes = el.querySelectorAll(':scope > .super-html-content > *');
         var i, h, innerNodes = el.children;
         for(i=0; i<innerNodes.length; i++){
-            if(innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
+            if(innerNodes[i].tagName==='STRONG' || innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
                 continue;
             }
             // Check if has inner elements
@@ -8522,6 +8537,7 @@ function SUPERreCaptcha(){
                 continue;
             }
             result = SUPER.pdf_determine_belong_to(innerNodes, innerNodes[i], result, args);
+            args.totalScrolled = result.totalScrolled;
         }
         h = SUPER.getNodeHeight(el, true, true, true);
         if(h===0 && !el.classList.contains('super-pdf_page_break')){
@@ -8586,108 +8602,241 @@ function SUPERreCaptcha(){
         while(!stop){
             var tmpTop = SUPER.round(top, 2);
             var tmpScrollAmount = SUPER.round(args.scrollAmount, 2);
-            if(tmpTop >= tmpScrollAmount*counter){
-                page++;
-                counter++;
-                continue;
-            }
-            if(tmpScrollAmount*counter >= tmpTop && tmpScrollAmount*counter <= tmpTop+h){
-                // Belongs to this page
-                if(result.belongsTo.indexOf(page)===-1) {
-                    result.belongsTo.push(page);
-                    if(result.totalPages<page){
-                        result.totalPages = page;
+            var elementTop = SUPER.round(top,2);
+            var elementBottom = elementTop+h;
+            // element 1 = 0 to 1112
+            if(elementTop<tmpScrollAmount*counter){
+                // part of this page
+                var newPage = counter-1+result.currentPage;
+                if(result.belongsTo.indexOf(newPage)===-1) {
+                    result.belongsTo.push(newPage);
+                    if(result.totalPages<newPage){
+                        result.totalPages = newPage;
                     }
                 }
-                if(belongsTo.indexOf(page)===-1) {
-                    belongsTo.push(page);
-                    if(result.totalPages<page){
-                        result.totalPages = page;
+                if(belongsTo.indexOf(newPage)===-1) {
+                    belongsTo.push(newPage);
+                    if(result.totalPages<newPage){
+                        result.totalPages = newPage;
                     }
                 }
-                // Only belongs to this page?
-                if(tmpTop+h<=tmpScrollAmount*counter){
+                if(elementBottom<tmpScrollAmount*counter){
+                    // part of this page, but not the next
                     stop = true;
                     continue;
                 }
-            }else{
-                if(tmpTop+h<=tmpScrollAmount*counter){
-                    // Belongs to this page
-                    if(result.belongsTo.indexOf(page)===-1) {
-                        result.belongsTo.push(page);
-                        if(result.totalPages<page){
-                            result.totalPages = page;
-                        }
-                    }
-                    if(belongsTo.indexOf(page)===-1) {
-                        belongsTo.push(page);
-                        if(result.totalPages<page){
-                            result.totalPages = page;
-                        }
+                // also part of next
+                counter++;
+                continue;
+            }
+            counter++;
 
-                    }
-                    // Also part of next page, apply top margin to put the element as a whole on to the next page
-                    // Only if the height of the element is 40% of the scrollAmount
-                    if(!args.pdfSettings.smartBreak) args.pdfSettings.smartBreak = 40;
-                    args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : Number(args.pdfSettings.smartBreak)); // defulat to 50% of page height
-                    if(belongsTo.length>1 && h<=(tmpScrollAmount/100)*args.pdfSettings.smartPageBreaksMaxHeight){
-                        // If already has margin
-                        if(el.querySelector('.super-pdf-el-with-margin')){
-                            stop = true;
-                            continue;
-                        }
-                        // In some cases we want to apply the top margin to the parent element.
-                        // For instance, for the slider, dropdown 
-                        // But not for radio/checkbox items, with the exception for `super-item` class
-                        var allowMargin = true;
-                        var disAllowed = ['toggle', 'item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
-                        for(var x=0; x<disAllowed.length; x++){
-                            if(el.parentNode.closest('.super-'+disAllowed[x])){
-                                if(!el.classList.contains('super-'+disAllowed[x])) {
-                                    allowMargin = false;
-                                }else{
-                                    // Exceptions
-                                    if(el.className==='super-rating'){
-                                        allowMargin = false;
-                                    }
-                                }
+            // tmp // page 1 = 0 to 1111.68
+            // tmp // page 2 = 1111.68 to 2222.68
+            // tmp // page 3 = 2222.68 to 3333.68
+            // tmp // page 4 = 3333.68 to 4444.68
+
+            // tmp // 0*1000 = 0
+            // tmp // 1*1000 = 1000
+            // tmp // ---------------
+            // tmp // 1*1000 = 1000
+            // tmp // 2*2000 = 2000
+
+            // tmp // Check if only belongs to this page
+            // tmp if( ((counter-1)*tmpScrollAmount <= tmpTop) && (counter*tmpScrollAmount>tmpTop+h) ) {
+            // tmp     // Only belongs to this page
+            // tmp     if(result.belongsTo.indexOf(counter)===-1) {
+            // tmp         result.belongsTo.push(counter);
+            // tmp         if(result.totalPages<counter){
+            // tmp             result.totalPages = counter;
+            // tmp         }
+            // tmp     }
+            // tmp     if(belongsTo.indexOf(counter)===-1) {
+            // tmp         belongsTo.push(counter);
+            // tmp         if(result.totalPages<counter){
+            // tmp             result.totalPages = counter;
+            // tmp         }
+            // tmp     }
+            // tmp     stop = true;
+            // tmp     continue;
+            // tmp }
+            // tmp // Check if belongs to this page and the next page(s)
+            // tmp if( ((counter-1)*tmpScrollAmount <= tmpTop) && (counter*tmpScrollAmount<=tmpTop+h) ) {
+            // tmp     // Only belongs to this page
+            // tmp     if(result.belongsTo.indexOf(counter)===-1) {
+            // tmp         result.belongsTo.push(counter);
+            // tmp         if(result.totalPages<counter){
+            // tmp             result.totalPages = counter;
+            // tmp         }
+            // tmp     }
+            // tmp     if(belongsTo.indexOf(counter)===-1) {
+            // tmp         belongsTo.push(counter);
+            // tmp         if(result.totalPages<counter){
+            // tmp             result.totalPages = counter;
+            // tmp         }
+            // tmp     }
+            // tmp }
+            // tmp if(tmpTop+h<counter*tmpScrollAmount){
+            // tmp     stop = true;
+            // tmp     continue;
+            // tmp }
+            // tmp counter++;
+
+            // tmp if(tmpTop >= tmpScrollAmount*counter){
+            // tmp     page++;
+            // tmp     counter++;
+            // tmp     continue;
+            // tmp }
+            // tmp if(tmpScrollAmount*counter >= tmpTop && tmpScrollAmount*counter <= tmpTop+h){
+            // tmp     // Belongs to this page
+            // tmp     if(result.belongsTo.indexOf(page)===-1) {
+            // tmp         result.belongsTo.push(page);
+            // tmp         if(result.totalPages<page){
+            // tmp             result.totalPages = page;
+            // tmp         }
+            // tmp     }
+            // tmp     if(belongsTo.indexOf(page)===-1) {
+            // tmp         belongsTo.push(page);
+            // tmp         if(result.totalPages<page){
+            // tmp             result.totalPages = page;
+            // tmp         }
+            // tmp     }
+            // tmp     // Only belongs to this page?
+            // tmp     if(tmpTop+h<=tmpScrollAmount*counter){
+            // tmp         stop = true;
+            // tmp         continue;
+            // tmp     }
+            // tmp }else{
+            // tmp     if(tmpTop+h<=tmpScrollAmount*counter){
+            // tmp         // Belongs to this page
+            // tmp         if(result.belongsTo.indexOf(page)===-1) {
+            // tmp             result.belongsTo.push(page);
+            // tmp             if(result.totalPages<page){
+            // tmp                 result.totalPages = page;
+            // tmp             }
+            // tmp         }
+            // tmp         if(belongsTo.indexOf(page)===-1) {
+            // tmp             belongsTo.push(page);
+            // tmp             if(result.totalPages<page){
+            // tmp                 result.totalPages = page;
+            // tmp             }
+
+            // tmp         }
+            // tmp         // Also part of next page, apply top margin to put the element as a whole on to the next page
+            // tmp         // Only if the height of the element is 40% of the scrollAmount
+            // tmp         if(!args.pdfSettings.smartBreak) args.pdfSettings.smartBreak = 40;
+            // tmp         args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : Number(args.pdfSettings.smartBreak)); // defulat to 50% of page height
+            // tmp         if(belongsTo.length>1 && h<=(tmpScrollAmount/100)*args.pdfSettings.smartPageBreaksMaxHeight){
+            // tmp             // If already has margin
+            // tmp             if(el.querySelector('.super-pdf-el-with-margin')){
+            // tmp                 stop = true;
+            // tmp                 continue;
+            // tmp             }
+            // tmp             // In some cases we want to apply the top margin to the parent element.
+            // tmp             // For instance, for the slider, dropdown 
+            // tmp             // But not for radio/checkbox items, with the exception for `super-item` class
+            // tmp             var allowMargin = true;
+            // tmp             var disAllowed = ['li', 'toggle', 'item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
+            // tmp             for(var x=0; x<disAllowed.length; x++){
+            // tmp                 if(el.parentNode.closest('.super-'+disAllowed[x])){
+            // tmp                     if(!el.classList.contains('super-'+disAllowed[x])) {
+            // tmp                         allowMargin = false;
+            // tmp                     }else{
+            // tmp                         // Exceptions
+            // tmp                         if(el.className==='super-rating'){
+            // tmp                             allowMargin = false;
+            // tmp                         }
+            // tmp                     }
+            // tmp                 }
+            // tmp             }
+            // tmp             if(allowMargin===false){
+            // tmp                 stop = true;
+            // tmp                 continue;
+            // tmp             }
+            // tmp             // Difference
+            // tmp             var diff = (tmpScrollAmount*(counter-1))-(tmpTop);
+            // tmp             var computedStyle = getComputedStyle(el);
+            // tmp             el.dataset.oldMarginTop = computedStyle.marginTop;
+            // tmp             var marginTop = parseFloat(computedStyle.marginTop) + diff;
+            // tmp             // If we have adaptive placeholders, then apply an extra margin
+            // tmp             if(el.querySelector('.super-adaptive-placeholder > span')){
+            // tmp                 // Only apply when field is filled out e.g. has class `super-filled`
+            // tmp                 if(el.classList.contains('super-filled')){
+            // tmp                     h = SUPER.getNodeHeight(el.querySelector('.super-adaptive-placeholder > span'), true, false, true); // Exlude margine due to -8px top margin on adaptive placeholder
+            // tmp                     marginTop = marginTop + (h/2);
+            // tmp                 }
+            // tmp             }
+            // tmp             el.dataset.newMarginTop = marginTop;
+            // tmp             el.style.marginTop = marginTop+'px';
+            // tmp             el.classList.add('super-pdf-el-with-margin');
+            // tmp             if(el.classList.contains('super-pdf-text-node')){
+            // tmp                 // Special ocasion for PDF text
+            // tmp                 el.style.display = 'inline-block';
+            // tmp             }
+            // tmp             // Recheck children again?
+            // tmp             args.recheckChildrenAgain = true;
+            // tmp             stop = true;
+            // tmp             continue;
+            // tmp         }
+            // tmp     }
+            // tmp     stop = true;
+            // tmp }
+            // tmp page++;
+            // tmp counter++;
+        }
+
+
+        // Apply top margin to put the element as a whole on to the next page
+        // Only if the height of the element is 95% of the scrollAmount
+        if(belongsTo.length>1 && !el.querySelector('.super-pdf-el-with-margin') && !el.classList.contains('super-pdf-el-with-margin')){
+            if(!args.pdfSettings.smartBreak) args.pdfSettings.smartBreak = 95;
+            args.pdfSettings.smartPageBreaksMaxHeight = (args.pdfSettings.smartPageBreaksMaxHeight ?  args.pdfSettings.smartPageBreaksMaxHeight : Number(args.pdfSettings.smartBreak)); // default to 95% of page height
+            if(h<=(tmpScrollAmount/100)*args.pdfSettings.smartPageBreaksMaxHeight){
+                // In some cases we want to apply the top margin to the parent element.
+                // For instance, for the slider, dropdown 
+                // But not for radio/checkbox items, with the exception for `super-item` class
+                var allowMargin = true;
+                var disAllowed = ['li', 'toggle', 'item', 'text', 'textarea', 'dropdown', 'time', 'date', 'password', 'currency', 'calculator', 'rating', 'color', 'slider', 'signature', 'quantity'];
+                for(var x=0; x<disAllowed.length; x++){
+                    if(el.parentNode.closest('.super-'+disAllowed[x])){
+                        if(!el.classList.contains('super-'+disAllowed[x])) {
+                            allowMargin = false;
+                        }else{
+                            // Exceptions
+                            if(el.className==='super-rating'){
+                                allowMargin = false;
                             }
                         }
-                        if(allowMargin===false){
-                            stop = true;
-                            continue;
-                        }
-                        // Difference
-                        var diff = (tmpScrollAmount*(counter-1))-(tmpTop);
-                        var computedStyle = getComputedStyle(el);
-                        el.dataset.oldMarginTop = computedStyle.marginTop;
-                        var marginTop = parseFloat(computedStyle.marginTop) + diff;
-                        // If we have adaptive placeholders, then apply an extra margin
-                        if(el.querySelector('.super-adaptive-placeholder > span')){
-                            // Only apply when field is filled out e.g. has class `super-filled`
-                            if(el.classList.contains('super-filled')){
-                                h = SUPER.getNodeHeight(el.querySelector('.super-adaptive-placeholder > span'), true, false, true); // Exlude margine due to -8px top margin on adaptive placeholder
-                                marginTop = marginTop + (h/2);
-                            }
-                        }
-                        el.dataset.newMarginTop = marginTop;
-                        el.style.marginTop = marginTop+'px';
-                        el.classList.add('super-pdf-el-with-margin');
-                        if(el.classList.contains('super-pdf-text-node')){
-                            // Special ocasion for PDF text
-                            el.style.display = 'inline-block';
-                        }
-                        // Recheck children again?
-                        args.recheckChildrenAgain = true;
-                        stop = true;
-                        continue;
                     }
                 }
-                stop = true;
+                if(allowMargin===true){
+                    // Difference
+                    //var diff = (tmpScrollAmount*(belongsTo[0]))-(tmpTop);
+                    var diff = (tmpScrollAmount*(belongsTo[0]))-(tmpTop)-args.totalScrolled;
+                    var computedStyle = getComputedStyle(el);
+                    el.dataset.oldMarginTop = computedStyle.marginTop;
+                    var marginTop = parseFloat(computedStyle.marginTop) + diff;
+                    // If we have adaptive placeholders, then apply an extra margin
+                    if(el.querySelector('.super-adaptive-placeholder > span')){
+                        // Only apply when field is filled out e.g. has class `super-filled`
+                        if(el.classList.contains('super-filled')){
+                            h = SUPER.getNodeHeight(el.querySelector('.super-adaptive-placeholder > span'), true, false, true); // Exlude margine due to -8px top margin on adaptive placeholder
+                            marginTop = marginTop + (h/2);
+                        }
+                    }
+                    el.dataset.newMarginTop = marginTop;
+                    el.style.marginTop = marginTop+'px';
+                    el.classList.add('super-pdf-el-with-margin');
+                    if(el.classList.contains('super-pdf-text-node')){
+                        // Special ocasion for PDF text
+                        el.style.display = 'inline-block';
+                    }
+                    // Recheck children again?
+                    args.recheckChildrenAgain = true;
+                }
             }
-            page++;
-            counter++;
         }
+
         if(args.recheckChildrenAgain===true){
             // Reset ignore attributes
             nodes = el.querySelectorAll('[data-belongs-to-pages], [data-html2canvas-ignore="true"], .super-pdf-el-with-margin');
@@ -8709,7 +8858,7 @@ function SUPERreCaptcha(){
                 nodes[i].style.height = '0px';
             }
             for(i=0; i<innerNodes.length; i++){
-                if(innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
+                if(innerNodes[i].tagName==='STRONG' || innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
                     continue;
                 }
                 h = SUPER.getNodeHeight(innerNodes[i], true, true, true);
@@ -8717,12 +8866,15 @@ function SUPERreCaptcha(){
                     continue;
                 }
                 result = SUPER.pdf_determine_belong_to(innerNodes, innerNodes[i], result, args);
+                args.totalScrolled = result.totalScrolled;
             }
         }
         if(args.allowIncreasePage===el && belongsTo.length>1){
             // When it belongs to both current and next page, then we must add an offset
             // When going to the next page we will apply the offset to move the element up relatively to the current page
-            el.dataset.offsetTop = SUPER.round(args.scrollAmount-top, 2);
+            if(args.scrollAmount-top > 0){
+                el.dataset.offsetTop = SUPER.round(args.scrollAmount-top, 2);
+            }
         }else{
             if(el.classList.contains('super-pdf_page_break')){
                 var top = SUPER.getNodeTop(el, args);
@@ -8758,7 +8910,7 @@ function SUPERreCaptcha(){
 
         // Find all inner belong to, and make sure that we add any missing pages
         for(i=0; i<innerNodes.length; i++){
-            if(innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
+            if(innerNodes[i].tagName==='STRONG' || innerNodes[i].tagName==='BR' || innerNodes[i].tagName==='SPAN') {
                 continue;
             }
             if(!innerNodes[i].dataset.belongsToPages) continue;
@@ -8769,7 +8921,9 @@ function SUPERreCaptcha(){
                 }
             }
         }
-        el.dataset.belongsToPages = JSON.stringify(belongsTo);
+        if(belongsTo.length>0){
+            el.dataset.belongsToPages = JSON.stringify(belongsTo);
+        }
 
         if(changeOrientation){
             // Update page width and height based on current page orientation
@@ -8913,7 +9067,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -8959,6 +9113,7 @@ function SUPERreCaptcha(){
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
         // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
+        if(!args.pdfSettings.imageQuality) args.pdfSettings.imageQuality = 'FAST'; //'FAST' // compression 'NONE', 'FAST', 'MEDIUM' or 'SLOW'
         if(!args.pdfSettings.normalizeFonts) args.pdfSettings.normalizeFonts = 'true';
         if(args.pdfSettings.normalizeFonts==='true'){
             if(args.pdfSettings.native==='true'){
@@ -8986,6 +9141,11 @@ function SUPERreCaptcha(){
         // Required styles for correct element margin tops
         css += '.super-pdf-page-container .super-html-content ol {float:left;width:100%;}';
         css += '.super-pdf-page-container .super-html-content ul {float:left;width:100%;}';
+        css += '.super-pdf-page-container li::marker { content: "" !important; display: none !important; visibility: hidden !important; }';
+        css += '.super-pdf-page-container ul .super-li-marker { width: 20px; height: 100%; transform: translateY(-2px); margin-left: -20px !important; display: inline-flex; justify-content: center; align-items: center; }';
+        css += '.super-pdf-page-container ul .super-li-marker:after { content: ""; width: 4px; height: 4px; background-color: black; border-radius: 100%; }';
+        css += '.super-pdf-page-container ul .super-li-marker.super-li-marker-style-circle:after { width: 3px; height: 3px; background: none; border: 1px solid black; }';
+        css += '.super-pdf-page-container ul .super-li-marker.super-li-marker-style-square:after { border-radius: 0; }';
         // Hide elements that do not belong to the current page
 
         // To resolve the "start" attribute on "ol" element
@@ -9215,6 +9375,114 @@ function SUPERreCaptcha(){
                 if(el && el.style) el.style.fontSize = newFontSize+'px';
             }
         }
+
+        const greekLetters = ['α', 'β', 'γ', 'δ', 'ε', 'ζ', 'η', 'θ', 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω'];
+        function convertToRoman(num, style) {
+            const romanNumeralMap = {M: 1000, CM: 900, D: 500, CD: 400, C: 100, XC: 90, L: 50, XL: 40, X: 10, IX: 9, V: 5, IV: 4, I: 1};
+            let romanNumeral = '';
+            for (let key in romanNumeralMap) {
+                while (num >= romanNumeralMap[key]) {
+                    if(style==='lower'){
+                        romanNumeral += key.toLowerCase();
+                    }else{
+                        romanNumeral += key;
+                    }
+                    num -= romanNumeralMap[key];
+                }
+            }
+            return romanNumeral;
+        }
+        function applyMarkers(items) {
+            var elCounter = 0;
+            var prefixIndex = 0;
+            var prefix = '';
+            var start = 1;
+            var spanWidth = 0;
+            var baseCharCode = "a".charCodeAt(0);
+            for (var i = 0; i < items.length; i++) {
+                var marker = document.createElement("span");
+                marker.classList.add('super-li-marker');
+                marker.classList.add('super-li-marker-style-'+items[i].parentNode.style.listStyleType);
+                if(items[i].parentNode.start){
+                    start = Number(items[i].parentNode.start);
+                    if(start>1 && i===0){
+                        elCounter = start-1;
+                    }
+                }
+                if(items[i].parentNode.style.listStyleType==='lower-alpha' || items[i].parentNode.style.listStyleType==='upper-alpha'){
+                    if(26===elCounter){
+                        elCounter = 0;
+                        prefix = String.fromCharCode(baseCharCode + prefixIndex);
+                        prefixIndex++;
+                    }
+                    if(items[i].parentNode.style.listStyleType==='upper-alpha'){
+                        marker.innerText = (prefix+String.fromCharCode(baseCharCode + elCounter)).toUpperCase() + ". ";
+                    }else{
+                        marker.innerText = prefix+String.fromCharCode(baseCharCode + elCounter) + ". ";
+                    }
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    elCounter++;
+                    continue;
+                }
+                if(items[i].parentNode.style.listStyleType==='lower-greek' || items[i].parentNode.style.listStyleType==='upper-greek'){
+                    if(greekLetters.length===elCounter){
+                        elCounter = 0;
+                        prefix = greekLetters[prefixIndex];
+                        prefixIndex++;
+                    }
+                    if(items[i].parentNode.style.listStyleType==='upper-greek'){
+                        marker.innerText = (prefix+greekLetters[elCounter]).toUpperCase() + ". ";
+                    }else{
+                        marker.innerText = prefix+greekLetters[elCounter] + ". ";
+                    }
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    elCounter++;
+                    continue;
+                }
+                if(items[i].parentNode.style.listStyleType==='lower-roman'){
+                    marker.innerText = convertToRoman(i+1, 'lower') + ". ";
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    continue;
+                }
+                if(items[i].parentNode.style.listStyleType==='upper-roman'){
+                    marker.innerText = convertToRoman(i+1, 'upper') + ". ";
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    continue;
+                }
+                // Default
+                if(items[i].parentNode.tagName==='OL'){
+                    marker.innerText = (elCounter+1) + ". ";
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    elCounter++;
+                    continue;
+                }
+                if(items[i].parentNode.tagName==='UL'){
+                    marker.innerText = "";
+                    items[i].insertBefore(marker, items[i].firstChild);
+                    spanWidth = marker.offsetWidth;
+                    marker.style.marginLeft = `-${spanWidth}px`;
+                    continue;
+                }
+
+            }
+        }
+        if(args.pdfSettings.native==='true'){
+            nodes = document.querySelectorAll('.super-form ol, .super-form ul');
+            for(i=0;i<nodes.length;i++){
+                var list = nodes[i].querySelectorAll(':scope > li');
+                applyMarkers(list);
+            }
+        }
         SUPER.recheckCanvasImages(args, function(){
             SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){
                 // First disable the UI on the map for nicer print of the map
@@ -9396,6 +9664,12 @@ function SUPERreCaptcha(){
                                         nodes[i].style.marginTop = '-'+(initialOffset+restOfPagesOffset)+'px';
                                     }
                                 }
+                            }else{
+                                // Second to third, or third to fourth, etc.
+                                // e.g. 1 equals (750)
+                                var initialOffset = (Math.round(Number(nodes[i].dataset.offsetTop), 1e2));
+                                var restOfPagesOffset = args.scrollAmount*(index-1);
+                                nodes[i].style.marginTop = (initialOffset+restOfPagesOffset)+'px';
                             }
                         }
                     }
@@ -9436,7 +9710,6 @@ function SUPERreCaptcha(){
                         orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
                         format: args.format,             // The format of the first page.  Default is "a4"
                         putOnlyUsedFonts: true,    // Only put fonts into the PDF, which were used.
-                        compress: false,            // Compress the generated PDF.
                         precision: 16,              // Precision of the element-positions.
                         userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
                         floatPrecision: 16,         // or "smart", default is 16
@@ -9535,7 +9808,9 @@ function SUPERreCaptcha(){
                             0,          // x Coordinate (in units declared at inception of PDF document) against left edge of the page
                             0,          // y Coordinate (in units declared at inception of PDF document) against upper edge of the page
                             args.pageWidth,
-                            args.pageHeight
+                            args.pageHeight,
+                            'page-'+args.currentPage, // alias (page-1, page-2 etc.)
+                            args.pdfSettings.imageQuality, //'FAST' // compression 'NONE', 'FAST', 'MEDIUM' or 'SLOW'
                         );
                         // Make PDF searchable when text rendering is enabled
                         if(!args.pdfSettings.textRendering) args.pdfSettings.textRendering = 'true';
@@ -9761,9 +10036,19 @@ function SUPERreCaptcha(){
         }
         // Grab belongs to based of parent node
         var p = el.parentNode.closest('[data-belongs-to-pages]');
-        if(p && p.dataset.belongsToPages.indexOf(args.currentPage)===-1){
-            // Skip for this page
-            return true;
+        if(p && p.classList.contains('super-pdf-el-with-margin')){
+            if(JSON.parse(p.dataset.belongsToPages).length>1){
+                var belongsToPages = JSON.parse(p.dataset.belongsToPages);
+                if(args.currentPage===belongsToPages[0]){
+                    // Skip for this page
+                    return true;
+                }
+            }
+        }else{
+            if(p && p.dataset.belongsToPages.indexOf(args.currentPage)===-1){
+                // Skip for this page
+                return true;
+            }
         }
         var tmpPosTop, paddingRight, paddingLeft, paddingTop, pos, value = '';
         value = el.innerText;
@@ -9797,6 +10082,10 @@ function SUPERreCaptcha(){
         var posWidth = (pos.width/args.scale)*args.convertFromPixel;
         var posHeight = (pos.height/args.scale)*args.convertFromPixel;
         var posLeft = ((pos.left+9999)/args.scale)*args.convertFromPixel;
+        if(el.parentNode.closest('.super-li-marker')){
+            posLeft = ((pos.left-pos.width+9999)/args.scale)*args.convertFromPixel;
+        }
+
         if(args.debugger===true){
             posLeft = ((pos.left)/args.scale)*args.convertFromPixel;
         }
@@ -9819,13 +10108,15 @@ function SUPERreCaptcha(){
             }
         }
         var color = getComputedStyle(el.parentNode).backgroundColor;
-        SUPER.pdf_rgba2hex(args, color, ['fillColor']);
-        args._pdf.rect(posLeft, posTop, posWidth, posHeight, 'F');
+        // When background color of PDF itself matches the background color of element then don't draw it
+        if(color!=='rgb(255, 255, 255)' && color!=='rgba(0, 0, 0, 0)'){
+            SUPER.pdf_rgba2hex(args, color, ['fillColor']);
+            args._pdf.rect(posLeft, posTop, posWidth, posHeight, 'F');
+        }
         // Set color
         color = getComputedStyle(el.parentNode).color;
         SUPER.pdf_rgba2hex(args, color, ['textColor']);
         posWidth = ((pos.width+1)/args.scale)*args.convertFromPixel;
-        console.log(value[0]);
         args._pdf.text(value, posLeft, posTop+(topLineHeight*1), {align: 'left', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'hanging', renderingMode: args.renderingMode}); 
         return true;
     };
@@ -9844,7 +10135,14 @@ function SUPERreCaptcha(){
             return true;
         }
         if(!el.dataset.belongsToPages) {
-            el.dataset.belongsToPages = el.closest('[data-belongs-to-pages]').dataset.belongsToPages;
+            if(el.closest('[data-belongs-to-pages]').classList.contains('super-pdf-el-with-margin')){
+                if(JSON.parse(el.closest('[data-belongs-to-pages]').dataset.belongsToPages).length>1){
+                    var belongsToPages = JSON.parse(el.closest('[data-belongs-to-pages]').dataset.belongsToPages);
+                    el.dataset.belongsToPages = '['+JSON.stringify(belongsToPages[1])+']';
+                }
+            }else{
+                el.dataset.belongsToPages = el.closest('[data-belongs-to-pages]').dataset.belongsToPages;
+            }
         }
         if(!el.dataset.belongsToPages) {
             return false;
@@ -9871,6 +10169,7 @@ function SUPERreCaptcha(){
     // PDF render native elements
     SUPER.pdf_generator_render_elements = function(args){
         var selectors = `
+        .super-li-marker,
         .super-html-content img,
         .super-column,
         .super-signature,
@@ -9909,7 +10208,9 @@ function SUPERreCaptcha(){
         for( i=0; i < nodes.length; i++ ) {
             el = nodes[i];
             // Before we print the text, we must check if it's visible for this specific PDF page
-            if(SUPER.isVisibleOnCurrentPage(args, nodes[i])===false) continue;
+            if(SUPER.isVisibleOnCurrentPage(args, nodes[i])===false) {
+                continue;
+            }
             // Reset opacity
             args._pdf.setGState(new args._pdf.GState({opacity: 1}));
             // Reset text color
@@ -9917,6 +10218,34 @@ function SUPERreCaptcha(){
             // Reset line width
             //args._pdf.setLineWidth(1*args.convertFromPixel);
 
+            // Markers
+            if(el.classList.contains('super-li-marker')){
+                // Skip or draw a bullet, circle or square
+                if(el.parentNode.parentNode.tagName==='UL'){
+                    pos = SUPER.pdf_get_native_el_position(el, args);
+                    if(el.parentNode.parentNode.style.listStyleType==='square'){
+                        width = (3/args.scale)*args.convertFromPixel;
+                        color = getComputedStyle(el,':after').backgroundColor;
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor', 'fillColor']);
+                        args._pdf.rect(pos.l+(pos.w/2.3), pos.t+(pos.h/2), width, width, 'FD');
+                        continue;
+                    }
+                    if(el.parentNode.parentNode.style.listStyleType==='circle'){
+                        color = getComputedStyle(el,':after').borderColor;
+                        SUPER.pdf_rgba2hex(args, color, ['drawColor']);
+                        args._pdf.setLineWidth(0.7*args.convertFromPixel);
+                        radius = (2/args.scale)*args.convertFromPixel;
+                        args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/1.2), radius, 'D');
+                        continue;
+                    }
+                    color = getComputedStyle(el,':after').backgroundColor;
+                    SUPER.pdf_rgba2hex(args, color, ['fillColor', 'drawColor']);
+                    args._pdf.setLineWidth(0.7*args.convertFromPixel);
+                    radius = (2/args.scale)*args.convertFromPixel;
+                    args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/1.2), radius, 'FD');
+                }
+                continue;
+            }
             // Signature
             if(el.classList.contains('super-signature')){
                 node = el.querySelector('.super-signature-canvas');
@@ -9930,7 +10259,8 @@ function SUPERreCaptcha(){
                 var src = canvas.toDataURL('image/png');
                 pos = SUPER.pdf_get_native_el_position(canvas, args);
                 var fieldName = el.closest('.super-shortcode').querySelector('.super-shortcode-field').name;
-                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, fieldName, 'NONE', 0);
+                debugger;
+                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, fieldName, args.pdfSettings.imageQuality, 0);
                 continue;
             }
             // Accordion header
@@ -10218,7 +10548,7 @@ function SUPERreCaptcha(){
                 if(flag){
                     var src = flag.dataset.imgData;
                     pos = SUPER.pdf_get_native_el_position(flag, args);
-                    args._pdf.addImage(src, type, pos.l, pos.t, pos.w, pos.h, el.dataset.name, 'NONE', 0);
+                    args._pdf.addImage(src, type, pos.l, pos.t, pos.w, pos.h, el.dataset.name, args.pdfSettings.imageQuality, 0);
                 }
                 continue;
             }
@@ -10321,7 +10651,7 @@ function SUPERreCaptcha(){
                     var type = el.dataset.type;
                     pos = SUPER.pdf_get_native_el_position(image, args);
                     var filename = src.split('/').pop();
-                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, 'NONE', 0);
+                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, args.pdfSettings.imageQuality, 0);
                 }
                 continue;
             }
@@ -10332,7 +10662,7 @@ function SUPERreCaptcha(){
                 pos = SUPER.pdf_get_native_el_position(el, args);
                 var src = el.src;
                 var filename = src.split('/').pop();
-                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, 'NONE', 0);
+                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, args.pdfSettings.imageQuality, 0);
                 continue;
             }
 
@@ -10747,11 +11077,6 @@ function SUPERreCaptcha(){
                             var percentComplete = evt.loaded / evt.total;
                             //Do something with upload progress here
                             if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-                            //if(args._pdf!==false){
-                            //    if(args.progressBar) args.progressBar.style.width = ((50*percentComplete)+50)+"%";  
-                            //}else{
-                            //    if(args.progressBar) args.progressBar.style.width = (100*percentComplete)+"%";  
-                            //}
                         }
                     }, false);
                 }
@@ -10760,8 +11085,15 @@ function SUPERreCaptcha(){
             success: function(result){
                 result = JSON.parse(result);
                 if(result.error===true){
-                    // Display error message
-                    SUPER.form_submission_finished(args, result);
+                    debugger;
+                    // If session expired, retry
+                    if(result.type==='session_expired'){
+                        debugger;
+                        SUPER.save_data(args);
+                    }else{
+                        // Display error message
+                        SUPER.form_submission_finished(args, result);
+                    }
                 }else{
                     // Update new nonce
                     if(result.response_data && result.response_data.sf_nonce){

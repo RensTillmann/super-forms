@@ -2635,6 +2635,7 @@ class SUPER_Ajax {
                 error_log('submit_form_checks(5)');
                 // Return error
                 SUPER_Common::output_message( array( 
+                    'type' => 'session_expired',
                     'msg' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' )
                 ));
             }
