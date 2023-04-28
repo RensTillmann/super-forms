@@ -9,9 +9,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 19, 2023 - Version 6.3.714
+## Apr 28, 2023 - Version 6.3.715
 
-- **Added:** Option to define PDF smart page break threshold in percentage relative to page height
+- **Added:** New option for `PDF Generator` to define image quality inside generated PDF file
+- **Added:** New option for `PDF Generator` to generate native PDF elements
+- **Added:** New option for `PDF Generator` to enable smart page breaks for elements (put the element on the next page automatically when possible)
 - **Added:** New action hook `super_before_login_user_action` to allow for instance update user meta data directly before the user logs in
 - **Added:** Option to jump to a specific field so that a user can edit it, simply use `#fieldname` on your href attribute like so `Summary:<br />First name: {first_name} - <a href="#first_name">EDIT</a>`
 - **Added:** Option to define wrapper and or field ID attribute elements, when left blank the default ID will be `sf-wrapper-1234-yourfieldname` and `sf-field-582-1-yourfieldname` where `582` would be the form ID and `1` the form index (if you have multiple forms this will auto increment by one).
