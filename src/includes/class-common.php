@@ -1567,6 +1567,7 @@ class SUPER_Common {
     }
     public static function output_message($x) { 
         extract( shortcode_atts( array(
+            'type'=>'',
             'error'=>true,
             'msg'=>'Missing required parameter $msg!', 
             'redirect'=>null,
@@ -1582,7 +1583,7 @@ class SUPER_Common {
             echo $msg;
         }else{
             // We will want to return a JSON string with the error/success message data
-            $result = array('error'=>$error, 'msg'=>$msg);
+            $result = array('type'=>$type, 'error'=>$error, 'msg'=>$msg);
             if($redirect!=null) $result['redirect']= $redirect;
             $result['fields'] = $fields;
             $result['display'] = $display; // @since 3.4.0 - option to hide the message

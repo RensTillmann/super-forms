@@ -1295,22 +1295,23 @@
             added_fields_with_suffix = {},
             added_fields_without_suffix = [],
             i, field, parent, last_tab_index,
-            nodes = args.clone.querySelectorAll('.super-shortcode-field[name]');
+            nodes = args.clone.querySelectorAll('.super-shortcode-field[name], [data-conditional-action]');
 
         for (i = 0; i < nodes.length; ++i) {
             field = nodes[i];
-            parent = field.closest('.super-field');
-            if(field.classList.contains('super-fileupload')){
-                field.classList.remove('super-rendered');
-                field = field.parentNode.querySelector('.super-active-files');
+            if(!field.classList.contains('super-column')){
+                parent = field.closest('.super-field');
+                if(field.classList.contains('super-fileupload')){
+                    field.classList.remove('super-rendered');
+                    field = field.parentNode.querySelector('.super-active-files');
+                }
+                // Keep valid TAB index
+                if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
+                    last_tab_index = parseFloat(parseFloat(parent.dataset.superTabIndex)+0.001).toFixed(3);
+                    parent.dataset.superTabIndex = last_tab_index;
+                }
+                added_fields[field.name] = field;
             }
-            // Keep valid TAB index
-            if( (typeof parent.dataset.superTabIndex !== 'undefined') && (last_tab_index!=='') ) {
-                last_tab_index = parseFloat(parseFloat(parent.dataset.superTabIndex)+0.001).toFixed(3);
-                parent.dataset.superTabIndex = last_tab_index;
-            }
-            added_fields[field.name] = field;
-
             // Figure out how deep this node is inside dynamic columns
             var cloneIndex = $(args.clone).index();
             var dynamicParent = field.closest('.super-duplicate-column-fields');
@@ -1319,17 +1320,29 @@
                 nameSuffix = '_'+(cloneIndex+1);
             }
             var levels = field.closest('.super-column[data-duplicate-limit]').dataset.level;
+            if(field.classList.contains('super-column')){
+                levels = field.parentNode.closest('.super-column[data-duplicate-limit]').dataset.level;
+            }
             if(!levels) levels = '';
-            var originalFieldName = field.dataset.oname;
-            field.name = originalFieldName+levels+nameSuffix;
-            //field.value = field.name; 
+            var originalFieldName = '';
+            if(!field.classList.contains('super-column')){
+                originalFieldName = field.dataset.oname;
+                field.name = originalFieldName+levels+nameSuffix;
+            }else{
+                field.dataset.sfuid = field.dataset.sfuid+(levels+nameSuffix);
+                continue;
+            }
+            // Update sfuid and id attribute
+            parent.dataset.sfuid = parent.dataset.sfuid+(levels+nameSuffix);
+            parent.id = parent.id+(levels+nameSuffix);
+            field.id = field.id+(levels+nameSuffix);
             field.dataset.levels = levels;
             added_fields_with_suffix[originalFieldName] = field.name; 
             added_fields_without_suffix.push(field.name);
             if( field.classList.contains('hasDatepicker') ) field.classList.remove('hasDatepicker'); field.id = '';
             if( field.classList.contains('ui-timepicker-input') ) field.classList.remove('ui-timepicker-input');
         }
-
+        args.clone.dataset.sfuid = args.clone.dataset.sfuid+(levels+nameSuffix);
 
         nodes = args.clone.querySelectorAll('.super-shortcode div[data-original], .super-html-content, .super-conditional-logic, .super-validate-conditions, .super-variable-conditions');
         for(i=0; i<nodes.length; ++i){
