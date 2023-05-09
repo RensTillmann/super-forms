@@ -3506,6 +3506,7 @@ class SUPER_Ajax {
         $attachments = $loops['attachments'];
         $confirm_attachments = $loops['confirm_attachments'];
         $string_attachments = $loops['string_attachments'];
+        $confirm_string_attachments = $loops['confirm_string_attachments'];
 
         // @since 4.9.5 - override setting with global email settings
         // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
@@ -3710,7 +3711,7 @@ class SUPER_Ajax {
             $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
             // Send the email
-            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
+            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$confirm_string_attachments );
             $mail = SUPER_Common::email( $params );
 
             // Return error message

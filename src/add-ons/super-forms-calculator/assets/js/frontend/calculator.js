@@ -23,17 +23,11 @@
 
 	// @since 1.1.2
 	// Init Calculator
-	SUPER.init_calculator_update_data_value = function($data){
-		// Get the form ID
-		var $form_id = parseInt($data.hidden_form_id.value, 10),
-			$form = $('.super-form-'+$form_id), // Now get the form by class
-			$field,
-			$name;
-
+	SUPER.init_calculator_update_data_value = function($data, form0){
 		// Now loop through all the calculator elements and update the $data object
-		$form.find('.super-calculator').each(function(){
-			$field = $(this).find('.super-shortcode-field');
-			$name = $field.attr('name');
+		$(form0).find('.super-calculator').each(function(){
+			var $field = $(this).find('.super-shortcode-field');
+			var $name = $field.attr('name');
 			if(typeof $data[$name] !== 'undefined'){
 				$data[$name].value = $field.attr('data-value');
 			}

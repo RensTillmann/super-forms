@@ -55,14 +55,16 @@ class SUPER_Shortcodes {
             'predefined'=>false // used by output_builder_html()
         ), $x );
     } 
-    public static function element_uid(){
+    public static function element_uid($counter=true){
         $char = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($char);
         $code = '';
         for($i=0; $i<8; $i++){
             $code .= $char[rand(0, $charactersLength-1)];
         }
-        $code .= '-'.$GLOBALS['super_element_counter'];
+        if($counter==true){
+            $code .= '-'.$GLOBALS['super_element_counter'];
+        }
         return 'data-sfuid="'.$code.'"';
     }
     // @since 4.7.5 - wrapper function to get the value for this field from entry data
@@ -6053,6 +6055,7 @@ class SUPER_Shortcodes {
             if($settings['i18n_disable_browser_translation']=='true') $class .= ' notranslate';
             $result .= '<style type="text/css">.super-form:not(.super-initialized,.super-preview-elements) *:not(.super-load-icon) { visibility: hidden !important; }</style>';
             $result .= '<div id="super-form-' . $form_id . '" '; 
+            $result .= self::element_uid(false).' ';
             if($settings['i18n_disable_browser_translation']=='true'){
                 $result .= 'translate="no" ';
             }

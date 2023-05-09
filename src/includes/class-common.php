@@ -2822,6 +2822,7 @@ class SUPER_Common {
         $attachments = array();
         $confirm_attachments = array();
         $string_attachments = array();
+        $confirm_string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 // Skip dynamic data
@@ -2860,23 +2861,26 @@ class SUPER_Common {
                  *
                  *  @since      1.0.9
                 */
-                $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                $listing_result = apply_filters( 'super_before_listing_loop_data_filter', $listing_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'type'=>'admin', 'v'=>$v, 'string_attachments'=>$string_attachments  ) );
+                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'type'=>'confirm', 'v'=>$v, 'confirm_string_attachments'=>$confirm_string_attachments ) );
+                $listing_result = apply_filters( 'super_before_listing_loop_data_filter', $listing_row, array( 'type'=>'listing', 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                 $continue = false;
                 if( isset( $result['status'] ) ) {
                     if( $result['status']=='continue' ) {
                         if( isset( $result['string_attachments'] ) ) {
                             $string_attachments = $result['string_attachments'];
                         }
-                        $email_loop .= $result['row'];
+                        if( ( isset( $result['exclude'] ) ) && ( $result['exclude']==3 ) ) {
+                        }else{
+                            $email_loop .= $result['row'];
+                        }
                         $continue = true;
                     }
                 }
                 if( isset( $confirm_result['status'] ) ) {
                     if( $confirm_result['status']=='continue' ) {
-                        if( isset( $confirm_result['string_attachments'] ) ) {
-                            $string_attachments = $confirm_result['string_attachments'];
+                        if( isset( $confirm_result['confirm_string_attachments'] ) ) {
+                            $confirm_string_attachments = $confirm_result['confirm_string_attachments'];
                         }
                         if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
                         }else{
@@ -3049,7 +3053,8 @@ class SUPER_Common {
             'confirm_loop' => $confirm_loop,
             'attachments' => $attachments,
             'confirm_attachments' => $confirm_attachments,
-            'string_attachments' => $string_attachments
+            'string_attachments' => $string_attachments,
+            'confirm_string_attachments' => $confirm_string_attachments
         );
     }
 

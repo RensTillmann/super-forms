@@ -182,7 +182,7 @@ function SUPERreCaptcha(){
         // already defined: args.list_id
 
         // @since 1.3
-        args.data = SUPER.after_form_data_collected_hook(args.data);
+        args.data = SUPER.after_form_data_collected_hook(args.data, args.form0);
 
         // @since 3.2.0 - honeypot captcha check, if value is not empty cancel form submission
         args.data.super_hp = args.form.find('input[name="super_hp"]').val();
@@ -4371,7 +4371,7 @@ function SUPERreCaptcha(){
         SUPER.save_form_progress_timeout = setTimeout(function () {
             SUPER.prepare_form_data($(args.form), function(formData){
                 var $form_id = formData.form_id;
-                formData = SUPER.after_form_data_collected_hook(formData.data);
+                formData = SUPER.after_form_data_collected_hook(formData.data, args.form0);
                 SUPER.save_form_progress_request(formData, $form_id);
             }, false); // define false, to skip saving nonce (not required when saving progress)
         }, 1000); 
@@ -4895,12 +4895,12 @@ function SUPERreCaptcha(){
     };
 
     // @since 1.3
-    SUPER.after_form_data_collected_hook = function(data){
+    SUPER.after_form_data_collected_hook = function(data, form0){
         var i, name, functions = super_common_i18n.dynamic_functions.after_form_data_collected_hook;
         for ( i = 0; i < functions.length; i++) {
             name = functions[i].name;
             if(typeof SUPER[name] !== 'undefined') {
-                data = SUPER[name](data);
+                data = SUPER[name](data, form0);
             }
         }
         return data;
@@ -6504,7 +6504,7 @@ function SUPERreCaptcha(){
             // @since 3.9.0 - print custom HTML
             $file_id = $print_file.value;
             SUPER.prepare_form_data($(args.form), function(formData){
-                formData = SUPER.after_form_data_collected_hook(formData.data);
+                formData = SUPER.after_form_data_collected_hook(formData.data, args.form0);
                 $.ajax({
                     url: super_common_i18n.ajaxurl,
                     type: 'post',
@@ -8070,10 +8070,10 @@ function SUPERreCaptcha(){
             args.form = document.querySelector('.super-form');
         }
         var formId = (args.form.querySelector('input[name="hidden_form_id"]') ? args.form.querySelector('input[name="hidden_form_id"]').value : 0);
-		if (SUPER.responsive_form_fields_timeout[formId] !== null) {
-			clearTimeout(SUPER.responsive_form_fields_timeout[formId]);
+		if (SUPER.responsive_form_fields_timeout[args.form.dataset.sfuid] !== null) {
+			clearTimeout(SUPER.responsive_form_fields_timeout[args.form.dataset.sfuid]);
 		}
-        SUPER.responsive_form_fields_timeout[formId] = setTimeout(function () {
+        SUPER.responsive_form_fields_timeout[args.form.dataset.sfuid] = setTimeout(function () {
             SUPER.init_common_fields();
             var $classes = [
                 'super-first-responsiveness',
@@ -9067,7 +9067,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
@@ -10259,7 +10259,6 @@ function SUPERreCaptcha(){
                 var src = canvas.toDataURL('image/png');
                 pos = SUPER.pdf_get_native_el_position(canvas, args);
                 var fieldName = el.closest('.super-shortcode').querySelector('.super-shortcode-field').name;
-                debugger;
                 args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, fieldName, args.pdfSettings.imageQuality, 0);
                 continue;
             }

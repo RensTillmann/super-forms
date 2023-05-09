@@ -501,15 +501,16 @@ if( !class_exists('SUPER_Signature') ) :
          *  @since      1.0.0
         */
         public static function add_signature_to_email_loop( $row, $data ) {
+            $type = isset($data['type']) ? $data['type'] : '';
             $v = $data['v'];
             $result['status'] = '';
             $result['exclude'] = '';
             $result['row'] = '';
             if(!isset($v['value'])) return $result;
             if (strpos($v['value'], 'data:image/png;base64,') !== false) {
+                $signature_filename = $v['name'] . ".png";
                 $signature_contact_image_data = $v['value'];
                 $signature_data = substr($signature_contact_image_data, strpos($signature_contact_image_data, ","));
-                $signature_filename = $v['name'] . ".png";
                 $signature_encoding = "base64";
                 $signature_type = "image/png";
                 $data['string_attachments'][] = array(
@@ -517,8 +518,29 @@ if( !class_exists('SUPER_Signature') ) :
                     'filename' => $signature_filename,
                     'encoding' => $signature_encoding,
                     'type' => $signature_type
-
                 );
+                // Check if we should exclude the file from emails
+                // 0 = Do not exclude from e-mails
+                // 1 = Exclude from confirmation email
+                // 2 = Exclude from all email
+                // 3 = Exclude from admin email
+                if($type==='confirm'){
+                    if($v['exclude']==1 || $v['exclude']==2){
+                        // Excluded 
+                    }else{
+                        $result['confirm_string_attachments'] = $data['string_attachments'];
+                    }
+                }
+                if($type==='admin'){
+                    if($v['exclude']==3 || $v['exclude']==2){
+                        // Excluded 
+                    }else{
+                        $result['string_attachments'] = $data['string_attachments'];
+                    }
+                }
+                if($type==='listing'){
+                    $result['string_attachments'] = $data['string_attachments'];
+                }
                 if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                 // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
                 // otherwise the signature will not be displayed
@@ -526,7 +548,6 @@ if( !class_exists('SUPER_Signature') ) :
                 $result['status'] = 'continue';
                 $result['exclude'] = $v['exclude'];
                 $result['row'] = $row;
-                $result['string_attachments'] = $data['string_attachments'];
             }
             return $result;
         }
