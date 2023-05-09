@@ -171,7 +171,7 @@
                     }else{
                         foreach($forms as $value){
                             if($form_id!=$value->ID){
-                                echo '<li value="' . $value->ID . '"><a href="' . esc_url('admin.php?page=super_create_form&id=' . $value->ID) . '">' . $value->post_title . '</a></li>';
+                                echo '<li value="' . $value->ID . '"><a href="' . esc_url('admin.php?page=super_create_form&id=' . $value->ID) . '">' . esc_html($value->post_title) . '</a></li>';
                             }
                         }
                     }

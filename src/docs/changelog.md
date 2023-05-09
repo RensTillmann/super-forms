@@ -9,7 +9,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 28, 2023 - Version 6.3.715
+## May 09, 2023 - Version 6.3.717
 
 - **Added:** New option for `PDF Generator` to define image quality inside generated PDF file
 - **Added:** New option for `PDF Generator` to generate native PDF elements
@@ -39,6 +39,9 @@ endforeach;
 - **Fix:** `Signature` element, rare bug which caused the canvas to not be full width, which would cut off the signature by 50%
 - **Fix:** `<%attachment%>` and `<%attachment_id%>` inside `foreach` loop inside HTML element should return the file attachment ID not the file name
 - **Fix:** Bug with updating existing contact entry and preventing creating a new one when using field name `hidden_contact_entry_id` with Default value set to: `{user_last_entry_id}`
+- **Fix:** Issue when placing the same form on the same page multiple times, causing the submitted values for Calculator element to be incorrect
+- **Fix:** Toggle element render issue when placing the same form multiple times on the same page
+- **Fix:** Excluding Signature `string attachment` from Admin/Confirmation E-mail
 
 ## Dec 21, 2022 - Version 6.3.679
 

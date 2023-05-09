@@ -1644,7 +1644,7 @@ if( !class_exists('SUPER_PayPal') ) :
 
 						$confirm_loop = '';
 						$confirm_attachments = array();
-						$string_attachments = array();
+						$confirm_string_attachments = array();
 						if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
 							foreach( $data as $k => $v ) {
 								// Skip dynamic data
@@ -1666,12 +1666,12 @@ if( !class_exists('SUPER_PayPal') ) :
 								 *
 								 *  @since      1.0.9
 								*/
-								$confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+								$confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'type'=>'confirm', 'v'=>$v, 'confirm_string_attachments'=>$confirm_string_attachments ) );
 								$continue = false;
 								if( isset( $confirm_result['status'] ) ) {
 									if( $confirm_result['status']=='continue' ) {
-										if( isset( $confirm_result['string_attachments'] ) ) {
-											$string_attachments = $confirm_result['string_attachments'];
+										if( isset( $confirm_result['confirm_string_attachments'] ) ) {
+											$confirm_string_attachments = $confirm_result['confirm_string_attachments'];
 										}
 										$confirm_loop .= $confirm_result['row'];
 										$continue = true;
@@ -1859,7 +1859,7 @@ if( !class_exists('SUPER_PayPal') ) :
 						$confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
 						// Send the email
-						$mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments ));
+						$mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$confirm_string_attachments ));
 
 						// Return error message
 						if( !empty( $mail->ErrorInfo ) ) {
