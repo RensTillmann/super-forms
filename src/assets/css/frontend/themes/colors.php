@@ -194,6 +194,7 @@ return "
   ".(!empty($v['theme_field_colors_top']) && !empty($v['theme_field_colors_bottom']) ? "background-image: -ms-linear-gradient(bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);" : "")."
   ".(!empty($v['theme_field_colors_top']) && !empty($v['theme_field_colors_bottom']) ? "background-image: linear-gradient(to bottom, ".$v['theme_field_colors_top']." 25%, ".$v['theme_field_colors_bottom']." 100%);" : "")."
 }
+".$s.".super-field.super-text .super-overlap .super-dropdown-list .super-item.super-active,
 ".$s.".super-int-phone_selected-dial-code {
   ".(!empty($v['theme_field_colors_font']) ? "color: ".$v['theme_field_colors_font'].";" : "")."
 }

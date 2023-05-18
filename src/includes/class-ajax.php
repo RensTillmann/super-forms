@@ -1195,6 +1195,7 @@ class SUPER_Ajax {
             $data['entry_author']['value'] = $v->post_author;
             $data['entry_status']['value'] = $v->post_status;
             $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+            $data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
 
             // @since 3.4.0 - custom entry status
             $data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
@@ -1320,6 +1321,7 @@ class SUPER_Ajax {
             }
         }
         $columns[] = 'entry_ip';
+        $columns[] = 'entry_wc_order_id';
         echo '<div class="super-contact-entries-export-modal">';
             echo '<span class="button super-export-selected-columns-toggle" style="margin-top:10px;">'.esc_html__('Toggle all fields', 'super-forms').'</span>';
             echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 10px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
@@ -1952,6 +1954,7 @@ class SUPER_Ajax {
             $data['entry_author']['value'] = $v->post_author;
             $data['entry_status']['value'] = $v->post_status;
             $data['entry_ip']['value'] = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+            $data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
 
             // @since 3.4.0 - custom entry status
             $data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
@@ -1960,6 +1963,8 @@ class SUPER_Ajax {
         }
         $rows[0][] = 'entry_ip';
         $columns[] = 'entry_ip';
+        $rows[0][] = 'entry_wc_order_id';
+        $columns[] = 'entry_wc_order_id';
 
         foreach( $entries as $k => $v ) {
             foreach( $columns as $cv ) {
@@ -3711,7 +3716,7 @@ class SUPER_Ajax {
             $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
             // Send the email
-            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$confirm_string_attachments );
+            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$confirm_attachments, 'string_attachments'=>$confirm_string_attachments );
             $mail = SUPER_Common::email( $params );
 
             // Return error message

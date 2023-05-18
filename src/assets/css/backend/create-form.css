@@ -851,7 +851,14 @@
     border-top: 0px;
     float: left;
 }
-
+.super-preview-elements .super-accordion-item > .super-accordion-content {
+    height: auto !important;
+    overflow: initial !important;
+    visibility: visible !important;
+}
+.super-preview-elements .super-accordion-item > .super-accordion-content > .super-padding > .super-element-inner {
+    display: block !important;
+}
 .super-preview-elements .super-grid {
     margin: 0px
 }

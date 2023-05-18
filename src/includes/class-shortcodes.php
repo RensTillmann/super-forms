@@ -1234,6 +1234,93 @@ class SUPER_Shortcodes {
                 $items_values[] = $final_value;
             }
         }
+
+
+        // dropdown - google_sheet
+        // checkbox - google_sheet
+        // radio - google_sheet
+        // text - autosuggest - google_sheet
+        // text - keywords - google_sheet
+        if($atts[$prefix.'retrieve_method']=='google_sheet') {
+            $placeholder = array();
+            $items = array();
+            // Set up Google API credentials
+            try {
+                require_once( SUPER_PLUGIN_DIR .'/lib/google/vendor/autoload.php' ); 
+                // Your Google API code that may throw a Google\Service\Exception
+                $client = new Google_Client();
+                $client->setApplicationName('Google Sheets API Example');
+                $client->setScopes(array(Google_Service_Sheets::SPREADSHEETS_READONLY));
+                // ID of the spreadsheet you want to read from
+                $spreadsheetId = trim($atts[$prefix.'retrieve_method_google_sheet']); // e.g. '1FOeRexcxJiPcMAWVGW8xnQ1v6pCTxbAc_KFVoFbpnkM'
+                // Range of the data you want to retrieve (e.g., "Sheet1!A1:C10")
+                $range = trim($atts[$prefix.'retrieve_method_google_sheet_range']);
+                // Credentials JSON
+                $credentials = json_decode(trim($atts[$prefix.'retrieve_method_google_sheet_credentials']), true);
+                $client->setAuthConfig($credentials);
+                // Create Google Sheets service
+                $service = new Google_Service_Sheets($client);
+                // Get the values from the spreadsheet
+                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                $values = $response->getValues();
+            } catch (Google\Service\Exception $exception) {
+                // Handle the exception
+                $errorMessage = $exception->getMessage();
+                $errorDetails = $exception->getErrors();
+                // Handle the error based on your specific requirements
+                // For example, log the error, display a user-friendly message, or take appropriate action
+                // Example: Display error message
+                $value = 'error';
+                $title = $errorMessage;
+                $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
+            }
+            // Process the retrieved data
+            if(!empty($values)){
+                foreach ($values as $row) {
+                    $num = count($row);
+                    $value = 'undefined';
+                    $title = 'undefined';
+                    for($c=0; $c < $num; $c++){
+                        if($c==0) $value = $row[$c];
+                        if($c==1) $title = $row[$c];
+                    }
+                    if($title=='undefined') $title = $value;  // fallback to value
+                    if($tag=='text') {
+                        // text - autosuggest - csv
+                        if( !empty($atts['enable_auto_suggest']) ) {
+                            $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
+                        }else{
+                            // text - keywords - csv
+                            if($prefix=='keywords_'){
+                                $item = '<li class="super-item" sfevents="' . esc_attr('{"click":"keywords.add"}') . '" data-value="' . esc_attr($value) . '" data-search-value="' . esc_attr($title) . '"' . SUPER_Common::get_tags_attributes($value) . '>';
+                                $item .= '<span class="super-wp-tag"' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</span>'; 
+                                $item .= '</li>';
+                                $items[] = $item;
+                            }else{
+                                $items[] = '<li class="super-item" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
+                            }
+                        }    
+                    }
+                    if($tag=='dropdown') {
+                        // Get advanced tags value
+                        $real_value = explode(';', $value)[0];
+                        $class = '';
+                        if(in_array( $real_value, $selected_values, true ) ) {
+                            $class .= ' super-active';
+                            $placeholder[] = $title;
+                        }
+                        $items[] = '<li class="super-item' . (!empty($class) ? ' ' . $class : '' ) . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
+                    }
+                    if($tag=='checkbox') {
+                        $items[] = '<label class="super-item' . ( !in_array($value, $selected_values, true ) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input' . ( !in_array( $value, $selected_items, true ) ? '' : ' checked="checked"') . ' type="checkbox" value="' . esc_attr( $value ) . '' . SUPER_Common::get_tags_attributes($value) . '" /><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></label>';
+                    }
+                    if($tag=='radio') {
+                        $items[] = '<label class="super-item' . ( ($atts['value']!=$value) ? '' : 'super-active') . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"><span class="super-before"><span class="super-after"></span></span><input type="radio" value="' . esc_attr( $value ) . '"' . SUPER_Common::get_tags_attributes($value) . ' /><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></label>';
+                    }
+                    $items_values[] = $value;
+                }
+            }
+        }
         
         // Set correct placeholder for dropdowns
         if($tag=='dropdown'){
@@ -5224,6 +5311,7 @@ class SUPER_Shortcodes {
         $values['post_meta'] = esc_html__( 'Current Page or Post meta data', 'super-forms' ); // @since 4.0.0 - retrieve current author data
         $values['post_terms'] = esc_html__( 'Current Page or Post terms (based on specified taxonomy slug)', 'super-forms' ); // @since 4.0.0 - retrieve current author data
         $values['db_table'] = esc_html__( 'Specific database table', 'super-forms' ); // @since 4.4.1 - retrieve from a custom database table
+        $values['google_sheet'] = esc_html__( 'Google sheets', 'super-forms' ); // @since 6.3.8 - retrieve from google sheets
         $array['name'] = esc_html__( 'Retrieve method', 'super-forms' );
         $array['desc'] = esc_html__( 'Select a method for retrieving items', 'super-forms' );
         $array['type'] = 'select';
@@ -5307,6 +5395,43 @@ class SUPER_Shortcodes {
             'filter'=>true,
             'parent'=>$parent,
             'filter_value'=>'db_table'
+        );
+    }
+    public static function sf_retrieve_method_google_sheet($value, $parent){
+        return array(
+            'required' => true,
+            'name' => esc_html__( 'Google sheet ID', 'super-forms' ), 
+            'label' => esc_html__( 'The ID can be found in the URL', 'super-forms' ), 
+            'docs' => array(array('title'=>'How to setup Google Sheets?', 'url'=>'/features/advanced/wordpress-form-with-google-sheets-dropdown')),
+            'placeholder' => 'e.g. 1FOeRexcxJiPcMAWVGW8xnQ1v6pCTxbAc_KFVoFbpnkM',
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'google_sheet'
+        );
+    }
+    public static function sf_retrieve_method_google_sheet_range($value, $parent){
+        return array(
+            'required' => true,
+            'name' => esc_html__( 'Google sheet range', 'super-forms' ), 
+            'label' => esc_html__( 'Defaults to `Sheet1` which returns all rows from sheet 1, use Sheet1!A1:B10 to return the first 10 rows', 'super-forms' ), 
+            'placeholder' => 'e.g. Sheet1!A1:B10',
+            'default'=> ( !isset( $value ) ? 'Sheet1' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'google_sheet'
+        );
+    }
+    public static function sf_retrieve_method_google_sheet_credentials($value, $parent){
+        return array(
+            'required' => true,
+            'type' => 'textarea',
+            'name' => esc_html__( 'Google API credentials.json', 'super-forms' ), 
+            'label' => esc_html__( 'Paste your credentials.json content here', 'super-forms' ), 
+            'default'=> ( !isset( $value ) ? '' : $value ),
+            'filter'=>true,
+            'parent'=>$parent,
+            'filter_value'=>'google_sheet'
         );
     }
     public static function sf_retrieve_method_post_terms_label($value, $parent){
