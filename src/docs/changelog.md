@@ -9,8 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## May 09, 2023 - Version 6.3.717
+## May 18, 2023 - Version 6.3.720
 
+- **Added:** Option to connect Dropdown, Autosuggest, Keyword elements directly with Google Sheets (documentation: [form with google sheets dropdown](https://docs.super-forms.com/features/advanced/wordpress-form-with-google-sheets-dropdown))
+- **Added:** Contact entry export now has an option to export the connected WooCommerce order ID (if any)
 - **Added:** New option for `PDF Generator` to define image quality inside generated PDF file
 - **Added:** New option for `PDF Generator` to generate native PDF elements
 - **Added:** New option for `PDF Generator` to enable smart page breaks for elements (put the element on the next page automatically when possible)
@@ -42,6 +44,7 @@ endforeach;
 - **Fix:** Issue when placing the same form on the same page multiple times, causing the submitted values for Calculator element to be incorrect
 - **Fix:** Toggle element render issue when placing the same form multiple times on the same page
 - **Fix:** Excluding Signature `string attachment` from Admin/Confirmation E-mail
+- **Fix:** Issue when dragging elements inside column that are inside an Accordion/TAB element
 
 ## Dec 21, 2022 - Version 6.3.679
 
@@ -347,6 +350,7 @@ endforeach;
 
 - **Added:** Option to prevent saving contact entry if a contact entry with the same title already exists, more info here:
   - [Prevent/disallow duplicate contact entry titles](https://webrehab.zendesk.com/hc/en-gb/articles/360017147758)
+
 - **Added:** `MailChimp Add-on` option to unsubscribe users by setting `Send the Mailchimp confirmation email` to `No` and setting `Subscriber status after submitting the form` to `Unsubscribed`
 - **Improved:** Form loading speed when using many HTML elements that contain many {tags}. Super Forms now remembers tag values and will not re-process these if they haven't changed since. This speeds up the loading speed significantly for forms that are using many HTML elements with many {tags}
 - **Fix:** When `Enable form POST method` is enabled in combination with `Enable custom parameter string for POST method` do not store `Thank you message` into a session, otherwise it would be displayed twice when user navigates to a different page.

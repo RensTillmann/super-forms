@@ -356,8 +356,33 @@ function SUPERreCaptcha(){
             success: function(result){
                 result = JSON.parse(result);
                 if(result.error===true){
-                    // Display error message
-                    SUPER.form_submission_finished(args, result);
+                    // If session expired, retry
+                    if(result.type==='session_expired'){
+                        // Generate new nonce
+                        $.ajax({
+                            url: super_common_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_create_nonce'
+                            },
+                            success: function (nonce) {
+                                // Update new nonce
+                                args.sf_nonce = nonce.trim();
+                                $('input[name="sf_nonce"]').val(nonce.trim());
+                            },
+                            complete: function(){
+                                SUPER.upload_files(args, callback);
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                // eslint-disable-next-line no-console
+                                console.log(xhr, ajaxOptions, thrownError);
+                                alert('Could not generate nonce');
+                            }
+                        });
+                    }else{
+                        // Display error message
+                        SUPER.form_submission_finished(args, result);
+                    }
                 }else{
                     var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field,
                         file, 
@@ -798,9 +823,10 @@ function SUPERreCaptcha(){
         }
         return value;
     };
-    SUPER.has_hidden_parent = function(changedField, includeMultiParts){
+    SUPER.has_hidden_parent = function(changedField, includeMultiParts, includeInvisibleColumns){
+        if(typeof includeInvisibleColumns === 'undefined') includeInvisibleColumns = true;
         if(changedField[0]) changedField = changedField[0];
-        if(changedField.parentNode.closest('.super-invisible')) return true;
+        if(changedField.parentNode.closest('.super-invisible') && includeInvisibleColumns) return true;
         var p, parent;
         parent = changedField.closest('.super-shortcode');
         if( parent && (parent.style.display=='none') && (!parent.classList.contains('super-hidden')) ) {
@@ -2859,7 +2885,7 @@ function SUPERreCaptcha(){
             if($element){
                 if($element[0]) $element = $element[0];
                 // Check if parent column or element is hidden (conditionally hidden)
-                if( SUPER.has_hidden_parent($element) ) {
+                if( SUPER.has_hidden_parent($element, false, false) ) {
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
                     args.value = args.value.replace('{'+$old_name+'}', $default_value);
@@ -9047,7 +9073,7 @@ function SUPERreCaptcha(){
 
     SUPER.recheckCanvasImages = function(args, callback){
         var node = args.pdfPageContainer.querySelector('.super-int-phone_selected-flag .super-int-phone_flag:not(.super-canvas-initialized)');
-        if(!node){
+        if(!node || node.closest('[data-pdfoption="exclude"]') || node.closest('[data-html2cvanas-ignore="true"]')){
             callback();
         }else{
             node.classList.add('super-canvas-initialized');
@@ -9890,27 +9916,39 @@ function SUPERreCaptcha(){
     SUPER.pdfWrapTextNodesRender = function(node){
         var i, nodes = node.querySelectorAll('.super-pdf-text');
         for(i=0; i<nodes.length; i++){
-            var words = nodes[i].textContent.split(' ');
+            if(nodes[i].closest('xmp')){
+                var words = nodes[i].getInnerHTML().split(' ');
+            }else{
+                var words = nodes[i].textContent.split(' ');
+            }
             var html = '';
             for(var x=0; x<words.length; x++){
                 if(words[x]===''){
                     html += ' ';
                     continue;
                 }
+                var fontSize = getComputedStyle(nodes[i]).fontSize;
                 var parts = words[x].split('-');
                 if(parts.length>1 && words[x]!=='-'){
                     for(var y=0; y<parts.length; y++){
-                        html += '<span class="super-pdf-text-node">'+(parts[y])+'</span>';
+                        html += '<span class="super-pdf-text-node" style="font-size:'+fontSize+';">'+(parts[y])+'</span>';
                         if((y+1)<parts.length) {
-                            html += '<span class="super-pdf-text-node">-</span>';
+                            html += '<span class="super-pdf-text-node" style="font-size:'+fontSize+';">-</span>';
                         }
                     }
                     continue;
                 }
-                html += '<span class="super-pdf-text-node">'+words[x];
-                if(words.length>=(x+1)) html += ' ';
+                html += '<span class="super-pdf-text-node" style="font-size:'+fontSize+';">'+words[x];
+                if(words.length>=(x+1)) {
+                    //debugger;
+                }
+                if(words.length>(x+1)) {
+                    //debugger;
+                    html += ' ';
+                }
                 html += '</span>';
             }
+
             nodes[i].innerHTML = html;
         }
     };
@@ -10123,6 +10161,7 @@ function SUPERreCaptcha(){
 
     // Check if current element is visible on current page
     SUPER.isVisibleOnCurrentPage = function(args, el){
+        if(el.classList.contains('super-invisible') || $(el).parents('.super-invisible:eq(0)').length!==0) return false;
         if(el.classList.contains('super-pdf-tmp-replaced') || $(el).parents('.super-pdf-tmp-replaced:eq(0)').length!==0) return false;
         if($(el).parents('.super-hide-from-current-page:eq(0)').length!==0) return false;
         if($(el).parents('.super-hide-from-current-page:eq(0)').length) return false;
@@ -10195,7 +10234,7 @@ function SUPERreCaptcha(){
         table
         `,
         i, el, node, inodes, nodes = Array.prototype.slice.call(args.pdfHeader.querySelectorAll(selectors)).concat(Array.prototype.slice.call(args.pdfPageContainer.querySelectorAll(selectors))).concat(Array.prototype.slice.call(args.pdfFooter.querySelectorAll(selectors))),
-        x, y, z, cells, bgColor, color, after, before, pos, tmpPosTop, borderWidth, paddingRight, paddingLeft, paddingTop, value = '';
+        x, y, z, cells, bgColor, color, after, before, width, margin, diff, pos, tmpPosTop, borderWidth, paddingRight, paddingLeft, paddingTop, value = '';
         //.super-slider
         //.super-calculator-currency-wrapper, 
         //.super-calculator-label, 
@@ -10220,6 +10259,7 @@ function SUPERreCaptcha(){
 
             // Markers
             if(el.classList.contains('super-li-marker')){
+                if(el.parentNode.closest('.super-dropdown-list')) continue;
                 // Skip or draw a bullet, circle or square
                 if(el.parentNode.parentNode.tagName==='UL'){
                     pos = SUPER.pdf_get_native_el_position(el, args);
@@ -10455,7 +10495,7 @@ function SUPERreCaptcha(){
                     color = getComputedStyle(inodes[x],':after').color;
                     SUPER.pdf_rgba2hex(args, color, ['fillColor']);
                     var radius = pos.h/3;
-                    var margin = (pos.h-radius)/4;
+                    margin = (pos.h-radius)/4;
                     args._pdf.circle(pos.l+pos.w-radius-margin, pos.t+radius+margin, radius, 'F');
                     SUPER.pdf_rgba2hex(args, bgColor, ['drawColor']);
                     args._pdf.setLineWidth(1*args.convertFromPixel);
@@ -10468,6 +10508,23 @@ function SUPERreCaptcha(){
                 }
                 continue;
             }
+
+            // First render adaptive placeholders to avoid conflicts
+            if(el.closest('.super-adaptive-placeholder')){
+                if(el.closest('.super-auto-suggest') || el.closest('.super-keyword-tags')){
+                    // Skip it
+                    continue;
+                }
+                bgColor = getComputedStyle(el).backgroundImage;
+                if(bgColor!=='none'){
+                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
+                    SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
+                    pos = SUPER.pdf_get_native_el_position(el, args);
+                    args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
+                }
+                continue;
+            }
+
             // Autosuggest
             if(el.closest('.super-auto-suggest')){
                 var p = el.closest('.super-auto-suggest');
@@ -10500,32 +10557,22 @@ function SUPERreCaptcha(){
                     pos = SUPER.pdf_get_native_el_position(node, args);
                     var posLeft = pos.l;
                     var inode = el.closest('.super-auto-suggest').querySelector('.super-item.super-active > div');
+                    if(!inode){
+                        // No div exists, make sure to convert spans to div
+                        var text = el.closest('.super-auto-suggest').querySelector('.super-item.super-active').textContent;
+                        el.closest('.super-auto-suggest').querySelector('.super-item.super-active').innerHTML = '<div class="super-pdf-text-node">'+text+'</div>';
+                        inode = el.closest('.super-auto-suggest').querySelector('.super-item.super-active > div');
+                    }
                     ipos = SUPER.pdf_get_native_el_position(inode, args);
-                    var diff = Math.abs(posLeft - ipos.l);
-                    var margin = diff * 0.2;
-                    var width = diff * 0.6;
+                    diff = Math.abs(posLeft - ipos.l);
+                    margin = diff * 0.2;
+                    width = diff * 0.6;
                     bgColor = getComputedStyle(node,':after').backgroundColor;
                     SUPER.pdf_rgba2hex(args, bgColor, ['drawColor', 'fillColor']);
                     args._pdf.rect(pos.l+margin, pos.t+margin, width, width, 'FD');
                     color = getComputedStyle(node,':after').color;
                     SUPER.pdf_rgba2hex(args, color, ['textColor']);
                     args._pdf.text('x', pos.l+margin+(width/2), pos.t+margin+(width/2), {align: 'center', lineHeightFactor: args.lineHeight, baseline: 'middle', renderingMode: args.renderingMode});
-                }
-                continue;
-            }
-
-            // First render adaptive placeholders to avoid conflicts
-            if(el.closest('.super-adaptive-placeholder')){
-                if(el.closest('.super-auto-suggest') || el.closest('.super-keyword-tags')){
-                    // Skip it
-                    continue;
-                }
-                bgColor = getComputedStyle(el).backgroundImage;
-                if(bgColor!=='none'){
-                    color = bgColor.split('(')[1]+'('+bgColor.split('(')[2].split(')')[0]+')'; //'linear-gradient(rgb(255, 255, 255) 25%, rgb(255, 255, 255) 100%)'
-                    SUPER.pdf_rgba2hex(args, color, ['drawColor','fillColor']);
-                    pos = SUPER.pdf_get_native_el_position(el, args);
-                    args._pdf.rect(pos.l, pos.t+(pos.h/4), pos.w, pos.h, 'FD');
                 }
                 continue;
             }
@@ -11084,11 +11131,31 @@ function SUPERreCaptcha(){
             success: function(result){
                 result = JSON.parse(result);
                 if(result.error===true){
-                    debugger;
                     // If session expired, retry
                     if(result.type==='session_expired'){
-                        debugger;
-                        SUPER.save_data(args);
+                        // Generate new nonce
+                        $.ajax({
+                            url: super_common_i18n.ajaxurl,
+                            type: 'post',
+                            data: {
+                                action: 'super_create_nonce'
+                            },
+                            success: function (nonce) {
+                                // Update new nonce
+                                args.sf_nonce = nonce.trim();
+                                $('input[name="sf_nonce"]').val(nonce.trim());
+                            },
+                            complete: function(){
+                                SUPER.save_data(args);
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                // eslint-disable-next-line no-console
+                                console.log(xhr, ajaxOptions, thrownError);
+                                alert('Could not generate nonce');
+                            }
+                        });
+
+
                     }else{
                         // Display error message
                         SUPER.form_submission_finished(args, result);
