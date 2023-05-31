@@ -2078,10 +2078,6 @@ function SUPERreCaptcha(){
                                         Object.keys($show_wrappers).forEach(function(key) {
                                             $show_wrappers[key].classList.remove('super-conditional-hidden');
                                             $show_wrappers[key].classList.add('super-conditional-visible');
-                                            // Make sure signatures resizes/refreshes after becoming visible
-                                            if(typeof SUPER.refresh_signatures === 'function'){
-                                                SUPER.refresh_signatures('', $show_wrappers[key]);
-                                            }
                                             // Resize toggle elements
                                             SUPER.resize_toggle_element($show_wrappers[key]);
                                             // Reposition slider dragger
@@ -4587,11 +4583,6 @@ function SUPERreCaptcha(){
                         $data[$this.attr('name')].value = intPhone.getNumber();
                     }
 
-                    if($super_field.hasClass('super-signature')){
-                        $data[$this.attr('name')].signatureLines = $super_field.find('.super-signature-lines').val();
-                        //$data[$this.attr('name')].value = $super_field.find('.super-signature-canvas').signature('toJSON');
-                    }
-                    
                     if($super_field.hasClass('super-date')){
                         $data[$this.attr('name')].timestamp = $this[0].dataset.mathDiff;
                     }
@@ -5945,15 +5936,6 @@ function SUPERreCaptcha(){
                     }
                 }
             }
-            // ... but for signatures (if used)
-            nodes = $this.querySelectorAll('.super-signature');
-            for(i=0; i<nodes.length; i++){
-                value = nodes[i].querySelector('.super-signature-lines').value;
-                if(value!==''){
-                    //value = value.replace('\\"lines\\"', '"lines"');
-                    //$(nodes[i]).find('.super-signature-canvas').signature('enable').signature('draw', value);
-                }
-            }
             // .. but for toggle field
             nodes = $this.querySelectorAll('.super-toggle .super-shortcode-field');
             for(i=0; i<nodes.length; i++){
@@ -7027,32 +7009,28 @@ function SUPERreCaptcha(){
 
                 // Signature element
                 if(field.classList.contains('super-signature')){
-                    if(typeof $.fn.signature === "function") {
-                        if(data[i].signatureLines && data[i].signatureLines!==''){
-                            signatureDataUrl = data[i].signatureLines.replace('\\"lines\\"', '"lines"');
-                            // tmp delete field.querySelector('.super-shortcode-field').dataset.disallowEdit;
-                        }else{
-                            signatureDataUrl = data[i].value;
-                            // Remove clear button
-                            if(signatureDataUrl!==''){
-                                field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
-                                var canvasWrapper = field.querySelector('.super-signature-canvas');
-                                $(canvasWrapper).signature('disable');
-                                if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
-                                    canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
-                                }
+                    if(typeof $.fn.SuperSignaturePad === "function") {
+                        var canvasWrapper = field.querySelector('.super-signature-canvas');
+                        var canvas = canvasWrapper.querySelector('canvas');
+                        var width = canvasWrapper.getBoundingClientRect().width;
+                        var height = canvasWrapper.getBoundingClientRect().height;
+                        canvas.width = width;
+                        canvas.height = height;
+                        var formUid = field.closest('.super-form').dataset.sfuid;
+                        var fieldName = field.querySelector('.super-shortcode-field').name;
+                        if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
+                        if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
+                        var signaturePad = SUPER.signatures[formUid][fieldName]
+                        signaturePad.fromDataURL(data[i].value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
+                        // Remove clear button
+                        if(data[i].value!==''){
+                            field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                            if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+                                canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                                signaturePad.off();
                             }
-                        }
-                        if(signatureDataUrl!==''){
-                            var canvasWrapper = field.querySelector('.super-signature-canvas');
-                            $(canvasWrapper).signature('enable');
                             field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
-                            $(field.querySelector('.super-signature-canvas')).signature('draw', signatureDataUrl)
-                            field.classList.add('super-filled');
-                            if(data.contact_entry_id){
-                                field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
-                                $(canvasWrapper).signature('disable');
-                            }
+                            //if(data.contact_entry_id){}
                         }
                     }
                     return true;
@@ -7729,7 +7707,7 @@ function SUPERreCaptcha(){
             }else{
                 // Check if a field with this name exists
                 var fields = SUPER.fieldsByName(document, currentStep);
-                if(fields){
+                if(fields.length){
                     // If so, then try to focus it
                     form = fields[0].closest('.super-form');
                     var formId = parseInt(form.id.replace('super-form-', ''), 10);
@@ -8262,7 +8240,8 @@ function SUPERreCaptcha(){
             $filtervalues = $filtervalue.toString().split(',');
             $string_value = $value.toString();
             $.each($filtervalues, function( index, value ) {
-                if( value==$string_value ) {
+                if($string_value.indexOf(value)!==-1){ 
+                    //}.indexOf()==$string_value ) {
                     $match_found = true;
                 }
             });
@@ -10212,6 +10191,7 @@ function SUPERreCaptcha(){
         .super-html-content img,
         .super-column,
         .super-signature,
+        .super-image,
         .super-accordion-header, .super-accordion-content, .super-tabs-content,
         .super-keyword-tags,
         .super-text .super-shortcode-field,
@@ -10283,6 +10263,18 @@ function SUPERreCaptcha(){
                     args._pdf.setLineWidth(0.7*args.convertFromPixel);
                     radius = (2/args.scale)*args.convertFromPixel;
                     args._pdf.circle(pos.l+(pos.w/2), pos.t+(pos.h/1.2), radius, 'FD');
+                }
+                continue;
+            }
+            // Image element
+            if(el.classList.contains('super-image')){
+                var image = el.querySelector('.super-image-inner');
+                if(image){
+                    var src = image.querySelector('img').src;
+                    var type = el.dataset.type;
+                    pos = SUPER.pdf_get_native_el_position(image, args);
+                    var filename = src.split('/').pop();
+                    args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, filename, args.pdfSettings.imageQuality, 0);
                 }
                 continue;
             }

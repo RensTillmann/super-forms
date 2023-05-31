@@ -439,7 +439,7 @@ class SUPER_Field_Types {
             $return .= '<div class="super-checkbox">';
             foreach( $field['values'] as $k => $v ) {
                 $return .= '<label>';
-                $return .= '<input'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . (isset($field['v']) && $field['v']==$k ? 'checked="checked"' : '') . '>';
+                $return .= '<input'.(isset($field['lockToGlobalSetting']) && $field['lockToGlobalSetting']===true ? ' disabled' : '').' type="checkbox" value="' . $k . '" ' . (isset($field['v']) && ($field['v']==$k || strpos($field['v'],$k)!==false) ? 'checked="checked"' : '') . '>';
                 $return .= $v;
                 if( isset( $field['desc'] ) ) $return .= '<i class="info super-tooltip" title="' . esc_attr($field['desc']) . '"></i>';
                 $return .= '</label>';

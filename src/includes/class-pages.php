@@ -1036,7 +1036,7 @@ class SUPER_Pages {
                                                         }
                                                     }else if( ($v['type']=='varchar') || ($v['type']=='var') || ($v['type']=='field') || ($v['type']=='google_address') ) {
                                                         if( !isset($v['value']) ) $v['value'] = '';
-                                                        if ( strpos( $v['value'], 'data:image/png;base64,') !== false ) {
+                                                        if ( ( strpos( $v['value'], 'data:image/png;base64,') !== false ) || ( strpos( $v['value'], 'data:image/jpeg;base64,') !== false ) ) {
                                                             echo '<tr class="super-signature"><th align="right">' . esc_html( $v['label'] );
                                                             echo '</th><td><span class="super-contact-entry-data-value">';
                                                             // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 

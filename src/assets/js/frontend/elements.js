@@ -2106,6 +2106,7 @@
         });
         
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
+            debugger;
             var i, x, nodes, el, parent, column, form, firstColumn, lastColumn,
                 found, limit, unique_field_names = {}, field_names = {}, field_labels = {}, counter = 0,
                 field, clone, added_fields_with_suffix = {}, foundElements = [], html_fields, suffix, name, 
@@ -2144,18 +2145,26 @@
 			counter = column.querySelectorAll(':scope > .super-duplicate-column-fields, :scope > .super-column-custom-padding > .super-duplicate-column-fields').length;
             clone = firstColumn.cloneNode(true);
             lastColumn = duplicateColumns[(found-1)];
+            debugger;
             lastColumn.parentNode.insertBefore(clone, lastColumn.nextElementSibling);
             // @since 3.3.0 - hook after appending new column
+            debugger;
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
             // Now reset field values to default
+            debugger;
             SUPER.init_clear_form({form: form, clone: clone});
             
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
             // Loop over all fields that are inside dynamic column and rename them accordingly
+            debugger;
             SUPER.append_dynamic_column_depth({form: form, clone: clone});
+            debugger;
             SUPER.init_common_fields();
+            debugger;
             SUPER.init_replace_html_tags({el: undefined, form: clone});
+            debugger;
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);
+            debugger;
             SUPER.after_field_change_blur_hook({form: clone, el: undefined});
         });
 

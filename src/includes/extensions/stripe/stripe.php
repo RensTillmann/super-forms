@@ -1341,6 +1341,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $p = SUPER_Common::get_tag_parts($v['quantity'], $i);
                 $op = $p;
                 $v['quantity'] = SUPER_Common::email_tags( $v['quantity'], $data, $settings );
+                $p = SUPER_Common::get_tag_parts($v['price'], $i);
                 $v['price'] = SUPER_Common::email_tags( $v['price'], $data, $settings );
                 if($v['type'] === 'price'){
                     if(trim($v['price'])===''){
@@ -1353,6 +1354,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // Set correct unit amount
                     // Prices require an `unit_amount` or `unit_amount_decimal` parameter to be set.
                     $p = SUPER_Common::get_tag_parts($v['price_data']['unit_amount_decimal'], $i);
+                    //'unit_amount_decimal' => '10.95', // amount representing how much to charge
                     $v['price_data']['unit_amount_decimal'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
                     $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
                     $v['price_data']['tax_behavior'] = $v['price_data']['tax_behavior'];
@@ -1381,7 +1383,7 @@ if(!class_exists('SUPER_Stripe')) :
                     $p = SUPER_Common::get_tag_parts($ov['quantity'], $i);
                     $v['quantity'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
                     $p = SUPER_Common::get_tag_parts($ov['price'], $i);
-                    $v['quantity'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
+                    $v['price'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
                     if($ov['type'] === 'price'){
                         if(trim($ov['price'])===''){
                             SUPER_Common::output_message( array( 
@@ -1476,7 +1478,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Before we continue, let's check if the Webhook is configured properly
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['stripe_mode']) ) {
-                $global_settings['stripe_mode'] = 'test';
+                $global_settings['stripe_mode'] = 'sandbox';
             }else{
                 $global_settings['stripe_mode'] = 'live';
             }
@@ -2283,7 +2285,7 @@ if(!class_exists('SUPER_Stripe')) :
             );
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['stripe_mode']) ) {
-                $global_settings['stripe_mode'] = 'test';
+                $global_settings['stripe_mode'] = 'sandbox';
             }else{
                 $global_settings['stripe_mode'] = 'live';
             }

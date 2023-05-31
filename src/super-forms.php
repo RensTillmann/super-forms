@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.720
+ * Version:           6.3.724
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.720';
+        public $version = '6.3.724';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -707,10 +707,15 @@ if(!class_exists('SUPER_Forms')) :
                     // Success URL
                     // Set your secret key. Remember to switch to your live secret key in production.
                     // See your keys here: https://dashboard.stripe.com/apikeys
-                    $stripe_mode = SUPER_Stripe::setAppInfo()['stripe_mode'];
+                    SUPER_Stripe::setAppInfo();
                     // You can find your endpoint's secret in your webhook settings
                     $global_settings = SUPER_Common::get_global_settings();
-                    $endpoint_secret = $global_settings['stripe_' . $stripe_mode . '_webhook_secret']; // e.g: whsec_XXXXXXX
+                    if(!empty($global_settings['stripe_mode']) ) {
+                        $global_settings['stripe_mode'] = 'sandbox';
+                    }else{
+                        $global_settings['stripe_mode'] = 'live';
+                    }
+                    $endpoint_secret = $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']; // e.g: whsec_XXXXXXX
                     $payload = @file_get_contents('php://input');
                     $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
                     $event = null;
@@ -1157,6 +1162,7 @@ if(!class_exists('SUPER_Forms')) :
             $regex = '/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             $fileLoopRows = array();
+            $replaceTags = array();
             foreach($matches as $k => $v){
                 $original = $v[0];
                 $field_name = $v[1];
@@ -1186,6 +1192,7 @@ if(!class_exists('SUPER_Forms')) :
                                     continue;
                                 }
                                 $fileLoopRows[$field_name][$x] = str_replace( $rv[0], '{'.$field_name.';'.$rv[2].'['.($x).']}', $fileLoopRows[$field_name][$x]);
+                                $replaceTags[$rv[0]] = '{'.$field_name.';'.$rv[2].'['.($x).']}';
                             }
                         }else{
                             if($rv[2]==='counter'){
@@ -1197,11 +1204,13 @@ if(!class_exists('SUPER_Forms')) :
                                 $newName = $rv[2];
                                 if($rv[5]!=='') $newName .= ';'.$rv[5];
                                 $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
+                                $replaceTags[$rv[1].$newName.$rv[6]] = '{'.$newName.'}';
                                 continue;
                             }
                             $newName = $rv[2].'_'.$i;
                             if($rv[5]!=='') $newName .= ';'.$rv[5];
                             $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
+                            $replaceTags[$rv[1].$newName.$rv[6]] = '{'.$newName.'}';
                         }
                     }
                     if($value_n==='loop'){
@@ -1255,6 +1264,9 @@ if(!class_exists('SUPER_Forms')) :
                 $email_body = str_replace( $original, $statement, $email_body);
             }
             $email_body = SUPER_Common::filter_if_statements($email_body);
+            foreach($replaceTags as $k => $v){
+                $email_body = str_replace( $k, $v, $email_body);
+            }
             return $email_body;
         }
 
