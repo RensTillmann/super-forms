@@ -1502,6 +1502,8 @@
 .super-element-settings .super-field-input .super-checkbox, .super-form-settings .super-field-input .super-checkbox {
     font-size: 12px;
     float: left;
+    display: flex;
+    flex-direction: column;
 }
 
 .super-element-settings .super-field-input .super-checkbox *, .super-form-settings .super-field-input .super-checkbox * {

@@ -211,9 +211,6 @@ if( !class_exists('SUPER_Signature') ) :
             $functions['after_field_change_blur_hook'][] = array(
                 'name' => 'refresh_signature'
             );
-            $functions['after_responsive_form_hook'][] = array(
-                'name' => 'refresh_signatures'
-            );
             return $functions;
         }
 
@@ -226,8 +223,7 @@ if( !class_exists('SUPER_Signature') ) :
         public static function load_scripts($atts) {
             if($atts['ajax']) {
                 wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
-                wp_enqueue_script( 'super-jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
-                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common', 'super-jquery-signature' ), SUPER_Signature()->version );
+                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_Signature()->version );
             }
         }
 
@@ -278,19 +274,9 @@ if( !class_exists('SUPER_Signature') ) :
         public static function add_scripts( $array ) {
             $assets_path    = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . '/assets/';
             $frontend_path  = $assets_path . 'js/frontend/';
-            $array['super-jquery-signature'] = array(
-                'src'     => $frontend_path . 'jquery.signature.js',
-                'deps'    => array( 'jquery', 'jquery-ui-mouse' ),
-                'version' => SUPER_Signature()->version,
-                'footer'  => false,
-                'screen'  => array( 
-                    'super-forms_page_super_create_form'
-                ),
-                'method' => 'enqueue'
-            );
             $array['super-signature'] = array(
                 'src'     => $frontend_path . 'signature.js',
-                'deps'    => array( 'super-jquery-signature' ),
+                'deps'    => array( 'super-common' ),
                 'version' => SUPER_Signature()->version,
                 'footer'  => false,
                 'screen'  => array( 
@@ -346,8 +332,7 @@ if( !class_exists('SUPER_Signature') ) :
             }else{
                 wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
             }
-            wp_enqueue_script( 'super-jquery-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/jquery.signature.js', array( 'jquery', 'jquery-touch-punch', 'jquery-ui-mouse' ), SUPER_Signature()->version );
-			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-jquery-signature' ), SUPER_Signature()->version );
+			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_Signature()->version );
 
             $result .= SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );
@@ -363,7 +348,7 @@ if( !class_exists('SUPER_Signature') ) :
             $styles .= 'height:' . $atts['height'] . 'px;';
 	        $styles .= 'background-image:url(\'' . esc_url($url) . '\');';
 	        $styles .= 'background-size:' . $atts['bg_size'] . 'px;';
-	        $result .= '<div class="super-signature-canvas" style="' . $styles . '"></div>';
+	        $result .= '<div class="super-signature-canvas" style="' . $styles . '"><canvas></canvas></div>';
             $result .= '<span class="super-signature-clear"></span>';
 	        $result .= '<textarea style="display:none;" class="super-shortcode-field"';
 	        $result .= ' name="' . esc_attr($atts['name']) . '"';
@@ -380,13 +365,6 @@ if( !class_exists('SUPER_Signature') ) :
                 $result .= ' data-disallowEdit="' . esc_attr($atts['disallowEdit']) . '"';
             }
             $result .= ' />' . $atts['value'] . '</textarea>';
-            $result .= '<textarea style="display:none;" class="super-signature-lines">';
-            if(isset($entry_data[$atts['name']])){
-                if(!empty($entry_data[$atts['name']]['signatureLines'])){
-                    $result .= wp_unslash($entry_data[$atts['name']]['signatureLines']);
-                }
-            }
-            $result .= '</textarea>';
 	        $result .= '</div>';
 	        $result .= SUPER_Shortcodes::loop_conditions( $atts, $tag, $settings );
 	        $result .= '</div>';
@@ -415,6 +393,9 @@ if( !class_exists('SUPER_Signature') ) :
                         'data' => array(
                             'name' => esc_html__( 'signature', 'super-forms' ),
                             'email' => esc_html__( 'Signature:', 'super-forms' ),
+                            'validation' => 'empty',
+                            'height' => 150,
+                            'wrapper_width' => 450,
                             'icon' => 'signature',
                         )
                     )
@@ -477,6 +458,7 @@ if( !class_exists('SUPER_Signature') ) :
 	                        'grouped' => $grouped,
 	                        'width' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=null, $desc=null ),
 	                        'height' => SUPER_Shortcodes::width( $attributes=null, $default='', $min=0, $max=600, $steps=10, $name=esc_html__( 'Field height in pixels', 'super-forms' ), $desc=esc_html__( 'Set to 0 to use default CSS height', 'super-forms' ) ),
+                            'wrapper_width' => $wrapper_width,
 	                        'error_position' => $error_position,
 	                    ),
 	                ),
@@ -507,7 +489,7 @@ if( !class_exists('SUPER_Signature') ) :
             $result['exclude'] = '';
             $result['row'] = '';
             if(!isset($v['value'])) return $result;
-            if (strpos($v['value'], 'data:image/png;base64,') !== false) {
+            if((strpos($v['value'], 'data:image/png;base64,') !== false) ||  (strpos($v['value'], 'data:image/jpeg;base64,') !== false)) {
                 $signature_filename = $v['name'] . ".png";
                 $signature_contact_image_data = $v['value'];
                 $signature_data = substr($signature_contact_image_data, strpos($signature_contact_image_data, ","));

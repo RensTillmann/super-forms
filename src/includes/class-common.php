@@ -21,6 +21,10 @@ if( !class_exists( 'SUPER_Common' ) ) :
 class SUPER_Common {
 
     public static function get_tag_parts($tag, $i){
+        // If not contains tags return the `name`
+        if(strpos($tag, '{')===false){
+            return array('new'=>$tag, 'name'=>$tag, 'n'=>'');
+        }
         $parts = explode(';', trim($tag, '{}'));
         $name = $parts[0];
         $n = '';
@@ -1890,7 +1894,7 @@ class SUPER_Common {
         if( empty( $value ) ) return $value;
         if( is_string( $value ) ) {
             // @since 3.9.0 - do not decode base64 images (signature)
-            if ( strpos( $value, 'data:image/png;base64,') !== false ) {
+            if((strpos($value, 'data:image/png;base64,')!==false) || (strpos($value, 'data:image/jpeg;base64,')!==false)) {
                 return $value;
             }else{
                 return strip_tags( stripslashes( $value ), '<br>' );

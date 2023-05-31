@@ -2455,7 +2455,7 @@ END AS paypalSubscriptionId
                                                 if(isset($data[$column_key])){
                                                     // Check if it has a value, if so print it
                                                     if(isset($data[$column_key]['value'])){
-                                                        if ( strpos( $data[$column_key]['value'], 'data:image/png;base64,') !== false ) {
+                                                        if((strpos($data[$column_key]['value'], 'data:image/png;base64,') !== false) || (strpos($data[$column_key]['value'], 'data:image/jpeg;base64,') !== false)) {
                                                             // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
                                                             // otherwise the signature will not be displayed
                                                             $linkUrl = '';

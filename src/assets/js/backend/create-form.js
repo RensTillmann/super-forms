@@ -2313,7 +2313,7 @@
             var i, nodes = clone.querySelectorAll('.super-signature .super-signature-canvas > canvas');
             for( i=0; i < nodes.length; i++){
                 nodes[i].parentNode.closest('.super-signature').classList.remove('super-initialized');
-                nodes[i].remove();
+                //nodes[i].remove();
             }
             // Timepickers
             nodes = clone.querySelectorAll('.super-timepicker.ui-timepicker-input');

@@ -9,8 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## May 18, 2023 - Version 6.3.720
+## May 31, 2023 - Version 6.3.724
 
+- **Added:** Option to create vCards and attach them to Admin and Confirmation E-mails via `Form settings > vCard Attachment`
+- **Added:** New `Signature` drawing method for improved device compatibility (Microsoft Surface Pro)
 - **Added:** Option to connect Dropdown, Autosuggest, Keyword elements directly with Google Sheets (documentation: [form with google sheets dropdown](https://docs.super-forms.com/features/advanced/wordpress-form-with-google-sheets-dropdown))
 - **Added:** Contact entry export now has an option to export the connected WooCommerce order ID (if any)
 - **Added:** New option for `PDF Generator` to define image quality inside generated PDF file
@@ -45,6 +47,8 @@ endforeach;
 - **Fix:** Toggle element render issue when placing the same form multiple times on the same page
 - **Fix:** Excluding Signature `string attachment` from Admin/Confirmation E-mail
 - **Fix:** Issue when dragging elements inside column that are inside an Accordion/TAB element
+- **Fix:** Issue with using `foreach loop` inside E-mails not replacing the tags with field value correctly
+- **Fix:** New signature mobile canvas width not adjusting properly
 
 ## Dec 21, 2022 - Version 6.3.679
 
